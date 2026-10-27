@@ -1,6 +1,6 @@
 import { printIdentifier } from "@typespec/compiler";
-import { ExtensionKey } from "@typespec/openapi";
-import {
+import type { ExtensionKey } from "@typespec/openapi";
+import type {
   Extensions,
   OpenAPI3Parameter,
   OpenAPI3Schema,
@@ -10,10 +10,10 @@ import {
   Refable,
 } from "../../../../types.js";
 import { stringLiteral } from "../generators/common.js";
-import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
+import type { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 import type { Context } from "./context.js";
 
-const validLocations = ["header", "query", "path"];
+const validLocations = ["header", "query", "path", "cookie"];
 const extensionDecoratorName = "extension";
 
 export function getExtensions(element: Extensions): TypeSpecDecorator[] {
@@ -91,6 +91,13 @@ export function getParameterDecorators(
     decorators.push({ name: "offset", args: [] });
   }
 
+  // The `spaceDelimited`/`pipeDelimited` query parameter styles are represented in TypeSpec
+  // via the `@encode` decorator with `ArrayEncoding` rather than as part of `@query`'s options.
+  const arrayEncoding = getArrayEncodingDecorator(parameter);
+  if (arrayEncoding) {
+    decorators.push(arrayEncoding);
+  }
+
   if ("schema" in parameter && parameter.schema) {
     decorators.push(...getDecoratorsForSchema(parameter.schema, context));
   }
@@ -152,6 +159,21 @@ function getLocationDecorator(
   return decorator;
 }
 
+function getArrayEncodingDecorator(
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+): TypeSpecDecorator | undefined {
+  if (parameter.in !== "query") return undefined;
+
+  switch (parameter.style) {
+    case "spaceDelimited":
+      return { name: "encode", args: [createTSValue("ArrayEncoding.spaceDelimited")] };
+    case "pipeDelimited":
+      return { name: "encode", args: [createTSValue("ArrayEncoding.pipeDelimited")] };
+    default:
+      return undefined;
+  }
+}
+
 function createTSValueFromObjectValue(value: object): TSValue | undefined {
   if (Object.keys(value).length || Array.isArray(value)) {
     return {
@@ -180,7 +202,7 @@ function getQueryArgs(parameter: { explode: boolean; style?: string }): TSValue 
   return createTSValueFromObjectValue(queryOptions);
 }
 
-type QueryOptions = { explode?: boolean; format?: string };
+type QueryOptions = { explode?: boolean };
 
 function getNormalizedQueryOptions({
   explode,
@@ -199,18 +221,8 @@ function getNormalizedQueryOptions({
     }
   }
 
-  // Format only emits additional data if set to one of the following:
-  // ssv (spaceDelimited), pipes (pipeDelimited)
-  if (style === "spaceDelimited") {
-    queryOptions.format = "ssv";
-  } else if (style === "pipeDelimited") {
-    queryOptions.format = "pipes";
-  }
-
   // In TypeSpec, default explode is "false"
-  if (!explode && queryOptions.format) {
-    queryOptions.explode = false;
-  } else if (explode) {
+  if (explode) {
     queryOptions.explode = true;
   }
 

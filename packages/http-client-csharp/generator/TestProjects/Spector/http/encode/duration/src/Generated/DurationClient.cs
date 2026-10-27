@@ -29,5 +29,7 @@ namespace Encode.Duration
         public virtual Property GetPropertyClient() => throw null;
 
         public virtual Header GetHeaderClient() => throw null;
+
+        public virtual Lossy GetLossyClient() => throw null;
     }
 }

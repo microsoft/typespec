@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Response } from "../../src/types.js";
+import type { OpenAPI3Response } from "../../src/types.js";
 import { renderTypeSpecForOpenAPI3, validateTsp } from "./utils/tsp-for-openapi3.js";
 
 const response: OpenAPI3Response = {
@@ -987,6 +987,113 @@ model Foo {
     });
   });
 
+  describe("error response schemas", () => {
+    it("adds @error when schema is used in specific 4xx response body", async () => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        schemas: {
+          MyError: { type: "object" },
+        },
+        paths: {
+          "/": {
+            get: {
+              operationId: "myOp",
+              parameters: [],
+              responses: {
+                "200": { description: "ok" },
+                "401": {
+                  description: "unauthorized",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/MyError" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toMatchInlineSnapshot(`
+        "import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
+        namespace TestService;
+
+        @error
+        model MyError {}
+
+        @route("/") @get op myOp(): OkResponse | (UnauthorizedResponse & MyError);
+        "
+      `);
+
+      await validateTsp(tsp);
+    });
+
+    it("adds @error when schema is used in 4XX response body", async () => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        schemas: {
+          MyError: { type: "object" },
+        },
+        paths: {
+          "/": {
+            get: {
+              operationId: "myOp",
+              parameters: [],
+              responses: {
+                "200": { description: "ok" },
+                "4XX": {
+                  description: "client error",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/MyError" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toMatchInlineSnapshot(`
+        "import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
+        namespace TestService;
+
+        @error
+        model MyError {}
+
+        @route("/") @get op myOp():
+          | OkResponse
+          | {
+              @statusCode
+              @minValue(400)
+              @maxValue(499)
+              statusCode: int32;
+
+              @body body: MyError;
+            };
+        "
+      `);
+
+      await validateTsp(tsp);
+    });
+  });
+
   it("supports multiple content types and status codes", async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       paths: {
@@ -1114,7 +1221,15 @@ model Foo {
         message?: string;
       }
 
-      @route("/") @get op getFoo(): Foo;
+      @route("/") @get op getFoo(): Responses.TestResponse;
+
+      namespace Responses {
+        /** test response */
+        model TestResponse {
+          @statusCode statusCode: 200;
+          @body body: TestService.Foo;
+        }
+      }
       "
     `);
 
@@ -1185,16 +1300,17 @@ model Foo {
         message?: string;
       }
 
-      @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
-        Description = "Overwritten description",
-        Body = Foo
-      >;
+      @route("/") @get op getFoo(): Responses.TestResponse;
 
-      @route("/") @head op headFoo(): GeneratedHelpers.DefaultResponse<
-        Description = "Base description",
-        Body = Foo
-      >;
+      @route("/") @head op headFoo(): Responses.TestResponse;
 
+      namespace Responses {
+        /** Base description */
+        @error
+        model TestResponse {
+          @body body: TestService.Foo;
+        }
+      }
       namespace GeneratedHelpers {
         @doc(Description)
         @error
@@ -1277,13 +1393,20 @@ model Foo {
         message?: string;
       }
 
-      @route("/") @get op getFoo(): {
-        /** my test header */
-        @header("x-test") xTest?: string;
+      @route("/") @get op getFoo(): Responses.TestResponse;
 
-        @header("x-test2") xTest2?: string;
-        @body body: Foo;
-      };
+      namespace Responses {
+        /** test response */
+        model TestResponse {
+          @statusCode statusCode: 200;
+
+          /** my test header */
+          @header("x-test") xTest?: string;
+
+          @header("x-test2") xTest2?: string;
+          @body body: TestService.Foo;
+        }
+      }
       "
     `);
 

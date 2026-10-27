@@ -4,7 +4,6 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
-import dts from "vite-plugin-dts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -35,12 +34,13 @@ export default defineConfig({
         "react/viewers/index": "src/react/viewers/index.tsx",
         "tooling/index": "src/tooling/index.ts",
         "vite/index": "src/vite/index.ts",
+        "vite/workers": "src/vite/workers.ts",
       },
       cssFileName: "style",
       formats: ["es"],
     },
 
-    rollupOptions: {
+    rolldownOptions: {
       external: (id) => externals.some((x) => id.startsWith(x)),
     },
   },
@@ -48,9 +48,6 @@ export default defineConfig({
   optimizeDeps: {},
   plugins: [
     react({}),
-    dts({
-      logLevel: "silent", // checker reports the errors
-    }),
     checker({
       // e.g. use TypeScript check
       typescript: true,

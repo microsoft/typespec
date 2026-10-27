@@ -1,0 +1,23 @@
+{
+  "scalar": {
+    "name": "scalar model",
+    "extra": {
+      "nested": [1, true, null, "unknown"]
+    }
+  },
+  "list": [
+    {
+      "name": "list model",
+      "extra": "list unknown"
+    },
+    null
+  ],
+  "dictionary": {
+    "model": {
+      "name": "dictionary model",
+      "extra": [false, 42, { "nested": "dictionary unknown" }]
+    },
+    "empty": null
+  },
+  "extra": "outer unknown"
+}

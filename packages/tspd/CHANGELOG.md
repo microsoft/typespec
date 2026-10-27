@@ -1,5 +1,75 @@
 # Changelog - @typespec/tspd
 
+## 0.77.1
+
+### Bug Fixes
+
+- [#11813](https://github.com/microsoft/typespec/pull/11813) Document the generated auto decorator accessors, so libraries re-exporting them satisfy
+  api-extractor's `ae-undocumented` rule. `get*` and `set*` accessors carry the description of the
+  decorator they read or write; `is*` accessors get a generic one, since a decorator description
+  does not describe a boolean check.
+  
+  ```ts
+  /** Check if the `@TypeSpec.GraphQL.inputType` decorator was applied on the given target. */
+  export function isInputType(program: Program, target: Model): boolean {
+    return hasAutoDecorator(program, "TypeSpec.GraphQL.inputType", target);
+  }
+  
+  /** Mark a model as a GraphQL input type in the emitted schema. */
+  export function setInputType(program: Program, target: Model): void {
+    setAutoDecorator(program, "TypeSpec.GraphQL.inputType", target);
+  }
+  ```
+- [#11813](https://github.com/microsoft/typespec/pull/11813) Honor the library's own `tspconfig.yaml` when generating signatures and reference documentation, so
+  libraries that opt into a compiler feature (such as `auto-decorators`) no longer report errors during
+  `gen-extern-signature` and `doc`.
+- [#11561](https://github.com/microsoft/typespec/pull/11561) `gen-extern-signature` now generates signatures for sub path exports. Each export with a `typespec` condition is compiled on its own, entities are attributed to the export that first reaches their source file, and the generated files are written under a directory matching the sub path with `$decorators` imported from that same sub path.
+  
+  ```ts
+  // generated-defs/streams/MyLib.Streams.ts-test.ts
+  import { $decorators } from "my-lib/streams";
+  import type { MyLibStreamsDecorators } from "./MyLib.Streams.js";
+  
+  const _decs: MyLibStreamsDecorators = $decorators["MyLib.Streams"];
+  ```
+
+
+## 0.77.0
+
+### Features
+
+- [#11221](https://github.com/microsoft/typespec/pull/11221) `tspd doc` now generates a documentation page per linter rule (`reference/rules/<name>.md`) and per diagnostic (`reference/diagnostics/<code>.md`), sourced from the `docs` field on the rule and diagnostic definitions. A `documentation-missing` warning is reported for any linter rule or diagnostic that does not provide documentation.
+- [#11000](https://github.com/microsoft/typespec/pull/11000) `tspd gen-extern-signature` now also generates a typed setter (e.g. `setMyFlag`, `setMyLabel`) for each `auto` decorator, alongside the existing `is*`/`get*` readers.
+- [#11316](https://github.com/microsoft/typespec/pull/11316) Add a `--rules-dir` option (and `rulesDir` API option) to `tspd doc` to control where per-rule reference pages are written. Defaults to `rules` (relative to `--output-dir`); can be set to a path escaping the output dir (e.g. `../rules`) to keep rule pages outside the generated reference folder.
+
+
+## 0.76.0
+
+### Features
+
+- [#10197](https://github.com/microsoft/typespec/pull/10197) `tspd gen-extern-signature` now generates typed accessor functions for `auto` decorators (e.g., `isMyFlag`, `getMyLabel`).
+- [#11247](https://github.com/microsoft/typespec/pull/11247) `tspd gen-extern-signature` now also generates a typed setter (e.g. `setMyFlag`, `setMyLabel`) for each `auto` decorator, alongside the existing `is*`/`get*` readers.
+
+
+## 0.75.0
+
+### Features
+
+- [#10640](https://github.com/microsoft/typespec/pull/10640) Improve render of complex emitter options
+- [#10640](https://github.com/microsoft/typespec/pull/10640) Render documentation for sub exports
+
+### Bug Fixes
+
+- [#10880](https://github.com/microsoft/typespec/pull/10880) Render function type signatures with arrow syntax and avoid internal compiler imports.
+
+
+## 0.74.2
+
+### Bug Fixes
+
+- [#10501](https://github.com/microsoft/typespec/pull/10501) Fix broken (404) links to linter rule pages on auto-generated linter reference pages. The links no longer drop the website base path.
+
+
 ## 0.74.1
 
 ### Bump dependencies

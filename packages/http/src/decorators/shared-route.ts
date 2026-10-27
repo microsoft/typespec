@@ -1,14 +1,16 @@
 import type { DecoratorContext, Operation, Program } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { SharedRouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
+import type { SharedRouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys } from "../lib.js";
 
 const [getSharedRoute, setSharedRouteFor] = useStateMap(HttpStateKeys.sharedRoutes);
 
+/** Marks an operation as permitting its endpoint to be shared with other shared-route operations. */
 export function setSharedRoute(program: Program, operation: Operation) {
   setSharedRouteFor(program, operation, true);
 }
 
+/** Returns whether the operation has been marked as sharing its route; false when unmarked. */
 export function isSharedRoute(program: Program, operation: Operation): boolean {
   return getSharedRoute(program, operation) === true;
 }

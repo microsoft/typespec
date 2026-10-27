@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
+import type { ModelV3 } from "../../../generated/versioning/removed/src/index.js";
 import {
   EnumV2,
   EnumV3,
-  ModelV3,
   RemovedClient,
   Versions,
 } from "../../../generated/versioning/removed/src/index.js";

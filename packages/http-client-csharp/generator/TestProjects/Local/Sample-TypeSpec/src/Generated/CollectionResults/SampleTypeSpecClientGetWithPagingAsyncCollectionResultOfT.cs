@@ -31,7 +31,7 @@ namespace SampleTypeSpec
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
-            yield return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            yield return await GetNextResponseAsync(message).ConfigureAwait(false);
         }
 
         /// <summary> Gets the continuation token from the specified page. </summary>
@@ -52,6 +52,13 @@ namespace SampleTypeSpec
                 yield return item;
                 await Task.Yield();
             }
+        }
+
+        /// <summary> Sends the request in the pipeline message and returns the response. </summary>
+        /// <param name="message"> The pipeline message containing the request to send. </param>
+        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
+        {
+            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

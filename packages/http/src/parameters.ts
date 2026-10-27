@@ -1,14 +1,9 @@
-import {
-  createDiagnosticCollector,
-  Diagnostic,
-  ModelProperty,
-  Operation,
-  Program,
-} from "@typespec/compiler";
+import type { Diagnostic, ModelProperty, Operation, Program } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { getOperationVerb, getPathOptions, getQueryOptions } from "./decorators.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
-import {
+import type {
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
@@ -19,6 +14,12 @@ import {
 } from "./types.js";
 import { parseUriTemplate } from "./uri-template.js";
 
+/**
+ * Resolves request parameters and body using a partial URI template for implicit path/query bindings.
+ * The method comes from the optional selector, an explicit verb, or an overload base, in that order.
+ * Otherwise it is POST if POST-visible properties produce a body, and GET if they do not.
+ * Returns parameter and payload diagnostics alongside the resolved request.
+ */
 export function getOperationParameters(
   program: Program,
   operation: Operation,

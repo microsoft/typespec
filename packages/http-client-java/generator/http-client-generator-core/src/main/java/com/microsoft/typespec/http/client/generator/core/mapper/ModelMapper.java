@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -67,9 +69,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             }
 
             if (usages.contains(ImplementationDetails.Usage.JSON_MERGE_PATCH)
-                && !usages.contains(ImplementationDetails.Usage.INPUT)) {
-                // Remove the usage of JSON merge patch if the model isn't used as INPUT to the service. JSON merge
-                // patch logic is only used for INPUT.
+                && (settings.isFluent() || !usages.contains(ImplementationDetails.Usage.INPUT))) {
+                // JSON merge patch models are only supported for non-Fluent input models.
                 usages.remove(ImplementationDetails.Usage.JSON_MERGE_PATCH);
             }
 
@@ -347,24 +348,22 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
             builder.properties(properties);
             builder.propertyReferences(propertyReferences);
-            builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType));
+            builder.apiMetadata(new ApiMetadata.Builder()
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType))
+                .build());
 
             result = builder.build();
 
             if (isPolymorphic && !CoreUtils.isNullOrEmpty(derivedTypes)) {
-                // Walk the polymorphic hierarchy finding places where the parent model and child model have different
-                // polymorphic discriminators. When this case is found add the parent polymorphic discriminator as a
-                // parent
-                // polymorphic discriminator to the child model. This is necessary to ensure that the child model
-                // generates
-                // the correct serialization in multi-level polymorphic structures.
-                for (ClientModel derivedType : derivedTypes) {
+                // Preserve the fixed outer discriminator when a child starts a nested discriminator hierarchy.
+                for (ClientModel derivedType : result.getDirectPolymorphicDerivedModels()) {
                     if (!Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
                         ClientModelProperty parentDiscriminator = result.getPolymorphicDiscriminator()
                             .newBuilder()
                             .defaultValue(result.getPolymorphicDiscriminator()
                                 .getClientType()
                                 .defaultValueExpression(derivedType.getSerializedName()))
+                            .constant(true)
                             .build();
 
                         passPolymorphicDiscriminatorToChildren(parentDiscriminator, derivedType);
@@ -378,14 +377,60 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
         return result;
     }
 
+    /**
+     * Propagates a fixed discriminator from an outer hierarchy through a nested discriminator hierarchy.
+     * <p>
+     * The {@code parentDiscriminator} is the fixed outer selection, while {@code child}'s discriminator remains the
+     * active discriminator for its own descendants. For example, given an outer {@code type} discriminator, a
+     * {@code type="message"} child that introduces {@code role}, and a {@code role="assistant"} grandchild, both nested
+     * models retain the canonical {@code type="message"} value while {@code role} controls nested dispatch.
+     * <p>
+     * A child can also declare an ordinary fixed property with the same wire name as the propagated discriminator.
+     * Keeping both representations would generate duplicate fields and accessors. Such a property must match
+     * {@code parentDiscriminator}'s Java name, wire type, client type, and fixed value, and must be constant; otherwise
+     * mapping fails. A valid property is removed from {@link ClientModel#getProperties()}, leaving
+     * {@code parentDiscriminator} as the canonical entry in
+     * {@link ClientModel#getParentPolymorphicDiscriminators()}.
+     * <p>
+     * Parent models map after their children, so the canonical entry is inserted at index zero to retain
+     * outer-to-inner discriminator order. The fixed discriminator is then recursively propagated to every descendant.
+     * For current stream-style JSON, same-package hierarchies may serialize this metadata through shared
+     * {@code toJsonShared} code. When hierarchy models are in different packages, or sharing is disabled, each model
+     * serializes inherited discriminator metadata through {@code serializeParentJsonProperties}, which consumes
+     * {@link ClientModel#getParentPolymorphicDiscriminators()}.
+     *
+     * @param parentDiscriminator the fixed discriminator selected by the outer hierarchy
+     * @param child the nested-hierarchy model that receives the fixed discriminator
+     * @throws IllegalStateException if the child declares the same wire name without matching constant status, Java
+     * name, wire type, client type, and fixed value
+     */
     private static void passPolymorphicDiscriminatorToChildren(ClientModelProperty parentDiscriminator,
         ClientModel child) {
-        // Due to the execution order of ModelMapper, where children models complete mapping before the parent model,
-        // the parent polymorphic discriminator needs to be added at index 0. Reason, given an example where there are
-        // three models, where model #1 is the root parent with discriminator type, model #2 is a child of model #2 with
-        // discriminator kind, and model #3 is a child of model #3 with discriminator form. The order if this running
-        // will have model #2 add its discriminator to model #3 before model #1 runs adding its discriminator to #2 and
-        // #3. We want #3 to have the ordering of [type, kind], to represent the ordering of the parent models.
+        ListIterator<ClientModelProperty> iterator = child.getProperties().listIterator();
+        while (iterator.hasNext()) {
+            ClientModelProperty childProperty = iterator.next();
+            if (!Objects.equals(parentDiscriminator.getSerializedName(), childProperty.getSerializedName())) {
+                continue;
+            }
+
+            if (!childProperty.isConstant()
+                || !Objects.equals(parentDiscriminator.getName(), childProperty.getName())
+                || !Objects.equals(parentDiscriminator.getWireType(), childProperty.getWireType())
+                || !Objects.equals(parentDiscriminator.getClientType(), childProperty.getClientType())
+                || !Objects.equals(parentDiscriminator.getDefaultValue(), childProperty.getDefaultValue())) {
+                throw new IllegalStateException("Property '" + childProperty.getSerializedName() + "' on model '"
+                    + child.getName() + "' does not match its inherited polymorphic discriminator. Expected (name="
+                    + parentDiscriminator.getName() + ", constant=true, type=" + parentDiscriminator.getClientType()
+                    + ", value=" + String.valueOf(parentDiscriminator.getDefaultValue()) + "), but found (name="
+                    + childProperty.getName() + ", constant=" + childProperty.isConstant() + ", type="
+                    + childProperty.getClientType() + ", value=" + String.valueOf(childProperty.getDefaultValue())
+                    + ").");
+            }
+
+            iterator.remove();
+            break;
+        }
+
         child.getParentPolymorphicDiscriminators().add(0, parentDiscriminator);
 
         for (ClientModel derived : child.getDerivedModels()) {

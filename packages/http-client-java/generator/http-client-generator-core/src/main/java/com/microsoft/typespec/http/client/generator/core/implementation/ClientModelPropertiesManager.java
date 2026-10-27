@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Manages metadata about properties in a {@link ClientModel} and how they correlate with model class generation.
@@ -124,10 +125,11 @@ public final class ClientModelPropertiesManager {
             xmlRootElementNamespace = model.getXmlNamespace();
         }
 
-        Set<String> thisModelPropertySerializeNames = model.getProperties()
-            .stream()
+        Set<String> thisModelPropertySerializeNames = Stream.concat(
             // discriminator property is known to be redefined in subclass
-            .filter(property -> !property.isPolymorphicDiscriminator())
+            model.getProperties().stream().filter(property -> !property.isPolymorphicDiscriminator()),
+            // Canonicalized parent discriminators mask inherited ordinary properties with the same wire name.
+            model.getParentPolymorphicDiscriminators().stream())
             .map(ClientModelProperty::getSerializedName)
             .filter(name -> Objects.nonNull(name) && !name.isEmpty())
             .collect(Collectors.toSet());
@@ -143,7 +145,8 @@ public final class ClientModelPropertiesManager {
                 discriminatorProperty = new ClientModelPropertyWithMetadata(model, property, true);
             }
 
-            if (!property.isPolymorphicDiscriminator()) {
+            // Untagged intermediates retain inherited discriminator values without selecting subtypes.
+            if (!property.isPolymorphicDiscriminator() || !model.isPolymorphic()) {
                 if (thisModelPropertySerializeNames.contains(property.getSerializedName())) {
                     // skip the property from parent that is overwritten in this model
                     continue;
@@ -248,7 +251,7 @@ public final class ClientModelPropertiesManager {
         // a discriminator. This results in the discriminator property being serialized and deserialized twice as it
         // shows up once as a regular property and once as a discriminator property. This will remove the regular
         // property from the super properties and indicate that the discriminator came from a parent model.
-        if (discriminatorProperty != null) {
+        if (model.isPolymorphic() && discriminatorProperty != null) {
             String serializedDiscriminatorName = discriminatorProperty.getProperty().getSerializedName();
             ClientModelProperty removed;
             if ((removed = superRequiredProperties.remove(serializedDiscriminatorName)) != null) {
@@ -259,6 +262,13 @@ public final class ClientModelPropertiesManager {
                 discriminatorProperty = new ClientModelPropertyWithMetadata(model,
                     removed.newBuilder().defaultValue(discriminatorProperty.getProperty().getDefaultValue()).build(),
                     true);
+            }
+        } else if (discriminatorProperty != null) {
+            String serializedDiscriminatorName = discriminatorProperty.getProperty().getSerializedName();
+            if (superSetterProperties.containsKey(serializedDiscriminatorName)) {
+                // Keep ancestor constructor arguments, but deserialize the inherited discriminator only once.
+                superRequiredProperties.remove(serializedDiscriminatorName);
+                superReadOnlyProperties.remove(serializedDiscriminatorName);
             }
         }
 

@@ -47,6 +47,10 @@ final class ResponseTypeFactory {
             }
         }
 
+        if (isResponseHeadersAsModel(operation)) {
+            return mono(GenericType.response(bodyType));
+        }
+
         if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             final boolean useNamedResponseType = !settings.isGenericResponseTypes();
             if (useNamedResponseType) {
@@ -107,6 +111,10 @@ final class ResponseTypeFactory {
             return GenericType.response(syncReturnType);
         }
 
+        if (isResponseHeadersAsModel(operation)) {
+            return GenericType.response(syncReturnType);
+        }
+
         if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             final boolean useNamedResponseType = !settings.isGenericResponseTypes();
             if (useNamedResponseType) {
@@ -131,6 +139,10 @@ final class ResponseTypeFactory {
 
     private static boolean isLongRunningOperation(Operation operation) {
         return operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation();
+    }
+
+    private static boolean isResponseHeadersAsModel(Operation operation) {
+        return operation.getConvenienceApi() != null && operation.getConvenienceApi().isResponseHeadersAsModel();
     }
 
     private static boolean isNotNextPageOperation(Operation operation) {

@@ -1,17 +1,24 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore mpfd
+
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -21,15 +28,32 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed class ScmModelProvider : ModelProvider
+    public class ScmModelProvider : ModelProvider
     {
         private readonly InputModelType _inputModel;
+        private readonly Dictionary<PropertyProvider, FieldProvider> _nullablePropertyPresence = [];
+
+        // MRW and multipart serialization can add an empty constructor with an implicit base() call.
+        // Do not invent default arguments for a framework base when that call cannot be made safely.
+        protected override bool RequiresParameterlessBaseConstructor
+            => (_inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml | InputModelTypeUsage.MultipartFormData)) != 0;
+
         private const string JsonPatchFieldName = "_patch";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
+        private static readonly CSharpType _fileBinaryContentType = typeof(FileBinaryContent);
+#pragma warning restore SCME0004
+        private static SuppressionStatement _fileBinaryContentSuppression = new(
+            null,
+            Literal(FileBinaryContentDiagnosticId), ScmEvaluationTypeSuppressionJustification);
+        private static AttributeStatement _fileBinaryContentExpAttribute = new(
+            typeof(ExperimentalAttribute),
+            [Literal(FileBinaryContentDiagnosticId)]);
 
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
+        internal const string FileBinaryContentDiagnosticId = "SCME0004";
 
         internal const string ScmEvaluationTypeSuppressionJustification =
             "Type is for evaluation purposes only and is subject to change or removal in future updates.";
@@ -54,18 +78,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputModel = inputModel;
             IsDynamicModel = inputModel.IsDynamicModel;
-            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
+            // Resolve the hierarchy only after TypeFactory has registered this provider. Eager
+            // resolution here lets compatibility probes cache null types for recursive properties.
+            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty);
         }
 
         protected override FieldProvider[] BuildFields()
         {
-            if (JsonPatchField is null)
+            var fields = base.BuildFields().ToList();
+            HashSet<string>? fieldNames = null;
+            foreach (var property in Properties)
             {
-                return base.BuildFields();
+                if (_nullablePropertyPresence.TryGetValue(property, out var presence) && presence.EnclosingType == this)
+                {
+                    fieldNames ??= new HashSet<string>(fields.Select(f => f.Name), StringComparer.Ordinal);
+                    if (property.BackingField is { } backingField && fieldNames.Add(backingField.Name))
+                    {
+                        fields.Add(backingField);
+                    }
+                    fieldNames.Add(presence.Name);
+                    fields.Add(presence);
+                }
             }
 
-            var fields = base.BuildFields();
-            var updatedFields = new List<FieldProvider>(fields.Length + 1);
+            if (JsonPatchField is null)
+            {
+                return [.. fields];
+            }
+
+            var updatedFields = new List<FieldProvider>(fields.Count + 1);
 
             foreach (var field in fields)
             {
@@ -82,43 +123,237 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override PropertyProvider[] BuildProperties()
         {
+            PropertyProvider[] properties;
             if (JsonPatchProperty is null)
             {
-                return base.BuildProperties();
+                properties = base.BuildProperties();
             }
-
             // For dynamic models with BinaryData additional properties (Record<unknown>),
             // skip generating AdditionalProperties since JsonPatch handles dynamic properties.
             // Exception: when backcompat requires preserving AdditionalProperties from the last contract.
-            if (SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
+            else if (SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
             {
-                return [JsonPatchProperty, .. base.BuildProperties().Where(p => !p.IsAdditionalProperties)];
+                properties = [JsonPatchProperty, .. base.BuildProperties().Where(p => !p.IsAdditionalProperties)];
+            }
+            else
+            {
+                properties = [JsonPatchProperty, .. base.BuildProperties()];
             }
 
-            return [JsonPatchProperty, .. base.BuildProperties()];
+            AddNullablePropertyPresence(properties);
+            foreach (var prop in properties)
+            {
+                if (IsFileBinaryContentType(prop.Type)
+                    && !prop.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute))
+                {
+                    prop.Update(attributes: [.. prop.Attributes, new AttributeStatement(typeof(ExperimentalAttribute), [Literal(FileBinaryContentDiagnosticId)])]);
+                }
+            }
+
+            return properties;
+        }
+
+        internal static FieldProvider? GetNullablePropertyPresence(PropertyProvider property)
+        {
+            return property.EnclosingType is ScmModelProvider model &&
+                model._nullablePropertyPresence.TryGetValue(property, out var presence) ? presence : null;
+        }
+
+        private IEnumerable<ModelProvider> GetPresenceBaseModels()
+        {
+            HashSet<ModelProvider> visited = [this];
+            List<ModelProvider> ancestors = [];
+            for (var model = BaseModelProvider; model != null; model = model.BaseModelProvider)
+            {
+                if (!visited.Add(model))
+                {
+                    return [];
+                }
+                ancestors.Add(model);
+            }
+            return ancestors;
+        }
+
+        private static string GetAvailableFieldName(string preferredName, HashSet<string> reservedNames)
+        {
+            var name = preferredName;
+            for (var suffix = 1; !reservedNames.Add(name); suffix++)
+            {
+                name = $"{preferredName}{suffix}";
+            }
+            return name;
+        }
+
+        private void AddNullablePropertyPresence(PropertyProvider[] properties)
+        {
+            if ((_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json)) ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly))
+            {
+                return;
+            }
+
+            (Dictionary<PropertyProvider, FieldProvider> BackingFields, HashSet<string> ReservedNames)? fields = null;
+            foreach (var property in properties)
+            {
+                if (property.WireInfo is not { IsRequired: false, IsNullable: true, IsHttpMetadata: false } ||
+                    property.Type is { IsCollection: true, IsReadOnlyMemory: false })
+                {
+                    continue;
+                }
+
+                if (property.BaseProperty != null && property.Modifiers.HasFlag(MethodSignatureModifiers.Override))
+                {
+                    var baseProperty = GetPresenceBaseModels().SelectMany(m => m.CanonicalView.Properties)
+                        .FirstOrDefault(p => p.Name == property.BaseProperty.Name);
+                    if (baseProperty != null && GetNullablePropertyPresence(baseProperty) is { } basePresence)
+                    {
+                        _nullablePropertyPresence[property] = basePresence;
+                        property.Update(body: new MethodPropertyBody(
+                            Return(Base.Property(baseProperty.Name)),
+                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null));
+                    }
+                    continue;
+                }
+
+                fields ??= BuildNullablePropertyFields(properties);
+                AddNullablePropertyPresence(property, fields.Value.BackingFields[property], fields.Value.ReservedNames);
+            }
+        }
+
+        private (Dictionary<PropertyProvider, FieldProvider> BackingFields, HashSet<string> ReservedNames) BuildNullablePropertyFields(PropertyProvider[] properties)
+        {
+            var baseFields = base.BuildFields();
+            var baseModels = GetPresenceBaseModels();
+            var reservedNames = new HashSet<string>(properties.Select(p => p.Name));
+            reservedNames.UnionWith(baseFields.Select(f => f.Name));
+            reservedNames.UnionWith(CustomCodeView?.Fields.Select(f => f.Name) ?? []);
+            reservedNames.UnionWith(CustomCodeView?.Properties.Select(p => p.Name) ?? []);
+            reservedNames.UnionWith(baseModels.SelectMany(m => m.CanonicalView.Fields.Select(f => f.Name)));
+            reservedNames.UnionWith(baseModels.SelectMany(m => m.CanonicalView.Properties.Select(p => p.Name)));
+            reservedNames.UnionWith(baseModels.SelectMany(m => m.CustomCodeView?.Properties.Select(p => p.Name) ?? []));
+            if (JsonPatchField != null)
+            {
+                reservedNames.Add(JsonPatchField.Name);
+            }
+            var backingFields = new Dictionary<PropertyProvider, FieldProvider>();
+            foreach (var inputProperty in _inputModel.Properties)
+            {
+                // ModelProvider may already own storage shared with a narrowed derived property.
+                var sharedField = baseFields.FirstOrDefault(f =>
+                    f.Modifiers == (FieldModifiers.Private | FieldModifiers.Protected) &&
+                    f.Name == $"_{inputProperty.Name.ToVariableName()}");
+                if (sharedField != null &&
+                    ScmCodeModelGenerator.Instance.TypeFactory.CreateProperty(inputProperty, this) is { } property &&
+                    sharedField.Type.Equals(property.Type))
+                {
+                    backingFields[property] = sharedField;
+                }
+            }
+            foreach (var property in properties)
+            {
+                if (!backingFields.ContainsKey(property))
+                {
+                    backingFields[property] = new FieldProvider(FieldModifiers.Private, property.Type,
+                        GetAvailableFieldName($"_{property.Name.ToVariableName()}", reservedNames), this);
+                }
+            }
+            return (backingFields, reservedNames);
+        }
+
+        private void AddNullablePropertyPresence(PropertyProvider property, FieldProvider backingField, HashSet<string> reservedFieldNames)
+        {
+            var modifiers = FieldModifiers.Private;
+            if (_inputModel.DerivedModels.Count > 0 || _inputModel.DiscriminatedSubtypes.Count > 0)
+            {
+                modifiers |= FieldModifiers.Protected;
+            }
+            var presence = new FieldProvider(
+                modifiers, typeof(bool), GetAvailableFieldName($"_{property.Name.ToVariableName()}IsDefined", reservedFieldNames), this);
+            _nullablePropertyPresence[property] = presence;
+            property.BackingField = backingField;
+            MethodBodyStatement? setter = null;
+            if (property.Body.HasSetter)
+            {
+                setter = new MethodBodyStatement[]
+                {
+                    backingField.Assign(Value).Terminate(),
+                    presence.Assign(True).Terminate()
+                };
+            }
+            property.Update(body: new MethodPropertyBody(Return(backingField), setter));
         }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var constructors = base.BuildConstructors();
+            List<ConstructorProvider> constructors = [.. base.BuildConstructors()];
 
-            if (!ShouldUpdateFullConstructor())
+            foreach (var property in CanonicalView.Properties)
             {
-                return constructors;
+                if (property.Modifiers.HasFlag(MethodSignatureModifiers.New) &&
+                    GetNullablePropertyPresence(property)?.EnclosingType == this &&
+                    property.BackingField is { } backingField)
+                {
+                    // ModelProvider initializes redeclared properties through the base constructor,
+                    // but these properties have their own storage.
+                    MethodBodyStatement[] initializers =
+                        [.. FullConstructor.BodyStatements ?? MethodBodyStatement.Empty, backingField.Assign(property.AsParameter).Terminate()];
+                    FullConstructor.Update(bodyStatements: initializers);
+                }
             }
 
-            // Update the full constructor to include the json patch parameter
-            UpdateFullConstructorParameters();
-
-            bool hasJsonPatchParameter = FullConstructor.Signature.Parameters.Any(
-                p => p.IsIn && p.Property?.Name.Equals(JsonPatchPropertyName, StringComparison.Ordinal) == true);
-            if (!hasJsonPatchParameter)
+            if (ShouldUpdateFullConstructor())
             {
-                return constructors;
+                // Update the full constructor to include the json patch parameter
+                UpdateFullConstructorParameters();
+
+                bool hasJsonPatchParameter = FullConstructor.Signature.Parameters.Any(
+                    p => p.IsIn && p.Property?.Name.Equals(JsonPatchPropertyName, StringComparison.Ordinal) == true);
+                if (hasJsonPatchParameter)
+                {
+                    UpdateConstructorsForJsonPatch(constructors);
+                }
             }
 
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData))
+            {
+                var newConstructors = BuildMultipartFileConstructors(constructors);
+                if (newConstructors is not null)
+                {
+                    constructors = newConstructors;
+                }
+            }
+
+            ApplyFileBinaryContentExperimentalHandling(constructors);
+
+            return [.. constructors];
+        }
+
+        private static void ApplyFileBinaryContentExperimentalHandling(IEnumerable<ConstructorProvider> constructors)
+        {
+            foreach (var c in constructors)
+            {
+                if (!c.Signature.Parameters.Any(p => IsFileBinaryContentType(p.Type)))
+                {
+                    continue;
+                }
+
+                if (c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+                {
+                    if (!c.Suppressions.Contains(_fileBinaryContentSuppression))
+                    {
+                        c.Update(suppressions: [.. c.Suppressions, _fileBinaryContentSuppression]);
+                    }
+                }
+                else if (!c.Signature.Attributes.Contains(_fileBinaryContentExpAttribute))
+                {
+                    c.Signature.Update(attributes: [.. c.Signature.Attributes, _fileBinaryContentExpAttribute]);
+                }
+            }
+        }
+
+        private void UpdateConstructorsForJsonPatch(List<ConstructorProvider> constructors)
+        {
             // Update the full constructor to include the suppression and remove the SARD field assignment if it exists
-            var updatedConstructors = new List<ConstructorProvider>(constructors.Length);
             foreach (var constructor in constructors)
             {
                 if (ReferenceEquals(constructor, FullConstructor))
@@ -152,43 +387,282 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         if (JsonPatchField != null)
                         {
                             updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
-                            if (HasDynamicProperties)
-                            {
-#pragma warning disable SCME0001
-                                updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
-#pragma warning restore SCME0001
-                            }
                         }
-                        else if (HasDynamicProperties && BaseJsonPatchProperty.Value is not null)
-                        {
-                            // Derived model has dynamic properties but inherits the JsonPatch field from base
-                            // We need to call SetPropagators on the inherited patch field
-#pragma warning disable SCME0001
-                            updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
-#pragma warning restore SCME0001
-                        }
+
+                        AddSetPropagators(updatedBody);
 
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
-                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties && constructor.BodyStatements != null)
+                else if (constructor.BodyStatements != null)
                 {
-                    // Remove the additional binary data properties initialization from the init constructor
-                    var updatedBody = constructor.BodyStatements
-                        .Where(s => s is not ExpressionStatement
-                        {
-                            Expression: AssignmentExpression
+                    List<MethodBodyStatement> updatedBody;
+                    if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
+                    {
+                        // Remove the additional binary data properties initialization from the init constructor
+                        updatedBody = constructor.BodyStatements
+                            .Where(s => s is not ExpressionStatement
                             {
-                                Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
-                            }
-                        })
-                        .ToList();
+                                Expression: AssignmentExpression
+                                {
+                                    Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
+                                }
+                            })
+                            .ToList();
+                    }
+                    else
+                    {
+                        updatedBody = [.. constructor.BodyStatements];
+                    }
+
+                    if (AddSetPropagators(updatedBody))
+                    {
+                        var suppression = new SuppressionStatement(null, Literal(ScmEvaluationTypeDiagnosticId), ScmEvaluationTypeSuppressionJustification);
+                        constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
+                    }
+
                     constructor.Update(bodyStatements: updatedBody);
                 }
-                updatedConstructors.Add(constructor);
+            }
+        }
+
+        /// <summary>
+        /// Registers the patch propagators on the model's JsonPatch field so that patch operations are
+        /// propagated to nested models. This must be emitted in every applicable constructor so that
+        /// propagation behaves consistently regardless of how the model is instantiated.
+        /// </summary>
+        /// <returns><c>true</c> if a <c>SetPropagators</c> call was appended; otherwise <c>false</c>.</returns>
+        private bool AddSetPropagators(List<MethodBodyStatement> updatedBody)
+        {
+            if (!HasDynamicProperties)
+            {
+                return false;
             }
 
-            return [.. updatedConstructors];
+            if (JsonPatchField != null)
+            {
+#pragma warning disable SCME0001
+                updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
+                return true;
+            }
+
+            if (BaseJsonPatchProperty.Value is not null)
+            {
+                // Derived model has dynamic properties but inherits the JsonPatch field from base
+                // We need to call SetPropagators on the inherited patch field
+#pragma warning disable SCME0001
+                updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
+                return true;
+            }
+
+            return false;
+        }
+
+        private List<ConstructorProvider>? BuildMultipartFileConstructors(List<ConstructorProvider> existingConstructors)
+        {
+            Dictionary<string, MultipartSerialization>? fileProperties = null;
+            bool needsPrimaryAugmentation = false;
+
+            foreach (var prop in CanonicalView.Properties)
+            {
+                var mpfd = (prop.WireInfo?.SerializationOptions as ScmSerializationOptions)?.Multipart;
+                if (mpfd?.IsFilePart != true || mpfd.IsMulti || prop.WireInfo?.IsRequired != true)
+                {
+                    continue;
+                }
+
+                if (!IsFileBinaryContentType(prop.Type))
+                {
+                    return null;
+                }
+
+                var name = prop.WireInfo?.SerializedName ?? prop.Name;
+                if ((fileProperties ??= []).TryAdd(name, mpfd) && !needsPrimaryAugmentation)
+                {
+                    needsPrimaryAugmentation =
+                        mpfd.Filename is { IsRequired: true } || mpfd.Filename?.Type is InputLiteralType
+                        || mpfd.ContentType is { IsRequired: true } || mpfd.ContentType?.Type is InputLiteralType;
+                }
+            }
+
+            if (fileProperties is null)
+            {
+                return null;
+            }
+
+            // Find the public init ctor to use as the template for augmented overloads.
+            ConstructorProvider? templateCtor = null;
+            foreach (var c in existingConstructors)
+            {
+                if (ReferenceEquals(c, FullConstructor))
+                {
+                    continue;
+                }
+
+                if (!c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) && c.Signature.Parameters.Count == 0)
+                {
+                    return null;
+                }
+
+                templateCtor = c;
+                break;
+            }
+
+            if (templateCtor is null)
+            {
+                return null;
+            }
+
+            List<ConstructorProvider> result = new(existingConstructors.Count + 3)
+            {
+                BuildMultipartFileOverload(templateCtor, fileProperties, typeof(string)),
+                BuildMultipartFileOverload(templateCtor, fileProperties, typeof(Stream)),
+                BuildMultipartFileOverload(templateCtor, fileProperties, typeof(BinaryData))
+            };
+
+            bool fullConstructorPreserved = false;
+            foreach (var c in existingConstructors)
+            {
+                if (needsPrimaryAugmentation && ReferenceEquals(c, templateCtor))
+                {
+                    continue;
+                }
+                result.Add(c);
+
+                if (ReferenceEquals(c, FullConstructor))
+                {
+                    fullConstructorPreserved = true;
+                }
+            }
+
+            if (needsPrimaryAugmentation && !fullConstructorPreserved)
+            {
+                result.Add(FullConstructor);
+            }
+
+            return result;
+        }
+
+        private ConstructorProvider BuildMultipartFileOverload(
+            ConstructorProvider initCtor,
+            Dictionary<string, MultipartSerialization> fileProperties,
+            CSharpType sourceType)
+        {
+            bool isPath = sourceType.Equals(typeof(string));
+            var newParams = new List<ParameterProvider>(initCtor.Signature.Parameters.Count + 2);
+            var assignments = new List<MethodBodyStatement>();
+            const string filenameParamName = "Filename";
+            const string contentTypeParamName = "ContentType";
+            const string pathParamName = "Path";
+            const string filenameParamDescriptionFormat = "The filename for the {0} file.";
+            const string contentTypeParamDescriptionFormat = "The content-type for the {0} file.";
+            const string pathParamDescriptionFormat = "The file path for the {0} file.";
+            const string contentParamDescriptionFormat = "The content for the {0} file.";
+
+            foreach (var p in initCtor.Signature.Parameters)
+            {
+                if (p.Property is { } prop && fileProperties.TryGetValue(prop.WireInfo?.SerializedName ?? prop.Name, out var serializationOptions))
+                {
+                    var baseName = p.Name;
+                    ParameterProvider? filenameParam = null;
+                    ParameterProvider? contentTypeParam = null;
+
+                    // filename param — only add when the value is not bound to a literal
+                    if (serializationOptions.Filename is { IsRequired: true }
+                        && serializationOptions.Filename.Type is not InputLiteralType)
+                    {
+                        filenameParam = new ParameterProvider(
+                            $"{baseName}{filenameParamName}".ToVariableName(),
+                            FormattableStringFactory.Create(filenameParamDescriptionFormat, serializationOptions.Name),
+                            typeof(string),
+                            validation: ParameterValidationType.AssertNotNullOrEmpty);
+                        newParams.Add(filenameParam);
+                    }
+
+                    // content-type param — only add when the value is not bound to a literal
+                    if (serializationOptions.ContentType is { IsRequired: true }
+                        && serializationOptions.ContentType.Type is not InputLiteralType)
+                    {
+                        contentTypeParam = new ParameterProvider(
+                            $"{baseName}{contentTypeParamName}".ToVariableName(),
+                            FormattableStringFactory.Create(contentTypeParamDescriptionFormat, serializationOptions.Name),
+                            typeof(string),
+                            validation: ParameterValidationType.AssertNotNullOrEmpty);
+                        newParams.Add(contentTypeParam);
+                    }
+
+                    // path / stream / data source param
+                    string sourceParamName;
+                    string sourceParamDescriptionFormat;
+                    ParameterValidationType sourceParamValidation;
+                    if (isPath)
+                    {
+                        sourceParamName = $"{baseName}{pathParamName}".ToVariableName();
+                        sourceParamDescriptionFormat = pathParamDescriptionFormat;
+                        sourceParamValidation = ParameterValidationType.AssertNotNullOrEmpty;
+                    }
+                    else
+                    {
+                        sourceParamName = baseName;
+                        sourceParamDescriptionFormat = contentParamDescriptionFormat;
+                        sourceParamValidation = ParameterValidationType.AssertNotNull;
+                    }
+
+                    var sourceParam = new ParameterProvider(
+                        sourceParamName,
+                        FormattableStringFactory.Create(sourceParamDescriptionFormat, serializationOptions.Name),
+                        sourceType,
+                        validation: sourceParamValidation);
+                    newParams.Add(sourceParam);
+
+                    // When content-type / filename is a literal, pass the literal value as the constructor's argument
+                    // so the metadata is always set to the single allowed value.
+                    ScopedApi<string>? contentTypeExpr = contentTypeParam?.As<string>();
+                    if (contentTypeExpr is null
+                        && serializationOptions.ContentType?.Type is InputLiteralType { Value: string ctLiteral })
+                    {
+                        contentTypeExpr = Literal(ctLiteral);
+                    }
+
+                    ScopedApi<string>? filenameExpr = filenameParam?.As<string>();
+                    if (filenameExpr is null
+                        && serializationOptions.Filename?.Type is InputLiteralType { Value: string fnLiteral })
+                    {
+                        filenameExpr = Literal(fnLiteral);
+                    }
+
+                    ValueExpression newExpr = filenameExpr != null
+                        ? FileBinaryContentSnippets.New(sourceParam, contentTypeExpr, filenameExpr)
+                        : contentTypeExpr != null
+                            ? FileBinaryContentSnippets.New(sourceParam, contentTypeExpr)
+                            : FileBinaryContentSnippets.New(sourceParam);
+
+                    assignments.Add(prop.Assign(newExpr).Terminate());
+                }
+                else
+                {
+                    newParams.Add(p);
+                    if (p.Property is not null)
+                    {
+                        ValueExpression assignmentValue = CSharpType.RequiresToList(p.Type, p.Property.Type)
+                            ? p.ToList()
+                            : p;
+                        assignments.Add(p.Property.Assign(assignmentValue).Terminate());
+                    }
+                }
+            }
+
+            return new ConstructorProvider(
+                new ConstructorSignature(
+                    Type,
+                    initCtor.Signature.Description,
+                    initCtor.Signature.Modifiers,
+                    newParams,
+                    attributes: [_fileBinaryContentExpAttribute]),
+                assignments,
+                this);
         }
 
         private FieldProvider? _jsonPatchField;
@@ -242,7 +716,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 type: _jsonPatchFieldType,
                 name: JsonPatchPropertyName,
                 isRef: isRef,
-                body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: isRef)),
+                body: new ExpressionPropertyBody(
+                    isRef
+                        ? ByRef(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration))
+                        : new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration)),
                 attributes:
                 [
                     new AttributeStatement(typeof(JsonIgnoreAttribute)),
@@ -392,6 +869,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             bool needsBackCompat = LastContractView.Properties.Any(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (needsBackCompat)
@@ -403,5 +881,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return needsBackCompat;
         }
+
+        internal static bool IsFileBinaryContentType(CSharpType type)
+            => CSharpType.IgnoreNullableComparer.Equals(type, _fileBinaryContentType)
+               || (type.IsCollection && CSharpType.IgnoreNullableComparer.Equals(type.ElementType, _fileBinaryContentType));
     }
 }

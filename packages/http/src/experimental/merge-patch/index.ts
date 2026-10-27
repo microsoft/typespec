@@ -1,6 +1,4 @@
 export {
-  MergePatchProperties,
-  MergePatchPropertyOverrides,
   getMergePatchProperties,
   getMergePatchPropertyOverrides,
   getMergePatchPropertySource,
@@ -10,3 +8,4 @@ export {
   setMergePatchPropertySource,
   setMergePatchSource,
 } from "./helpers.js";
+export type { MergePatchProperties, MergePatchPropertyOverrides } from "./helpers.js";

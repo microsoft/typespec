@@ -18,6 +18,10 @@ def test_get_model(client):
     assert result == models.VisibilityModel(read_prop="abc")
 
 
+def test_head_model(client):
+    assert client.head_model(models.VisibilityModel(), query_prop=123)
+
+
 def test_put_model(client):
     client.put_model(models.VisibilityModel(create_prop=["foo", "bar"], update_prop=[1, 2]))
 

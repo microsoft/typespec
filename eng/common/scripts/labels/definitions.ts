@@ -6,7 +6,7 @@ import { resolve } from "path";
 import pc from "picocolors";
 import { format, resolveConfig } from "prettier";
 import { inspect } from "util";
-import { RepoConfig } from "./types.js";
+import type { RepoConfig } from "./types.ts";
 
 const Octokit = OctokitCore.plugin(paginateGraphQL).plugin(restEndpointMethods);
 type Octokit = InstanceType<typeof Octokit>;

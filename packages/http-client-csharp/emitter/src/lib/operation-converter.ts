@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  getClientNamespace,
-  getClientOptions,
-  getHttpOperationParameter,
-  getParamAlias,
-  isHttpMetadata,
+import type {
   SdkBodyParameter,
   SdkBuiltInKinds,
-  SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
   SdkHttpParameter,
@@ -24,26 +18,37 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkStreamMetadata,
   SdkType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  getClientNamespace,
+  getClientOptions,
+  getHttpOperationParameter,
+  getParamAlias,
+  getResponseAsBool,
+  isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
+import type { Diagnostic, Union } from "@typespec/compiler";
 import {
+  compilerAssert,
   createDiagnosticCollector,
-  Diagnostic,
   getDeprecated,
   isErrorModel,
   NoTarget,
 } from "@typespec/compiler";
-import { HttpStatusCodeRange } from "@typespec/http";
-import { getResourceOperation } from "@typespec/rest";
-import { CSharpEmitterContext } from "../sdk-context.js";
+import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
+import type { HttpStatusCodeRange } from "@typespec/http";
+import { isTerminalEvent } from "@typespec/sse";
+import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
-import { HttpResponseHeader } from "../type/http-response-header.js";
-import { InputConstant } from "../type/input-constant.js";
-import { InputOperation } from "../type/input-operation.js";
+import type { HttpResponseHeader } from "../type/http-response-header.js";
+import type { InputConstant } from "../type/input-constant.js";
+import type { InputOperation } from "../type/input-operation.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
-import {
+import type {
   InputBasicServiceMethod,
   InputContinuationToken,
   InputLongRunningPagingServiceMethod,
@@ -55,22 +60,24 @@ import {
   InputServiceMethod,
   InputServiceMethodResponse,
 } from "../type/input-service-method.js";
-import {
+import type {
   InputBodyParameter,
   InputHeaderParameter,
   InputHttpParameter,
   InputMethodParameter,
   InputPathParameter,
   InputQueryParameter,
+  InputStreamingType,
   InputType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationResponse } from "../type/operation-response.js";
+import type { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
-import { getExternalDocs, getOperationId } from "./decorators.js";
+import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
@@ -196,12 +203,23 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
+  const requestMediaTypes = getRequestMediaTypes(method.operation);
+  if (generateConvenience && isUnsupportedMultipart(requestMediaTypes)) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unsupported-multipart-convenience-method",
+        format: {
+          methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
+    generateConvenience = false;
+  }
+
   operation = {
     name: method.name,
-    resourceName:
-      getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
-        .name ??
-      getOperationGroupName(sdkContext, method.operation, getClientNamespaceString(sdkContext)!),
+    isExactName: method.isExactName,
     deprecated: getDeprecated(sdkContext.program, method.__raw!),
     summary: method.summary,
     doc: method.doc,
@@ -213,11 +231,16 @@ export function fromSdkServiceMethodOperation(
       fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     ),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
+    responseAsBool: getResponseAsBool(sdkContext, method.operation.__raw.operation)
+      ? true
+      : undefined,
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
-    requestMediaTypes: getRequestMediaTypes(method.operation),
-    bufferResponse: true,
+    requestMediaTypes: requestMediaTypes,
+    bufferResponse: !method.operation.responses.some((response) =>
+      isSupportedStream(response.streamMetadata),
+    ),
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
@@ -228,6 +251,9 @@ export function fromSdkServiceMethodOperation(
     namespace: method.__raw?.namespace
       ? getClientNamespace(sdkContext, method.__raw.namespace)
       : undefined,
+    experimental: diagnostics.pipe(
+      getExperimentalDetails(sdkContext, method.operation.__raw.operation),
+    ),
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
@@ -273,6 +299,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   return diagnostics.wrap({
     kind: method.kind,
     name: method.name,
+    isExactName: method.isExactName,
     accessibility: method.access,
     apiVersions: method.apiVersions,
     doc: method.doc,
@@ -333,8 +360,23 @@ function fromSdkServiceMethodParameters(
   for (const p of method.parameters) {
     const methodInputParameter = diagnostics.pipe(fromMethodParameter(sdkContext, p, namespace));
     const operationHttpParameter = getHttpOperationParameter(method, p);
+    const streamMetadata = method.operation.bodyParam?.streamMetadata;
+    const isStreamingBodyParameter =
+      isJsonLinesStream(streamMetadata) &&
+      method.operation.bodyParam!.methodParameterSegments.some((segments) =>
+        segments.some(
+          (segment) =>
+            segment === p || segment.crossLanguageDefinitionId === p.crossLanguageDefinitionId,
+        ),
+      );
 
     if (!operationHttpParameter) {
+      if (isStreamingBodyParameter) {
+        methodInputParameter.type = diagnostics.pipe(
+          fromSdkStreamMetadata(sdkContext, streamMetadata),
+        );
+        methodInputParameter.location = RequestLocation.Body;
+      }
       parameters.push(methodInputParameter);
       continue;
     }
@@ -347,6 +389,12 @@ function fromSdkServiceMethodParameters(
       rootApiVersions,
       diagnostics,
     );
+    if (isStreamingBodyParameter) {
+      methodInputParameter.type = diagnostics.pipe(
+        fromSdkStreamMetadata(sdkContext, streamMetadata),
+      );
+      methodInputParameter.location = RequestLocation.Body;
+    }
     parameters.push(methodInputParameter);
   }
 
@@ -360,6 +408,15 @@ function updateMethodParameter(
   rootApiVersions: string[],
   diagnostics: ReturnType<typeof createDiagnosticCollector>,
 ): void {
+  if (
+    operationHttpParameter.kind === "body" &&
+    isJsonLinesStream(operationHttpParameter.streamMetadata)
+  ) {
+    methodParameter.type = diagnostics.pipe(
+      fromSdkStreamMetadata(sdkContext, operationHttpParameter.streamMetadata),
+    );
+  }
+
   // for content type parameter
   if (isContentType(operationHttpParameter)) {
     methodParameter.type = diagnostics.pipe(
@@ -390,7 +447,9 @@ function fromSdkServiceMethodResponse(
   const diagnostics = createDiagnosticCollector();
 
   return diagnostics.wrap({
-    type: diagnostics.pipe(getResponseType(sdkContext, methodResponse.type)),
+    type: isSupportedStream(methodResponse.streamMetadata)
+      ? diagnostics.pipe(fromSdkStreamMetadata(sdkContext, methodResponse.streamMetadata))
+      : diagnostics.pipe(getResponseType(sdkContext, methodResponse.type)),
     resultSegments: methodResponse.resultSegments?.map((segment) =>
       getResponseSegmentName(segment),
     ),
@@ -504,6 +563,7 @@ function fromQueryParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -539,6 +599,7 @@ function fromPathParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -574,6 +635,7 @@ function fromHeaderParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
     collectionHeaderPrefix: diagnostics.pipe(getCollectionHeaderPrefix(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -586,7 +648,9 @@ function fromBodyParameter(
   rootApiVersions: string[],
 ): [InputBodyParameter, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
+  const parameterType = isJsonLinesStream(p.streamMetadata)
+    ? diagnostics.pipe(fromSdkStreamMetadata(sdkContext, p.streamMetadata))
+    : diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
 
   const retVar: InputBodyParameter = {
     kind: "body",
@@ -604,6 +668,8 @@ function fromBodyParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
+    serializationOptions: p.serializationOptions,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -622,6 +688,8 @@ export function fromMethodParameter(
     return diagnostics.wrap(retVar as InputMethodParameter);
   }
 
+  // C# cannot apply ExperimentalAttribute directly to a parameter.
+  diagnostics.pipe(getExperimentalDetails(sdkContext, p.__raw, false));
   const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p, namespace));
 
   const paramAlias = p.__raw ? getParamAlias(sdkContext, p.__raw) : undefined;
@@ -645,6 +713,7 @@ export function fromMethodParameter(
     access: p.access,
     decorators: p.decorators,
     paramAlias,
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
@@ -701,15 +770,82 @@ export function fromSdkHttpOperationResponse(
   const range = sdkResponse.statusCodes;
   retVar = {
     statusCodes: toStatusCodesArray(range),
-    bodyType: diagnostics.pipe(getResponseType(sdkContext, sdkResponse.type)),
+    bodyType: isSupportedStream(sdkResponse.streamMetadata)
+      ? diagnostics.pipe(fromSdkStreamMetadata(sdkContext, sdkResponse.streamMetadata))
+      : diagnostics.pipe(getResponseType(sdkContext, sdkResponse.type)),
     headers: diagnostics.pipe(fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers)),
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
     contentTypes: sdkResponse.contentTypes,
+    serializationOptions: sdkResponse.serializationOptions,
   };
 
   sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);
   return diagnostics.wrap(retVar);
+}
+
+function fromSdkStreamMetadata(
+  sdkContext: CSharpEmitterContext,
+  streamMetadata: SdkStreamMetadata,
+): [InputStreamingType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const originalType = streamMetadata.originalType;
+  const streamKind = getStreamKind(streamMetadata);
+  compilerAssert(
+    streamKind !== undefined,
+    "Stream metadata must have a supported stream kind before it is converted.",
+  );
+  let terminalEventType: string | undefined;
+  let terminalEventValue: string | undefined;
+
+  if (streamKind === "sse" && streamMetadata.streamType.__raw?.kind === "Union") {
+    const eventDefinitions = diagnostics.pipe(
+      unsafe_getEventDefinitions(sdkContext.program, streamMetadata.streamType.__raw as Union),
+    );
+    const terminalDefinition = eventDefinitions.find((definition) =>
+      isTerminalEvent(sdkContext.program, definition.root),
+    );
+    if (terminalDefinition?.payloadType.kind === "String") {
+      terminalEventType = terminalDefinition.eventType;
+      terminalEventValue = terminalDefinition.payloadType.value;
+    }
+  }
+
+  return diagnostics.wrap({
+    kind: "streaming",
+    name: originalType.kind === "model" ? originalType.name : "Stream",
+    valueType: diagnostics.pipe(fromSdkType(sdkContext, streamMetadata.streamType)),
+    streamKind,
+    contentTypes: streamMetadata.contentTypes,
+    terminalEventType,
+    terminalEventValue,
+    crossLanguageDefinitionId:
+      originalType.kind === "model" ? originalType.crossLanguageDefinitionId : "",
+  });
+}
+
+function getStreamKind(
+  streamMetadata: SdkStreamMetadata | undefined,
+): InputStreamingType["streamKind"] | undefined {
+  if (streamMetadata?.contentTypes.includes("application/jsonl")) {
+    return "jsonl";
+  }
+  if (streamMetadata?.contentTypes.includes("text/event-stream")) {
+    return "sse";
+  }
+  return undefined;
+}
+
+function isSupportedStream(
+  streamMetadata: SdkStreamMetadata | undefined,
+): streamMetadata is SdkStreamMetadata {
+  return getStreamKind(streamMetadata) !== undefined;
+}
+
+function isJsonLinesStream(
+  streamMetadata: SdkStreamMetadata | undefined,
+): streamMetadata is SdkStreamMetadata {
+  return getStreamKind(streamMetadata) === "jsonl";
 }
 
 function fromSdkServiceResponseHeaders(
@@ -735,11 +871,20 @@ function fromSdkServiceResponseHeaders(
 function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   if (typeof range === "number") return [range];
 
-  const statusCodes: number[] = [range.end - range.start + 1];
+  const statusCodes: number[] = [];
   for (let i = range.start; i <= range.end; i++) {
     statusCodes.push(i);
   }
   return statusCodes;
+}
+
+function isUnsupportedMultipart(requestMediaTypes: string[] | undefined): boolean {
+  return (
+    requestMediaTypes?.some((mediaType) => {
+      const normalized = mediaType.toLowerCase();
+      return normalized.startsWith("multipart/") && normalized !== "multipart/form-data";
+    }) ?? false
+  );
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
@@ -787,6 +932,7 @@ function loadPagingServiceMetadata(
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
+      verb: method.pagingMetadata.nextLinkVerb,
       responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
@@ -959,28 +1105,6 @@ function getParameterScope(
       : p.onClient
         ? InputParameterScope.Client
         : InputParameterScope.Method;
-}
-
-function getOperationGroupName(
-  context: SdkContext,
-  operation: SdkHttpOperation,
-  namespace: string,
-): string {
-  const explicitOperationId = getOperationId(context, operation.__raw.operation);
-  if (explicitOperationId) {
-    const ids: string[] = explicitOperationId.split("_");
-    if (ids.length > 1) {
-      return ids.slice(0, -2).join("_");
-    }
-  }
-
-  if (operation.__raw.operation.interface) {
-    return operation.__raw.operation.interface.name;
-  }
-  if (operation.__raw.operation.namespace) {
-    return operation.__raw.operation.namespace.name;
-  }
-  return namespace;
 }
 
 // TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed

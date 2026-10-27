@@ -1,22 +1,47 @@
 import { RequestExpectation } from "./expectation.js";
-import { RequestExt } from "./types.js";
+import type { RequestExt } from "./types.js";
 
+/** Handler-facing view of an Express request, with assertion helpers and parsed request data. */
 export class MockRequest {
+  /** Assertions bound to the original request; failed assertions throw ValidationError. */
   public readonly expect: RequestExpectation;
 
+  /** Incoming request origin (`protocol://host`), including the port when present. */
   public readonly baseUrl: string;
-  public readonly headers: { [key: string]: string };
-  public readonly query: { [key: string]: string | string[] };
-  public readonly params: { [key: string]: string };
+  /** Parsed headers using Express/Node's lowercase names; values are not copied or normalized here. */
+  public readonly headers: {
+    /** Header value retained from the original request, without additional conversion. */
+    [key: string]: string;
+  };
+  /** Values returned by Express's query parser, including arrays for repeated parameters. */
+  public readonly query: {
+    /** One query value, or the ordered values of a repeated parameter. */
+    [key: string]: string | string[];
+  };
+  /** Named route parameters extracted by Express, shared with the original request. */
+  public readonly params: {
+    /** Route segment captured for a named parameter such as `:id`. */
+    [key: string]: string;
+  };
+  /**
+   * Payload supplied by the server's parsing middleware: parsed JSON or form values,
+   * text, or a Buffer containing raw bytes for binary payloads. Retained without conversion.
+   */
   public readonly body: any;
+  /** Multipart uploads as provided by the upload middleware; absent when no files were parsed. */
   public readonly files?:
     | {
+        /** Uploaded files associated with this form field, in middleware order. */
         [fieldname: string]: Express.Multer.File[];
       }
     | Express.Multer.File[]
     | undefined;
 
-  public constructor(public originalRequest: RequestExt) {
+  /** Wraps a request without cloning its parsed data and binds assertions to that same request. */
+  public constructor(
+    /** Underlying Express request, including rawBody for byte- or text-level assertions. */
+    public originalRequest: RequestExt,
+  ) {
     this.baseUrl = getRequestBaseUrl(originalRequest);
     this.expect = new RequestExpectation(originalRequest);
     this.headers = originalRequest.headers as { [key: string]: string };

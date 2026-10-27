@@ -16,10 +16,13 @@ namespace SampleTypeSpec
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
+        private static PipelineMessageClassifier _pipelineMessageClassifier204404;
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
+
+        private static PipelineMessageClassifier PipelineMessageClassifier204404 => _pipelineMessageClassifier204404 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204, 404 });
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
@@ -262,7 +265,7 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/headAsBoolean/", false);
             uri.AppendPath(id, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "HEAD", PipelineMessageClassifier204);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "HEAD", PipelineMessageClassifier204404);
             PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
@@ -411,6 +414,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal PipelineMessage CreateDynamicModelOperationRequest(BinaryContent content, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -423,6 +427,7 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         internal PipelineMessage CreateGetXmlAdvancedModelRequest(RequestOptions options)
         {
@@ -446,6 +451,106 @@ namespace SampleTypeSpec
             request.Headers.Set("Content-Type", "application/xml");
             request.Headers.Set("Accept", "application/xml");
             request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateUploadCatRequest(BinaryContent content, string contentType, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/cats", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", contentType);
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateSendJsonLinesRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/streaming/jsonl/send", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/jsonl");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateReceiveJsonLinesRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/streaming/jsonl/receive", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/jsonl");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateReceiveSseRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/streaming/sse/receive", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "text/event-stream");
+            message.Apply(options);
+            return message;
+        }
+
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+        internal PipelineMessage CreateReceiveExperimentalJsonLinesRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/experimental/jsonl", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/jsonl");
+            message.Apply(options);
+            return message;
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+
+        internal PipelineMessage CreateGetAcronymParametersRequest(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/acronyms/", false);
+            uri.AppendPath(targetDBName, true);
+            if (sourceIPAddress != null)
+            {
+                uri.AppendQuery("sourceIpAddress", sourceIPAddress, true);
+            }
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            if (guestOSType != null)
+            {
+                request.Headers.Set("X-Guest-OS-Type", guestOSType);
+            }
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateSetAcronymAddressesRequest(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/acronyms/addresses", false);
+            uri.AppendQuery("ipV4Address", ipv4Address, true);
+            if (ipv6Address != null)
+            {
+                uri.AppendQuery("ipV6Address", ipv6Address, true);
+            }
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

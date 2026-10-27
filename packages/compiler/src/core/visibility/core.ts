@@ -28,7 +28,7 @@ import type { VisibilityFilter as GeneratedVisibilityFilter } from "../../../gen
 import { createStateSymbol } from "../../lib/utils.js";
 import { useStateMap, useStateSet } from "../../utils/index.js";
 
-export { GeneratedVisibilityFilter };
+export type { GeneratedVisibilityFilter };
 
 /**
  * A set of active visibility modifiers per visibility class.

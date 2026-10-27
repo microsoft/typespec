@@ -5,13 +5,8 @@ import {
   applyCodeFixEditsOnText,
   createCodeFixContext,
 } from "../../src/core/code-fixes.js";
-import {
-  CodeFixContext,
-  CodeFixEdit,
-  SourceFile,
-  createSourceFile,
-  defineCodeFix,
-} from "../../src/index.js";
+import type { CodeFixContext, CodeFixEdit, SourceFile } from "../../src/index.js";
+import { createSourceFile, defineCodeFix } from "../../src/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
 
 describe("Codefixes", () => {

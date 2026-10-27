@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             bool isMultiServiceClient = false;
+            bool isExactName = false;
             IReadOnlyList<InputServiceMethod>? methods = null;
             IReadOnlyList<InputParameter>? parameters = null;
             int initializedByValue = 0;
@@ -47,10 +48,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputClient? parent = null;
             IReadOnlyList<InputClient>? children = null;
             IReadOnlyList<string>? apiVersions = null;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
                     || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
@@ -59,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("parameters", options, ref parameters)
                     || reader.TryReadInt32("initializedBy", ref initializedByValue)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("parent", options, ref parent)
                     || reader.TryReadComplexType("children", options, ref children)
@@ -71,6 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
+            client.IsExactName = isExactName;
             client.Namespace = @namespace ?? string.Empty;
             client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
@@ -83,6 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Parent = parent;
             client.Children = children ?? [];
             client.ApiVersions = apiVersions ?? [];
+            client.Experimental = experimental;
 
             return client;
         }

@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "client",
       "name": "NotVersionedClient",
+      "isExactName": false,
       "namespace": "Server.Versions.NotVersioned",
       "doc": "Illustrates not-versioned server.",
       "methods": [
@@ -16,12 +17,13 @@
           "$id": "2",
           "kind": "basic",
           "name": "withoutApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "3",
             "name": "withoutApiVersion",
-            "resourceName": "NotVersioned",
+            "isExactName": false,
             "accessibility": "public",
             "parameters": [],
             "responses": [
@@ -30,7 +32,8 @@
                   200
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "HEAD",
@@ -54,12 +57,13 @@
           "$id": "4",
           "kind": "basic",
           "name": "withQueryApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "5",
             "name": "withQueryApiVersion",
-            "resourceName": "NotVersioned",
+            "isExactName": false,
             "accessibility": "public",
             "parameters": [
               {
@@ -101,9 +105,11 @@
                     "crossLanguageDefinitionId": "Server.Versions.NotVersioned.withQueryApiVersion.apiVersion",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -112,7 +118,8 @@
                   200
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "HEAD",
@@ -140,12 +147,13 @@
           "$id": "10",
           "kind": "basic",
           "name": "withPathApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "11",
             "name": "withPathApiVersion",
-            "resourceName": "NotVersioned",
+            "isExactName": false,
             "accessibility": "public",
             "parameters": [
               {
@@ -190,9 +198,11 @@
                     "crossLanguageDefinitionId": "Server.Versions.NotVersioned.withPathApiVersion.apiVersion",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -201,7 +211,8 @@
                   200
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "HEAD",
@@ -246,7 +257,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Server.Versions.NotVersioned.endpoint"
+          "crossLanguageDefinitionId": "Server.Versions.NotVersioned.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,

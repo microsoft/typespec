@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   SdkArrayExampleValue,
   SdkBooleanExampleValue,
   SdkDictionaryExampleValue,
@@ -16,9 +16,10 @@ import {
   SdkUnionExampleValue,
   SdkUnknownExampleValue,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
-import { CSharpEmitterContext } from "../sdk-context.js";
-import {
+import type { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
+import type { CSharpEmitterContext } from "../sdk-context.js";
+import type {
   InputArrayExampleValue,
   InputBooleanExampleValue,
   InputDictionaryExampleValue,
@@ -33,7 +34,7 @@ import {
   InputUnknownExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
-import {
+import type {
   InputArrayType,
   InputDictionaryType,
   InputHttpParameter,

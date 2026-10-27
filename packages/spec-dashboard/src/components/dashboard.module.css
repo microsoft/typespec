@@ -22,3 +22,17 @@
 .tier-filter {
   margin-bottom: 20px;
 }
+
+.name-filter {
+  margin-bottom: 20px;
+}
+
+.name-filter-input {
+  width: 320px;
+  max-width: 100%;
+}
+
+.no-results {
+  display: block;
+  margin: 10px 5px;
+}

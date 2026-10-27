@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createTypeSpecLibrary,
-  DiagnosticDefinition,
-  DiagnosticMessages,
-  paramMessage,
-} from "@typespec/compiler";
+import type { DiagnosticDefinition, DiagnosticMessages } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { CSharpEmitterOptionsSchema } from "../options.js";
 
 export type DiagnosticMessagesMap = {
@@ -14,6 +10,19 @@ export type DiagnosticMessagesMap = {
 };
 
 const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
+  "invalid-experimental-diagnostic-id": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Experimental diagnostic ID ${"diagnosticId"} must be a single C# warning identifier (ASCII letters, digits, or underscores, not starting with a digit) or a decimal warning number.`,
+    },
+  },
+  "experimental-target-not-supported": {
+    severity: "error",
+    messages: {
+      default:
+        "This experimental declaration does not produce a C# type or member that supports ExperimentalAttribute. Apply @experimental to an emitted model, enum, property, enum member, operation, or client instead.",
+    },
+  },
   "no-apiVersion": {
     severity: "error",
     messages: {
@@ -95,6 +104,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
     },
   },
+  "unsupported-multipart-convenience-method": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Convenience method is not supported for multipart content types other than 'multipart/form-data', it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
+    },
+  },
   "unsupported-service-method": {
     severity: "warning",
     messages: {
@@ -105,6 +120,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     severity: "error",
     messages: {
       default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
+    },
+  },
+  "unresolved-client-namespace": {
+    severity: "error",
+    messages: {
+      default: `Unable to determine a namespace for the generated client. Ensure the spec defines a service namespace (using the \`@service\` decorator) or set the \`package-name\` emitter option.`,
     },
   },
 };

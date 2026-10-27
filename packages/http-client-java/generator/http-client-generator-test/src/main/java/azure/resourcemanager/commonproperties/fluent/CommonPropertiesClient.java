@@ -59,4 +59,11 @@ public interface CommonPropertiesClient {
      * @return the ErrorsClient object.
      */
     ErrorsClient getErrors();
+
+    /**
+     * Gets the ArmResourceIdentifiersClient object to access its operations.
+     * 
+     * @return the ArmResourceIdentifiersClient object.
+     */
+    ArmResourceIdentifiersClient getArmResourceIdentifiers();
 }

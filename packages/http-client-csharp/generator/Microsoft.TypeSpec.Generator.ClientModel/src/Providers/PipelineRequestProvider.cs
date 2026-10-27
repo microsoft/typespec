@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -20,6 +21,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override Type UriBuilderType => typeof(ClientUriBuilderDefinition);
 
+        public override CSharpType GetCollectionHeaderHelperType()
+            => ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type;
+
         public override ValueExpression Content()
             => Original.Property(nameof(PipelineRequest.Content));
 
@@ -33,7 +37,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments).Terminate();
 
         public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
-            => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers]).Terminate();
+            => Original.Property(nameof(PipelineRequest.Headers))
+                .Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers], typeArguments: null, callAsAsync: false, extensionType: GetCollectionHeaderHelperType())
+                .Terminate();
 
         public override HttpRequestApi ToExpression() => this;
     }

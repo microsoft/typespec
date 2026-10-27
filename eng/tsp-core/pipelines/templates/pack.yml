@@ -15,5 +15,8 @@ steps:
       echo "Create manifest of unpublished packages in $summaryFilePath"
 
       node eng/tsp-core/scripts/filter-unpublished-packages.ts "$outDir" --manifest $summaryFilePath
+
+      echo "Copy the publish script into the artifact so the (checkout-less) release job can run it"
+      Copy-Item eng/tsp-core/scripts/publish-npm-packages.ts "$outDir/publish-npm-packages.ts"
     name: pack_${{ parameters.name }}
     displayName: Pack packages ${{ parameters.artifactName }}

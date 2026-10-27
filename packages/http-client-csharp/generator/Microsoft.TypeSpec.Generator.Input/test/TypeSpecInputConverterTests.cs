@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -9,6 +10,838 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void LoadsResponseAsBool(bool? responseAsBool, bool expected)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "exists",
+                  {{(responseAsBool.HasValue ? $"\"responseAsBool\": {responseAsBool.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "httpMethod": "HEAD",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.exists"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual(expected, operation!.ResponseAsBool);
+            operation.Update(responseAsBool: !expected);
+            Assert.AreEqual(!expected, operation.ResponseAsBool);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsOperationWithoutResourceName(bool includeLegacyResourceName)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "getWidget",
+                  {{(includeLegacyResourceName ? "\"resourceName\": \"Widget\"," : "")}}
+                  "summary": "Gets a widget",
+                  "httpMethod": "GET",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.getWidget"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual("getWidget", operation!.Name);
+            Assert.AreEqual("Gets a widget", operation.Summary);
+            Assert.AreEqual("GET", operation.HttpMethod);
+            Assert.AreEqual("https://example.com", operation.Uri);
+            Assert.AreEqual("/widgets", operation.Path);
+            Assert.AreEqual("Test.getWidget", operation.CrossLanguageDefinitionId);
+            Assert.IsNull(typeof(InputOperation).GetProperty("ResourceName"));
+        }
+
+        [TestCase("model", "\"properties\": []")]
+        [TestCase("enum", "\"values\": [], \"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("string", "\"crossLanguageDefinitionId\": \"External.Value\"")]
+        [TestCase("union", "\"variantTypes\": [{\"kind\":\"string\"}, {\"kind\":\"int32\"}]")]
+        [TestCase("array", "\"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("dict", "\"keyType\": {\"kind\":\"string\"}, \"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("nullable", "\"type\": {\"kind\":\"string\"}")]
+        [TestCase("utcDateTime", "\"crossLanguageDefinitionId\":\"External.Value\", \"encode\":\"rfc3339\", \"wireType\":{\"kind\":\"string\"}")]
+        [TestCase("duration", "\"crossLanguageDefinitionId\":\"External.Value\", \"encode\":\"ISO8601\", \"wireType\":{\"kind\":\"string\"}")]
+        public void LoadsExperimentalExternalTypes(string kind, string typeProperties)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "wrapper", "name": "Wrapper",
+                    "properties": [{
+                      "$id": "property", "name": "value",
+                      "type": {
+                        "$id": "external", "kind": "{{kind}}", "name": "External",
+                        {{typeProperties}},
+                        "external": {"identity":"External.Value"},
+                        "experimental": {"diagnosticId":"EXTERNAL001","dependsOn":["DEP001"]}
+                      }
+                    }]
+                  }]
+                }
+                """;
+            var type = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single().Type;
+            Assert.AreEqual("External.Value", type.External?.Identity);
+            Assert.AreEqual("EXTERNAL001", type.Experimental?.DiagnosticId);
+            CollectionAssert.AreEqual(new[] { "DEP001" }, type.Experimental!.DependsOn);
+            Assert.IsNull(InputPrimitiveType.String.Experimental);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsExperimentalTypesAndMembers(bool annotated)
+        {
+            string Metadata(string id) => annotated
+                ? $"\"experimental\": {{\"diagnosticId\":\"{id}\",\"dependsOn\":[\"DEP001\"]}},"
+                : "";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Payload", {{Metadata("MODEL001")}}
+                    "properties": [{
+                      "$id": "property", "name": "value", {{Metadata("PROPERTY001")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }],
+                  "enums": [{
+                    "$id": "enum", "name": "Choice", {{Metadata("ENUM001")}}
+                    "valueType": {"kind":"string"},
+                    "values": [{
+                      "$id": "value", "name": "One", "value": "one", {{Metadata("VALUE001")}}
+                      "valueType": {"kind":"string"}, "enumType": {"$ref":"enum"}
+                    }]
+                  }],
+                  "clients": [{
+                    "$id": "client", "name": "TestClient", {{Metadata("CLIENT001")}}
+                    "methods": []
+                  }]
+                }
+                """;
+            var input = TypeSpecSerialization.Deserialize(content)!;
+            var details = new[]
+            {
+                input.Models[0].Experimental,
+                input.Models[0].Properties[0].Experimental,
+                input.Enums[0].Experimental,
+                input.Enums[0].Values[0].Experimental,
+                input.Clients[0].Experimental
+            };
+            if (annotated)
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "MODEL001", "PROPERTY001", "ENUM001", "VALUE001", "CLIENT001" },
+                    details.Select(d => d?.DiagnosticId));
+                Assert.IsTrue(details.All(d => d!.DependsOn.SequenceEqual(["DEP001"])));
+            }
+            else
+            {
+                Assert.IsTrue(details.All(d => d is null));
+            }
+        }
+
+        [TestCase("""{"diagnosticId":"C","dependsOn":["A","B"]}""", "C", new[] { "A", "B" })]
+        [TestCase("""{"diagnosticId":"C"}""", "C", new string[0])]
+        [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":null,"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":"C","dependsOn":null}""", "C", new string[0])]
+        [TestCase("""{"diagnosticId":null,"dependsOn":null}""", null, new string[0])]
+        [TestCase("""{}""", null, new string[0])]
+        [TestCase("""null""", null, null)]
+        [TestCase(null, null, null)]
+        public void LoadsExperimentalOperationDetails(string? experimental, string? diagnosticId, string[]? dependencies)
+        {
+            var content = $$"""
+                {
+                  "$id": "operation",
+                  "name": "bar",
+                  "httpMethod": "GET",
+                  "uri": "",
+                  "path": "",
+                  {{(experimental is null ? "" : $@"""experimental"": {experimental},")}}
+                  "crossLanguageDefinitionId": "Test.bar"
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = referenceHandler,
+                Converters = { new InputOperationConverter(referenceHandler) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(content, options)!;
+
+            if (dependencies is null)
+            {
+                Assert.IsNull(operation.Experimental);
+            }
+            else
+            {
+                Assert.IsNotNull(operation.Experimental);
+                Assert.AreEqual(diagnosticId, operation.Experimental!.DiagnosticId);
+                CollectionAssert.AreEqual(dependencies, operation.Experimental.DependsOn);
+            }
+        }
+
+        [TestCase("""{"diagnosticId":"STREAM001","dependsOn":["A","B"]}""", "STREAM001", new[] { "A", "B" })]
+        [TestCase("""{"diagnosticId":"STREAM001"}""", "STREAM001", new string[0])]
+        [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":"STREAM001","dependsOn":null}""", "STREAM001", new string[0])]
+        [TestCase("""{"diagnosticId":null,"dependsOn":null}""", null, new string[0])]
+        [TestCase("""{}""", null, new string[0])]
+        [TestCase("""null""", null, null)]
+        [TestCase(null, null, null)]
+        public void LoadsExperimentalStreamingDetails(
+            string? experimental,
+            string? diagnosticId,
+            string[]? dependencies)
+        {
+            foreach (var streamKind in new[] { "jsonl", "sse" })
+            {
+                var contentType = streamKind == "sse" ? "text/event-stream" : "application/jsonl";
+                var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "wrapper", "name": "Wrapper",
+                    "properties": [{
+                      "$id": "first", "name": "first",
+                      "type": {
+                        "$id": "stream", "kind": "streaming", "name": "Events",
+                        {{(experimental is null ? "" : $@"""experimental"": {experimental},")}}
+                        "streamKind": "{{streamKind}}",
+                        "contentTypes": ["{{contentType}}"],
+                        "valueType": {
+                          "$id": "event", "kind": "model", "name": "Event", "properties": [],
+                          "experimental": {"diagnosticId":"EVENT001","dependsOn":["EVENTDEP"]}
+                        }
+                      }
+                    }, {
+                      "$id": "second", "name": "second",
+                      "type": {"$ref": "stream"}
+                    }]
+                  }]
+                }
+                """;
+                var model = TypeSpecSerialization.Deserialize(content)!.Models.Single();
+                var stream = model.Properties[0].Type as InputStreamingType;
+
+                Assert.IsNotNull(stream);
+                Assert.AreSame(stream, model.Properties[1].Type);
+                Assert.AreEqual(streamKind, stream!.StreamKind);
+                CollectionAssert.AreEqual(new[] { contentType }, stream.ContentTypes);
+                Assert.IsNull(model.Experimental);
+                Assert.IsNull(model.Properties[0].Experimental);
+                Assert.AreEqual("EVENT001", stream.ValueType.Experimental?.DiagnosticId);
+                CollectionAssert.AreEqual(new[] { "EVENTDEP" }, stream.ValueType.Experimental!.DependsOn);
+                if (dependencies is null)
+                {
+                    Assert.IsNull(stream.Experimental);
+                }
+                else
+                {
+                    Assert.IsNotNull(stream.Experimental);
+                    Assert.AreEqual(diagnosticId, stream.Experimental!.DiagnosticId);
+                    CollectionAssert.AreEqual(dependencies, stream.Experimental.DependsOn);
+                }
+            }
+        }
+
+        [Test]
+        public void LoadsEmitterFixture()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var input = TypeSpecSerialization.Deserialize(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
+
+            Assert.AreSame(input.Models[0], input.Models[1]);
+            Assert.AreEqual("Shared", input.Models[0].Name);
+            var decorator = input.Clients.Single().Decorators.Single();
+            using var payload = JsonDocument.Parse(decorator.Arguments!["payload"].ToStream());
+            Assert.AreEqual("payload-id", payload.RootElement.GetProperty("$id").GetString());
+            Assert.AreEqual("missing", payload.RootElement.GetProperty("$ref").GetString());
+            Assert.AreEqual("nested-id", payload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
+            Assert.AreEqual("literal", payload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("None", payload.RootElement.GetProperty("usage").GetString());
+            Assert.IsFalse(payload.RootElement.TryGetProperty("__raw", out _));
+        }
+
+        [Test]
+        public void PreservesLiteralDecoratorArgumentNamesAndValues()
+        {
+            const string payload = """
+                {
+                  "$$id": "shared",
+                  "$$ref": "missing",
+                  "$$values": [{ "$$id": "shared" }],
+                  "$$$id": "escaped",
+                  "kind": "future-kind",
+                  "type": { "$$id": "shared" }
+                }
+                """;
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{ "$ref": "shared" }],
+                  "extension": [{{payload}}, {{payload}}],
+                  "clients": [{
+                    "$id": "client", "name": "Test",
+                    "decorators": [{
+                      "name": "example",
+                      "arguments": {
+                        "$id": { "value": "literal-id" },
+                        "$$id": {{payload}},
+                        "value": {
+                          "$id": "shared", "kind": "model", "name": "SharedModel", "properties": []
+                        }
+                      }
+                    }]
+                  }]
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", input.Models.Single().Name);
+            var arguments = input.Clients.Single().Decorators.Single().Arguments!;
+            using var idArgument = JsonDocument.Parse(arguments["$id"].ToStream());
+            Assert.AreEqual("literal-id", idArgument.RootElement.GetProperty("value").GetString());
+            Assert.AreEqual(payload, arguments["$$id"].ToString());
+            using var deserializedPayload = JsonDocument.Parse(arguments["$$id"].ToStream());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("missing", deserializedPayload.RootElement.GetProperty("$$ref").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$$values")[0].GetProperty("$$id").GetString());
+            Assert.AreEqual("escaped", deserializedPayload.RootElement.GetProperty("$$$id").GetString());
+            Assert.AreEqual("future-kind", deserializedPayload.RootElement.GetProperty("kind").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("type").GetProperty("$$id").GetString());
+        }
+
+        [Test]
+        public void ReferenceDefinitionsStillRejectDuplicates()
+        {
+            const string content = """
+                { "name": "Test", "extension": [{ "$id": "duplicate" }, { "$id": "duplicate" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("Duplicate reference ID"));
+        }
+
+        [Test]
+        public void LoadsReferencesInExampleShapedData(
+            [Values("unknown", "union")] string kind,
+            [Values] bool inDecorator,
+            [Values] bool definitionsFirst)
+        {
+            var definition = $$"""
+                {
+                  "kind": "{{kind}}", "type": {},
+                  "value": {
+                    "kind": "{{kind}}",
+                    "value": { "$id": "model", "name": "SharedModel" }
+                  }
+                }
+                """;
+            var definitions = inDecorator
+                ? $$"""
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{ "name": "example", "arguments": { "payload": {{definition}} } }]
+                    }]
+                    """
+                : $$"""
+                    "extension": {{definition}}
+                    """;
+            const string models = """
+                "models": [{ "$ref": "model" }, { "$ref": "model" }]
+                """;
+            var content = $$"""
+                {
+                  "name": "Test",
+                  {{(definitionsFirst ? definitions : models)}},
+                  {{(definitionsFirst ? models : definitions)}}
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", input.Models[0].Name);
+            Assert.AreSame(input.Models[0], input.Models[1]);
+            if (inDecorator)
+            {
+                Assert.AreEqual(definition, input.Clients.Single().Decorators.Single().Arguments!["payload"].ToString());
+            }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsReferencesDefinedInDecoratorArguments(bool definitionsFirst)
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            using var document = JsonDocument.Parse(content);
+            var root = document.RootElement;
+            if (!definitionsFirst)
+            {
+                content = $$"""
+                    {
+                      "name": "Test",
+                      "models": {{root.GetProperty("models").GetRawText()}},
+                      "enums": {{root.GetProperty("enums").GetRawText()}},
+                      "clients": {{root.GetProperty("clients").GetRawText()}}
+                    }
+                    """;
+            }
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var sharedModel = inputNamespace.Models[1];
+            var owner = inputNamespace.Models[0];
+            var enumType = inputNamespace.Enums.Single();
+
+            Assert.AreEqual("SharedModel", sharedModel.Name);
+            Assert.AreSame(sharedModel, inputNamespace.Models[2]);
+            Assert.AreSame(sharedModel.Properties[0], owner.Properties[0]);
+            Assert.AreSame(owner, sharedModel.Properties[1].Type);
+            Assert.AreSame(owner, owner.Properties[1].Type);
+            Assert.AreSame(sharedModel, owner.Properties[2].Type);
+            Assert.AreSame(enumType, owner.Properties[3].Type);
+            Assert.AreSame(sharedModel.Properties[0].Type, enumType.ValueType);
+
+            var client = inputNamespace.Clients.Single();
+            Assert.AreEqual("Test", client.Namespace);
+            var decorator = client.Decorators.Single();
+            Assert.AreEqual("example", decorator.Name);
+            foreach (var argument in root.GetProperty("clients")[0].GetProperty("decorators")[0].GetProperty("arguments").EnumerateObject())
+            {
+                Assert.AreEqual(argument.Value.GetRawText(), decorator.Arguments![argument.Name].ToString());
+            }
+        }
+
+        [Test]
+        public void LoadsForwardReferenceWithoutDuplicatingDefinition()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$ref": "model" },
+                    { "$id": "model", "name": "SharedModel", "properties": [] },
+                    { "$ref": "model" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models[0].Name);
+            Assert.AreSame(inputNamespace.Models[0], inputNamespace.Models[1]);
+            Assert.AreSame(inputNamespace.Models[0], inputNamespace.Models[2]);
+        }
+
+        [TestCase("array", "valueType", true)]
+        [TestCase("array", "valueType", false)]
+        [TestCase("dict", "valueType", true)]
+        [TestCase("dict", "valueType", false)]
+        [TestCase("nullable", "type", true)]
+        [TestCase("nullable", "type", false)]
+        public void LoadsRecursiveDecoratorTypeBeforeContainingModel(string kind, string valueProperty, bool definitionInDecorator)
+        {
+            var keyType = kind == "dict" ? """
+                "keyType": { "kind": "string" },
+                """ : "";
+            var wrapper = $$"""
+                {
+                  "$id": "wrapper",
+                  "kind": "{{kind}}",
+                  {{keyType}}
+                  "{{valueProperty}}": { "$ref": "node" }
+                }
+                """;
+            const string reference = """{ "$ref": "wrapper" }""";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [
+                    {
+                      "$id": "owner",
+                      "name": "Owner",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "value": {
+                            "$id": "node",
+                            "kind": "model",
+                            "name": "Node",
+                            "properties": [{
+                              "$id": "children",
+                              "name": "children",
+                              "type": {{(definitionInDecorator ? wrapper : reference)}}
+                            }]
+                          }
+                        }
+                      }],
+                      "properties": [{
+                        "$id": "nodes",
+                        "name": "nodes",
+                        "type": {{(definitionInDecorator ? reference : wrapper)}}
+                      }]
+                    },
+                    { "$ref": "node" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var node = inputNamespace.Models[1];
+            var wrapperType = inputNamespace.Models[0].Properties[0].Type;
+            var wrappedType = wrapperType switch
+            {
+                InputArrayType array => array.ValueType,
+                InputDictionaryType dictionary => dictionary.ValueType,
+                InputNullableType nullable => nullable.Type,
+                _ => null
+            };
+
+            Assert.AreSame(node, wrappedType);
+            Assert.AreSame(wrapperType, node.Properties[0].Type);
+        }
+
+        [TestCase("array", "valueType")]
+        [TestCase("dict", "valueType")]
+        [TestCase("nullable", "type")]
+        public void LoadsRecursiveModelInsideDecoratorWrapper(string kind, string valueProperty)
+        {
+            var keyType = kind == "dict" ? """
+                "keyType": { "kind": "string" },
+                """ : "";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [
+                    {
+                      "$id": "owner",
+                      "name": "Owner",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "value": {
+                            "$id": "wrapper",
+                            "kind": "{{kind}}",
+                            {{keyType}}
+                            "{{valueProperty}}": {
+                              "$id": "node",
+                              "kind": "model",
+                              "name": "Node",
+                              "properties": [{
+                                "$id": "children",
+                                "name": "children",
+                                "type": { "$ref": "wrapper" }
+                              }]
+                            }
+                          }
+                        }
+                      }],
+                      "additionalProperties": { "$ref": "wrapper" }
+                    },
+                    { "$ref": "node" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var node = inputNamespace.Models[1];
+            var wrapperType = inputNamespace.Models[0].AdditionalProperties;
+            var wrappedType = wrapperType switch
+            {
+                InputArrayType array => array.ValueType,
+                InputDictionaryType dictionary => dictionary.ValueType,
+                InputNullableType nullable => nullable.Type,
+                _ => null
+            };
+
+            Assert.AreSame(node, wrappedType);
+            Assert.AreSame(wrapperType, node.Properties[0].Type);
+        }
+
+        [Test]
+        public void LoadsLateRegisteringCycleFromDecoratorArgument()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "owner",
+                    "name": "Owner",
+                    "decorators": [{
+                      "name": "example",
+                      "arguments": {
+                        "value": {
+                          "$id": "array",
+                          "kind": "array",
+                          "valueType": {
+                            "$id": "node",
+                            "kind": "model",
+                            "name": "Node",
+                            "properties": [{
+                              "$id": "children",
+                              "name": "children",
+                              "type": { "$ref": "array" }
+                            }]
+                          }
+                        }
+                      }
+                    }],
+                    "additionalProperties": { "$ref": "array" }
+                  },
+                  { "$ref": "node" }]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var array = inputNamespace.Models[0].AdditionalProperties as InputArrayType
+                ?? throw new AssertionException("Expected an array type.");
+            var node = inputNamespace.Models[1];
+
+            Assert.AreSame(node, array.ValueType);
+            Assert.AreSame(array, node.Properties[0].Type);
+        }
+
+        [Test]
+        public void LoadsReferenceDefinedInUnknownProperty()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "extension": {
+                    "nested": [{ "$id": "model", "name": "SharedModel" }]
+                  },
+                  "models": [{ "$ref": "model" }],
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
+        }
+
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void ExampleShapedDataStillRejectsDuplicateReferences(string kind)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{ "$ref": "model" }],
+                  "extension": {
+                    "kind": "{{kind}}",
+                    "type": { "$id": "model", "kind": "model", "name": "SharedModel" },
+                    "value": { "$id": "model", "name": "Payload" }
+                  }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("Duplicate reference ID 'model'"));
+        }
+
+        [Test]
+        public void UnresolvedReferenceStillThrows()
+        {
+            const string content = """
+                { "name": "Test", "models": [{ "$ref": "missing" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference missing"));
+        }
+
+        [TestCase("null")]
+        [TestCase("0")]
+        public void NonStringReferenceValueThrowsJsonException(string refValue)
+        {
+            var content = $$"""
+                { "name": "Test", "models": [{ "$ref": {{refValue}} }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$ref must be a string"));
+        }
+
+        [Test]
+        public void NonStringReferenceIdThrowsJsonException()
+        {
+            const string content = """
+                { "name": "Test", "models": [{ "$id": 0, "name": "Model" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$id must be a string"));
+        }
+
+        [Test]
+        public void DuplicateReferenceDefinitionsStillThrow()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$id": "duplicate", "name": "First" },
+                    { "$id": "duplicate", "name": "Second" }
+                  ]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("duplicate"));
+        }
+
+        [Test]
+        public void ReferenceWithAdditionalPropertiesStillThrows()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$id": "model", "name": "SharedModel" },
+                    { "$ref": "model", "name": "Invalid" }
+                  ]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$ref should be the only property"));
+        }
+
+        [Test]
+        public void UnresolvableReferenceCycleThrows()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "extension": {
+                    "$id": "array",
+                    "kind": "array",
+                    "valueType": { "$ref": "array" }
+                  },
+                  "models": [{
+                    "$id": "model",
+                    "name": "Model",
+                    "additionalProperties": { "$ref": "array" }
+                  }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("circular reference"));
+        }
+
+        [Test]
+        public void ExcessiveReferenceDepthThrows()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 130).Select(i => $$"""
+                {
+                  "$id": "{{i}}",
+                  "name": "Model{{i}}",
+                  "baseModel": { "$ref": "{{i + 1}}" }
+                }
+                """));
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "extension": [{{definitions}}, { "$id": "130", "name": "End" }],
+                  "models": [{ "$ref": "0" }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
+        [Test]
+        public void ReferenceResolutionStopsBeforePlatformStackOverflow()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 65).Select(i => $$"""
+                {
+                  "$id": "{{i}}",
+                  "name": "Model{{i}}",
+                  "baseModel": { "$ref": "{{i + 1}}" }
+                }
+                """));
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "extension": [{{definitions}}, { "$id": "65", "name": "End" }],
+                  "models": [{ "$ref": "0" }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
+        [TestCase(100)]
+        [TestCase(130)]
+        public void ReferenceIndexRespectsDocumentDepth(int depth)
+        {
+            var content = """{ "name": "Test", "extension": """ + new string('[', depth) + "0" + new string(']', depth) + "}";
+
+            if (depth < 128)
+            {
+                Assert.IsNotNull(TypeSpecSerialization.Deserialize(content));
+            }
+            else
+            {
+                Assert.Catch<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+            }
+        }
+
+        [TestCase("\"raw\"")]
+        [TestCase("42")]
+        [TestCase("null")]
+        public void ReadingRawJsonDoesNotResolveReferenceMetadata(string id)
+        {
+            var content = $$"""{ "$id": {{id}}, "name": "Raw" }""";
+            using var document = JsonDocument.Parse(content);
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions { ReferenceHandler = referenceHandler, MaxDepth = 128 };
+            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(document.RootElement, options);
+            referenceHandler.CurrentResolver.AddReference("raw", InputFactory.Model("Raw"));
+            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(content));
+            reader.Read();
+
+            var value = reader.ReadWithConverter<JsonElement>(options);
+
+            Assert.AreEqual(content, value.GetRawText());
+        }
+
         [Test]
         public void LoadsPagingWithNextLink()
         {
@@ -31,6 +864,34 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual(1, pagingMetadata!.NextLink!.ResponseSegments.Count);
             Assert.AreEqual("next", pagingMetadata.NextLink.ResponseSegments[0]);
             Assert.AreEqual(InputResponseLocation.Body, pagingMetadata.NextLink.ResponseLocation);
+        }
+
+        [Test]
+        public void LoadsPagingWithExplicitNextLinkVerb()
+        {
+            const string content = """
+                {
+                  "itemPropertySegments": ["items"],
+                  "nextLink": {
+                    "verb": "POST",
+                    "responseSegments": ["next"],
+                    "responseLocation": "body"
+                  }
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputPagingServiceMetadataConverter(),
+                    new InputNextLinkConverter(),
+                }
+            };
+
+            var pagingMetadata = JsonSerializer.Deserialize<InputPagingServiceMetadata>(content, options);
+
+            Assert.AreEqual("POST", pagingMetadata?.NextLink?.Verb);
         }
 
         [Test]
@@ -183,6 +1044,50 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var inputDuration = inputType as InputDurationType;
             Assert.IsNotNull(inputDuration);
             Assert.AreEqual(DurationKnownEncoding.Constant, inputDuration!.Encode);
+        }
+
+        [Test]
+        public void LoadsInputStreamingType()
+        {
+            const string content = """
+                {
+                  "$id": "1",
+                  "kind": "streaming",
+                  "name": "Events",
+                  "crossLanguageDefinitionId": "Test.Events",
+                  "valueType": {
+                    "$id": "2",
+                    "kind": "string",
+                    "name": "string",
+                    "crossLanguageDefinitionId": "TypeSpec.string",
+                    "decorators": []
+                  },
+                  "contentTypes": ["text/event-stream"],
+                  "streamKind": "sse",
+                  "terminalEventType": "done",
+                  "terminalEventValue": "[DONE]"
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                },
+            };
+
+            var streamingType = JsonSerializer.Deserialize<InputType>(content, options) as InputStreamingType;
+
+            Assert.IsNotNull(streamingType);
+            Assert.AreEqual("Events", streamingType!.Name);
+            Assert.AreEqual("Test.Events", streamingType.CrossLanguageDefinitionId);
+            Assert.AreEqual(InputPrimitiveTypeKind.String, ((InputPrimitiveType)streamingType.ValueType).Kind);
+            CollectionAssert.AreEqual(new[] { "text/event-stream" }, streamingType.ContentTypes);
+            Assert.AreEqual("sse", streamingType.StreamKind);
+            Assert.AreEqual("done", streamingType.TerminalEventType);
+            Assert.AreEqual("[DONE]", streamingType.TerminalEventValue);
         }
 
         [Test]
@@ -565,6 +1470,42 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void DeserializeModelWithExternalUsagePreservesInputAndOutput()
+        {
+            // TCGC emits the External usage flag (UsageFlags.External) for models that are also
+            // referenced by external types. The C# InputModelTypeUsage enum must recognize it so
+            // that Enum.TryParse does not fail on the unknown token and collapse the whole usage to
+            // None, which would strip Input/Output and make every property get-only.
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""model"",
+                ""name"": ""TestModel"",
+                ""namespace"": ""Test.Models"",
+                ""crossLanguageDefinitionId"": ""Test.Models.TestModel"",
+                ""usage"": ""Input,Output,External"",
+                ""properties"": []
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var model = JsonSerializer.Deserialize<InputModelType>(json, options);
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+            Assert.IsTrue(model.Usage.HasFlag(InputModelTypeUsage.Output), "Model should retain Output usage flag");
+            Assert.IsTrue(model.Usage.HasFlag(InputModelTypeUsage.External), "Model should have External usage flag");
+        }
+
+        [Test]
         public void DeserializeArrayWithExternalMetadata()
         {
             var json = @"{
@@ -691,6 +1632,52 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void LoadsEnumsWithIntegerAndLongValues()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var inputNamespace = TypeSpecSerialization.Deserialize(content);
+
+            Assert.IsNotNull(inputNamespace);
+            Assert.AreEqual(3, inputNamespace!.Enums.Count);
+
+            // 1) Base `integer` kind
+            var integerEnum = inputNamespace.Enums.SingleOrDefault(e => e.Name == "WeatherIconCode");
+            Assert.IsNotNull(integerEnum);
+            Assert.AreEqual(InputPrimitiveTypeKind.Integer, integerEnum!.ValueType.Kind);
+            Assert.AreEqual(2, integerEnum.Values.Count);
+            var sunny = integerEnum.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(sunny);
+            Assert.AreEqual("Sunny", sunny!.Name);
+            Assert.AreEqual(1L, sunny.IntegerValue);
+            var mostlySunny = integerEnum.Values[1] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(mostlySunny);
+            Assert.AreEqual(2L, mostlySunny!.IntegerValue);
+
+            // 2) Explicit int32 kind, including a negative value.
+            var int32Enum = inputNamespace.Enums.SingleOrDefault(e => e.Name == "Int32WeatherCode");
+            Assert.IsNotNull(int32Enum);
+            Assert.AreEqual(InputPrimitiveTypeKind.Int32, int32Enum!.ValueType.Kind);
+            var cold = int32Enum.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(cold);
+            Assert.AreEqual(-10L, cold!.IntegerValue);
+            var hot = int32Enum.Values[1] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(hot);
+            Assert.AreEqual(100L, hot!.IntegerValue);
+
+            // 3) int64 (long) kind, including long.MaxValue to confirm we use GetInt64.
+            var longEnum = inputNamespace.Enums.SingleOrDefault(e => e.Name == "LongWeatherTimestamp");
+            Assert.IsNotNull(longEnum);
+            Assert.AreEqual(InputPrimitiveTypeKind.Int64, longEnum!.ValueType.Kind);
+            var epoch = longEnum.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(epoch);
+            Assert.AreEqual(0L, epoch!.IntegerValue);
+            var maxValue = longEnum.Values[1] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(maxValue);
+            Assert.AreEqual(long.MaxValue, maxValue!.IntegerValue);
+        }
+
+        [Test]
         public void LoadsXmlOnlyModelDoesNotAddJsonUsage()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
@@ -720,6 +1707,39 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
             Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "XML-only model should NOT have Json usage flag added");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsMultipartOnlyModelDoesNotAddJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.MultipartFormData), "Model should have MultipartFormData usage flag");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Multipart-only model should NOT have Json usage flag added");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
         }
 
@@ -787,6 +1807,456 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Model should have Json usage flag");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should have Input usage flag");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Output), "Model should have Output usage flag");
+        }
+
+        private static JsonSerializerOptions CreateSerializationOptionsTestOptions()
+        {
+            var referenceHandler = new TypeSpecReferenceHandler();
+            return new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                    new InputXmlNamespaceOptionsConverter(),
+                    new InputBinarySerializationOptionsConverter(),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputConstantConverter(),
+                    new InputBodyParameterConverter(referenceHandler),
+                    new InputOperationResponseConverter(),
+                    new InputOperationResponseHeaderConverter(),
+                }
+            };
+        }
+
+        [Test]
+        public void ParsesEmptySerializationOptions()
+        {
+            const string json = "{}";
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result!.Json);
+            Assert.IsNull(result.Xml);
+            Assert.IsNull(result.Multipart);
+            Assert.IsNull(result.Binary);
+        }
+
+        [Test]
+        public void ParsesJsonSerializationOptions()
+        {
+            const string json = """
+                {
+                  "json": { "name": "message" }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Json);
+            Assert.AreEqual("message", result.Json!.Name);
+            Assert.IsNull(result.Xml);
+            Assert.IsNull(result.Binary);
+        }
+
+        [Test]
+        public void ParsesXmlSerializationOptions()
+        {
+            const string json = """
+                {
+                  "xml": { "name": "Book", "attribute": false }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Xml);
+            Assert.AreEqual("Book", result.Xml!.Name);
+            Assert.AreEqual(false, result.Xml.Attribute);
+        }
+
+        [Test]
+        public void ParsesBinarySerializationOptions()
+        {
+            const string json = """
+                {
+                  "binary": {
+                    "isFile": true,
+                    "isText": false,
+                    "contentTypes": [ "application/octet-stream" ],
+                    "filename": {
+                      "$id": "1",
+                      "kind": "property",
+                      "name": "filename",
+                      "serializedName": "filename",
+                      "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                      "optional": true,
+                      "readOnly": false,
+                      "discriminator": false,
+                      "flatten": false,
+                      "crossLanguageDefinitionId": "TypeSpec.Http.File.filename"
+                    }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Binary);
+            Assert.IsTrue(result.Binary!.IsFile);
+            Assert.AreEqual(false, result.Binary.IsText);
+            Assert.IsNotNull(result.Binary.ContentTypes);
+            Assert.AreEqual(1, result.Binary.ContentTypes!.Count);
+            Assert.AreEqual("application/octet-stream", result.Binary.ContentTypes[0]);
+            Assert.IsNotNull(result.Binary.Filename);
+            Assert.AreEqual("filename", result.Binary.Filename!.Name);
+        }
+
+        [Test]
+        public void ParsesBinarySerializationOptionsWithDefaults()
+        {
+            const string json = """
+                {
+                  "binary": { "isFile": false }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Binary);
+            Assert.IsFalse(result.Binary!.IsFile);
+            Assert.IsNull(result.Binary.IsText);
+            Assert.IsNull(result.Binary.ContentTypes);
+            Assert.IsNull(result.Binary.Filename);
+        }
+
+        [Test]
+        public void InputBodyParameterParsesSerializationOptions()
+        {
+            const string json = """
+                {
+                  "$id": "1",
+                  "name": "body",
+                  "kind": "body",
+                  "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                  "optional": false,
+                  "readOnly": false,
+                  "serializedName": "body",
+                  "isApiVersion": false,
+                  "scope": "method",
+                  "contentTypes": [ "application/json" ],
+                  "defaultContentType": "application/json",
+                  "serializationOptions": {
+                    "json": { "name": "body" }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputBodyParameter>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Json);
+            Assert.AreEqual("body", result.SerializationOptions.Json!.Name);
+        }
+
+        [Test]
+        public void InputBodyParameterParsesBinarySerializationOptions()
+        {
+            const string json = """
+                {
+                  "$id": "1",
+                  "name": "data",
+                  "kind": "body",
+                  "type": { "$id": "2", "kind": "bytes", "name": "bytes", "crossLanguageDefinitionId": "TypeSpec.bytes" },
+                  "optional": false,
+                  "readOnly": false,
+                  "serializedName": "data",
+                  "isApiVersion": false,
+                  "scope": "method",
+                  "contentTypes": [ "application/octet-stream" ],
+                  "defaultContentType": "application/octet-stream",
+                  "serializationOptions": {
+                    "binary": {
+                      "isFile": true,
+                      "isText": false,
+                      "contentTypes": [ "application/octet-stream" ],
+                      "filename": {
+                        "$id": "3",
+                        "kind": "property",
+                        "name": "filename",
+                        "serializedName": "filename",
+                        "type": { "$id": "4", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                        "optional": true,
+                        "readOnly": false,
+                        "discriminator": false,
+                        "flatten": false,
+                        "crossLanguageDefinitionId": "TypeSpec.Http.File.filename"
+                      }
+                    }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputBodyParameter>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Binary);
+            Assert.IsTrue(result.SerializationOptions.Binary!.IsFile);
+            Assert.AreEqual(false, result.SerializationOptions.Binary.IsText);
+            Assert.IsNotNull(result.SerializationOptions.Binary.ContentTypes);
+            Assert.AreEqual(1, result.SerializationOptions.Binary.ContentTypes!.Count);
+            Assert.AreEqual("application/octet-stream", result.SerializationOptions.Binary.ContentTypes[0]);
+            Assert.IsNotNull(result.SerializationOptions.Binary.Filename);
+            Assert.AreEqual("filename", result.SerializationOptions.Binary.Filename!.Name);
+        }
+
+        [Test]
+        public void InputBodyParameterDefaultsSerializationOptionsToNull()
+        {
+            const string json = """
+                {
+                  "$id": "1",
+                  "name": "body",
+                  "kind": "body",
+                  "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                  "optional": false,
+                  "readOnly": false,
+                  "serializedName": "body",
+                  "isApiVersion": false,
+                  "scope": "method",
+                  "contentTypes": [ "application/json" ],
+                  "defaultContentType": "application/json"
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputBodyParameter>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result!.SerializationOptions);
+        }
+
+        [Test]
+        public void InputOperationResponseParsesSerializationOptions()
+        {
+            const string json = """
+                {
+                  "statusCodes": [ 200 ],
+                  "headers": [],
+                  "isErrorResponse": false,
+                  "contentTypes": [ "application/xml" ],
+                  "serializationOptions": {
+                    "xml": { "name": "Book" }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputOperationResponse>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Xml);
+            Assert.AreEqual("Book", result.SerializationOptions.Xml!.Name);
+        }
+
+        [Test]
+        public void InputOperationResponseParsesBinarySerializationOptions()
+        {
+            const string json = """
+                {
+                  "statusCodes": [ 200 ],
+                  "headers": [],
+                  "isErrorResponse": false,
+                  "contentTypes": [ "application/octet-stream" ],
+                  "serializationOptions": {
+                    "binary": {
+                      "isFile": true,
+                      "isText": false,
+                      "contentTypes": [ "application/octet-stream" ],
+                      "filename": {
+                        "$id": "1",
+                        "kind": "property",
+                        "name": "filename",
+                        "serializedName": "filename",
+                        "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                        "optional": true,
+                        "readOnly": false,
+                        "discriminator": false,
+                        "flatten": false,
+                        "crossLanguageDefinitionId": "TypeSpec.Http.File.filename"
+                      }
+                    }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputOperationResponse>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Binary);
+            Assert.IsTrue(result.SerializationOptions.Binary!.IsFile);
+            Assert.AreEqual(false, result.SerializationOptions.Binary.IsText);
+            Assert.IsNotNull(result.SerializationOptions.Binary.ContentTypes);
+            Assert.AreEqual(1, result.SerializationOptions.Binary.ContentTypes!.Count);
+            Assert.AreEqual("application/octet-stream", result.SerializationOptions.Binary.ContentTypes[0]);
+            Assert.IsNotNull(result.SerializationOptions.Binary.Filename);
+            Assert.AreEqual("filename", result.SerializationOptions.Binary.Filename!.Name);
+        }
+
+        [Test]
+        public void InputOperationResponseDefaultsSerializationOptionsToNull()
+        {
+            const string json = """
+                {
+                  "statusCodes": [ 204 ],
+                  "headers": [],
+                  "isErrorResponse": false,
+                  "contentTypes": []
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputOperationResponse>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result!.SerializationOptions);
+        }
+
+        [Test]
+        public void IgnoresUnknownPropertiesInSerializationOptions()
+        {
+            const string json = """
+                {
+                  "json": { "name": "msg" },
+                  "unknown": "ignored"
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Json);
+            Assert.AreEqual("msg", result.Json!.Name);
+        }
+
+        private static JsonSerializerOptions CreateEnumValueTestOptions()
+        {
+            var referenceHandler = new TypeSpecReferenceHandler();
+            return new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputEnumTypeConverter(referenceHandler),
+                    new InputEnumTypeValueConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+        }
+
+        private static string CreateEnumJson(string valueKindJson, string rawValueJson)
+        {
+            return $$"""
+                {
+                  "$id": "1",
+                  "kind": "enum",
+                  "name": "TestEnum",
+                  "namespace": "Test.Models",
+                  "crossLanguageDefinitionId": "Test.Models.TestEnum",
+                  "apiVersions": ["2024-01-01", "2024-06-01-preview"],
+                  "valueType": { "$id": "2", "kind": {{valueKindJson}}, "name": "valueType", "crossLanguageDefinitionId": "TypeSpec.numeric" },
+                  "values": [
+                    {
+                      "$id": "3",
+                      "kind": "enumvalue",
+                      "name": "One",
+                      "value": {{rawValueJson}},
+                      "valueType": { "$ref": "2" },
+                      "enumType": { "$ref": "1" }
+                    }
+                  ],
+                  "isFixed": true
+                }
+                """;
+        }
+
+        [TestCase("\"integer\"", "1", 1L)]
+        [TestCase("\"int8\"", "1", 1L)]
+        [TestCase("\"int16\"", "1", 1L)]
+        [TestCase("\"int32\"", "1", 1L)]
+        [TestCase("\"uint8\"", "1", 1L)]
+        [TestCase("\"uint16\"", "1", 1L)]
+        [TestCase("\"int64\"", "9223372036854775807", 9223372036854775807L)]
+        [TestCase("\"uint32\"", "4294967295", 4294967295L)]
+        [TestCase("\"uint64\"", "9223372036854775807", 9223372036854775807L)]
+        [TestCase("\"safeInt\"", "9007199254740991", 9007199254740991L)]
+        public void DeserializeEnumWithIntegerKind(string valueKindJson, string rawValueJson, long expected)
+        {
+            var json = CreateEnumJson(valueKindJson, rawValueJson);
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions());
+
+            Assert.IsNotNull(enumType);
+            Assert.AreEqual(1, enumType!.Values.Count);
+            var value = enumType.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(expected, value!.IntegerValue);
+            Assert.AreEqual("One", value.Name);
+        }
+
+        [TestCase("\"float\"", "1.5", 1.5f)]
+        [TestCase("\"float32\"", "1.5", 1.5f)]
+        [TestCase("\"float64\"", "1.5", 1.5f)]
+        [TestCase("\"numeric\"", "1.5", 1.5f)]
+        [TestCase("\"decimal\"", "1.5", 1.5f)]
+        [TestCase("\"decimal128\"", "1.5", 1.5f)]
+        public void DeserializeEnumWithFloatKind(string valueKindJson, string rawValueJson, float expected)
+        {
+            var json = CreateEnumJson(valueKindJson, rawValueJson);
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions());
+
+            Assert.IsNotNull(enumType);
+            Assert.AreEqual(1, enumType!.Values.Count);
+            var value = enumType.Values[0] as InputEnumTypeFloatValue;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(expected, value!.FloatValue);
+            Assert.AreEqual("One", value.Name);
+        }
+
+        [Test]
+        public void DeserializeEnumWithStringKind()
+        {
+            var json = CreateEnumJson("\"string\"", "\"sunny\"");
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions());
+
+            Assert.IsNotNull(enumType);
+            Assert.AreEqual(1, enumType!.Values.Count);
+            CollectionAssert.AreEqual(new[] { "2024-01-01", "2024-06-01-preview" }, enumType.ApiVersions);
+            var value = enumType.Values[0] as InputEnumTypeStringValue;
+            Assert.IsNotNull(value);
+            Assert.AreEqual("sunny", value!.StringValue);
+        }
+
+        [Test]
+        public void DeserializeEnumWithUnsupportedKindThrows()
+        {
+            var json = CreateEnumJson("\"boolean\"", "true");
+            Assert.Throws<JsonException>(() =>
+                JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions()));
         }
     }
 }

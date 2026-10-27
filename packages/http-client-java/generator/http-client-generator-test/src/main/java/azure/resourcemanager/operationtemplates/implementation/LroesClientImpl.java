@@ -5,12 +5,14 @@
 package azure.resourcemanager.operationtemplates.implementation;
 
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
+import azure.resourcemanager.operationtemplates.fluent.models.CostReportInner;
 import azure.resourcemanager.operationtemplates.fluent.models.ExportResultInner;
 import azure.resourcemanager.operationtemplates.fluent.models.OrderInner;
 import azure.resourcemanager.operationtemplates.models.ExportRequest;
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
+import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Headers;
 import com.azure.core.annotation.Host;
@@ -138,6 +140,22 @@ public final class LroesClientImpl implements LroesClient {
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") ExportRequest body, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("/{scope}/providers/Azure.ResourceManager.OperationTemplates/costReports/{operationId}")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<Flux<ByteBuffer>>> getLro(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam(value = "scope", encoded = true) String scope,
+            @PathParam("operationId") String operationId, @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("/{scope}/providers/Azure.ResourceManager.OperationTemplates/costReports/{operationId}")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<BinaryData> getLroSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam(value = "scope", encoded = true) String scope,
+            @PathParam("operationId") String operationId, @HeaderParam("Accept") String accept, Context context);
     }
 
     /**
@@ -320,7 +338,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -342,7 +360,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -361,7 +379,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -382,7 +400,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -401,7 +419,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -420,7 +438,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -440,7 +458,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -457,7 +475,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -473,7 +491,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -787,6 +805,160 @@ public final class LroesClientImpl implements LroesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<ExportResultInner> exportArray(ExportRequest body, Context context) {
         return beginExportArray(body, context).getFinalResult();
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<Response<Flux<ByteBuffer>>> getLroWithResponseAsync(String scope, String operationId) {
+        final String accept = "application/json";
+        return FluxUtil
+            .withContext(context -> service.getLro(this.client.getEndpoint(), this.client.getApiVersion(), scope,
+                operationId, accept, context))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> getLroWithResponse(String scope, String operationId) {
+        final String accept = "application/json";
+        return service.getLroSync(this.client.getEndpoint(), this.client.getApiVersion(), scope, operationId, accept,
+            Context.NONE);
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> getLroWithResponse(String scope, String operationId, Context context) {
+        final String accept = "application/json";
+        return service.getLroSync(this.client.getEndpoint(), this.client.getApiVersion(), scope, operationId, accept,
+            context);
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    private PollerFlux<PollResult<CostReportInner>, CostReportInner> beginGetLroAsync(String scope,
+        String operationId) {
+        Mono<Response<Flux<ByteBuffer>>> mono = getLroWithResponseAsync(scope, operationId);
+        return this.client.<CostReportInner, CostReportInner>getLroResult(mono, this.client.getHttpPipeline(),
+            CostReportInner.class, CostReportInner.class, this.client.getContext());
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<CostReportInner>, CostReportInner> beginGetLro(String scope, String operationId) {
+        Response<BinaryData> response = getLroWithResponse(scope, operationId);
+        return this.client.<CostReportInner, CostReportInner>getLroResult(response, CostReportInner.class,
+            CostReportInner.class, Context.NONE);
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<CostReportInner>, CostReportInner> beginGetLro(String scope, String operationId,
+        Context context) {
+        Response<BinaryData> response = getLroWithResponse(scope, operationId, context);
+        return this.client.<CostReportInner, CostReportInner>getLroResult(response, CostReportInner.class,
+            CostReportInner.class, context);
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<CostReportInner> getLroAsync(String scope, String operationId) {
+        return beginGetLroAsync(scope, operationId).last().flatMap(this.client::getLroFinalResultOrError);
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CostReportInner getLro(String scope, String operationId) {
+        return beginGetLro(scope, operationId).getFinalResult();
+    }
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CostReportInner getLro(String scope, String operationId, Context context) {
+        return beginGetLro(scope, operationId, context).getFinalResult();
     }
 
     private static final TypeReference<List<ExportResultInner>> TYPE_REFERENCE_LIST_EXPORT_RESULT_INNER

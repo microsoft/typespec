@@ -179,8 +179,7 @@ public final class BodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> uploadFileDefaultContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("*/*") BinaryData file,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("*/*") BinaryData file, RequestOptions requestOptions, Context context);
 
         @Post("/type/file/body/request/default-content-type")
         @ExpectedResponses({ 204 })
@@ -189,8 +188,7 @@ public final class BodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> uploadFileDefaultContentTypeSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("*/*") BinaryData file,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("*/*") BinaryData file, RequestOptions requestOptions, Context context);
 
         @Get("/type/file/body/response/default-content-type")
         @ExpectedResponses({ 200 })
@@ -472,7 +470,13 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -481,8 +485,8 @@ public final class BodiesImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> downloadFileMultipleContentTypesWithResponseAsync(String accept,
-        RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> downloadFileMultipleContentTypesWithResponseAsync(RequestOptions requestOptions) {
+        final String accept = "image/png, image/jpeg";
         return FluxUtil.withContext(context -> service.downloadFileMultipleContentTypes(this.client.getEndpoint(),
             accept, requestOptions, context));
     }
@@ -497,7 +501,13 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -506,14 +516,22 @@ public final class BodiesImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(String accept,
-        RequestOptions requestOptions) {
+    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(RequestOptions requestOptions) {
+        final String accept = "image/png, image/jpeg";
         return service.downloadFileMultipleContentTypesSync(this.client.getEndpoint(), accept, requestOptions,
             Context.NONE);
     }
 
     /**
      * The uploadFileDefaultContentType operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>Body parameter's content type. Known values are
+     * *&#47;*</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -533,13 +551,20 @@ public final class BodiesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> uploadFileDefaultContentTypeWithResponseAsync(BinaryData file,
         RequestOptions requestOptions) {
-        final String contentType = "*/*";
-        return FluxUtil.withContext(context -> service.uploadFileDefaultContentType(this.client.getEndpoint(),
-            contentType, file, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.uploadFileDefaultContentType(this.client.getEndpoint(), file, requestOptions, context));
     }
 
     /**
      * The uploadFileDefaultContentType operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>Body parameter's content type. Known values are
+     * *&#47;*</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -558,9 +583,7 @@ public final class BodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadFileDefaultContentTypeWithResponse(BinaryData file, RequestOptions requestOptions) {
-        final String contentType = "*/*";
-        return service.uploadFileDefaultContentTypeSync(this.client.getEndpoint(), contentType, file, requestOptions,
-            Context.NONE);
+        return service.uploadFileDefaultContentTypeSync(this.client.getEndpoint(), file, requestOptions, Context.NONE);
     }
 
     /**
@@ -572,6 +595,13 @@ public final class BodiesImpl {
      * BinaryData
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -596,6 +626,13 @@ public final class BodiesImpl {
      * BinaryData
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

@@ -8,15 +8,16 @@ import {
   Token,
   TokenFlags,
 } from "../core/scanner.js";
-import {
+import type {
   IdentifierNode,
   Node,
   StringLiteralNode,
-  SyntaxKind,
   TextRange,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { SemanticToken, SemanticTokenKind } from "./types.js";
+import { SyntaxKind } from "../core/types.js";
+import type { SemanticToken } from "./types.js";
+import { SemanticTokenKind } from "./types.js";
 
 /**
  * Compute the semantic tokens for the given AST.
@@ -222,10 +223,12 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         classify(node.id, SemanticTokenKind.Struct);
         break;
       case SyntaxKind.ModelStatement:
-        classify(node.id, SemanticTokenKind.Struct);
+      case SyntaxKind.ModelDeclarationExpression:
+        if (node.id) classify(node.id, SemanticTokenKind.Struct);
         break;
       case SyntaxKind.ScalarStatement:
-        classify(node.id, SemanticTokenKind.Type);
+      case SyntaxKind.ScalarDeclarationExpression:
+        if (node.id) classify(node.id, SemanticTokenKind.Type);
         break;
       case SyntaxKind.ScalarConstructor:
         classify(node.id, SemanticTokenKind.Function);
@@ -236,10 +239,12 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         }
         break;
       case SyntaxKind.EnumStatement:
-        classify(node.id, SemanticTokenKind.Enum);
+      case SyntaxKind.EnumDeclarationExpression:
+        if (node.id) classify(node.id, SemanticTokenKind.Enum);
         break;
       case SyntaxKind.UnionStatement:
-        classify(node.id, SemanticTokenKind.Enum);
+      case SyntaxKind.UnionDeclarationExpression:
+        if (node.id) classify(node.id, SemanticTokenKind.Enum);
         break;
       case SyntaxKind.EnumMember:
         classify(node.id, SemanticTokenKind.EnumMember);

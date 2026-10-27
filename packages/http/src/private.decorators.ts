@@ -1,20 +1,18 @@
-import {
+import type {
   DecoratorContext,
   DiagnosticTarget,
   IndeterminateEntity,
   Model,
   ModelProperty,
   Namespace,
-  NoTarget,
   Program,
   Type,
   Value,
-  getProperty,
-  getTypeName,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
-import { Node, SyntaxKind, TemplateableNode } from "@typespec/compiler/ast";
-import {
+import { NoTarget, getProperty, getTypeName, walkPropertiesInherited } from "@typespec/compiler";
+import type { Node, TemplateableNode } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
+import type {
   HttpFileDecorator,
   HttpPartDecorator,
   HttpPartOptions,
@@ -31,7 +29,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { HttpOperationFileBody } from "./types.js";
+import type { HttpOperationFileBody } from "./types.js";
 
 export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
@@ -91,16 +89,12 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
   // Validate the `ContentType` type is `TypeSpec.string`, a string literal, or a union of string literals
   const contentType = target.properties.get("contentType")!.type;
 
-  if (
-    !(
-      (
-        contentType.kind === "String" || // is string literal
-        context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
-        (contentType.kind === "Union" &&
-          [...contentType.variants.values()].every((v) => v.type.kind === "String"))
-      ) // is union of string literals
-    )
-  ) {
+  if (!(
+    contentType.kind === "String" || // is string literal
+    context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
+    (contentType.kind === "Union" &&
+      [...contentType.variants.values()].every((v) => v.type.kind === "String")) // is union of string literals
+  )) {
     const contentTypeDiagnosticTarget =
       getTemplateArgumentTarget(templateMapper?.source, "ContentType", 0) ??
       templateMetadata?.contentTypeArg;
@@ -234,6 +228,7 @@ export function isHttpFile(program: Program, type: Type) {
   return program.stateSet(HttpStateKeys.file).has(type);
 }
 
+/** Tests whether a model is marked as an HTTP file or inherits from one; non-models return false. */
 export function isOrExtendsHttpFile(program: Program, type: Type) {
   if (type.kind !== "Model") {
     return false;
@@ -252,13 +247,25 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
   return false;
 }
 
+/** File model and its three well-known properties, as recognized by {@link getHttpFileModel}. */
 export interface HttpFileModel {
+  /** Input model retaining its original identity, including derived or spread file models. */
   readonly type: Model;
+  /** File media-type property, possibly inherited or spread from an HTTP file model. */
   readonly contentType: ModelProperty;
+  /** File name property, possibly inherited or spread from an HTTP file model. */
   readonly filename: ModelProperty;
+  /** String or bytes property containing the file data. */
   readonly contents: HttpOperationFileBody["contents"];
 }
 
+/**
+ * Recognizes a model whose contentType, filename, and contents originate from an HTTP file.
+ * Returns `undefined` for non-models, missing file properties, or a retained property count other than three.
+ *
+ * @param filter Optional filter used only when counting effective properties, for example to
+ * exclude HTTP metadata. The returned model and properties are not cloned or filtered.
+ */
 export function getHttpFileModel(
   program: Program,
   type: Type,
@@ -326,8 +333,11 @@ export const $httpPart: HttpPartDecorator = (
   context.program.stateMap(HttpStateKeys.httpPart).set(target, { type, options });
 };
 
+/** Payload type and options wrapped by a TypeSpec `HttpPart` model. */
 export interface HttpPart {
+  /** Wrapped payload type to resolve as the part's body and metadata. */
   readonly type: Type;
+  /** Part configuration, including an explicit name when supplied. */
   readonly options: HttpPartOptions;
 }
 

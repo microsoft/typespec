@@ -30,8 +30,13 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Access { get; internal set; }
         public string SerializedName { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public InputExperimentalDetails? Experimental { get; internal set; }
         public InputModelType? EnclosingType { get; internal set; }
         public bool IsApiVersion { get; internal set; }
         public InputConstant? DefaultValue { get; internal set; }
+        /// <summary>
+        /// Whether the name should be used exactly as-is, without casing transformations.
+        /// </summary>
+        public bool IsExactName { get; internal set; }
     }
 }

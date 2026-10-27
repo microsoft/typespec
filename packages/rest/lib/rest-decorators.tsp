@@ -17,15 +17,18 @@ using TypeSpec.Reflection;
 extern dec autoRoute(target: Interface | Operation);
 
 /**
- * Defines the preceding path segment for a @path parameter in auto-generated routes.
+ * Defines the preceding path segment for a `@path` parameter in auto-generated routes.
  *
  * @param name Segment that will be inserted into the operation route before the path parameter's name field.
  *
  * @example
+ *
+ * ```typespec
  * @autoRoute
  * interface Pets {
  *   get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
  * }
+ * ```
  */
 extern dec segment(target: Model | ModelProperty | Operation, name: valueof string);
 
@@ -65,49 +68,49 @@ extern dec parentResource(target: Model, parent: Model);
 /**
  * Specify that this is a Read operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec readsResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Create operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec createsResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a CreateOrReplace operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec createsOrReplacesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a CreatesOrUpdate operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec createsOrUpdatesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Update operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec updatesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a Delete operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec deletesResource(target: Operation, resourceType: Model);
 
 /**
  * Specify that this is a List operation for a given resource.
  *
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  */
 extern dec listsResource(target: Operation, resourceType: Model);
 
@@ -119,7 +122,7 @@ extern dec action(target: Operation, name?: valueof string);
 
 /**
  * Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
- * @param resourceType Resource marked with @resource
+ * @param resourceType Resource marked with `@resource`
  * @param name Name of the action. If not specified, the name of the operation will be used.
  */
 extern dec collectionAction(target: Operation, resourceType: Model, name?: valueof string);

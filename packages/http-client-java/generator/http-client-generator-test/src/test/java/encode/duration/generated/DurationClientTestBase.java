@@ -15,6 +15,7 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import encode.duration.DurationClientBuilder;
 import encode.duration.HeaderClient;
+import encode.duration.LossyClient;
 import encode.duration.PropertyClient;
 import encode.duration.QueryClient;
 
@@ -24,6 +25,8 @@ class DurationClientTestBase extends TestProxyTestBase {
     protected PropertyClient propertyClient;
 
     protected HeaderClient headerClient;
+
+    protected LossyClient lossyClient;
 
     @Override
     protected void beforeTest() {
@@ -53,6 +56,15 @@ class DurationClientTestBase extends TestProxyTestBase {
             headerClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         headerClient = headerClientbuilder.buildHeaderClient();
+
+        DurationClientBuilder lossyClientbuilder = new DurationClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            lossyClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        lossyClient = lossyClientbuilder.buildLossyClient();
 
     }
 }

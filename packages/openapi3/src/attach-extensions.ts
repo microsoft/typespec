@@ -1,4 +1,4 @@
-import { Program, Type } from "@typespec/compiler";
+import type { Program, Type } from "@typespec/compiler";
 import { getExtensions } from "@typespec/openapi";
 
 export function attachExtensions(program: Program, type: Type, emitObject: any) {

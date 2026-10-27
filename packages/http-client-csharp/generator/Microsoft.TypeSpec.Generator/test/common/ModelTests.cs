@@ -26,7 +26,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             var modelInstance = Activator.CreateInstance(typeof(T), true);
             if (modelInstance is null)
+            {
                 throw new Exception($"Unable to create a model instance of {typeof(T).Name}");
+            }
+
             return (T)modelInstance;
         }
 
@@ -70,7 +73,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             var expectedSerializedString = GetExpectedResult(format);
 
             if (AssertFailures(strategy, format, serviceResponse, options))
+            {
                 return;
+            }
 
             T model = (T)strategy.Read(serviceResponse, ModelInstance, options);
 

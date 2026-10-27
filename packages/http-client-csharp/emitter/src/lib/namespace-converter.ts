@@ -1,7 +1,8 @@
-import { SdkHttpOperation, SdkNamespace } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
-import { CSharpEmitterContext } from "../sdk-context.js";
-import { InputNamespace } from "../type/input-type.js";
+import type { SdkHttpOperation, SdkNamespace } from "@azure-tools/typespec-client-generator-core";
+import type { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
+import type { CSharpEmitterContext } from "../sdk-context.js";
+import type { InputNamespace } from "../type/input-type.js";
 
 export function fromSdkNamespaces(
   sdkContext: CSharpEmitterContext,

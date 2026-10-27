@@ -23,6 +23,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
+        /// <summary>
+        /// Indicates whether this method is declared as a <c>partial</c> method.
+        /// Derived from the <see cref="MethodSignatureModifiers.Partial"/> modifier on the signature.
+        /// </summary>
+        public bool IsPartialMethod => Signature?.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ?? false;
+
+        /// <summary>
+        /// Determines whether this method is suppressed via a <c>CodeGenSuppress</c> attribute on its
+        /// enclosing type. A suppressed method may still be provided by custom code, so callers that need to
+        /// know whether the method exists in the final output must additionally check for a custom replacement.
+        /// </summary>
+        public bool IsMethodSuppressed()
+        {
+            foreach (var attribute in EnclosingType.GetMemberSuppressionAttributes())
+            {
+                if (TypeProvider.IsMatch(EnclosingType, Signature, attribute))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected MethodProvider()

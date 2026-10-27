@@ -1,12 +1,21 @@
 import { format } from "prettier";
 import { Language, Node, Parser } from "web-tree-sitter";
 
-// Interface for SnippetExtractor
+/**
+ * Extracts the original source text of the first depth-first declaration matching an exact name.
+ * Getters return null when no match exists and throw when their node kind is not configured.
+ * Extraction itself does not run the language configuration's formatter.
+ */
 export interface SnippetExtractor {
+  /** Finds a class declaration/definition, including its body and supported preceding modifiers. */
   getClass(fileContent: string, name: string): string | null;
+  /** Finds the configured function-like node, which may be a method or local function for some languages. */
   getFunction(fileContent: string, name: string): string | null;
+  /** Finds an interface declaration when the language configuration supports interfaces. */
   getInterface(fileContent: string, name: string): string | null;
+  /** Finds a named type-alias declaration when the language configuration supports aliases. */
   getTypeAlias(fileContent: string, name: string): string | null;
+  /** Finds an enum declaration when the language configuration supports enums. */
   getEnum(fileContent: string, name: string): string | null;
 }
 
@@ -22,6 +31,10 @@ function loadLanguage(name: keyof typeof wasmMap): Promise<Language> {
   return Language.load(path);
 }
 
+/**
+ * Loads the C# grammar with class, interface, enum, and local-function mappings.
+ * Formatting is a pass-through; general method declarations are not the function mapping.
+ */
 export async function createCSharpExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["cs", "csharp"],
@@ -36,6 +49,7 @@ export async function createCSharpExtractorConfig(): Promise<LanguageConfigurati
   };
 }
 
+/** Loads the Java grammar with class, interface, enum, and method-as-function mappings; formatting is a pass-through. */
 export async function createJavaExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["java"],
@@ -50,6 +64,7 @@ export async function createJavaExtractorConfig(): Promise<LanguageConfiguration
   };
 }
 
+/** Loads the Python grammar for class/function definitions only; formatting is a pass-through. */
 export async function createPythonExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["py", "python"],
@@ -62,6 +77,7 @@ export async function createPythonExtractorConfig(): Promise<LanguageConfigurati
   };
 }
 
+/** Loads the TypeScript grammar for all extractor getters and uses Prettier's TypeScript parser for scenario comparisons. */
 export async function createTypeScriptExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["ts", "typescript"],
@@ -77,21 +93,35 @@ export async function createTypeScriptExtractorConfig(): Promise<LanguageConfigu
   };
 }
 
+/** Grammar, declaration-node mappings, and comparison formatting for emitter scenario tests. */
 export interface LanguageConfiguration {
+  /** Loaded Tree-sitter grammar installed on each extractor's parser. */
   language: Language;
+  /** Normalizes expected and actual scenario excerpts; also formats recorded replacement excerpts. */
   format: (content: string) => Promise<string>;
+  /** Conventional fence labels for callers; executeScenarios does not filter expectations by these labels. */
   codeBlockTypes: string[];
+  /** Tree-sitter node type names; an omitted mapping makes the corresponding getter throw. */
   nodeKindMapping: {
+    /** Node type searched by getClass, such as `class_declaration` or `class_definition`. */
     classNodeType?: string;
+    /** Function-like node searched by getFunction; may be a method rather than a top-level function. */
     functionNodeType?: string;
+    /** Interface node type searched by getInterface, when supported by the grammar. */
     interfaceNodeType?: string;
+    /** Type-alias node type searched by getTypeAlias, when supported by the grammar. */
     typeAliasNodeType?: string;
+    /** Enum node type searched by getEnum, when supported by the grammar. */
     enumNodeType?: string;
   };
 }
 
 await Parser.init();
 
+/**
+ * Creates an extractor with its own parser using the supplied, already-loaded grammar.
+ * Returned snippets preserve source whitespace; formatting belongs to the scenario harness.
+ */
 export function createSnippetExtractor(
   languageConfiguration: LanguageConfiguration,
 ): SnippetExtractor {

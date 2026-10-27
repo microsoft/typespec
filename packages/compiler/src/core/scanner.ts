@@ -17,11 +17,13 @@ import {
   utf16CodeUnits,
 } from "./charcode.js";
 import { createTripleQuoteIndentCodeFix } from "./compiler-code-fixes/triple-quote-indent.codefix.js";
-import { DiagnosticHandler, compilerAssert } from "./diagnostics.js";
-import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import type { DiagnosticHandler } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
+import type { CompilerDiagnostics } from "./messages.js";
+import { createDiagnostic } from "./messages.js";
 import { getCommentAtPosition } from "./parser-utils.js";
 import { createSourceFile } from "./source-file.js";
-import { DiagnosticReport, SourceFile, TextRange, TypeSpecScriptNode } from "./types.js";
+import type { DiagnosticReport, SourceFile, TextRange, TypeSpecScriptNode } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -139,6 +141,7 @@ export enum Token {
 
   ExternKeyword = __StartModifierKeyword,
   InternalKeyword,
+  AutoKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -194,7 +197,6 @@ export enum Token {
   ImplKeyword,
   SatisfiesKeyword,
   FlagKeyword,
-  AutoKeyword,
   PartialKeyword,
   PrivateKeyword,
   PublicKeyword,
@@ -224,9 +226,7 @@ export type DocToken =
   | Token.EndOfFile;
 
 export type StringTemplateToken =
-  | Token.StringTemplateHead
-  | Token.StringTemplateMiddle
-  | Token.StringTemplateTail;
+  Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail;
 
 /** @internal */
 export const TokenDisplay = getTokenDisplayTable([
@@ -310,6 +310,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.NeverKeyword, "'never'"],
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
+  [Token.AutoKeyword, "'auto'"],
 
   // Reserved keywords
   [Token.StatemachineKeyword, "'statemachine'"],
@@ -342,7 +343,6 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ImplKeyword, "'impl'"],
   [Token.SatisfiesKeyword, "'satisfies'"],
   [Token.FlagKeyword, "'flag'"],
-  [Token.AutoKeyword, "'auto'"],
   [Token.PartialKeyword, "'partial'"],
   [Token.PrivateKeyword, "'private'"],
   [Token.PublicKeyword, "'public'"],
@@ -383,6 +383,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+  ["auto", Token.AutoKeyword],
   ["internal", Token.InternalKeyword],
 
   // Reserved keywords
@@ -416,7 +417,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
@@ -455,7 +455,6 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
@@ -574,6 +573,19 @@ export function isModifier(token: Token) {
 
 export function isStatementKeyword(token: Token) {
   return token >= Token.__StartStatementKeyword && token < Token.__EndStatementKeyword;
+}
+
+/**
+ * Keywords that introduce a declaration which can also be used in expression position
+ * (e.g. `model { ... }`, `enum { ... }`, `union { ... }`, `scalar extends ...`).
+ */
+export function isDeclarationExpressionStatementKeyword(token: Token) {
+  return (
+    token === Token.ModelKeyword ||
+    token === Token.EnumKeyword ||
+    token === Token.UnionKeyword ||
+    token === Token.ScalarKeyword
+  );
 }
 
 export function createScanner(
@@ -1643,11 +1655,11 @@ export function skipTriviaBackward(
 }
 
 /**
- *
- * @param input
- * @param position
- * @param endPosition exclude
- * @returns return === endPosition (or input.length) means not found non-trivia until endPosition - 1
+ * Skip whitespace, single-line comments, and multi-line comments.
+ * @param input - Source text to scan.
+ * @param position - Position at which to start scanning.
+ * @param endPosition - Exclusive scan limit, capped at the input length. Defaults to the input length.
+ * @returns The position after the skipped trivia.
  */
 export function skipTrivia(input: string, position: number, endPosition = input.length): number {
   endPosition = endPosition > input.length ? input.length : endPosition;

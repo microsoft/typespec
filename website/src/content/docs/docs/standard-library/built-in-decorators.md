@@ -192,7 +192,7 @@ Specify how to encode the target type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string). |
+| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric and boolean types to encode as string). |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -221,10 +221,22 @@ model Pet {
 }
 ```
 
+##### encode boolean type to string
+
+
+`@encode(string)` on boolean uses case-insensitive `true` / `false` values.
+
+```tsp
+model FeatureFlags {
+  @encode(string) enabled: boolean;
+}
+```
+
 
 ### `@encodedName` {#@encodedName}
 
 Provide an alternative name for this type when serialized to the given mime type.
+On an enum member, the name is the value the member is serialized as.
 ```typespec
 @encodedName(mimeType: valueof string, name: valueof string)
 ```
@@ -865,7 +877,12 @@ Provide example values for an operation's parameters and corresponding return ty
 #### Examples
 
 ```tsp
-@opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+model Pet { name: string; age: int32; }
+
+@opExample(#{
+  parameters: #{pet: #{name: "Fluffy", age: 2}},
+  returnType: #{name: "Fluffy", age: 2}
+})
 op createPet(pet: Pet): Pet;
 ```
 

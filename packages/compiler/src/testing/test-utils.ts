@@ -2,17 +2,21 @@ import { fail, ok } from "assert";
 import { fileURLToPath } from "url";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { resolvePath } from "../core/path-utils.js";
 import type { Type } from "../core/types.js";
 import { findProjectRoot } from "../utils/io.js";
-import {
+import type {
   BasicTestRunner,
   TestHost,
   TypeSpecTestLibrary,
   TypeSpecTestLibraryInit,
 } from "./types.js";
 
+/**
+ * Resolve path segments against the virtual test root (`/test`, or `Z:/test` on Windows).
+ * Absolute segments replace earlier segments, following the compiler's path-resolution rules.
+ */
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   // NB: We should always resolve an absolute path, and there is no absolute
   // path that works across OSes. This ensures that we can still rely on API
@@ -21,7 +25,9 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
   return resolvePath(rootDir, path, ...paths);
 }
 
-/** Find the package root from the provided file */
+/** Find the package root from the provided file
+ * @deprecated Use {@link createTester} instead
+ */
 export function findTestPackageRoot(fileUrl: string): Promise<string> {
   return findProjectRoot(NodeHost.stat, fileURLToPath(fileUrl)) as Promise<string>;
 }
@@ -29,7 +35,9 @@ export function findTestPackageRoot(fileUrl: string): Promise<string> {
  * Define a test library defaulting to the most common library structure.
  * @param init Library configuration.
  * @returns TypeSpec Test library.
+ * @deprecated Use {@link createTester} instead
  */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLibrary {
   const { name } = init;
   const typespecFileFolder = init.typespecFileFolder ?? "lib";
@@ -53,21 +61,27 @@ export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLi
   };
 }
 
+/** @deprecated Use {@link Tester} instead */
 export interface TestWrapperOptions {
+  /** Transform user source before the generated imports and usings are prepended. */
   wrapper?: (code: string) => string;
 
   /**
-   * List of imports to include automatically.
+   * Imports prepended to `main.tsp`. Defaults to registered host libraries other than the compiler;
+   * an empty array disables those default imports.
    */
   autoImports?: string[];
 
   /**
-   * List of usings to include automatically.
+   * Namespace `using` statements appended to the generated imports. Defaults to none.
    */
   autoUsings?: string[];
 
+  /** Default compiler options, shallow-merged with each call's options; nested objects are replaced. */
   compilerOptions?: CompilerOptions;
 }
+/** @deprecated Use {@link createTester} instead */
+/* eslint-disable @typescript-eslint/no-deprecated -- implementing deprecated API for backward compatibility */
 export function createTestWrapper(
   host: TestHost,
   testWrapperOptions: TestWrapperOptions = {},
@@ -111,7 +125,13 @@ export function createTestWrapper(
     },
   };
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 
+/**
+ * Slice off space-only text before the first newline and after the last newline.
+ * Other whitespace is not trimmed. If no trailing space-only text is removed,
+ * the slice's end offset is zero and the result is empty.
+ */
 export function trimBlankLines(code: string) {
   let start = 0;
   for (let i = 0; i < code.length; i++) {

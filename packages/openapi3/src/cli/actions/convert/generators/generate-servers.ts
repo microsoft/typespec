@@ -1,4 +1,4 @@
-import { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
+import type { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
 import { generateDocs } from "../utils/docs.js";
 import { stringLiteral } from "./common.js";
 

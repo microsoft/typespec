@@ -7,5 +7,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     {
         public const string BaselineContractMissing = "baseline-contract-missing";
         public const string InvalidAccessModifier = "invalid-access-modifier";
+        public const string PluginBuildFailed = "plugin-build-failed";
+        public const string UnavailableBackcompatType = "unavailable-backcompat-type";
+        public const string IncompatibleBackcompatBaseType = "incompatible-backcompat-base-type";
     }
 }

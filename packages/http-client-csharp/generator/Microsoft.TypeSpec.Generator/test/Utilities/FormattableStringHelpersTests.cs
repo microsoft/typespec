@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -43,7 +44,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"A timestamp indicating \rthe last modified time\nclient. The operation will be performed only\nbeen modified since the specified time.",
                     new List<FormattableString> {
-                        $"A timestamp indicating \rthe last modified time",
+                        $"A timestamp indicating ",
+                        $"the last modified time",
                         $"client. The operation will be performed only",
                         $"been modified since the specified time."
                     }).SetName("TestBreakLines_AllLiteralsNoArgsWithCR");
@@ -75,7 +77,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"{"A timestamp indicating \rthe last modified time\nclient. The operation will be performed only\nbeen modified since the specified time."}",
                     new List<FormattableString> {
-                        $"{"A timestamp indicating \rthe last modified time"}",
+                        $"{"A timestamp indicating "}",
+                        $"{"the last modified time"}",
                         $"{"client. The operation will be performed only"}",
                         $"{"been modified since the specified time."}"
                     }).SetName("TestBreakLines_OneArgOnlyWithCR");
@@ -83,7 +86,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"{"A timestamp indicating \rthe last modified time\r\r\r\nclient. The operation will be performed only\nbeen modified since the specified time."}",
                     new List<FormattableString> {
-                        $"{"A timestamp indicating \rthe last modified time\r\r"}",
+                        $"{"A timestamp indicating "}",
+                        $"{"the last modified time"}",
+                        $"{""}",
+                        $"{""}",
                         $"{"client. The operation will be performed only"}",
                         $"{"been modified since the specified time."}"
                     }).SetName("TestBreakLines_OneArgOnlyWithMultipleCRs");
@@ -140,6 +146,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"first{"x":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_TrivialFormatSpecifier");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first{"":L}second",
+                    new List<FormattableString> {
+                        $"first{"":L}second"
+                    }).SetName("TestBreakLines_EmptyFormattedString");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{",
@@ -201,9 +213,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgsContainingLineBreaks");
 
                 FormattableString inner = $"{"x"}\n{"y"}z";
-                FormattableString outter = $"first{inner}Second\nthird{null}";
+                FormattableString outer = $"first{inner}Second\nthird{null}";
                 yield return new TestCaseData(
-                    outter,
+                    outer,
                     new List<FormattableString> {
                         $"first{"x"}",
                         $"{"y"}zSecond",
@@ -211,9 +223,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_RecursiveFormattableStrings");
 
                 inner = $"\n\n\n\n";
-                outter = $"first{inner}second\nthird{null}";
+                outer = $"first{inner}second\nthird{null}";
                 yield return new TestCaseData(
-                    outter,
+                    outer,
                     new List<FormattableString> {
                         $"first",
                         $"",
@@ -234,13 +246,194 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"third{null}"
                     }).SetName("TestBreakLines_MultipleLineBreaks");
 
-                // current solution of format specifier in argument is that we ignore them during the process of line breaking.
+                // formatted arguments (e.g. ":L") are rendered through a custom formatter that safely escapes any
+                // embedded line terminators, so they are left intact and are not split during line breaking.
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\ny":L}second\nthird{null}",
                     new List<FormattableString> {
                         $"first{"x\ny":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArg");
+
+                foreach (var formatSpecifier in new[] { ":D", ":I", ":C" })
+                {
+                    yield return new TestCaseData(
+                        FormattableStringFactory.Create($"first{{0{formatSpecifier}}}second", "x\u2028y"),
+                        new List<FormattableString>
+                        {
+                            FormattableStringFactory.Create($"first{{0{formatSpecifier}}}", "x"),
+                            FormattableStringFactory.Create($"{{0{formatSpecifier}}}second", "y"),
+                        }).SetName($"TestBreakLines_NonLiteralFormatSpecifierInArg_{formatSpecifier[1]}");
+                }
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u0085second\u0085third",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithNextLine");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u2028second\u2028third",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithLineSeparator");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u2029second\u2029third",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithParagraphSeparator");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\rsecond\r\nthird\u0085fourth\u2028fifth\u2029sixth\nseventh",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third",
+                        $"fourth",
+                        $"fifth",
+                        $"sixth",
+                        $"seventh"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithAllTerminators");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"{"first\rsecond\r\nthird\u0085fourth\u2028fifth\u2029sixth\nseventh"}",
+                    new List<FormattableString> {
+                        $"{"first"}",
+                        $"{"second"}",
+                        $"{"third"}",
+                        $"{"fourth"}",
+                        $"{"fifth"}",
+                        $"{"sixth"}",
+                        $"{"seventh"}"
+                    }).SetName("TestBreakLines_OneArgOnlyWithAllTerminators");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r\u0085\u2028\u2029second",
+                    new List<FormattableString> {
+                        $"first",
+                        $"",
+                        $"",
+                        $"",
+                        $"second"
+                    }).SetName("TestBreakLines_ConsecutiveMixedTerminators");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u2028",
+                    new List<FormattableString> {
+                        $"first",
+                        $""
+                    }).SetName("TestBreakLines_LiteralEndingWithLineSeparator");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first{"x"}second\u0085third{"y\u2029"}",
+                    new List<FormattableString> {
+                        $"first{"x"}second",
+                        $"third{"y"}",
+                        $"{""}"
+                    }).SetName("TestBreakLines_TerminatorsAtEndOfArgument");
+
+                inner = $"{"x"}\u0085{"y"}z";
+                outer = $"first{inner}Second\u2029third{null}";
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"first{"x"}",
+                        $"{"y"}zSecond",
+                        $"third{null}"
+                    }).SetName("TestBreakLines_RecursiveFormattableStringsWithAllTerminators");
+
+                inner = $"{"x"}\u2028";
+                outer = $"first{inner}";
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"first{"x"}",
+                        $""
+                    }).SetName("TestBreakLines_RecursiveFormattableStringEndingWithTerminator");
+
+                // a terminator embedded in a formatted (":L") argument is left intact - only unformatted literal text
+                // around it (here the trailing \u0085) causes a line break.
+                yield return new TestCaseData(
+                    (FormattableString)$"first{"x\u2028y":L}second\u0085third{null}",
+                    new List<FormattableString> {
+                        $"first{"x\u2028y":L}second",
+                        $"third{null}"
+                    }).SetName("TestBreakLines_FormatSpecifierInArgWithTerminators");
+
+                // `:L` only escapes string arguments. Nested formattable arguments still expand recursively and
+                // therefore must continue through line normalization.
+                inner = FormattableStringFactory.Create("ly\u2028 ");
+                outer = FormattableStringFactory.Create("first{0:L}second", inner);
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"firstly",
+                        $" second"
+                    }).SetName("TestBreakLines_LiteralFormatSpecifierOnNestedFormattableStringIsNormalized");
+
+                // a literal ending in a lone '\r' followed by a string argument starting with '\n' is a single
+                // CRLF split across the interpolation boundary and must produce one line break, not two.
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r{"\nsecond"}",
+                    new List<FormattableString> {
+                        $"first",
+                        $"{"second"}"
+                    }).SetName("TestBreakLines_CRLFAcrossLiteralAndArgumentBoundary");
+
+                // same as above but the '\r' half is the string argument and the '\n' half starts the following literal.
+                // BreakLinesCoreForString always wraps the text following the last '\n' in an argument placeholder
+                // (even when empty), so the merged line keeps that placeholder ahead of the literal text.
+                yield return new TestCaseData(
+                    (FormattableString)$"{"first\r"}\nsecond",
+                    new List<FormattableString> {
+                        $"{"first"}",
+                        $"{""}second"
+                    }).SetName("TestBreakLines_CRLFAcrossArgumentAndLiteralBoundary");
+
+                inner = $"{"x"}\r";
+                outer = $"first{inner}\nsecond";
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"first{"x"}",
+                        $"second"
+                    }).SetName("TestBreakLines_CRLFAcrossNestedFormattableStringBoundary");
+
+                // an empty string argument emits nothing, so it must not break up a CRLF pair that spans it.
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r{""}\nsecond",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second"
+                    }).SetName("TestBreakLines_CRLFAcrossEmptyArgument");
+
+                // an argument that renders content separates the '\r' from the '\n', so they are two terminators
+                // and the rendered argument forms its own line between them.
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r{1}\nsecond",
+                    new List<FormattableString> {
+                        $"first",
+                        $"{1}",
+                        $"second"
+                    }).SetName("TestBreakLines_CRAndLFSeparatedByRenderedArgument");
+
+                // a nested formattable string that renders nothing must not discard the trailing empty line
+                // produced by the terminator that follows it.
+                inner = $"";
+                outer = $"first\r{inner}\n";
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"first",
+                        $""
+                    }).SetName("TestBreakLines_EmptyNestedFormattableStringKeepsTrailingLine");
             }
         }
     }

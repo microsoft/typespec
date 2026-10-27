@@ -3,22 +3,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
+using NuGet.Repositories;
+using NuGet.RuntimeModel;
 using NuGet.Versioning;
 using NUnit.Framework;
-using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
-using NuGet.Common;
-using System.IO;
-using NuGet.Repositories;
-using NuGet.Packaging;
-using NuGet.RuntimeModel;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 {
@@ -32,6 +32,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             MockHelpers.LoadMockGenerator();
             _mockSettings = new Mock<ISettings>();
             _mockSettings.Setup(s => s.GetSection(It.IsAny<string>())).Returns(It.IsAny<SettingSection>());
+        }
+
+        [TestCase("1.0.0")]
+        [TestCase("invalid")]
+        public void DownloadAndInstallPackage_HostedModeRejectsBeforeAccessingSources(string version)
+        {
+            CodeModelGenerator.Instance.IsHosted = true;
+            var repository = new Mock<SourceRepository>(MockBehavior.Strict);
+            var settings = new TestNugetSettings
+            {
+                Sections =
+                [
+                    new TestNugetSettingSection(ConfigurationConstants.PackageSources, new SourceItem("mockSource", "mockSourceUri"))
+                ]
+            };
+            var downloader = new TestNugetPackageDownloader("Mock.Package", version, settings, repository.Object);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(downloader.DownloadAndInstallPackage);
+
+            Assert.AreEqual("NuGet feed lookups and package downloads are disabled in hosted mode.", exception!.Message);
+            repository.VerifyNoOtherCalls();
+        }
+
+        [TestCase(null)]
+        [TestCase("1.0.0")]
+        public void ResolveLatestPackageVersion_HostedModeRejectsBeforeAccessingSources(string? minVersion)
+        {
+            CodeModelGenerator.Instance.IsHosted = true;
+            var settings = new Mock<ISettings>(MockBehavior.Strict);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(() =>
+                NugetPackageResolver.ResolveLatestPackageVersion("Mock.Package", settings.Object, minVersion));
+
+            Assert.AreEqual("NuGet feed lookups and package downloads are disabled in hosted mode.", exception!.Message);
+            settings.VerifyNoOtherCalls();
+        }
+
+        [Test]
+        public async Task ResolveLatestPackageVersion_LocalModeCanReadSources()
+        {
+            var settings = new TestNugetSettings
+            {
+                Sections =
+                [
+                    new TestNugetSettingSection(ConfigurationConstants.PackageSources)
+                ]
+            };
+
+            var version = await NugetPackageResolver.ResolveLatestPackageVersion("Mock.Package", settings);
+
+            Assert.IsNull(version);
         }
 
         [TestCaseSource("ParseVersionStringTestCases")]

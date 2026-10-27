@@ -1,20 +1,17 @@
-import {
-  ArrayBuilder,
+import type {
   AssetEmitter,
-  createAssetEmitter,
   EmitterOutput,
-  ObjectBuilder,
   Placeholder,
-  setProperty,
   TypeEmitter,
 } from "@typespec/asset-emitter";
 import {
-  compilerAssert,
+  ArrayBuilder,
+  createAssetEmitter,
+  ObjectBuilder,
+  setProperty,
+} from "@typespec/asset-emitter";
+import type {
   Enum,
-  getDiscriminatedUnion,
-  getExamples,
-  getMaxValueExclusive,
-  getMinValueExclusive,
   IntrinsicScalarName,
   IntrinsicType,
   Model,
@@ -24,21 +21,32 @@ import {
   Tuple,
   Type,
   Union,
+  UnionVariant,
 } from "@typespec/compiler";
-import { MetadataInfo } from "@typespec/http";
-import { shouldInline } from "@typespec/openapi";
+import {
+  compilerAssert,
+  getDiscriminatedUnion,
+  getDoc,
+  getExamples,
+  getMaxValueExclusive,
+  getMinValueExclusive,
+  getSummary,
+  resolveEncodedEnumMemberValue,
+} from "@typespec/compiler";
+import type { MetadataInfo } from "@typespec/http";
 import { getOneOf } from "./decorators.js";
 import { serializeExample } from "./examples.js";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
-import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
-import { JsonType, OpenAPISchema3_1 } from "./types.js";
+import type { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import { OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
+import type { JsonType, OpenAPISchema3_1 } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,
@@ -154,10 +162,17 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const shouldSeal = this.shouldSealSchema(model);
     if (!shouldSeal && !model.indexer) return;
 
-    const unevaluatedPropertiesSchema = shouldSeal
+    const indexerSchema = shouldSeal
       ? { not: {} }
       : this.emitter.emitTypeReference(model.indexer!.value);
-    setProperty(schema, "unevaluatedProperties", unevaluatedPropertiesSchema);
+
+    // A declared indexer describes a dictionary, and `additionalProperties` is the keyword for that.
+    // Sealing keeps `unevaluatedProperties`, and so does a model that also extends another model:
+    // both have to account for the properties evaluated by the `allOf` subschema holding the base
+    // model, which `additionalProperties` cannot see and would therefore constrain.
+    const indexerKeyword =
+      shouldSeal || model.baseModel ? "unevaluatedProperties" : "additionalProperties";
+    setProperty(schema, indexerKeyword, indexerSchema);
   }
 
   getRawBinarySchema(): OpenAPISchema3_1 {
@@ -183,11 +198,16 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       return {};
     }
 
+    if (this._options.enumStrategy === "annotated") {
+      return this.#annotatedEnumSchema(en);
+    }
+
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     const enumTypesArray = [...enumTypes];
@@ -198,6 +218,66 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     };
 
     return this.applyConstraints(en, schema);
+  }
+
+  #annotatedEnumSchema(en: Enum): OpenAPISchema3_1 {
+    const program = this.emitter.getProgram();
+    const oneOf: OpenAPISchema3_1[] = [];
+    for (const member of en.members.values()) {
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      const subschema: OpenAPISchema3_1 = { const: value };
+      const title = getSummary(program, member);
+      if (title !== undefined) {
+        subschema.title = title;
+      }
+      const description = getDoc(program, member);
+      if (description !== undefined) {
+        subschema.description = description;
+      }
+      oneOf.push(subschema);
+    }
+
+    return this.applyConstraints(en, { oneOf });
+  }
+
+  protected override combineRefWithConstraints(
+    refSchema: any,
+    constraints: Partial<OpenAPISchema3_1>,
+  ): any {
+    // Some constraints already compose the reference themselves (e.g. the XML module wraps
+    // it in an `allOf`). In that case defer to the base behavior, otherwise we would emit
+    // both a top-level `$ref` and an `allOf` pointing at the same schema.
+    if ("allOf" in constraints) {
+      return super.combineRefWithConstraints(refSchema, constraints);
+    }
+    // OpenAPI 3.1 allows keywords alongside `$ref` (JSON Schema 2020-12 semantics),
+    // so the constraints are merged directly onto the reference instead of wrapping it
+    // in an unnecessary `allOf`.
+    const merged = new ObjectBuilder<OpenAPISchema3_1>(refSchema);
+    for (const [key, value] of Object.entries(constraints)) {
+      setProperty(merged, key, value);
+    }
+    return merged;
+  }
+
+  // Builds an annotated `const` subschema for a single literal union variant,
+  // mirroring `#annotatedEnumSchema`'s per-member handling: the variant value
+  // becomes `const`, `@summary` becomes `title`, and the doc comment/`@doc`
+  // becomes `description`. Title/description are omitted when absent. Like the
+  // enum case, the variant name is NOT used as a title fallback.
+  #annotatedVariantSchema(variant: UnionVariant): OpenAPISchema3_1 {
+    const program = this.emitter.getProgram();
+    compilerAssert(isLiteralType(variant.type), "Expected a literal union variant");
+    const subschema: OpenAPISchema3_1 = { const: variant.type.value };
+    const title = getSummary(program, variant);
+    if (title !== undefined) {
+      subschema.title = title;
+    }
+    const description = getDoc(program, variant);
+    if (description !== undefined) {
+      subschema.description = description;
+    }
+    return subschema;
   }
 
   unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {
@@ -226,6 +306,15 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
 
       // 3.a. Literal types are actual values (though not Value types)
       if (isLiteralType(variant.type)) {
+        // With the annotated enum strategy, emit each literal variant as its own
+        // `const` subschema carrying per-variant `title`/`description` (from
+        // `@summary`/`@doc`), following the OpenAPI 3.1.1 annotated enumerations
+        // pattern. This preserves the variant-level documentation that the
+        // default `enum`-merge form below discards. See `#annotatedVariantSchema`.
+        if (this._options.enumStrategy === "annotated") {
+          schemaMembers.push({ schema: this.#annotatedVariantSchema(variant), type: null });
+          continue;
+        }
         // Create schemas grouped by kind (boolean, string, numeric)
         // and add the literals seen to each respective `enum` array
         if (!literalVariantEnumByType[variant.type.kind]) {
@@ -253,7 +342,6 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPISchema3_1> => {
       const schema = schemaMember.schema;
-      const type = schemaMember.type;
       const additionalProps: Partial<OpenAPISchema3_1> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
@@ -261,26 +349,9 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       if (Object.keys(additionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
-        if (
-          (schema instanceof Placeholder || "$ref" in schema) &&
-          !(type && shouldInline(program, type))
-        ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
-            return new ObjectBuilder({
-              type: "object",
-              allOf: Builders.array([schema]),
-              ...additionalProps,
-            });
-          } else {
-            return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
-          }
-        } else {
-          const merged = new ObjectBuilder<OpenAPISchema3_1>(schema);
-          for (const [key, value] of Object.entries(additionalProps)) {
-            setProperty(merged, key, value);
-          }
-          return merged;
-        }
+        // OpenAPI 3.1 allows sibling keywords next to `$ref`, so union-wide
+        // constraints are merged directly onto the member schema.
+        return this.combineRefWithConstraints(schema, additionalProps);
       }
     };
 
@@ -318,16 +389,19 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const size = tuple.values.length;
     return new ObjectBuilder({
       type: "array",
       prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+      minItems: size,
+      maxItems: size,
     });
   }
 
   tupleLiteralValues(tuple: Tuple): EmitterOutput<Record<string, any>> {
     const values = new ArrayBuilder();
     for (const value of tuple.values.values()) {
-      values.push(this.emitter.emitType(value));
+      values.push(this.emitter.emitTypeReference(value));
     }
     return values;
   }

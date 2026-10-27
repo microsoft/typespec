@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual(model.Metadata.Count, model2.Metadata.Count);
 
             // Compare date/time and duration
-            Assert.AreEqual(model.CreatedAt, model2.CreatedAt);
+            Assert.AreEqual(model.CreatedOn, model2.CreatedOn);
             Assert.AreEqual(model.Duration, model2.Duration);
 
             // Compare enums
@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual("value2", model.Metadata["key2"]);
 
             // Verify date/time
-            Assert.AreEqual(new DateTimeOffset(2024, 1, 15, 10, 30, 0, TimeSpan.Zero), model.CreatedAt);
+            Assert.AreEqual(new DateTimeOffset(2024, 1, 15, 10, 30, 0, TimeSpan.Zero), model.CreatedOn);
             Assert.AreEqual(new TimeSpan(1, 30, 0), model.Duration);
 
             // Verify enums

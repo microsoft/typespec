@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  Pet,
-  ServerDrivenPaginationClient,
-} from "../../../generated/payload/pageable/src/index.js";
+import type { Pet } from "../../../generated/payload/pageable/src/index.js";
+import { ServerDrivenPaginationClient } from "../../../generated/payload/pageable/src/index.js";
 
 describe("Payload.Pageable", () => {
   describe("list", () => {

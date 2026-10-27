@@ -32,9 +32,9 @@ decorator.
 
 ##### Parameters
 
-| Name        | Type             | Description |
-| ----------- | ---------------- | ----------- |
-| contentType | `valueof string` |             |
+| Name        | Type             | Description                                     |
+| ----------- | ---------------- | ----------------------------------------------- |
+| contentType | `valueof string` | The content type of the event or event payload. |
 
 ##### Examples
 

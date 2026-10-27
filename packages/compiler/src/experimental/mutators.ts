@@ -1,9 +1,9 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
 import { isNumeric } from "../core/numeric.js";
-import { Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
-import {
+import type {
   DecoratedType,
   Decorator,
   DecoratorArgument,
@@ -37,9 +37,7 @@ import { Realm } from "./realm.js";
  * @experimental
  */
 export type MutatorRecord<T extends Type> =
-  | MutatorReplaceRecord<T>
-  | MutatorMutateRecord<T>
-  | MutatorFn<T>;
+  MutatorReplaceRecord<T> | MutatorMutateRecord<T> | MutatorFn<T>;
 
 /**
  * Common functionality for mutator records.
@@ -171,7 +169,14 @@ export type Mutator = {
  */
 export type MutatorWithNamespace = Mutator & Partial<NamespaceMutator>;
 
+/**
+ * The namespace handler mixed into {@link MutatorWithNamespace}.
+ * Namespace traversal is enabled by {@link mutateSubgraphWithNamespace}, not by {@link mutateSubgraph}.
+ */
 type NamespaceMutator = {
+  /**
+   * Filter, mutate, or replace namespace clones using the same record forms as other type kinds.
+   */
   Namespace?: MutatorRecord<Namespace>;
 };
 
@@ -263,16 +268,41 @@ export type MutableTypeWithNamespace = MutableType | Namespace;
 
 // #region Mutator Application
 
+type SeenCache = CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>;
+
+// These keyers assign a stable identity to each type/mutator. They are backed by
+// `WeakMap`s and never strongly retain their keys, so they are safe to keep at
+// module scope and shared across programs.
 const typeId = CustomKeyMap.objectKeyer();
 const mutatorId = CustomKeyMap.objectKeyer();
-const seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>(
-  ([type, mutators]) => {
-    const key = `${typeId.getKey(type)}-${[...mutators.values()]
-      .map((v) => mutatorId.getKey(v))
-      .join("-")}`;
-    return key;
-  },
-);
+
+// `seen` memoizes mutation results so cyclic and shared types are cloned exactly
+// once. It must be shared across the nested `mutateSubgraph`/
+// `mutateSubgraphWithNamespace` calls a mutator makes while running (each spins
+// up its own engine); this is what lets recursive type graphs terminate instead
+// of recursing forever, and it also lets repeated mutations reuse earlier clones.
+//
+// The cache is scoped per `Program` rather than to the module so that it — and
+// every `Type` it references — becomes eligible for garbage collection once the
+// program does. A module-level cache would instead pin the type graph of every
+// mutated program in memory for the lifetime of the process.
+const seenByProgram = new WeakMap<Program, SeenCache>();
+
+function getSeenCache(program: Program): SeenCache {
+  let seen = seenByProgram.get(program);
+  if (seen === undefined) {
+    seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>(
+      ([type, mutators]) => {
+        const key = `${typeId.getKey(type)}-${[...mutators.values()]
+          .map((v) => mutatorId.getKey(v))
+          .join("-")}`;
+        return key;
+      },
+    );
+    seenByProgram.set(program, seen);
+  }
+  return seen;
+}
 
 /**
  * Mutate the type graph, allowing namespaces to be mutated.
@@ -284,7 +314,10 @@ const seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[
  * @param mutators - An array of mutators to apply to the type graph rooted at `type`.
  * @param type - The type to mutate.
  *
- * @returns an object containing the mutated `type` and a nullable `Realm` in which the mutated type resides.
+ * @returns An object whose `type` is the resulting root (the original input if unchanged) and whose `realm` is the
+ * realm created for this traversal, or `null` if the returned root is the input type.
+ * Cached results can retain ownership in a realm from an earlier call; use {@link Realm.realmForType} to look up
+ * the returned type's last registered realm.
  *
  * @see {@link mutateSubgraph}
  *
@@ -294,7 +327,17 @@ export function mutateSubgraphWithNamespace(
   program: Program,
   mutators: MutatorWithNamespace[],
   type: Namespace,
-): { realm: Realm | null; type: MutableTypeWithNamespace } {
+): {
+  /**
+   * The realm created for this traversal, or null when the root is unchanged.
+   * Cached results may belong to an earlier realm.
+   */
+  realm: Realm | null;
+  /**
+   * The resulting root after namespace-aware traversal, or the unchanged input.
+   */
+  type: MutableTypeWithNamespace;
+} {
   const engine = createMutatorEngine(program, mutators, {
     mutateNamespaces: true,
   });
@@ -310,7 +353,9 @@ export function mutateSubgraphWithNamespace(
  *
  * Mutators clone the input `type`, creating a new type instance that is mutated in place.
  *
- * The mutator returns the mutated type and optionally a `realm` in which the mutated clone resides.
+ * The mutator returns the resulting root type and a nullable traversal realm.
+ * Repeated calls for the same type and mutator instances within a program can reuse previous mutation results.
+ * The cache is not shared between programs.
  *
  * @see {@link Mutator}
  * @see {@link Realm}
@@ -326,7 +371,10 @@ export function mutateSubgraphWithNamespace(
  * @param mutators - An array of mutators to apply to the type graph rooted at `type`.
  * @param type - The type to mutate.
  *
- * @returns an object containing the mutated `type` and a nullable `Realm` in which the mutated type resides.
+ * @returns An object whose `type` is the resulting root, which may be a clone, a replacement, or the unchanged input.
+ * Its `realm` is the realm created for this traversal, or `null` if the returned root is the input type.
+ * Cached results can retain ownership in a realm from an earlier call; use {@link Realm.realmForType} to look up
+ * the returned type's last registered realm.
  *
  * @experimental
  */
@@ -334,7 +382,17 @@ export function mutateSubgraph<T extends MutableType>(
   program: Program,
   mutators: Mutator[],
   type: T,
-): { realm: Realm | null; type: MutableType } {
+): {
+  /**
+   * The realm created for this traversal, or null when the root is unchanged.
+   * Cached results may belong to an earlier realm.
+   */
+  realm: Realm | null;
+  /**
+   * The cloned or replaced root, or the original input when the root is unchanged.
+   */
+  type: MutableType;
+} {
   const engine = createMutatorEngine(program, mutators, {
     mutateNamespaces: false,
   });
@@ -383,6 +441,12 @@ function createMutatorEngine(
 ): MutatorEngine {
   const realm = new Realm(program, `Mutator realm ${mutators.map((m) => m.name).join(", ")}`);
   const interstitialFunctions: (() => void)[] = [];
+
+  // Shared across every engine operating on this program (including the nested
+  // engines a mutator spins up via re-entrant `mutateSubgraph` calls), so
+  // recursive type graphs are cloned once and terminate. Scoped to the program
+  // so it is collected once the program is.
+  const seen = getSeenCache(program);
 
   let preparingNamespace = false;
   const muts: Set<MutatorAll> = new Set(mutators);
@@ -672,6 +736,7 @@ function createMutatorEngine(
           break;
         case "Union":
           mutateSubMap(root, "variants", mutating, newMutators);
+          mutateProperty(root, "baseType", mutating, newMutators);
           break;
         case "UnionVariant":
           mutateProperty(root, "type", mutating, newMutators);

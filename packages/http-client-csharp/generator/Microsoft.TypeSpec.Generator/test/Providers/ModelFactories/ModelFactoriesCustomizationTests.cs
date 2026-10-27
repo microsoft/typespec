@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -15,6 +18,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 {
     public class ModelFactoriesCustomizationTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomConstructorDiscriminator(bool unknown)
+        {
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
+            var baseModel = InputFactory.Model("Base", properties:
+                [discriminator, InputFactory.Property("name", InputPrimitiveType.String)],
+                discriminatorProperty: discriminator);
+            var derived = InputFactory.Model("Derived", properties: [], baseModel: baseModel, discriminatedKind: unknown ? "unknown" : "tool",
+                modelAsStruct: false);
+            Compilation? custom = null;
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: async () => custom = await Helpers.GetCompilationFromDirectoryAsync(),
+                additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+            var provider = generator.Object.TypeFactory.CreateModel(derived)!;
+            Assert.That(provider.CanonicalView.Constructors.Single(constructor =>
+                constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+                .Signature.Parameters.First().Property, Is.Null, "Exercise a source-backed constructor.");
+            var method = generator.Object.OutputLibrary.ModelFactory.Value.Methods.Single(method =>
+                method.Signature.Name == "Derived");
+            Assert.That(method.Signature.Parameters.Any(parameter => parameter.Name == "kind"), Is.EqualTo(unknown));
+            Assert.That(method.BodyStatements!.ToDisplayString(), Does.Contain(unknown
+                ? "kind" : "\"tool\""));
+
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(BinaryData).Assembly.Location).Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var trees = generator.Object.OutputLibrary.TypeProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var compilation = CSharpCompilation.Create("CustomFactory" + Guid.NewGuid().ToString("N"),
+                custom!.SyntaxTrees.Where(tree => Path.GetFileName(tree.FilePath) == "Models.cs").Concat(trees),
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            Assert.That(result.Success, Is.True, string.Join(Environment.NewLine,
+                result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
+            var assembly = Assembly.Load(stream.ToArray());
+            var factory = generator.Object.OutputLibrary.ModelFactory.Value;
+            var factoryType = assembly.GetType(factory.Type.Namespace + "." + factory.Name)!;
+            var instance = factoryType.GetMethod("Derived")!.Invoke(null,
+                method.Signature.Parameters.Select(parameter => parameter.Name == "kind" ? "future_kind" : (object?)null).ToArray())!;
+            Assert.That(instance.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+                .GetValue(instance), Is.EqualTo(unknown ? "future_kind" : "tool"));
+        }
+
         [Test]
         public async Task CanReplaceModelMethod()
         {
@@ -175,6 +223,73 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             // Model factory should be omitted since there are no methods to generate
             var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNull(modelFactory);
+        }
+
+        // This test validates that a derived model customized to be internal does not get a
+        // public model factory method just because its base model remains public.
+        [Test]
+        public async Task OmitsModelFactoryMethodIfDerivedModelTypeInternal()
+        {
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                properties: [InputFactory.Property("BaseProp", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                properties: [InputFactory.Property("DerivedProp", InputPrimitiveType.String)],
+                baseModel: baseModel);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+            CollectionAssert.Contains(modelFactory!.Methods.Select(m => m.Signature.Name), "BaseModel");
+            CollectionAssert.DoesNotContain(modelFactory.Methods.Select(m => m.Signature.Name), "DerivedModel");
+        }
+
+        [Test]
+        public async Task CustomFullConstructorModelParametersRetainNamespaces()
+        {
+            var resource = InputFactory.Model("NetworkSubResource");
+            var association = InputFactory.Model("EffectiveNetworkSecurityGroupAssociation");
+            var rule = InputFactory.Model("EffectiveSecurityRule");
+            var model = InputFactory.Model("EffectiveNetworkSecurityGroup", properties:
+            [
+                InputFactory.Property("NetworkSecurityGroup", resource),
+                InputFactory.Property("Association", association),
+                InputFactory.Property("EffectiveSecurityRules", InputFactory.Array(rule), isReadOnly: true),
+                InputFactory.Property("TagMap", InputPrimitiveType.String)
+            ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [resource, association, rule, model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+
+            await new CSharpGen().ExecuteAsync();
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .Single(p => p.Name == "EffectiveNetworkSecurityGroup");
+            Assert.That(modelProvider.Constructors, Does.Not.Contain(modelProvider.FullConstructor),
+                "The factory must use the custom constructor, not the generated full constructor.");
+            Assert.That(modelProvider.CustomCodeView!.Constructors, Has.Count.EqualTo(1));
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var method = modelFactory.Methods.Single(m => m.Signature.Name == model.Name);
+            Assert.That(method.Signature.Parameters, Has.Count.EqualTo(4));
+            Assert.That(modelFactory.CustomCodeView!.Methods.Single().Signature.Parameters, Has.Count.EqualTo(1));
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.That(content, Does.Not.Contain("using ;"));
+            Assert.That(content, Does.Not.Contain("global::."));
+            Assert.That(content, Does.Contain("global::Sample.Models.NetworkSubResource networkSecurityGroup"));
+            Assert.That(content, Does.Contain("global::Sample.Models.EffectiveNetworkSecurityGroupAssociation association"));
+            Assert.That(content, Does.Contain("IEnumerable<global::Sample.Models.EffectiveSecurityRule> effectiveSecurityRules"));
+            Assert.That(content, Does.Contain("ChangeTrackingList<global::Sample.Models.EffectiveSecurityRule>"));
+            Assert.That(content, Does.Contain("effectiveSecurityRules.ToList(), tagMap, additionalBinaryDataProperties: null"));
         }
 
         [TestCase(true)]

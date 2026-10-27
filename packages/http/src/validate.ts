@@ -2,7 +2,7 @@ import type { Program } from "@typespec/compiler";
 import { isSharedRoute } from "./decorators/shared-route.js";
 import { reportDiagnostic } from "./lib.js";
 import { getAllHttpServices } from "./operations.js";
-import { HttpOperation, HttpService } from "./types.js";
+import type { HttpOperation, HttpService } from "./types.js";
 
 export function $onValidate(program: Program) {
   // Pass along any diagnostics that might be returned from the HTTP library

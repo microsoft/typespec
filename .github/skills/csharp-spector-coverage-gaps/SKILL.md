@@ -240,11 +240,12 @@ The test directory structure mirrors the spec path with these transformations:
 **Namespace pattern**: `TestProjects.Spector.Tests.Http.<PascalCasePath>`
 
 Example mappings:
-| Spec path | Test directory | Namespace |
-|-----------|---------------|-----------|
-| `http/encode/duration` | `Http/Encode/Duration/` | `TestProjects.Spector.Tests.Http.Encode.Duration` |
+
+| Spec path                       | Test directory                    | Namespace                                                   |
+| ------------------------------- | --------------------------------- | ----------------------------------------------------------- |
+| `http/encode/duration`          | `Http/Encode/Duration/`           | `TestProjects.Spector.Tests.Http.Encode.Duration`           |
 | `http/type/union/discriminated` | `Http/_Type/Union/Discriminated/` | `TestProjects.Spector.Tests.Http._Type.Union.Discriminated` |
-| `http/special-words` | `Http/SpecialWords/` | `TestProjects.Spector.Tests.Http.SpecialWords` |
+| `http/special-words`            | `Http/SpecialWords/`              | `TestProjects.Spector.Tests.Http.SpecialWords`              |
 
 ### Test file template
 

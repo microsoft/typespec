@@ -53,7 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 additionalProperties: null,
                 modelAsStruct: false,
                 serializationOptions: null!,
-                isDynamicModel: false);
+                isDynamicModel: false,
+                apiVersions: []);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
@@ -73,6 +74,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
             InputExternalTypeMetadata? external = null;
+            bool isExactName = false;
+            bool isFileType = false;
+            IReadOnlyList<string>? apiVersions = null;
+            InputExperimentalDetails? experimental = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -85,6 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("summary", ref doc)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadComplexType("discriminatorProperty", options, ref discriminatorProperty)
                     || reader.TryReadString("discriminatorValue", ref discriminatorValue)
                     || reader.TryReadComplexType("additionalProperties", options, ref additionalProperties)
@@ -94,6 +100,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadComplexType("external", options, ref external)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadBoolean("isFileType", ref isFileType)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -111,11 +120,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
 
-            if (!parsedUsage.HasFlag(InputModelTypeUsage.Xml))
+            if (!parsedUsage.HasFlag(InputModelTypeUsage.Xml) && !parsedUsage.HasFlag(InputModelTypeUsage.MultipartFormData))
             {
                 parsedUsage |= InputModelTypeUsage.Json;
             }
             model.Usage = parsedUsage;
+            model.ApiVersions = apiVersions ?? [];
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
@@ -134,6 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
             }
             model.ModelAsStruct = modelAsStruct;
+            model.IsExactName = isExactName;
             if (decorators != null)
             {
                 model.Decorators = decorators;
@@ -143,6 +154,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
             model.External = external;
+            model.IsFileType = isFileType;
+            model.Experimental = experimental;
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)

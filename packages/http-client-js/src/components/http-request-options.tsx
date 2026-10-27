@@ -1,6 +1,7 @@
-import { Children, code, Refkey } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { EncodingProvider } from "./encoding-provider.jsx";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
 import { OperationTransformExpression } from "./transforms/operation-transform-expression.jsx";

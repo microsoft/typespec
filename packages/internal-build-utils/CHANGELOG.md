@@ -1,5 +1,29 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.87.0
+
+No changes, version bump only.
+
+## 0.86.0
+
+No changes, version bump only.
+
+## 0.85.0
+
+No changes, version bump only.
+
+## 0.84.0
+
+No changes, version bump only.
+
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+No changes, version bump only.
+
 ## 0.81.0
 
 No changes, version bump only.

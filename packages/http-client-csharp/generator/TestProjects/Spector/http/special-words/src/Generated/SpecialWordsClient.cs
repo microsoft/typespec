@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using SpecialWords._ExtensibleStrings;
 using SpecialWords._ModelProperties;
 using SpecialWords._Models;
+using SpecialWords._ReservedOperationBodyParams;
 
 namespace SpecialWords
 {
@@ -27,6 +28,8 @@ namespace SpecialWords
         public virtual Models GetModelsClient() => throw null;
 
         public virtual ModelProperties GetModelPropertiesClient() => throw null;
+
+        public virtual ReservedOperationBodyParams GetReservedOperationBodyParamsClient() => throw null;
 
         public virtual ExtensibleStrings GetExtensibleStringsClient() => throw null;
 

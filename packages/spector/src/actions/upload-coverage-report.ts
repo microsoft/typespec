@@ -1,5 +1,6 @@
 import { AzureCliCredential } from "@azure/identity";
-import { CoverageReport, GeneratorMetadata, SpecCoverageClient } from "@typespec/spec-coverage-sdk";
+import type { CoverageReport, GeneratorMetadata } from "@typespec/spec-coverage-sdk";
+import { SpecCoverageClient } from "@typespec/spec-coverage-sdk";
 import { readFile } from "fs/promises";
 import pc from "picocolors";
 import { logger } from "../logger.js";

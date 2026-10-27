@@ -22,6 +22,11 @@ async def test_get_model(client):
 
 
 @pytest.mark.asyncio
+async def test_head_model(client):
+    assert await client.head_model(models.VisibilityModel(), query_prop=123)
+
+
+@pytest.mark.asyncio
 async def test_put_model(client):
     await client.put_model(models.VisibilityModel(create_prop=["foo", "bar"], update_prop=[1, 2]))
 

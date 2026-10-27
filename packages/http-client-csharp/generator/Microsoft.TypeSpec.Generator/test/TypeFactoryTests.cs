@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -19,6 +22,91 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void ProviderLookupFollowsIdentityUpdates(
+            [Values("model", "fixed", "extensible")] string kind,
+            [Values] bool changeNamespace)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            TypeProvider provider = kind == "model"
+                ? factory.CreateModel(InputFactory.Model("Original"))!
+                : factory.CreateEnum(InputFactory.StringEnum("Original", [("One", "one")], isExtensible: kind == "extensible"))!;
+            var unrelated = factory.CreateModel(InputFactory.Model("Unrelated"))!;
+            var originalIdentity = provider.Type.WithNullable(true);
+            var count = factory.CSharpTypeMap.Count;
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type]);
+
+            provider.Update(
+                name: changeNamespace ? null : "Renamed",
+                @namespace: changeNamespace ? "Renamed.Models" : null);
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type]);
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type.WithNullable(true)]);
+            Assert.AreSame(provider, factory.TypeProvidersByName[provider.Name]);
+            Assert.AreSame(unrelated, factory.CSharpTypeMap[unrelated.Type]);
+            Assert.AreSame(unrelated, factory.TypeProvidersByName[unrelated.Name]);
+            if (!changeNamespace)
+            {
+                Assert.IsFalse(factory.TypeProvidersByName.ContainsKey("Original"));
+            }
+
+            provider.Update(name: "Final", @namespace: "Final.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type.WithNullable(true)]);
+            Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(changeNamespace ? "Original" : "Renamed"));
+            Assert.AreSame(provider, factory.TypeProvidersByName["Final"]);
+        }
+
+        [Test]
+        public void UnregisteredIdentityUpdatesDoNotReplaceMappedProviders()
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var registered = factory.CreateModel(InputFactory.Model("Original", @namespace: "Test"))!;
+            var unregistered = new TestTypeProvider(name: "Original");
+            var count = factory.CSharpTypeMap.Count;
+
+            unregistered.Update(name: "Renamed", @namespace: "Renamed.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(registered, factory.CSharpTypeMap[registered.Type]);
+            Assert.AreSame(registered, factory.TypeProvidersByName[registered.Name]);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(unregistered.Type));
+            Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(unregistered.Name));
+        }
+
+        [TestCase("model")]
+        [TestCase("fixed")]
+        [TestCase("extensible")]
+        public void CombinedIdentityUpdateDoesNotReplaceIntermediateProvider(string kind)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            TypeProvider CreateProvider(string name) => kind == "model"
+                ? factory.CreateModel(InputFactory.Model(name, @namespace: "Alpha.Models", deprecation: "Use Current instead."))!
+                : factory.CreateEnum(InputFactory.StringEnum(name, [("One", "one")],
+                    clientNamespace: "Alpha.Models", isExtensible: kind == "extensible", deprecation: "Use Current instead."))!;
+            var moving = CreateProvider("Original");
+            var untouched = CreateProvider("Existing");
+            var originalIdentity = moving.Type.WithNullable(true);
+            var untouchedIdentity = untouched.Type.WithNullable(true);
+            var count = factory.CSharpTypeMap.Count;
+
+            moving.Update(name: "Existing", @namespace: "Beta.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(moving, factory.CSharpTypeMap[moving.Type.WithNullable(true)]);
+            Assert.AreSame(untouched, factory.CSharpTypeMap[untouchedIdentity]);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreEqual("Alpha.Models", untouched.Type.Namespace);
+            Assert.AreEqual("Existing", untouched.Name);
+            CollectionAssert.AreEqual(new[] { "\"CS0612\"", "\"CS0618\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(untouchedIdentity).Select(suppression => suppression.Code.ToDisplayString()));
+            CollectionAssert.AreEqual(new[] { "\"CS0612\"", "\"CS0618\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(moving.Type).Select(suppression => suppression.Code.ToDisplayString()));
         }
 
         [Test]
@@ -131,6 +219,35 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsFalse(ReferenceEquals(actual3, actual2));
         }
 
+        [TestCase(InputPrimitiveTypeKind.Int8, typeof(sbyte))]
+        [TestCase(InputPrimitiveTypeKind.Int16, typeof(short))]
+        [TestCase(InputPrimitiveTypeKind.Int32, typeof(int))]
+        [TestCase(InputPrimitiveTypeKind.Int64, typeof(long))]
+        [TestCase(InputPrimitiveTypeKind.UInt8, typeof(byte))]
+        [TestCase(InputPrimitiveTypeKind.UInt16, typeof(ushort))]
+        [TestCase(InputPrimitiveTypeKind.UInt32, typeof(uint))]
+        [TestCase(InputPrimitiveTypeKind.UInt64, typeof(ulong))]
+        [TestCase(InputPrimitiveTypeKind.String, typeof(string))]
+        [TestCase(InputPrimitiveTypeKind.Boolean, typeof(bool))]
+        [TestCase(InputPrimitiveTypeKind.Unknown, typeof(BinaryData))]
+        public void CreateCSharpType_PrimitiveAndCollections(InputPrimitiveTypeKind kind, Type expectedType)
+        {
+            var name = kind.ToString().ToLowerInvariant();
+            var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}");
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(new CSharpType(expectedType), factory.CreateCSharpType(input));
+                Assert.AreEqual(new CSharpType(expectedType, isNullable: true),
+                    factory.CreateCSharpType(new InputNullableType(input)));
+                Assert.AreEqual(new CSharpType(typeof(IList<>), expectedType),
+                    factory.CreateCSharpType(new InputArrayType("Array", "TypeSpec.Array", input)));
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<,>), typeof(string), expectedType),
+                    factory.CreateCSharpType(new InputDictionaryType("Record", InputPrimitiveType.String, input)));
+            });
+        }
+
         [Test]
         public void IntSerializationFormat([Values(
             InputPrimitiveTypeKind.Integer,
@@ -150,6 +267,63 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode, null);
 
             Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input));
+        }
+
+        [Test]
+        public void DurationIntegerWireTypeSerializationFormat([Values(
+            InputPrimitiveTypeKind.Integer,
+            InputPrimitiveTypeKind.SafeInt,
+            InputPrimitiveTypeKind.Int8,
+            InputPrimitiveTypeKind.Int16,
+            InputPrimitiveTypeKind.Int32,
+            InputPrimitiveTypeKind.Int64,
+            InputPrimitiveTypeKind.UInt8,
+            InputPrimitiveTypeKind.UInt16,
+            InputPrimitiveTypeKind.UInt32,
+            InputPrimitiveTypeKind.UInt64
+            )] InputPrimitiveTypeKind wireKind)
+        {
+            var wireName = wireKind.ToString().ToLower();
+            var wireType = new InputPrimitiveType(wireKind, wireName, $"TypeSpec.{wireName}", null, null);
+
+            // Wire types whose .NET range fits in System.Int32 use the Int32 format;
+            // larger integer kinds (Int64, UInt32, UInt64, SafeInt, unbounded Integer) use the Int64 format
+            // so that ser/deser uses GetInt64 / Convert.ToInt64 instead of GetInt32 / Convert.ToInt32.
+            var fitsInInt32 = wireKind is
+                InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16;
+            var expectedMs = fitsInInt32 ? SerializationFormat.Duration_Milliseconds : SerializationFormat.Duration_Milliseconds_Int64;
+            var expectedS = fitsInInt32 ? SerializationFormat.Duration_Seconds : SerializationFormat.Duration_Seconds_Int64;
+
+            var ms = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(expectedMs, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(ms));
+
+            var s = new InputDurationType(DurationKnownEncoding.Seconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(expectedS, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(s));
+        }
+
+        [Test]
+        public void DurationFloatWireTypeSerializationFormat([Values(
+            InputPrimitiveTypeKind.Float,
+            InputPrimitiveTypeKind.Float32,
+            InputPrimitiveTypeKind.Float64
+            )] InputPrimitiveTypeKind wireKind)
+        {
+            var wireName = wireKind.ToString().ToLower();
+            var wireType = new InputPrimitiveType(wireKind, wireName, $"TypeSpec.{wireName}", null, null);
+
+            var expectedMs = wireKind == InputPrimitiveTypeKind.Float64
+                ? SerializationFormat.Duration_Milliseconds_Double
+                : SerializationFormat.Duration_Milliseconds_Float;
+            var expectedS = wireKind == InputPrimitiveTypeKind.Float64
+                ? SerializationFormat.Duration_Seconds_Double
+                : SerializationFormat.Duration_Seconds_Float;
+
+            var ms = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(expectedMs, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(ms));
+
+            var s = new InputDurationType(DurationKnownEncoding.Seconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(expectedS, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(s));
         }
 
         [TestCase(typeof(Guid))]
@@ -283,6 +457,107 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsTrue(enumProvider!.IsExtensible);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreateEnum_ExternalEnum_ReturnsNull(bool isExtensible)
+        {
+            // An enum mapped to an existing external type (via @alternateType, surfaced as
+            // InputType.External) must not be generated -- it mirrors CreateExternalModel for models.
+            // Previously a provider was produced and threw "Not an enum type" while building its
+            // serialization (ScmTypeFactory.CreateExtensibleEnumSerializations -> UnderlyingEnumType).
+            var input = InputFactory.StringEnum(
+                "ExternalToolType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: isExtensible,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
+
+            Assert.IsNull(enumProvider);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalEnum_ResolvesToExternalFrameworkType()
+        {
+            // Although no provider is generated for an external enum, references to it must still
+            // resolve to the external framework type so consumers (properties, parameters) compile.
+            var input = InputFactory.StringEnum(
+                "ExternalToolType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsFrameworkType);
+            Assert.AreEqual(typeof(Uri), type.FrameworkType);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalExtensibleStringEnum_PreservesEnumSemantics()
+        {
+            // A referenced extensible enum is implemented as a value-type struct, so reflection does not
+            // report it as an enum. The resolved external type must still carry enum semantics (underlying
+            // type + struct) so serialization emits inline construction instead of a broken model read.
+            var input = InputFactory.StringEnum(
+                "ExternalKind",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Guid", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsFrameworkType);
+            Assert.AreEqual(typeof(Guid), type.FrameworkType);
+            Assert.IsTrue(type.IsEnum);
+            Assert.IsTrue(type.IsStruct);
+            Assert.AreEqual(typeof(string), type.UnderlyingEnumType);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalExtensibleInt32Enum_PreservesEnumSemantics()
+        {
+            var input = InputFactory.Int32Enum(
+                "ExternalKind",
+                [("value1", 1), ("value2", 2)],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Guid", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsEnum);
+            Assert.IsTrue(type.IsStruct);
+            Assert.AreEqual(typeof(int), type.UnderlyingEnumType);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalFixedEnum_DoesNotForceEnumSemantics()
+        {
+            // Fixed (non-extensible) external enums are left untouched; they resolve to their external
+            // framework type as-is (which, for a real .NET enum, already reports enum semantics).
+            var input = InputFactory.StringEnum(
+                "ExternalKind",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: false,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsFrameworkType);
+            Assert.AreEqual(typeof(Uri), type.FrameworkType);
+            Assert.IsFalse(type.IsEnum);
+            Assert.Throws<InvalidOperationException>(() => _ = type.UnderlyingEnumType);
+        }
+
         [Test]
         public void CreateCSharpType_SelfReferencingModel_DoesNotThrow()
         {
@@ -315,7 +590,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected internal override EnumProvider? PreVisitEnum(InputEnumType enumType, EnumProvider? type)
             {
                 if (type == null)
+                {
                     return type;
+                }
 
                 // Create a new enum provider with modified namespace
                 // replace ".Models" with ".SomeOtherNamespace"

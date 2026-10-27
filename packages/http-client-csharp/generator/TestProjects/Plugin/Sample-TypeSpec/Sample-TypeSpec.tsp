@@ -250,7 +250,7 @@ op sayHi(
 @route("/againHi")
 @doc("Return hi again")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloAgain(
   @header p1: string,
   @body action: RoundTripModel,
@@ -261,7 +261,7 @@ op helloAgain(
 @route("/noContentType")
 @doc("Return hi again")
 @get
-@convenientAPI(false)
+@convenientAPI(false, "csharp")
 op noContentType(
   @header p1: string,
   @body action: RoundTripModel,
@@ -271,49 +271,49 @@ op noContentType(
 @route("/demoHi")
 @doc("Return hi in demo2")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloDemo2(): Thing;
 
 @route("/literal")
 @doc("Create with literal value")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op createLiteral(@body body: Thing): Thing;
 
 @route("/helloLiteral")
 @doc("Send literal parameters")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloLiteral(@header p1: "test", @path p2: 123, @query p3: true): Thing;
 
 @route("/top")
 @doc("top level method")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op topAction(@path action: utcDateTime): Thing;
 
 @route("/top2")
 @doc("top level method2")
 @get
-@convenientAPI(false)
+@convenientAPI(false, "csharp")
 op topAction2(): Thing;
 
 @route("/patch")
 @doc("top level patch")
 @patch
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op patchAction(@body body: Thing): Thing;
 
 @route("/anonymousBody")
 @doc("body parameter without body decorator")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op anonymousBody(...Thing): Thing;
 
 @route("/friendlyName")
 @doc("Model can have its friendly name")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op friendlyModel(...NotFriend): NotFriend;
 
 op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: utcDateTime): void;
@@ -321,13 +321,13 @@ op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: ut
 @route("/projectedName")
 @doc("Model can have its projected name")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op projectedNameModel(...ModelWithProjectedName): ModelWithProjectedName;
 
 @route("/returnsAnonymousModel")
 @doc("return anonymous model")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op returnsAnonymousModel(): {
   @body body: {};
 };
@@ -340,19 +340,19 @@ op getUnknownValue(): DaysOfWeekExtensibleEnum;
 @doc("When set protocol false and convenient true, then the protocol method should be internal")
 @route("internalProtocol")
 @post
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "csharp")
+@protocolAPI(false, "csharp")
 op internalProtocol(@body body: Thing): Thing;
 
 @doc("When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one")
 @route("stillConvenient")
 @get
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "csharp")
+@protocolAPI(false, "csharp")
 op stillConvenient(): void;
 
 @route("/headAsBoolean")
 @doc("head as boolean.")
 @head
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op headAsBoolean(@path id: string): void;

@@ -25,7 +25,7 @@ namespace Sample
         public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
             global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
-            yield return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            yield return this.GetNextResponse(message);
         }
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
@@ -36,6 +36,11 @@ namespace Sample
         protected override global::System.Collections.Generic.IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(global::System.ClientModel.ClientResult page)
         {
             return ((global::Sample.Models.Page)page).Cats;
+        }
+
+        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

@@ -29,7 +29,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         {
             name = null;
             if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
+            {
                 return false;
+            }
 
             name = attributeData.ConstructorArguments.FirstOrDefault().Value as string;
             return name != null;

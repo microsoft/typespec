@@ -89,7 +89,7 @@ Specify this operation is a collection action. (Scopped to a resource, /pets/my-
 
 | Name         | Type             | Description                                                                   |
 | ------------ | ---------------- | ----------------------------------------------------------------------------- |
-| resourceType | `Model`          | Resource marked with                                                          |
+| resourceType | `Model`          | Resource marked with `@resource`                                              |
 | name         | `valueof string` | Name of the action. If not specified, the name of the operation will be used. |
 
 ### `@copyResourceKeyParameters` {#@TypeSpec.Rest.copyResourceKeyParameters}
@@ -124,9 +124,9 @@ Specify that this is a CreateOrReplace operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 ### `@createsOrUpdatesResource` {#@TypeSpec.Rest.createsOrUpdatesResource}
 
@@ -142,9 +142,9 @@ Specify that this is a CreatesOrUpdate operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 ### `@createsResource` {#@TypeSpec.Rest.createsResource}
 
@@ -160,9 +160,9 @@ Specify that this is a Create operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 ### `@deletesResource` {#@TypeSpec.Rest.deletesResource}
 
@@ -178,9 +178,9 @@ Specify that this is a Delete operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 ### `@listsResource` {#@TypeSpec.Rest.listsResource}
 
@@ -196,9 +196,9 @@ Specify that this is a List operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 ### `@parentResource` {#@TypeSpec.Rest.parentResource}
 
@@ -232,9 +232,9 @@ Specify that this is a Read operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 ### `@resource` {#@TypeSpec.Rest.resource}
 
@@ -256,7 +256,7 @@ Mark this model as a resource type with a name.
 
 ### `@segment` {#@TypeSpec.Rest.segment}
 
-Defines the preceding path segment for a
+Defines the preceding path segment for a `@path` parameter in auto-generated routes.
 
 ```typespec
 @TypeSpec.Rest.segment(name: valueof string)
@@ -273,6 +273,13 @@ Defines the preceding path segment for a
 | name | `valueof string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
 #### Examples
+
+```typespec
+@autoRoute
+interface Pets {
+  get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
+}
+```
 
 ### `@segmentOf` {#@TypeSpec.Rest.segmentOf}
 
@@ -306,6 +313,6 @@ Specify that this is a Update operation for a given resource.
 
 #### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |

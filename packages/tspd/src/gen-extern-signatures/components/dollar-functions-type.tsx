@@ -1,6 +1,7 @@
-import { For, Refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { For } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { FunctionSignature } from "../types.js";
+import type { FunctionSignature } from "../types.js";
 
 export interface DollarFunctionsTypeProps {
   namespaceName: string;

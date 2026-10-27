@@ -32,6 +32,12 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<BinaryData> FromBytes(ValueExpression data)
             => Static<BinaryData>().Invoke(nameof(BinaryData.FromBytes), data).As<BinaryData>();
 
+        public static ScopedApi<BinaryData> FromBytes(ValueExpression data, ValueExpression mediaType)
+            => New.Instance<BinaryData>(data, mediaType);
+
+        public static ScopedApi<BinaryData> WithMediaType(this ScopedApi<BinaryData> binaryData, ValueExpression mediaType)
+            => binaryData.Invoke(nameof(WithMediaType), [mediaType]).As<BinaryData>();
+
         public static ScopedApi<BinaryData> FromObjectAsJson(ValueExpression data)
             => Static<BinaryData>().Invoke(nameof(BinaryData.FromObjectAsJson), data).As<BinaryData>();
 

@@ -2,12 +2,13 @@ import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import type { Interface, Model } from "@typespec/compiler";
 import { isVoidType } from "@typespec/compiler";
-import { useTsp } from "../../../core/index.js";
+import { Experimental_OverridableComponent, useTsp } from "../../../core/index.js";
 import { Property } from "../property/property.jsx";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
 import { declarationRefkeys } from "../utils/refkey.js";
 
+/** Alloy class options with a TypeSpec model or interface supplying the generated body and documentation. */
 export interface ClassDeclarationProps extends Omit<cs.ClassDeclarationProps, "name"> {
   /** Set an alternative name for the class. Otherwise default to the type name. */
   name?: string;
@@ -27,7 +28,25 @@ interface ClassMethodsProps {
   type: Interface;
 }
 
+/**
+ * Declares a C# class with properties from a model or abstract methods from an interface.
+ * Model inheritance supplies the base class unless `baseType` is provided; void properties
+ * are omitted. The body is derived from `type`, not `children`. Supports declaration overrides.
+ */
 export function ClassDeclaration(props: ClassDeclarationProps): Children {
+  return (
+    <Experimental_OverridableComponent
+      declaration
+      type={props.type}
+      Declaration={ClassDeclarationBody}
+      declarationProps={props}
+    >
+      <ClassDeclarationBody {...props} />
+    </Experimental_OverridableComponent>
+  );
+}
+
+function ClassDeclarationBody(props: ClassDeclarationProps): Children {
   const { $ } = useTsp();
 
   const namePolicy = cs.useCSharpNamePolicy();

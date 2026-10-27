@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.14.0",
+  "version": "0.18.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -31,6 +31,10 @@
       "types": "./dist/src/vite/index.d.ts",
       "default": "./dist/vite/index.js"
     },
+    "./vite/workers": {
+      "types": "./dist/src/vite/workers.d.ts",
+      "default": "./dist/vite/workers.js"
+    },
     "./tooling": {
       "types": "./dist/src/tooling/index.d.ts",
       "default": "./dist/tooling/index.js"
@@ -55,16 +59,17 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "vite build",
-    "watch": "vite build --watch",
-    "storybook": "sb dev",
-    "build:storybook": "sb build",
+    "build": "vite build && pnpm build:types",
+    "build:types": "tsc -p tsconfig.declaration.json",
+    "watch": "concurrently --kill-others \"vite build --watch --emptyOutDir false\" \"pnpm build:types --watch\"",
+    "storybook": "storybook dev",
+    "build:storybook": "storybook build",
     "preview": "pnpm build && vite preview",
     "start": "vite",
     "test": "vitest run",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "files": [
     "lib/*.tsp",
@@ -98,7 +103,6 @@
   "devDependencies": {
     "@babel/core": "catalog:",
     "@playwright/test": "catalog:",
-    "@storybook/cli": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
@@ -111,6 +115,7 @@
     "@typespec/bundler": "workspace:^",
     "@typespec/react-components": "workspace:^",
     "@vitejs/plugin-react": "catalog:",
+    "concurrently": "catalog:",
     "cross-env": "catalog:",
     "es-module-shims": "catalog:",
     "rimraf": "catalog:",
@@ -118,7 +123,6 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-checker": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   }
 }

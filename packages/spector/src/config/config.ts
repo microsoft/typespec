@@ -1,9 +1,9 @@
 import { readFile } from "fs/promises";
 import yaml from "yaml";
-import { Diagnostic } from "../utils/diagnostic-reporter.js";
+import type { Diagnostic } from "../utils/diagnostic-reporter.js";
 import { SpecConfigJsonSchema } from "./config-schema.js";
 import { SchemaValidator } from "./schema-validator.js";
-import { SpecConfig } from "./types.js";
+import type { SpecConfig } from "./types.js";
 
 const validator = new SchemaValidator(SpecConfigJsonSchema);
 

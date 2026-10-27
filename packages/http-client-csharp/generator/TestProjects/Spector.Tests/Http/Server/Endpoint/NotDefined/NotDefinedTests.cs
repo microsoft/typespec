@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Server.Endpoint.NotDefined;
-using System.Threading.Tasks;
 
 namespace TestProjects.Spector.Tests.Http.Server.Endpoint.NotDefined
 {

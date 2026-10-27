@@ -1,5 +1,4 @@
-import {
-  createDiagnosticCollector,
+import type {
   Diagnostic,
   DiagnosticResult,
   Interface,
@@ -7,10 +6,11 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { isSharedRoute } from "./decorators/shared-route.js";
 import { createDiagnostic, HttpStateKeys } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
-import {
+import type {
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
@@ -23,7 +23,8 @@ import {
   RouteProducerResult,
   RouteResolutionOptions,
 } from "./types.js";
-import { parseUriTemplate, UriTemplate } from "./uri-template.js";
+import type { UriTemplate } from "./uri-template.js";
+import { parseUriTemplate } from "./uri-template.js";
 
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":", "?"];
@@ -45,6 +46,11 @@ function normalizeFragment(fragment: string) {
   return fragment;
 }
 
+/**
+ * Joins route fragments, adding a slash when a fragment lacks a recognized separator
+ * and trimming one trailing slash from non-final fragments. Preserves URI-template path expansions.
+ * An empty input returns an empty string.
+ */
 export function joinPathSegments(rest: string[]) {
   let current = "";
   for (const segment of rest) {
@@ -202,7 +208,12 @@ function getUriTemplateAndParameters(
   ];
 }
 
-/** @experimental */
+/**
+ * Produces the standard route from containing fragments and the operation's own route,
+ * or reuses the overload base's template when the overload declares no route.
+ * Resolves request parameters and appends path/query parameters not already referenced in the template.
+ * @experimental
+ */
 export function DefaultRouteProducer(
   program: Program,
   operation: Operation,
@@ -251,6 +262,11 @@ const styleToOperator: Record<PathParameterOptions["style"], string> = {
   fragment: "#",
 };
 
+/**
+ * Builds a URI-template expression for a resolved path parameter.
+ * Optional parameters use path-segment expansion; otherwise reserved-character handling
+ * takes precedence over the configured style. Appends `*` when explode is enabled.
+ */
 export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
   const operator = param.param.optional
     ? "/"
@@ -264,6 +280,10 @@ function getUriTemplateQueryParamPart(param: HttpOperationQueryParameter) {
   return `${escapeUriTemplateParamName(param.name)}${param.explode ? "*" : ""}`;
 }
 
+/**
+ * Appends one query expansion containing only the supplied query parameters, in input order.
+ * Encodes parameter names and preserves explode modifiers. Does not merge with existing expansions.
+ */
 export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
   const queryParams = params.filter((x) => x.type === "query");
 
@@ -289,6 +309,10 @@ function escapeUriTemplateParamName(name: string) {
   });
 }
 
+/**
+ * Registers a custom producer for this operation, replacing any previous producer.
+ * Used by the experimental `unsafe_setRouteProducer` export.
+ */
 export function setRouteProducer(
   program: Program,
   operation: Operation,
@@ -297,10 +321,18 @@ export function setRouteProducer(
   program.stateMap(HttpStateKeys.routeProducer).set(operation, routeProducer);
 }
 
+/**
+ * Reads the custom producer registered on this operation.
+ * Returns `undefined` at runtime when none is registered; route resolution then uses the default producer.
+ */
 export function getRouteProducer(program: Program, operation: Operation): RouteProducer {
   return program.stateMap(HttpStateKeys.routeProducer).get(operation);
 }
 
+/**
+ * Replaces the options stored directly on a namespace.
+ * During route resolution these are shallowly merged with ancestor options and overridden by call-site options.
+ */
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
@@ -309,6 +341,7 @@ export function setRouteOptionsForNamespace(
   program.stateMap(HttpStateKeys.routeOptions).set(namespace, options);
 }
 
+/** Reads options stored directly on a namespace, without merging options from its ancestors. */
 export function getRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
@@ -316,6 +349,10 @@ export function getRouteOptionsForNamespace(
   return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
 }
 
+/**
+ * Reads the target's declared route fragment and, for operations, its shared-route flag.
+ * Returns `undefined` when no nonempty route is stored; does not prepend containing routes.
+ */
 export function getRoutePath(
   program: Program,
   entity: Namespace | Interface | Operation,

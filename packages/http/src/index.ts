@@ -75,12 +75,12 @@ export {
 } from "./operations.js";
 export { getOperationParameters } from "./parameters.js";
 export {
-  HttpPart,
   getHttpFileModel,
   getHttpPart,
   isHttpFile,
   isOrExtendsHttpFile,
 } from "./private.decorators.js";
+export type { HttpPart } from "./private.decorators.js";
 export { getResponsesForOperation } from "./responses.js";
 export {
   addQueryParamsToUriTemplate,

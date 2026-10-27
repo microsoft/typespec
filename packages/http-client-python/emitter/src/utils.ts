@@ -1,5 +1,4 @@
-import {
-  InitializedByFlags,
+import type {
   SdkCredentialParameter,
   SdkEndpointParameter,
   SdkHeaderParameter,
@@ -13,9 +12,11 @@ import {
   SdkServiceResponseHeader,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
+import { InitializedByFlags } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
-import { marked, Token } from "marked";
-import { PythonSdkContext } from "./lib.js";
+import type { Token } from "marked";
+import { marked } from "marked";
+import type { PythonSdkContext } from "./lib.js";
 import { getSimpleTypeResult, getType } from "./types.js";
 
 function IsFullyUpperCase(identifier: string, maxUppercasePreserve: number) {
@@ -107,6 +108,10 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
+export function getClientName(named: { name: string; isExactName: boolean }): string {
+  return named.isExactName ? named.name : camelToSnakeCase(named.name);
+}
+
 export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
@@ -146,6 +151,7 @@ type ParamBase = {
   description: string;
   addedOn: string | undefined;
   clientName: string;
+  isExactName: boolean;
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
@@ -220,7 +226,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
       });
     }
   }
-  let clientName = camelToSnakeCase(parameter.name);
+  let clientName = getClientName(parameter);
   if (
     parameter.kind !== "method" &&
     parameter.kind !== "credential" &&
@@ -228,13 +234,14 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
-    clientName = camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+    clientName = getClientName(parameter.correspondingMethodParams[0]);
   }
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter, serviceApiVersions),
     clientName,
+    isExactName: parameter.isExactName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken:
@@ -260,6 +267,19 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
 
 export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
+}
+
+/**
+ * Quotes a value so it can be safely embedded in a shell command line.
+ *
+ * The value is wrapped in double quotes (handling spaces and other separators)
+ * and any embedded double quotes are escaped. This quoting must only be applied
+ * when the value is passed through a shell (e.g. `execSync`); it must never be
+ * baked into the option value itself, otherwise the quotes leak into non-shell
+ * consumers such as the Pyodide runtime and end up in generated files.
+ */
+export function quoteShellArg(value: string): string {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
 // Library namespaces that should not be used as client namespaces

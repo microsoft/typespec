@@ -1,4 +1,5 @@
-import { json, passOnCode, ScenarioMockApi } from "@typespec/spec-api";
+import type { ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnCode } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 

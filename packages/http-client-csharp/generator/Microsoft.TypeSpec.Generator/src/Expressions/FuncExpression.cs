@@ -39,7 +39,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                             writer.AppendRaw("_");
                         }
                         if (i < Parameters.Count - 1)
+                        {
                             writer.AppendRaw(", ");
+                        }
                     }
                     writer.AppendRaw(")");
                 }

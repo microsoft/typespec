@@ -1,4 +1,4 @@
-import { StringLiteral, StringValue, Union } from "@typespec/compiler";
+import type { StringLiteral, StringValue, Union } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";

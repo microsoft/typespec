@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { NumericValue } from "../../../src/index.js";
+import type { NumericValue } from "../../../src/index.js";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
 import { compileValue, diagnoseUsage } from "./utils.js";
 

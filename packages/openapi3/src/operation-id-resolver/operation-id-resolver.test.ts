@@ -2,7 +2,7 @@ import { ApiTester } from "#test/test-host.js";
 import { t } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { OperationIdStrategy } from "../lib.js";
+import type { OperationIdStrategy } from "../lib.js";
 import { OperationIdResolver } from "./operation-id-resolver.js";
 
 async function testResolveOperationId(code: string, strategy: OperationIdStrategy) {

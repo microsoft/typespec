@@ -148,7 +148,7 @@ When marshalling custom scalar subtypes, the marshalling behavior of the known s
 The function context provides the `functionCallTarget` and `getArgumentTarget` helpers.
 
 ```ts
-import type { FunctionContext, Type } from "typespec/compiler";
+import type { FunctionContext, Model, Type } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 export function renamed(ctx: FunctionContext, model: Model, name: string): Model {

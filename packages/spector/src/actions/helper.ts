@@ -1,10 +1,5 @@
-import {
-  expandDyns,
-  HttpMethod,
-  MockBody,
-  MockMultipartBody,
-  ResolverConfig,
-} from "@typespec/spec-api";
+import type { HttpMethod, MockBody, MockMultipartBody, ResolverConfig } from "@typespec/spec-api";
+import { expandDyns } from "@typespec/spec-api";
 
 export interface ServiceRequest {
   method: HttpMethod;

@@ -5,5 +5,6 @@ namespace TypeSpec.HttpClient;
  * You can use ”!” to exclude specific emitters, for example: `!@typespec/http-client-js, !@typespec/http-client-csharp`
  */
 model ClientDecoratorOptions {
+  /** Comma separated list of emitter names the decorator applies to. */
   emitterScope?: string;
 }

@@ -1,12 +1,5 @@
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  CompletionParams,
-  MarkupKind,
-  Range,
-  TextEdit,
-} from "vscode-languageserver";
+import type { CompletionItem, CompletionList, CompletionParams } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind, Range, TextEdit } from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
@@ -20,22 +13,20 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { Program } from "../core/program.js";
-import {
+import type { Program } from "../core/program.js";
+import type {
   CompilerHost,
   IdentifierNode,
   Node,
-  NodeFlags,
   PositionDetail,
   StringLiteralNode,
   Sym,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   TypeSpecScriptNode,
 } from "../core/types.js";
+import { NodeFlags, SymbolFlags, SyntaxKind } from "../core/types.js";
 
-import { PackageJson } from "../types/package-json.js";
+import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
@@ -97,9 +88,12 @@ function addCompletionByLookingBackward(
     preDetail.node,
     (n) =>
       n.kind === SyntaxKind.ModelStatement ||
+      n.kind === SyntaxKind.ModelDeclarationExpression ||
       n.kind === SyntaxKind.ScalarStatement ||
+      n.kind === SyntaxKind.ScalarDeclarationExpression ||
       n.kind === SyntaxKind.OperationStatement ||
       n.kind === SyntaxKind.InterfaceStatement ||
+      n.kind === SyntaxKind.UnionStatement ||
       n.kind === SyntaxKind.TemplateParameterDeclaration,
     true /*includeSelf*/,
   );
@@ -112,21 +106,27 @@ function addCompletionByLookingBackwardNode(
   posDetail: PositionDetail,
   context: CompletionContext,
 ): boolean {
-  const getIdentifierEndPos = (n: IdentifierNode) => {
+  const getIdentifierEndPos = (n: IdentifierNode | undefined) => {
     // n.pos === n.end, it means it's a missing identifier, just return -1;
-    return n.pos === n.end ? -1 : n.end;
+    return n === undefined || n.pos === n.end ? -1 : n.end;
   };
   const map: { [key in SyntaxKind]?: keyof KeywordArea } = {
     [SyntaxKind.ModelStatement]: "modelHeader",
+    [SyntaxKind.ModelDeclarationExpression]: "modelHeader",
     [SyntaxKind.ScalarStatement]: "scalarHeader",
+    [SyntaxKind.ScalarDeclarationExpression]: "scalarHeader",
     [SyntaxKind.OperationStatement]: "operationHeader",
     [SyntaxKind.InterfaceStatement]: "interfaceHeader",
+    [SyntaxKind.UnionStatement]: "unionHeader",
   };
   switch (preNode?.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.InterfaceStatement:
+    case SyntaxKind.UnionStatement:
       const idEndPos =
         preNode.templateParametersRange.end >= 0
           ? preNode.templateParametersRange.end
@@ -172,6 +172,7 @@ async function AddCompletionNonTrivia(
         addKeywordCompletion("namespace", context.completions);
         break;
       case SyntaxKind.ScalarStatement:
+      case SyntaxKind.ScalarDeclarationExpression:
         if (positionInRange(posDetail.position, node.bodyRange)) {
           addKeywordCompletion("scalarBody", context.completions);
         }
@@ -186,6 +187,7 @@ async function AddCompletionNonTrivia(
         }
         break;
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.ObjectLiteral:
       case SyntaxKind.ModelExpression:
         await addModelCompletion(context, posDetail);
@@ -204,6 +206,7 @@ interface KeywordArea {
   templateParameter?: boolean;
   operationHeader?: boolean;
   interfaceHeader?: boolean;
+  unionHeader?: boolean;
 }
 
 const keywords = [
@@ -227,7 +230,13 @@ const keywords = [
   // On model `model Foo <keyword> ...`
   [
     "extends",
-    { modelHeader: true, scalarHeader: true, templateParameter: true, interfaceHeader: true },
+    {
+      modelHeader: true,
+      scalarHeader: true,
+      templateParameter: true,
+      interfaceHeader: true,
+      unionHeader: true,
+    },
   ],
   ["is", { modelHeader: true, operationHeader: true }],
 
@@ -371,6 +380,7 @@ async function addModelCompletion(context: CompletionContext, posDetail: Positio
   if (
     !node ||
     (node.kind !== SyntaxKind.ModelStatement &&
+      node.kind !== SyntaxKind.ModelDeclarationExpression &&
       node.kind !== SyntaxKind.ModelExpression &&
       node.kind !== SyntaxKind.ObjectLiteral)
   ) {
@@ -421,20 +431,20 @@ async function addIdentifierCompletion(
     let kind: CompletionItemKind;
     let deprecated = false;
     const symNode = getSymNode(sym);
-    const type = sym.type ?? program.checker.getTypeForNode(symNode);
+    const type = sym.type ?? (symNode ? program.checker.getTypeForNode(symNode) : undefined);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
     } else if (
       sym.flags & SymbolFlags.Namespace &&
-      symNode.kind !== SyntaxKind.NamespaceStatement
+      symNode?.kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
     } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
       deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
-      kind = getCompletionItemKind(program, type);
-      deprecated = getDeprecationDetails(program, type) !== undefined;
+      kind = type ? getCompletionItemKind(program, type) : CompletionItemKind.Variable;
+      deprecated = type ? getDeprecationDetails(program, type) !== undefined : false;
     }
     const documentation = await getSymbolDetails(program, sym);
 
@@ -460,16 +470,21 @@ async function addIdentifierCompletion(
       continue;
     }
 
-    if (sym.name.startsWith("$")) {
-      const targetNode = getSourceLocation(node);
-      const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
-      item.textEdit = TextEdit.replace(
-        // Specifying replacement in the current location can avoid the problem of $ duplication
-        Range.create(lineAndChar, lineAndChar),
-        printIdentifier(key) + (suffix ?? ""),
-      );
+    const identifierContext = getIdentifierPrintContext(node);
+    const insertionText = printIdentifier(key, identifierContext) + (suffix ?? "");
+    if (node.pos === node.end) {
+      // Synthetic/missing identifier node — just use insertText
+      item.insertText = insertionText;
     } else {
-      item.insertText = printIdentifier(key) + (suffix ?? "");
+      const targetNode = getSourceLocation(node);
+      const start = targetNode.file.getLineAndCharacterOfPosition(node.pos);
+      const end = targetNode.file.getLineAndCharacterOfPosition(node.end);
+      if (sym.name.startsWith("$")) {
+        // Insert before the identifier to avoid $ duplication
+        item.textEdit = TextEdit.replace(Range.create(start, start), insertionText);
+      } else {
+        item.textEdit = TextEdit.replace(Range.create(start, end), insertionText);
+      }
     }
 
     if (deprecated) {
@@ -507,6 +522,22 @@ async function addIdentifierCompletion(
   }
 }
 
+/**
+ * Determine the print context for an identifier in completion.
+ * In certain positions (model property names, object literal property names, member expressions),
+ * keywords can be used as identifiers without backticks.
+ */
+function getIdentifierPrintContext(node: IdentifierNode): "allow-reserved" | "disallow-reserved" {
+  switch (node.parent?.kind) {
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.ModelProperty:
+    case SyntaxKind.ObjectLiteralProperty:
+      return "allow-reserved";
+    default:
+      return "disallow-reserved";
+  }
+}
+
 const directiveNames = ["suppress", "deprecated"];
 function addDirectiveCompletion({ completions }: CompletionContext, node: IdentifierNode) {
   if (!(node.parent?.kind === SyntaxKind.DirectiveExpression && node.parent.target === node)) {
@@ -523,7 +554,9 @@ function addDirectiveCompletion({ completions }: CompletionContext, node: Identi
 function getCompletionItemKind(program: Program, target: Type): CompletionItemKind {
   switch (target.node?.kind) {
     case SyntaxKind.EnumStatement:
+    case SyntaxKind.EnumDeclarationExpression:
     case SyntaxKind.UnionStatement:
+    case SyntaxKind.UnionDeclarationExpression:
       return CompletionItemKind.Enum;
     case SyntaxKind.EnumMember:
     case SyntaxKind.UnionVariant:
@@ -531,8 +564,10 @@ function getCompletionItemKind(program: Program, target: Type): CompletionItemKi
     case SyntaxKind.AliasStatement:
       return CompletionItemKind.Variable;
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
       return CompletionItemKind.Class;
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
       return CompletionItemKind.Unit;
     case SyntaxKind.ModelProperty:
       return CompletionItemKind.Field;

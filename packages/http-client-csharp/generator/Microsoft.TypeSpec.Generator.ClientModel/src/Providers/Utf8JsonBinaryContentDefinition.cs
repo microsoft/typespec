@@ -16,7 +16,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class Utf8JsonBinaryContentDefinition : TypeProvider
+    public class Utf8JsonBinaryContentDefinition : InternalHelperProvider
     {
         private const string _jsonWriterName = "JsonWriter";
 

@@ -5,7 +5,9 @@
 package azure.resourcemanager.operationtemplates.implementation;
 
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
+import azure.resourcemanager.operationtemplates.fluent.models.CostReportInner;
 import azure.resourcemanager.operationtemplates.fluent.models.ExportResultInner;
+import azure.resourcemanager.operationtemplates.models.CostReport;
 import azure.resourcemanager.operationtemplates.models.ExportRequest;
 import azure.resourcemanager.operationtemplates.models.ExportResult;
 import azure.resourcemanager.operationtemplates.models.Lroes;
@@ -76,13 +78,35 @@ public final class LroesImpl implements Lroes {
         }
     }
 
+    public CostReport getLro(String scope, String operationId) {
+        CostReportInner inner = this.serviceClient().getLro(scope, operationId);
+        if (inner != null) {
+            return new CostReportImpl(inner, this.manager());
+        } else {
+            return null;
+        }
+    }
+
+    public CostReport getLro(String scope, String operationId, Context context) {
+        CostReportInner inner = this.serviceClient().getLro(scope, operationId, context);
+        if (inner != null) {
+            return new CostReportImpl(inner, this.manager());
+        } else {
+            return null;
+        }
+    }
+
     public void deleteById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
+            "resourceGroupName");
         if (resourceGroupName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
         }
-        String orderName = ResourceManagerUtils.getValueFromIdByName(id, "orders");
+        String orderName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
+            "orderName");
         if (orderName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'orders'.", id)));
@@ -91,12 +115,16 @@ public final class LroesImpl implements Lroes {
     }
 
     public void deleteByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
+            "resourceGroupName");
         if (resourceGroupName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
         }
-        String orderName = ResourceManagerUtils.getValueFromIdByName(id, "orders");
+        String orderName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
+            "orderName");
         if (orderName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'orders'.", id)));

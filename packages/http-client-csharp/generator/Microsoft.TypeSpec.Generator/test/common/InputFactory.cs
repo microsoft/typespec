@@ -12,26 +12,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
     public static class InputFactory
     {
+        public static T Experimental<T>(T type, string? diagnosticId, params string[] dependsOn) where T : InputType
+        {
+            type.Experimental = new InputExperimentalDetails(diagnosticId, dependsOn);
+            return type;
+        }
+
+        public static InputModelProperty Experimental(InputModelProperty property, string? diagnosticId, params string[] dependsOn)
+        {
+            property.Experimental = new InputExperimentalDetails(diagnosticId, dependsOn);
+            return property;
+        }
+
+        public static InputClient Experimental(InputClient client, string? diagnosticId, params string[] dependsOn)
+        {
+            client.Experimental = new InputExperimentalDetails(diagnosticId, dependsOn);
+            return client;
+        }
+
         public static class EnumMember
         {
-            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType)
+            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType)
+            public static InputEnumTypeValue Int64(string name, long value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int64, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType)
+            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName };
+            }
+
+            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false)
+            {
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
         }
 
@@ -70,9 +93,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             public static InputSerializationOptions Options(
                 InputJsonSerializationOptions? json = null,
-                InputXmlSerializationOptions? xml = null)
+                InputXmlSerializationOptions? xml = null,
+                InputMultipartOptions? multipart = null)
             {
-                return new InputSerializationOptions(json, xml);
+                return new InputSerializationOptions(json, xml, multipart);
             }
 
             public static InputJsonSerializationOptions Json(string name)
@@ -95,6 +119,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             {
                 return new InputXmlNamespaceOptions(ns, prefix);
             }
+
+            public static InputMultipartOptions Multipart(
+                string name,
+                bool isFilePart = true,
+                bool isMulti = false,
+                IReadOnlyList<string>? defaultContentTypes = null,
+                InputModelProperty? filename = null,
+                InputModelProperty? contentType = null)
+            {
+                return new InputMultipartOptions(
+                    name,
+                    isFilePart,
+                    isMulti,
+                    defaultContentTypes ?? ["application/octet-stream"],
+                    filename,
+                    contentType);
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="InputPrimitiveType"/> representing a file (HttpPart-like) input,
+        /// which the ClientModel type factory maps to <c>System.ClientModel.FileBinaryContent</c>.
+        /// </summary>
+        public static InputPrimitiveType FileType()
+        {
+            return new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes")
+            {
+                IsFileType = true
+            };
         }
 
         public static InputHeaderParameter ContentTypeParameter(string contentType)
@@ -131,7 +184,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -142,7 +198,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 usage: usage,
                 isExtensible: isExtensible,
                 clientNamespace: clientNamespace,
-                external: external);
+                external: external,
+                isExactName: isExactName,
+                deprecation: deprecation);
 
             foreach (var (valueName, value) in values)
             {
@@ -175,6 +233,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             foreach (var (valueName, value) in values)
             {
                 enumValues.Add(EnumMember.Int32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Int64Enum(
+            string name,
+            IEnumerable<(string Name, long Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Int64,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace,
+                external: external);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Int64(valueName, value, enumType));
             }
 
             return enumType;
@@ -236,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return enumType;
         }
 
-        private static InputEnumType Enum(
+        public static InputEnumType Enum(
             string name,
             InputPrimitiveType underlyingType,
             IReadOnlyList<InputEnumTypeValue> values,
@@ -244,20 +330,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             var enumType = new InputEnumType(
                 name,
                 clientNamespace,
                 name,
                 access,
-                null,
+                deprecation,
                 "",
                 $"{name} description",
                 usage,
                 underlyingType,
                 values,
-                isExtensible);
+                isExtensible,
+                apiVersions ?? [])
+            {
+                IsExactName = isExactName,
+            };
             if (external != null)
             {
                 enumType.External = external;
@@ -279,7 +372,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             string? doc = null,
             InputSerializationOptions? serializationOptions = null,
-            ArrayKnownEncoding? encode = null)
+            ArrayKnownEncoding? encode = null,
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -296,7 +391,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
-                encode: encode);
+                encode: encode,
+                apiVersions: apiVersions ?? [])
+            {
+                IsExactName = isExactName,
+            };
         }
 
         public static InputHeaderParameter HeaderParameter(
@@ -345,7 +444,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             bool explode = false,
             InputParameterScope scope = InputParameterScope.Method,
-            string? delimiter = null)
+            string? delimiter = null,
+            bool isExactName = false)
         {
             return new InputQueryParameter(
                 name: name,
@@ -361,7 +461,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 serializedName: serializedName ?? name,
                 collectionFormat: collectionFormat,
-                explode: explode);
+                explode: explode)
+            {
+                IsExactName = isExactName
+            };
         }
 
         public static InputPathParameter PathParameter(
@@ -472,7 +575,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             InputRequestLocation location = InputRequestLocation.Body,
             InputParameterScope scope = InputParameterScope.Method,
-            string? paramAlias = null)
+            string? paramAlias = null,
+            bool isExactName = false)
         {
             return new InputMethodParameter(
                 name: name,
@@ -488,7 +592,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 location: location,
                 serializedName: serializedName ?? name)
             {
-                ParamAlias = paramAlias
+                ParamAlias = paramAlias,
+                IsExactName = isExactName
             };
         }
 
@@ -509,7 +614,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputModelProperty? discriminatorProperty = null,
             bool isDynamicModel = false,
             InputExternalTypeMetadata? external = null,
-            InputSerializationOptions? serializationOptions = null)
+            InputSerializationOptions? serializationOptions = null,
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -518,7 +626,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 @namespace,
                 name,
                 access,
-                null,
+                deprecation,
                 "",
                 $"{name} description",
                 usage,
@@ -534,7 +642,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 serializationOptions ?? new(),
-                isDynamicModel);
+                isDynamicModel,
+                apiVersions ?? [])
+            {
+                IsExactName = isExactName,
+            };
             if (baseModel is not null)
             {
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
@@ -584,7 +696,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             IReadOnlyList<InputMethodParameter>? parameters = null,
             InputServiceMethodResponse? response = null,
-            InputServiceMethodResponse? exception = null)
+            InputServiceMethodResponse? exception = null,
+            bool isExactName = false)
         {
             return new InputBasicServiceMethod(
                 name,
@@ -594,12 +707,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 operation,
                 parameters ?? [],
-                response ?? ServiceMethodResponse(null, null),
+                response ?? ServiceMethodResponse(operation.Responses.FirstOrDefault(r => !r.IsErrorResponse)?.BodyType, null),
                 exception,
                 false,
                 true,
                 true,
-                string.Empty);
+                string.Empty)
+            {
+                IsExactName = isExactName,
+            };
         }
 
         public static InputPagingServiceMethod PagingServiceMethod(
@@ -643,14 +759,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string path = "",
             string httpMethod = "GET",
             bool generateConvenienceMethod = true,
-            string? ns = null)
+            string? ns = null,
+            bool isExactName = false,
+            bool generateProtocolMethod = true,
+            bool bufferResponse = true,
+            string? deprecated = null)
         {
             var operation = new InputOperation(
                 name,
-                null,
                 "",
                 $"{name} description",
-                null,
+                deprecated,
                 access,
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],
@@ -659,12 +778,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 path,
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
-                false,
-                true,
+                bufferResponse,
+                generateProtocolMethod,
                 generateConvenienceMethod,
                 name,
                 ns);
             operation.OriginalName = name;
+            operation.IsExactName = isExactName;
             return operation;
         }
 
@@ -698,14 +818,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<int>? statusCodes = null,
             InputType? bodytype = null,
             IReadOnlyList<InputOperationResponseHeader>? headers = null,
-            IReadOnlyList<string>? contentTypes = null)
+            IReadOnlyList<string>? contentTypes = null,
+            InputSerializationOptions? serializationOptions = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
                 headers ?? [],
                 false,
-                contentTypes ?? ["application/json"]);
+                contentTypes ?? ["application/json"],
+                serializationOptions);
         }
 
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
@@ -715,7 +837,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Individually, bool? isMultiServiceClient = false)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Individually, bool? isMultiServiceClient = false, bool isExactName = false)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -732,6 +854,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 clientChildren,
                 apiVersions is null ? [] : [.. apiVersions]);
             client.InitializedBy = initializedBy;
+            client.IsExactName = isExactName;
             _childClientsCache[client] = clientChildren;
             // when we have a parent, we need to find the children list of this parent client and update accordingly.
             if (parent != null && _childClientsCache.TryGetValue(parent, out var children))

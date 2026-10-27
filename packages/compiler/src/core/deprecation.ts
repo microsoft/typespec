@@ -1,6 +1,7 @@
 import { createStateSymbol } from "../lib/utils.js";
 import type { Program } from "./program.js";
-import { BaseNode, Node, SyntaxKind, Type } from "./types.js";
+import type { BaseNode, Node, Type } from "./types.js";
+import { SyntaxKind } from "./types.js";
 
 const deprecatedKey = createStateSymbol("deprecated");
 

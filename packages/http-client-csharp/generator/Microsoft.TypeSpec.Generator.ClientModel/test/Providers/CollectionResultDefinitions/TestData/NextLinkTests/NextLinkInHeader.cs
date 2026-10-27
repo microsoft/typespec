@@ -26,7 +26,7 @@ namespace Sample
             global::System.Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
                 if ((result.GetRawResponse().Headers.TryGetValue("nextCat", out string value) && !string.IsNullOrEmpty(value)))
@@ -51,6 +51,11 @@ namespace Sample
             {
                 return null;
             }
+        }
+
+        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

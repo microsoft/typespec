@@ -7,9 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -18,6 +21,79 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
     public class ClientOptionsProviderTests
     {
         private const string ApiVersionsCategory = "WithApiVersions";
+
+        [Test]
+        public async Task ExperimentalServiceVersionDependenciesArePreserved(
+            [Values] bool customized,
+            [Values] bool previousVersion,
+            [Values("none", "dependencies", "public")] string metadata)
+        {
+            string[] versions = ["2023-01-01", "2024-01-01"];
+            var input = InputFactory.StringEnum("ServiceVersion", versions.Select(version => (version, version)),
+                usage: InputModelTypeUsage.ApiVersionEnum, clientNamespace: "Sample");
+            if (metadata != "none")
+            {
+                InputFactory.Experimental(input.Values[1], metadata == "public" ? "VERSION001" : null, "DEP001", "DEP001", "DEP002");
+            }
+            Compilation? customCompilation = null;
+            var client = InputFactory.Client("TestClient", clientNamespace: "Sample");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [input], apiVersions: () => versions, clients: () => [client],
+                compilation: customized ? async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: previousVersion ? () => Helpers.GetCompilationFromDirectoryAsync("Last") : null);
+            var options = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client)!.ClientOptions!;
+            var serviceVersion = options.VersionProperties!.Keys.Single();
+            var preview = serviceVersion.EnumValues.Single(member => member.Name == "V2024_01_01");
+            var stable = serviceVersion.EnumValues.Single(member => member.Name == "V2023_01_01");
+            var expectedDependencies = metadata == "none" ? Array.Empty<string>() : ["DEP001", "DEP002"];
+
+            Assert.AreSame(input.Values[1].Experimental, preview.Experimental);
+            CollectionAssert.AreEqual(expectedDependencies.Select(id => Snippet.Literal(id).ToDisplayString()),
+                preview.Field.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            Assert.AreEqual(metadata == "public" ? 1 : 0, preview.Field.Attributes.Count);
+            Assert.AreEqual(0, stable.Field.Suppressions.Count);
+            Assert.AreEqual(0, serviceVersion.DisabledFileWarnings.Count);
+            Assert.AreEqual(0, options.DisabledFileWarnings.Count);
+            Assert.AreEqual(previousVersion ? 3 : 2, serviceVersion.EnumValues.Count);
+            Assert.AreEqual(Snippet.Literal(previousVersion ? 3 : customized ? 20 : 2).ToDisplayString(),
+                preview.Field.InitializationValue!.ToDisplayString());
+            if (previousVersion)
+            {
+                Assert.AreEqual(0, serviceVersion.EnumValues.Single(member => member.Name == "V2022_01_01").Field.Suppressions.Count);
+            }
+
+            var latest = options.Fields.Single(field => field.Name == "LatestVersion");
+            var expectedReferences = metadata == "public" ? [.. expectedDependencies, "VERSION001"] : expectedDependencies;
+            CollectionAssert.AreEquivalent(expectedReferences.Select(id => Snippet.Literal(id).ToDisplayString()),
+                latest.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            var constructor = options.Constructors.Single(ctor => ctor.Signature.Parameters.Any(parameter => parameter.Name == "version"));
+            var body = constructor.BodyStatements!.ToDisplayString();
+            var code = new TypeProviderWriter(options).Write().Content;
+            foreach (var id in new[] { "DEP001", "DEP002" })
+            {
+                Assert.AreEqual(metadata != "none", body.Contains($"#pragma warning disable {id}", StringComparison.Ordinal));
+                if (metadata != "none")
+                {
+                    Assert.Greater(code.IndexOf($"#pragma warning disable {id}", StringComparison.Ordinal),
+                        code.IndexOf("partial class TestClientOptions", StringComparison.Ordinal));
+                }
+            }
+
+            if (customized && previousVersion)
+            {
+                return; // The custom enum owns its declarations; restored values are validated on the provider above.
+            }
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var trees = new[] { CSharpSyntaxTree.ParseText(code) }.Concat(
+                customCompilation?.SyntaxTrees.Where(tree => tree.FilePath.EndsWith("Custom.cs", StringComparison.Ordinal)) ?? []);
+            var compilation = CSharpCompilation.Create("ExperimentalServiceVersions", trees, references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
 
         [SetUp]
         public void SetUp()
@@ -384,6 +460,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task CustomizedPublicConstructorKeepsNestedServiceVersionPublic()
+        {
+            string[] apiVersions = ["2023-10-01-preview-1", "2023-11-01", "2024-01-01"];
+            var enumValues = apiVersions.Select((a, index) => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                enumValues,
+                access: string.Empty,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "SampleNamespace");
+            var inputClient = InputFactory.Client("RawClient", clientNamespace: "SampleNamespace");
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+                .OfType<ClientProvider>()
+                .Single(provider => provider.Name == "RawClient");
+            var clientOptionsProvider = clientProvider.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+            var serviceVersionProvider = clientOptionsProvider!.NestedTypes.Single();
+            Assert.IsTrue(serviceVersionProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsNotNull(clientOptionsProvider.CustomCodeView);
+            var customConstructor = clientOptionsProvider.CustomCodeView!.Constructors.Single();
+            var customServiceVersionType = customConstructor.Signature.Parameters.Single().Type;
+            Assert.IsEmpty(customServiceVersionType.Namespace);
+            Assert.IsNull(customServiceVersionType.DeclaringType);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
+
+            Assert.IsTrue(serviceVersionProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(serviceVersionProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
         public void SingletonCreatedForMultipleClientsWithStandardParameters()
         {
             var client1 = InputFactory.Client("ClientA", clientNamespace: "TestNamespace");
@@ -500,6 +614,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             // The name should be based on the InputNamespace (singleton naming)
             Assert.AreEqual("SampleClientOptions", options1!.Name);
+        }
+
+        [Test]
+        public async Task SharedSingletonOptionsArePublicWhenAnyClientIsPublic()
+        {
+            List<string> apiVersions = ["1.0"];
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                apiVersions.Select(version => (version, version)),
+                usage: InputModelTypeUsage.ApiVersionEnum);
+            var apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                inputEnum,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+            var operation = InputFactory.Operation("Get", parameters: [apiVersionParameter]);
+            var client1 = InputFactory.Client(
+                "InternalClient",
+                methods: [InputFactory.BasicServiceMethod("Get", operation)],
+                parameters: [apiVersionParameter]);
+            var client2 = InputFactory.Client("PublicClient");
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client1, client2],
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"unreferenced-types-handling\":\"keepAll\"}");
+
+            var clientProviders = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().ToList();
+            var clientProvider1 = clientProviders.Single(client => client.Name == "InternalClient");
+            var clientProvider2 = clientProviders.Single(client => client.Name == "PublicClient");
+            Assert.IsTrue(clientProvider1.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(clientProvider2.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+            var options = clientProvider1.ClientOptions;
+            Assert.AreSame(options, clientProvider2.ClientOptions);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
+
+            Assert.IsTrue(options!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(options.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            var declaration = new TypeProviderWriter(options).Write().Content;
+            StringAssert.Contains("public partial class SampleClientOptions", declaration);
+            StringAssert.DoesNotContain("public internal partial class", declaration);
+        }
+
+        [Test]
+        public async Task SharedSingletonOptionsAreInternalWhenAllClientsAreInternal()
+        {
+            var client1 = InputFactory.Client("ClientA");
+            var client2 = InputFactory.Client("ClientB");
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client1, client2],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"unreferenced-types-handling\":\"keepAll\"}");
+
+            var clientProviders = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().ToList();
+            var options = clientProviders.Single(client => client.Name == "ClientA").ClientOptions;
+            Assert.AreSame(options, clientProviders.Single(client => client.Name == "ClientB").ClientOptions);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
+
+            Assert.IsTrue(options!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(options.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+            var declaration = new TypeProviderWriter(options).Write().Content;
+            StringAssert.Contains("internal partial class SampleClientOptions", declaration);
         }
 
         [Test]

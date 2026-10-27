@@ -1,4 +1,4 @@
-import {
+import type {
   DiagnosticResult,
   Interface,
   ListOperationOptions,
@@ -11,11 +11,16 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
-import { HeaderProperty, HttpProperty } from "./http-property.js";
+import type { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import type { HeaderProperty, HttpProperty } from "./http-property.js";
 
+/** HTTP methods supported by operation resolution, normalized to lowercase. */
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
+/**
+ * Authentication requirements extracted from `@useAuth`.
+ * Each option is an alternative; schemes within an option must be used together.
+ */
 export interface Authentication {
   /**
    * Either one of those options can be used independently to authenticate.
@@ -23,6 +28,7 @@ export interface Authentication {
   options: AuthenticationOption[];
 }
 
+/** One alternative way to authenticate, requiring every scheme in {@link AuthenticationOption.schemes}. */
 export interface AuthenticationOption {
   /**
    * For this authentication option all the given auth have to be used together.
@@ -30,6 +36,7 @@ export interface AuthenticationOption {
   schemes: HttpAuth[];
 }
 
+/** An authentication scheme extracted from a TypeSpec authentication model. */
 export type HttpAuth =
   | BasicAuth
   | BearerAuth
@@ -38,14 +45,16 @@ export type HttpAuth =
   | OpenIDConnectAuth
   | NoAuth;
 
+/** Source information shared by all extracted authentication schemes. */
 export interface HttpAuthBase {
   /**
-   * Id of the authentication scheme.
+   * Scheme identifier, initially derived from the model name or authentication type.
+   * Service authentication resolution disambiguates conflicting identifiers.
    */
   id: string;
 
   /**
-   * Optional description.
+   * Documentation from the authentication model, when provided.
    */
   description?: string;
 
@@ -62,7 +71,9 @@ export interface HttpAuthBase {
  * ```
  */
 export interface BasicAuth extends HttpAuthBase {
+  /** Identifies an HTTP Authorization-header scheme. */
   type: "http";
+  /** Uses base64-encoded username and password credentials. */
   scheme: "Basic";
 }
 
@@ -75,10 +86,13 @@ export interface BasicAuth extends HttpAuthBase {
  * ```
  */
 export interface BearerAuth extends HttpAuthBase {
+  /** Identifies an HTTP Authorization-header scheme. */
   type: "http";
+  /** Sends an access token using the Bearer authorization scheme. */
   scheme: "Bearer";
 }
 
+/** Request locations supported by API-key authentication. */
 type ApiKeyLocation = "header" | "query" | "cookie";
 
 /**
@@ -105,8 +119,11 @@ export interface ApiKeyAuth<
   TLocation extends ApiKeyLocation,
   TName extends string,
 > extends HttpAuthBase {
+  /** Identifies an API-key scheme rather than an Authorization-header scheme. */
   type: "apiKey";
+  /** Request location in which the client must send the key. */
   in: TLocation;
+  /** Header, query parameter, or cookie name carrying the key. */
   name: TName;
 }
 
@@ -117,61 +134,85 @@ export interface ApiKeyAuth<
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  */
 export interface Oauth2Auth<TFlows extends OAuth2Flow[]> extends HttpAuthBase {
+  /** Identifies an OAuth 2.0 scheme. */
   type: "oauth2";
+  /**
+   * Supported token acquisition flows, with scopes resolved for each flow.
+   * A flow without explicit scopes uses the authentication model's default scopes.
+   */
   flows: TFlows;
 }
 
+/** Supported OAuth 2.0 token acquisition configurations. */
 export type OAuth2Flow =
-  | AuthorizationCodeFlow
-  | ImplicitFlow
-  | PasswordFlow
-  | ClientCredentialsFlow;
+  AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
 
+/** Discriminant values for the supported OAuth 2.0 flows. */
 export type OAuth2FlowType = OAuth2Flow["type"];
 
 /**
- * Authorization Code flow
+ * OAuth 2.0 flow that exchanges an authorization code for an access token.
  */
 export interface AuthorizationCodeFlow {
+  /** Selects the authorization-code grant. */
   type: "authorizationCode";
+  /** Endpoint to which the resource owner is redirected for authorization. */
   authorizationUrl: string;
+  /** Endpoint used to exchange the authorization code for a token. */
   tokenUrl: string;
+  /** Token refresh endpoint, when separately specified. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
 /**
- * Implicit flow
+ * OAuth 2.0 flow that obtains an access token from the authorization endpoint.
  */
 export interface ImplicitFlow {
+  /** Selects the implicit grant. */
   type: "implicit";
+  /** Endpoint to which the resource owner is redirected to obtain a token. */
   authorizationUrl: string;
+  /** Token refresh endpoint, when specified by the authentication model. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
 /**
- * Resource Owner Password flow
+ * OAuth 2.0 resource-owner password flow configuration extracted from the model.
  */
 export interface PasswordFlow {
+  /** Selects the resource-owner password grant. */
   type: "password";
+  /** Authorization URL carried by the source configuration, if supplied. */
   authorizationUrl: string;
+  /** Token refresh endpoint, when specified by the authentication model. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
 /**
- * Client credentials flow
+ * OAuth 2.0 flow in which a client authenticates using its own credentials.
  */
 export interface ClientCredentialsFlow {
+  /** Selects the client-credentials grant. */
   type: "clientCredentials";
+  /** Endpoint used to exchange client credentials for an access token. */
   tokenUrl: string;
+  /** Token refresh endpoint, when specified by the authentication model. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
+/** A named OAuth 2.0 permission requested by a flow. */
 export interface OAuth2Scope {
+  /** Scope name sent to the authorization server. */
   value: string;
+  /** Human-readable explanation of the permission, when available. */
   description?: string;
 }
 
@@ -186,8 +227,12 @@ export interface OAuth2Scope {
  * ```
  */
 export interface OpenIDConnectAuth extends HttpAuthBase {
+  /** Identifies an OpenID Connect discovery-based scheme. */
   type: "openIdConnect";
+  /** Discovery metadata URL; it may be relative to the service's server URL. */
   openIdConnectUrl: string;
+  /** Scope names required for operations that use this scheme. */
+  scopes: string[];
 }
 
 /**
@@ -195,28 +240,49 @@ export interface OpenIDConnectAuth extends HttpAuthBase {
  * It might be useful when overriding authentication on interface of operation level.
  */
 export interface NoAuth extends HttpAuthBase {
+  /** Explicitly permits access without credentials, including as an auth alternative. */
   type: "noAuth";
 }
 
+/** A service-level scheme reference with the requirements of a particular auth option. */
 export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
 
+/** A non-OAuth2, authenticated requirement referencing a resolved service scheme. */
 export interface AnyHttpAuthRef {
+  /** Selects the general scheme reference rather than OAuth2 or no-auth. */
   readonly kind: "any";
+  /** Scheme for this requirement; associate it with the service catalog by `auth.id`, not object identity. */
   readonly auth: HttpAuth;
-}
-
-export interface NoHttpAuthRef {
-  readonly kind: "noAuth";
-  readonly auth: NoAuth;
-}
-
-/* Holder of this reference needs only a `scopes` subset of all scopes defined at `auth` */
-export interface OAuth2HttpAuthRef {
-  readonly kind: "oauth2";
-  readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  /**
+   * Scope names required for this scheme in the containing auth option. Empty
+   * for schemes that do not carry scopes. Populated for `openIdConnect`; kept
+   * scheme-agnostic so other scheme types can carry scopes without a new ref kind.
+   */
   readonly scopes: string[];
 }
 
+/** An authentication alternative that explicitly requires no credentials. */
+export interface NoHttpAuthRef {
+  /** Selects an unauthenticated requirement. */
+  readonly kind: "noAuth";
+  /** Source scheme declaring that authentication is not required. */
+  readonly auth: NoAuth;
+}
+
+/**
+ * An OAuth2 requirement with local scopes, which may be a subset of the scopes
+ * accumulated on the resolved service scheme.
+ */
+export interface OAuth2HttpAuthRef {
+  /** Selects an OAuth2 requirement with per-option scopes. */
+  readonly kind: "oauth2";
+  /** Service scheme whose flows can include scopes used by other operations. */
+  readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  /** Distinct scope names required by this option, collected across its local flows. */
+  readonly scopes: string[];
+}
+
+/** Authentication alternatives normalized to references to service-level schemes. */
 export interface AuthenticationReference {
   /**
    * Either one of those options can be used independently to authenticate.
@@ -224,6 +290,7 @@ export interface AuthenticationReference {
   readonly options: AuthenticationOptionReference[];
 }
 
+/** A single normalized alternative requiring all of its referenced schemes. */
 export interface AuthenticationOptionReference {
   /**
    * For this authentication option all the given auth have to be used together.
@@ -231,6 +298,10 @@ export interface AuthenticationOptionReference {
   readonly all: HttpAuthRef[];
 }
 
+/**
+ * Service-wide scheme catalog and normalized requirements from {@link resolveAuthentication}.
+ * Requirements retain their local scopes even when scheme definitions are shared.
+ */
 export interface HttpServiceAuthentication {
   /**
    * All the authentication schemes used in this service.
@@ -239,49 +310,81 @@ export interface HttpServiceAuthentication {
   readonly schemes: HttpAuth[];
 
   /**
-   * Default authentication for operations in this service.
+   * Default service requirements. Contains no options when the service declares no authentication.
    */
   readonly defaultAuth: AuthenticationReference;
 
   /**
-   * Authentication overrides for individual operations.
+   * Requirements for operations with resolved authentication, keyed by source operation.
+   * Operations without an entry use the service default.
    */
   readonly operationsAuth: Map<Operation, AuthenticationReference>;
 }
 
+/** Namespace or interface that directly contains an operation, including the global namespace. */
 export type OperationContainer = Namespace | Interface;
 
-/** @experimental */
+/**
+ * Overrides method selection during request resolution.
+ * Returning `undefined` falls back to an explicit verb, an overload's verb, or body-based inference.
+ * @experimental
+ */
 export type OperationVerbSelector = (
   program: Program,
   operation: Operation,
 ) => HttpVerb | undefined;
 
-/** @experimental */
+/**
+ * Customizes request parameter resolution without changing the source operation.
+ * @experimental
+ */
 export interface OperationParameterOptions {
+  /** Optional method selector, consulted before the operation's HTTP verb decorator. */
   verbSelector?: OperationVerbSelector;
 }
 
-/** @experimental */
+/**
+ * Options passed to a route producer, including request parameter customization.
+ * Namespace options are shallowly merged from outer to inner scopes, then overridden by call-site options.
+ * @experimental
+ */
 export interface RouteOptions {
-  // Other options can be passed through the interface
+  /** Additional producer-specific options; the default HTTP resolver does not interpret unknown keys. */
   [prop: string]: any;
 
+  /** Options passed to request parameter and method resolution. */
   paramOptions?: OperationParameterOptions;
 }
 
-/** @experimental */
+/**
+ * Route production options with operation-enumeration settings for container queries.
+ * @experimental
+ */
 export interface RouteResolutionOptions extends RouteOptions {
+  /** Options for listing operations; service resolution supplies its own namespace recursion policy. */
   listOptions?: ListOperationOptions;
 }
 
-/** @experimental */
+/**
+ * URI template and request bindings produced together so implicit parameters match the route.
+ * @experimental
+ */
 export interface RouteProducerResult {
+  /** Produced URI template, before the resolver normalizes its leading path separator. */
   uriTemplate: string;
+  /** Resolved request parameters and body, including the selected HTTP method. */
   parameters: HttpOperationParameters;
 }
 
-/** @experimental */
+/**
+ * Callback supplying a URI template and resolved request bindings for an operation.
+ * The caller normalizes the resulting path and validates references to URI parameters.
+ *
+ * @param parentSegments Containing namespace/interface route fragments, ordered outermost first.
+ * @param overloadBase Resolved base operation, if this operation is an overload.
+ * @param options Merged namespace and call-site route options.
+ * @experimental
+ */
 export type RouteProducer = (
   program: Program,
   operation: Operation,
@@ -290,8 +393,11 @@ export type RouteProducer = (
   options: RouteOptions,
 ) => DiagnosticResult<RouteProducerResult>;
 
+/** Wire name and serialization options for a header property. */
 export interface HeaderFieldOptions {
+  /** Identifies header metadata rather than another parameter location. */
   type: "header";
+  /** HTTP header name, which may differ from the TypeSpec property name. */
   name: string;
 
   /**
@@ -306,44 +412,66 @@ export interface HeaderFieldOptions {
   explode?: boolean;
 }
 
+/** Resolved cookie parameter options with an explicit wire name. */
 export interface CookieParameterOptions extends Required<CookieOptions> {
+  /** Identifies a value carried in a cookie. */
   type: "cookie";
+  /** Cookie name; defaults to the property name converted to snake_case. */
   name: string;
 }
 
+/** Query parameter options after resolving the name and defaulting `explode` to false. */
 export interface QueryParameterOptions extends Required<QueryOptions> {
+  /** Identifies a value carried in the URI query. */
   type: "query";
 }
 
+/**
+ * Path parameter options with all defaults resolved: simple style, no expansion,
+ * and reserved characters encoded unless overridden by the decorator or URI template.
+ */
 export interface PathParameterOptions extends Required<PathOptions> {
+  /** Identifies a value interpolated into the URI path. */
   type: "path";
 }
 
+/** A non-body request parameter, discriminated by its HTTP location. */
 export type HttpOperationParameter =
   | HttpOperationHeaderParameter
   | HttpOperationCookieParameter
   | HttpOperationQueryParameter
   | HttpOperationPathParameter;
 
+/** A header's wire representation paired with its source property. */
 export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  /** TypeSpec property supplying the header value. */
   param: ModelProperty;
 };
+/** A cookie's wire representation paired with its source property. */
 export type HttpOperationCookieParameter = CookieParameterOptions & {
+  /** TypeSpec property supplying the cookie value. */
   param: ModelProperty;
 };
+/** A query parameter's resolved serialization paired with its source property. */
 export type HttpOperationQueryParameter = QueryParameterOptions & {
+  /** TypeSpec property supplying the query value. */
   param: ModelProperty;
 };
+/** A path parameter's resolved URI expansion paired with its source property. */
 export type HttpOperationPathParameter = PathParameterOptions & {
+  /** TypeSpec property supplying the path value and its optionality. */
   param: ModelProperty;
 };
 
+/** Resolved request metadata, non-body parameters, and optional payload for an operation. */
 export interface HttpOperationParameters {
-  /** Http properties */
+  /** Classified request properties, including body properties and nested metadata. */
   readonly properties: HttpProperty[];
 
+  /** Header, cookie, query, and path parameters, including a declared Content-Type header. */
   parameters: HttpOperationParameter[];
 
+  /** Resolved request payload; absent when the request has no body. */
   body?: HttpPayloadBody;
 
   /**
@@ -356,23 +484,32 @@ export interface HttpOperationParameters {
   verb: HttpVerb;
 }
 
+/** HTTP binding of a service namespace and its resolved operations. */
 export interface HttpService {
+  /** Source service namespace, or the global namespace when no service is declared. */
   namespace: Namespace;
+  /** Operations included in the service after HTTP resolution. */
   operations: HttpOperation[];
+  /** Authentication declared directly on the service namespace, when present. */
   authentication?: Authentication;
 }
 
+/** Resolved HTTP endpoint, including its source operation, payloads, and authentication. */
 export interface HttpOperation {
   /**
    * The fully resolved uri template as defined by http://tools.ietf.org/html/rfc6570.
-   * @example "/foo/{bar}/baz{?qux}"
-   * @example "/foo/{+path}"
+   * @example
+   * ```text
+   * /foo/{bar}/baz{?qux}
+   * /foo/{+path}
+   * ```
    */
   readonly uriTemplate: string;
 
   /**
    * Route path.
-   * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
+   * Prefer {@link HttpOperation.uriTemplate}; this legacy form loses URI expansion
+   * details such as reserved-character handling and excludes query expressions.
    */
   path: string;
 
@@ -417,11 +554,15 @@ export interface HttpOperation {
   overloads?: HttpOperation[];
 }
 
+/** Route fragment declared on a namespace, interface, or operation, before parent routes are joined. */
 export interface RoutePath {
+  /** URI template fragment recorded by `@route`. */
   path: string;
+  /** Whether the target operation permits sharing its route with other operations. */
   shared: boolean;
 }
 
+/** Responses grouped under one status code, inclusive range, or default (`"*"`) entry. */
 export interface HttpOperationResponse {
   /**
    * Status code or range of status code for the response.
@@ -429,7 +570,8 @@ export interface HttpOperationResponse {
   statusCodes: HttpStatusCodeRange | number | "*";
 
   /**
-   * Response TypeSpec type.
+   * TypeSpec type that first contributed to this status entry.
+   * Inspect each content entry for the bodies of other variants sharing the status.
    */
   type: Type;
 
@@ -439,25 +581,27 @@ export interface HttpOperationResponse {
   description?: string;
 
   /**
-   * Responses contents.
+   * Content alternatives contributing to this status entry, in resolution order.
    */
   responses: HttpOperationResponseContent[];
 }
 
+/** One response content alternative, with its own headers and optional payload. */
 export interface HttpOperationResponseContent {
-  /** Http properties for this response */
+  /** Classified properties for this alternative, including nested response metadata. */
   readonly properties: HttpProperty[];
 
+  /** Response header properties keyed by their HTTP wire names. */
   headers?: Record<string, ModelProperty>;
+  /** Resolved payload; absent for a response alternative without a body. */
   body?: HttpPayloadBody;
 }
 
 /** The possible bodies of an HTTP operation. */
 export type HttpPayloadBody =
-  | HttpOperationBody
-  | HttpOperationMultipartBody
-  | HttpOperationFileBody;
+  HttpOperationBody | HttpOperationMultipartBody | HttpOperationFileBody;
 
+/** Source and media-type information shared by single, multipart, and file payloads. */
 export interface HttpOperationBodyBase {
   /** Content types. */
   readonly contentTypes: string[];
@@ -470,7 +614,12 @@ export interface HttpOperationBodyBase {
   readonly property?: ModelProperty;
 }
 
+/** Type and annotation treatment of a single, non-multipart payload. */
 export interface HttpBody {
+  /**
+   * Payload type, which may be a derived model containing only the properties
+   * assigned to an implicit body rather than the original request or response model.
+   */
   readonly type: Type;
 
   /** If the body was explicitly set with `@body`. */
@@ -480,37 +629,53 @@ export interface HttpBody {
   readonly containsMetadataAnnotations: boolean;
 }
 
+/** A single payload value, whether declared with `@body` or inferred from properties. */
 export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
+  /** Selects a single structured or scalar payload rather than multipart or file contents. */
   readonly bodyKind: "single";
 }
 
 /** Body marked with `@multipartBody` */
 export type HttpOperationMultipartBody =
-  | HttpOperationMultipartBodyModel
-  | HttpOperationMultipartBodyTuple;
+  HttpOperationMultipartBodyModel | HttpOperationMultipartBodyTuple;
 
+/** Shared contract for the model and tuple forms of a multipart payload. */
 export interface HttpOperationMultipartBodyCommon extends HttpOperationBodyBase {
+  /** Selects a multipart payload containing independently described parts. */
   readonly bodyKind: "multipart";
   /** Property annotated with `@multipartBody` */
   readonly property: ModelProperty;
+  /** Resolved parts in model-property or tuple-entry order. */
   readonly parts: HttpOperationPart[];
 }
 
+/** Multipart payload whose named model properties each define a part or repeated parts. */
 export interface HttpOperationMultipartBodyModel extends HttpOperationMultipartBodyCommon {
+  /** Selects the named-property form of `@multipartBody`. */
   readonly multipartKind: "model";
+  /** Original model used as the `@multipartBody` property's type. */
   readonly type: Model;
+  /** Resolved model properties in declaration order; parts that cannot be resolved are omitted. */
   readonly parts: HttpOperationModelPart[];
 }
 
+/** Multipart payload whose tuple entries define ordered parts without source properties. */
 export interface HttpOperationMultipartBodyTuple extends HttpOperationMultipartBodyCommon {
+  /** Selects the ordered-tuple form of `@multipartBody`. */
   readonly multipartKind: "tuple";
+  /** Original tuple used as the `@multipartBody` property's type. */
   readonly type: Tuple;
+  /**
+   * Resolved entries in tuple order; parts that cannot be resolved are omitted.
+   * Retained parts may still have diagnostics, such as a missing form-data name.
+   */
   readonly parts: HttpOperationTuplePart[];
 }
 
 /** The possible bodies of a multipart part. */
 export type HttpOperationMultipartPartBody = HttpOperationBody | HttpOperationFileBody;
 
+/** Payload, headers, and cardinality shared by model-property and tuple-entry parts. */
 export interface HttpOperationPartCommon {
   /** Part body */
   readonly body: HttpOperationMultipartPartBody;
@@ -526,10 +691,12 @@ export interface HttpOperationPartCommon {
   readonly optional: boolean;
 }
 
+/** A resolved multipart part, discriminated by whether a model property or tuple entry defined it. */
 export type HttpOperationPart = HttpOperationModelPart | HttpOperationTuplePart;
 
 /** Represents a part in a multipart body that comes from a model property. */
 export interface HttpOperationModelPart extends HttpOperationPartCommon {
+  /** Selects a part defined by a model property. */
   readonly partKind: "model";
   /** Property that defined the part if the model form is used. */
   readonly property: ModelProperty;
@@ -539,6 +706,7 @@ export interface HttpOperationModelPart extends HttpOperationPartCommon {
 
 /** Represents a part in a multipart body that comes from a tuple entry. */
 export interface HttpOperationTuplePart extends HttpOperationPartCommon {
+  /** Selects a part defined by a tuple entry rather than a model property. */
   readonly partKind: "tuple";
   /** Property that defined the part -- always undefined for tuple entry parts. */
   readonly property?: undefined;
@@ -548,6 +716,7 @@ export interface HttpOperationTuplePart extends HttpOperationPartCommon {
  * The type of an HTTP body that is a file upload or download.
  */
 export interface HttpOperationFileBody extends HttpOperationBodyBase {
+  /** Selects raw file contents rather than the file model's structured representation. */
   readonly bodyKind: "file";
   /**
    * The model type of the body that is or extends `Http.File`.
@@ -585,13 +754,21 @@ export interface HttpOperationFileBody extends HttpOperationBodyBase {
   /**
    * The `contents` property.
    */
-  readonly contents: ModelProperty & { type: Scalar };
+  readonly contents: ModelProperty & {
+    /** String or bytes scalar, possibly a derived scalar, determining the file's content representation. */
+    type: Scalar;
+  };
 }
 
+/** Inclusive bounds of an HTTP response status-code range. */
 export interface HttpStatusCodeRange {
+  /** Lowest status code included in the range. */
   start: number;
+  /** Highest status code included in the range. */
   end: number;
 }
 
+/** A response status code, inclusive range, or `"*"` default response. */
 export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
+/** Status entries extracted from a property or collected for a response type. */
 export type HttpStatusCodes = HttpStatusCodesEntry[];

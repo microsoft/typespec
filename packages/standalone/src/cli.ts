@@ -1,58 +1,48 @@
-import {
-  Cache,
-  Configuration,
-  LightReport,
-  MessageName,
-  Project,
-  stringifyMessageName,
-} from "@yarnpkg/core";
-import { npath } from "@yarnpkg/fslib";
-import nmPlugin from "@yarnpkg/plugin-nm";
-import npmPlugin from "@yarnpkg/plugin-npm";
-import pnpPlugin from "@yarnpkg/plugin-pnp";
-import { mkdir, rm, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
+import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
+import { importExternal } from "./import-workaround.js";
+import { serveFromMemory } from "./module-loader.js";
+
+const COMPILER_SPECIFIER = "typespec:bundled-compiler";
+const COMPILER_URL = pathToFileURL(
+  join(dirname(process.execPath), "__typespec_bundled__", "compiler.mjs"),
+).href;
 
 if (process.env.TYPESPEC_CLI_PASSTHROUGH === "1") {
+  // The compiler's `tsp install` command forks a package manager (npm) using this executable as
+  // the Node runtime. In that case behave like plain `node <script>`.
   process.argv.shift(); // We receive ["tsp", "tsp", "entrypoint"] and we want to match ["node", "entrypoint"]
   process.execArgv = [];
-  import(pathToFileURL(process.argv[1]).href).catch((e) => {
+  importExternal(pathToFileURL(process.argv[1]).href).catch((e) => {
     // eslint-disable-next-line no-console
-    console.log(e);
+    console.error(e);
     process.exit(1);
   });
 } else {
-  const tspDir = homedir() + "/.tsp";
-
   const args = parseArgs({
     options: {
       server: { type: "string" },
-      "no-cache": { type: "boolean", default: false },
     },
     strict: false,
   });
+
   async function main() {
     if (args.values.server) {
-      await import(pathToFileURL(args.values.server as string).href);
+      await importExternal(pathToFileURL(args.values.server as string).href);
     } else if (process.env.TYPESPEC_COMPILER_PATH) {
-      await import(pathToFileURL(process.env.TYPESPEC_COMPILER_PATH).href);
+      await importExternal(pathToFileURL(process.env.TYPESPEC_COMPILER_PATH).href);
     } else {
-      await installAndRun({ noCache: args.values["no-cache"] as boolean });
+      const localCompiler = resolveLocalCompiler(process.cwd());
+      if (localCompiler) {
+        // Prefer a compiler installed in the current project over the one bundled in the CLI.
+        await importExternal(pathToFileURL(localCompiler).href);
+      } else {
+        await runBundledCompiler();
+      }
     }
-  }
-  async function installAndRun({ noCache }: { noCache: boolean }) {
-    await install({
-      noCache,
-      installDir: tspDir + "/compiler-installs",
-    });
-
-    const url = pathToFileURL(
-      tspDir + "/compiler-installs/node_modules/@typespec/compiler/cmd/tsp.js",
-    ).href;
-    (globalThis as any).TYPESPEC_ENGINE = "tsp";
-    await import(url);
   }
 
   main().catch((error) => {
@@ -61,75 +51,68 @@ if (process.env.TYPESPEC_CLI_PASSTHROUGH === "1") {
     process.exit(1);
   });
 
-  interface InstallOptions {
-    installDir: string;
-    noCache?: boolean;
-  }
-
-  const plugins = {
-    "@yarnpkg/plugin-npm": npmPlugin,
-    "@yarnpkg/plugin-nm": nmPlugin,
-    "@yarnpkg/plugin-pnp": pnpPlugin,
-  };
-  async function install(options: InstallOptions) {
-    const installDir = options.installDir;
-    if (options.noCache) {
-      await rm(installDir, { recursive: true, force: true });
-    }
-    await mkdir(installDir, { recursive: true });
-    await writeFile(
-      installDir + "/package.json",
-      JSON.stringify({
-        dependencies: { "@typespec/compiler": process.env.TYPESPEC_CLI_GLOBAL_VERSION ?? "latest" },
-      }),
-      "utf8",
-    );
-
-    const path = npath.toPortablePath(installDir);
-    const configuration = await Configuration.find(path, {
-      modules: new Map(Object.entries(plugins)),
-      plugins: new Set(Object.keys(plugins)),
-    });
-    configuration.use(`<compat>`, { nodeLinker: `node-modules` }, path, {
-      overwrite: true,
-    });
-    const cache = await Cache.find(configuration);
-    const { project } = await Project.find(configuration, path);
-    await project.restoreInstallState({ restoreResolutions: false });
-
-    const report = await ErrorReport.start(
-      {
-        configuration,
-        stdout: process.stdout,
-      },
-      async (report: ErrorReport) => {
-        await project.install({
-          cache,
-          report,
-        });
-      },
-    );
-
-    if (report.hasErrors()) {
-      throw new Error(report.errorReport);
+  /**
+   * Resolve the `cmd/tsp.js` entry of a `@typespec/compiler` installed in the given directory, if
+   * any. Returns `undefined` when no local compiler is installed.
+   */
+  function resolveLocalCompiler(cwd: string): string | undefined {
+    try {
+      const require = createRequire(join(cwd, "__tsp_resolve__.js"));
+      const packageJsonPath = require.resolve("@typespec/compiler/package.json");
+      const cmd = join(dirname(packageJsonPath), "cmd", "tsp.js");
+      return existsSync(cmd) ? cmd : undefined;
+    } catch {
+      return undefined;
     }
   }
 
-  class ErrorReport extends LightReport {
-    errors: { name: string; text: string }[] = [];
+  /**
+   * Run the compiler that is bundled into this executable. The compiler (ESM, using top-level
+   * `await`) and its `init` templates are embedded as single-executable assets and served from
+   * memory; nothing is downloaded or written to disk.
+   *
+   * The bundled compiler is a bootstrapper: it can run `init` (and `--version`/`--help`/`format`)
+   * with no project on disk, but it does NOT bundle the standard library, so `compile` requires a
+   * project-local `@typespec/compiler`. When there is none, fail early with clear guidance instead
+   * of a confusing "cannot find standard library" error.
+   */
+  async function runBundledCompiler() {
+    requireLocalCompilerForCompile();
 
-    static start = (
-      opts: Parameters<typeof LightReport.start>[0],
-      cb: (report: ErrorReport) => Promise<void>,
-    ) => super.start(opts, cb as any) as Promise<ErrorReport>;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const sea = require("node:sea");
+    if (!sea.isSea()) {
+      throw new Error(
+        "The bundled compiler is only available when running the standalone TypeSpec executable.",
+      );
+    }
 
-    reportError = (name: MessageName, text: string) =>
-      this.errors.push({ name: stringifyMessageName(name), text });
+    const compilerSource = sea.getAsset("compiler.mjs", "utf8") as string;
+    serveFromMemory(COMPILER_SPECIFIER, COMPILER_URL, {
+      format: "module",
+      source: compilerSource,
+    });
+    await importExternal(COMPILER_SPECIFIER);
+  }
 
-    hasErrors = () => this.errors.length > 0;
-
-    get errorReport() {
-      return this.errors.map((error) => `${error.name} - ${error.text}`).join("\n");
+  /**
+   * The bundled compiler cannot compile without the standard library, which is only available from a
+   * project-local `@typespec/compiler`. If the user is invoking `tsp compile` with no local compiler
+   * installed, print actionable guidance and exit rather than letting the compiler fail deep inside
+   * standard-library loading.
+   */
+  function requireLocalCompilerForCompile() {
+    const cliArgs = process.argv.slice(2);
+    const command = cliArgs.find((arg) => !arg.startsWith("-"));
+    const wantsHelp = cliArgs.includes("--help") || cliArgs.includes("-h");
+    if (command === "compile" && !wantsHelp) {
+      // eslint-disable-next-line no-console
+      console.error(
+        "error: `tsp compile` requires a project-local `@typespec/compiler`, which was not found.\n" +
+          "The standalone `tsp` does not bundle the standard library. Run `tsp install` in your " +
+          "project (or `tsp init` to create one) and try again.",
+      );
+      process.exit(1);
     }
   }
 }

@@ -1,8 +1,6 @@
 import { getEffectiveModelType } from "../../core/checker.js";
-import {
-  DiscriminatedUnionLegacy,
-  getDiscriminatedUnionFromInheritance,
-} from "../../core/helpers/discriminator-utils.js";
+import type { DiscriminatedUnionLegacy } from "../../core/helpers/discriminator-utils.js";
+import { getDiscriminatedUnionFromInheritance } from "../../core/helpers/discriminator-utils.js";
 import { getDiscriminator } from "../../core/intrinsic-type-state.js";
 import type {
   Entity,
@@ -13,19 +11,33 @@ import type {
   SourceModel,
 } from "../../core/types.js";
 import { createRekeyableMap } from "../../utils/misc.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
-import { copyMap, decoratorApplication, DecoratorArgs } from "../utils.js";
+import type { DecoratorArgs } from "../utils.js";
+import { copyMap, decoratorApplication, resolveExpressionFlag } from "../utils.js";
 
 /**
  * A descriptor for creating a model.
  */
 export interface ModelDescriptor {
   /**
-   * The name of the Model. If name is provided, it is a Model  declaration.
+   * The name of the Model. If a non-empty name is provided, it is a Model declaration.
    * Otherwise, it is a Model expression.
    */
   name?: string;
+
+  /**
+   * Whether the model is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous model (no name or an empty
+   * name) and `false` for a named one. Set this explicitly to create a *named*
+   * model declaration expression (a name that is kept on the type but not
+   * registered in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * model throws.
+   */
+  expression?: boolean;
 
   /**
    * Decorators to apply to the Model.
@@ -110,7 +122,13 @@ export interface ModelKit {
    */
   getProperties(
     model: Model,
-    options?: { includeExtended?: boolean },
+    options?: {
+      /**
+       * Include properties from the full base-model chain. Defaults to false.
+       * Existing result properties take precedence over inherited properties with the same name.
+       */
+      includeExtended?: boolean;
+    },
   ): RekeyableMap<string, ModelProperty>;
   /**
    * Get the record representing additional properties, if there are additional properties.
@@ -154,6 +172,7 @@ defineKit<TypekitExtension>({
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
+        expression: resolveExpressionFlag("model", desc.name, desc.expression),
       });
 
       this.program.checker.finishType(model);
@@ -165,7 +184,7 @@ defineKit<TypekitExtension>({
     },
 
     isExpresion(type) {
-      return type.name === "";
+      return type.expression;
     },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);
@@ -250,7 +269,7 @@ defineKit<TypekitExtension>({
         return [undefined, []];
       }
 
-      return getDiscriminatedUnionFromInheritance(model, discriminator);
+      return getDiscriminatedUnionFromInheritance(this.program, model, discriminator);
     }),
   },
 });

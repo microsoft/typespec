@@ -34,6 +34,9 @@ tsp-spector serve ./path/to/scenarios --port 1234
 tsp-spector serve ./path/to/scenarios --coverageFile ./path/to/spector-coverage.json
 ```
 
+> [!NOTE]
+> The server always binds to the loopback interface (`127.0.0.1`), so it is only reachable from the local host and is not exposed to other machines on the network.
+
 Alternative to start in background
 
 ```bash

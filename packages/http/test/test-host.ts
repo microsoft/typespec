@@ -1,12 +1,9 @@
-import { createDiagnosticCollector, Diagnostic, Program, resolvePath } from "@typespec/compiler";
+import type { Diagnostic, Program } from "@typespec/compiler";
+import { createDiagnosticCollector, resolvePath } from "@typespec/compiler";
 import { createTester, expectDiagnosticEmpty } from "@typespec/compiler/testing";
-import {
-  getAllHttpServices,
-  HttpOperation,
-  HttpOperationParameter,
-  HttpVerb,
-} from "../src/index.js";
-import { RouteResolutionOptions } from "../src/types.js";
+import type { HttpOperation, HttpOperationParameter, HttpVerb } from "../src/index.js";
+import { getAllHttpServices } from "../src/index.js";
+import type { RouteResolutionOptions } from "../src/types.js";
 
 export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/http"],

@@ -1,4 +1,4 @@
-import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
+import { findWorkspacePackages } from "@typespec/internal-build-utils";
 import { readdir } from "node:fs/promises";
 import { relative, resolve } from "pathe";
 import pc from "picocolors";
@@ -107,8 +107,7 @@ async function extractPackageNameFromTgzFile(tgzFilePath: string): Promise<strin
 
     await tar.t({
       file: tgzFilePath,
-      // cspell:ignore onentry
-      onentry: (entry) => {
+      onReadEntry: (entry) => {
         if (entry.path === "package/package.json") {
           entry.on("data", (chunk) => {
             if (packageJsonContent === null) {
@@ -141,7 +140,7 @@ async function extractPackageNameFromTgzFile(tgzFilePath: string): Promise<strin
  * @returns Promise resolving to discovered packages with paths pointing to package directories
  */
 export async function findPackagesFromWorkspace(root: string): Promise<Packages> {
-  const pnpmPackages = await findWorkspacePackagesNoCheck(root);
+  const pnpmPackages = await findWorkspacePackages(root);
   const packages: Packages = {};
 
   for (const pkg of pnpmPackages) {

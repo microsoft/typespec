@@ -1,21 +1,16 @@
-import {
-  ArrayBuilder,
-  AssetEmitter,
-  createAssetEmitter,
-  ObjectBuilder,
-  Placeholder,
-  TypeEmitter,
-} from "@typespec/asset-emitter";
-import { compilerAssert, DiscriminatedUnion, Type } from "@typespec/compiler";
-import { MetadataInfo } from "@typespec/http";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions } from "./lib.js";
-import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { AssetEmitter, ObjectBuilder, TypeEmitter } from "@typespec/asset-emitter";
+import { ArrayBuilder, createAssetEmitter, Placeholder } from "@typespec/asset-emitter";
+import type { DiscriminatedUnion, Type } from "@typespec/compiler";
+import { compilerAssert } from "@typespec/compiler";
+import type { MetadataInfo } from "@typespec/http";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions } from "./lib.js";
+import type { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI31SchemaEmitter } from "./schema-emitter-3-1.js";
-import { OpenAPIDiscriminator3_2, OpenAPISchema3_2 } from "./types.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { OpenAPIDiscriminator3_2, OpenAPISchema3_2 } from "./types.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,

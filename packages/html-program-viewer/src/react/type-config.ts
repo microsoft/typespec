@@ -1,15 +1,9 @@
 import type { Entity, Type } from "@typespec/compiler";
 
 export type PropertyRendering<T> =
-  | { kind: "parent" | "nested-items" | "ref" | "value" | "skip" }
-  | NestedPropertyRendering<T>;
+  { kind: "parent" | "nested-items" | "ref" | "value" | "skip" } | NestedPropertyRendering<T>;
 export type PropertyRenderingRaw<T> =
-  | "parent"
-  | "nested-items"
-  | "ref"
-  | "value"
-  | "skip"
-  | NestedPropertyRenderingRaw<T>;
+  "parent" | "nested-items" | "ref" | "value" | "skip" | NestedPropertyRenderingRaw<T>;
 
 export type PropertiesRenderingRaw<T> = { [K in keyof T]: PropertyRenderingRaw<T[K]> };
 export type PropertiesRendering<T> = { [K in keyof T]: PropertyRendering<T[K]> };
@@ -82,11 +76,13 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     properties: "nested-items",
     sourceModel: "ref",
     sourceModels: "value",
+    expression: "value",
   },
   Scalar: {
     baseScalar: "ref",
     derivedScalars: "ref",
     constructors: "nested-items",
+    expression: "value",
   },
   ModelProperty: {
     model: "parent",
@@ -97,6 +93,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
   },
   Enum: {
     members: "nested-items",
+    expression: "value",
   },
   EnumMember: {
     enum: "parent",
@@ -118,6 +115,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     parameters: "nested-items",
     implementation: "skip",
     target: "ref",
+    declarationKind: "value",
   },
   ScalarConstructor: {
     scalar: "parent",
@@ -146,6 +144,11 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
   TemplateParameter: {
     constraint: "value",
     default: "value",
+  },
+  TemplateParameterAccess: {
+    constraint: "value",
+    base: "skip",
+    path: "skip",
   },
 
   // Don't want to expose those for now

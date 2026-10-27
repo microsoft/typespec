@@ -1,20 +1,9 @@
-import { Position, TextDocument } from "vscode-languageserver-textdocument";
-import {
-  Document,
-  isDocument,
-  isMap,
-  isPair,
-  isScalar,
-  isSeq,
-  Node,
-  Pair,
-  parseDocument,
-  Scalar,
-  visit,
-} from "yaml";
+import type { Position, TextDocument } from "vscode-languageserver-textdocument";
+import type { Document, Node, Pair, Scalar } from "yaml";
+import { isDocument, isMap, isPair, isScalar, isSeq, parseDocument, visit } from "yaml";
 import type { TextRange } from "../core/types.js";
 import { firstNonWhitespaceCharacterIndex, isWhitespaceStringOrUndefined } from "../utils/misc.js";
-import { ServerLog } from "./types.js";
+import type { ServerLog } from "./types.js";
 
 type YamlNodePathSegment = Document<Node, true> | Node | Pair;
 export interface YamlPositionDetail {

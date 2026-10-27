@@ -1,5 +1,28 @@
 # Changelog - @typespec/http-client
 
+## 0.17.0
+
+### Features
+
+- [#11684](https://github.com/microsoft/typespec/pull/11684) Add diagnostic and dependency metadata to `@experimental`.
+  
+  ```typespec
+  @experimental(#{ diagnosticId: "C", dependsOn: #["A", "B"] })
+  op bar(): void;
+  ```
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
+## 0.16.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
 ## 0.15.1
 
 ### Bump dependencies

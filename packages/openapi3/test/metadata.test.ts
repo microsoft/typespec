@@ -99,6 +99,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         @visibility(Lifecycle.Read, Lifecycle.Update, Lifecycle.Create) ruc?: string;
       }
       @parameterVisibility(Lifecycle.Create, Lifecycle.Update)
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @route("/") @patch(#{implicitOptionality: true}) op createOrUpdate(...M): M; 
     `);
 
@@ -176,7 +177,8 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         person: Person;
         relationship: string;
       }
-      @route("/") @patch(#{implicitOptionality: true}) op update(...Person): Person; 
+      @route("/") #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
+      @patch(#{implicitOptionality: true}) op update(...Person): Person; 
     `);
 
     const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
@@ -217,6 +219,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         weight: float64;
       }
       @post op create(...Widget): void;
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) op update(...Widget): void;
   `);
 
@@ -358,6 +361,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       @get get(...M): M;
       @post create(...M): M;
       @put createOrUpdate(...M): M;
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) update(...M): M;
       @delete delete(...M): void; 
     }
@@ -367,6 +371,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       @get get(...D): D;
       @post create(...D): D;
       @put createOrUpdate(...D): D;
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) update(...D): D;
       @delete delete(...D): void; 
     }
@@ -376,6 +381,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       @get op get(id: string): R;
       @post op create(...R): R;
       @put op createOrUpdate(...R): R;
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) op update(...R): R;
       @delete op delete(...D): void; 
     }
@@ -384,6 +390,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       @get op get(id: string): U;
       @post op create(...U): U;
       @put op createOrUpdate(...U): U;
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) op update(...U): U;
       @delete op delete(...U): void;
     }
@@ -1087,6 +1094,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         id: uuid;
       }
       
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) op test(...Bar): Bar;
     `);
 
@@ -1102,6 +1110,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         id: string;
       }
       
+      #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
       @patch(#{implicitOptionality: true}) op test(bar: Bar): void;
 
       model Foo {
@@ -1136,6 +1145,64 @@ worksFor(supportedVersions, ({ openApiFor }) => {
           },
         },
       },
+    });
+  });
+
+  it("named array model referenced by collection and direct operations is emitted once", async () => {
+    const res = await openApiFor(`
+      model Range is int32[][] {}
+
+      model Item {
+        range: Range,
+      }
+
+      @route("/items")
+      interface Items {
+        @get @route("/") list(): Item[];
+        @get @route("/{id}") read(@path id: string): Item;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Item", "Range"]);
+    deepStrictEqual(res.components.schemas.Item.properties.range, {
+      $ref: "#/components/schemas/Range",
+    });
+  });
+
+  it("model instantiation shared with an unreachable derived model is emitted once", async () => {
+    const res = await openApiFor(`
+      model Widget {
+        id: string;
+      }
+
+      @friendlyName("{name}Page", T)
+      model Page<T> {
+        items: T[];
+      }
+
+      @route("/widgets")
+      @get
+      op listWidgets(): Page<Widget>;
+
+      @discriminator("kind")
+      model Event {
+        kind: string;
+      }
+
+      model WidgetsEvent extends Event {
+        kind: "widgets";
+        widgets: Page<Widget>;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), [
+      "Event",
+      "Widget",
+      "WidgetPage",
+      "WidgetsEvent",
+    ]);
+    deepStrictEqual(res.components.schemas.WidgetsEvent.properties.widgets, {
+      $ref: "#/components/schemas/WidgetPage",
     });
   });
 
@@ -1187,6 +1254,33 @@ worksFor(supportedVersions, ({ openApiFor }) => {
 
       model Child extends Base {
         @path name: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Base", "Child"]);
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Base",
+        },
+      ],
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("inheritance tree unreachable with @visibility(Create, Update) property doesn't get conflicts", async () => {
+    const res = await openApiFor(`
+      model Base {
+      }
+
+      model Child extends Base {
+        @visibility(Lifecycle.Create, Lifecycle.Update) name: string;
       }
     `);
 

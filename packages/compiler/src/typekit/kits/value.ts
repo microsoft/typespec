@@ -14,10 +14,13 @@ import type {
   Type,
   Value,
 } from "../../core/types.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**
+ * Create TypeSpec values from JavaScript primitives, inspect value kinds, and resolve value references.
+ *
  * @typekit value
  */
 export interface ValueKit {
@@ -134,6 +137,9 @@ export interface ValueKit {
    * and throw an error if it doesn't.
    *
    * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
+   *
+   * @param reference A value reference resolved in the program's global scope.
+   * @param kind Optional expected value kind. A resolved value with a different kind causes an error to be thrown.
    */
   resolve: Diagnosable<
     <K extends Value["valueKind"] | undefined>(
@@ -144,6 +150,9 @@ export interface ValueKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Work with TypeSpec values rather than the types that describe their possible contents.
+   */
   value: ValueKit;
 }
 

@@ -3,6 +3,7 @@
 
 package azure.resourcemanager.operationtemplates;
 
+import azure.resourcemanager.operationtemplates.fluent.models.ConfigurationInner;
 import azure.resourcemanager.operationtemplates.fluent.models.WidgetInner;
 import azure.resourcemanager.operationtemplates.models.ActionRequest;
 import azure.resourcemanager.operationtemplates.models.ActionResult;
@@ -12,8 +13,14 @@ import azure.resourcemanager.operationtemplates.models.ChangeAllowanceResult;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityReason;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityRequest;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityResponse;
+import azure.resourcemanager.operationtemplates.models.Collection;
+import azure.resourcemanager.operationtemplates.models.Configuration;
+import azure.resourcemanager.operationtemplates.models.ConfigurationProperties;
+import azure.resourcemanager.operationtemplates.models.DiagnosticInfo;
 import azure.resourcemanager.operationtemplates.models.ExportRequest;
 import azure.resourcemanager.operationtemplates.models.ExportResult;
+import azure.resourcemanager.operationtemplates.models.LogStatusRequest;
+import azure.resourcemanager.operationtemplates.models.MonitoredResource;
 import azure.resourcemanager.operationtemplates.models.Operation;
 import azure.resourcemanager.operationtemplates.models.OperationDisplay;
 import azure.resourcemanager.operationtemplates.models.Order;
@@ -165,6 +172,64 @@ public class OperationTests {
         ExportResult result2 = exportResults.get(1);
         Assertions.assertNotNull(result2);
         Assertions.assertEquals("order2,product2,2", result2.content());
+    }
+
+    @Test
+    public void testLegacyRoutedGet() {
+        DiagnosticInfo diagnostic = manager.legacies().routedGet("test-rg", "default", "memory");
+
+        Assertions.assertEquals("memory", diagnostic.name());
+        Assertions.assertEquals("healthy", diagnostic.status());
+    }
+
+    @Test
+    public void testLegacyCreateWithBody() {
+        Configuration configuration = manager.legacies()
+            .define("default")
+            .withRegion(Region.US_EAST)
+            .withExistingResourceGroup("test-rg")
+            .withProperties(new ConfigurationProperties().withConfigValue("custom-value"))
+            .create();
+
+        Assertions.assertEquals("default", configuration.name());
+        Assertions.assertEquals("eastus", configuration.location());
+        Assertions.assertEquals("custom-value", configuration.properties().configValue());
+        Assertions.assertEquals("Succeeded", configuration.properties().provisioningState());
+    }
+
+    @Test
+    public void testLegacyCreateWithoutBody() {
+        ConfigurationInner configuration
+            = manager.serviceClient().getLegacies().createOrReplaceOptionalBody("test-rg", "default");
+
+        Assertions.assertEquals("default", configuration.name());
+        Assertions.assertEquals("eastus", configuration.location());
+        Assertions.assertEquals("default-value", configuration.properties().configValue());
+        Assertions.assertEquals("Succeeded", configuration.properties().provisioningState());
+    }
+
+    @Test
+    public void testPostActionPaging() {
+        List<MonitoredResource> resources = manager.pagings()
+            .postActionPaging("test-rg", "monitor1", new LogStatusRequest().withFilter("status eq 'active'"),
+                Context.NONE)
+            .stream()
+            .collect(Collectors.toList());
+
+        Assertions.assertTrue(resources.get(0).id().endsWith("/virtualMachines/vm1"));
+        Assertions.assertTrue(resources.get(0).sendingMetrics());
+    }
+
+    @Test
+    public void testMarkAsPageable() {
+        List<Collection> collections
+            = manager.pagings().markAsPageable("test-rg", "monitor1").stream().collect(Collectors.toList());
+
+        Assertions.assertEquals(2, collections.size());
+        Assertions.assertEquals("collection1", collections.get(0).name());
+        Assertions.assertEquals("Test Collection", collections.get(0).properties().displayName());
+        Assertions.assertEquals("collection2", collections.get(1).name());
+        Assertions.assertEquals("Another Collection", collections.get(1).properties().displayName());
     }
 
     // for LRO operations, we need to override default poll interval

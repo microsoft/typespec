@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { ChildProcess, spawn } from "child_process";
+import type { ChildProcess } from "child_process";
+import { spawn } from "child_process";
 import { readFile } from "fs/promises";
 import pc from "picocolors";
 export class Server {

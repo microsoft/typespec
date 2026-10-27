@@ -33,12 +33,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             RequestedName = name;
         }
 
-        public string RequestedName { get; }
+        public string RequestedName { get; private set; }
 
         internal string GetActualName(CodeWriter.CodeScope scope)
         {
             if (!_actualNames.TryGetValue(scope, out var actualName))
+            {
                 throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
+            }
 
             return actualName;
         }
@@ -46,6 +48,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal void SetActualName(string actualName, CodeWriter.CodeScope scope)
         {
             _actualNames[scope] = actualName;
+        }
+
+        internal void Update(string? name = null)
+        {
+            if (name != null)
+            {
+                RequestedName = name;
+            }
         }
     }
 }

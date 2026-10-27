@@ -5,6 +5,8 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Payload.MultiPart._FormData.HttpParts.NonString
@@ -20,5 +22,11 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult Float(FloatRequest body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> FloatAsync(FloatRequest body, CancellationToken cancellationToken = default) => throw null;
     }
 }

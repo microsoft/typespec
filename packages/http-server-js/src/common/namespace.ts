@@ -1,19 +1,14 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Namespace, getNamespaceFullName } from "@typespec/compiler";
-import {
-  DeclarationType,
-  JsContext,
-  Module,
-  ModuleBodyDeclaration,
-  createModule,
-  isModule,
-} from "../ctx.js";
+import type { Namespace } from "@typespec/compiler";
+import { getNamespaceFullName } from "@typespec/compiler";
+import type { DeclarationType, JsContext, Module, ModuleBodyDeclaration } from "../ctx.js";
+import { createModule, isModule } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { UnimplementedError } from "../util/error.js";
 import { cat, indent, isIterable } from "../util/iter.js";
-import { OnceQueue } from "../util/once-queue.js";
+import type { OnceQueue } from "../util/once-queue.js";
 import { emitOperationGroup } from "./interface.js";
 
 /**

@@ -89,6 +89,14 @@ public final class LongRunningAsyncClient {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Retry-After</td><td>int</td><td>The Retry-After header can indicate how long the client should wait
+     * before polling the operation status.</td></tr>
+     * </table>
+     * 
      * @param id The id parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

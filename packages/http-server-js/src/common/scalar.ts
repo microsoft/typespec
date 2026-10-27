@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { DiagnosticTarget, EncodeData, NoTarget, Program, Scalar } from "@typespec/compiler";
-import { JsContext, Module } from "../ctx.js";
+import type { DiagnosticTarget, EncodeData, Program, Scalar } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
+import type { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "../util/case.js";
 import { getFullyQualifiedTypeName } from "../util/name.js";
 
-import { HttpOperationParameter } from "@typespec/http";
+import type { HttpOperationParameter } from "@typespec/http";
 import { UnreachableError } from "../util/error.js";
 
 import { module as dateTimeModule } from "../../generated-defs/helpers/datetime.js";

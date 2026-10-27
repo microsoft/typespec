@@ -1,4 +1,4 @@
-import { Logger, Tracer, TracerOptions } from "../types.js";
+import type { Logger, Tracer, TracerOptions } from "../types.js";
 
 export function createTracer(logger: Logger, tracerOptions: TracerOptions = {}): Tracer {
   const filters = tracerOptions.filter ? createFilterTree(tracerOptions.filter) : undefined;

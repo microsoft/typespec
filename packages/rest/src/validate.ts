@@ -1,15 +1,15 @@
+import type { Model, Program } from "@typespec/compiler";
 import {
   getKeyName,
   getTypeName,
   listServices,
-  Model,
   navigateTypesInNamespace,
-  Program,
 } from "@typespec/compiler";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { isSharedRoute } from "@typespec/http";
 import { reportDiagnostic } from "./lib.js";
-import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";
+import type { ResourceKey } from "./resource.js";
+import { getParentResource, getResourceTypeKey } from "./resource.js";
 import { getActionDetails, getCollectionActionDetails } from "./rest.js";
 
 function checkForDuplicateResourceKeyNames(program: Program) {

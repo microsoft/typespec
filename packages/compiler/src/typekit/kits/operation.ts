@@ -1,6 +1,8 @@
-import { Entity, ModelProperty, Operation, Type } from "../../core/types.js";
-import { getPagingOperation, PagingOperation } from "../../lib/paging.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Entity, ModelProperty, Operation, Type } from "../../core/types.js";
+import type { PagingOperation } from "../../lib/paging.js";
+import { getPagingOperation } from "../../lib/paging.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**

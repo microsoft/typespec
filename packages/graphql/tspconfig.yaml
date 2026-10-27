@@ -1,0 +1,7 @@
+# Opt this library into the experimental `auto-decorators` feature so that
+# `@nullable` / `@nullableElements` (declared as `auto dec` in lib/nullable.tsp)
+# are permitted in this library's own source. Per-package feature enablement is
+# resolved from the owning package's config, so consumers do not need to enable it.
+kind: project
+features:
+  - auto-decorators

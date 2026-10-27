@@ -12,7 +12,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ErrorResultDefinition : TypeProvider
+    internal class ErrorResultDefinition : InternalHelperProvider
     {
         private class ErrorResultTemplate<T> { }
 

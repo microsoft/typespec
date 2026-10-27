@@ -1,10 +1,11 @@
-import { code, mapJoin, Refkey, refkey } from "@alloy-js/core";
-import * as ts from "@alloy-js/typescript";
-import { ModelProperty, Value } from "@typespec/compiler";
+import type { Refkey } from "@alloy-js/core";
+import { code, mapJoin, refkey } from "@alloy-js/core";
+import type * as ts from "@alloy-js/typescript";
+import type { ModelProperty, Value } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
-import { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
-import * as cl from "@typespec/http-client";
+import type { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
+import type * as cl from "@typespec/http-client";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
 

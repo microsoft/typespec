@@ -1,7 +1,9 @@
 import { inspect } from "util";
-import { LanguageModelChat, LanguageModelChatMessage, lm } from "vscode";
+import type { LanguageModelChat } from "vscode";
+import { LanguageModelChatMessage, lm } from "vscode";
 import { debugLoggers } from "../debug";
-import logger, { LogItem } from "../log/logger";
+import type { LogItem } from "../log/logger";
+import logger from "../log/logger";
 import { RetryResult, runWithRetry, runWithTimingLog } from "../utils";
 
 const lmModelCache = new Map<string, Thenable<LanguageModelChat[]>>();

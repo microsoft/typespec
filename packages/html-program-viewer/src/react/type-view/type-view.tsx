@@ -16,6 +16,7 @@ import { InspectType } from "../inspect-type/inspect-type.js";
 import { TypeDataTable } from "../inspect-type/type-data-table.js";
 import { useProgram } from "../program-context.js";
 import type { TreeNavigator, TypeGraphTypeNode } from "../use-tree-navigation.js";
+import { TypeOrigin } from "./type-origin.js";
 import style from "./type-view.module.css";
 
 declare global {
@@ -59,6 +60,7 @@ export const TypeNodeView = ({ node }: TypeNodeViewProps) => {
                 <Text weight="semibold" size={500}>
                   <Mono>{node.name}</Mono>
                 </Text>
+                <TypeOrigin program={program} type={node.type} />
               </div>
               <div className={style["header-spacer"]}></div>
               <Tooltip content={`Save as vars.${node.name}`} relationship="label">

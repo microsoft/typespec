@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import type {
+  SpreadRecordForNonDiscriminatedUnion,
+  SpreadRecordForNonDiscriminatedUnion2,
+  SpreadRecordForNonDiscriminatedUnion3,
+} from "../../../../generated/type/property/additional-properties/src/index.js";
 import {
   ExtendsDifferentSpreadFloatClient,
   ExtendsDifferentSpreadModelArrayClient,
@@ -20,9 +25,6 @@ import {
   SpreadFloatClient,
   SpreadModelArrayClient,
   SpreadModelClient,
-  SpreadRecordForNonDiscriminatedUnion,
-  SpreadRecordForNonDiscriminatedUnion2,
-  SpreadRecordForNonDiscriminatedUnion3,
   SpreadRecordNonDiscriminatedUnion2Client,
   SpreadRecordNonDiscriminatedUnion3Client,
   SpreadRecordNonDiscriminatedUnionClient,

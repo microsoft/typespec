@@ -1,4 +1,5 @@
-import { Node, SyntaxKind, TypeSpecScriptNode } from "../types.js";
+import type { Node, TypeSpecScriptNode } from "../types.js";
+import { SyntaxKind } from "../types.js";
 
 const nodeRawTextCache = new WeakMap<Node, string>();
 

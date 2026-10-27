@@ -16,7 +16,7 @@ public class Shark extends Fish {
      * Discriminator property for Fish.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String kind = "shark";
+    private final String kind = "shark";
 
     /*
      * The sharktype property.

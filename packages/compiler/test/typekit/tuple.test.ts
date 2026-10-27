@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { BooleanLiteral, NumericLiteral, StringLiteral } from "../../src/index.js";
+import type { BooleanLiteral, NumericLiteral, StringLiteral } from "../../src/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { createContextMock, getTypes } from "./utils.js";
 

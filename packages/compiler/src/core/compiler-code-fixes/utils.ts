@@ -1,5 +1,5 @@
 import { isWhiteSpace } from "../charcode.js";
-import { SourceLocation } from "../types.js";
+import type { SourceLocation } from "../types.js";
 
 export function findLineStartAndIndent(location: SourceLocation): {
   lineStart: number;

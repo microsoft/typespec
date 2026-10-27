@@ -1,5 +1,6 @@
-import { Diagnostic, Program, Type } from "@typespec/compiler";
-import { spawn, SpawnOptions } from "child_process";
+import type { Diagnostic, Program, Type } from "@typespec/compiler";
+import type { SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 
 export function trace(program: Program, msg: string) {
   program.trace("http-client-java", msg);

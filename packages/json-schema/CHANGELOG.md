@@ -1,5 +1,54 @@
 # Change Log - @typespec/json-schema
 
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Support `model`, `enum`, `union`, and `scalar` declarations used in expression position. Anonymous declaration expressions are inlined, while named ones are hoisted into their own schema.
+  
+  ```tsp
+  model Foo {
+    status: enum { active, inactive }; // inlined
+    unit: scalar extends string; // inlined
+    inner: model Inner { x: string }; // hoisted as `Inner.json`
+  }
+  ```
+
+### Bug Fixes
+
+- [#11893](https://github.com/microsoft/typespec/pull/11893) Emit `minItems` and `maxItems` for tuple types so generated schemas enforce the tuple's exact length.
+- [#11915](https://github.com/microsoft/typespec/pull/11915) Emit tuple value referencing a declared model as a `$ref`.
+
+
+## 1.16.0
+
+### Bug Fixes
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize declaration names used as file names so a declaration named with a backticked identifier containing path separators cannot write the schema outside of the emitter output dir.
+
+
+## 1.15.0
+
+### Bug Fixes
+
+- [#11505](https://github.com/microsoft/typespec/pull/11505) Use explicit `@id` values for bundled $defs keys to avoid silent overwrites.
+
+
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+No changes, version bump only.
+
+## 1.12.0
+
+No changes, version bump only.
+
 ## 1.11.0
 
 No changes, version bump only.

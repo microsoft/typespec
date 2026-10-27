@@ -6,7 +6,7 @@ import {
   type Operation,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { RouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
+import type { RouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, reportDiagnostic } from "../lib.js";
 import type { RoutePath } from "../types.js";
 import { setSharedRoute } from "./shared-route.js";
@@ -39,6 +39,11 @@ export const $route: RouteDecorator = (
   });
 };
 
+/**
+ * Records a route fragment and optionally marks an operation as sharing its route.
+ * Repeated namespace routes must agree; a conflicting namespace fragment reports a diagnostic
+ * and leaves the original fragment unchanged. Passing `shared: false` does not clear an existing shared mark.
+ */
 export function setRoute(
   context: DecoratorContext,
   entity: Operation | Namespace | Interface,

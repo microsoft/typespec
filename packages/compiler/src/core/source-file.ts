@@ -2,6 +2,7 @@ import { CharCode } from "./charcode.js";
 import { getAnyExtensionFromPath } from "./path-utils.js";
 import type { SourceFile, SourceFileKind } from "./types.js";
 
+/** Wrap source text and its path with lazily computed line-start and zero-based position lookups. */
 export function createSourceFile(text: string, path: string): SourceFile {
   let lineStarts: number[] | undefined = undefined;
 
@@ -38,9 +39,10 @@ export function createSourceFile(text: string, path: string): SourceFile {
   }
 }
 
+/** Classify `.tsp` as TypeSpec and `.js`, `.mjs`, or `.ts` as JavaScript; other extensions return undefined. */
 export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
   const ext = getAnyExtensionFromPath(path);
-  if (ext === ".js" || ext === ".mjs") {
+  if (ext === ".js" || ext === ".mjs" || ext === ".ts") {
     return "js";
   } else if (ext === ".tsp") {
     return "typespec";

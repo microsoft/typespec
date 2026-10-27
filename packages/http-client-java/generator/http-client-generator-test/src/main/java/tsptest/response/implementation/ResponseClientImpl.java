@@ -729,6 +729,13 @@ public final class ResponseClientImpl {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>operation-location</td><td>String</td><td>The operation-location response header.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -758,6 +765,13 @@ public final class ResponseClientImpl {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>operation-location</td><td>String</td><td>The operation-location response header.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -773,6 +787,12 @@ public final class ResponseClientImpl {
 
     /**
      * The deleteWithHeaders operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>operation-location</td><td>String</td><td>The operation-location response header.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -788,6 +808,12 @@ public final class ResponseClientImpl {
 
     /**
      * The deleteWithHeaders operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>operation-location</td><td>String</td><td>The operation-location response header.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -1598,7 +1624,6 @@ public final class ResponseClientImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "application/json", "application/json".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1607,7 +1632,8 @@ public final class ResponseClientImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getUnionResponseWithResponseAsync(String accept, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> getUnionResponseWithResponseAsync(RequestOptions requestOptions) {
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getUnionResponse(this.getEndpoint(), accept, requestOptions, context));
     }
@@ -1622,7 +1648,6 @@ public final class ResponseClientImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "application/json", "application/json".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1631,7 +1656,8 @@ public final class ResponseClientImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getUnionResponseWithResponse(String accept, RequestOptions requestOptions) {
+    public Response<BinaryData> getUnionResponseWithResponse(RequestOptions requestOptions) {
+        final String accept = "application/json";
         return service.getUnionResponseSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -2021,20 +2047,26 @@ public final class ResponseClientImpl {
             getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
     }
 
-    private List<BinaryData> getValues(BinaryData binaryData, String path) {
+    private List<BinaryData> getValues(BinaryData binaryData, String... path) {
         try {
-            Map<?, ?> obj = binaryData.toObject(Map.class);
-            List<?> values = (List<?>) obj.get(path);
+            Object value = binaryData.toObject(Map.class);
+            for (String segment : path) {
+                value = ((Map<?, ?>) value).get(segment);
+            }
+            List<?> values = (List<?>) value;
             return values.stream().map(BinaryData::fromObject).collect(Collectors.toList());
         } catch (RuntimeException e) {
             return null;
         }
     }
 
-    private String getNextLink(BinaryData binaryData, String path) {
+    private String getNextLink(BinaryData binaryData, String... path) {
         try {
-            Map<?, ?> obj = binaryData.toObject(Map.class);
-            return (String) obj.get(path);
+            Object value = binaryData.toObject(Map.class);
+            for (String segment : path) {
+                value = ((Map<?, ?>) value).get(segment);
+            }
+            return (String) value;
         } catch (RuntimeException e) {
             return null;
         }

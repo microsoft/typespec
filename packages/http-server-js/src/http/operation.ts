@@ -1,7 +1,4 @@
-import {
-  getParameterVisibilityFilter,
-  getReturnTypeVisibilityFilter,
-  isVisible,
+import type {
   Model,
   ModelProperty,
   Operation,
@@ -10,11 +7,16 @@ import {
   Type,
   Union,
   UnionVariant,
-  VisibilityFilter,
 } from "@typespec/compiler";
 import {
+  getParameterVisibilityFilter,
+  getReturnTypeVisibilityFilter,
+  isVisible,
+  VisibilityFilter,
+} from "@typespec/compiler";
+import type { unsafe_Mutator as Mutator } from "@typespec/compiler/experimental";
+import {
   unsafe_mutateSubgraph as mutateSubgraph,
-  unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
@@ -28,7 +30,8 @@ import {
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
-import { JsContext, NoModule } from "../ctx.js";
+import type { JsContext } from "../ctx.js";
+import { NoModule } from "../ctx.js";
 import { createStateSymbol } from "../lib.js";
 import { resolveEncodingChain } from "../util/encoding.js";
 

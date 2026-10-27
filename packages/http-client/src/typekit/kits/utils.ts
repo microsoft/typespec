@@ -1,23 +1,28 @@
-import { Type, UsageFlags } from "@typespec/compiler";
-import { InternalClient } from "../../interfaces.js";
+import type { Type } from "@typespec/compiler";
+import { UsageFlags } from "@typespec/compiler";
+import type { InternalClient } from "../../interfaces.js";
 
+/** Shared client-visibility query inherited by the model, property, and operation kits. */
 export interface AccessKit<T extends Type> {
   /**
-   * Gets the access of a type
+   * Gets client visibility for a type; current implementations always return `"public"`.
    */
   getAccess(type: T): "public" | "internal";
 }
 
+/** Shared input/output usage query inherited by client data-type kits. */
 export interface UsageKit<T extends Type> {
   /**
-   * Gets the usage of a type
+   * Gets client usage flags; currently returns both input and output rather than inferred usage.
    */
   getUsage(type: T): UsageFlags;
 }
 
+/** Shared naming query for compiler types and synthesized client descriptors. */
 export interface NameKit<T extends Type | InternalClient> {
   /**
-   * Gets the name of a type, with @clientName decorator applied
+   * Gets the source type's name or the client descriptor's synthesized name.
+   * Current implementations do not apply decorator-based name overrides.
    */
   getName(type: T): string;
 }

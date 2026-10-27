@@ -8,6 +8,7 @@ import azure.resourcemanager.operationtemplates.fluent.LroPagingsClient;
 import azure.resourcemanager.operationtemplates.fluent.models.ProductInner;
 import azure.resourcemanager.operationtemplates.models.LroPagings;
 import azure.resourcemanager.operationtemplates.models.Product;
+import azure.resourcemanager.operationtemplates.models.VnetProfile;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
@@ -32,6 +33,20 @@ public final class LroPagingsImpl implements LroPagings {
 
     public PagedIterable<Product> postPagingLro(String resourceGroupName, String productName, Context context) {
         PagedIterable<ProductInner> inner = this.serviceClient().postPagingLro(resourceGroupName, productName, context);
+        return ResourceManagerUtils.mapPage(inner, inner1 -> new ProductImpl(inner1, this.manager()));
+    }
+
+    public PagedIterable<Product> postPagingLroWithBody(String resourceGroupName, String productName,
+        VnetProfile body) {
+        PagedIterable<ProductInner> inner
+            = this.serviceClient().postPagingLroWithBody(resourceGroupName, productName, body);
+        return ResourceManagerUtils.mapPage(inner, inner1 -> new ProductImpl(inner1, this.manager()));
+    }
+
+    public PagedIterable<Product> postPagingLroWithBody(String resourceGroupName, String productName, VnetProfile body,
+        Context context) {
+        PagedIterable<ProductInner> inner
+            = this.serviceClient().postPagingLroWithBody(resourceGroupName, productName, body, context);
         return ResourceManagerUtils.mapPage(inner, inner1 -> new ProductImpl(inner1, this.manager()));
     }
 

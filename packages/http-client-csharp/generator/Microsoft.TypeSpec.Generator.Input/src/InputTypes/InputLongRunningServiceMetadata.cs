@@ -28,10 +28,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             get
             {
                 if (FinalResponse.BodyType is null)
+                {
                     return null;
+                }
 
                 if (ResultPath is null)
+                {
                     return FinalResponse.BodyType;
+                }
 
                 var rawResponseType = (InputModelType)FinalResponse.BodyType;
                 return rawResponseType.Properties.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.SerializationOptions?.Json?.Name == ResultPath)!.Type;

@@ -10,14 +10,35 @@ llmstxt: true
 
 ### `@field` {#@TypeSpec.Protobuf.field}
 
-Defines the field index of a model property for conversion to a Protobuf
+Defines the field index of a model property or union variant for conversion to a Protobuf
 message.
+
+When applied to the variants of a named union, the union can be used as the type of a message field:
+
+- If the model property has no `@field` decorator, the union is emitted inline as a `oneof` named after the
+  property, and the variant field indices share the field index space of the containing message. The property
+  must be optional.
+- If the model property has a `@field` decorator, the union is emitted as a wrapper message (named after the
+  union) that contains a `oneof value`, and the variant field indices belong to the wrapper message.
+
+Union variants used in a `oneof` cannot be arrays or maps.
 
 The field index of a Protobuf message must:
 
 - fall between 1 and 2<sup>29</sup> - 1, inclusive.
 - not fall within the implementation reserved range of 19000 to 19999, inclusive.
-- not fall within any range that was [marked reserved](#
+- not fall within any range that was [marked reserved](#%40TypeSpec.Protobuf.reserve).
+- not be used by any other field of the same message, including members of a `oneof`.
+
+#### API Compatibility Note
+
+Fields are accessed by index, so changing the index of a field is an API breaking change.
+
+#### Encoding
+
+Field indices between 1 and 15 are encoded using a single byte, while field indices from 16 through 2047 require two
+bytes, so those indices between 1 and 15 should be preferred and reserved for elements that are frequently or always
+set in the message. See the [Protobuf binary format](https://protobuf.dev/programming-guides/encoding/).
 
 ```typespec
 @TypeSpec.Protobuf.field(index: valueof uint32)
@@ -25,7 +46,7 @@ The field index of a Protobuf message must:
 
 #### Target
 
-`ModelProperty`
+`ModelProperty | UnionVariant`
 
 #### Parameters
 
@@ -42,6 +63,20 @@ model ExampleMessage {
 }
 ```
 
+```typespec
+union Payment {
+  @field(10) card: CardPayment,
+  @field(11) bank_transfer: BankTransfer,
+}
+
+model Order {
+  @field(1) id: string;
+
+  // Emitted inline as `oneof payment { CardPayment card = 10; BankTransfer bank_transfer = 11; }`
+  payment?: Payment;
+}
+```
+
 ### `@message` {#@TypeSpec.Protobuf.message}
 
 Declares that a model is a Protobuf message.
@@ -51,7 +86,8 @@ Messages can be detected automatically if either of the following two conditions
 - The model has a `@field` annotation on all of its properties.
 - The model is referenced by any service operation.
 
-This decorator will force the emitter to check and emit a model.
+This decorator will force the emitter to check and emit a model. A named union annotated with this decorator is
+emitted as a wrapper message containing a `oneof value`.
 
 ```typespec
 @TypeSpec.Protobuf.message

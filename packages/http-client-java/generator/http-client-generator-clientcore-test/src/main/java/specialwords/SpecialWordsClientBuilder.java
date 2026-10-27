@@ -35,6 +35,7 @@ import specialwords.implementation.SpecialWordsClientImpl;
     serviceClients = {
         ModelsClient.class,
         ModelPropertiesClient.class,
+        ReservedOperationBodyParamsClient.class,
         ExtensibleStringsClient.class,
         OperationsClient.class,
         ParametersClient.class })
@@ -250,6 +251,18 @@ public final class SpecialWordsClientBuilder
     public ModelPropertiesClient buildModelPropertiesClient() {
         SpecialWordsClientImpl innerClient = buildInnerClient();
         return new ModelPropertiesClient(innerClient.getModelProperties(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ReservedOperationBodyParamsClient class.
+     * 
+     * @return an instance of ReservedOperationBodyParamsClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ReservedOperationBodyParamsClient buildReservedOperationBodyParamsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ReservedOperationBodyParamsClient(innerClient.getReservedOperationBodyParams(),
+            innerClient.getInstrumentation());
     }
 
     /**

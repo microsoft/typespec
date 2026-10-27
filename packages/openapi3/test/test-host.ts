@@ -1,4 +1,5 @@
-import { Diagnostic, interpolatePath, resolvePath } from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
+import { interpolatePath, resolvePath } from "@typespec/compiler";
 import {
   createTester,
   expectDiagnosticEmpty,
@@ -6,8 +7,8 @@ import {
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { parse } from "yaml";
-import { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { OpenAPI3Document } from "../src/types.js";
+import type { OpenAPI3EmitterOptions } from "../src/lib.js";
+import type { OpenAPI3Document } from "../src/types.js";
 
 export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: [
@@ -22,6 +23,7 @@ export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
     "@typespec/sse",
     "@typespec/openapi3",
   ],
+  features: ["declaration-expressions"],
 });
 
 export const SimpleTester = ApiTester.import(
@@ -112,12 +114,13 @@ export async function openapisFor(
 export async function openApiForVersions<T extends string>(
   code: string,
   versions: T[],
+  options: OpenAPI3EmitterOptions = {},
 ): Promise<Record<T, OpenAPI3Document>> {
   const host = await TesterWithVersioning.createInstance();
   const outPath = "{emitter-output-dir}/{version}.openapi.json";
   const { outputs } = await host.compile(code, {
     compilerOptions: {
-      options: { "@typespec/openapi3": { "output-file": outPath } },
+      options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
     },
   });
 

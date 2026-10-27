@@ -135,6 +135,18 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
+  "duplicate-import": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Duplicate import of "${"importPath"}"`,
+    },
+  },
+  "self-import": {
+    severity: "warning",
+    messages: {
+      default: "A file cannot import itself.",
+    },
+  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -193,6 +205,13 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
+    },
+  },
+  "templated-declaration-in-expression": {
+    severity: "error",
+    messages: {
+      default:
+        "A declaration used as an expression cannot have template parameters as it cannot be referenced or instantiated.",
     },
   },
   "default-required": {
@@ -255,7 +274,27 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
-      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
+    },
+  },
+  "declaration-expression-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Declaration expressions require the 'declaration-expressions' feature to be enabled. Add 'declaration-expressions' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "union-extends-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "auto-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "using-invalid-ref": {
@@ -362,6 +401,13 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
+    },
+  },
+  "extend-union": {
+    severity: "error",
+    messages: {
+      default: "Union `extends` must specify a model, scalar, enum, or union.",
+      modelExpression: "Unions cannot extend model expressions.",
     },
   },
   "is-model": {
@@ -553,6 +599,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`Modifier '${"modifier"}' is invalid.`,
       "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "missing-required-one-of": paramMessage`Declaration of type '${"nodeKind"}' is missing one of the required modifiers: ${"modifiers"}.`,
+      "mutually-exclusive": paramMessage`Modifiers '${"modifierA"}' and '${"modifierB"}' cannot be used together.`,
       "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
@@ -574,6 +622,15 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Extern declaration must have an implementation in JS file.",
+    },
+  },
+  "missing-extern-declaration": {
+    severity: "error",
+    description:
+      "Report when a function is registered in $functions in a JS file but has no corresponding `extern fn` declaration in TypeSpec.",
+    url: "https://typespec.io/docs/standard-library/diags/missing-extern-declaration",
+    messages: {
+      default: paramMessage`Function implementation "${"name"}" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
     },
   },
   "overload-same-parent": {
@@ -641,6 +698,31 @@ const diagnostics = {
       default: paramMessage`No configuration file found at config path "${"path"}".`,
     },
   },
+  "config-project-kind-filename": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Config with \`kind: project\` must be named "tspconfig.yaml". Found in "${"filename"}".`,
+    },
+  },
+  "config-project-only-option": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
+    },
+  },
+  "config-unknown-feature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown compiler feature "${"feature"}".`,
+    },
+  },
+  "config-project-not-as-cli-config": {
+    severity: "error",
+    messages: {
+      default:
+        "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
+    },
+  },
   /**
    * Program
    */
@@ -692,6 +774,18 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "duplicate-suppression": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Diagnostic "${"code"}" is already suppressed on this node.`,
+    },
+  },
+  "ambiguous-short-name": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Short name "${"shortName"}" is ambiguous. It could refer to ${"candidates"}. Use the full name instead.`,
+    },
+  },
   "decorator-decl-target": {
     severity: "error",
     messages: {
@@ -739,6 +833,12 @@ const diagnostics = {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter "${"emitterPackage"}" not found. Make sure to install it with \`npm install ${"emitterPackage"}\`.`,
+    },
+  },
   "invalid-emitter": {
     severity: "error",
     messages: {
@@ -783,6 +883,24 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
+    },
+  },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
+  "circular-ruleset-file": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Linter ruleset file "${"path"}" is extending itself, either directly or indirectly.`,
+    },
+  },
+  "ruleset-file-in-library": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ruleset "${"ruleSetName"}" is defined in a library and cannot extend the ruleset file "${"ref"}". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.`,
     },
   },
 
@@ -891,7 +1009,7 @@ const diagnostics = {
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
       wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
-      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric types.`,
+      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric or boolean types.`,
     },
   },
 
@@ -912,6 +1030,7 @@ const diagnostics = {
     messages: {
       default: paramMessage`Encoded name '${"name"}' conflicts with existing member name for mime type '${"mimeType"}'`,
       duplicate: paramMessage`Same encoded name '${"name"}' is used for 2 members '${"mimeType"}'`,
+      enumValue: paramMessage`Encoded name '${"name"}' conflicts with the value of another member for mime type '${"mimeType"}'`,
     },
   },
 
@@ -1076,6 +1195,12 @@ const diagnostics = {
       default: "Visual Studio extension is not supported on non-Windows.",
     },
   },
+  "vsix-download-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to download extension "${"id"}" from the marketplace: ${"message"}.`,
+    },
+  },
   "vscode-in-path": {
     severity: "error",
     messages: {
@@ -1090,8 +1215,15 @@ const diagnostics = {
       default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
     },
   },
+  "cli-command-deprecated": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`The "${"command"}" command is deprecated. Install and manage the extension directly from the marketplace instead. See ${"docsUrl"} for details.`,
+    },
+  },
   // #endregion CLI
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;
+export const compilerDiagnosticCodes = new Set(Object.keys(diagnostics));
 export const { createDiagnostic, reportDiagnostic } = createDiagnosticCreator(diagnostics);

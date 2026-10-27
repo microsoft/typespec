@@ -15,7 +15,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal sealed class ClientUriBuilderDefinition : TypeProvider
+    internal sealed class ClientUriBuilderDefinition : InternalHelperProvider
     {
         private const string ToUriMethodName = "ToUri";
         private const string ResetMethodName = "Reset";
@@ -63,10 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pathLengthField = new(FieldModifiers.Private, typeof(int), "_pathLength", this);
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal;
-        }
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

@@ -13,10 +13,10 @@ public class TypeSpecProxyParameterMapper extends ProxyParameterMapper {
     }
 
     @Override
-    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+    protected boolean isRemoveModelFromClientType(Parameter parameter, IType type) {
         // if it is typespec and enum type client parameter, do not remove model from parameter
         boolean isEnumType = type instanceof EnumType;
         boolean isClientParameter = Parameter.ImplementationLocation.CLIENT.equals(parameter.getImplementation());
-        return super.isRemoveModelFromParameter(parameter, type) && !(isEnumType && isClientParameter);
+        return super.isRemoveModelFromClientType(parameter, type) && !(isEnumType && isClientParameter);
     }
 }

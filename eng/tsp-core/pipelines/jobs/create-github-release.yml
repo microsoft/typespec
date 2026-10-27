@@ -26,7 +26,12 @@ jobs:
           cat "$(Pipeline.Workspace)/${{ parameters.artifactName }}/publish-summary.json"
         displayName: Log publish summary
 
+      - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+        parameters:
+          TokenOwners:
+            - microsoft
+
       - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary "$(Pipeline.Workspace)/${{ parameters.artifactName }}/publish-summary.json"
         displayName: Create github releases
         env:
-          GITHUB_TOKEN: $(azuresdk-github-pat)
+          GITHUB_TOKEN: $(GH_TOKEN)

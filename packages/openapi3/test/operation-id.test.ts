@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { OpenAPI3Document } from "../src/types.js";
+import type { OpenAPI3Document } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 interface Case {

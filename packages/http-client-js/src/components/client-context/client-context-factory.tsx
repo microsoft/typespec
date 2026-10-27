@@ -1,9 +1,11 @@
-import { Children, For, List, refkey, Refkey } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { For, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
-import { HttpAuth, type OAuth2Flow } from "@typespec/http";
-import * as cl from "@typespec/http-client";
+import type { HttpAuth } from "@typespec/http";
+import { type OAuth2Flow } from "@typespec/http";
+import type * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../../lib.js";
 import { buildClientParameters } from "../../utils/parameters.jsx";
 import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";

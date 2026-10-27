@@ -8,6 +8,7 @@
       "$id": "1",
       "kind": "model",
       "name": "ErrorInRange",
+      "apiVersions": [],
       "namespace": "Response.StatusCodeRange",
       "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange",
       "usage": "Json,Exception",
@@ -17,11 +18,13 @@
           "name": "ErrorInRange"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "2",
           "kind": "property",
           "name": "code",
+          "apiVersions": [],
           "serializedName": "code",
           "type": {
             "$id": "3",
@@ -41,12 +44,14 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "4",
           "kind": "property",
           "name": "message",
+          "apiVersions": [],
           "serializedName": "message",
           "type": {
             "$id": "5",
@@ -66,7 +71,8 @@
               "name": "message"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -74,6 +80,7 @@
       "$id": "6",
       "kind": "model",
       "name": "DefaultError",
+      "apiVersions": [],
       "namespace": "Response.StatusCodeRange",
       "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError",
       "usage": "Json,Exception",
@@ -83,11 +90,13 @@
           "name": "DefaultError"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "7",
           "kind": "property",
           "name": "code",
+          "apiVersions": [],
           "serializedName": "code",
           "type": {
             "$id": "8",
@@ -107,7 +116,8 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -115,6 +125,7 @@
       "$id": "9",
       "kind": "model",
       "name": "NotFoundError",
+      "apiVersions": [],
       "namespace": "Response.StatusCodeRange",
       "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError",
       "usage": "Json,Exception",
@@ -124,11 +135,13 @@
           "name": "NotFoundError"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "10",
           "kind": "property",
           "name": "code",
+          "apiVersions": [],
           "serializedName": "code",
           "type": {
             "$id": "11",
@@ -148,12 +161,14 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "12",
           "kind": "property",
           "name": "resourceId",
+          "apiVersions": [],
           "serializedName": "resourceId",
           "type": {
             "$id": "13",
@@ -173,7 +188,8 @@
               "name": "resourceId"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -181,6 +197,7 @@
       "$id": "14",
       "kind": "model",
       "name": "Standard4XXError",
+      "apiVersions": [],
       "namespace": "Response.StatusCodeRange",
       "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError",
       "usage": "Json,Exception",
@@ -190,11 +207,13 @@
           "name": "Standard4XXError"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "15",
           "kind": "property",
           "name": "code",
+          "apiVersions": [],
           "serializedName": "code",
           "type": {
             "$id": "16",
@@ -214,7 +233,8 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -224,6 +244,7 @@
       "$id": "17",
       "kind": "client",
       "name": "StatusCodeRangeClient",
+      "isExactName": false,
       "namespace": "Response.StatusCodeRange",
       "doc": "Test for range of status code.",
       "methods": [
@@ -231,12 +252,13 @@
           "$id": "18",
           "kind": "basic",
           "name": "errorResponseStatusCodeInRange",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "19",
             "name": "errorResponseStatusCodeInRange",
-            "resourceName": "StatusCodeRange",
+            "isExactName": false,
             "accessibility": "public",
             "parameters": [],
             "responses": [
@@ -245,7 +267,8 @@
                   204
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "GET",
@@ -269,12 +292,13 @@
           "$id": "20",
           "kind": "basic",
           "name": "errorResponseStatusCode404",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "21",
             "name": "errorResponseStatusCode404",
-            "resourceName": "StatusCodeRange",
+            "isExactName": false,
             "accessibility": "public",
             "parameters": [],
             "responses": [
@@ -283,7 +307,8 @@
                   204
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "GET",
@@ -333,7 +358,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint"
+          "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,

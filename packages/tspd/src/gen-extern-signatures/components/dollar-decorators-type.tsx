@@ -1,6 +1,7 @@
-import { For, Refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { For } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { DecoratorSignature } from "../types.js";
+import type { DecoratorSignature } from "../types.js";
 
 export interface DollarDecoratorsTypeProps {
   namespaceName: string;

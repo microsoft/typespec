@@ -1,11 +1,17 @@
-import { RmOptions } from "fs";
+import type { RmOptions } from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { CompilerPackageRoot, NodeHost } from "../core/node-host.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
-import { CompilerHost, StringLiteral, Type } from "../core/types.js";
+import type { CompilerHost, StringLiteral, Type } from "../core/types.js";
 import { resolveVirtualPath } from "./fs.js";
-import { TestFileSystem, TestHostError, TypeSpecTestLibrary } from "./types.js";
+import type { TestFileSystem, TypeSpecTestLibrary } from "./types.js";
+import { TestHostError } from "./types.js";
 
+/**
+ * File mappings for the compiler's built JavaScript support and standard TypeSpec library.
+ * `createTestHost` and modern testers mount these files automatically.
+ */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
   packageRoot: CompilerPackageRoot,
@@ -24,9 +30,13 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
   ],
 };
 
+/** Filesystem lookup and host customization for {@link createTestFileSystem}. */
 export interface TestHostOptions {
+  /** Make file and JavaScript-module lookups case-insensitive. Defaults to case-sensitive lookup. */
   caseInsensitiveFileSystem?: boolean;
+  /** Omit the test-decorator library directory from the host's library search paths. Defaults to `false`. */
   excludeTestLib?: boolean;
+  /** Replace individual host operations; overrides are applied after the virtual host's defaults. */
   compilerHostOverrides?: Partial<CompilerHost>;
 }
 
@@ -44,6 +54,7 @@ export function createTestCompilerHost(
     async readUrl(url: string) {
       const contents = virtualFs.get(url);
       if (contents === undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         throw new TestHostError(`File ${url} not found.`, "ENOENT");
       }
       return createSourceFile(contents, url);
@@ -52,6 +63,7 @@ export function createTestCompilerHost(
       path = resolveVirtualPath(path);
       const contents = virtualFs.get(path);
       if (contents === undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         throw new TestHostError(`File ${path} not found.`, "ENOENT");
       }
       return createSourceFile(contents, path);
@@ -100,6 +112,7 @@ export function createTestCompilerHost(
       path = resolveVirtualPath(path);
       const module = jsImports.get(path);
       if (module === undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         throw new TestHostError(`Module ${path} not found`, "ERR_MODULE_NOT_FOUND");
       }
       return module;
@@ -132,6 +145,7 @@ export function createTestCompilerHost(
         }
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       throw new TestHostError(`File ${path} not found`, "ENOENT");
     },
 

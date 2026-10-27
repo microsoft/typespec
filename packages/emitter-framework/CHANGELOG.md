@@ -1,5 +1,62 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.21.0
+
+### Features
+
+- [#11597](https://github.com/microsoft/typespec/pull/11597) Support declaration overrides in `Experimental_ComponentOverrides`
+  
+  Only `reference` overrides were dispatched, so an emitter could customize how a type is referenced but not how it is declared, forcing it to fork the framework's declaration components. The C# `ClassDeclaration`, `Property` and `EnumDeclaration` now render through the override point.
+  
+  Override precedence is resolved per override kind, so a type-level override that only defines `reference` does not shadow a kind-level `declaration` override, and vice versa.
+  
+  ```tsx
+  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("ModelProperty", {
+    declaration: (props) =>
+      props.type.name === "id" ? (
+        <props.Declaration {...props.declarationProps} name="Identifier" />
+      ) : (
+        props.default
+      ),
+  });
+  ```
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+- [#11596](https://github.com/microsoft/typespec/pull/11596) Make the C# `TypeExpression` handle every type kind instead of throwing
+  
+  `Tuple`, `StringTemplate`, `EnumMember`, `ModelProperty`, `UnionVariant`, template parameters and the full `Intrinsic` set are now supported, and an unsupported type reports a diagnostic and falls back to `object` rather than throwing. The diagnostics now name the offending type instead of saying only "Unsupported scalar type":
+  
+  ```
+  warning emitter-framework/csharp-unsupported-scalar: Scalar 'Currency' has no C# equivalent, using 'object' instead. Extend a built-in scalar to control how it is emitted.
+  ```
+  
+  Also fixes the C# components reporting a TypeScript diagnostic for unsupported scalars, and corrects the C# expressions for the `null` and `never` intrinsics.
+
+
+## 0.20.0
+
+### Features
+
+- [#11243](https://github.com/microsoft/typespec/pull/11243) Add Python Pydantic helpers to the emitter framework: `PydanticClassDeclaration`, `PydanticSettingsClassDeclaration`, and `PydanticRootModelDeclaration` components, along with `field_validator`, `model_validator`, `field_serializer`, and `computed_field` decorator helpers.
+
+
+## 0.19.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.18.0
+
+### Features
+
+- [#10372](https://github.com/microsoft/typespec/pull/10372) [csharp] Export new utilities from `@typespec/emitter-framework/csharp`: `getDocComments`, `getNullableUnionInnerType`, `efRefkey`, and `declarationRefkeys`
+- [#10372](https://github.com/microsoft/typespec/pull/10372) [csharp] `EnumDeclaration` now emits the doc comments of the TypeSpec enum
+
+
 ## 0.17.0
 
 ### Features
@@ -14,13 +71,11 @@
 
 - [#9879](https://github.com/microsoft/typespec/pull/9879) Add the missing export in index for extensible-enum in csharp
 
-
 ## 0.16.0
 
 ### Bump dependencies
 
 - [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
-
 
 ## 0.15.0
 
@@ -33,7 +88,6 @@
 
 - [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
 - [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
-
 
 ## 0.14.0
 

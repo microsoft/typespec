@@ -11,12 +11,12 @@ namespace TestProjects.Local.Tests
     public class UnreferencedTypeTests
     {
         [Test]
-        public void UnreferencedTypesAreRemoved()
+        public void InternalHelperTypesAreKept()
         {
             var types = Assembly.GetAssembly(typeof(SampleTypeSpecClient))!.GetTypes();
-            Assert.IsFalse(types.Any(t => t.Name == "BinaryContentHelper"));
-            Assert.IsFalse(types.Any(t => t.Name == "PipelineRequestHeadersExtensions"));
-            Assert.IsFalse(types.Any(t => t.Name == "Utf8JsonBinaryContent"));
+            Assert.IsTrue(types.Any(t => t.Name == "BinaryContentHelper"));
+            Assert.IsTrue(types.Any(t => t.Name == "PipelineRequestHeadersExtensions"));
+            Assert.IsTrue(types.Any(t => t.Name == "Utf8JsonBinaryContent"));
         }
     }
 }

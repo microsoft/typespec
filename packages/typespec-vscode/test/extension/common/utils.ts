@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path, { join } from "node:path";
-import { ElectronApplication, Page, _electron } from "playwright";
+import type { ElectronApplication, Page } from "playwright";
+import { _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
 
 const __dirname = import.meta.dirname;

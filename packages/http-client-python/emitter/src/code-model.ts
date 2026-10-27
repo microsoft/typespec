@@ -1,4 +1,4 @@
-import {
+import type {
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
@@ -12,6 +12,8 @@ import {
   SdkServiceMethod,
   SdkServiceOperation,
   SdkUnionType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
   UsageFlags,
   getCrossLanguagePackageId,
   isAzureCoreModel,
@@ -24,7 +26,7 @@ import {
   emitLroPagingHttpMethod,
   emitPagingHttpMethod,
 } from "./http.js";
-import { PythonSdkContext } from "./lib.js";
+import type { PythonSdkContext } from "./lib.js";
 import { KnownTypes, emitEndpointType, getType } from "./types.js";
 import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
@@ -299,8 +301,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
       .reduce((a, b) => [...a, ...b]) ?? [];
 
   const endpointParameter = initParameters.find((x) => x.kind === "endpoint") as
-    | SdkEndpointParameter
-    | undefined;
+    SdkEndpointParameter | undefined;
   const operationGroups = emitOperationGroups(context, client, client, "", client.apiVersions);
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
@@ -400,6 +401,7 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     ...sdkContext.__simpleTypesMap.values(),
   ];
   codeModel["crossLanguagePackageId"] = ignoreDiagnostics(getCrossLanguagePackageId(sdkContext));
+  codeModel["crossLanguageVersion"] = sdkContext.sdkPackage.crossLanguageVersion;
   if ((sdkContext.emitContext.options as any).flavor === "azure") {
     const metadata = { ...sdkPackage.metadata } as any;
     if (metadata.apiVersions) {

@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class ConvenienceApi extends Metadata {
     private List<Request> requests;
+    private Response response;
+    private boolean responseHeadersAsModel;
 
     /**
      * Creates a new instance of the ConvenienceApi class.
@@ -34,5 +36,42 @@ public class ConvenienceApi extends Metadata {
      */
     public void setRequests(List<Request> requests) {
         this.requests = requests;
+    }
+
+    /**
+     * Gets the convenience response override, leaving the protocol response unchanged.
+     *
+     * @return the convenience response override.
+     */
+    public Response getResponse() {
+        return response;
+    }
+
+    /**
+     * Sets the convenience response override.
+     *
+     * @param response the convenience response override.
+     */
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+
+    /**
+     * Gets whether the convenience method returns the significant response headers as a strongly-typed model.
+     *
+     * @return whether the convenience method returns the response headers as a strongly-typed model.
+     */
+    public boolean isResponseHeadersAsModel() {
+        return responseHeadersAsModel;
+    }
+
+    /**
+     * Sets whether the convenience method returns the significant response headers as a strongly-typed model.
+     *
+     * @param responseHeadersAsModel whether the convenience method returns the response headers as a strongly-typed
+     * model.
+     */
+    public void setResponseHeadersAsModel(boolean responseHeadersAsModel) {
+        this.responseHeadersAsModel = responseHeadersAsModel;
     }
 }

@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -94,6 +96,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public void ValidateGenericTypeAndMethodArguments()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample
+                    {
+                        public class GenericType<TType>
+                        {
+                            public TMethod Convert<TMethod>(TType value, TMethod fallback) => fallback;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.GenericType`1");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var method = provider.Methods.Single(method => method.Signature.Name == "Convert");
+
+            Assert.AreEqual("TType", provider.Type.Arguments.Single().Name);
+            Assert.AreEqual("TMethod", method.Signature.GenericArguments!.Single().Name);
+        }
+
+        [Test]
+        public async Task ValidateAttributes()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization!;
+            var symbol = compilation.GetTypeByMetadataName("Sample.ExperimentalType");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var constructor = provider.Constructors.Single();
+
+            Assert.IsTrue(provider.IsExperimental);
+            Assert.AreEqual(
+                Literal("TYPE001").ToDisplayString(),
+                provider.Attributes.Single(attribute => attribute.Type.Equals(typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute)))
+                    .Arguments.Single().ToDisplayString());
+            Assert.AreEqual(
+                Literal("CTOR001").ToDisplayString(),
+                constructor.Signature.Attributes.Single(attribute => attribute.Type.Equals(typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute)))
+                    .Arguments.Single().ToDisplayString());
+
+            var stableSymbol = compilation.GetTypeByMetadataName("Sample.StableType");
+            Assert.IsNotNull(stableSymbol);
+            Assert.IsFalse(new NamedTypeSymbolProvider(stableSymbol!, compilation).IsExperimental);
+        }
+
+        [Test]
         public void ValidateNamespaceNestedType()
         {
             // Get all members, including nested types
@@ -136,6 +190,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
                 Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
             }
+        }
+
+        [Test]
+        public void ValidatePropertyCompatibilityMetadata()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample
+                    {
+                        public class PropertyMetadata
+                        {
+                            public virtual string VirtualValue { get; set; } = string.Empty;
+                            public string InitValue { get; init; } = string.Empty;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.PropertyMetadata");
+            Assert.IsNotNull(symbol);
+
+            var properties = new NamedTypeSymbolProvider(symbol!, compilation).Properties
+                .ToDictionary(property => property.Name);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(properties["VirtualValue"].Modifiers.HasFlag(MethodSignatureModifiers.Virtual), Is.True);
+                Assert.That(properties["InitValue"].IsInitOnly, Is.True);
+            });
         }
 
         [TestCase(typeof(int))]
@@ -334,6 +417,174 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task ValidatePartialMethodIsDetected()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var partial = provider.Methods.Single(m => m.Signature.Name == "DoIt");
+            Assert.IsTrue(partial.IsPartialMethod, "Expected DoIt to be detected as partial.");
+            Assert.IsTrue(partial.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            var nonPartial = provider.Methods.Single(m => m.Signature.Name == "NonPartial");
+            Assert.IsFalse(nonPartial.IsPartialMethod, "Expected NonPartial to not be detected as partial.");
+            Assert.IsFalse(nonPartial.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+        }
+
+        [Test]
+        public async Task ValidatePartialMethodWithBodyIsNotDetectedAsPartialDeclaration()
+        {
+            // A partial method *with* a body is the implementation half - not the declaration we
+            // want to treat as a customization signal.
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var doIt = provider.Methods.Single(m => m.Signature.Name == "DoIt");
+            Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
+        }
+
+        // Validates that reading a symbol maps the 'abstract' modifier onto the method signature so
+        // downstream consumers (e.g. the back-compat overload pass) can faithfully detect abstract methods.
+        [Test]
+        public async Task ValidateAbstractMethodModifierIsDetected()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithAbstract")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var abstractMethod = provider.Methods.Single(m => m.Signature.Name == "AbstractMethod");
+            Assert.IsTrue(abstractMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract), "Expected AbstractMethod to carry the Abstract modifier.");
+
+            var virtualMethod = provider.Methods.Single(m => m.Signature.Name == "VirtualMethod");
+            Assert.IsFalse(virtualMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract), "Expected VirtualMethod to not carry the Abstract modifier.");
+            Assert.IsTrue(virtualMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual), "Expected VirtualMethod to carry the Virtual modifier.");
+        }
+
+        [Test]
+        public async Task BodyDependenciesIncludeUsingNamespaceCandidatesForUnresolvedTypeSyntax()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "CustomClient")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.IsTrue(provider.BodyDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.ReferencedModel"));
+        }
+
+        [Test]
+        public async Task PublicInterfaceMemberSignatureDependenciesAreIncluded()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "ICustomApi")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.IsTrue(provider.SignatureDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.GeneratedModel"));
+        }
+
+        [Test]
+        public async Task PublicNestedMemberSignatureDependenciesAreIncluded()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "CustomApi")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.IsTrue(provider.SignatureDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.GeneratedModel"));
+        }
+
+        [Test]
+        public async Task SourceInputHelperYieldsNestedSymbols()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+
+            var symbols = Microsoft.TypeSpec.Generator.SourceInput.SourceInputHelper.GetSymbols(compilation.Assembly.Modules.First().GlobalNamespace);
+
+            Assert.IsTrue(symbols.Any(symbol => symbol.MetadataName == "Nested"));
+        }
+
+        [Test]
+        public async Task SourceInputLookupUsesFullNestedDeclaringTypeName()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var sourceInputModel = new SourceInputModel(compilation, lastContract: null);
+
+            var nestedType = sourceInputModel.FindForTypeInCurrentCompilation("Sample", "Target", "Outer+Middle");
+
+            Assert.IsNotNull(nestedType);
+            Assert.AreEqual("Sample.Outer+Middle+Target", ((NamedTypeSymbolProvider)nestedType!).MetadataName);
+        }
+
+        [Test]
+        public async Task MetadataNamePreservesGenericArity()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "CustomModel`1")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.AreEqual("Sample.Models.CustomModel`1", provider.MetadataName);
+        }
+
+        // Operator signatures parsed from a customization partial must compare equal to the corresponding generated signatures.
+        [Test]
+        public async Task ValidateOperatorSignaturesMatchGenerated()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithOperators")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+            var typeFromCustomization = provider.Type;
+
+            var leftParam = new ParameterProvider("left", $"left", typeFromCustomization);
+            var rightParam = new ParameterProvider("right", $"right", typeFromCustomization);
+            var valueParam = new ParameterProvider("value", $"value", typeof(string));
+            var operatorModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator;
+            var implicitOperatorModifiers = operatorModifiers | MethodSignatureModifiers.Implicit;
+
+            // Mirror the signatures emitted by generated providers (e.g. ExtensibleEnumProvider).
+            var generatedEquality = new MethodSignature("==", null, operatorModifiers, typeof(bool), null, [leftParam, rightParam]);
+            var generatedInequality = new MethodSignature("!=", null, operatorModifiers, typeof(bool), null, [leftParam, rightParam]);
+            var generatedImplicit = new MethodSignature(string.Empty, null, implicitOperatorModifiers, typeFromCustomization, null, [valueParam]);
+
+            var customEquality = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Name.EndsWith("=="));
+            var customInequality = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Name.EndsWith("!="));
+            var customImplicit = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedEquality, customEquality.Signature),
+                "Generated `==` operator should match the `==` operator parsed from the customization partial.");
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedInequality, customInequality.Signature),
+                "Generated `!=` operator should match the `!=` operator parsed from the customization partial.");
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedImplicit, customImplicit.Signature),
+                "Generated implicit conversion operator should match the implicit operator parsed from the customization partial.");
+
+            // Sanity check: `==` and `!=` parsed from customization must remain distinguishable.
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(customEquality.Signature, customInequality.Signature),
+                "`==` and `!=` operators must not compare as equal even though their parameter shapes match.");
+        }
+
+        [Test]
         public void ValidateMethods()
         {
             Dictionary<string, MethodProvider> methods = _namedTypeSymbolProvider.Methods.ToDictionary(p => p.Signature.Name);
@@ -469,6 +720,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsInstanceOf<LiteralExpression>(v74Field.InitializationValue);
             var v74Literal = v74Field.InitializationValue as LiteralExpression;
             Assert.AreEqual(3, v74Literal!.Literal);
+        }
+
+        // Validates that the constant value of a const field on a non-enum type (here a struct,
+        // mirroring the private `<Member>Value` backing constants an extensible enum uses) is
+        // recovered as the field's initialization value. This is what lets back-compat processing
+        // read a previously shipped member's wire value from the last contract's metadata.
+        [Test]
+        public void ValidateConstFieldInitializerIsRecovered()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public readonly partial struct MockInputEnum
+                        {
+                            private const string RecoverValue = "recover";
+                            private const int Answer = 42;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.Models.MockInputEnum");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var fields = provider.Fields.ToDictionary(f => f.Name);
+
+            Assert.IsTrue(fields.ContainsKey("RecoverValue"));
+            var recoverValue = fields["RecoverValue"];
+            Assert.IsInstanceOf<LiteralExpression>(recoverValue.InitializationValue);
+            Assert.AreEqual("recover", (recoverValue.InitializationValue as LiteralExpression)!.Literal);
+
+            Assert.IsTrue(fields.ContainsKey("Answer"));
+            var answer = fields["Answer"];
+            Assert.IsInstanceOf<LiteralExpression>(answer.InitializationValue);
+            Assert.AreEqual(42, (answer.InitializationValue as LiteralExpression)!.Literal);
+        }
+
+        // Validates that a non-const field carries no recovered initialization value.
+        [Test]
+        public void ValidateNonConstFieldHasNoInitializer()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public readonly partial struct MockInputEnum
+                        {
+                            private readonly string _value;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.Models.MockInputEnum");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var field = provider.Fields.Single(f => f.Name == "_value");
+            Assert.IsNull(field.InitializationValue);
         }
 
         public enum SomeEnum

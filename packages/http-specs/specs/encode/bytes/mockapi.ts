@@ -1,11 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
-import {
-  CollectionFormat,
-  json,
-  MockRequest,
-  passOnSuccess,
-  ScenarioMockApi,
-} from "@typespec/spec-api";
+import type { CollectionFormat, MockRequest, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess } from "@typespec/spec-api";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 

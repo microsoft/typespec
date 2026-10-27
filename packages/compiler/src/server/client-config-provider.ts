@@ -1,13 +1,25 @@
-import { Connection } from "vscode-languageserver/node.js";
-import { deepClone } from "../utils/misc.js";
-import { ServerHost } from "./types.js";
+import type { Connection } from "vscode-languageserver/node";
+import type { ServerHost } from "./types.js";
 
+/** Client settings that control which emitters run during language-server compilation. */
 interface LSPConfig {
+  /**
+   * Emitter names overriding project configuration. Include `"<config:defaults>"` to retain
+   * configured emitters and append the other names without duplicates. When absent, no
+   * emitters run unless the compilation supplies an explicit emit option; core mode
+   * suppresses emitters regardless of these settings.
+   */
   emit?: string[];
 }
 
+/** TypeSpec client settings read by the server when resolving a compilation request. */
 interface Config {
+  /** Language-server-specific compiler settings; absent settings use server defaults. */
   lsp?: LSPConfig;
+  /**
+   * Ordered entry-point candidates checked in each directory during upward project discovery.
+   * Defaults to `["main.tsp"]`; project tspconfig boundaries and package `tspMain` entries take precedence.
+   */
   entrypoint?: string[];
 }
 
@@ -23,6 +35,7 @@ export interface ClientConfigProvider {
    */
   initialize(connection: Connection, host: ServerHost): Promise<void>;
 
+  /** Current TypeSpec client settings, if available; read by the server for each compilation. */
   config?: Config;
 }
 
@@ -33,14 +46,14 @@ export function createClientConfigProvider(): ClientConfigProvider {
     try {
       const configs = await connection.workspace.getConfiguration("typespec");
       // Transform the raw configuration to match our Config interface
-      config = deepClone(configs);
+      config = structuredClone(configs);
 
       host.log({ level: "debug", message: "vscode settings loaded", detail: config });
 
       connection.onDidChangeConfiguration(async (params) => {
         if (params.settings) {
           const newConfigs = params.settings?.typespec;
-          config = deepClone(newConfigs);
+          config = structuredClone(newConfigs);
         }
 
         host.log({ level: "debug", message: "Configuration changed", detail: params.settings });

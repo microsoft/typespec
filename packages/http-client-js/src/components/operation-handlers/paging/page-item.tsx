@@ -1,4 +1,4 @@
-import { PagingOperation } from "@typespec/compiler";
+import type { PagingOperation } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { TypeExpression } from "@typespec/emitter-framework/typescript";
 

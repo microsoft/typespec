@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
+import type {
   BooleanLiteral,
   DiagnosticTarget,
   IntrinsicType,
   ModelProperty,
-  NoTarget,
   NumericLiteral,
   Scalar,
   StringLiteral,
   Type,
+} from "@typespec/compiler";
+import {
+  NoTarget,
   compilerAssert,
   getEncode,
   isArrayModelType,
@@ -18,7 +20,7 @@ import {
   resolveEncodedName,
 } from "@typespec/compiler";
 import { getHeaderFieldOptions, getPathParamOptions, getQueryParamOptions } from "@typespec/http";
-import { JsContext, Module } from "../../ctx.js";
+import type { JsContext, Module } from "../../ctx.js";
 import { reportDiagnostic } from "../../lib.js";
 import { access, objectLiteralProperty, parseCase } from "../../util/case.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
@@ -27,13 +29,10 @@ import { indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
 import { emitTypeReference, escapeUnsafeChars } from "../reference.js";
-import { Encoder, JS_SCALAR_UNKNOWN, JsScalar, getJsScalar } from "../scalar.js";
-import {
-  SerializableType,
-  SerializationContext,
-  isSerializableType,
-  requireSerialization,
-} from "./index.js";
+import type { Encoder, JsScalar } from "../scalar.js";
+import { JS_SCALAR_UNKNOWN, getJsScalar } from "../scalar.js";
+import type { SerializableType, SerializationContext } from "./index.js";
+import { isSerializableType, requireSerialization } from "./index.js";
 
 /**
  * Memoization cache for requiresJsonSerialization.

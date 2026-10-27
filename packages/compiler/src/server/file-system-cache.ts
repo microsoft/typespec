@@ -1,7 +1,7 @@
-import { FileEvent } from "vscode-languageserver";
-import { SourceFile } from "../core/types.js";
-import { FileService } from "./file-service.js";
-import { ServerLog } from "./types.js";
+import type { FileEvent } from "vscode-languageserver";
+import type { SourceFile } from "../core/types.js";
+import type { FileService } from "./file-service.js";
+import type { ServerLog } from "./types.js";
 
 export interface FileSystemCache {
   get(path: string): Promise<CachedFile | CachedError | undefined>;

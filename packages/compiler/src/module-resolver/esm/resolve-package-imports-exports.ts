@@ -1,7 +1,8 @@
-import { Exports } from "../../types/package-json.js";
+import type { Exports } from "../../types/package-json.js";
 import { resolvePackageTarget } from "./resolve-package-target.js";
 
-import { EsmResolutionContext, InvalidModuleSpecifierError } from "./utils.js";
+import type { EsmResolutionContext } from "./utils.js";
+import { InvalidModuleSpecifierError } from "./utils.js";
 
 interface ResolvePackageImportsExportsOptions {
   readonly matchKey: string;

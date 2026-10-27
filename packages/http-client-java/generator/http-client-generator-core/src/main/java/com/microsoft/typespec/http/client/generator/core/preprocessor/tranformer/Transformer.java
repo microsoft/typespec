@@ -588,7 +588,10 @@ public class Transformer {
     private void renameProperty(Property property) {
         Language language = property.getLanguage().getDefault();
         Language java = addJavaLanguage(property);
-        java.setName(CodeNamer.getPropertyName(language.getName()));
+        if (property.getLanguage().getJava().getName() == null
+            || property.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getPropertyName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         property.getLanguage().setJava(java);
@@ -606,7 +609,9 @@ public class Transformer {
     private void renameClient(Metadata client) {
         Language language = client.getLanguage().getDefault();
         Language java = addJavaLanguage(client);
-        java.setName(CodeNamer.getClientName(language.getName()));
+        if (client.getLanguage().getJava().getName() == null || client.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getClientName(language.getName()));
+        }
         java.setDescription(language.getDescription());
         client.getLanguage().setJava(java);
     }
@@ -614,7 +619,9 @@ public class Transformer {
     private void renameVariable(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getParameterName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getParameterName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         schema.getLanguage().setJava(java);
@@ -623,7 +630,9 @@ public class Transformer {
     private void renameMethodGroup(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getMethodGroupName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getMethodGroupName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         schema.getLanguage().setJava(java);
@@ -632,7 +641,9 @@ public class Transformer {
     private void renameMethod(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getMethodName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getMethodName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
     }

@@ -21,7 +21,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
             if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
                 !type.Name.StartsWith("Unknown", StringComparison.Ordinal) &&
                 !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
+            {
                 return null;
+            }
 
             type.Update(xmlDocs: XmlDocProvider.Empty);
             return type;
@@ -48,7 +50,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
                 !IsParameterlessInternalCtorOnMrwSerializationType(constructor) &&
                 !IsInternalClientConstructor(constructor) &&
                 (constructor.EnclosingType is not ModelProvider model || model.DerivedModels.Count == 0))
+            {
                 return null;
+            }
 
             constructor.Update(
                 bodyStatements: null,
@@ -61,7 +65,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         private static bool IsInternalClientConstructor(ConstructorProvider constructor)
         {
             if (!constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+            {
                 return false;
+            }
 
             return constructor.EnclosingType is ClientProvider;
         }
@@ -69,10 +75,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         private static bool IsParameterlessInternalCtorOnMrwSerializationType(ConstructorProvider constructor)
         {
             if (constructor.Signature.Parameters.Count != 0)
+            {
                 return false;
+            }
 
             if (!constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+            {
                 return false;
+            }
 
             return constructor.EnclosingType is MrwSerializationTypeDefinition;
         }
@@ -101,7 +111,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         protected override MethodProvider? VisitMethod(MethodProvider method)
         {
             if (method.Signature.ExplicitInterface is null && !IsEffectivelyPublic(method.Signature.Modifiers))
+            {
                 return null;
+            }
 
             method.Signature.Update(modifiers: method.Signature.Modifiers & ~MethodSignatureModifiers.Async);
 
@@ -116,7 +128,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         protected override PropertyProvider? VisitProperty(PropertyProvider property)
         {
             if (!property.IsDiscriminator && !IsEffectivelyPublic(property.Modifiers))
+            {
                 return null;
+            }
 
             var propertyBody = new ExpressionPropertyBody(_throwNull, property.Body.HasSetter ? _throwNull : null);
 
@@ -130,10 +144,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         private bool IsEffectivelyPublic(MethodSignatureModifiers modifiers)
         {
             if (modifiers.HasFlag(MethodSignatureModifiers.Public))
+            {
                 return true;
+            }
 
             if (modifiers.HasFlag(MethodSignatureModifiers.Protected) && !modifiers.HasFlag(MethodSignatureModifiers.Private))
+            {
                 return true;
+            }
 
             return false;
         }

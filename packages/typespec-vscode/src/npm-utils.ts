@@ -2,7 +2,8 @@ import { readFile } from "fs/promises";
 import path from "path";
 import semver from "semver";
 import logger from "./log/logger.js";
-import { ExecOutput, loadModule, spawnExecutionAndLogToOutput } from "./utils.js";
+import type { ExecOutput } from "./utils.js";
+import { loadModule, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export enum InstallAction {
   Install = "Install",

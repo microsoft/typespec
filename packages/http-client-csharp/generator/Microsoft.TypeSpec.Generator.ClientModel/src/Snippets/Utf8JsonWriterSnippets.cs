@@ -72,6 +72,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         internal static MethodBodyStatement WriteBase64StringValue(this ScopedApi<Utf8JsonWriter> writer, ValueExpression value, string? format)
             => ModelSerializationExtensionsSnippets.WriteBase64StringValue(writer, value, format);
 
+        internal static MethodBodyStatement WriteBase64UrlStringValue(this ScopedApi<Utf8JsonWriter> writer, ValueExpression value)
+            => ModelSerializationExtensionsSnippets.WriteBase64UrlStringValue(writer, value);
+
         internal static MethodBodyStatement WriteNumberValue(this ScopedApi<Utf8JsonWriter> writer, ValueExpression value, string? format)
             => ModelSerializationExtensionsSnippets.WriteNumberValue(writer, value, format);
     }

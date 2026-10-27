@@ -84,6 +84,32 @@ class FileImportSerializer:
         if any(self.file_import.get_imports_from_section(TypingSection.TYPING)):
             self.file_import.add_submodule_import("typing", "TYPE_CHECKING", ImportType.STDLIB)
 
+    def _dedupe_typing_imports(self):
+        """Drop TYPE_CHECKING imports whose bound name is already imported at runtime.
+
+        A name imported in the regular (runtime) section is also available during type checking, so a
+        duplicate import under ``if TYPE_CHECKING:`` is redundant and triggers mypy's ``no-redef``
+        error. This can happen when the same symbol is imported from two different modules — e.g. a
+        cross-namespace enum imported at runtime from its ``_enums`` submodule and again for its
+        annotation from the public ``models`` package. The runtime import is sufficient.
+        """
+        regular_bound_names = {
+            (i.alias or i.submodule_name)
+            for i in self.file_import.get_imports_from_section(TypingSection.REGULAR)
+            if i.submodule_name
+        }
+        if not regular_bound_names:
+            return
+        self.file_import.imports = [
+            i
+            for i in self.file_import.imports
+            if not (
+                i.typing_section == TypingSection.TYPING
+                and i.submodule_name
+                and (i.alias or i.submodule_name) in regular_bound_names
+            )
+        ]
+
     def _add_sys_import_if_needed(self):
         all_imports = list(self.file_import.get_imports_from_section(TypingSection.REGULAR)) + list(
             self.file_import.get_imports_from_section(TypingSection.TYPING)
@@ -106,6 +132,7 @@ class FileImportSerializer:
         return "\n".join(declarations)
 
     def __str__(self) -> str:
+        self._dedupe_typing_imports()
         self._add_type_checking_import()
         self._add_sys_import_if_needed()
         regular_imports = ""

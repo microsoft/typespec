@@ -11,6 +11,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             IntegerValue = integerValue;
         }
 
-        public int IntegerValue { get; }
+        public InputEnumTypeIntegerValue(string name, long integerValue, InputPrimitiveType valueType, string? summary, string? doc, InputEnumType? enumType = default)
+            : base(name, integerValue, valueType, summary, doc, enumType)
+        {
+            IntegerValue = integerValue;
+        }
+
+        public long IntegerValue { get; }
     }
 }

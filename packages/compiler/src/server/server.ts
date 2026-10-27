@@ -4,27 +4,28 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { format, inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
+import type {
   ApplyWorkspaceEditParams,
-  ProposedFeatures,
   PublishDiagnosticsParams,
-  TextDocuments,
   WorkspaceEdit,
-  createConnection,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
+import { ProposedFeatures, TextDocuments, createConnection } from "vscode-languageserver/node";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
+import { writeServerFatalError } from "./fatal-error.js";
 import { createServer } from "./serverlib.js";
-import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
+import type { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
+const writeStderr = process.stderr.write.bind(process.stderr) as (message: string) => void;
 
 const profileDir = process.env.TYPESPEC_SERVER_PROFILE_DIR;
 const logTiming = process.env.TYPESPEC_SERVER_LOG_TIMING === "true";
 let profileSession: inspector.Session | undefined;
 
 process.on("unhandledRejection", fatalError);
+process.on("uncaughtException", fatalError);
 try {
   main();
 } catch (e) {
@@ -136,16 +137,19 @@ function main() {
   connection.onHover(profile(s.getHover));
   connection.onSignatureHelp(profile(s.getSignatureHelp));
   connection.onCodeAction(profile(s.getCodeActions));
-  connection.onExecuteCommand(profile(s.executeCommand));
+  connection.onCodeActionResolve(profile(s.resolveCodeAction));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
   connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
-  connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
+  connection.onRequest<boolean, unknown>(
+    validateInitProjectTemplate,
+    profile(s.validateInitProjectTemplate),
+  );
   const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
-  connection.onRequest(initProjectRequestName, profile(s.initProject));
+  connection.onRequest<boolean, unknown>(initProjectRequestName, profile(s.initProject));
   const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
   connection.onRequest(compileProjectRequestName, profile(s.internalCompile));
 
@@ -162,12 +166,7 @@ function main() {
 function fatalError(e: unknown) {
   // If we failed to send any log messages over LSP pipe, send them to
   // stderr before exiting.
-  for (const pending of server?.pendingMessages ?? []) {
-    // eslint-disable-next-line no-console
-    console.error(pending);
-  }
-  // eslint-disable-next-line no-console
-  console.error(e);
+  writeServerFatalError(writeStderr, server?.pendingMessages ?? [], e);
   process.exit(1);
 }
 

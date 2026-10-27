@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Enum, Model, NoTarget, Type, Union } from "@typespec/compiler";
+import type { Enum, Model, Type, Union } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
+import type { JsContext, Module } from "../../ctx.js";
+import { completePendingDeclarations } from "../../ctx.js";
 import { indent } from "../../util/iter.js";
 import { createOrGetModuleForNamespace } from "../namespace.js";
 import { emitTypeReference } from "../reference.js";

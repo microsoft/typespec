@@ -40,6 +40,10 @@ public class CSharpProjectWriter
 
     public CSProjProperty? GenerateDocumentationFile { get; init; }
 
+    public CSProjProperty? IsTestProject { get; init; }
+
+    public CSProjProperty? IsPackable { get; init; }
+
     public CSProjProperty? NoWarn { get; init; }
 
     public CSProjProperty? TreatWarningsAsErrors { get; init; }
@@ -169,7 +173,9 @@ public class CSharpProjectWriter
         {
             // only include those CSProjProperty types
             if (property.PropertyType != typeof(CSProjProperty))
+            {
                 continue;
+            }
             // invoke the WriteElementIfNotNull method on each of them
             var value = (CSProjProperty?)property.GetValue(this);
             WriteElementIfNotNull(writer, property.Name, value);
@@ -180,7 +186,9 @@ public class CSharpProjectWriter
     private void WriteElementIfNotNull(XmlWriter writer, string name, CSProjProperty? property)
     {
         if (property == null)
+        {
             return;
+        }
 
         if (property.Comment != null)
         {

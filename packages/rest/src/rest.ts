@@ -1,5 +1,4 @@
-import {
-  createDiagnosticCollector,
+import type {
   DecoratorContext,
   DiagnosticResult,
   Interface,
@@ -9,29 +8,33 @@ import {
   Operation,
   Program,
   Scalar,
-  setTypeSpecNamespace,
   Type,
 } from "@typespec/compiler";
+import { createDiagnosticCollector, setTypeSpecNamespace } from "@typespec/compiler";
+import type {
+  HttpOperation,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  HttpVerb,
+} from "@typespec/http";
 import {
   addQueryParamsToUriTemplate,
   getOperationParameters,
   getOperationVerb,
   getRoutePath,
   getUriTemplatePathParam,
-  HttpOperation,
-  HttpOperationParameter,
-  HttpOperationParameters,
-  HttpVerb,
   joinPathSegments,
 } from "@typespec/http";
+import type {
+  unsafe_RouteOptions as RouteOptions,
+  unsafe_RouteProducerResult as RouteProducerResult,
+} from "@typespec/http/experimental";
 import {
   unsafe_DefaultRouteProducer as DefaultRouteProducer,
   unsafe_getRouteProducer as getRouteProducer,
-  unsafe_RouteOptions as RouteOptions,
-  unsafe_RouteProducerResult as RouteProducerResult,
   unsafe_setRouteProducer as setRouteProducer,
 } from "@typespec/http/experimental";
-import {
+import type {
   ActionDecorator,
   ActionSeparatorDecorator,
   AutoRouteDecorator,
@@ -41,7 +44,7 @@ import {
   ResourceDecorator,
   SegmentOfDecorator,
 } from "../generated-defs/TypeSpec.Rest.js";
-import {
+import type {
   ActionSegmentDecorator,
   ResourceLocationDecorator,
 } from "../generated-defs/TypeSpec.Rest.Private.js";
@@ -70,12 +73,27 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
   }
 }
 
+/** Overrides how one path parameter contributes to an automatically generated route. */
 export interface FilteredRouteParam {
+  /**
+   * Replacement route fragment, without a leading slash, such as `"fixed"` or `"{id}"`.
+   * An absent or empty value preserves the default fragment. The parameter's `@segment` prefix is retained.
+   */
   routeParamString?: string;
+  /**
+   * Removes the parameter from the resolved HTTP operation when `true` and a nonempty
+   * `routeParamString` is supplied. Defaults to retaining it.
+   */
   excludeFromOperationParams?: boolean;
 }
 
+/** Customization supplied through HTTP route options when resolving `@autoRoute` operations. */
 export interface AutoRouteOptions {
+  /**
+   * Called for each resolved path parameter to override its route fragment and optionally omit it
+   * from the HTTP parameter list. Returning `undefined` uses normal route generation, including
+   * substituting string literal values and omitting those literal parameters.
+   */
   routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
 }
 
@@ -216,6 +234,10 @@ export const $autoRoute: AutoRouteDecorator = (
   context.program.stateSet(autoRouteKey).add(entity);
 };
 
+/**
+ * Returns whether automatic routing was enabled for this operation or interface.
+ * Operations receive this marker when `@autoRoute` is applied to their interface as well.
+ */
 export function isAutoRoute(program: Program, entity: Operation | Interface): boolean {
   return program.stateSet(autoRouteKey).has(entity);
 }
@@ -230,7 +252,8 @@ const segmentsKey = createStateSymbol("segments");
  * The first argument should be a string that will be inserted into the operation route before the
  * path parameter's name field.
  *
- * `@segment` can only be applied to model properties, operation parameters, or operations.
+ * On an operation, the segment follows its path parameters. On a model, it supplies a resource
+ * segment when the model has no key, as used by singleton resources.
  */
 export function $segment(
   context: DecoratorContext,
@@ -248,6 +271,11 @@ function getResourceSegment(program: Program, resourceType: Model): string | und
     : getSegment(program, resourceType);
 }
 
+/**
+ * Copies a resource's collection segment onto an operation for automatic routing.
+ * Uses the key property's segment when a key exists, or the model's segment otherwise.
+ * Leaves the operation unchanged if the segment is absent or empty.
+ */
 export const $segmentOf: SegmentOfDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -265,6 +293,10 @@ export const $segmentOf: SegmentOfDecorator = (
   }
 };
 
+/**
+ * Returns the segment stored on this type, or `undefined` if none was set.
+ * An empty string explicitly omits the segment from automatic routes; no resource key lookup is performed.
+ */
 export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
 }
@@ -286,6 +318,11 @@ export const $actionSeparator: ActionSeparatorDecorator = (
 };
 
 /**
+ * Resolves the action separator on an entity. For operations, checks the operation, its interface,
+ * then enclosing namespaces from nearest to outermost; interfaces fall back to enclosing namespaces.
+ * A namespace argument checks only that namespace. Returns `undefined` if no separator is found;
+ * automatic routing then uses `"/"`.
+ *
  * @param program the TypeSpec program
  * @param entity the target entity
  * @returns the action separator string, checking the hierarchy: operation -> interface -> namespace
@@ -390,17 +427,15 @@ export const $resource: ResourceDecorator = (
   });
 };
 
+/** Resource lifecycle roles used to select a default HTTP verb for an operation. */
 export type ResourceOperations =
-  | "read"
-  | "create"
-  | "createOrReplace"
-  | "createOrUpdate"
-  | "update"
-  | "delete"
-  | "list";
+  "read" | "create" | "createOrReplace" | "createOrUpdate" | "update" | "delete" | "list";
 
+/** Resource lifecycle metadata recorded on an operation by a resource operation decorator. */
 export interface ResourceOperation {
+  /** Lifecycle role, such as `"read"` or `"createOrReplace"`, used to select the default HTTP verb. */
   operation: string;
+  /** Resource model acted on by the operation. */
   resourceType: Model;
 }
 
@@ -431,6 +466,12 @@ function resourceRouteProducer(
   });
 }
 
+/**
+ * Records an operation's resource and lifecycle role, replacing any previous resource operation metadata.
+ * Installs resource-aware routing only if the operation has no route producer already.
+ * Explicit HTTP verb decorators take precedence over the lifecycle role's default verb.
+ * Unresolved resource template parameters are ignored.
+ */
 export function setResourceOperation(
   context: DecoratorContext,
   entity: Operation,
@@ -455,6 +496,7 @@ export function setResourceOperation(
   }
 }
 
+/** Returns an operation's recorded resource and lifecycle role, or `undefined` if none was set. */
 export function getResourceOperation(
   program: Program,
   typespecOperation: Operation,
@@ -462,6 +504,7 @@ export function getResourceOperation(
   return program.stateMap(resourceOperationsKey).get(typespecOperation);
 }
 
+/** Marks an operation as reading one resource, defaulting its HTTP verb to GET. */
 export const $readsResource: ReadsResourceDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -470,6 +513,10 @@ export const $readsResource: ReadsResourceDecorator = (
   setResourceOperation(context, entity, resourceType, "read");
 };
 
+/**
+ * Marks an operation as creating a resource, defaulting its HTTP verb to POST.
+ * Also copies the resource's collection segment onto the operation for automatic routing.
+ */
 export function $createsResource(
   context: DecoratorContext,
   entity: Operation,
@@ -481,6 +528,7 @@ export function $createsResource(
   setResourceOperation(context, entity, resourceType, "create");
 }
 
+/** Marks an operation as creating or replacing a resource, defaulting its HTTP verb to PUT. */
 export function $createsOrReplacesResource(
   context: DecoratorContext,
   entity: Operation,
@@ -489,6 +537,7 @@ export function $createsOrReplacesResource(
   setResourceOperation(context, entity, resourceType, "createOrReplace");
 }
 
+/** Marks an operation as creating or updating a resource, defaulting its HTTP verb to PATCH. */
 export function $createsOrUpdatesResource(
   context: DecoratorContext,
   entity: Operation,
@@ -497,6 +546,7 @@ export function $createsOrUpdatesResource(
   setResourceOperation(context, entity, resourceType, "createOrUpdate");
 }
 
+/** Marks an operation as updating an existing resource, defaulting its HTTP verb to PATCH. */
 export function $updatesResource(
   context: DecoratorContext,
   entity: Operation,
@@ -505,6 +555,7 @@ export function $updatesResource(
   setResourceOperation(context, entity, resourceType, "update");
 }
 
+/** Marks an operation as deleting a resource, defaulting its HTTP verb to DELETE. */
 export function $deletesResource(
   context: DecoratorContext,
   entity: Operation,
@@ -513,6 +564,10 @@ export function $deletesResource(
   setResourceOperation(context, entity, resourceType, "delete");
 }
 
+/**
+ * Marks an operation as listing a resource collection, defaulting its HTTP verb to GET.
+ * Also copies the resource's collection segment onto the operation for automatic routing.
+ */
 export const $listsResource: ListsResourceDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -547,6 +602,10 @@ function makeActionName(op: Operation, name: string | undefined): ActionDetails 
 
 const actionsSegmentKey = createStateSymbol("actionSegment");
 
+/**
+ * Sets the action fragment appended after an operation's other automatic route segments.
+ * This stores the fragment without marking the operation as an action or collection action.
+ */
 export const $actionSegment: ActionSegmentDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -555,6 +614,10 @@ export const $actionSegment: ActionSegmentDecorator = (
   context.program.stateMap(actionsSegmentKey).set(entity, name);
 };
 
+/**
+ * Returns the stored action route fragment, without its separator, or `undefined` if none was set.
+ * This is distinct from collection action metadata, whose name includes the collection segment.
+ */
 export function getActionSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(actionsSegmentKey).get(entity);
 }
@@ -564,7 +627,8 @@ export function getActionSegment(program: Program, entity: Type): string | undef
  */
 export interface ActionDetails {
   /**
-   * The name of the action
+   * Action name with its first character lowercased. For collection action details,
+   * this includes the resource segment followed by `"/"`, independently of `@actionSeparator`.
    */
   name: string;
 
@@ -576,6 +640,12 @@ export interface ActionDetails {
 }
 
 const actionsKey = createStateSymbol("actions");
+/**
+ * Marks an operation as an action and sets its automatic route fragment.
+ * Uses the supplied name or the operation name, lowercasing the first character.
+ * An explicitly empty name reports a diagnostic. Automatic routes default to POST unless
+ * an explicit verb or resource lifecycle role supplies one.
+ */
 export const $action: ActionDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -595,7 +665,7 @@ export const $action: ActionDecorator = (
 };
 
 /**
- * Gets the ActionDetails for the specified operation if it has previously been marked with @action.
+ * Returns metadata recorded by `@action`, or `undefined` if the operation is not marked as an action.
  */
 export function getActionDetails(
   program: Program,
@@ -605,6 +675,8 @@ export function getActionDetails(
 }
 
 /**
+ * Returns the recorded action name, or `undefined` when no action is recorded.
+ *
  * @deprecated Use getActionDetails instead.
  */
 export function getAction(program: Program, operation: Operation): string | null | undefined {
@@ -613,6 +685,12 @@ export function getAction(program: Program, operation: Operation): string | null
 
 const collectionActionsKey = createStateSymbol("collectionActions");
 
+/**
+ * Marks an operation as an action on a resource collection and adds the collection and action
+ * segments to its automatic route. Uses the supplied name or operation name with its first
+ * character lowercased. Automatic routes default to POST unless an explicit verb or resource
+ * lifecycle role supplies one.
+ */
 export const $collectionAction: CollectionActionDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -639,7 +717,9 @@ export const $collectionAction: CollectionActionDecorator = (
 };
 
 /**
- * Gets the ActionDetails for the specified operation if it has previously been marked with @collectionAction.
+ * Returns metadata recorded by `@collectionAction`, or `undefined` if none was set.
+ * The stored name includes the resource segment and `"/"` before the action name, even when
+ * automatic routing uses a different action separator.
  */
 export function getCollectionActionDetails(
   program: Program,
@@ -649,6 +729,8 @@ export function getCollectionActionDetails(
 }
 
 /**
+ * Returns the collection-prefixed action name, or `undefined` when no collection action is recorded.
+ *
  * @deprecated Use getCollectionActionDetails instead.
  */
 export function getCollectionAction(
@@ -660,6 +742,10 @@ export function getCollectionAction(
 
 const resourceLocationsKey = createStateSymbol("resourceLocations");
 
+/**
+ * Associates a string scalar with the resource model whose location it represents.
+ * Used by `ResourceLocation<T>`; unresolved resource template parameters are ignored.
+ */
 export const $resourceLocation: ResourceLocationDecorator = (
   context: DecoratorContext,
   entity: Scalar,
@@ -673,6 +759,10 @@ export const $resourceLocation: ResourceLocationDecorator = (
   context.program.stateMap(resourceLocationsKey).set(entity, resourceType);
 };
 
+/**
+ * Returns the resource model associated directly with a location scalar, or `undefined` if none was set.
+ * Does not search base scalars; for a scalar extending `ResourceLocation<T>`, query the decorated base scalar.
+ */
 export function getResourceLocationType(program: Program, entity: Scalar): Model | undefined {
   return program.stateMap(resourceLocationsKey).get(entity);
 }

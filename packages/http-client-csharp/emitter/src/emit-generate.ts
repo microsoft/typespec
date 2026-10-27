@@ -3,9 +3,9 @@
 
 // Node.js implementation: runs the .NET generator locally via subprocess.
 
+import type { Diagnostic } from "@typespec/compiler";
 import {
   createDiagnosticCollector,
-  Diagnostic,
   getDirectoryPath,
   joinPaths,
   NoTarget,
@@ -19,9 +19,9 @@ import {
   configurationFileName,
   tspOutputFileName,
 } from "./constants.js";
+import { execAsync, execCSharpGenerator } from "./lib/exec-utils.js";
 import { createDiagnostic } from "./lib/lib.js";
-import { execAsync, execCSharpGenerator } from "./lib/utils.js";
-import { CSharpEmitterContext } from "./sdk-context.js";
+import type { CSharpEmitterContext } from "./sdk-context.js";
 
 export interface GenerateOptions {
   outputFolder: string;

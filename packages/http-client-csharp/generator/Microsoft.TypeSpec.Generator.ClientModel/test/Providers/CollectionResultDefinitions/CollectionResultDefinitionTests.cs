@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -13,6 +14,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 {
     public class CollectionResultDefinitionTests
     {
+        [Test]
+        public void ExperimentalPagingDependenciesAreSuppressedInAllHelpers()
+        {
+            var item = InputFactory.Experimental(InputFactory.Model("Item"), "ITEM001");
+            var envelope = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var operation = InputFactory.Operation("List", responses: [InputFactory.OperationResponse(bodytype: envelope)]);
+            operation.Update(experimental: new InputExperimentalDetails("API001", ["DEPENDENCY001"]));
+            var serviceMethod = InputFactory.PagingServiceMethod("List", operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var client = InputFactory.Experimental(InputFactory.Client("TestClient", methods: [serviceMethod]), "CLIENT001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, envelope], clients: () => [client]);
+            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+
+            Assert.AreEqual(4, helpers.Length);
+            foreach (var helper in helpers)
+            {
+                Assert.IsTrue(helper.DisabledFileWarnings.All(s => s.Code.ToDisplayString() == Snippet.Literal("ITEM001").ToDisplayString()));
+                var code = new TypeProviderWriter(helper).Write().Content;
+                foreach (var id in new[] { "CLIENT001", "API001", "DEPENDENCY001" })
+                {
+                    StringAssert.Contains($"#pragma warning disable {id}", code);
+                }
+            }
+        }
+
         [SetUp]
         public void Setup()
         {
@@ -278,6 +303,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 t => t is CollectionResultDefinition && t.Name == "FooClientGetAllCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition,
                 "CollectionResult should use cleaned name 'GetAll' when there's no collision");
+        }
+
+        [Test]
+        public void TestContinuationTokenParameterNameMatchIsCaseInsensitive()
+        {
+            // The continuation token parameter name (e.g. "MyToken") may differ in casing from the
+            // request field's parameter name (e.g. "myToken" after camel-casing). The match used to
+            // associate the request field with the continuation token must be case-insensitive,
+            // otherwise NextTokenField is left null and code generation throws a NullReferenceException
+            // when emitting the continuation token paging logic.
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            // Note the PascalCase parameter name; the generated request field parameter will be camelCased.
+            var continuationParameter = InputFactory.QueryParameter("MyToken", InputPrimitiveType.String, isRequired: true);
+            var pagingMetadata = InputFactory.ContinuationTokenPagingMetadata(
+                continuationParameter,
+                ["cats"],
+                ["nextPage"],
+                InputResponseLocation.Body);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty]));
+            var operation = InputFactory.Operation("getCats", parameters: [continuationParameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+
+            // Code generation dereferences NextTokenField; if the case-insensitive match regresses,
+            // this Write call will throw a NullReferenceException.
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+
+            // The request field for the continuation token parameter should be referenced in the
+            // generated code, demonstrating the field was correctly identified as the next-token field.
+            Assert.IsTrue(file.Content.Contains("_myToken"),
+                "Generated code should reference the continuation token request field '_myToken'.");
+            Assert.IsTrue(file.Content.Contains("nextToken"),
+                "Generated code should contain the continuation token paging logic.");
         }
 
         internal static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)

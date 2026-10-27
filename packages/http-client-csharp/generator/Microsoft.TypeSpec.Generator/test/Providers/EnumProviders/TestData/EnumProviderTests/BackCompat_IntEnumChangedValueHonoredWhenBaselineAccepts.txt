@@ -1,0 +1,4 @@
+# The Default member's value was intentionally changed from 5 (contract) to 1 (implementation).
+# Accepting the difference in the baseline means back-compat must honor the new value instead of
+# restoring the old one.
+EnumValuesMustMatch : Enum value 'Sample.Models.MockInputEnum Sample.Models.MockInputEnum.Default' is (System.Int32)1 in the implementation but (System.Int32)5 in the contract.

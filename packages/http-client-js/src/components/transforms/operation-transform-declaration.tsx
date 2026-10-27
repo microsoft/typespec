@@ -1,8 +1,9 @@
-import { Refkey, refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
-import { HttpOperationBody } from "@typespec/http";
-import { ClientOperation } from "@typespec/http-client";
+import type { HttpOperationBody } from "@typespec/http";
+import type { ClientOperation } from "@typespec/http-client";
 import { JsonTransform } from "./json/json-transform.jsx";
 
 export interface TransformDeclarationProps {

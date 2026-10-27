@@ -1,42 +1,44 @@
+import type { AssetEmitter, EmitterOutput, TypeEmitter } from "@typespec/asset-emitter";
 import {
-  AssetEmitter,
   createAssetEmitter,
-  EmitterOutput,
   ObjectBuilder,
   Placeholder,
   setProperty,
-  TypeEmitter,
 } from "@typespec/asset-emitter";
-import {
-  compilerAssert,
+import type {
   Enum,
-  getDiscriminatedUnion,
-  getExamples,
-  getMaxValueExclusive,
-  getMinValueExclusive,
   IntrinsicType,
-  isNullType,
   Model,
   ModelProperty,
   Scalar,
   Type,
   Union,
 } from "@typespec/compiler";
+import {
+  compilerAssert,
+  getDiscriminatedUnion,
+  getExamples,
+  getMaxValueExclusive,
+  getMinValueExclusive,
+  isNullType,
+  resolveEncodedEnumMemberValue,
+} from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { MetadataInfo } from "@typespec/http";
+import type { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { serializeExample } from "./examples.js";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-0.js";
-import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
-import { JsonType, OpenAPI3Schema } from "./types.js";
+import type { JsonType, OpenAPI3Schema } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,
@@ -122,8 +124,9 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     if (enumTypes.size > 1) {

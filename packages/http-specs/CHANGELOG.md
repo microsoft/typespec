@@ -1,5 +1,108 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.45
+
+### Features
+
+- [#12288](https://github.com/microsoft/typespec/pull/12288) Add Spector scenarios for discriminated unions with model constraints, covering explicit and injected discriminators, custom wire tags, enum discriminators, transitive inheritance, and recursive containers.
+
+
+## 0.1.0-alpha.44
+
+### Features
+
+- [#12038](https://github.com/microsoft/typespec/pull/12038) Add named-model query parameter scenarios for standard expansion, standard continuation, and exploded continuation.
+  
+  ```typespec
+  model ExpandParameters {
+    field: string;
+    value: string;
+  }
+  ```
+
+### Bug Fixes
+
+- [#11940](https://github.com/microsoft/typespec/pull/11940) Include smoke test specifications in the published package.
+
+
+## 0.1.0-alpha.43
+
+### Bug Fixes
+
+- [#11920](https://github.com/microsoft/typespec/pull/11920) Use a unique `ProtocolInfo` model name in the SSE protocol scenarios to avoid model-name collisions in generated clients.
+
+
+## 0.1.0-alpha.42
+
+### Features
+
+- [#11677](https://github.com/microsoft/typespec/pull/11677) Add scenario for an operation whose successful response is either a model body (`200`) or no content (`204`).
+  
+  ```tsp
+  op getBody(): {
+    @statusCode statusCode: 200;
+    @body layout: BlobLayout;
+  } | {
+    @statusCode statusCode: 204;
+  };
+  ```
+- [#11613](https://github.com/microsoft/typespec/pull/11613) Add SSE protocol coverage for event IDs, retry fields, and reconnection
+  
+  ```tsp
+  op reconnect(): SSEStream<ProtocolEvents>;
+  ```
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
+## 0.1.0-alpha.41
+
+No changes, version bump only.
+
+## 0.1.0-alpha.40
+
+### Features
+
+- [#11239](https://github.com/microsoft/typespec/pull/11239) Add SSE tests
+
+
+## 0.1.0-alpha.39
+
+### Features
+
+- [#11125](https://github.com/microsoft/typespec/pull/11125) Add `Routes_QueryParameters_QueryExpansion_Explode_model` scenario covering a named model-valued query parameter with explode expansion (`{?param*}`), which per RFC 6570 form explode expands each property into its own query entry (`?field=status&value=active`).
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+
+### Bug Fixes
+
+- [#10962](https://github.com/microsoft/typespec/pull/10962) Fix the dollar-sign query scenario route to match the mock API.
+- [#10978](https://github.com/microsoft/typespec/pull/10978) Fix the swapped mock api uris for the `Routes_fixed` and `Routes_InInterface` scenarios so they match the routes defined in the spec.
+
+
+## 0.1.0-alpha.38
+
+### Features
+
+- [#10841](https://github.com/microsoft/typespec/pull/10841) add test for discriminator model without subtypes and query params with `# @typespec/http-specs prefixes
+
+
+## 0.1.0-alpha.37
+
+### Features
+
+- [#10194](https://github.com/microsoft/typespec/pull/10194) Add HEAD payload e2e test scenario with Content-Type and x-ms-meta response headers
+- [#10529](https://github.com/microsoft/typespec/pull/10529) Add test scenario for operation body parameters with reserved names (e.g., `items`) to verify wire name is not mangled.
+
+
 ## 0.1.0-alpha.36
 
 ### Features

@@ -2,7 +2,7 @@ import { $ } from "../typekit/index.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import type {
   ArrayValue,
   MarshalledValue,
@@ -78,7 +78,7 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
     const asNumber = type.value.asNumber();
     compilerAssert(
       asNumber !== null,
-      `Numeric value '${type.value.toString()}' is not a able to convert to a number without losing precision.`,
+      `Numeric value '${type.value.toString()}' is not able to convert to a number without losing precision.`,
     );
     return asNumber;
   }
@@ -86,11 +86,11 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
 }
 
 function objectValueToJs(type: ObjectValue): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of type.properties) {
-    result[key] = marshalTypeForJs(value.value, undefined);
-  }
-  return result;
+  // Object.fromEntries defines every member as an own property, so special names
+  // like `__proto__` or `constructor` never interact with Object.prototype.
+  return Object.fromEntries(
+    [...type.properties].map(([key, value]) => [key, marshalTypeForJs(value.value, undefined)]),
+  );
 }
 function arrayValueToJs(type: ArrayValue) {
   return type.values.map((x) => marshalTypeForJs(x, undefined));

@@ -23,7 +23,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.57.1</version>
+      <version>1.60.0</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -36,9 +36,14 @@
       <version>1.2.1</version>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+      <version>2.18.11</version>
+    </dependency>
+    <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-test</artifactId>
-      <version>1.27.0-beta.14</version>
+      <version>1.27.0-beta.19</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -50,12 +55,12 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-identity</artifactId>
-      <version>1.18.2</version>
+      <version>1.18.7</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
-      <version>1.19.3</version>
+      <version>1.19.8</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -66,7 +71,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>3.7.11</version>
+      <version>3.8.7</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -79,13 +84,13 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.17.7</version>
+      <version>1.18.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy-agent</artifactId>
-      <version>1.17.7</version>
+      <version>1.18.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>

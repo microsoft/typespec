@@ -33,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             ReferenceResolver resolver)
         {
             string? name = null;
+            bool isExactName = false;
             string? accessibility = null;
             string[]? apiVersions = null;
             string? doc = null;
@@ -53,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
                     || reader.TryReadString("accessibility", ref accessibility)
                     || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadString("summary", ref summary)
@@ -90,6 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             method = new InputLongRunningPagingServiceMethod
             {
                 Name = name ?? throw new JsonException("InputLongRunningPagingServiceMethod must have name"),
+                IsExactName = isExactName,
                 Accessibility = accessibility,
                 ApiVersions = apiVersions ?? [],
                 Documentation = doc,

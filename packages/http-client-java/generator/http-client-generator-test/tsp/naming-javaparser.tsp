@@ -37,9 +37,11 @@ model Response {
 }
 
 model RunObject {
-  last_error: {
-    code: "server_error" | "rate_limit_exceeded" | "invalid_prompt";
-  } | null;
+  last_error:
+    | {
+        code: "server_error" | "rate_limit_exceeded" | "invalid_prompt";
+      }
+    | null;
 }
 
 @summary("summary of Data")

@@ -3,16 +3,8 @@
 import { strictEqual } from "assert";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
-import {
-  EmitContext,
-  emitFile,
-  Enum,
-  getLocationContext,
-  Model,
-  navigateProgram,
-  ObjectValue,
-  Program,
-} from "../../src/index.js";
+import type { EmitContext, Enum, Model, ObjectValue, Program } from "../../src/index.js";
+import { emitFile, getLocationContext, navigateProgram } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { t } from "../../src/testing/marked-template.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
@@ -286,6 +278,34 @@ describe("marker position", () => {
     `);
     expect(res.pos.Foo.pos).toEqual(20);
     expect(res.pos.Bar.pos).toEqual(45);
+  });
+});
+
+describe("compiler options", () => {
+  const FeatureTester = createTester(resolvePath(import.meta.dirname, "../.."), {
+    libraries: [],
+    features: ["declaration-expressions"],
+  });
+
+  it("keeps tester features when per-call options provide their own configFile", async () => {
+    const diagnostics = await FeatureTester.diagnose(
+      `
+        model Foo {
+          status: enum { a, b };
+        }
+      `,
+      {
+        compilerOptions: {
+          configFile: {
+            projectRoot: ".",
+            kind: "project",
+            diagnostics: [],
+            outputDir: "tsp-output",
+          } as any,
+        },
+      },
+    );
+    expect(diagnostics).toEqual([]);
   });
 });
 

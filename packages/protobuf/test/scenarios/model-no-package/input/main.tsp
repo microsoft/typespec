@@ -16,4 +16,19 @@ namespace Test {
     // Spread input directly
     example2(...Input): WellKnown.Any;
   }
+
+  // Reference a union that isn't in this package.
+  model Holder {
+    @field(1) choice: Choice;
+  }
+}
+
+union Choice {
+  @field(1) input: Input,
+}
+
+// Unions marked with `@message` are emitted eagerly, so they must be in a package even when unreferenced.
+@message
+union EagerChoice {
+  @field(1) input: Input,
 }

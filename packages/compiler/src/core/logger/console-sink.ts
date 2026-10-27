@@ -1,9 +1,9 @@
 import { codeFrameColumns } from "@babel/code-frame";
 import pc from "picocolors";
-import { Formatter } from "picocolors/types.js";
+import type { Formatter } from "picocolors/types.js";
 import { getRelatedLocations, getSourceLocation } from "../diagnostics.js";
 import { getRelativePathFromDirectory } from "../path-utils.js";
-import {
+import type {
   Diagnostic,
   LogLevel,
   LogSink,
@@ -80,11 +80,15 @@ export function formatLog(log: ProcessedLog, options: FormatLogOptions): string 
   }
 }
 
+/** Control console-style diagnostic presentation without writing to a log sink. */
 export interface FormatDiagnosticOptions {
+  /** Include colored severity/location text and a source preview; defaults to false. */
   readonly pretty?: boolean;
+  /** Directory against which non-synthetic source paths should be displayed as relative paths. */
   readonly pathRelativeTo?: string;
 }
 
+/** Format a diagnostic, its source location, and template-instantiation context as a single string. */
 export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
   return formatLog(
     {
@@ -143,12 +147,20 @@ function formatSourcePreview(options: FormatLogOptions, location: SourceLocation
   if (!options.pretty || location.isSynthetic) {
     return "";
   }
-  const postion = getLineAndColumn(location);
+  const { start, end } = getLineAndColumn(location);
 
-  const result = codeFrameColumns(location.file.text, postion, {
-    linesAbove: 0,
-    linesBelow: 0,
-  });
+  // `@babel/code-frame` expects 0-based columns, unlike the 1-based ones used for the `file:line:column` header.
+  const result = codeFrameColumns(
+    location.file.text,
+    {
+      start: { line: start.line, column: start.column - 1 },
+      end: end && { line: end.line, column: end.column - 1 },
+    },
+    {
+      linesAbove: 0,
+      linesBelow: 0,
+    },
+  );
   return `\n${result}`;
 }
 

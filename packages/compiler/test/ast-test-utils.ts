@@ -1,6 +1,7 @@
 import { logVerboseTestOutput } from "../src/core/diagnostics.js";
 import { hasParseError } from "../src/core/parser.js";
-import { Node, NodeFlags, SourceFile, SyntaxKind } from "../src/core/types.js";
+import type { Node, SourceFile } from "../src/core/types.js";
+import { NodeFlags, SyntaxKind } from "../src/core/types.js";
 
 export function dumpAST(astNode: Node, file?: SourceFile) {
   if (!file && astNode.kind === SyntaxKind.TypeSpecScript) {

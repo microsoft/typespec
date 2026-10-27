@@ -1,5 +1,23 @@
 # Changelog - @typespec/mutator-framework
 
+## 0.17.1
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
+## 0.17.0
+
+### Features
+
+- [#10798](https://github.com/microsoft/typespec/pull/10798) Support replacing member references with alternate types during mutation.
+  
+  ```ts
+  return engine.replaceAndMutateReference(referenceTypes[0], alternateType, options, halfEdge);
+  ```
+
+
 ## 0.16.1
 
 ### Bump dependencies

@@ -1,2 +1,2 @@
 export * from "./operation-pipeline.jsx";
-export * from "./types.jsx";
+export type * from "./types.jsx";

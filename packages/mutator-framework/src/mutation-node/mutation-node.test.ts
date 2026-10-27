@@ -109,3 +109,18 @@ it("clones synthetic mutation nodes", async () => {
   expect(propNode.mutatedType.type === model).toBe(false);
   expect(propNode.mutatedType.type === typeNode.mutatedType).toBe(true);
 });
+
+it("creates a literal mutation node for StringTemplate types", async () => {
+  const { Foo, program } = await runner.compile(t.code`
+      model ${t.model("Foo")} {
+        prop: "Start \${123} end";
+      }
+    `);
+  const engine = getEngine(program);
+  const prop = Foo.properties.get("prop")!;
+
+  expect(prop.type.kind).toBe("StringTemplate");
+  const node = engine.getMutationNode(prop.type);
+  expect(node).toBeDefined();
+  expect(node.sourceType).toBe(prop.type);
+});

@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -62,6 +63,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var expectedJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
 
             Assert.That(interfaces.Any(i => i.Equals(expectedJsonModelTInterface)));
+        }
+
+        [Test]
+        public async Task SerializationReferencesHonorCustomObsoleteDiagnostic()
+        {
+            var legacy = InputFactory.Model("Legacy");
+            var envelope = InputFactory.Model("Envelope", properties:
+                [InputFactory.Property("legacy", legacy)]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [legacy, envelope],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(envelope)!;
+            var serialization = model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            var method = serialization.Methods.Single(method => method.Signature.Name == "DeserializeEnvelope");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [TestCase(false, false, false)]
+        [TestCase(true, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
+        public void DeserializationOnlyInitializesTrackedPresence(bool hasProperty, bool isNullable, bool isRequired)
+        {
+            var inputModel = InputFactory.Model("model", properties: hasProperty
+                ? [InputFactory.Property("text", isNullable ? new InputNullableType(InputPrimitiveType.String) : InputPrimitiveType.String, isRequired: isRequired)]
+                : []);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var returnStatement = (ExpressionStatement)serialization.BuildDeserializationMethod().BodyStatements!.Last();
+            var newInstance = (NewInstanceExpression)((KeywordExpression)returnStatement.Expression).Expression!;
+
+            if (hasProperty && isNullable && !isRequired)
+            {
+                var presence = ClientModel.Providers.ScmModelProvider.GetNullablePropertyPresence(model.Properties.Single());
+                Assert.That(newInstance.InitExpression, Is.Not.Null);
+                Assert.That(newInstance.InitExpression!.Values.Keys, Is.EqualTo(new[] { presence!.AsValueExpression }));
+            }
+            else
+            {
+                Assert.That(newInstance.InitExpression, Is.Null);
+            }
+        }
+
+        [Test]
+        public void SerializationUsesOptionalIsDefinedWithPresence(
+            [Values(false, true)] bool isValueType,
+            [Values(false, true)] bool isReadOnly,
+            [Values(false, true)] bool isDynamic)
+        {
+            var inputModel = InputFactory.Model("model", isDynamicModel: isDynamic, properties:
+                [InputFactory.Property("value", new InputNullableType(isValueType ? InputPrimitiveType.Int32 : InputPrimitiveType.String),
+                    isReadOnly: isReadOnly)]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var code = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+
+            StringAssert.Contains("Optional.IsDefined(Value, _valueIsDefined)", code);
+            StringAssert.DoesNotContain("_valueIsDefined ||", code);
         }
 
         // This test validates the json model serialization write method is built correctly
@@ -599,6 +658,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void IsExactNamePropertySerializationUsesExactName()
+        {
+            // When a property has IsExactName, both the C# property identifier and the wire name
+            // should appear verbatim in the generated JsonModelWriteCore body — i.e. the wire name
+            // is written via WritePropertyName and the C# property reference uses the exact name.
+            var property = InputFactory.Property(
+                "access_token",
+                InputPrimitiveType.String,
+                wireName: "access_token",
+                isRequired: true,
+                isExactName: true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // C# property name preserves the exact-case name.
+            Assert.AreEqual("access_token", model.Properties[0].Name);
+
+            var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var serializationBody = serializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("serialize"), serializationBody);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("deserialize"), deserializationBody);
+        }
+
+        [Test]
+        public void IsExactNameModelSerializationUsesExactName()
+        {
+            // When a model has IsExactName, the model name is preserved verbatim and
+            // generated Deserialize method signature uses the exact name.
+            var property = InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true, wireName: "Name");
+            var inputModel = InputFactory.Model("snake_case_model", properties: [property], isExactName: true);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // C# model name preserves the exact-case name.
+            Assert.AreEqual("snake_case_model", model.Name);
+
+            // The deserialization method name is built from the model name verbatim.
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            // cspell:ignore Deserializesnake
+            Assert.AreEqual("Deserializesnake_case_model", deserializationMethod.Signature.Name);
+
+            // Full deserialization body uses the exact model name verbatim throughout.
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), deserializationBody);
+        }
+
+        [Test]
         public void GetUtf8BytesIsUsedForMrwFallback()
         {
             var property = InputFactory.Property(
@@ -609,8 +717,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
+        public void ExternalModelPropertiesPreserveReaderOptions()
+        {
+            // The enclosing options must flow into the ModelReaderWriter.Read fallback for external models
+            // so that unknown properties are preserved when reading in the "J" format.
+            var externalModel = InputFactory.Model(
+                "ExternalModel",
+                external: new InputExternalTypeMetadata("System.IO.File", null, null));
+            var inputModel = InputFactory.Model("mockInputModel", properties:
+            [
+                InputFactory.Property("scalar", externalModel),
+                InputFactory.Property("list", InputFactory.Array(externalModel)),
+                InputFactory.Property("dictionary", InputFactory.Dictionary(externalModel))
+            ]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
+        public void ReferencedExtensibleEnumUsesInlineConstruction()
+        {
+            // A property typed as a referenced extensible enum (a value-type struct) must deserialize via
+            // inline construction, not the generic ModelReaderWriter.Read<T> fallback (which throws at
+            // runtime because the struct has no MRW builder).
+            var externalEnum = InputFactory.StringEnum(
+                "ExternalKind",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Guid", null, null));
+            var property = InputFactory.Property("kind", externalEnum);
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
             var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+
+            Assert.IsFalse(
+                methodBody.Contains("ModelReaderWriter.Read<global::System.Guid>"),
+                "Referenced extensible enum should not use the ModelReaderWriter.Read<T> fallback.");
+            Assert.IsTrue(
+                methodBody.Contains("new global::System.Guid("),
+                "Referenced extensible enum should be constructed inline from its underlying value.");
+
+            // Serialization must use the enum's underlying value (ToString for a string-backed enum),
+            // not a model write.
+            var writeBody = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+            Assert.IsTrue(
+                writeBody.Contains("WriteStringValue(") && writeBody.Contains("ToString()"),
+                "Referenced extensible enum should serialize via its underlying string value.");
         }
 
         [Test]
@@ -803,13 +968,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             InputPrimitiveTypeKind.Integer,
             InputPrimitiveTypeKind.SafeInt,
             InputPrimitiveTypeKind.Int8,
-            // InputPrimitiveTypeKind.Int16, TODO: add them back when we decide the exact corresponding type
+            InputPrimitiveTypeKind.Int16,
             InputPrimitiveTypeKind.Int32,
             InputPrimitiveTypeKind.Int64,
-            InputPrimitiveTypeKind.UInt8
-            // InputPrimitiveTypeKind.UInt16,
-            // InputPrimitiveTypeKind.UInt32,
-            // InputPrimitiveTypeKind.UInt64
+            InputPrimitiveTypeKind.UInt8,
+            InputPrimitiveTypeKind.UInt16,
+            InputPrimitiveTypeKind.UInt32,
+            InputPrimitiveTypeKind.UInt64
             )] InputPrimitiveTypeKind kind,
             [Values("string", null)] string encode)
         {
@@ -826,14 +991,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsTrue(HasMethodBodyStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
         }
 
+        [TestCase("string")]
+        [TestCase(null)]
+        public void TestBooleanSerialization(string? encode)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.boolean", encode);
+            var format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input);
+            var statement = MrwSerializationTypeDefinition.SerializeJsonValueCore(
+                typeof(bool),
+                new VariableExpression(typeof(bool), "value"),
+                new ScopedApi<Utf8JsonWriter>(new VariableExpression(typeof(Utf8JsonWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encode ?? "default"), statement.ToDisplayString());
+        }
+
+        [TestCase("string")]
+        [TestCase(null)]
+        public void TestBooleanDeserialization(string? encode)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.boolean", encode);
+            var format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input);
+            var expression = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                typeof(bool),
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encode ?? "default").TrimEnd(), expression.ToDisplayString());
+        }
+
         [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
         [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
         [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]
+        [TestCase(typeof(ushort), SerializationFormat.Int_String, ExpectedResult = "ushort.Parse(foo.GetString())")]
+        [TestCase(typeof(uint), SerializationFormat.Int_String, ExpectedResult = "uint.Parse(foo.GetString())")]
+        [TestCase(typeof(ulong), SerializationFormat.Int_String, ExpectedResult = "ulong.Parse(foo.GetString())")]
         [TestCase(typeof(byte), SerializationFormat.Int_String, ExpectedResult = "byte.Parse(foo.GetString())")]
         [TestCase(typeof(sbyte), SerializationFormat.Int_String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
         [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "foo.GetInt64()")]
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "foo.GetInt32()")]
         [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "foo.GetInt16()")]
+        [TestCase(typeof(ushort), SerializationFormat.Default, ExpectedResult = "foo.GetUInt16()")]
+        [TestCase(typeof(uint), SerializationFormat.Default, ExpectedResult = "foo.GetUInt32()")]
+        [TestCase(typeof(ulong), SerializationFormat.Default, ExpectedResult = "foo.GetUInt64()")]
         [TestCase(typeof(byte), SerializationFormat.Default, ExpectedResult = "foo.GetByte()")]
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
@@ -848,9 +1053,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Int64, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt64())")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Int64, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt64())")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
@@ -866,10 +1073,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return expr.ToDisplayString();
         }
 
-        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalSeconds));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(value.TotalSeconds)));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Int64, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt64(global::System.Math.Round(value.TotalSeconds)));\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
-        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalMilliseconds));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(value.TotalMilliseconds)));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Int64, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt64(global::System.Math.Round(value.TotalMilliseconds)));\n")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
@@ -919,7 +1128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             public bool PropertiesAccessed => _propertiesAccessed;
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 _propertiesAccessed = true;
                 return base.BuildProperties();
@@ -1434,8 +1643,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }
 
-        [Test]
-        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        [TestCase(false, "D")]
+        [TestCase(true, "U")]
+        public void TestSerializationOfBinaryDataPropertyAvoidsCopy(bool useBase64Url, string format)
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", useBase64Url ? InputPrimitiveType.Base64Url : InputPrimitiveType.Base64)]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var methodBody = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(format), methodBody);
+        }
+
+        [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(byte[]))]
+        [TestCase(typeof(System.IO.Stream))]
+        public void TestDeserializationOfNonBase64PropertyUsesGetUtf8Bytes(Type propertyType)
         {
             var bytesNoEncoding = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
             var inputModel = InputFactory.Model("TestModel", properties:
@@ -1446,7 +1670,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 createSerializationsCore: (inputType, typeProvider) =>
                     inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
                 createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
-                    ? new CSharpType(typeof(byte[]))
+                    ? new CSharpType(propertyType)
                     : null!,
                 createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
 
@@ -1457,10 +1681,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var deserializationMethod = serialization!.BuildDeserializationMethod();
             var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains("GetRawText"),
-                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
-            Assert.IsTrue(methodBody.Contains("ToArray"),
-                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("GetUtf8Bytes"),
+                $"Property with no encoding should use GetUtf8Bytes(). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("GetRawText"),
+                $"Property with no encoding should not transcode raw JSON. Actual:\n{methodBody}");
+            if (propertyType == typeof(byte[]))
+            {
+                Assert.IsTrue(methodBody.Contains("ToArray"),
+                    $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            }
+            else if (propertyType == typeof(System.IO.Stream))
+            {
+                Assert.IsTrue(methodBody.Contains("ToStream"),
+                    $"Stream property with no encoding should call ToStream(). Actual:\n{methodBody}");
+            }
             Assert.IsFalse(methodBody.Contains("EnumerateArray"),
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }

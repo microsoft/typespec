@@ -25,7 +25,7 @@
     "test:watch": "vitest -w"
   },
   "dependencies": {
-    "@pnpm/workspace.find-packages": "catalog:",
+    "@typespec/internal-build-utils": "workspace:^",
     "execa": "catalog:",
     "log-symbols": "catalog:",
     "ora": "catalog:",

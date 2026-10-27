@@ -1,9 +1,9 @@
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/index.js";
-import { InputServiceMethod } from "../../src/type/input-service-method.js";
-import { InputHttpParameter, InputParameter } from "../../src/type/input-type.js";
+import type { InputServiceMethod } from "../../src/type/input-service-method.js";
+import type { InputHttpParameter, InputParameter } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

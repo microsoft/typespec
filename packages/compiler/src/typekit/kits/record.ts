@@ -1,5 +1,5 @@
 import { isRecordModelType } from "../../core/type-utils.js";
-import { Entity, Model, RecordModelType, Type } from "../../core/types.js";
+import type { Entity, Model, RecordModelType, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -26,6 +26,9 @@ export interface RecordKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create and inspect record models with a string indexer and no named properties.
+   */
   record: RecordKit;
 }
 

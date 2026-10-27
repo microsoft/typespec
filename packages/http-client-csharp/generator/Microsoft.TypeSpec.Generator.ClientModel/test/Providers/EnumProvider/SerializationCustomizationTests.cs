@@ -69,5 +69,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
             Assert.AreEqual(1, customMethods.Count);
             Assert.AreEqual("ToSerialString", customMethods[0].Signature.Name);
         }
+
+        [Test]
+        public async Task BackCompat_FixedEnumSerializationUsesPreservedUnderscores()
+        {
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputEnum",
+                [
+                    ("ExistingValue", 0),
+                    ("Other", 1)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
+            Assert.IsNotNull(enumProvider);
+
+            var serializationProvider = enumProvider!.SerializationProviders.Single();
+            _ = serializationProvider.Methods;
+            enumProvider.EnsureBuilt();
+            enumProvider.ProcessTypeForBackCompatibility();
+
+            var file = new TypeProviderWriter(serializationProvider).Write();
+            StringAssert.Contains("MockInputEnum.Existing_Value", file.Content);
+            StringAssert.DoesNotContain("MockInputEnum.ExistingValue", file.Content);
+        }
     }
 }

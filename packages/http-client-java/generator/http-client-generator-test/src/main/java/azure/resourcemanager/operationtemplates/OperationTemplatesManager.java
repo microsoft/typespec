@@ -6,16 +6,20 @@ package azure.resourcemanager.operationtemplates;
 
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
 import azure.resourcemanager.operationtemplates.implementation.CheckNameAvailabilitiesImpl;
+import azure.resourcemanager.operationtemplates.implementation.LegaciesImpl;
 import azure.resourcemanager.operationtemplates.implementation.LroPagingsImpl;
 import azure.resourcemanager.operationtemplates.implementation.LroesImpl;
 import azure.resourcemanager.operationtemplates.implementation.OperationTemplatesClientBuilder;
 import azure.resourcemanager.operationtemplates.implementation.OperationsImpl;
 import azure.resourcemanager.operationtemplates.implementation.OptionalBodiesImpl;
+import azure.resourcemanager.operationtemplates.implementation.PagingsImpl;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilities;
+import azure.resourcemanager.operationtemplates.models.Legacies;
 import azure.resourcemanager.operationtemplates.models.LroPagings;
 import azure.resourcemanager.operationtemplates.models.Lroes;
 import azure.resourcemanager.operationtemplates.models.Operations;
 import azure.resourcemanager.operationtemplates.models.OptionalBodies;
+import azure.resourcemanager.operationtemplates.models.Pagings;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpPipeline;
@@ -57,7 +61,11 @@ public final class OperationTemplatesManager {
 
     private LroPagings lroPagings;
 
+    private Legacies legacies;
+
     private OptionalBodies optionalBodies;
+
+    private Pagings pagings;
 
     private final OperationTemplatesClient clientObject;
 
@@ -324,6 +332,18 @@ public final class OperationTemplatesManager {
     }
 
     /**
+     * Gets the resource collection API of Legacies. It manages Configuration.
+     * 
+     * @return Resource collection API of Legacies.
+     */
+    public Legacies legacies() {
+        if (this.legacies == null) {
+            this.legacies = new LegaciesImpl(clientObject.getLegacies(), this);
+        }
+        return legacies;
+    }
+
+    /**
      * Gets the resource collection API of OptionalBodies.
      * 
      * @return Resource collection API of OptionalBodies.
@@ -333,6 +353,18 @@ public final class OperationTemplatesManager {
             this.optionalBodies = new OptionalBodiesImpl(clientObject.getOptionalBodies(), this);
         }
         return optionalBodies;
+    }
+
+    /**
+     * Gets the resource collection API of Pagings.
+     * 
+     * @return Resource collection API of Pagings.
+     */
+    public Pagings pagings() {
+        if (this.pagings == null) {
+            this.pagings = new PagingsImpl(clientObject.getPagings(), this);
+        }
+        return pagings;
     }
 
     /**

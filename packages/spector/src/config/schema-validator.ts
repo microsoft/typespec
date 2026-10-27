@@ -1,5 +1,6 @@
-import Ajv, { ErrorObject, JSONSchemaType } from "ajv";
-import { Diagnostic } from "../utils/diagnostic-reporter.js";
+import type { ErrorObject, JSONSchemaType } from "ajv";
+import Ajv from "ajv";
+import type { Diagnostic } from "../utils/diagnostic-reporter.js";
 
 export interface SchemaValidatorOptions {
   coerceTypes?: boolean;

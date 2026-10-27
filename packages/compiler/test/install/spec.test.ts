@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PackageJson } from "../../src/index.js";
+import type { PackageJson } from "../../src/index.js";
 import { PackageManagerSpecError, resolvePackageManagerSpec } from "../../src/install/spec.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 import { Tester } from "../tester.js";

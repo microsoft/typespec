@@ -1,26 +1,27 @@
 import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
-import {
+import type {
   CodeFix,
   Diagnostic,
   DiagnosticResult,
   DiagnosticTarget,
   LogSink,
   Node,
-  NodeFlags,
-  NoTarget,
   RelatedSourceLocation,
   SourceLocation,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   TypeSpecDiagnosticTarget,
+  Value,
 } from "./types.js";
+import { NodeFlags, NoTarget, SymbolFlags, SyntaxKind } from "./types.js";
 
+/** Output callback accepting one line of text, or no text for an empty line. */
 export type WriteLine = (text?: string) => void;
+/** Callback receiving a diagnostic for collection, reporting, or other caller-defined handling. */
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
+/** Write diagnostics to a log sink, resolving identifier locations and template-instantiation traces. */
 export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSink) {
   for (const diagnostic of diagnostics) {
     logger.log({
@@ -51,12 +52,12 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
  * - For template instance targets: returns the node of the template declaration
  * - For symbols: returns the first declaration node (or symbol source for using symbols)
  * - For AST nodes: returns the node itself
- * - For types: returns the node associated with the type
+ * - For entities: returns the most relevant node associated with the entity
  *
  * @param target The diagnostic target to extract a node from. Can be a template instance,
  *               symbol, AST node, or type.
- * @returns The AST node associated with the target, or undefined if the target is a type
- *          or symbol that doesn't have an associated node.
+ * @returns The AST node associated with the target, or undefined if the target
+ *          doesn't have an associated node.
  */
 export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
   if (!("kind" in target) && !("entityKind" in target)) {
@@ -71,6 +72,23 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
     }
 
     return target.declarations[0];
+  } else if ("entityKind" in target) {
+    switch (target.entityKind) {
+      case "Type":
+        return target.node;
+      case "Value":
+        return getValueNode(target) ?? target.type.node;
+      case "MixedParameterConstraint":
+        // Prefer the explicit union expression node when present, otherwise fall back
+        // to a side of the constraint that has a source node. Type is preferred
+        // over valueType to keep location behavior stable for mixed constraints
+        // that include both branches.
+        return target.node ?? target.type?.node ?? target.valueType?.node;
+      case "Indeterminate":
+        return target.type.node;
+      default:
+        return undefined;
+    }
   } else if ("kind" in target && typeof target.kind === "number") {
     // node
     return target as Node;
@@ -80,21 +98,40 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
   }
 }
 
+function getValueNode(value: Value): Node | undefined {
+  // Only compound values and function values carry their own syntax node.
+  // Primitive values (string/number/boolean/null/enum/scalar literal values)
+  // are represented by their resolved value/type and don't retain a direct node.
+  switch (value.valueKind) {
+    case "ObjectValue":
+    case "ArrayValue":
+    case "Function":
+      return value.node;
+    default:
+      return undefined;
+  }
+}
+
+/** Control which part of a diagnostic target is used as its source range. */
 export interface SourceLocationOptions {
   /**
    * If trying to resolve the location of a type with an ID, show the location of the ID node instead of the entire type.
+   * For type references, show the reference target without template arguments.
    * This makes sure that the location range is not too large and hard to read.
    */
   locateId?: boolean;
 }
+/** Resolve a diagnostic target's source range, using a synthetic location when no bound source exists. */
 export function getSourceLocation(
   target: DiagnosticTarget,
   options?: SourceLocationOptions,
 ): SourceLocation;
+/** Return no location for an absent target or the explicit {@link NoTarget} sentinel. */
 export function getSourceLocation(
   target: typeof NoTarget | undefined,
   options?: SourceLocationOptions,
 ): undefined;
+/** Resolve an optional diagnostic target, returning undefined only when there is no target. */
 export function getSourceLocation(
   target: DiagnosticTarget | typeof NoTarget | undefined,
   options?: SourceLocationOptions,
@@ -158,8 +195,12 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
     );
   }
 
-  if (options.locateId && "id" in node && node.id !== undefined) {
-    node = node.id;
+  if (options.locateId) {
+    if (node.kind === SyntaxKind.TypeReference) {
+      node = node.target;
+    } else if ("id" in node && node.id !== undefined) {
+      node = node.id;
+    }
   }
 
   return {
@@ -274,6 +315,7 @@ export function reportDeprecated(
  * Helper object to collect diagnostics from function following the diagnostics accessor pattern(foo() => [T, Diagnostic[]])
  */
 export interface DiagnosticCollector {
+  /** Collected diagnostics in insertion order; this view grows as results are piped or added. */
   readonly diagnostics: readonly Diagnostic[];
 
   /**
@@ -351,6 +393,7 @@ export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
   return result[0];
 }
 
+/** Type-check a code-fix definition and return it unchanged; this does not apply the fix. */
 export function defineCodeFix(fix: CodeFix): CodeFix {
   return fix;
 }

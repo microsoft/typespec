@@ -4,7 +4,8 @@
     { "path": "../compiler/tsconfig.json" },
     { "path": "../rest/tsconfig.json" },
     { "path": "../openapi/tsconfig.json" },
-    { "path": "../openapi3/tsconfig.json" }
+    { "path": "../openapi3/tsconfig.json" },
+    { "path": "../graphql/tsconfig.json" }
   ],
   "compilerOptions": {
     "outDir": "dist-dev",

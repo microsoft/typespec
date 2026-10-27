@@ -150,6 +150,31 @@ OAuth relies on authentication scenarios called flows, which allow the resource 
 For this purpose, an OAuth 2.0 server issues access tokens that client applications can use to access protected resources on behalf of the resource owner.
 For more information about OAuth 2.0, see [oauth.net](https://oauth.net) and [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749).
 
+### `OpenIdConnectAuth<ConnectUrl extends string, Scopes extends string[] = []>`
+
+OpenID Connect (OIDC) is an identity layer built on top of OAuth 2.0. The provider publishes its metadata (including its authorization and token endpoints) at a well-known discovery URL, so the scheme only needs that URL rather than explicit flow endpoints.
+
+```typespec
+@useAuth(OpenIdConnectAuth<"https://api.example.com/.well-known/openid-configuration">)
+```
+
+Operations can require specific scopes via the second template argument. As with OAuth2, define a template alias so different operations can request different scopes without repeating the discovery URL:
+
+```tsp
+alias MyOidc<Scopes extends string[]> = OpenIdConnectAuth<
+  "https://api.example.com/.well-known/openid-configuration",
+  Scopes
+>;
+
+// Use OpenID Connect with the "read" scope
+@useAuth(MyOidc<["read"]>)
+op list(): string[];
+
+// Use OpenID Connect with the "write" scope
+@useAuth(MyOidc<["write"]>)
+op write(value: string): void;
+```
+
 ## Application hierarchy
 
 The `@useAuth` decorator can be used on a service namespace, sub-namespace, interface or operation. The security scheme specified will be applied to all operations contained in the type.

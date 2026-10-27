@@ -24,11 +24,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
-        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition { get; } =
-            new ModelSerializationExtensionsDefinition();
+        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition
+            => _modelSerializationExtensionsDefinition ??= new ModelSerializationExtensionsDefinition();
+        private ModelSerializationExtensionsDefinition? _modelSerializationExtensionsDefinition;
 
         internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
             new SerializationFormatDefinition();
+
+        private SystemOptionalDefinition? _systemOptionalDefinition;
+        internal SystemOptionalDefinition SystemOptionalDefinition =>
+            _systemOptionalDefinition ??= new SystemOptionalDefinition();
+
+        private TypeFormattersDefinition? _typeFormattersDefinition;
+        internal TypeFormattersDefinition TypeFormattersDefinition =>
+            _typeFormattersDefinition ??= new TypeFormattersDefinition();
+
+        private ClientPipelineExtensionsDefinition? _clientPipelineExtensionsDefinition;
+        internal ClientPipelineExtensionsDefinition ClientPipelineExtensionsDefinition =>
+            _clientPipelineExtensionsDefinition ??= new ClientPipelineExtensionsDefinition();
+
+        private PipelineRequestHeadersExtensionsDefinition? _pipelineRequestHeadersExtensionsDefinition;
+        internal PipelineRequestHeadersExtensionsDefinition PipelineRequestHeadersExtensionsDefinition =>
+            _pipelineRequestHeadersExtensionsDefinition ??= new PipelineRequestHeadersExtensionsDefinition();
 
         /// <summary>
         /// Gets the options that control ConfigurationSchema.json generation.
@@ -49,7 +66,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
+            AddCustomCodeMethodDependency(PipelineRequestHeadersExtensionsDefinition.SetDelimitedMethodName, PipelineRequestHeadersExtensionsDefinition);
             AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
+            AddTypeToKeep(SerializationFormatDefinition, isRoot: false);
         }
 
         public override async Task WriteAdditionalFiles(string outputPath)

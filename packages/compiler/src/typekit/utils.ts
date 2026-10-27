@@ -1,6 +1,6 @@
 import type { DecoratorApplication, DecoratorFunction, RekeyableMap } from "../core/types.js";
 import { createRekeyableMap } from "../utils/misc.js";
-import { type Typekit } from "./define-kit.js";
+import type { Typekit } from "./define-kit.js";
 
 /**
  * Creates a shallow copy of a rekeyable map.
@@ -9,6 +9,30 @@ import { type Typekit } from "./define-kit.js";
  */
 export function copyMap<T, U>(map: RekeyableMap<T, U>): RekeyableMap<T, U> {
   return createRekeyableMap(map.entries());
+}
+
+/**
+ * Resolve the `expression` flag for a created type.
+ *
+ * A declaration must have a name, so an anonymous type is always an expression. Passing
+ * `expression: false` without a name is a caller error and is rejected.
+ *
+ * @internal
+ */
+export function resolveExpressionFlag(
+  kind: string,
+  name: string | undefined,
+  expression: boolean | undefined,
+): boolean {
+  if (!name) {
+    if (expression === false) {
+      throw new Error(
+        `Cannot create an anonymous ${kind} declaration. Provide a name or leave \`expression\` unset.`,
+      );
+    }
+    return true;
+  }
+  return expression ?? false;
 }
 
 /**

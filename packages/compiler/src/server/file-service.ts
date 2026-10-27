@@ -1,7 +1,7 @@
-import { TextDocumentChangeEvent, TextDocumentIdentifier } from "vscode-languageserver";
-import { DocumentUri, TextDocument } from "vscode-languageserver-textdocument";
+import type { TextDocumentChangeEvent, TextDocumentIdentifier } from "vscode-languageserver";
+import type { DocumentUri, TextDocument } from "vscode-languageserver-textdocument";
 import { getNormalizedRealPath } from "../utils/misc.js";
-import { ServerHost } from "./types.js";
+import type { ServerHost } from "./types.js";
 
 /**
  * Service managing files in the language server.

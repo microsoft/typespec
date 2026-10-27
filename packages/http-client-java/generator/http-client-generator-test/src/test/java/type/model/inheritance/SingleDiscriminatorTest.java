@@ -9,6 +9,7 @@ import type.model.inheritance.singlediscriminator.SingleDiscriminatorClient;
 import type.model.inheritance.singlediscriminator.SingleDiscriminatorClientBuilder;
 import type.model.inheritance.singlediscriminator.models.Bird;
 import type.model.inheritance.singlediscriminator.models.Eagle;
+import type.model.inheritance.singlediscriminator.models.Fish;
 import type.model.inheritance.singlediscriminator.models.Goose;
 import type.model.inheritance.singlediscriminator.models.SeaGull;
 import type.model.inheritance.singlediscriminator.models.Sparrow;
@@ -35,5 +36,14 @@ public class SingleDiscriminatorTest {
         Assertions.assertEquals(SeaGull.class, recursiveModel.getFriends().get(0).getClass());
         Assertions.assertEquals(Sparrow.class, recursiveModel.getHate().get("key3").getClass());
         client.putRecursiveModel(recursiveModel);
+    }
+
+    @Test
+    public void testNoSubtypesModel() {
+        Fish fish = client.getNoSubtypesModel();
+        Assertions.assertNotNull(fish);
+        Assertions.assertEquals(10, fish.getSize());
+
+        client.putNoSubtypesModel(fish);
     }
 }

@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
-  Model,
-  getFriendlyName,
-  isTemplateDeclaration,
-  isTemplateInstance,
-} from "@typespec/compiler";
-import { JsContext, Module } from "../ctx.js";
+import type { Model } from "@typespec/compiler";
+import { getFriendlyName, isTemplateDeclaration, isTemplateInstance } from "@typespec/compiler";
+import type { JsContext, Module } from "../ctx.js";
 import { isUnspeakable, parseCase } from "../util/case.js";
 import { indent } from "../util/iter.js";
 import { KEYWORDS } from "../util/keywords.js";

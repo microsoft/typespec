@@ -24,16 +24,11 @@ export {
   validateXmlBodyEquals,
 } from "./request-validations.js";
 export { dyn, dynItem, expandDyns, json, multipart, xml } from "./response-utils.js";
-export {
-  WithKeysScenarioExpect,
-  passOnCode,
-  passOnSuccess,
-  withKeys,
-  withServiceKeys,
-} from "./scenarios.js";
-export {
+export { passOnCode, passOnSuccess, withKeys, withServiceKeys } from "./scenarios.js";
+export type { WithKeysScenarioExpect } from "./scenarios.js";
+export { Fail } from "./types.js";
+export type {
   CollectionFormat,
-  Fail,
   HttpMethod,
   KeyedMockRequestHandler,
   KeyedMockResponse,

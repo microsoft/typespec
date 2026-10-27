@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
+import type {
   BooleanLiteral,
   EnumMember,
   Model,
@@ -14,16 +14,19 @@ import {
   Union,
   UnknownType,
   VoidType,
+} from "@typespec/compiler";
+import {
   getDiscriminator,
   getMaxValue,
   getMinValue,
   isArrayModelType,
   isNeverType,
   isUnknownType,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { getJsScalar } from "../common/scalar.js";
-import { JsContext, Module } from "../ctx.js";
+import type { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { isUnspeakable, parseCase } from "./case.js";
 import { UnimplementedError, UnreachableError } from "./error.js";
@@ -340,8 +343,7 @@ export function differentiateUnion(
       },
       cases: variants.map((v) => {
         const discriminatorPropertyType = (v.type as Model).properties.get(discriminator)!.type as
-          | JsLiteralType
-          | EnumMember;
+          JsLiteralType | EnumMember;
 
         return {
           value: { kind: "literal", value: getJsValue(ctx, discriminatorPropertyType) },
@@ -565,7 +567,7 @@ function getJsValue(ctx: JsContext, literal: JsLiteralType | EnumMember): Litera
     case "String":
       return literal.value;
     case "EnumMember":
-      return literal.value ?? literal.name;
+      return resolveEncodedEnumMemberValue(ctx.program, literal, "application/json");
     default:
       throw new UnreachableError(
         "getJsValue for " + (literal satisfies never as JsLiteralType).kind,

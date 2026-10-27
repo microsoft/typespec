@@ -19,6 +19,7 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.BinaryData;
 import java.util.List;
 
@@ -93,8 +94,9 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> createOrUpdateWithResponse(int id, BinaryData resource, RequestOptions requestOptions) {
-        return this.serviceClient.createOrUpdateWithResponse(id, resource, requestOptions);
+    Response<BinaryData> createOrUpdateWithResponseInternal(int id, BinaryData resource,
+        RequestOptions requestOptions) {
+        return this.serviceClient.createOrUpdateWithResponseInternal(id, resource, requestOptions);
     }
 
     /**
@@ -150,9 +152,9 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> createOrReplaceWithResponse(int id, BinaryData resource,
+    Response<BinaryData> createOrReplaceWithResponseInternal(int id, BinaryData resource,
         RequestOptions requestOptions) {
-        return this.serviceClient.createOrReplaceWithResponse(id, resource, requestOptions);
+        return this.serviceClient.createOrReplaceWithResponseInternal(id, resource, requestOptions);
     }
 
     /**
@@ -190,8 +192,8 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getWithResponse(int id, RequestOptions requestOptions) {
-        return this.serviceClient.getWithResponse(id, requestOptions);
+    Response<BinaryData> getWithResponseInternal(int id, RequestOptions requestOptions) {
+        return this.serviceClient.getWithResponseInternal(id, requestOptions);
     }
 
     /**
@@ -242,8 +244,8 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.list(requestOptions);
+    PagedIterable<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternal(requestOptions);
     }
 
     /**
@@ -261,8 +263,8 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteWithResponse(int id, RequestOptions requestOptions) {
-        return this.serviceClient.deleteWithResponse(id, requestOptions);
+    Response<Void> deleteWithResponseInternal(int id, RequestOptions requestOptions) {
+        return this.serviceClient.deleteWithResponseInternal(id, requestOptions);
     }
 
     /**
@@ -299,8 +301,8 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> exportWithResponse(int id, String format, RequestOptions requestOptions) {
-        return this.serviceClient.exportWithResponse(id, format, requestOptions);
+    Response<BinaryData> exportWithResponseInternal(int id, String format, RequestOptions requestOptions) {
+        return this.serviceClient.exportWithResponseInternal(id, format, requestOptions);
     }
 
     /**
@@ -340,8 +342,39 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> exportAllUsersWithResponse(String format, RequestOptions requestOptions) {
-        return this.serviceClient.exportAllUsersWithResponse(format, requestOptions);
+    Response<BinaryData> exportAllUsersWithResponseInternal(String format, RequestOptions requestOptions) {
+        return this.serviceClient.exportAllUsersWithResponseInternal(format, requestOptions);
+    }
+
+    /**
+     * Adds a user or updates a user's fields.
+     * 
+     * Creates or updates a User.
+     * 
+     * @param id The user's id.
+     * @param resource The resource instance.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return details about a user along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<User> createOrUpdateWithResponse(int id, User resource, RequestOptions requestOptions) {
+        // Generated convenience method for createOrUpdateWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        JsonMergePatchHelper.getUserAccessor().prepareModelForJsonMergePatch(resource, true);
+        BinaryData resourceInBinaryData = BinaryData.fromObject(resource);
+        // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
+        resourceInBinaryData.getLength();
+        JsonMergePatchHelper.getUserAccessor().prepareModelForJsonMergePatch(resource, false);
+        Response<BinaryData> protocolMethodResponse
+            = createOrUpdateWithResponseInternal(id, resourceInBinaryData, requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(User.class));
     }
 
     /**
@@ -362,14 +395,41 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public User createOrUpdate(int id, User resource) {
-        // Generated convenience method for createOrUpdateWithResponse
+        // Generated convenience method for createOrUpdateWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         JsonMergePatchHelper.getUserAccessor().prepareModelForJsonMergePatch(resource, true);
         BinaryData resourceInBinaryData = BinaryData.fromObject(resource);
         // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
         resourceInBinaryData.getLength();
         JsonMergePatchHelper.getUserAccessor().prepareModelForJsonMergePatch(resource, false);
-        return createOrUpdateWithResponse(id, resourceInBinaryData, requestOptions).getValue().toObject(User.class);
+        return createOrUpdateWithResponseInternal(id, resourceInBinaryData, requestOptions).getValue()
+            .toObject(User.class);
+    }
+
+    /**
+     * Adds a user or replaces a user's fields.
+     * 
+     * Creates or replaces a User.
+     * 
+     * @param id The user's id.
+     * @param resource The resource instance.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return details about a user along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<User> createOrReplaceWithResponse(int id, User resource, RequestOptions requestOptions) {
+        // Generated convenience method for createOrReplaceWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse
+            = createOrReplaceWithResponseInternal(id, BinaryData.fromObject(resource), requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(User.class));
     }
 
     /**
@@ -390,10 +450,36 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public User createOrReplace(int id, User resource) {
-        // Generated convenience method for createOrReplaceWithResponse
+        // Generated convenience method for createOrReplaceWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return createOrReplaceWithResponse(id, BinaryData.fromObject(resource), requestOptions).getValue()
+        return createOrReplaceWithResponseInternal(id, BinaryData.fromObject(resource), requestOptions).getValue()
             .toObject(User.class);
+    }
+
+    /**
+     * Gets a user.
+     * 
+     * Gets a User.
+     * 
+     * @param id The user's id.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a user.
+     * 
+     * Gets a User along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<User> getWithResponse(int id, RequestOptions requestOptions) {
+        // Generated convenience method for getWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse = getWithResponseInternal(id, requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(User.class));
     }
 
     /**
@@ -415,9 +501,9 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public User get(int id) {
-        // Generated convenience method for getWithResponse
+        // Generated convenience method for getWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(id, requestOptions).getValue().toObject(User.class);
+        return getWithResponseInternal(id, requestOptions).getValue().toObject(User.class);
     }
 
     /**
@@ -443,7 +529,7 @@ public final class BasicClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<User> list(Integer top, Integer skip, List<String> orderBy, String filter, List<String> select,
         List<String> expand) {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
         if (top != null) {
             requestOptions.addQueryParam("top", String.valueOf(top), false);
@@ -475,7 +561,7 @@ public final class BasicClient {
                 }
             }
         }
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**
@@ -493,9 +579,91 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<User> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+    }
+
+    /**
+     * Lists all users.
+     * 
+     * Lists all Users.
+     * 
+     * @param top The number of result items to return.
+     * @param skip The number of result items to skip.
+     * @param orderBy Expressions that specify the order of returned results.
+     * @param filter Filter the result list using the given expression.
+     * @param select Select the specified fields to be included in the response.
+     * @param expand Expand the indicated resources into the response.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of User items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<User> list(Integer top, Integer skip, List<String> orderBy, String filter, List<String> select,
+        List<String> expand, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (top != null) {
+            requestOptions.addQueryParam("top", String.valueOf(top), false);
+        }
+        if (skip != null) {
+            requestOptions.addQueryParam("skip", String.valueOf(skip), false);
+        }
+        if (orderBy != null) {
+            for (String paramItemValue : orderBy) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("orderby", paramItemValue, false);
+                }
+            }
+        }
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        if (select != null) {
+            for (String paramItemValue : select) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("select", paramItemValue, false);
+                }
+            }
+        }
+        if (expand != null) {
+            for (String paramItemValue : expand) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("expand", paramItemValue, false);
+                }
+            }
+        }
+        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+    }
+
+    /**
+     * Deletes a user.
+     * 
+     * Deletes a User.
+     * 
+     * @param id The user's id.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> deleteWithResponse(int id, RequestOptions requestOptions) {
+        // Generated convenience method for deleteWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return deleteWithResponseInternal(id, requestOptions);
     }
 
     /**
@@ -514,9 +682,34 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(int id) {
-        // Generated convenience method for deleteWithResponse
+        // Generated convenience method for deleteWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        deleteWithResponse(id, requestOptions).getValue();
+        deleteWithResponseInternal(id, requestOptions).getValue();
+    }
+
+    /**
+     * Exports a user.
+     * 
+     * Exports a User.
+     * 
+     * @param id The user's id.
+     * @param format The format of the data.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return details about a user along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<User> exportWithResponse(int id, String format, RequestOptions requestOptions) {
+        // Generated convenience method for exportWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse = exportWithResponseInternal(id, format, requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(User.class));
     }
 
     /**
@@ -537,9 +730,33 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public User export(int id, String format) {
-        // Generated convenience method for exportWithResponse
+        // Generated convenience method for exportWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return exportWithResponse(id, format, requestOptions).getValue().toObject(User.class);
+        return exportWithResponseInternal(id, format, requestOptions).getValue().toObject(User.class);
+    }
+
+    /**
+     * Exports all users.
+     * 
+     * Exports all users.
+     * 
+     * @param format The format of the data.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<UserList> exportAllUsersWithResponse(String format, RequestOptions requestOptions) {
+        // Generated convenience method for exportAllUsersWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse = exportAllUsersWithResponseInternal(format, requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(UserList.class));
     }
 
     /**
@@ -559,8 +776,8 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UserList exportAllUsers(String format) {
-        // Generated convenience method for exportAllUsersWithResponse
+        // Generated convenience method for exportAllUsersWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return exportAllUsersWithResponse(format, requestOptions).getValue().toObject(UserList.class);
+        return exportAllUsersWithResponseInternal(format, requestOptions).getValue().toObject(UserList.class);
     }
 }

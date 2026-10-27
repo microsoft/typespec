@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/types.js";
+import type { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ openApiFor }) => {

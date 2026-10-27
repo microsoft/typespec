@@ -1,7 +1,7 @@
 // cspell:ignore bfff
-import { defineConfig, defineLabels } from "../scripts/labels/config.js";
-import { repo } from "../scripts/utils/common.js";
-import { AreaPaths } from "./area.js";
+import { defineConfig, defineLabels } from "../scripts/labels/config.ts";
+import { repo } from "../scripts/utils/common.ts";
+import { AreaPaths, ExternalOwners } from "./area.ts";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.
@@ -210,6 +210,14 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
+        "agentic-workflows": {
+          color: "000000",
+          description: "Issues/PR created by github agentic workflows",
+        },
+        "auto-merge": {
+          color: "0e8a16",
+          description: "Automatically merge the pull request after all requirements pass",
+        },
         "good first issue": {
           color: "7057ff",
           description: "Good for newcomers",
@@ -226,4 +234,5 @@ export default defineConfig({
     },
   },
   areaPaths: AreaPaths,
+  externalOwners: ExternalOwners,
 });

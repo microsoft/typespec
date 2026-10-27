@@ -1,15 +1,27 @@
-import {
+import type {
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
+  OpenAPI3Response,
   OpenAPI3Responses,
   OpenAPIPathItem3_2,
   OpenAPIRequestBody3_2,
   OpenAPIResponses3_2,
   Refable,
   SupportedOpenAPIDocuments,
+  SupportedOpenAPISchema,
 } from "../../../../types.js";
-import { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type {
+  TypeSpecDataTypes,
+  TypeSpecModel,
+  TypeSpecModelProperty,
+  TypeSpecProgram,
+} from "../interfaces.js";
+import type { Context } from "../utils/context.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
+import {
+  convertHeaderToProperty,
+  convertStatusCodeToProperty,
+} from "../utils/response-properties.js";
 import { transformComponentParameters } from "./transform-component-parameters.js";
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";
@@ -41,6 +53,9 @@ export function transform(context: Context): TypeSpecProgram {
   // Pre-scan for multipart schemas before generating models
   scanForMultipartSchemas(openapi, context);
 
+  // Pre-scan for error response schemas before generating models
+  scanForErrorResponseSchemas(openapi, context);
+
   // Pre-scan for SSE event schemas before generating models
   if (
     !context.openApi3Doc.openapi.startsWith("3.0") &&
@@ -71,6 +86,18 @@ function scanForMultipartSchemas(openapi: SupportedOpenAPIDocuments, context: Co
   for (const path of Object.values(openapi.paths)) {
     if (!path) continue;
     scanPathForMultipartSchemas(path, context);
+  }
+}
+
+/**
+ * Scans all operations in the OpenAPI document to identify schemas used in error response bodies.
+ */
+function scanForErrorResponseSchemas(openapi: SupportedOpenAPIDocuments, context: Context): void {
+  if (!openapi.paths) return;
+
+  for (const path of Object.values(openapi.paths)) {
+    if (!path) continue;
+    scanPathForErrorResponseSchemas(path, context);
   }
 }
 
@@ -129,6 +156,73 @@ function scanOperationForMultipartSchemas(
       context.registerMultipartSchema(schemaReference.$ref, encoding);
     }
   }
+}
+
+function scanPathForErrorResponseSchemas(
+  path: OpenAPI3PathItem | OpenAPIPathItem3_2,
+  context: Context,
+): void {
+  for (const method of methods) {
+    const operation = path[method];
+    if (!operation?.responses) continue;
+
+    const responses = resolveReference(operation.responses, context);
+    if (!responses) continue;
+
+    scanOperationForErrorResponseSchemas(responses, context);
+  }
+  if ("query" in path && path.query && path.query.responses) {
+    const responses = resolveReference(path.query.responses, context);
+    if (!responses) return;
+
+    scanOperationForErrorResponseSchemas(responses, context);
+  }
+
+  if ("additionalOperations" in path && path.additionalOperations) {
+    for (const additionalOperation of Object.values(path.additionalOperations)) {
+      if (additionalOperation.responses) {
+        const responses = resolveReference(additionalOperation.responses, context);
+        if (!responses) continue;
+
+        scanOperationForErrorResponseSchemas(responses, context);
+      }
+    }
+  }
+}
+
+function scanOperationForErrorResponseSchemas(
+  responses: OpenAPI3Responses | OpenAPIResponses3_2,
+  context: Context,
+): void {
+  for (const [statusCode, response] of Object.entries(responses)) {
+    if (!isErrorStatusCode(statusCode)) continue;
+    if (!response) continue;
+
+    const resolvedResponse = resolveReference(response, context);
+    if (!resolvedResponse?.content) continue;
+
+    for (const content of Object.values(resolvedResponse.content)) {
+      if (!content || typeof content !== "object" || !("schema" in content) || !content.schema) {
+        continue;
+      }
+      const schema = content.schema;
+      if (typeof schema === "object" && schema !== null && "$ref" in schema) {
+        const ref = schema.$ref;
+        if (typeof ref === "string" && ref.startsWith("#/components/schemas/")) {
+          context.registerErrorResponseSchema(ref);
+        }
+      }
+    }
+  }
+}
+
+function isErrorStatusCode(statusCode: string): boolean {
+  if (statusCode === "4XX" || statusCode === "5XX") {
+    return true;
+  }
+
+  const numericStatusCode = Number.parseInt(statusCode, 10);
+  return Number.isFinite(numericStatusCode) && numericStatusCode >= 400 && numericStatusCode <= 599;
 }
 
 function scanPathForSSESchemas(
@@ -212,8 +306,129 @@ function collectDataTypes(context: Context): TypeSpecModel[] {
   const models: TypeSpecModel[] = [];
   // get models from `#/components/schema
   transformComponentSchemas(context, models);
+  transformComponentResponses(context, models);
   // get models from `#/components/parameters
   transformComponentParameters(context, models);
 
   return models;
+}
+
+export function transformComponentResponses(
+  context: Context,
+  dataTypes: TypeSpecDataTypes[],
+): void {
+  const responses = context.openApi3Doc.components?.responses;
+  if (!responses) return;
+
+  const seenResponseRefs = new Set<string>();
+  const componentResponseNames = new Set<string>();
+
+  for (const path of Object.values(context.openApi3Doc.paths ?? {})) {
+    if (!path) continue;
+    for (const method of methods) {
+      const operation = path[method];
+      if (!operation?.responses) continue;
+
+      const operationResponses = (operation as any).responses as Record<string, any> | undefined;
+      if (!operationResponses) continue;
+
+      for (const [statusCode, response] of Object.entries(operationResponses)) {
+        const responseObject = response as any;
+        if (
+          !responseObject ||
+          typeof responseObject !== "object" ||
+          !("$ref" in responseObject) ||
+          typeof responseObject.$ref !== "string" ||
+          !responseObject.$ref.startsWith("#/components/responses/")
+        ) {
+          continue;
+        }
+
+        const ref = responseObject.$ref as string;
+        const responseKey = `${ref}:${statusCode}`;
+        if (seenResponseRefs.has(responseKey)) continue;
+        seenResponseRefs.add(responseKey);
+
+        const componentResponse = context.getByRef<OpenAPI3Response>(ref);
+        if (!componentResponse) continue;
+
+        const { name, scope } = getScopeAndName(ref.slice("#/components/responses/".length));
+        const namespace = [...scope];
+        namespace.unshift("Responses");
+        const nameSuffix = statusCode === "default" ? "Default" : statusCode;
+        let componentResponseName = name;
+        let index = 0;
+        while (componentResponseNames.has([...namespace, componentResponseName].join("."))) {
+          componentResponseName = `${name}${nameSuffix}${index || ""}`;
+          index++;
+        }
+        componentResponseNames.add([...namespace, componentResponseName].join("."));
+        context.registerComponentResponse(
+          ref,
+          statusCode,
+          [...namespace, componentResponseName].join("."),
+        );
+
+        dataTypes.push({
+          kind: "model",
+          name: componentResponseName,
+          scope: namespace,
+          decorators: statusCode === "default" ? [{ name: "error", args: [] }] : [],
+          doc: componentResponse.description,
+          properties: getResponseProperties(statusCode, componentResponse, context),
+        });
+      }
+    }
+  }
+}
+
+function getResponseProperties(
+  statusCode: string,
+  response: OpenAPI3Response,
+  context: Context,
+): TypeSpecModelProperty[] {
+  const properties: TypeSpecModelProperty[] = [];
+  const resolvedStatus = statusCode === "default" ? "default" : statusCode;
+
+  if (resolvedStatus !== "default") {
+    properties.push(convertStatusCodeToProperty(resolvedStatus));
+  }
+
+  for (const [headerName, header] of Object.entries(response.headers ?? {})) {
+    const property = convertHeaderToProperty({ name: headerName, header, context });
+    if (property) {
+      properties.push(property);
+    }
+  }
+
+  const contentEntries = Object.entries(response.content ?? {});
+  const preferredContent = [
+    contentEntries.find(([mediaType]) => mediaType === "application/json"),
+    contentEntries[0],
+  ].find((entry): entry is [string, any] => !!entry);
+
+  const bodySchema =
+    preferredContent && typeof preferredContent[1] === "object" && "schema" in preferredContent[1]
+      ? (preferredContent[1].schema as Refable<SupportedOpenAPISchema>)
+      : undefined;
+
+  if (preferredContent && preferredContent[0] !== "application/json") {
+    properties.push({
+      name: "contentType",
+      decorators: [{ name: "header", args: ["Content-Type"] }],
+      isOptional: false,
+      schema: { type: "string", enum: [preferredContent[0]] },
+    });
+  }
+
+  if (bodySchema) {
+    properties.push({
+      name: "body",
+      decorators: [{ name: "body", args: [] }],
+      isOptional: false,
+      schema: bodySchema,
+    });
+  }
+
+  return properties;
 }

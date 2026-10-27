@@ -6,7 +6,7 @@
     {
       "$id": "1",
       "kind": "constant",
-      "name": "getContentType",
+      "name": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -17,12 +17,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "3",
       "kind": "constant",
-      "name": "putContentType",
+      "name": "GetAccept1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -33,12 +34,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
       "kind": "constant",
-      "name": "getContentType1",
+      "name": "GetAccept2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -49,12 +51,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "7",
       "kind": "constant",
-      "name": "putContentType1",
+      "name": "GetAccept3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -65,12 +68,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
       "kind": "constant",
-      "name": "getContentType2",
+      "name": "GetAccept4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -81,12 +85,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "11",
       "kind": "constant",
-      "name": "putContentType2",
+      "name": "GetAccept5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -97,12 +102,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
       "kind": "constant",
-      "name": "getContentType3",
+      "name": "GetAccept6",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -113,12 +119,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "15",
       "kind": "constant",
-      "name": "putContentType3",
+      "name": "GetAccept7",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -129,12 +136,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
       "kind": "constant",
-      "name": "getContentType4",
+      "name": "GetAccept8",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -145,12 +153,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "19",
       "kind": "constant",
-      "name": "putContentType4",
+      "name": "GetAccept9",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -161,12 +170,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "21",
       "kind": "constant",
-      "name": "getContentType5",
+      "name": "GetAccept10",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -177,12 +187,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "23",
       "kind": "constant",
-      "name": "putContentType5",
+      "name": "GetAccept11",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -193,12 +204,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "25",
       "kind": "constant",
-      "name": "getContentType6",
+      "name": "GetAccept12",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -209,12 +221,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
       "kind": "constant",
-      "name": "putContentType6",
+      "name": "GetAccept13",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -225,12 +238,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "29",
       "kind": "constant",
-      "name": "getContentType7",
+      "name": "GetAccept14",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -241,12 +255,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "31",
       "kind": "constant",
-      "name": "putContentType7",
+      "name": "GetAccept15",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -257,12 +272,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "33",
       "kind": "constant",
-      "name": "getContentType8",
+      "name": "GetAccept16",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -273,12 +289,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "35",
       "kind": "constant",
-      "name": "putContentType8",
+      "name": "GetAccept17",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -289,12 +306,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "37",
       "kind": "constant",
-      "name": "getContentType9",
+      "name": "GetAccept18",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -305,12 +323,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "39",
       "kind": "constant",
-      "name": "putContentType9",
+      "name": "GetAccept19",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -321,12 +340,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "41",
       "kind": "constant",
-      "name": "getContentType10",
+      "name": "GetAccept20",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -337,12 +357,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "43",
       "kind": "constant",
-      "name": "putContentType10",
+      "name": "GetAccept21",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -353,12 +374,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "45",
       "kind": "constant",
-      "name": "getContentType11",
+      "name": "GetAccept22",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -369,12 +391,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "47",
       "kind": "constant",
-      "name": "putContentType11",
+      "name": "GetAccept23",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -385,12 +408,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "49",
       "kind": "constant",
-      "name": "getContentType12",
+      "name": "GetAccept24",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -401,12 +425,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "51",
       "kind": "constant",
-      "name": "putContentType12",
+      "name": "GetAccept25",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -417,12 +442,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "53",
       "kind": "constant",
-      "name": "getContentType13",
+      "name": "GetAccept26",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -433,12 +459,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "55",
       "kind": "constant",
-      "name": "putContentType13",
+      "name": "GetAccept27",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -449,7 +476,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [
@@ -457,6 +485,7 @@
       "$id": "57",
       "kind": "model",
       "name": "InnerModel",
+      "apiVersions": [],
       "namespace": "Type.Array",
       "crossLanguageDefinitionId": "Type.Array.InnerModel",
       "usage": "Input,Output,Json",
@@ -467,11 +496,13 @@
           "name": "InnerModel"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "58",
           "kind": "property",
           "name": "property",
+          "apiVersions": [],
           "serializedName": "property",
           "doc": "Required string property",
           "type": {
@@ -492,12 +523,14 @@
               "name": "property"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "60",
           "kind": "property",
           "name": "children",
+          "apiVersions": [],
           "serializedName": "children",
           "type": {
             "$id": "61",
@@ -520,7 +553,8 @@
               "name": "children"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -530,6 +564,7 @@
       "$id": "62",
       "kind": "client",
       "name": "ArrayClient",
+      "isExactName": false,
       "namespace": "Type.Array",
       "doc": "Illustrates various types of arrays.",
       "methods": [],
@@ -562,7 +597,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Type.Array.endpoint"
+          "crossLanguageDefinitionId": "Type.Array.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -574,6 +610,7 @@
           "$id": "66",
           "kind": "client",
           "name": "Int32Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of int32 values",
           "methods": [
@@ -581,12 +618,13 @@
               "$id": "67",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "68",
                 "name": "get",
-                "resourceName": "Int32Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -620,9 +658,11 @@
                         "crossLanguageDefinitionId": "Type.Array.Int32Value.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -648,7 +688,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -680,12 +725,13 @@
               "$id": "73",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "74",
                 "name": "put",
-                "resourceName": "Int32Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -721,9 +767,11 @@
                         "crossLanguageDefinitionId": "Type.Array.Int32Value.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "77",
@@ -759,9 +807,16 @@
                         "crossLanguageDefinitionId": "Type.Array.Int32Value.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -770,7 +825,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -830,7 +886,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.Int32Value.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.Int32Value.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -846,6 +903,7 @@
           "$id": "82",
           "kind": "client",
           "name": "Int64Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of int64 values",
           "methods": [
@@ -853,12 +911,13 @@
               "$id": "83",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "84",
                 "name": "get",
-                "resourceName": "Int64Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -892,9 +951,11 @@
                         "crossLanguageDefinitionId": "Type.Array.Int64Value.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -920,7 +981,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -952,12 +1018,13 @@
               "$id": "89",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "90",
                 "name": "put",
-                "resourceName": "Int64Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -993,9 +1060,11 @@
                         "crossLanguageDefinitionId": "Type.Array.Int64Value.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "93",
@@ -1031,9 +1100,16 @@
                         "crossLanguageDefinitionId": "Type.Array.Int64Value.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1042,7 +1118,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1102,7 +1179,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.Int64Value.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.Int64Value.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1118,6 +1196,7 @@
           "$id": "98",
           "kind": "client",
           "name": "BooleanValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of boolean values",
           "methods": [
@@ -1125,12 +1204,13 @@
               "$id": "99",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "100",
                 "name": "get",
-                "resourceName": "BooleanValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1164,9 +1244,11 @@
                         "crossLanguageDefinitionId": "Type.Array.BooleanValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1192,7 +1274,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1224,12 +1311,13 @@
               "$id": "105",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "106",
                 "name": "put",
-                "resourceName": "BooleanValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1265,9 +1353,11 @@
                         "crossLanguageDefinitionId": "Type.Array.BooleanValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "109",
@@ -1303,9 +1393,16 @@
                         "crossLanguageDefinitionId": "Type.Array.BooleanValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1314,7 +1411,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1374,7 +1472,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.BooleanValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.BooleanValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1390,6 +1489,7 @@
           "$id": "114",
           "kind": "client",
           "name": "StringValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of string values",
           "methods": [
@@ -1397,12 +1497,13 @@
               "$id": "115",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "116",
                 "name": "get",
-                "resourceName": "StringValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1436,9 +1537,11 @@
                         "crossLanguageDefinitionId": "Type.Array.StringValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1464,7 +1567,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1496,12 +1604,13 @@
               "$id": "121",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "122",
                 "name": "put",
-                "resourceName": "StringValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1537,9 +1646,11 @@
                         "crossLanguageDefinitionId": "Type.Array.StringValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "125",
@@ -1575,9 +1686,16 @@
                         "crossLanguageDefinitionId": "Type.Array.StringValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1586,7 +1704,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1646,7 +1765,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.StringValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.StringValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1662,6 +1782,7 @@
           "$id": "130",
           "kind": "client",
           "name": "Float32Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of float values",
           "methods": [
@@ -1669,12 +1790,13 @@
               "$id": "131",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "132",
                 "name": "get",
-                "resourceName": "Float32Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1708,9 +1830,11 @@
                         "crossLanguageDefinitionId": "Type.Array.Float32Value.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1736,7 +1860,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1768,12 +1897,13 @@
               "$id": "137",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "138",
                 "name": "put",
-                "resourceName": "Float32Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1809,9 +1939,11 @@
                         "crossLanguageDefinitionId": "Type.Array.Float32Value.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "141",
@@ -1847,9 +1979,16 @@
                         "crossLanguageDefinitionId": "Type.Array.Float32Value.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1858,7 +1997,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1918,7 +2058,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.Float32Value.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.Float32Value.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1934,6 +2075,7 @@
           "$id": "146",
           "kind": "client",
           "name": "DatetimeValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of datetime values",
           "methods": [
@@ -1941,12 +2083,13 @@
               "$id": "147",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "148",
                 "name": "get",
-                "resourceName": "DatetimeValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1980,9 +2123,11 @@
                         "crossLanguageDefinitionId": "Type.Array.DatetimeValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2016,7 +2161,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2048,12 +2198,13 @@
               "$id": "154",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "155",
                 "name": "put",
-                "resourceName": "DatetimeValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2089,9 +2240,11 @@
                         "crossLanguageDefinitionId": "Type.Array.DatetimeValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "158",
@@ -2127,9 +2280,16 @@
                         "crossLanguageDefinitionId": "Type.Array.DatetimeValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2138,7 +2298,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -2198,7 +2359,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.DatetimeValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.DatetimeValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2214,6 +2376,7 @@
           "$id": "163",
           "kind": "client",
           "name": "DurationValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of duration values",
           "methods": [
@@ -2221,12 +2384,13 @@
               "$id": "164",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "165",
                 "name": "get",
-                "resourceName": "DurationValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2260,9 +2424,11 @@
                         "crossLanguageDefinitionId": "Type.Array.DurationValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2296,7 +2462,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2328,12 +2499,13 @@
               "$id": "171",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "172",
                 "name": "put",
-                "resourceName": "DurationValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2369,9 +2541,11 @@
                         "crossLanguageDefinitionId": "Type.Array.DurationValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "175",
@@ -2407,9 +2581,16 @@
                         "crossLanguageDefinitionId": "Type.Array.DurationValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2418,7 +2599,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -2478,7 +2660,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.DurationValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.DurationValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2494,6 +2677,7 @@
           "$id": "180",
           "kind": "client",
           "name": "UnknownValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of unknown values",
           "methods": [
@@ -2501,12 +2685,13 @@
               "$id": "181",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "182",
                 "name": "get",
-                "resourceName": "UnknownValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2540,9 +2725,11 @@
                         "crossLanguageDefinitionId": "Type.Array.UnknownValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2568,7 +2755,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2600,12 +2792,13 @@
               "$id": "187",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "188",
                 "name": "put",
-                "resourceName": "UnknownValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2641,9 +2834,11 @@
                         "crossLanguageDefinitionId": "Type.Array.UnknownValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "191",
@@ -2679,9 +2874,16 @@
                         "crossLanguageDefinitionId": "Type.Array.UnknownValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2690,7 +2892,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -2750,7 +2953,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.UnknownValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.UnknownValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2766,6 +2970,7 @@
           "$id": "196",
           "kind": "client",
           "name": "ModelValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of model values",
           "methods": [
@@ -2773,12 +2978,13 @@
               "$id": "197",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "198",
                 "name": "get",
-                "resourceName": "ModelValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2812,9 +3018,11 @@
                         "crossLanguageDefinitionId": "Type.Array.ModelValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2829,7 +3037,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2861,12 +3074,13 @@
               "$id": "201",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "202",
                 "name": "put",
-                "resourceName": "ModelValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2902,9 +3116,11 @@
                         "crossLanguageDefinitionId": "Type.Array.ModelValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "205",
@@ -2940,9 +3156,16 @@
                         "crossLanguageDefinitionId": "Type.Array.ModelValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2951,7 +3174,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3011,7 +3235,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.ModelValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.ModelValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -3027,6 +3252,7 @@
           "$id": "210",
           "kind": "client",
           "name": "NullableFloatValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable float values",
           "methods": [
@@ -3034,12 +3260,13 @@
               "$id": "211",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "212",
                 "name": "get",
-                "resourceName": "NullableFloatValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3073,9 +3300,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableFloatValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3106,7 +3335,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3138,12 +3372,13 @@
               "$id": "218",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "219",
                 "name": "put",
-                "resourceName": "NullableFloatValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3179,9 +3414,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableFloatValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "222",
@@ -3217,9 +3454,16 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableFloatValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3228,7 +3472,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3288,7 +3533,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.NullableFloatValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableFloatValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -3304,6 +3550,7 @@
           "$id": "227",
           "kind": "client",
           "name": "NullableInt32Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable int32 values",
           "methods": [
@@ -3311,12 +3558,13 @@
               "$id": "228",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "229",
                 "name": "get",
-                "resourceName": "NullableInt32Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3350,9 +3598,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableInt32Value.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3383,7 +3633,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3415,12 +3670,13 @@
               "$id": "235",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "236",
                 "name": "put",
-                "resourceName": "NullableInt32Value",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3456,9 +3712,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableInt32Value.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "239",
@@ -3494,9 +3752,16 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableInt32Value.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3505,7 +3770,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3565,7 +3831,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.NullableInt32Value.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableInt32Value.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -3581,6 +3848,7 @@
           "$id": "244",
           "kind": "client",
           "name": "NullableBooleanValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable boolean values",
           "methods": [
@@ -3588,12 +3856,13 @@
               "$id": "245",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "246",
                 "name": "get",
-                "resourceName": "NullableBooleanValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3627,9 +3896,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3660,7 +3931,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3692,12 +3968,13 @@
               "$id": "252",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "253",
                 "name": "put",
-                "resourceName": "NullableBooleanValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3733,9 +4010,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "256",
@@ -3771,9 +4050,16 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3782,7 +4068,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3842,7 +4129,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -3858,6 +4146,7 @@
           "$id": "261",
           "kind": "client",
           "name": "NullableStringValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable string values",
           "methods": [
@@ -3865,12 +4154,13 @@
               "$id": "262",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "263",
                 "name": "get",
-                "resourceName": "NullableStringValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -3904,9 +4194,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableStringValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3937,7 +4229,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3969,12 +4266,13 @@
               "$id": "269",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "270",
                 "name": "put",
-                "resourceName": "NullableStringValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -4010,9 +4308,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableStringValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "273",
@@ -4048,9 +4348,16 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableStringValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4059,7 +4366,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -4119,7 +4427,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.NullableStringValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableStringValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -4135,6 +4444,7 @@
           "$id": "278",
           "kind": "client",
           "name": "NullableModelValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable model values",
           "methods": [
@@ -4142,12 +4452,13 @@
               "$id": "279",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "280",
                 "name": "get",
-                "resourceName": "NullableModelValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -4181,9 +4492,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableModelValue.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4210,7 +4523,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4242,12 +4560,13 @@
               "$id": "285",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "286",
                 "name": "put",
-                "resourceName": "NullableModelValue",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -4283,9 +4602,11 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableModelValue.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "289",
@@ -4321,9 +4642,16 @@
                         "crossLanguageDefinitionId": "Type.Array.NullableModelValue.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4332,7 +4660,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -4392,7 +4721,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.NullableModelValue.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableModelValue.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

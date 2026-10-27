@@ -1,7 +1,7 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Parameter, OpenAPIParameter3_2 } from "../../../../types.js";
-import { TypeSpecDataTypes, TypeSpecModelProperty } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { OpenAPI3Parameter, OpenAPIParameter3_2 } from "../../../../types.js";
+import type { TypeSpecDataTypes, TypeSpecModelProperty } from "../interfaces.js";
+import type { Context } from "../utils/context.js";
 import { getParameterDecorators } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 

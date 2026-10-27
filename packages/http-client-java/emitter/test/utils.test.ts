@@ -1,3 +1,5 @@
+import type { EnumMember, Namespace } from "@typespec/compiler";
+import type { Version } from "@typespec/versioning";
 import { describe, expect, it } from "vitest";
 import { scopeExplicitlyIncludeJava, scopeImplicitlyIncludeJava } from "../src/type-utils.js";
 import {
@@ -7,10 +9,22 @@ import {
   stringArrayContainsIgnoreCase,
 } from "../src/utils.js";
 import {
+  filterApiVersionsByStability,
   isStableApiVersionString,
   isVersionEarlierThan,
   isVersionedByDate,
+  resolveApiVersionOption,
 } from "../src/versioning-utils.js";
+
+function createMockVersion(value: string, index: number): Version {
+  return {
+    name: value,
+    value,
+    index,
+    namespace: {} as Namespace,
+    enumMember: {} as EnumMember,
+  };
+}
 
 describe("utils", () => {
   it("pascalCase", () => {
@@ -45,6 +59,52 @@ describe("versioning-utils", () => {
   it("isStableApiVersion", () => {
     expect(isStableApiVersionString("2022-09-01")).toBe(true);
     expect(isStableApiVersionString("2023-12-01-preview")).toBe(false);
+  });
+
+  it("resolveApiVersionOption", () => {
+    expect(resolveApiVersionOption(undefined)).toBe(undefined);
+    expect(resolveApiVersionOption("latest")).toBe("latest");
+    expect(resolveApiVersionOption("all")).toBe("all");
+    expect(resolveApiVersionOption("2024-06-01")).toBe("2024-06-01");
+    expect(resolveApiVersionOption({ ComputeDisk: "2025-01-02" })).toBe(undefined);
+  });
+
+  it("filterApiVersionsByStability filters preview versions for stable target", () => {
+    const versions = [
+      createMockVersion("2024-01-01-preview", 0),
+      createMockVersion("2024-01-01", 1),
+      createMockVersion("2024-06-01-preview", 2),
+      createMockVersion("2024-06-01", 3),
+    ];
+
+    const filtered = filterApiVersionsByStability(
+      "2024-06-01",
+      versions,
+      (version) => !version.value.endsWith("-preview"),
+    );
+
+    expect(filtered.map((version) => version.value)).toEqual(["2024-01-01", "2024-06-01"]);
+  });
+
+  it("filterApiVersionsByStability keeps preview versions for preview target", () => {
+    const versions = [
+      createMockVersion("2024-01-01-preview", 0),
+      createMockVersion("2024-01-01", 1),
+      createMockVersion("2024-06-01-preview", 2),
+      createMockVersion("2024-06-01", 3),
+    ];
+
+    const filtered = filterApiVersionsByStability(
+      "2024-06-01-preview",
+      versions,
+      (version) => !version.value.endsWith("-preview"),
+    );
+
+    expect(filtered.map((version) => version.value)).toEqual([
+      "2024-01-01-preview",
+      "2024-01-01",
+      "2024-06-01-preview",
+    ]);
   });
 
   it("isVersionedByDate - valid date versions", () => {

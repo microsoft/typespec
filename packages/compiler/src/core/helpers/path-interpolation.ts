@@ -1,5 +1,27 @@
 const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}(\/|\.?)/g;
 
+const UnsafePathSegmentCharsRegex = /[/\\:\0]/g;
+const OnlyDotsRegex = /^\.+$/;
+
+/**
+ * Sanitize a value so it is safe to use as a single segment of a path.
+ *
+ * Path separators, drive letter separators and NUL are replaced with `_` and values only made of `.`(e.g. `.` or `..`) are replaced with `_`.
+ * This prevents values coming from a TypeSpec spec(e.g. a version or a service name) from escaping the directory the file was meant to be written to.
+ *
+ * @param value Value to sanitize.
+ *
+ * @example
+ * ```ts
+ * sanitizePathSegment("2021-10-01-preview"); // "2021-10-01-preview"
+ * sanitizePathSegment("../../etc/passwd"); // ".._.._etc_passwd"
+ * ```
+ */
+export function sanitizePathSegment(value: string): string {
+  const sanitized = value.replace(UnsafePathSegmentCharsRegex, "_");
+  return OnlyDotsRegex.test(sanitized) ? "_" : sanitized;
+}
+
 /**
  * Interpolate a path template
  * @param pathTemplate Path template

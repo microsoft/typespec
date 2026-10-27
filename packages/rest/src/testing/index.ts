@@ -1,10 +1,14 @@
-import {
-  createTestLibrary,
-  findTestPackageRoot,
-  TypeSpecTestLibrary,
-} from "@typespec/compiler/testing";
+import type { TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import { createTestLibrary, findTestPackageRoot } from "@typespec/compiler/testing";
 
+/**
+ * Legacy test-host registration for loading REST's TypeSpec files and decorator implementations.
+ *
+ * @deprecated Use `createTester` from `@typespec/compiler/testing` instead
+ */
+/* eslint-disable @typescript-eslint/no-deprecated */
 export const RestTestLibrary: TypeSpecTestLibrary = createTestLibrary({
   name: "@typespec/rest",
   packageRoot: await findTestPackageRoot(import.meta.url),
 });
+/* eslint-enable @typescript-eslint/no-deprecated */

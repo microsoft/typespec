@@ -37,7 +37,7 @@
       "label": "watch-tmlanguage",
       "type": "process",
       "command": "node",
-      "args": ["${workspaceFolder}/packages/compiler/scripts/watch-tmlanguage.js"],
+      "args": ["${workspaceFolder}/packages/compiler/scripts/watch-tmlanguage.ts"],
       "problemMatcher": {
         "base": "$msCompile",
         "background": {
@@ -63,7 +63,7 @@
       "label": "watch-spec",
       "type": "process",
       "command": "node",
-      "args": ["${workspaceFolder}/packages/spec/scripts/watch-spec.js"],
+      "args": ["${workspaceFolder}/packages/spec/scripts/watch-spec.ts"],
       "problemMatcher": {
         "base": "$msCompile",
         "background": {

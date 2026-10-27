@@ -1,6 +1,7 @@
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
+import type { OpenAPITag3_2 } from "../../src/index.js";
 import { convertOpenAPI3Document } from "../../src/index.js";
 
 const versions = ["3.0.0", "3.1.0", "3.2.0"] as const;
@@ -83,6 +84,209 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
           `,
         { printWidth: 100, tabWidth: 2 },
       ),
+    );
+  });
+
+  it("creates reusable response models for referenced component responses", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "Example API",
+        version: "1.0.0",
+      },
+      paths: {
+        "/endpoint": {
+          get: {
+            operationId: "endpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/TooManyRequests",
+              },
+            },
+          },
+        },
+        "/other-endpoint": {
+          get: {
+            operationId: "otherEndpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/TooManyRequests",
+              },
+            },
+          },
+        },
+      },
+      components: {
+        responses: {
+          TooManyRequests: {
+            description: "The request was rejected because a rate limit was exceeded.",
+            headers: {
+              "Retry-After": {
+                description: "Retry delay seconds.",
+                required: false,
+                schema: {
+                  type: "integer",
+                  minimum: 1,
+                },
+              },
+            },
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/ErrorResponse",
+                },
+              },
+            },
+          },
+        },
+        schemas: {
+          ErrorResponse: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                description: "A human-readable message.",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp.includes("namespace Responses"),
+      true,
+      "Expected generated response namespace: " + tsp,
+    );
+    strictEqual(tsp.includes("model TooManyRequests {"), true, "Expected response model: " + tsp);
+    strictEqual(
+      tsp.includes("@statusCode statusCode"),
+      true,
+      "Expected status code property: " + tsp,
+    );
+    strictEqual(
+      tsp.includes('@header("Retry-After")'),
+      true,
+      "Expected retry-after header: " + tsp,
+    );
+    strictEqual(tsp.includes("@body body:"), true, "Expected response body property: " + tsp);
+    strictEqual(tsp.includes("ErrorResponse"), true, "Expected body schema reference: " + tsp);
+    strictEqual(
+      tsp.includes("op endpoint(): Responses.TooManyRequests;"),
+      true,
+      "Expected operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op otherEndpoint(): Responses.TooManyRequests;"),
+      true,
+      "Expected second operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.split("model TooManyRequests {").length - 1,
+      1,
+      "Expected the shared component response model to be generated once: " + tsp,
+    );
+  });
+
+  it("creates reusable component response models for all status code kinds", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "Example API",
+        version: "1.0.0",
+      },
+      paths: {
+        "/endpoint": {
+          get: {
+            operationId: "endpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/other-endpoint": {
+          get: {
+            operationId: "otherEndpoint",
+            responses: {
+              "4XX": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/default-endpoint": {
+          get: {
+            operationId: "defaultEndpoint",
+            responses: {
+              default: {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/unavailable-endpoint": {
+          get: {
+            operationId: "unavailableEndpoint",
+            responses: {
+              "503": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+      },
+      components: {
+        responses: {
+          Rejected: {
+            description: "The request was rejected.",
+            content: {
+              "application/xml": {
+                schema: {
+                  type: "string",
+                },
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp.includes("op endpoint(): Responses.Rejected;"),
+      true,
+      "Expected first operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op otherEndpoint(): Responses.Rejected4XX;"),
+      true,
+      "Expected range response to use a generated component response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op defaultEndpoint(): Responses.RejectedDefault;"),
+      true,
+      "Expected default response to use a generated component response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op unavailableEndpoint(): Responses.Rejected503;"),
+      true,
+      "Expected literal response to use a generated component response model: " + tsp,
+    );
+    strictEqual(
+      /@statusCode\s+@minValue\(400\)\s+@maxValue\(499\)/.test(tsp),
+      true,
+      "Expected range model to retain its status code: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("@error\n  model RejectedDefault"),
+      true,
+      "Expected default response model to be marked as an error: " + tsp,
+    );
+    strictEqual(
+      tsp.includes('@header("Content-Type") contentType: "application/xml";'),
+      true,
+      "Expected component response models to retain the content type: " + tsp,
     );
   });
 
@@ -936,6 +1140,279 @@ def grade(sample: dict, item: dict) -> float:
 
         #deprecated "deprecated"
         scalar Foo extends string;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated operation without description to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {
+        "/foo": {
+          get: {
+            operationId: "Foo_get",
+            deprecated: true,
+            tags: ["Foo"],
+            responses: {
+              "200": {
+                description: "OK",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        @tag("Foo")
+        @route("/foo")
+        @get
+        op Foo_get(): OkResponse;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated operation with description to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {
+        "/foo": {
+          get: {
+            operationId: "Foo_get",
+            description: "Get foo",
+            deprecated: true,
+            tags: ["Foo"],
+            responses: {
+              "200": {
+                description: "OK",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        /** Get foo */
+        #deprecated "deprecated"
+        @tag("Foo")
+        @route("/foo")
+        @get
+        op Foo_get(): OkResponse;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+});
+
+describe("convertOpenAPI3Document tag metadata", () => {
+  it("converts OpenAPI 3.2 tags with parent, kind, and summary fields", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      openapi: "3.2.0",
+      paths: {},
+      tags: [
+        { name: "parent-tag", description: "A parent tag" },
+        {
+          name: "child-tag",
+          description: "A child tag",
+          summary: "Child tag summary",
+          kind: "category",
+          parent: "parent-tag",
+        } satisfies OpenAPITag3_2,
+      ] as OpenAPITag3_2[],
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "(title)" })
+        @info(#{ version: "0.0.0" })
+        @tagMetadata(#[
+          #{ name: "parent-tag", description: "A parent tag" },
+          #{ name: "child-tag", description: "A child tag", summary: "Child tag summary", kind: "category", parent: "parent-tag" },
+        ])
+        namespace title;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("converts OpenAPI 3.0/3.1 tags with x-oai- extensions for summary, kind, and parent", async () => {
+    for (const version of ["3.0.0", "3.1.0"] as const) {
+      const tsp = await convertOpenAPI3Document({
+        info: {
+          title: "(title)",
+          version: "0.0.0",
+        },
+        openapi: version,
+        paths: {},
+        tags: [
+          {
+            name: "simple-tag",
+            description: "A simple tag",
+            "x-oai-summary": "Tag summary",
+            "x-oai-kind": "OperationGroup",
+          },
+          {
+            name: "child-tag",
+            description: "A child tag",
+            "x-oai-parent": "simple-tag",
+          },
+        ],
+      });
+
+      strictEqual(
+        tsp,
+        await formatTypeSpec(
+          `
+          import "@typespec/http";
+          import "@typespec/openapi";
+          import "@typespec/openapi3";
+
+          using Http;
+          using OpenAPI;
+
+          @service(#{ title: "(title)" })
+          @info(#{ version: "0.0.0" })
+          @tagMetadata(#[
+            #{ name: "simple-tag", description: "A simple tag", summary: "Tag summary", kind: "OperationGroup" },
+            #{ name: "child-tag", description: "A child tag", parent: "simple-tag" },
+          ])
+          namespace title;
+          `,
+          { printWidth: 100, tabWidth: 2 },
+        ),
+      );
+    }
+  });
+
+  it("converts OpenAPI 3.1 license with identifier field", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "My API",
+        version: "1.0.0",
+        license: {
+          name: "MIT",
+          identifier: "MIT",
+        },
+      },
+      openapi: "3.1.0",
+      paths: {},
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "My API" })
+        @info(#{ version: "1.0.0", license: #{ name: "MIT", identifier: "MIT" } })
+        namespace MyAPI;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("converts OpenAPI 3.0 license with x-oai-license-identifier extension to identifier field", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "My API",
+        version: "1.0.0",
+        license: {
+          name: "MIT",
+          "x-oai-license-identifier": "MIT",
+        } as any,
+      },
+      openapi: "3.0.0",
+      paths: {},
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "My API" })
+        @info(#{ version: "1.0.0", license: #{ name: "MIT", identifier: "MIT" } })
+        namespace MyAPI;
         `,
         { printWidth: 100, tabWidth: 2 },
       ),

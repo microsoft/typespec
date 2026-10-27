@@ -27,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
                     new InputTypeConverter(referenceHandler),
                     new InputArrayTypeConverter(referenceHandler),
+                    new InputStreamingTypeConverter(referenceHandler),
                     new InputDictionaryTypeConverter(referenceHandler),
                     new InputEnumTypeConverter(referenceHandler),
                     new InputEnumTypeValueConverter(referenceHandler),
@@ -52,8 +53,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputDecoratorInfoConverter(),
                     new InputSerializationOptionsConverter(),
                     new InputJsonSerializationOptionsConverter(),
+                    new InputMultipartOptionsConverter(),
                     new InputXmlSerializationOptionsConverter(),
                     new InputXmlNamespaceOptionsConverter(),
+                    new InputBinarySerializationOptionsConverter(),
                     new InputServiceMethodConverter(referenceHandler),
                     new InputBasicServiceMethodConverter(referenceHandler),
                     new InputPagingServiceMethodConverter(referenceHandler),
@@ -76,7 +79,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             };
 
-            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(json, options);
+            using var document = JsonDocument.Parse(json, new JsonDocumentOptions
+            {
+                AllowTrailingCommas = options.AllowTrailingCommas,
+                MaxDepth = options.MaxDepth
+            });
+            // Opaque decorator arguments and unknown properties can contain the first
+            // definition of an object referenced by the typed code-model graph.
+            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(document.RootElement, options);
+            var inputNamespace = document.RootElement.Deserialize<InputNamespace>(options);
 
             if (inputNamespace != null)
             {

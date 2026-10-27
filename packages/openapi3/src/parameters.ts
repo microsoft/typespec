@@ -1,4 +1,5 @@
-import { getEncode, ModelProperty, Program } from "@typespec/compiler";
+import type { ModelProperty, Program } from "@typespec/compiler";
+import { getEncode } from "@typespec/compiler";
 
 export function getParameterStyle(
   program: Program,

@@ -42,16 +42,17 @@ namespace Sample
                 if (!Patch.IsRemoved("$.cats"u8))
                 {
                     writer.WritePropertyName("cats"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.cats"u8));
+                    Patch.WriteTo(writer, "$.cats"u8);
                 }
             }
             else if (global::Sample.Optional.IsCollectionDefined(Cats))
             {
                 writer.WritePropertyName("cats"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "cats"u8);
                 for (int i = 0; (i < Cats.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.cats[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.cats[{i}]"))))
                     {
                         continue;
                     }
@@ -65,16 +66,17 @@ namespace Sample
                 if (!Patch.IsRemoved("$.names"u8))
                 {
                     writer.WritePropertyName("names"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.names"u8));
+                    Patch.WriteTo(writer, "$.names"u8);
                 }
             }
             else
             {
                 writer.WritePropertyName("names"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "names"u8);
                 for (int i = 0; (i < Names.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.names[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.names[{i}]"))))
                     {
                         continue;
                     }
@@ -93,16 +95,17 @@ namespace Sample
                 if (!Patch.IsRemoved("$.optionalNames"u8))
                 {
                     writer.WritePropertyName("optionalNames"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.optionalNames"u8));
+                    Patch.WriteTo(writer, "$.optionalNames"u8);
                 }
             }
             else if (global::Sample.Optional.IsCollectionDefined(OptionalNames))
             {
                 writer.WritePropertyName("optionalNames"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "optionalNames"u8);
                 for (int i = 0; (i < OptionalNames.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.optionalNames[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.optionalNames[{i}]"))))
                     {
                         continue;
                     }

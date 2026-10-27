@@ -1,6 +1,7 @@
-import { Children, code, List } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { code, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { HttpOperationPart } from "@typespec/http";
+import type { HttpOperationPart } from "@typespec/http";
 import { JsonTransform } from "../json/json-transform.jsx";
 
 export interface SimplePartTransformProps {

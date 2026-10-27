@@ -1,7 +1,7 @@
 vi.resetModules();
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -633,7 +633,7 @@ interface LegacyLro {
     @doc("Gets the status and details of the Radiology Insights job.")
     @get
     @route("/radiology-insights/jobs/{id}")
-    @convenientAPI(false)
+    @convenientAPI(false, "csharp")
     getJob is HealthInsightsLongRunningPollOperation<RadiologyInsightsResult>;
   
     #suppress "@azure-tools/typespec-azure-core/long-running-polling-operation-required" "Polling through operation-location"
@@ -643,7 +643,7 @@ interface LegacyLro {
     @doc("Creates a Radiology Insights job with the given request body.")
     @pollingOperation(LegacyLro.getJob)
     @route("/radiology-insights/jobs")
-    @convenientAPI(true)
+    @convenientAPI(true, "csharp")
     createJob is HealthInsightsLongRunningRpcOperation<
       RadiologyInsightsData,
       RadiologyInsightsResult

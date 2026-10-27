@@ -19,6 +19,12 @@ public final class ColorModel extends ExpandableStringEnum<ColorModel> {
     public static final ColorModel RED = fromString("Red");
 
     /**
+     * Static value *&#47; for ColorModel.
+     */
+    @Generated
+    public static final ColorModel COMMENT_TERMINATOR = fromString("*/");
+
+    /**
      * Static value Blue for ColorModel.
      */
     @Generated

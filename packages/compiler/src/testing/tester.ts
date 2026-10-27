@@ -1,24 +1,29 @@
 import { realpath } from "fs/promises";
 import { pathToFileURL } from "url";
+import type { TypeSpecConfig } from "../config/types.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import type { CompilerFeatureName } from "../core/features.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { getIdentifierContext, getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
-import { Program, compile as coreCompile } from "../core/program.js";
+import type { Program } from "../core/program.js";
+import { compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
-import { CompilerHost, Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
+import type { CompilerHost, Diagnostic, Entity, SourceFile } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 import { resolveModule } from "../module-resolver/module-resolver.js";
 import { NodePackageResolver } from "../module-resolver/node-package-resolver.js";
-import { ResolveModuleHost } from "../module-resolver/types.js";
+import type { ResolveModuleHost } from "../module-resolver/types.js";
 import { parseNodeModuleSpecifier } from "../module-resolver/utils.js";
-import { Typekit } from "../typekit/define-kit.js";
+import type { Typekit } from "../typekit/define-kit.js";
 import { $ } from "../typekit/index.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
-import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
+import type { GetMarkedEntities, Marker } from "./marked-template.js";
+import { TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, addTestLib } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import type {
@@ -35,8 +40,24 @@ import type {
   TesterInstance,
 } from "./types.js";
 
+/** Libraries and compiler defaults for a reusable tester created with {@link createTester}. */
 export interface TesterOptions {
+  /**
+   * Bare package names to load into the virtual filesystem, resolved from the tester's base directory.
+   * This makes libraries available but does not import them into `main.tsp`; use `importLibraries()` or `import()`.
+   */
   libraries: string[];
+
+  /**
+   * Default compiler options applied to every compilation. Per-call options are merged on top.
+   */
+  compilerOptions?: CompilerOptions;
+
+  /**
+   * Compiler features to enable for every compilation (e.g. experimental features gated behind a
+   * `features` entry in `tspconfig.yaml`). Equivalent to setting `features` in the project config.
+   */
+  features?: CompilerFeatureName[];
 
   /**
    * System host for loading libraries
@@ -44,11 +65,50 @@ export interface TesterOptions {
    */
   host?: CompilerHost;
 }
+/**
+ * Create a reusable tester with the compiler's standard library and test decorators available.
+ * Libraries are loaded lazily and shared as a snapshot; each compilation gets its own mutable copy.
+ *
+ * @param base Real package directory containing `package.json`, used to resolve the listed libraries.
+ * @param options Libraries to make available and default settings for every compilation.
+ */
 export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
     fs: once(() => createTesterFs(base, options)),
     libraries: options.libraries,
+    compilerOptions: resolveTesterCompilerOptions(options),
   });
+}
+
+function resolveTesterCompilerOptions(options: TesterOptions): CompilerOptions | undefined {
+  if (options.features === undefined) {
+    return options.compilerOptions;
+  }
+  // The tester compiles directly without resolving a `tspconfig.yaml`, so the enabled features have
+  // to be injected into the synthetic `configFile` the compiler reads them from. Only `features` is
+  // relevant here, hence the cast to the otherwise more complete `TypeSpecConfig`.
+  const configFile = {
+    ...options.compilerOptions?.configFile,
+    features: [...(options.compilerOptions?.configFile?.features ?? []), ...options.features],
+  } as TypeSpecConfig;
+  return { ...options.compilerOptions, configFile };
+}
+
+/**
+ * Merge per-call compiler options on top of the tester defaults.
+ *
+ * `configFile` is merged as well so that per-call options (e.g. `emit`) don't drop the features
+ * or config the tester instance was created with.
+ */
+function mergeCompilerOptions(
+  base: CompilerOptions | undefined,
+  override: CompilerOptions | undefined,
+): CompilerOptions {
+  const configFile =
+    base?.configFile && override?.configFile
+      ? ({ ...base.configFile, ...override.configFile } as TypeSpecConfig)
+      : (override?.configFile ?? base?.configFile);
+  return { ...base, ...override, ...(configFile && { configFile }) };
 }
 
 function once<T>(fn: () => Promise<T>): () => Promise<T> {
@@ -72,7 +132,24 @@ async function createTesterFs(base: string, options: TesterOptions) {
   };
 
   const sl = await createSourceLoader(host);
-  const selfName = JSON.parse((await host.readFile(resolvePath(base, "package.json"))).text).name;
+  let packageJson: SourceFile;
+  try {
+    packageJson = await host.readFile(resolvePath(base, "package.json"));
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error.code === "ENOENT" || error.code === "ENOTDIR")
+    ) {
+      throw new Error(
+        `Cannot find package.json in "${base}". The first argument to createTester must be the library root directory.`,
+        { cause: error },
+      );
+    }
+    throw error;
+  }
+  const selfName = JSON.parse(packageJson.text).name;
   const moduleHost: ResolveModuleHost = {
     realpath: async (x) => x,
     stat: host.stat,
@@ -113,6 +190,16 @@ async function createTesterFs(base: string, options: TesterOptions) {
         resolvePath("node_modules", lib, "package.json"),
         (resolved.manifest as any).file.text,
       );
+
+      // Mount the library's own `tspconfig.yaml` (if any) so that features it opts into
+      // (e.g. `auto-decorators`) are honored when compiling against the virtual file system.
+      const tspconfigPath = resolvePath(resolved.path, "tspconfig.yaml");
+      try {
+        const tspconfig = await host.readFile(tspconfigPath);
+        fs.add(resolvePath("node_modules", lib, "tspconfig.yaml"), tspconfig.text);
+      } catch {
+        // No library tspconfig.yaml; nothing to mount.
+      }
     }
   }
 
@@ -301,8 +388,7 @@ async function createEmitterTesterInstance<Result>(
     const resolvedOptions: TestCompileOptions = {
       ...options,
       compilerOptions: {
-        ...params.compilerOptions,
-        ...options?.compilerOptions,
+        ...mergeCompilerOptions(params.compilerOptions, options?.compilerOptions),
         outputDir: "tsp-output",
         emit: [params.emitter],
       },
@@ -420,7 +506,7 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     const program = await coreCompile(
       fs.compilerHost,
       resolveVirtualPath("main.tsp"),
-      options?.compilerOptions,
+      mergeCompilerOptions(params.compilerOptions, options?.compilerOptions),
     );
     savedProgram = program;
     saved$ = $(program);

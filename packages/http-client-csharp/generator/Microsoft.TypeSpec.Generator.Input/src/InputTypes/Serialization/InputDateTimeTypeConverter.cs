@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDateTimeType? baseType = null;
             InputExternalTypeMetadata? external = null;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -40,7 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("wireType", options, ref wireType)
                     || reader.TryReadComplexType("baseType", options, ref baseType)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("external", options, ref external);
+                    || reader.TryReadComplexType("external", options, ref external)
+                    || reader.TryReadComplexType("experimental", options, ref experimental);
 
                 if (!isKnownProperty)
                 {
@@ -53,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             encode = encode ?? throw new JsonException("DateTime type must have encoding");
             wireType = wireType ?? throw new JsonException("DateTime type must have wireType");
 
-            var dateTimeType = new InputDateTimeType(new DateTimeKnownEncoding(encode), name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external };
+            var dateTimeType = new InputDateTimeType(new DateTimeKnownEncoding(encode), name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external, Experimental = experimental };
 
             if (id != null)
             {

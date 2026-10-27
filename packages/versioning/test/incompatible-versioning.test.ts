@@ -78,7 +78,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+          "'TestService.test::parameters.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
 
@@ -122,7 +122,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+          "'TestService.Template::parameters.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
 
@@ -311,6 +311,69 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar.foo' was removed in version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
+      });
+    });
+
+    it("emit diagnostic when referenced type is removed while property remains available", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed(Versions.v2)
+        model Target {}
+
+        @added(Versions.v1)
+        model Source {
+          target: Target;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Source.target' is referencing type 'TestService.Target' which does not exist in version 'v2'.",
+      });
+    });
+
+    it("uses explicit version values when a referenced type is removed", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            v1: "2021-01-01",
+            v2: "2022-01-01",
+          }
+
+          @removed(Versions.v2)
+          model Target {}
+
+          @added(Versions.v1)
+          model Source {
+            target: Target;
+          }
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Source.target' is referencing type 'TestService.Target' which does not exist in version '2022-01-01'.",
+      });
+      ok(diagnostics[0].codefixes?.some((fix) => fix.id === "remove-version-from-type"));
+    });
+
+    it("emit diagnostic when target is removed then re-added before source removal", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed(Versions.v2)
+        @added(Versions.v3)
+        model Target {}
+
+        @added(Versions.v1)
+        @removed(Versions.v4)
+        model Source {
+          target: Target;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Source.target' is referencing type 'TestService.Target' which does not exist in version 'v2'.",
       });
     });
 
@@ -689,6 +752,53 @@ describe("versioning: validate incompatible references", () => {
         message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
       });
     });
+
+    it.each([
+      "model Derived is OptionalProperties<Source>;",
+      "model Derived { ...OptionalProperties<Source>; }",
+      "@withOptionalProperties model Derived { @madeRequired(Versions.v2) name: string; }",
+      `
+        model Spread { ...Source; }
+        model Copy is Spread;
+        model Optional is OptionalProperties<Copy>;
+        model AfterSpread { ...Optional; }
+        model Derived is AfterSpread;
+      `,
+    ])("allows optionality changed from the declaration: %s", async (derived) => {
+      const diagnostics = await runner.diagnose(`
+        model Source {
+          @madeRequired(Versions.v2)
+          name: string;
+        }
+        ${derived}
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it.each([
+      `
+        @withOptionalProperties
+        model Derived { ...Source; }
+      `,
+      `
+        @withOptionalProperties
+        model Changed { ...Source; }
+        model Derived { ...Changed; }
+      `,
+    ])(
+      "cannot distinguish new augments when optionality differs from the declaration: %s",
+      async (derived) => {
+        const diagnostics = await runner.diagnose(`
+        model Source {
+          @madeRequired(Versions.v2)
+          name: string;
+        }
+        ${derived}
+        @@madeRequired(Derived.name, Versions.v2);
+      `);
+        expectDiagnosticEmpty(diagnostics);
+      },
+    );
   });
 
   describe("operations", () => {
@@ -713,7 +823,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+          "'TestService.test::parameters.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
   });
@@ -999,6 +1109,69 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was removed in version 'v4' but referencing type 'VersionedLib.Foo' removed in version 'v3'.",
+      });
+    });
+
+    it("emit diagnostic when later source removal cannot report repeated dependency removal", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @versioned(Versions)
+        namespace VersionedLib {
+          enum Versions {l1, l2}
+          @removed(Versions.l2)
+          model Foo {}
+        }
+
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l2)
+            v2,
+            @useDependency(VersionedLib.Versions.l2)
+            v3
+          }
+
+          @added(Versions.v1)
+          @removed(Versions.v3)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing type 'VersionedLib.Foo' which does not exist in version 'v2'.",
+      });
+    });
+
+    it("emit diagnostic when dependency mapping skips the target removal version", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @versioned(Versions)
+        namespace VersionedLib {
+          enum Versions {l1, l2, l3}
+          @removed(Versions.l2)
+          model Foo {}
+        }
+
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l3)
+            v2,
+            @useDependency(VersionedLib.Versions.l3)
+            v3
+          }
+
+          @added(Versions.v1)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing type 'VersionedLib.Foo' which does not exist in version 'v2'.",
       });
     });
 

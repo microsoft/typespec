@@ -1,21 +1,11 @@
-import {
-  Diagnostic,
-  getMediaTypeHint,
-  Model,
-  ModelProperty,
-  Program,
-  Type,
-  TypeKind,
-} from "@typespec/compiler";
+import type { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
+import { getMediaTypeHint } from "@typespec/compiler";
 import {
   type unsafe_MutatorWithNamespace as MutatorWithNamespace,
   unsafe_mutateSubgraphWithNamespace,
 } from "@typespec/compiler/experimental";
-import {
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-  TesterInstance,
-} from "@typespec/compiler/testing";
+import type { TesterInstance } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { deepStrictEqual, ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -27,7 +17,7 @@ import {
 } from "../src/experimental/merge-patch/helpers.js";
 import { isMergePatchBody } from "../src/experimental/merge-patch/internal.js";
 import { getAllHttpServices, getHttpService } from "../src/operations.js";
-import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
+import type { HttpOperation, RouteResolutionOptions } from "../src/types.js";
 import { diagnoseOperations, getOperationsWithServiceNamespace, Tester } from "./test-host.js";
 
 let runner: TesterInstance;

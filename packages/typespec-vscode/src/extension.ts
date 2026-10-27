@@ -2,7 +2,8 @@
 // sort-imports-ignore
 import "./pre-extension-activate.js";
 
-import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
+import type { ExtensionContext } from "vscode";
+import vscode, { commands, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { setTspLanguageClient, tspLanguageClient } from "./extension-context.js";
@@ -13,24 +14,22 @@ import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { getDirectoryPath, normalizePath } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
-import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
+import type { OperationTelemetryEvent } from "./telemetry/telemetry-event.js";
+import { TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import {
-  CodeActionCommand,
-  CommandName,
+import type {
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
   RestartServerCommandResult,
   Result,
-  ResultCode,
-  SettingName,
   TypeSpecExtensionApi,
 } from "./types.js";
+import { CodeActionCommand, CommandName, ResultCode, SettingName } from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
 import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
+import type { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 import {
   createTypeSpecProject,
-  InitTemplatesUrlSetting,
   registerInitTemplateUrls as registerInitTemplateUrlsInternal,
 } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
@@ -126,6 +125,13 @@ export async function activate(context: ExtensionContext) {
                 async (tel): Promise<ResultCode> => {
                   return await emitCode(context, uri, tel);
                 },
+                undefined,
+                (e) => {
+                  logger.error("Unexpected error when emitting code from TypeSpec.", [e], {
+                    showPopup: true,
+                  });
+                  return ResultCode.Fail;
+                },
               );
             },
           );
@@ -165,6 +171,14 @@ export async function activate(context: ExtensionContext) {
                     }
                   },
                   args?.activityId,
+                  (e) => {
+                    logger.error(
+                      "Unexpected error when restarting TypeSpec language server.",
+                      [e],
+                      { showPopup: true },
+                    );
+                    return { code: ResultCode.Fail };
+                  },
                 );
               },
             );
@@ -198,7 +212,26 @@ export async function activate(context: ExtensionContext) {
           await telemetryClient.doOperationWithTelemetry(
             TelemetryEventName.PreviewOpenApi3,
             async (tel): Promise<ResultCode> => {
-              return await showOpenApi3(uri, context, tspLanguageClient!, tel);
+              if (!tspLanguageClient || tspLanguageClient.state !== State.Running) {
+                logger.error(
+                  "TypeSpec language server is not running. Please restart the server.",
+                  [],
+                  { showPopup: true },
+                );
+                telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+                  error: "LSP client is not running",
+                });
+                tel.lastStep = "Check LSP client";
+                return ResultCode.Fail;
+              }
+              return await showOpenApi3(uri, context, tspLanguageClient, tel);
+            },
+            undefined,
+            (e) => {
+              logger.error("Unexpected error when previewing OpenAPI3.", [e], {
+                showPopup: true,
+              });
+              return ResultCode.Fail;
             },
           );
         }),
@@ -211,7 +244,15 @@ export async function activate(context: ExtensionContext) {
             await telemetryClient.doOperationWithTelemetry(
               TelemetryEventName.ServerPathSettingChanged,
               async (tel) => {
+                tel.lastStep = "Recreate LSP client for path change";
                 return await recreateLSPClient(context, tel.activityId);
+              },
+              undefined,
+              (e) => {
+                logger.error("Unexpected error when restarting server after path change.", [e], {
+                  showPopup: true,
+                });
+                return { code: ResultCode.Fail };
               },
             );
           }
@@ -275,6 +316,7 @@ export async function activate(context: ExtensionContext) {
             }
             // client will be undefined only when we can't find compiler locally or globally
             // otherwise, the client should always be created though the start command may fail which is a different case
+            ssTel.lastStep = "Compiler not found (prompting to install)";
             const choice: "Yes" | "Ignore" | undefined = await vscode.window.showWarningMessage(
               "No TypeSpec compiler found which is required to start TypeSpec language server. Do you want to install TypeSpec compiler?",
               "Yes",
@@ -314,17 +356,35 @@ export async function activate(context: ExtensionContext) {
                 { showPopup: true },
               );
               ssTel.lastStep = "Failed to install TypeSpec compiler.";
+            } else {
+              ssTel.lastStep = "Install TypeSpec compiler cancelled.";
             }
             return installResult.code;
           },
           tel.activityId,
+          (e) => {
+            logger.error("Unexpected error when starting TypeSpec language server.", [e], {
+              showPopup: true,
+            });
+            return ResultCode.Fail;
+          },
         );
       } else {
         logger.info("No workspace opened, Skip starting TypeSpec language service.");
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          compilerLocation: "skipped-no-workspace-or-tsp-file",
+        });
       }
       showStartUpMessages(stateManager);
       telemetryClient.sendDelayedTelemetryEvents();
       return ResultCode.Success;
+    },
+    undefined,
+    (e) => {
+      logger.error("Unexpected error when starting TypeSpec extension.", [e], {
+        showPopup: true,
+      });
+      return ResultCode.Fail;
     },
   );
 
@@ -339,36 +399,52 @@ export async function activate(context: ExtensionContext) {
 }
 
 export async function deactivate() {
-  await tspLanguageClient?.stop();
-  await clearOpenApi3PreviewTempFolders();
+  try {
+    await tspLanguageClient?.stop();
+    await clearOpenApi3PreviewTempFolders();
+  } catch (e) {
+    logger.error("Error during extension deactivation", [e]);
+  }
 }
 
 async function recreateLSPClient(
   context: ExtensionContext,
   activityId: string,
 ): Promise<Result<TspLanguageClient>> {
-  logger.info("Recreating TypeSpec LSP server...");
-  const oldClient = tspLanguageClient;
-  setTspLanguageClient(await TspLanguageClient.create(activityId, context, outputChannel));
-  await oldClient?.stop();
-  if (!tspLanguageClient) {
-    telemetryClient.logOperationDetailTelemetry(activityId, {
-      error: "Failed to create TspLanguageClient",
-    });
-    return { code: ResultCode.Fail, details: "Failed to create TspLanguageClient." };
-  } else {
-    await tspLanguageClient.start(activityId);
-    if (tspLanguageClient.state === State.Running) {
+  try {
+    logger.info("Recreating TypeSpec LSP server...");
+    const oldClient = tspLanguageClient;
+    setTspLanguageClient(await TspLanguageClient.create(activityId, context, outputChannel));
+    await oldClient?.stop();
+    if (!tspLanguageClient) {
       telemetryClient.logOperationDetailTelemetry(activityId, {
-        compilerVersion: tspLanguageClient.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+        error: "Failed to create TspLanguageClient. Compiler could not be resolved.",
       });
-      return { code: ResultCode.Success, value: tspLanguageClient };
+      return { code: ResultCode.Fail, details: "Failed to create TspLanguageClient." };
     } else {
-      telemetryClient.logOperationDetailTelemetry(activityId, {
-        error: `Failed to start TspLanguageClient.`,
-      });
-      return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+      await tspLanguageClient.start(activityId);
+      if (tspLanguageClient.state === State.Running) {
+        telemetryClient.logOperationDetailTelemetry(activityId, {
+          compilerVersion: tspLanguageClient.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+        });
+        return { code: ResultCode.Success, value: tspLanguageClient };
+      } else {
+        telemetryClient.logOperationDetailTelemetry(activityId, {
+          error: `Failed to start TspLanguageClient. State: ${tspLanguageClient.state}`,
+        });
+        return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+      }
     }
+  } catch (e) {
+    logger.error(
+      "TypeSpec language server is unavailable due to an unexpected error. Please restart the server.",
+      [e],
+      { showPopup: true },
+    );
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      error: `Unexpected error in recreateLSPClient: ${e}`,
+    });
+    return { code: ResultCode.Fail, details: `Unexpected error: ${e}` };
   }
 }
 

@@ -1,7 +1,8 @@
-import { Model, ModelProperty } from "@typespec/compiler";
+import type { Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { HttpOperation } from "../../../types.js";
+import type { HttpOperation } from "../../../types.js";
 
+/** Request property categories supported by `httpRequest.getParameters`; Content-Type is separate from headers. */
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
 /**
@@ -10,6 +11,7 @@ export type HttpRequestParameterKind = "query" | "header" | "path" | "contentTyp
  * @experimental
  */
 interface HttpRequestKit {
+  /** Queries about how the operation's request body was declared. */
   body: {
     /**
      * Checks the body is a property explicitly tagged with @body @bodyRoot or @multipartBody
@@ -34,6 +36,10 @@ interface HttpRequestKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Builds models from resolved HTTP request properties and inspects explicit body declarations.
+   * @experimental
+   */
   httpRequest: HttpRequestKit;
 }
 

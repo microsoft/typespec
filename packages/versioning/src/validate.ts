@@ -11,6 +11,7 @@ import {
   type Type,
   type TypeNameOptions,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import {
   $added,
   $removed,
@@ -23,6 +24,7 @@ import {
   getUseDependencies,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
+import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
 import {
@@ -35,12 +37,23 @@ import {
 
 const relationCacheKey = Symbol.for("TypeSpec.Versioning.NamespaceRelationCache");
 
+/**
+ * Gets cross-namespace references collected by the versioning validation hook,
+ * or `undefined` before it has run. An undefined key represents declarations
+ * without a containing namespace.
+ * The map and sets are owned by the program and should not be modified.
+ */
 export function getCachedNamespaceDependencies(
   program: Program,
 ): Map<Namespace | undefined, Set<Namespace>> | undefined {
   return (program as any)[relationCacheKey];
 }
 
+/**
+ * Compiler validation hook that caches namespace dependencies and reports
+ * incompatible versioned references and invalid versioning metadata.
+ * The compiler invokes this when the library is loaded; emitters need not call it.
+ */
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
@@ -266,13 +279,18 @@ function validateTypeAvailability(
         }
       }
     } else if (type.kind === "Union") {
+      // Only `|`-operator unions (UnionExpression) have anonymous, symbol-less
+      // variants with no decorators. Keyword-form unions (`union { ... }`) are also
+      // `expression: true` when used in expression position, but their variants can be
+      // named and decorated, so they must go through `validateTargetVersionCompatible`.
+      const isUnionOperatorExpression = type.node?.kind === SyntaxKind.UnionExpression;
       for (const variant of type.variants.values()) {
-        if (type.expression) {
+        if (isUnionOperatorExpression) {
           // Union expressions don't have decorators applied,
           // so we need to check the type directly.
           typesToCheck.push(variant.type);
         } else {
-          // Named unions can have decorators applied,
+          // Named/keyword unions can have decorators applied,
           // so we need to check that the variant type is valid
           // for whatever decoration the variant has.
           validateTargetVersionCompatible(program, variant, variant.type);
@@ -474,7 +492,7 @@ function validateVersionedPropertyNames(program: Program, source: Type) {
 }
 
 function validateMadeOptional(program: Program, target: Type) {
-  if (target.kind === "ModelProperty") {
+  if (target.kind === "ModelProperty" && !hasChangedOptionality(target)) {
     const madeOptionalOn = getMadeOptionalOn(program, target);
     if (!madeOptionalOn) {
       return;
@@ -494,7 +512,7 @@ function validateMadeOptional(program: Program, target: Type) {
 }
 
 function validateMadeRequired(program: Program, target: Type) {
-  if (target.kind === "ModelProperty") {
+  if (target.kind === "ModelProperty" && !hasChangedOptionality(target)) {
     const madeRequiredOn = getMadeRequiredOn(program, target);
     if (!madeRequiredOn) {
       return;
@@ -767,6 +785,44 @@ function findAvailabilityOnOrBeforeVersion(
   return undefined;
 }
 
+function isFirstUnavailableVersion(version: string, avail: Map<string, Availability>): boolean {
+  let previous: Availability | undefined;
+  for (const [key, current] of avail) {
+    if (key === version) {
+      return (
+        [Availability.Removed, Availability.Unavailable].includes(current) &&
+        previous !== undefined &&
+        [Availability.Added, Availability.Available].includes(previous)
+      );
+    }
+    previous = current;
+  }
+  return false;
+}
+
+function hasLaterSourceRemovalDiagnostic(
+  version: string,
+  sourceAvail: Map<string, Availability>,
+  targetAvail: Map<string, Availability>,
+): boolean {
+  let afterVersion = false;
+  for (const [key, sourceStatus] of sourceAvail) {
+    if (afterVersion) {
+      if (
+        sourceStatus === Availability.Removed &&
+        targetAvail.get(key) === Availability.Unavailable
+      ) {
+        return true;
+      }
+      continue;
+    }
+    if (key === version) {
+      afterVersion = true;
+    }
+  }
+  return false;
+}
+
 function validateAvailabilityForRef(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -839,6 +895,27 @@ function validateAvailabilityForRef(
         },
         target: source,
         codefixes: getVersionAdditionCodefixes(targetVersion, target, program),
+      });
+    }
+    if (
+      sourceVal === Availability.Available &&
+      isFirstUnavailableVersion(key, targetAvail) &&
+      !hasLaterSourceRemovalDiagnostic(key, sourceAvail, targetAvail)
+    ) {
+      const sourceVersion = getAllVersions(program, source)?.find(
+        (version) => version.name === key,
+      );
+      const versionValue = sourceVersion?.value ?? key;
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "doesNotExist",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          version: versionValue,
+        },
+        target: source,
+        codefixes: getVersionRemovalCodeFixes(versionValue, source, program),
       });
     }
     if (

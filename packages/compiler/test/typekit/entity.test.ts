@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Model } from "../../src/index.js";
+import type { Model } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";

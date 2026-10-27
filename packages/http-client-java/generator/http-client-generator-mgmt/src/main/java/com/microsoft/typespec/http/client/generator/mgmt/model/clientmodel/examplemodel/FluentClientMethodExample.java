@@ -12,9 +12,9 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Model of example for service client method (usually for Fluent Premium).
@@ -88,13 +88,25 @@ public class FluentClientMethodExample implements FluentMethodExample {
         String lastIdentifier = namespace.substring(namespace.lastIndexOf('.') + 1);
 
         // Guard against accidental premium code generation for non-premium libraries
-        if (!MANAGER_REFERENCE.containsKey(lastIdentifier)) {
+        if (!SUPPORTED_PREMIUM_PACKAGES.contains(lastIdentifier)) {
             throw new IllegalStateException("Package '" + namespace + "' is not supported by Fluent Premium");
         }
 
-        String serviceClientReference = ModelNaming.METHOD_SERVICE_CLIENT + "()";
+        String metadataSuffix = FluentStatic.getFluentJavaSettings().getMetadataSuffix().orElse(null);
+        String serviceClientReference = getServiceClientReference(lastIdentifier, metadataSuffix);
         String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
         return serviceClientReference + "." + methodGroupReference;
+    }
+
+    static String getServiceClientReference(String packageIdentifier, String metadataSuffix) {
+        if ("authorization".equals(packageIdentifier)) {
+            return "roleServiceClient()";
+        }
+        if ("resources".equals(packageIdentifier) && metadataSuffix != null) {
+            return RESOURCE_SERVICE_CLIENT_REFERENCES.getOrDefault(metadataSuffix,
+                ModelNaming.METHOD_SERVICE_CLIENT + "()");
+        }
+        return ModelNaming.METHOD_SERVICE_CLIENT + "()";
     }
 
     @Override
@@ -102,30 +114,12 @@ public class FluentClientMethodExample implements FluentMethodExample {
         return clientMethod.getName();
     }
 
-    private static final Map<String, String> MANAGER_REFERENCE = new HashMap<>();
-    static {
-        MANAGER_REFERENCE.put("appplatform", "springServices()");
-        MANAGER_REFERENCE.put("appservice", "webApps()");
-        MANAGER_REFERENCE.put("authorization", "accessManagement().roleAssignments()");
-        MANAGER_REFERENCE.put("cdn", "cdnProfiles()");
-        MANAGER_REFERENCE.put("compute", "virtualMachines()");
-        MANAGER_REFERENCE.put("containerinstance", "containerGroups()");
-        MANAGER_REFERENCE.put("containerregistry", "containerRegistries()");
-        MANAGER_REFERENCE.put("containerservice", "kubernetesClusters()");
-        MANAGER_REFERENCE.put("cosmos", "cosmosDBAccounts()");
-        MANAGER_REFERENCE.put("dns", "dnsZones()");
-        MANAGER_REFERENCE.put("eventhubs", "eventHubs()");
-        MANAGER_REFERENCE.put("keyvault", "vaults()");
-        MANAGER_REFERENCE.put("monitor", "diagnosticSettings()");
-        MANAGER_REFERENCE.put("msi", "identities()");
-        MANAGER_REFERENCE.put("network", "networks()");
-        MANAGER_REFERENCE.put("privatedns", "privateDnsZones()");
-        MANAGER_REFERENCE.put("redis", "redisCaches()");
-        MANAGER_REFERENCE.put("resources", "genericResources()");
-        MANAGER_REFERENCE.put("search", "searchServices()");
-        MANAGER_REFERENCE.put("servicebus", "serviceBusNamespaces()");
-        MANAGER_REFERENCE.put("sql", "sqlServers()");
-        MANAGER_REFERENCE.put("storage", "storageAccounts()");
-        MANAGER_REFERENCE.put("trafficmanager", "trafficManagerProfiles()");
-    }
+    private static final Set<String> SUPPORTED_PREMIUM_PACKAGES
+        = Set.of("appservice", "authorization", "cdn", "compute", "containerinstance", "containerregistry",
+            "containerservice", "cosmos", "dns", "eventhubs", "keyvault", "monitor", "msi", "network", "privatedns",
+            "redis", "resources", "search", "servicebus", "sql", "storage", "trafficmanager");
+
+    private static final Map<String, String> RESOURCE_SERVICE_CLIENT_REFERENCES = Map.of("feature", "featureClient()",
+        "policy", "policyClient()", "subscription", "subscriptionClient()", "lock", "managementLockClient()", "change",
+        "resourceChangeClient()", "databoundary", "dataBoundaryClient()", "deployments", "deploymentClient()");
 }

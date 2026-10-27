@@ -67,11 +67,237 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
+        [TestCaseSource(nameof(DateTimeParameterNameTestCases))]
+        public void MethodParameterNameNormalizesDateTimeSuffix(
+            string inputName,
+            InputType inputType,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputParameter = InputFactory.MethodParameter(
+                inputName,
+                inputType,
+                isRequired: true,
+                isExactName: isExactName);
+
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParameter);
+
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(expectedName, parameter!.Name);
+            Assert.AreEqual(inputName, parameter.WireInfo.SerializedName);
+        }
+
+        [TestCase("IPv4Routes", "ipv4Routes")]
+        [TestCase("iPv4Routes", "iPv4Routes")]
+        [TestCase("regularName", "regularName")]
+        public void VariableNamePreservesExistingCamelCase(string name, string expected)
+        {
+            var parameter = new ParameterProvider(name, $"Description", typeof(string));
+
+            Assert.AreEqual(expected, parameter.AsVariable().Declaration.RequestedName);
+        }
+
+        [TestCase("sourceIpAddress", "sourceIPAddress")]
+        [TestCase("targetDbName", "targetDBName")]
+        [TestCase("guestOsType", "guestOSType")]
+        [TestCase("ipV4Address", "ipv4Address")]
+        [TestCase("ipV6Address", "ipv6Address")]
+        [TestCase("iPv4Address", "ipv4Address")]
+        [TestCase("iPv6Address", "ipv6Address")]
+        [TestCase("sourceIpv4Address", "sourceIPv4Address")]
+        [TestCase("sourceIpV6Address", "sourceIPv6Address")]
+        [TestCase("sourceIpIpDbOs", "sourceIPIPDBOS")] // cspell:ignore IPIPDBOS
+        public void MethodParameterNameNormalizesAcronyms(string name, string expected)
+            => AssertNormalizedMethodParameter(name, expected);
+
+        [TestCase("ipAddress")]
+        [TestCase("dbName")]
+        [TestCase("osType")]
+        [TestCase("ipv4Address")]
+        [TestCase("ipv6Address")]
+        [TestCase("sourceIPv4Address")]
+        [TestCase("sourceIPAddress")]
+        [TestCase("targetDBName")]
+        [TestCase("guestOSType")]
+        public void MethodParameterNamePreservesCanonicalAcronyms(string name)
+            => AssertNormalizedMethodParameter(name, name);
+
+        [TestCase("sourceIpad")]
+        [TestCase("targetDbase")] // cspell:ignore Dbase
+        [TestCase("guestOstrich")]
+        [TestCase("sourceIpv4address")]
+        [TestCase("sourceIp2Address")]
+        public void MethodParameterNamePreservesNonAcronymSubstrings(string name)
+            => AssertNormalizedMethodParameter(name, name);
+
+        private static void AssertNormalizedMethodParameter(string name, string expected)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter(name, InputPrimitiveType.String, isRequired: true);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(expected, parameter.Name);
+            Assert.AreEqual(expected, parameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(expected, parameter.ToPublicInputParameter().Name);
+            Assert.AreEqual(name, parameter.WireInfo.SerializedName);
+            Assert.AreEqual(name, input.Name);
+        }
+
+        [TestCase("sourceIpAddress")]
+        [TestCase("targetDbName")]
+        [TestCase("guestOsType")]
+        [TestCase("iPv4Address")]
+        [TestCase("iPv6Address")]
+        public void ExactMethodParameterNameDoesNotNormalizeAcronyms(string name)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter(name, InputPrimitiveType.String, isExactName: true);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(name, parameter.Name);
+            Assert.AreEqual(name, parameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(name, parameter.ToPublicInputParameter().Name);
+        }
+
+        [Test]
+        public void ClientParameterNamePreservesAcronyms(
+            [Values("sourceIpAddress", "targetDbName", "guestOsType", "iPv4Address")] string name,
+            [Values(false, true)] bool isExactName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter(
+                name, InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, isExactName: isExactName);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(name, parameter.Name);
+            Assert.AreEqual(name, parameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(name, parameter.ToPublicInputParameter().Name);
+            Assert.AreEqual(name, parameter.WireInfo.SerializedName);
+        }
+
+        [TestCase("startTime", "startsOn")]
+        [TestCase("sourceIpCreationTime", "sourceIpCreatedOn")]
+        public void ClientParameterNameRetainsDateTimeNormalization(string name, string expected)
+        {
+            MockHelpers.LoadMockGenerator();
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String);
+            var input = InputFactory.MethodParameter(name, dateTime, isRequired: true, scope: InputParameterScope.Client);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(expected, parameter.Name);
+            Assert.AreEqual(expected, parameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(name, parameter.WireInfo.SerializedName);
+        }
+
+        [Test]
+        public void IndependentlyCreatedParametersPreserveMetadata()
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter("iPv4Address", InputPrimitiveType.String, isExactName: true);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+            var variable = parameter.AsVariable();
+            var independentParameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(parameter, independentParameter);
+            Assert.AreSame(input, independentParameter.InputParameter);
+            Assert.AreEqual(parameter.WireInfo.SerializedName, independentParameter.WireInfo.SerializedName);
+            Assert.AreEqual(parameter.IsExactName, independentParameter.IsExactName);
+            Assert.AreEqual(parameter.DefaultValue, independentParameter.DefaultValue);
+            Assert.AreEqual(parameter.Validation, independentParameter.Validation);
+            Assert.AreNotSame(variable, independentParameter.AsVariable());
+
+            independentParameter.Update(name: "publishedIPv4Address");
+            Assert.AreEqual("publishedIPv4Address", independentParameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual("iPv4Address", parameter.Name);
+            Assert.AreEqual("iPv4Address", variable.Declaration.RequestedName);
+        }
+
+        [Test]
+        public void PublicInputVariantPreservesMetadataWithIndependentVariable()
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter(
+                "iPv4Addresses", InputFactory.Array(InputPrimitiveType.String), isExactName: true);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+            var variable = parameter.AsVariable();
+            var inputVariant = parameter.ToPublicInputParameter();
+
+            Assert.AreEqual(parameter.Name, inputVariant.Name);
+            Assert.IsTrue(inputVariant.Type.Equals(typeof(IEnumerable<string>)));
+            Assert.AreNotSame(variable, inputVariant.AsVariable());
+            Assert.AreEqual(inputVariant.Type, inputVariant.AsVariable().Type);
+            Assert.AreEqual(variable.Declaration.RequestedName, inputVariant.AsVariable().Declaration.RequestedName);
+            Assert.AreSame(input, inputVariant.InputParameter);
+            Assert.AreSame(parameter.WireInfo, inputVariant.WireInfo);
+            Assert.AreEqual(parameter.IsExactName, inputVariant.IsExactName);
+            Assert.AreEqual(parameter.DefaultValue, inputVariant.DefaultValue);
+            Assert.AreEqual(parameter.Validation, inputVariant.Validation);
+            Assert.AreSame(inputVariant, parameter.ToPublicInputParameter());
+
+            inputVariant.Update(name: "publishedIPv4Addresses");
+            Assert.AreEqual("publishedIPv4Addresses", inputVariant.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual("iPv4Addresses", parameter.Name);
+            Assert.AreEqual("iPv4Addresses", variable.Declaration.RequestedName);
+        }
+
         private static IEnumerable<InputType> ValueInputTypes()
         {
             yield return InputPrimitiveType.Int32;
             yield return InputPrimitiveType.Float32;
             yield return InputFactory.Int32Enum("inputEnum", [("foo", 1)], isExtensible: true);
+        }
+
+        private static IEnumerable<TestCaseData> DateTimeParameterNameTestCases()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+
+            var testCases = new (string Name, InputType Type, string NormalizedName)[]
+            {
+                ("startTime", dateTime, "startsOn"),
+                ("sourceIpCreationTime", dateTime, "sourceIPCreatedOn"),
+                ("ipStartTime", dateTime, "ipStartsOn"),
+                ("endTime", dateTime, "endsOn"),
+                ("startOn", dateTime, "startsOn"),
+                ("endOn", dateTime, "endsOn"),
+                ("firstTimestamp", dateTime, "firstTimestamp"),
+                ("lastTimestamp", dateTime, "lastTimestamp"),
+                ("createdAt", dateTime, "createdOn"),
+                ("timestamp", dateTime, "timestamp"),
+                ("date", InputPrimitiveType.PlainDate, "date"),
+                ("modifiedAt", dateTime.WithNullable(true), "modifiedOn"),
+                ("expirationDate", dateTime, "expiresOn"),
+                ("creationDate", dateTime, "createdOn"),
+                ("creationTime", dateTime, "createdOn"),
+                ("expirationDateTime", dateTime.WithNullable(true), "expiresOn"),
+                ("deletionDateTime", dateTime, "deletedOn"),
+                ("modificationTime", dateTime, "modifiedOn"),
+                ("modelExpirationDate", dateTime, "modelExpiresOn"),
+                ("accountExpirationDate", dateTime, "accountExpiresOn"),
+                ("accessTierChangeTime", dateTime, "accessTierChangedOn"),
+                ("statusTimestamp", dateTime.WithNullable(true), "statusTimestamp"),
+                ("lastSyncTimestamp", dateTime, "lastSyncOn"),
+                ("totalTime", dateTime, "totalTime"),
+                ("topicTimestamp", dateTime.WithNullable(true), "topicTimestamp"),
+                ("tokenExpirationDate", dateTime, "tokenExpirationDate"),
+                ("fromTime", dateTime, "fromTime"),
+                ("toDate", dateTime, "toDate"),
+                ("pointInTime", dateTime, "pointInTime"),
+                ("recoveryPointInTime", dateTime, "recoveryPointInTime"),
+                ("startTime", InputPrimitiveType.String, "startTime"),
+                ("creationTimestamp", InputPrimitiveType.String, "creationTimestamp")
+            };
+
+            foreach (var testCase in testCases)
+            {
+                yield return new TestCaseData(testCase.Name, testCase.Type, false, testCase.NormalizedName);
+                yield return new TestCaseData(testCase.Name, testCase.Type, true, testCase.Name);
+            }
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()
@@ -123,6 +349,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(parameter.WireInfo, publicParameter.WireInfo);
 
             Assert.AreEqual(parameter.Type.InputType, publicParameter.Type);
+        }
+
+        [Test]
+        public void ToPublicInputParameterDoesNotShareVariable()
+        {
+            var parameter = new ParameterProvider("isEnabled", $"Description", typeof(bool));
+            var variable = parameter.AsVariable();
+            var publicParameter = parameter.ToPublicInputParameter();
+            var publicVariable = publicParameter.AsVariable();
+
+            publicParameter.Update(name: "enabled");
+
+            Assert.AreEqual("isEnabled", parameter.Name);
+            Assert.AreEqual("isEnabled", variable.Declaration.RequestedName);
+            Assert.AreEqual("enabled", publicVariable.Declaration.RequestedName);
+            Assert.AreSame(variable, parameter.AsVariable());
+            Assert.AreSame(publicVariable, publicParameter.AsVariable());
         }
 
         [Test]

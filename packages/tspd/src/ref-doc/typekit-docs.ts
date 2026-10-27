@@ -1,13 +1,14 @@
+import type { ApiDocumentedItem, Excerpt } from "@microsoft/api-extractor-model";
 import {
-  ApiDocumentedItem,
   ApiInterface,
   ApiMethodSignature,
   ApiProperty,
   ApiPropertySignature,
-  Excerpt,
 } from "@microsoft/api-extractor-model";
-import { DocNode, type DocComment, type DocSection } from "@microsoft/tsdoc";
-import { joinPaths, PackageJson } from "@typespec/compiler";
+import type { DocNode } from "@microsoft/tsdoc";
+import { type DocComment, type DocSection } from "@microsoft/tsdoc";
+import type { PackageJson } from "@typespec/compiler";
+import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { createApiModel } from "./api-extractor.js";
 import { createTypekitDocs } from "./components/typekits-file.js";
@@ -65,6 +66,13 @@ export interface TsFunctionParameter {
   typeExcerpt: Excerpt;
 }
 
+/**
+ * Writes Markdown pages for interfaces tagged `@typekit` in the first matching typekit export.
+ * Uses API Extractor on the library's built declarations and writes its intermediate API model
+ * under the library's `temp` directory. Requires a package `exports` map; when that map has no
+ * typekit export, returns without writing pages.
+ * @param outputDir Existing destination directory; matching generated pages are overwritten.
+ */
 export async function writeTypekitDocs(libraryPath: string, outputDir: string): Promise<void> {
   const pkgJson = await readPackageJson(libraryPath);
 

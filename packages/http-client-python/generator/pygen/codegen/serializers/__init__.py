@@ -33,6 +33,7 @@ from .patch_serializer import PatchSerializer
 from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
+from .unions_serializer import UnionsSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
 from .utils import extract_sample_name, get_namespace_from_package_name, get_namespace_config, hash_file_import
 
@@ -42,15 +43,15 @@ __all__ = [
     "JinjaSerializer",
 ]
 
-_PACKAGE_FILES = [
+_DEFAULT_PACKAGE_FILES = (
     "CHANGELOG.md.jinja2",
     "dev_requirements.txt.jinja2",
     "LICENSE.jinja2",
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
-]
+)
 
-_REGENERATE_FILES = {"MANIFEST.in"}
+_DEFAULT_REGENERATE_FILES = frozenset({"MANIFEST.in"})
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
 
@@ -75,15 +76,17 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         super().__init__(output_folder=output_folder, **kwargs)
         self.code_model = code_model
+        self._package_files: list[str] = list(_DEFAULT_PACKAGE_FILES)
+        self._regenerate_files: set[str] = set(_DEFAULT_REGENERATE_FILES)
         self._regenerate_setup_py()
 
     def _regenerate_setup_py(self):
         if self.code_model.options["keep-setup-py"] or self.code_model.options["basic-setup-py"]:
-            _PACKAGE_FILES.append("setup.py.jinja2")
-            _REGENERATE_FILES.add("setup.py")
+            self._package_files.append("setup.py.jinja2")
+            self._regenerate_files.add("setup.py")
         else:
-            _PACKAGE_FILES.append("pyproject.toml.jinja2")
-            _REGENERATE_FILES.add("pyproject.toml")
+            self._package_files.append("pyproject.toml.jinja2")
+            self._regenerate_files.add("pyproject.toml")
 
     @property
     def has_aio_folder(self) -> bool:
@@ -118,7 +121,7 @@ class JinjaSerializer(ReaderAndWriter):
             # If parsing the version fails, we assume the version file is not valid and overwrite.
             return False
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-statements
     def serialize(self) -> None:
         # remove existing folders when generate from tsp
         if self.code_model.is_tsp and self.code_model.options.get("clear-output-folder"):
@@ -198,23 +201,44 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _utils/py.typed/_types.py/_validation.py
+            # _utils/py.typed/_unions.py/types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
-            if (
-                self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
-            ) and self.code_model.options["models-mode"]:
+            is_typeddict_mode = self.code_model.generate_typeddict_only
+            if (self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums) and (
+                self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
+            ):
                 self._serialize_and_write_models_folder(
                     env=env,
                     namespace=client_namespace,
                     models=client_namespace_type.models,
-                    enums=client_namespace_type.enums,
+                    enums=[] if is_typeddict_mode else client_namespace_type.enums,
                 )
 
-            if not self.code_model.options["models-mode"]:
+            # write types.py per namespace (alongside models/)
+            # Only generate types.py if at least one model/enum would be imported via types
+            # in operations (the model itself volunteers this via is_used_in_operations_via_types)
+            has_types_models = any(
+                m.is_used_in_operations_via_types for m in client_namespace_type.models if m.base != "json"
+            )
+            has_types_enums = any(e.is_typeddict_mode for e in client_namespace_type.enums)
+            if has_types_models or has_types_enums:
+                generation_dir = self.code_model.get_generation_dir(client_namespace)
+                self.write_file(
+                    generation_dir / Path("types.py"),
+                    TypesSerializer(
+                        code_model=self.code_model,
+                        env=env,
+                        client_namespace=client_namespace,
+                        models=client_namespace_type.models,
+                        enums=client_namespace_type.enums if is_typeddict_mode else None,
+                    ).serialize(),
+                )
+
+            if not self.code_model.options["models-mode"] and not self.code_model.generate_typeddict_only:
                 # keep models file if users ended up just writing a models file
                 model_path = generation_path / Path("models.py")
                 if self.read_file(model_path):
@@ -253,7 +277,7 @@ class JinjaSerializer(ReaderAndWriter):
                 lstrip_blocks=True,
             )
 
-            package_files = list(_PACKAGE_FILES)  # Copy to avoid modifying global
+            package_files = list(self._package_files)
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package-mode"]).exists():
@@ -272,7 +296,7 @@ class JinjaSerializer(ReaderAndWriter):
                 continue
             file = template_name.replace(".jinja2", "")
             output_file = root_of_sdk / file
-            if not self.read_file(output_file) or file in _REGENERATE_FILES:
+            if not self.read_file(output_file) or file in self._regenerate_files:
                 if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
                     # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
@@ -296,11 +320,19 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
-        serializer = DpgModelSerializer if self.code_model.options["models-mode"] == "dpg" else MsrestModelSerializer
-        if self.code_model.has_non_json_models(models):
+        models_mode = self.code_model.options["models-mode"]
+        if models_mode == "dpg" or self.code_model.generate_typeddict_only:
+            serializer = DpgModelSerializer
+        else:
+            serializer = MsrestModelSerializer
+        # Filter out typed-dict-only models and typeddict copies — they only appear in types.py, not as model classes
+        class_models = [m for m in models if not m.is_typed_dict_only and m.base != "typeddict"]
+        if self.code_model.has_non_json_models(class_models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
-                serializer(code_model=self.code_model, env=env, client_namespace=namespace, models=models).serialize(),
+                serializer(
+                    code_model=self.code_model, env=env, client_namespace=namespace, models=class_models
+                ).serialize(),
             )
         if enums:
             self.write_file(
@@ -311,7 +343,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
         self.write_file(
             models_path / Path("__init__.py"),
-            ModelInitSerializer(code_model=self.code_model, env=env, models=models, enums=enums).serialize(),
+            ModelInitSerializer(code_model=self.code_model, env=env, models=class_models, enums=enums).serialize(),
         )
 
         self._keep_patch_file(models_path / Path("_patch.py"), env)
@@ -440,7 +472,9 @@ class JinjaSerializer(ReaderAndWriter):
             # when there is client.py, there must be __init__.py
             self.write_file(
                 generation_path / Path(f"{async_path}__init__.py"),
-                general_serializer.serialize_init_file([c for c in clients if c.has_operations]),
+                general_serializer.serialize_init_file(
+                    [c for c in clients if c.has_operations],
+                ),
             )
 
             # if there was a patch file before, we keep it
@@ -491,6 +525,13 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_model_base_file(),
             )
 
+        # write _utils/streaming_base.py (vendored Stream/AsyncStream + JSONL/SSE decoders)
+        if self.code_model.has_structured_stream:
+            self.write_file(
+                utils_folder_path / Path("streaming_base.py"),
+                general_serializer.serialize_streaming_base_file(),
+            )
+
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         root_dir = self.code_model.get_root_dir()
         generation_dir = self.code_model.get_generation_dir(namespace)
@@ -500,29 +541,31 @@ class JinjaSerializer(ReaderAndWriter):
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
         # write _version.py
+        # Always write at root namespace since pyproject.toml references it there
         self._serialize_and_write_version_file(general_serializer)
-        # if there's a subdir, we need to write another version file in the subdir
         if self.code_model.options.get("generation-subdir"):
             self._serialize_and_write_version_file(general_serializer, namespace)
 
         # write the empty py.typed file
+        # Always write at root namespace since MANIFEST.in references it there
         pytyped_value = "# Marker file for PEP 561."
         self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
-        # Use generation_dir so that relative imports from operations/clients
-        # within a generation-subdir resolve correctly.
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
                 generation_dir / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
             )
 
-        # write _types.py
+        # write _unions.py
         if self.code_model.named_unions:
             self.write_file(
-                generation_dir / Path("_types.py"),
-                TypesSerializer(code_model=self.code_model, env=env).serialize(),
+                generation_dir / Path("_unions.py"),
+                UnionsSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                ).serialize(),
             )
 
     # pylint: disable=line-too-long

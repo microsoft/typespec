@@ -1,13 +1,13 @@
 import { printIdentifier } from "@typespec/compiler";
-import { Refable, SupportedOpenAPISchema } from "../../../../types.js";
-import {
+import type { Refable, SupportedOpenAPISchema } from "../../../../types.js";
+import type {
   TypeSpecDataTypes,
   TypeSpecDecorator,
   TypeSpecEnum,
   TypeSpecModelProperty,
   TypeSpecUnion,
 } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { Context } from "../utils/context.js";
 import { getDecoratorsForSchema, getDirectivesForSchema } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
@@ -106,12 +106,19 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     const encoding = isModelReferencedAsMultipartRequestBody
       ? context.getMultipartSchemaEncoding(refName)
       : undefined;
+    const decorators = [...getDecoratorsForSchema(effectiveSchema, context)];
+    if (
+      context.isErrorResponseSchema(refName) &&
+      !decorators.some((decorator) => decorator.name === "error")
+    ) {
+      decorators.push({ name: "error", args: [] });
+    }
     types.push({
       kind: "model",
       name,
       scope,
       directives: [...getDirectivesForSchema(effectiveSchema)],
-      decorators: [...getDecoratorsForSchema(effectiveSchema, context)],
+      decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
         ...("$ref" in effectiveSchema

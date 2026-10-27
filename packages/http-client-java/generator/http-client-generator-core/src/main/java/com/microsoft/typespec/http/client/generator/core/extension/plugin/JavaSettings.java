@@ -89,33 +89,11 @@ public class JavaSettings {
      */
     public static JavaSettings getInstance() {
         if (instance == null) {
-            AutorestSettings autorestSettings = new AutorestSettings();
-            loadStringSetting("title", autorestSettings::setTitle);
-            loadStringOrArraySettingAsArray("security", autorestSettings::setSecurity);
-            loadStringOrArraySettingAsArray("security-scopes", autorestSettings::setSecurityScopes);
-            loadStringSetting("security-header-name", autorestSettings::setSecurityHeaderName);
-
-            loadStringSetting("tag", autorestSettings::setTag);
-            loadStringSetting("base-folder", autorestSettings::setBaseFolder);
-            loadStringSetting("output-folder", autorestSettings::setOutputFolder);
-            loadStringSetting("java-sdks-folder", autorestSettings::setJavaSdksFolder);
-            // input-file
-            List<String> inputFiles
-                = host.getValueWithJsonReader("input-file", jsonReader -> jsonReader.readArray(JsonReader::getString));
-            if (inputFiles != null) {
-                autorestSettings.getInputFiles().addAll(inputFiles);
-                logger.debug("List of input files : {}", autorestSettings.getInputFiles());
-            }
-            // require (readme.md etc.)
-            List<String> require
-                = host.getValueWithJsonReader("require", jsonReader -> jsonReader.readArray(JsonReader::getString));
-            if (require != null) {
-                autorestSettings.getRequire().addAll(require);
-                logger.debug("List of require : {}", autorestSettings.getRequire());
-            }
+            ProjectSettings projectSettings = new ProjectSettings();
+            loadStringSetting("output-folder", projectSettings::setOutputFolder);
 
             setHeader(getStringValue(host, "license-header"));
-            instance = new JavaSettings(autorestSettings);
+            instance = new JavaSettings(projectSettings);
         }
         return instance;
     }
@@ -136,10 +114,10 @@ public class JavaSettings {
     /**
      * Create a new JavaSettings object with the provided properties.
      *
-     * @param autorestSettings The autorest settings.
+     * @param projectSettings The project settings.
      */
-    private JavaSettings(AutorestSettings autorestSettings) {
-        this.autorestSettings = autorestSettings;
+    private JavaSettings(ProjectSettings projectSettings) {
+        this.projectSettings = projectSettings;
 
         // The modeler settings.
         this.modelerSettings = new ModelerSettings(
@@ -335,6 +313,8 @@ public class JavaSettings {
         // If set to true, sync methods are generated using sync stack. i.e these methods do not use sync-over-async
         // stack.
         this.syncStackEnabled = getBooleanValue(host, "enable-sync-stack", false);
+
+        this.modelMaxOverload = "model".equalsIgnoreCase(getStringValue(host, "max-overload"));
 
         // If set to true, the models that are determined as output only models will be made immutable without any
         // public constructors or setter methods.
@@ -689,15 +669,15 @@ public class JavaSettings {
         return modelerSettings;
     }
 
-    private final AutorestSettings autorestSettings;
+    private final ProjectSettings projectSettings;
 
     /**
-     * The settings that are used by the AutoRest generator.
+     * The settings that are used by the project generator.
      *
-     * @return The settings that are used by the AutoRest generator.
+     * @return The settings that are used by the project generator.
      */
-    public AutorestSettings getAutorestSettings() {
-        return autorestSettings;
+    public ProjectSettings getProjectSettings() {
+        return projectSettings;
     }
 
     /**
@@ -1260,6 +1240,17 @@ public class JavaSettings {
         return syncStackEnabled;
     }
 
+    private final boolean modelMaxOverload;
+
+    /**
+     * Whether to generate maximum WithResponse overloads that use strongly typed models.
+     *
+     * @return Whether model-based maximum WithResponse overloads are enabled.
+     */
+    public boolean isModelMaxOverload() {
+        return modelMaxOverload;
+    }
+
     private final boolean clientBuilderDisabled;
 
     /**
@@ -1586,26 +1577,5 @@ public class JavaSettings {
             SIMPLE_JAVA_SETTINGS.put(settingName, ret);
             return ret;
         }
-    }
-
-    private static void loadStringOrArraySettingAsArray(String settingName, Consumer<List<String>> action) {
-        host.getValue(settingName, jsonString -> {
-            if (jsonString == null) {
-                return null;
-            } else if (jsonString.startsWith("[")) {
-                // Array values will need to be parsed.
-                try (JsonReader jsonReader = JsonReader.fromString(jsonString)) {
-                    List<String> settingValueList = jsonReader.readArray(JsonReader::getString);
-                    logger.debug("Option, array, {} : {}", settingName, settingValueList);
-                    action.accept(settingValueList);
-                }
-            } else {
-                // Single values will be returned as the string representation.
-                logger.debug("Option, string, {} : {}", settingName, jsonString);
-                action.accept(List.of(jsonString));
-            }
-
-            return null;
-        });
     }
 }

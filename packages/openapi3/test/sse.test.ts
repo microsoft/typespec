@@ -1,7 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import { OpenAPIDocument3_2 } from "../src/types.js";
+import type { OpenAPIDocument3_2 } from "../src/types.js";
 import { ApiTester } from "./test-host.js";
 
 // Use ApiTester with SSE-specific imports

@@ -5,6 +5,7 @@ export interface RepoConfig {
   };
   labels: LabelsConfig;
   areaPaths: Record<string, string[]>;
+  externalOwners: Record<string, string[]>;
 }
 
 export interface LabelsConfig {

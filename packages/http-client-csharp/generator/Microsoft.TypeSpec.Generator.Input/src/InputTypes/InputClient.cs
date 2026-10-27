@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, false, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null, null) { }
 
         public string Name { get; internal set; }
+        public bool IsExactName { get; internal set; }
         public string Namespace { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Summary { get; internal set; }
@@ -50,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputClient? Parent { get; internal set; }
         public IReadOnlyList<InputClient> Children { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public InputExperimentalDetails? Experimental { get; internal set; }
         public IReadOnlyList<string> ApiVersions { get; internal set; }
 
         public string Key

@@ -1,5 +1,5 @@
 import { Caption1, Text } from "@fluentui/react-components";
-import { FunctionComponent, ReactElement } from "react";
+import type { FunctionComponent, ReactElement } from "react";
 import style from "./info-table.module.css";
 
 export const InfoReport = ({ children }: { children: ReactElement<InfoEntryProps>[] }) => {

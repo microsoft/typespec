@@ -1,8 +1,5 @@
-import {
-  EmitterTesterInstance,
-  expectDiagnostics,
-  TestEmitterCompileResult,
-} from "@typespec/compiler/testing";
+import type { EmitterTesterInstance, TestEmitterCompileResult } from "@typespec/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { beforeEach, it } from "vitest";
 import { EmitterTester, getStandardService } from "./test-host.js";
 

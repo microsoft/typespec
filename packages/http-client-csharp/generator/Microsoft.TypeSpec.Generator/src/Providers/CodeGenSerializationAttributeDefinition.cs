@@ -11,16 +11,13 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class CodeGenSerializationAttributeDefinition : TypeProvider
+    internal class CodeGenSerializationAttributeDefinition : CustomCodeAttributeDefinition
     {
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "CodeGenSerializationAttribute";
 
         protected override string BuildNamespace() => CodeModelGenerator.CustomizationAttributeNamespace;
-
-        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
-        private protected sealed override NamedTypeSymbolProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;

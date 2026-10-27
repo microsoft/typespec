@@ -5,7 +5,7 @@ import { createConsoleSink } from "./logger/index.js";
 import { NodeSystemHost } from "./node-system-host.js";
 import { joinPaths } from "./path-utils.js";
 import { getSourceFileKindFromExt } from "./source-file.js";
-import { CompilerHost } from "./types.js";
+import type { CompilerHost } from "./types.js";
 
 export const CompilerPackageRoot = (await findProjectRoot(stat, fileURLToPath(import.meta.url)))!;
 

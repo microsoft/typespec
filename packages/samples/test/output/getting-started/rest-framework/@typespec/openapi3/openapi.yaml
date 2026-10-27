@@ -1,0 +1,200 @@
+openapi: 3.0.0
+info:
+  title: Widget Service
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    post:
+      operationId: WidgetService_create
+      description: Creates a new instance of the resource.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetCreate'
+    get:
+      operationId: WidgetService_list
+      description: Lists all instances of the resource.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetCollectionWithNextLink'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /customGet:
+    get:
+      operationId: WidgetService_customGet
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+  /{id}:
+    get:
+      operationId: WidgetService_get
+      description: Gets an instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/WidgetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      operationId: WidgetService_update
+      description: Updates an existing instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/WidgetKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetUpdate'
+    delete:
+      operationId: WidgetService_delete
+      description: Deletes an existing instance of the resource.
+      parameters:
+        - $ref: '#/components/parameters/WidgetKey'
+      responses:
+        '200':
+          description: Resource deleted successfully.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  parameters:
+    WidgetKey:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    Widget:
+      type: object
+      required:
+        - id
+        - weight
+        - color
+      properties:
+        id:
+          type: string
+        weight:
+          type: integer
+          format: int32
+        color:
+          type: string
+          enum:
+            - red
+            - blue
+    WidgetCollectionWithNextLink:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Widget'
+          description: The items on this page
+        nextLink:
+          type: string
+          format: uri
+          description: The link to the next page of items
+      description: Paged response of Widget items
+    WidgetCreate:
+      type: object
+      required:
+        - weight
+        - color
+      properties:
+        weight:
+          type: integer
+          format: int32
+        color:
+          type: string
+          enum:
+            - red
+            - blue
+      description: Resource create operation model.
+    WidgetUpdate:
+      type: object
+      properties:
+        weight:
+          type: integer
+          format: int32
+        color:
+          type: string
+          enum:
+            - red
+            - blue
+      description: Resource create or update operation model.

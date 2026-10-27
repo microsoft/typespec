@@ -1,19 +1,18 @@
-import { code, For, join, List, Refkey, refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { code, For, join, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  getSourceLocation,
+import type {
   IntrinsicScalarName,
-  isArrayModelType,
-  isUnknownType,
   MixedParameterConstraint,
   Model,
   Program,
   Scalar,
-  type Type,
 } from "@typespec/compiler";
-import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import { getSourceLocation, isArrayModelType, isUnknownType, type Type } from "@typespec/compiler";
+import type { DocTag } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature } from "../types.js";
+import type { DecoratorSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
 
 export interface DecoratorSignatureProps {
@@ -33,24 +32,22 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name: decorator.target.name,
       type: <TargetParameterTsType type={decorator.target.type.type} />,
     },
-    ...decorator.parameters.map(
-      (param): ts.ParameterDescriptor => ({
-        // https://github.com/alloy-framework/alloy/issues/144
-        name: param.rest ? `...${param.name}` : param.name,
-        type: param.rest ? (
-          <>
-            (
-            {param.type ? (
-              <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
-            ) : undefined}
-            )[]
-          </>
-        ) : (
-          <ParameterTsType constraint={param.type} />
-        ),
-        optional: param.optional,
-      }),
-    ),
+    ...decorator.parameters.map((param): ts.ParameterDescriptor => ({
+      // https://github.com/alloy-framework/alloy/issues/144
+      name: param.rest ? `...${param.name}` : param.name,
+      type: param.rest ? (
+        <>
+          (
+          {param.type ? (
+            <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
+          ) : undefined}
+          )[]
+        </>
+      ) : (
+        <ParameterTsType constraint={param.type} />
+      ),
+      optional: param.optional,
+    })),
   ];
   return (
     <ts.TypeDeclaration
@@ -117,7 +114,7 @@ export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
   return typespecCompiler.Type;
 }
 
-function TargetParameterTsType(props: { type: Type | undefined }) {
+export function TargetParameterTsType(props: { type: Type | undefined }) {
   const type = props.type;
   if (type === undefined) {
     return typespecCompiler.Type;
@@ -238,7 +235,7 @@ function ValueOfModelTsType({ model }: { model: Model }) {
 
 export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
   return (
-    <List joiner=";" enderPunctuation>
+    <List semicolon hardline enderPunctuation>
       {model.indexer?.value && (
         <ts.InterfaceMember
           readonly
@@ -250,6 +247,7 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
         {(x) => (
           <ts.InterfaceMember
             readonly
+            doc={getDocComment(x)}
             name={x.name}
             optional={x.optional}
             type={<ValueTsType type={x.type} />}
@@ -330,7 +328,7 @@ function getValueOfReflectionType(type: Model) {
   }
 }
 
-function getDocComment(type: Type): string {
+export function getDocComment(type: Type): string {
   const docs = type.node?.docs;
   if (docs === undefined || docs.length === 0) {
     return "";

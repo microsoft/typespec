@@ -179,6 +179,37 @@ describe("packages", () => {
       });
     });
 
+    describe("package on a UNC path", () => {
+      const { host } = mkFs({
+        "//server/share/proj/node_modules/test-lib/package.json": JSON.stringify({
+          exports: { ".": "./entry.js", "./named": "./named.js" },
+        }),
+        "//server/share/proj/node_modules/test-lib/entry.js": "",
+        "//server/share/proj/node_modules/test-lib/named.js": "",
+      });
+      it("resolve . export", async () => {
+        const resolved = await resolveModule(host, "test-lib", {
+          baseDir: "//server/share/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "//server/share/proj/node_modules/test-lib",
+          mainFile: "//server/share/proj/node_modules/test-lib/entry.js",
+        });
+      });
+
+      it("resolve named export", async () => {
+        const resolved = await resolveModule(host, "test-lib/named", {
+          baseDir: "//server/share/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "//server/share/proj/node_modules/test-lib",
+          mainFile: "//server/share/proj/node_modules/test-lib/named.js",
+        });
+      });
+    });
+
     describe("condition", () => {
       const { host } = mkFs({
         "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
@@ -484,6 +515,44 @@ describe("resolve self", () => {
           type: "module",
           path: "/ws/proj",
           mainFile: "/ws/proj/node_modules/test-lib/entry.js",
+        });
+      });
+    });
+
+    describe("project on a UNC path", () => {
+      const { host } = mkFs({
+        "//server/share/proj/package.json": JSON.stringify({
+          imports: {
+            "#utils": "./utils.js",
+            "#test-lib": "test-lib",
+          },
+        }),
+        "//server/share/proj/utils.js": "",
+        "//server/share/proj/node_modules/test-lib/package.json": JSON.stringify({
+          main: "entry.js",
+        }),
+        "//server/share/proj/node_modules/test-lib/entry.js": "",
+      });
+
+      it("resolve named import", async () => {
+        const resolved = await resolveModule(host, "#utils", {
+          baseDir: "//server/share/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "//server/share/proj",
+          mainFile: "//server/share/proj/utils.js",
+        });
+      });
+
+      it("resolve another package reference", async () => {
+        const resolved = await resolveModule(host, "#test-lib", {
+          baseDir: "//server/share/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "//server/share/proj",
+          mainFile: "//server/share/proj/node_modules/test-lib/entry.js",
         });
       });
     });

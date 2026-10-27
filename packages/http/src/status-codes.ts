@@ -1,14 +1,12 @@
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
   ModelProperty,
   Program,
   Scalar,
   Type,
-  createDiagnosticCollector,
-  getMaxValue,
-  getMinValue,
 } from "@typespec/compiler";
+import { createDiagnosticCollector, getMaxValue, getMinValue } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { createDiagnostic } from "./lib.js";
 import type { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
@@ -102,7 +100,7 @@ function getStatusCodesRange(
   const start = getMinValue(program, type);
   const end = getMaxValue(program, type);
 
-  let baseRange = {};
+  let baseRange: Partial<HttpStatusCodeRange> = {};
   if (
     type.kind === "ModelProperty" &&
     (type.type.kind === "Scalar" || type.type.kind === "ModelProperty")
@@ -112,7 +110,9 @@ function getStatusCodesRange(
     baseRange = getStatusCodesRange(program, type.baseScalar, diagnosticTarget);
   }
 
-  return { ...baseRange, start, end };
+  // Bounds set on this type win, otherwise keep the ones inherited from the
+  // property type or the base scalar.
+  return { start: start ?? baseRange.start, end: end ?? baseRange.end };
 }
 
 function isInt32(program: Program, type: Type) {

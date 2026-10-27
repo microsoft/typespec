@@ -41,6 +41,8 @@ extern dec events(target: Union);
  *   { done: false, @data @contentType("text/plain") value: string,}
  * }
  * ```
+ *
+ * @param contentType The content type of the event or event payload.
  */
 extern dec contentType(target: UnionVariant | ModelProperty, contentType: valueof string);
 

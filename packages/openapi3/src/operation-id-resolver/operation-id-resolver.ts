@@ -1,6 +1,6 @@
 import { isGlobalNamespace, isService, type Operation, type Program } from "@typespec/compiler";
 import { getOperationId } from "@typespec/openapi";
-import { OperationIdStrategy } from "../lib.js";
+import type { OperationIdStrategy } from "../lib.js";
 
 export interface OperationIdResolverOptions {
   strategy: OperationIdStrategy;

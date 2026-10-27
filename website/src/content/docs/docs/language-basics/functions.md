@@ -96,7 +96,7 @@ evaluate to any model that is assignable to `Foo`.
 
 Function parameters follow the same rules as decorator parameters:
 
-- **Type parameters**: Accept TypeScript types (e.g., `param: string`)
+- **Type parameters**: Accept TypeSpec types (e.g., `param: string`)
 - **Value parameters**: Accept values using `valueof` (e.g., `param: valueof string`)
 - **Mixed parameters**: Can accept both types and values with union syntax
 
@@ -218,7 +218,7 @@ extern fn example(v: valueof string): valueof string;
 // `Example` is equivalent to `fn (v: valueof string) => valueof string`
 alias Example = typeof example;
 
-const f: fn(v: valueof string) => valueof string = f;
+const f: fn(v: valueof string) => valueof string = example;
 ```
 
 ### Function type syntax

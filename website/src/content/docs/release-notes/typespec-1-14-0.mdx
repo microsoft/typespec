@@ -1,0 +1,189 @@
+---
+slug: release-notes/typespec-1-14-0
+title: "1.14.0"
+releaseDate: 2026-07-14
+version: "1.14.0"
+---
+
+This release advances the TypeSpec compiler's decorator and tooling story with the new `auto` decorator system, expands OpenAPI 3.1 fidelity, and delivers a broad wave of formatter and emitter bug fixes across the ecosystem.
+
+## Highlights
+
+### Auto decorators: declare metadata decorators without JavaScript
+
+You can now declare decorators that automatically store their arguments as metadata using the `auto` modifier — no JavaScript implementation required. This is ideal for libraries that only need to attach metadata to types for emitters and tools to read back later.
+
+```typespec
+auto dec label(target: Model, value: valueof string);
+
+@label("my-model")
+model Foo {}
+```
+
+The compiler exposes `hasAutoDecorator`, `getAutoDecoratorValue`, and `getAutoDecoratorTargets` for reading auto decorator values by FQN. Emitters and mutators can also apply these decorators programmatically with the new `setAutoDecorator` API, marking synthetic types without reaching into the program state map directly:
+
+```ts
+import { setAutoDecorator } from "@typespec/compiler";
+
+setAutoDecorator(program, "MyLib.myFlag", target);
+```
+
+Libraries can opt into the `auto-decorators` experimental feature through their own `tspconfig.yaml`, so the feature is enabled only for that library's source files without requiring the consuming project to turn it on.
+
+### `@encode(string)` on booleans
+
+`@encode(string)` is now allowed on boolean targets, with well-defined case-insensitive `true`/`false` string semantics backed by a shared case-insensitive string matcher.
+
+```tsp
+model FeatureFlags {
+  @encode(string)
+  enabled: boolean;
+}
+```
+
+### OpenAPI 3.1 annotated enumerations
+
+The `@typespec/openapi3` emitter gains an opt-in `enum-strategy` option to emit TypeSpec enums as [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) — a `oneOf` of `const` subschemas carrying per-member `title` and `description`. This is supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
+
+```yaml
+options:
+  "@typespec/openapi3":
+    enum-strategy: annotated
+```
+
+For example, the following TypeSpec:
+
+```typespec
+/** Type of pet. */
+enum PetType {
+  /** A loyal canine companion. */
+  @summary("Dog")
+  Dog: "dog",
+
+  /** A self-sufficient feline. */
+  @summary("Cat")
+  Cat: "cat",
+}
+```
+
+emits:
+
+```yaml
+PetType:
+  description: Type of pet.
+  oneOf:
+    - const: dog
+      title: Dog
+      description: A loyal canine companion.
+    - const: cat
+      title: Cat
+      description: A self-sufficient feline.
+```
+
+### Cleaner `$ref` output for OpenAPI 3.1
+
+When emitting OpenAPI 3.1 (and 3.2), the emitter no longer wraps `$ref` in an unnecessary `allOf`. When a referenced schema carries sibling keywords such as `description`, `default`, `readOnly`, or `externalDocs`, those keywords are now placed directly next to the `$ref`, as allowed by JSON Schema 2020-12. OpenAPI 3.0 output is unchanged, since it does not permit sibling keywords next to a `$ref`.
+
+### Import `.ts` decorator modules from TypeSpec source
+
+TypeSpec source files can now import `.ts` decorator modules directly, streamlining decorator authoring and iteration without a separate build step.
+
+## Bug fixes
+
+### Memory leak in the mutator engine
+
+The experimental mutator engine previously kept a module-level `seen` cache that pinned the type graph of every mutated program in memory for the lifetime of the process. The cache is now scoped per `Program` via a `WeakMap`, so it is released once the program is garbage collected while still being shared across the nested mutations that recursive type graphs need to terminate.
+
+### `Expected type.` error with interpolated function calls
+
+Interpolating a function call that references a template parameter on a template declaration — for example `@doc("${myFn(T)}") model Crud<T extends Reflection.Model> {}` — previously triggered an `Expected type.` internal compiler error. The deferred function call now defers the whole template, which is evaluated at instantiation.
+
+### Entrypoint resolution ignoring `tspMain`
+
+Directory entrypoint resolution no longer ignores `package.json` `tspMain` when a `tspconfig.yaml` with `kind: project` is present but does not specify an `entrypoint`. The resolution order is now: explicit config `entrypoint`, then `package.json` `tspMain`, then `main.tsp`.
+
+### Formatter regressions around templates and unions
+
+Several formatter issues are fixed: the `is`/`extends` keyword now stays on the declaration line when the base is a template reference with multiple arguments, and a `union` expression used directly as one of multiple template arguments (e.g. `PickProperties<Source, "a" | "b">`) no longer gets a spurious blank line and over-indentation.
+
+### OpenAPI 3 emitter corrections
+
+`@extension` is no longer duplicated on both the parameter object and its `schema` — parameter extensions are emitted only on the parameter object. Additionally, stray `items` are no longer emitted on a property whose array type is encoded to a scalar via `@encode` (e.g. `ArrayEncoding.commaDelimited`), and OpenAPI import now emits `@cookie` decorators for cookie parameters, including nullable and type-null schema variants.
+
+## Additional improvements
+
+### Editor hints for `#suppress` directives
+
+Unused `#suppress` directives for available compiler and library diagnostics are now dimmed in editor scenarios, and duplicate `#suppress` directives on the same node produce a warning.
+
+```typespec
+#suppress "deprecated" "old suppression"
+model Widget {}
+```
+
+### `createTester` honors library config
+
+`createTester` now mounts each discovered library's `tspconfig.yaml` into the virtual file system, so experimental features a library opts into (e.g. `auto-decorators`) are honored when compiling against the tester.
+
+### Extension installation moves to the marketplace
+
+`tsp code install` and `tsp vs install` now install the editor extensions from the marketplace instead of downloading the `typespec-vscode`/`typespec-vs` npm packages. `tsp code install` delegates to `code --install-extension microsoft.typespec-vscode`, and `tsp vs install` downloads the latest vsix from the Visual Studio Marketplace. The `tsp code` and `tsp vs` commands (`install`/`uninstall`) are now deprecated — they keep working but emit a deprecation warning.
+
+### Testing framework deprecation
+
+The old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.) is now deprecated. Use `createTester` from `@typespec/compiler/testing` instead.
+
+### HTML program viewer stability
+
+The HTML program viewer no longer crashes when rendering search results with a missing type kind.
+
+## Full changelog
+
+### Features
+
+#### @typespec/compiler
+
+- Added `auto` decorator modifier for declaring decorators that auto-store their arguments as metadata without requiring a JavaScript implementation, plus the `hasAutoDecorator`, `getAutoDecoratorValue`, and `getAutoDecoratorTargets` APIs for reading auto decorator values by FQN.
+- Add `setAutoDecorator` API to programmatically apply an `auto` decorator to a target, mirroring the synthesized `auto dec` implementation.
+- Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+- Support importing `.ts` decorator modules from TypeSpec source files.
+- `createTester` now mounts each discovered library's `tspconfig.yaml` into the virtual file system so libraries' opted-in experimental features are honored.
+- Dim unused `#suppress` directives for available compiler and library diagnostics in editor scenarios.
+
+#### @typespec/openapi3
+
+- Add opt-in `enum-strategy` emitter option to emit TypeSpec enums as annotated enumerations. Supported for OpenAPI 3.1.0 and above; OpenAPI 3.0.0 falls back to the default form and reports a warning.
+- Stop wrapping `$ref` in an unnecessary `allOf` when emitting OpenAPI 3.1 (and 3.2); sibling keywords are placed directly next to the `$ref`. OpenAPI 3.0 output is unchanged.
+
+### Deprecations
+
+#### @typespec/compiler
+
+- `tsp code install` and `tsp vs install` now install the editor extensions from the marketplace; the `tsp code` and `tsp vs` commands (`install`/`uninstall`) are deprecated and emit a deprecation warning.
+
+#### @typespec/compiler, @typespec/http, @typespec/rest, @typespec/versioning, @typespec/json-schema, @typespec/xml, @typespec/events, @typespec/sse, @typespec/streams, @typespec/html-program-viewer, @typespec/library-linter, @typespec/openapi, @typespec/openapi3
+
+- Deprecate the old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Bug Fixes
+
+#### @typespec/compiler
+
+- Warn on duplicate `#suppress` directives on the same node.
+- Fix diagnostic target node mapping for value entities.
+- Fix directory entrypoint resolution ignoring `package.json` `tspMain` when a `tspconfig.yaml` with `kind: project` is present but does not specify an `entrypoint`. Resolution order is now explicit config `entrypoint`, then `package.json` `tspMain`, then `main.tsp`.
+- Keep the `is`/`extends` keyword on the declaration line when the base is a template reference with multiple arguments.
+- Fix formatter inserting a blank line and over-indenting a `union` expression used directly as one of multiple template arguments (e.g. `PickProperties<Source, "a" | "b">`).
+- Fix compiler feature flags (e.g. `auto-decorators`) not being enabled for library code; a library can opt into a feature via its own `tspconfig.yaml` `features`.
+- Fix memory leak in the experimental mutator engine by scoping the `seen` cache per `Program` via a `WeakMap`.
+- Fix `Expected type.` internal compiler error when a string template interpolates a function call that references a template parameter on a template declaration; the deferred function call now defers the whole template.
+
+#### @typespec/html-program-viewer
+
+- Fix HTML program viewer crash when rendering search results with missing type kind.
+
+#### @typespec/openapi3
+
+- Fix OpenAPI import to emit `@cookie` decorators for cookie parameters, including nullable and type-null schema variants.
+- Fix `@extension` being duplicated on both the parameter object and its `schema`; parameter extensions are now emitted only on the parameter object.
+- Fix stray `items` being emitted on a property whose array type is encoded to a scalar via `@encode` (e.g. `ArrayEncoding.commaDelimited`).

@@ -23,7 +23,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                     {
                         Cases[i].Write(writer);
                         if (i < Cases.Length - 1)
+                        {
                             writer.WriteRawLine(",");
+                        }
                     }
                 }
                 writer.WriteLine();

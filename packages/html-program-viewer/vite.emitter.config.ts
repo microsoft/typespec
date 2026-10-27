@@ -25,7 +25,7 @@ export default defineConfig({
     },
     outDir: "dist/emitter",
 
-    rollupOptions: {
+    rolldownOptions: {
       external: externals,
     },
   },

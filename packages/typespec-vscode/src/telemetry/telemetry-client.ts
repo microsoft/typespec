@@ -2,18 +2,17 @@ import { TelemetryReporter } from "@vscode/extension-telemetry";
 import { inspect } from "util";
 import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
-import { ExtensionStateManager } from "../extension-state-manager.js";
+import type { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { Result, ResultCode } from "../types.js";
+import type { Result } from "../types.js";
+import { ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
-import {
-  emptyActivityId,
-  generateActivityId,
+import type {
   OperationDetailPropertyName,
   OperationTelemetryEvent,
   RawTelemetryEvent,
-  TelemetryEventName,
 } from "./telemetry-event.js";
+import { emptyActivityId, generateActivityId, TelemetryEventName } from "./telemetry-event.js";
 
 export class TelemetryClient {
   private _client: TelemetryReporter | undefined;
@@ -120,6 +119,13 @@ export class TelemetryClient {
       sendTelemetryEvent: (result: ResultCode, delay: boolean) => void,
     ) => Promise<T>,
     activityId?: string,
+    /**
+     * Optional callback to handle unhandled exceptions from the operation.
+     * If provided, the exception will NOT be re-thrown and this callback will be invoked instead,
+     * and its return value will be used as the result of the operation.
+     * If not provided, the exception will be re-thrown after telemetry logging (default behavior).
+     */
+    onUnhandledException?: (error: unknown) => T,
   ): Promise<T> {
     const opTelemetryEvent = this.createOperationTelemetryEvent(eventName, activityId);
     let eventSent = false;
@@ -149,6 +155,9 @@ export class TelemetryClient {
         error: "Unhandled exception from operation to doOperationWithTelemetry: \n" + inspect(e),
       });
       opTelemetryEvent.result = ResultCode.Fail;
+      if (onUnhandledException) {
+        return onUnhandledException(e);
+      }
       // just report the issue in telemetry and re-throw the error
       throw e;
     } finally {

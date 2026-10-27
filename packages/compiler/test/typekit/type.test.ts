@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from "vitest";
-import { Enum, Model, Namespace, Scalar, Union } from "../../src/core/types.js";
+import type { Enum, Model, Namespace, Scalar, Union } from "../../src/core/types.js";
 import { isTemplateInstance } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";

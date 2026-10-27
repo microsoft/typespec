@@ -185,36 +185,22 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
+                using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(method.Signature.Attributes), emitDirectives: false);
+                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(method.Suppressions, GetSignatureSuppressions(method.Signature)));
                 if (method.BodyStatements is { } body)
                 {
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
                     using (WriteMethodDeclaration(method.Signature))
                     {
                         body.Write(this);
                     }
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
-                    }
                 }
                 else if (method.BodyExpression is { } expression)
                 {
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
-                    }
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
                     }
                 }
                 else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
@@ -234,40 +220,22 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
+                using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(ctor.Signature.Attributes), emitDirectives: false);
+                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(ctor.Suppressions, GetSignatureSuppressions(ctor.Signature)));
                 if (ctor.BodyStatements is { } body)
                 {
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
-
                     using (WriteMethodDeclaration(ctor.Signature))
                     {
                         body.Write(this);
                     }
-
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
-                    }
                 }
                 else if (ctor.BodyExpression is { } expression)
                 {
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
-
                     using (WriteMethodDeclarationNoScope(ctor.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
-                    }
-
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -288,7 +256,9 @@ namespace Microsoft.TypeSpec.Generator
         internal void WriteXmlDocsNoScope(XmlDocProvider? docs)
         {
             if (CodeModelGenerator.Instance.Configuration.DisableXmlDocs || docs is null)
+            {
                 return;
+            }
 
             if (docs.Inherit is not null)
             {
@@ -319,6 +289,10 @@ namespace Microsoft.TypeSpec.Generator
 
         public void WriteProperty(PropertyProvider property)
         {
+            using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(property.Attributes), emitDirectives: false);
+            using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
+                property.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(property.Type),
+                ExperimentalApiHelpers.GetReferenceSuppressions(property.InputProperty?.Type)));
             WriteXmlDocsNoScope(property.XmlDocs);
 
             if (property.Attributes.Count > 0)
@@ -326,6 +300,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in property.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -333,10 +308,11 @@ namespace Microsoft.TypeSpec.Generator
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
+                .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("new ", modifiers.HasFlag(MethodSignatureModifiers.New))
+                .AppendRawIf("sealed ", modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                 .AppendRawIf("override ", modifiers.HasFlag(MethodSignatureModifiers.Override))
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
@@ -464,14 +440,17 @@ namespace Microsoft.TypeSpec.Generator
 
         public void WriteParameter(ParameterProvider parameter)
         {
-            if (parameter.Attributes.Count > 0)
+            for (int i = 0; i < parameter.Attributes.Count; i++)
             {
-                parameter.Attributes[0].Write(this);
-                for (int i = 1; i < parameter.Attributes.Count; i++)
+                if (i > 0)
                 {
                     AppendRaw(" ");
-                    parameter.Attributes[i].Write(this);
                 }
+                parameter.Attributes[i].Write(this);
+            }
+            if (parameter.Attributes.Count > 0)
+            {
+                AppendRaw(" ");
             }
 
             AppendRawIf("out ", parameter.IsOut);
@@ -489,6 +468,9 @@ namespace Microsoft.TypeSpec.Generator
 
         public CodeWriter WriteField(FieldProvider field)
         {
+            using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
+            using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
+                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type)));
             WriteXmlDocsNoScope(field.XmlDocs);
 
             if (field.Attributes.Count > 0)
@@ -496,6 +478,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in field.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -566,6 +549,14 @@ namespace Microsoft.TypeSpec.Generator
 
         private void AppendTypeForCRef(CSharpType type)
         {
+            if (ProviderReferenceMapAnalyzer.IsRemovedTypeReference(type))
+            {
+                AppendRaw("<c>");
+                AppendType(type, false, false);
+                AppendRaw("</c>");
+                return;
+            }
+
             // Because of the limitations of type cref in XmlDoc
             // we add "?" nullability operator after `cref` block
             var isNullable = type is { IsNullable: true, IsValueType: true };
@@ -623,7 +614,9 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     if (i < arguments.Count - 1)
+                    {
                         AppendRaw(",");
+                    }
                 }
             }
         }
@@ -661,7 +654,10 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
+                {
                     AppendRaw($"{type.DeclaringType.Name}.");
+                }
+
                 AppendRaw(type.Name);
             }
 
@@ -714,7 +710,9 @@ namespace Microsoft.TypeSpec.Generator
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
             if (span.Length == 0 )
+            {
                 return this;
+            }
 
             AddSpaces(span);
 
@@ -736,7 +734,9 @@ namespace Microsoft.TypeSpec.Generator
 
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
+            {
                 return;
+            }
 
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
@@ -802,6 +802,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);
+                WriteLine();
             }
 
             foreach (var disabledWarning in disabledWarnings)
@@ -820,6 +821,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
                     .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                    .AppendRawIf("sealed ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -948,7 +950,9 @@ namespace Microsoft.TypeSpec.Generator
             var reader = _builder.ExtractReader();
             var totalLength = reader.Length;
             if (totalLength == 0)
+            {
                 return string.Empty;
+            }
 
             var builder = new StringBuilder((int)totalLength);
             IEnumerable<string> namespaces = _usingNamespaces

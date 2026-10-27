@@ -217,6 +217,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that a required FileBinaryContent property is serialized via WriteObjectValue in XmlModelWriteCore.
+        [Test]
+        public void RequiredFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "profileImage",
+                    InputFactory.FileType(),
+                    isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("profileImage")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.First();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                mrwProvider,
+                name => name == "XmlModelWriteCore"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates that an optional FileBinaryContent property is wrapped in Optional.IsDefined before WriteObjectValue.
+        [Test]
+        public void OptionalFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "profileImage",
+                    InputFactory.FileType(),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("profileImage")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.First();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                mrwProvider,
+                name => name == "XmlModelWriteCore"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public async Task XmlSerializationMethodHandlesUnwrappedListProperty()
         {
@@ -272,6 +316,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void XmlSerializationSkipsNullCollections(
+            [Values(false, true)] bool supportsJson,
+            [Values(false, true)] bool isRequired,
+            [Values(false, true)] bool isReadOnly,
+            [Values(false, true)] bool unwrapped)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml;
+            if (supportsJson)
+            {
+                usage |= InputModelTypeUsage.Json;
+            }
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: usage,
+                properties:
+                [
+                    InputFactory.Property("numbers", new InputNullableType(InputFactory.Array(InputPrimitiveType.Int32)),
+                        isRequired: isRequired, isReadOnly: isReadOnly,
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("numbers", unwrapped: unwrapped, itemsName: "int32"))),
+                    InputFactory.Property("labels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)),
+                        isRequired: isRequired, isReadOnly: isReadOnly,
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("labels", unwrapped: unwrapped)))
+                ]);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = generator.Object.TypeFactory.CreateModel(inputModel)!;
+            var serialization = model.SerializationProviders.Single();
+            var method = serialization.Methods.Single(m => m.Signature.Name == "XmlModelWriteCore");
+
+            Assert.That(method.BodyStatements!.ToDisplayString(),
+                Is.EqualTo(Helpers.GetExpectedFromFile(unwrapped.ToString()).ReplaceLineEndings("\n")));
+        }
+
+        [Test]
         public void XmlSerializationHandlesDateTimeOffsetProperty()
         {
             var inputModel = InputFactory.Model(
@@ -291,7 +368,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(xmlSerializationMethod);
             var methodBody = xmlSerializationMethod!.BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains("WriteStringValue") && methodBody.Contains("Timestamp"),
+            Assert.IsTrue(methodBody.Contains("writer.WriteStringValue(Timestamp.Value, \"O\")"),
                 $"DateTimeOffset property should be serialized with WriteStringValue. Actual:\n{methodBody}");
         }
 
@@ -693,6 +770,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(ushort), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(uint), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(ulong), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(((decimal)value));\n")]
         [TestCase(typeof(string), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
         [TestCase(typeof(bool), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
         [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
@@ -785,7 +866,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 m.Signature.Name == "WriteXml" || m.Signature.Name == "Write")];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
 
         private class MockIPersistableModelMrwProvider : MrwSerializationTypeDefinition
@@ -803,7 +884,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 m.Signature.ExplicitInterface.Name == "IPersistableModel")];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
     }
 }

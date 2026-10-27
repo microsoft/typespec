@@ -130,9 +130,15 @@ export async function processSidebar(
           collapsed: !item.expanded,
         });
       } else {
-        items.forEach((x) =>
-          result.push(typeof x === "string" ? x : { ...x, collapsed: !item.expanded }),
-        );
+        items.forEach((x) => {
+          if (typeof x === "string") {
+            result.push(x);
+          } else if ("items" in x) {
+            result.push({ ...x, collapsed: !item.expanded });
+          } else {
+            result.push(x);
+          }
+        });
       }
     } else if ("slug" in item) {
       result.push({ ...item, slug: prefix(item.slug) });

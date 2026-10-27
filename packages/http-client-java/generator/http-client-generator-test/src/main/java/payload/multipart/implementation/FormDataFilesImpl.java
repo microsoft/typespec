@@ -137,7 +137,7 @@ public final class FormDataFilesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponseAsync(BinaryData body,
+    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponseInternalAsync(BinaryData body,
         RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.uploadFileSpecificContentType(this.client.getEndpoint(),
@@ -156,7 +156,8 @@ public final class FormDataFilesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileSpecificContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> uploadFileSpecificContentTypeWithResponseInternal(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.uploadFileSpecificContentTypeSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);
@@ -174,7 +175,7 @@ public final class FormDataFilesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileRequiredFilenameWithResponseAsync(BinaryData body,
+    public Mono<Response<Void>> uploadFileRequiredFilenameWithResponseInternalAsync(BinaryData body,
         RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.uploadFileRequiredFilename(this.client.getEndpoint(),
@@ -193,7 +194,8 @@ public final class FormDataFilesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileRequiredFilenameWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> uploadFileRequiredFilenameWithResponseInternal(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.uploadFileRequiredFilenameSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);
@@ -211,7 +213,8 @@ public final class FormDataFilesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileArrayWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> uploadFileArrayWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.uploadFileArray(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -229,7 +232,7 @@ public final class FormDataFilesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> uploadFileArrayWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.uploadFileArraySync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }

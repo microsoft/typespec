@@ -1,0 +1,24 @@
+{
+  "operationId": "TopLevelArmResources_Get",
+  "title": "TopLevelArmResources Get",
+  "parameters": {
+    "resourceGroupName": "resource-group-name",
+    "topLevelArmResourcePropertiesName": "resource-name",
+    "api-version": "2024-12-01",
+    "parameter": "parameter-value",
+    "newParameter": "new-parameter-value"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/resource-group-name/providers/TspTest.ArmVersioned/topLevelArmResources/resource-name",
+        "name": "resource-name",
+        "type": "TspTest.ArmVersioned/topLevelArmResources",
+        "location": "eastus",
+        "properties": {
+          "provisioningState": "Succeeded"
+        }
+      }
+    }
+  }
+}

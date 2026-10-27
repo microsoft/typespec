@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection.Metadata;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -39,6 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        internal bool IsInitOnly { get; set; }
+        // Preserve the fact that a symbol has accessor/member metadata this provider cannot model.
+        internal bool HasUnsupportedBaseContract { get; init; }
         public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
@@ -49,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
 
         public string? OriginalName { get; internal init; }
 
@@ -101,14 +106,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            var identifierName = inputProperty.Name.ToIdentifierName();
-            Name = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
+            var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
+            if (!inputProperty.IsExactName)
+            {
+                var isDateTime = inputProperty.Type.IsDateTimeInputType();
+                var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
+                var enclosingTypeName = enclosingType.Name;
+                var lastContractProperties = enclosingType.LastContractView?.Properties
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes))
+                    .ToList();
+
+                // An exact input-identifier match is authoritative: it is the name this property would have had
+                // before normalization, so it does not need the disambiguation required by normalized candidates.
+                // The shipped member may carry the enclosing-type collision suffix, so candidates are compared
+                // against the collision-adjusted form of each name we are looking for.
+                var previousProperty =
+                    lastContractProperties?.FirstOrDefault(p => p.Name == AvoidPropertyNameCollision(identifierName, enclosingTypeName))
+                    ?? lastContractProperties?.FirstOrDefault(p =>
+                        p.Name == AvoidPropertyNameCollision(canonicalName, enclosingTypeName) &&
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+
+                if (previousProperty is null &&
+                    isDateTime &&
+                    !identifierName.EndsWith("On", StringComparison.Ordinal))
+                {
+                    // Both the current and previous conventions render date-time names as <stem>On. Requiring
+                    // that suffix on the contract name prevents a removed property such as StartDate from being
+                    // mistaken for the historical name of StartTime even though both normalize to StartsOn.
+                    var specStem = identifierName.NormalizeCSharpAcronyms().GetDateTimeStem();
+                    previousProperty = specStem is null
+                        ? null
+                        : lastContractProperties?.FirstOrDefault(p =>
+                            HasDateTimeStem(p.Name, specStem, enclosingTypeName) &&
+                            p.Type.WithNullable(false).Equals(Type.WithNullable(false)) &&
+                            !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+                }
+                identifierName = previousProperty?.Name ?? canonicalName;
+            }
+            Name = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
-            Attributes = [];
+            Attributes = ExperimentalApiHelpers.BuildAttributes(inputProperty.Experimental);
+            Suppressions = ExperimentalApiHelpers.MergeSuppressions(
+                ExperimentalApiHelpers.GetDependencySuppressions(inputProperty.Experimental),
+                ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.Type),
+                ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.DefaultValue?.Type));
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
@@ -124,7 +167,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
             bool isRef = false,
-            IEnumerable<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null,
+            IEnumerable<SuppressionStatement>? suppressions = null)
         {
             Modifiers = modifiers;
             Type = type;
@@ -136,6 +180,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Suppressions = suppressions?.ToArray() ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
             _customDescription = description;
@@ -168,6 +213,95 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
+            propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
+
+        private static bool HasDateTimeStem(string contractName, string specStem, string enclosingTypeName)
+        {
+            if (contractName == AvoidPropertyNameCollision(enclosingTypeName, enclosingTypeName))
+            {
+                contractName = enclosingTypeName;
+            }
+
+            return contractName.EndsWith("On", StringComparison.Ordinal) &&
+                contractName.GetDateTimeStem() == specStem;
+        }
+
+        private static bool IsClaimedBySiblingProperty(
+            string contractName,
+            InputProperty inputProperty,
+            TypeProvider enclosingType)
+        {
+            var enclosingTypeName = enclosingType.Name;
+
+            foreach (var sibling in inputProperty.EnclosingType?.Properties ?? [])
+            {
+                if (ReferenceEquals(sibling, inputProperty))
+                {
+                    continue;
+                }
+
+                if (sibling.IsExactName)
+                {
+                    if (AvoidPropertyNameCollision(sibling.Name, enclosingTypeName) == contractName)
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                // Compare both the raw identifier and the name the sibling actually emits, since acronym
+                // normalization can move it onto the shipped name even when the identifier does not match.
+                var siblingIdentifier = sibling.Name.ToIdentifierName();
+                var siblingGenerated = siblingIdentifier.NormalizeCSharpAcronyms(sibling.Type.IsDateTimeInputType());
+                if (AvoidPropertyNameCollision(siblingIdentifier, enclosingTypeName) == contractName ||
+                    AvoidPropertyNameCollision(siblingGenerated, enclosingTypeName) == contractName)
+                {
+                    return true;
+                }
+            }
+
+            // A customization that explicitly targets a different spec property owns its public name outright.
+            // A raw-name customization is excluded: it has no declared target, so it is intended to replace
+            // whichever generated property ends up with that name, including a preserved one. Fields are
+            // included because customization filtering treats a custom field as a claim on a property name.
+            foreach (var customName in GetExplicitlyRenamedCustomNames(enclosingType))
+            {
+                if (customName.OriginalName == inputProperty.Name ||
+                    customName.OriginalName == inputProperty.Name.ToIdentifierName())
+                {
+                    continue;
+                }
+
+                if (customName.Name == contractName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static IEnumerable<(string Name, string OriginalName)> GetExplicitlyRenamedCustomNames(TypeProvider enclosingType)
+        {
+            foreach (var customProperty in enclosingType.CustomCodeView?.Properties ?? [])
+            {
+                if (customProperty.OriginalName is { } propertyOriginalName)
+                {
+                    yield return (customProperty.Name, propertyOriginalName);
+                }
+            }
+
+            foreach (var customField in enclosingType.CustomCodeView?.Fields ?? [])
+            {
+                if (customField.OriginalName is { } fieldOriginalName)
+                {
+                    yield return (customField.Name, fieldOriginalName);
+                }
+            }
+        }
+
         private static bool IsPropertyPrivate(MethodSignatureModifiers modifiers, TypeSignatureModifiers enclosingTypeModifiers)
         {
             return (modifiers.HasFlag(MethodSignatureModifiers.Private) && !modifiers.HasFlag(MethodSignatureModifiers.Protected))
@@ -177,10 +311,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         [MemberNotNull(nameof(_parameter))]
         private void InitializeParameter(FormattableString description)
         {
-            _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
+            _parameter = new(() => new ParameterProvider(
+                Name.ToVariableName(),
+                description,
+                Type,
+                property: this));
         }
 
-        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+        public VariableExpression AsVariableExpression => _variable ??= AsParameter;
 
         private static bool IsDiscriminatorProperty(InputProperty inputProperty)
         {
@@ -238,7 +376,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
         {
             if (!inputProperty.IsRequired)
+            {
                 return null;
+            }
 
             if (propertyType.IsLiteral)
             {
@@ -261,6 +401,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
+
+        internal void SynchronizePropertyShape()
+        {
+            _asMember?.Update(memberName: Name);
+            AsParameter.SynchronizePropertyShape();
+        }
 
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);

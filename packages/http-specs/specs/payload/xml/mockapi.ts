@@ -1,11 +1,5 @@
-import {
-  match,
-  type MockBody,
-  passOnCode,
-  passOnSuccess,
-  ScenarioMockApi,
-  xml,
-} from "@typespec/spec-api";
+import type { ScenarioMockApi } from "@typespec/spec-api";
+import { match, type MockBody, passOnCode, passOnSuccess, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
