@@ -9,14 +9,17 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -46,56 +49,12 @@ import org.junit.jupiter.api.parallel.Isolated;
 public class ClientMethodMapperTests {
     @Test
     public void preservesInternalSseWrapperVisibility() {
-        new MockUnitJavagen() {
-            @Override
-            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
-                if ("sync-methods".equals(key)) {
-                    try {
-                        return converter.apply("all");
-                    } catch (IOException exception) {
-                        throw new UncheckedIOException(exception);
-                    }
-                }
-                return super.getValue(key, converter);
-            }
-        };
-        JavaSettings.clear();
+        useSseSettings(false);
         try {
             for (boolean internal : List.of(false, true)) {
-                Operation operation = operationWithNoDesc();
-                operation.getLanguage().getDefault().setName("read");
-                operation.getLanguage().setJava(operation.getLanguage().getDefault());
-                OperationGroup group = new OperationGroup();
-                Languages groupLanguages = new Languages();
-                Language groupLanguage = new Language();
-                groupLanguage.setName("");
-                groupLanguages.setDefault(groupLanguage);
-                groupLanguages.setJava(groupLanguage);
-                group.setLanguage(groupLanguages);
-                operation.setOperationGroup(group);
+                Operation operation = sseOperation();
                 operation.setInternalApi(internal);
-                Request request = operation.getRequests().get(0);
-                request.setLanguage(operation.getLanguage());
-                request.getProtocol().getHttp().setMethod("GET");
-                request.getProtocol().getHttp().setUri("https://example.org");
-                request.getProtocol().getHttp().setPath("/stream");
-                Response response = operation.getResponses().get(0);
-                Protocol http = new Protocol();
-                http.setStatusCodes(List.of("200"));
-                Protocols protocols = new Protocols();
-                protocols.setHttp(http);
-                response.setProtocol(protocols);
-                StringSchema payload = new StringSchema();
-                payload.setType(Schema.AllSchemaTypes.STRING);
-                response.setSchema(payload);
-                SseEventMetadata event = new SseEventMetadata();
-                event.setName("message");
-                event.setPayload(payload);
-                SseMetadata metadata = new SseMetadata();
-                metadata.setStreamName("TestEvents");
-                metadata.setModelNamespace("com.azure.mock");
-                metadata.setEvents(List.of(event));
-                operation.setSseMetadata(metadata);
+                SseMetadata metadata = operation.getSseMetadata();
 
                 var used = new java.util.LinkedHashSet<SseMetadata>();
                 var mapper = ClientMethodMapper.getInstance();
@@ -138,6 +97,64 @@ public class ClientMethodMapperTests {
     public void sseSyncOverAsyncGeneratesBothMethodKinds() {
         Assertions.assertTrue(ClientMethodMapper.shouldGenerateAsyncSseMethod(false, SyncMethodsGeneration.ALL));
         Assertions.assertTrue(ClientMethodMapper.shouldGenerateSyncSseMethod(false, SyncMethodsGeneration.ALL, false));
+    }
+
+    @Test
+    public void createsHistoricalSseOverloadsForVersionedParameters() {
+        useSseSettings(true);
+        try {
+            Operation operation = versionedSseOperation();
+            List<ClientMethod> methods = ClientMethodMapper.getInstance()
+                .map(operation, false)
+                .stream()
+                .filter(method -> method.getType() == ClientMethodType.SseSync
+                    || method.getType() == ClientMethodType.SseAsync)
+                .collect(Collectors.toList());
+
+            for (ClientMethodType methodType : List.of(ClientMethodType.SseSync, ClientMethodType.SseAsync)) {
+                List<ClientMethod> overloads
+                    = methods.stream().filter(method -> method.getType() == methodType).collect(Collectors.toList());
+                Assertions.assertEquals(3, overloads.size(),
+                    () -> methodType + ": "
+                        + overloads.stream()
+                            .map(method -> method.getParametersDeclaration() + " [requiredOnly="
+                                + method.getOnlyRequiredParameters() + "]")
+                            .collect(Collectors.joining(", ")));
+                Assertions.assertEquals(List.of(List.of(), List.of("existing"), List.of("existing", "added")), overloads
+                    .stream()
+                    .map(ClientMethod::getMethodInputParameters)
+                    .map(parameters -> parameters.stream().map(MethodParameter::getName).collect(Collectors.toList()))
+                    .sorted((left, right) -> Integer.compare(left.size(), right.size()))
+                    .collect(Collectors.toList()), methodType.toString());
+
+                ClientMethod historical = overloads.stream()
+                    .filter(method -> method.getMethodInputParameters().size() == 1)
+                    .findFirst()
+                    .orElseThrow();
+                ClientMethod full = overloads.stream()
+                    .filter(method -> method.getMethodInputParameters().size() == 2)
+                    .findFirst()
+                    .orElseThrow();
+                Assertions.assertSame(full, historical.getOverloadedClientMethod());
+                Assertions.assertSame(full.getSseMetadata(), historical.getSseMetadata());
+                Assertions.assertEquals(full.getReturnValue().getType(), historical.getReturnValue().getType());
+                Assertions.assertEquals(full.getName(), historical.getName());
+                Assertions.assertEquals(full.getMethodVisibility(), historical.getMethodVisibility());
+                Assertions.assertEquals(full.getMethodVisibilityInWrapperClient(),
+                    historical.getMethodVisibilityInWrapperClient());
+                Assertions.assertEquals(List.of("v2"),
+                    full.getMethodInputParameters()
+                        .stream()
+                        .filter(parameter -> parameter.getName().equals("added"))
+                        .findFirst()
+                        .orElseThrow()
+                        .getVersioning()
+                        .getAdded());
+            }
+        } finally {
+            new MockUnitJavagen();
+            JavaSettings.clear();
+        }
     }
 
     @Test
@@ -347,6 +364,102 @@ public class ClientMethodMapperTests {
 
     private Operation operationWithNoDesc() {
         return operationWithDescOnOperationAndResponseSchema(null, null);
+    }
+
+    private Operation versionedSseOperation() {
+        Operation operation = sseOperation();
+        Request request = operation.getRequests().get(0);
+        Parameter existing = optionalQueryParameter("existing", null);
+        Parameter added = optionalQueryParameter("added", List.of("v2"));
+        existing.setOperation(operation);
+        added.setOperation(operation);
+        request.setParameters(List.of(existing, added));
+        request.setSignatureParameters(List.of(existing, added));
+        return operation;
+    }
+
+    private Operation sseOperation() {
+        Operation operation = operationWithNoDesc();
+        operation.getLanguage().getDefault().setName("read");
+        operation.getLanguage().setJava(operation.getLanguage().getDefault());
+        OperationGroup group = new OperationGroup();
+        Languages groupLanguages = new Languages();
+        Language groupLanguage = new Language();
+        groupLanguage.setName("");
+        groupLanguages.setDefault(groupLanguage);
+        groupLanguages.setJava(groupLanguage);
+        group.setLanguage(groupLanguages);
+        operation.setOperationGroup(group);
+
+        Request request = operation.getRequests().get(0);
+        request.setLanguage(operation.getLanguage());
+        request.getProtocol().getHttp().setMethod("GET");
+        request.getProtocol().getHttp().setUri("https://example.org");
+        request.getProtocol().getHttp().setPath("/stream");
+        Response response = operation.getResponses().get(0);
+        Protocol http = new Protocol();
+        http.setStatusCodes(List.of("200"));
+        Protocols protocols = new Protocols();
+        protocols.setHttp(http);
+        response.setProtocol(protocols);
+        StringSchema payload = new StringSchema();
+        payload.setType(Schema.AllSchemaTypes.STRING);
+        response.setSchema(payload);
+        SseEventMetadata event = new SseEventMetadata();
+        event.setName("message");
+        event.setPayload(payload);
+        SseMetadata metadata = new SseMetadata();
+        metadata.setStreamName("TestEvents");
+        metadata.setModelNamespace("com.azure.mock");
+        metadata.setEvents(List.of(event));
+        operation.setSseMetadata(metadata);
+        return operation;
+    }
+
+    private static Parameter optionalQueryParameter(String name, List<String> addedVersions) {
+        Parameter parameter = new Parameter();
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        parameter.setSchema(schema);
+        parameter.setImplementation(Parameter.ImplementationLocation.METHOD);
+        Protocol http = new Protocol();
+        http.setIn(RequestParameterLocation.QUERY);
+        Protocols protocols = new Protocols();
+        protocols.setHttp(http);
+        parameter.setProtocol(protocols);
+        Language language = new Language();
+        language.setName(name);
+        language.setSerializedName(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        parameter.setLanguage(languages);
+        if (addedVersions != null) {
+            XmsExtensions extensions = new XmsExtensions();
+            extensions.setXmsVersioningAdded(new ArrayList<>(addedVersions));
+            parameter.setExtensions(extensions);
+        }
+        return parameter;
+    }
+
+    private static void useSseSettings(boolean requiredParameterClientMethods) {
+        new MockUnitJavagen() {
+            @Override
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                try {
+                    if ("sync-methods".equals(key)) {
+                        return converter.apply("all");
+                    }
+                    if ("required-parameter-client-methods".equals(key)) {
+                        return converter.apply(Boolean.toString(requiredParameterClientMethods));
+                    }
+                    return super.getValue(key, converter);
+                } catch (IOException exception) {
+                    throw new UncheckedIOException(exception);
+                }
+            }
+        };
+        JavaSettings.clear();
     }
 
     private Operation operationWithDescOnResponseSchema(String responseSchemaDesc) {

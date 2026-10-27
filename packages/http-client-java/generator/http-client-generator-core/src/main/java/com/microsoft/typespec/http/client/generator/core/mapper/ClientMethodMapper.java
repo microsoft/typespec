@@ -326,6 +326,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         if (createMethodArgs.generateRequiredOnlyParamsMethodOverload) {
             methods.add(sseMethod.newBuilder().onlyRequiredParameters(true).build());
         }
+        createOverloadForVersioning(methods, sseMethod, sseMethod, sseMethod.getMethodVisibility(), null, false, false);
     }
 
     /**
