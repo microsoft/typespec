@@ -35,7 +35,7 @@ public final class SseEventModelTemplate {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         String baseEventName = names.getBaseEventName();
         String converterName = names.getConverterName();
-        Set<String> fullyQualifiedTypeNames = SseUtil.getGeneratedTypeNames(metadata, names);
+        Set<String> fullyQualifiedTypeNames = SseUtil.getFullyQualifiedPayloadTypeNames(metadata, names);
         Set<String> imports = new LinkedHashSet<>();
         new ClassType.Builder().packageName(SseUtil.getConverterPackage())
             .name(converterName)
@@ -109,7 +109,7 @@ public final class SseEventModelTemplate {
     public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-        Set<String> fullyQualifiedTypeNames = SseUtil.getGeneratedTypeNames(metadata, names);
+        Set<String> fullyQualifiedTypeNames = SseUtil.getFullyQualifiedPayloadTypeNames(metadata, names);
         String payloadTypeName = SseUtil.getPayloadTypeName(payloadType, fullyQualifiedTypeNames);
         Set<String> imports = new LinkedHashSet<>();
         SseUtil.addPayloadImports(payloadType, imports, fullyQualifiedTypeNames, false);

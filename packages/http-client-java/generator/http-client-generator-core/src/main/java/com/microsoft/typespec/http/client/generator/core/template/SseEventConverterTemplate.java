@@ -37,7 +37,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
     public void write(SseMetadata metadata, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType baseEventType = SseUtil.getEventType(metadata, names.getBaseEventName());
-        Set<String> fullyQualifiedTypeNames = SseUtil.getGeneratedTypeNames(metadata, names);
+        Set<String> fullyQualifiedTypeNames = SseUtil.getFullyQualifiedPayloadTypeNames(metadata, names);
         Set<String> imports = new LinkedHashSet<>();
         imports.add("com.azure.json.JsonProviders");
         imports.add("com.azure.json.JsonReader");

@@ -289,15 +289,42 @@ public class JavaPackageSseTests {
     }
 
     @Test
-    public void fullyQualifiesPayloadTypesThatCollideWithGeneratedSseNames(@TempDir Path tempDir) throws IOException {
+    public void fullyQualifiesPayloadTypesThatCollideWithSseTypesOrImports(@TempDir Path tempDir) throws IOException {
         JavaSettings.clear();
-        ObjectSchema collidingPayload = objectSchema("RetrievalStreamEvent", "com.azure.payload");
+        List<String> collidingPayloadNames
+            = List.of("RetrievalStreamEvent", "ConstructorAccessor", "ClientLogger", "JsonProviders", "JsonReader",
+                "ReadValueCallback", "IOException", "UncheckedIOException", "Objects", "Generated", "Immutable",
+                "Override", "String", "Class", "ClassNotFoundException", "LinkageError", "IllegalStateException");
+        List<ObjectSchema> collidingPayloads = collidingPayloadNames.stream()
+            .map(name -> objectSchema(name, "com.azure.payload"))
+            .collect(Collectors.toList());
+        ObjectSchema firstSharedPayload = objectSchema("SharedPayload", "com.azure.first");
+        ObjectSchema secondSharedPayload = objectSchema("SharedPayload", "com.azure.second");
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
         SseMetadata metadata = metadata();
-        metadata.setEvents(List.of(event("direct", collidingPayload),
-            event("nested", dictionary(array(dictionary(collidingPayload))))));
+        List<SseEventMetadata> events = new ArrayList<>();
+        for (int i = 0; i < collidingPayloads.size(); i++) {
+            events.add(event("collision." + i, collidingPayloads.get(i)));
+        }
+        events.add(event("nested", dictionary(array(dictionary(collidingPayloads.get(1))))));
+        events.add(event("shared.first", firstSharedPayload));
+        events.add(event("shared.second", dictionary(array(secondSharedPayload))));
+        metadata.setEvents(events);
 
         javaPackage.addSseEventFiles(metadata);
+
+        String generatedSources = javaPackage.getJavaFiles()
+            .stream()
+            .map(javaFile -> javaFile.getContents().toString())
+            .collect(Collectors.joining());
+        Assertions.assertTrue(generatedSources.contains("com.azure.payload.models.ConstructorAccessor::fromJson"));
+        Assertions.assertTrue(
+            generatedSources.contains("Map<String, List<Map<String, com.azure.payload.models.ConstructorAccessor>>>"));
+        Assertions.assertTrue(generatedSources.contains("com.azure.first.models.SharedPayload"));
+        Assertions.assertTrue(generatedSources.contains("com.azure.second.models.SharedPayload"));
+        Assertions.assertFalse(generatedSources.contains("import com.azure.payload.models.ConstructorAccessor;"));
+        Assertions.assertFalse(generatedSources.contains("import com.azure.first.models.SharedPayload;"));
+        Assertions.assertFalse(generatedSources.contains("import com.azure.second.models.SharedPayload;"));
 
         List<Path> sources = new ArrayList<>();
         for (JavaFile javaFile : javaPackage.getJavaFiles()) {
@@ -306,13 +333,11 @@ public class JavaPackageSseTests {
             Files.writeString(source, javaFile.getContents().toString());
             sources.add(source);
         }
-        Path payloadSource = tempDir.resolve("src/main/java/com/azure/payload/models/RetrievalStreamEvent.java");
-        Files.createDirectories(payloadSource.getParent());
-        Files.writeString(payloadSource,
-            "package com.azure.payload.models;\n\n" + "public final class RetrievalStreamEvent {\n"
-                + "    public static RetrievalStreamEvent fromJson(com.azure.json.JsonReader reader) {\n"
-                + "        return null;\n" + "    }\n" + "}\n");
-        sources.add(payloadSource);
+        for (String payloadName : collidingPayloadNames) {
+            sources.add(writePayloadSource(tempDir, "com.azure.payload.models", payloadName));
+        }
+        sources.add(writePayloadSource(tempDir, "com.azure.first.models", "SharedPayload"));
+        sources.add(writePayloadSource(tempDir, "com.azure.second.models", "SharedPayload"));
         Path classes = tempDir.resolve("classes");
         Files.createDirectories(classes);
         List<String> arguments
@@ -323,6 +348,17 @@ public class JavaPackageSseTests {
         Assertions.assertEquals(0,
             ToolProvider.getSystemJavaCompiler().run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
             diagnostics.toString(StandardCharsets.UTF_8));
+    }
+
+    private static Path writePayloadSource(Path tempDir, String packageName, String payloadName) throws IOException {
+        Path payloadSource
+            = tempDir.resolve("src/main/java/" + packageName.replace('.', '/') + "/" + payloadName + ".java");
+        Files.createDirectories(payloadSource.getParent());
+        Files.writeString(payloadSource,
+            "package " + packageName + ";\n\n" + "public final class " + payloadName + " {\n" + "    public static "
+                + payloadName + " fromJson(com.azure.json.JsonReader reader) {\n" + "        return null;\n" + "    }\n"
+                + "}\n");
+        return payloadSource;
     }
 
     private static SseMetadata metadata() {
