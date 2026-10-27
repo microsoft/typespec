@@ -1,9 +1,12 @@
+import { code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Type } from "@typespec/compiler";
 import type { HasName } from "@typespec/emitter-framework";
 import { TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
 import type { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";
+import { isFormUrlEncodedContentType } from "../../utils/form-urlencoded.js";
+import { getEncodeFormUrlEncodedRef } from "../static-helpers/form-urlencoded.jsx";
 import { ContentTypeEncodingProvider } from "./content-type-encoding-provider.jsx";
 import { JsonTransform } from "./json/json-transform.jsx";
 import { MultipartTransform } from "./multipart/multipart-transform.jsx";
@@ -26,10 +29,31 @@ export function OperationTransformExpression(props: OperationTransformToTranspor
     return <MultipartTransform body={body} />;
   }
 
-  // TODO: Handle content types other than application/json and multipart
-  // And multiple content types
+  // TODO: Handle content types other than application/json, multipart, and
+  // application/x-www-form-urlencoded. And multiple content types.
   const contentType = body.contentTypes[0];
   const payloadType = body.type;
+  if (
+    body.bodyKind === "single" &&
+    payloadType.kind === "Model" &&
+    isFormUrlEncodedContentType(contentType)
+  ) {
+    return (
+      <ContentTypeEncodingProvider contentType={contentType}>
+        <TransformNamePolicyContext.Provider
+          value={{
+            getTransportName: (type) => defaultTransportNameGetter(type, contentType),
+            getApplicationName: payloadApplicationNameGetter,
+          }}
+        >
+          {code`${getEncodeFormUrlEncodedRef()}(${(
+            <JsonTransform itemRef={itemRef} target="transport" type={payloadType} />
+          )})`}
+        </TransformNamePolicyContext.Provider>
+      </ContentTypeEncodingProvider>
+    );
+  }
+
   return (
     <ContentTypeEncodingProvider contentType={contentType}>
       <TransformNamePolicyContext.Provider
