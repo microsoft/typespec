@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Escape string literals in generated Python discriminator declarations, initializers, and templates to preserve specification values as data.
+Escape string literals and wire names in generated Python declarations, discriminator initializers, field metadata, and templates to preserve specification values as data.

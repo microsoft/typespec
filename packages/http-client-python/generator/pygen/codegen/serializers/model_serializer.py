@@ -82,7 +82,8 @@ def _documentation_string(
     )
     # Escape names that Sphinx would otherwise misinterpret in the info field target
     # (e.g. a wire name with a leading "@" such as "@search.facets").
-    doc_name = escape_sphinx_field_name(doc_name)
+    # Strip repr's delimiters and escape double quotes for the enclosing docstring.
+    doc_name = repr(escape_sphinx_field_name(doc_name))[1:-1].replace('"', '\\"')
     sphinx_prefix = f":{description_keyword} {doc_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
@@ -458,7 +459,7 @@ class DpgModelSerializer(_ModelSerializer):
     def declare_property(self, prop: Property) -> str:
         args = []
         if prop.client_name != prop.wire_name or prop.is_discriminator:
-            args.append(f'name="{prop.wire_name}"')
+            args.append(f"name={prop.wire_name!r}")
         if prop.visibility:
             v_list = ", ".join(f'"{x}"' for x in prop.visibility)
             args.append(f"visibility=[{v_list}]")

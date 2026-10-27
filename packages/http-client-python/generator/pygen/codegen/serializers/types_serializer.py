@@ -388,9 +388,9 @@ class TypesSerializer(BaseSerializer):
             type_annotation = _qualify_shadowed_builtins(type_annotation, shadowed)
             is_optional = prop.optional or prop.client_default_value is not None
             if is_optional:
-                entries.append(f'    "{prop.wire_name}": {type_annotation},')
+                entries.append(f"    {prop.wire_name!r}: {type_annotation},")
             else:
-                entries.append(f'    "{prop.wire_name}": Required[{type_annotation}],')
+                entries.append(f"    {prop.wire_name!r}: Required[{type_annotation}],")
         fields = "\n".join(entries)
         return f'{model.name} = TypedDict("{model.name}", {{\n{fields}\n}}, total=False)'
 

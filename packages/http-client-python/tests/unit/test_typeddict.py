@@ -494,7 +494,7 @@ def test_models_mode_typeddict_docstring_escapes_at_sign():
     assert ":vartype ``@search.facets``: str" in output
     assert "\\@search.facets" not in output
     # The actual TypedDict key keeps the raw "@" (must NOT be escaped in code)
-    assert '"@search.facets":' in output
+    assert "'@search.facets':" in output
 
 
 def test_types_file_has_no_named_unions():

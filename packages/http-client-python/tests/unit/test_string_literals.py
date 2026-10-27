@@ -8,7 +8,7 @@
 import ast
 import textwrap
 from types import SimpleNamespace
-from typing import Literal, get_args
+from typing import Literal, Optional, get_args
 
 import pytest
 from jinja2 import Environment, PackageLoader
@@ -19,6 +19,7 @@ from pygen.codegen.models.primitive_types import StringType
 from pygen.codegen.serializers.enum_serializer import EnumSerializer
 from pygen.codegen.serializers.builder_serializer import _get_polymorphic_subtype_template
 from pygen.codegen.serializers.model_serializer import DpgModelSerializer
+from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.utils import json_dumps_template
 
 VALUES = [
@@ -92,8 +93,11 @@ def test_json_template_preserves_nested_python_expressions():
     assert ast.unparse(expression.values[1]) == "models.Example()"
 
 
-@pytest.mark.parametrize("value", VALUES)
-def test_discriminator_generation_preserves_values(code_model, env, value):
+@pytest.mark.parametrize(
+    "value, wire_name",
+    [(value, "kind") for value in VALUES] + [("child", wire_name) for wire_name in VALUES if wire_name],
+)
+def test_discriminator_generation_preserves_values(code_model, env, value, wire_name):
     model = build_type(
         {
             "type": "model",
@@ -103,7 +107,7 @@ def test_discriminator_generation_preserves_values(code_model, env, value):
             "discriminatorValue": value,
             "properties": [
                 {
-                    "wireName": "kind",
+                    "wireName": wire_name,
                     "clientName": "kind",
                     "optional": False,
                     "isDiscriminator": True,
@@ -118,16 +122,16 @@ def test_discriminator_generation_preserves_values(code_model, env, value):
     prop = model.properties[0]
     if value:
         representation = model.get_json_template_representation()
-        assert {ast.literal_eval(k): ast.literal_eval(v) for k, v in representation.items()} == {"kind": value}
+        assert {ast.literal_eval(k): ast.literal_eval(v) for k, v in representation.items()} == {wire_name: value}
         template = json_dumps_template(representation)
-        assert ast.literal_eval(template) == {"kind": value}
+        assert ast.literal_eval(template) == {wire_name: value}
         model.parents[0].discriminated_subtypes = {value: model}
         model.parents[0].parents = []
         model.parents[0].snake_case_name = "base"
         rendered = "\n".join(_get_polymorphic_subtype_template(model))
         assignments = ast.parse(rendered).body
         assert len(assignments) == 1
-        assert ast.literal_eval(assignments[0].value) == {"kind": value}
+        assert ast.literal_eval(assignments[0].value) == {wire_name: value}
         documentation = env.from_string(
             '{% import "operation_tools.jinja2" as tools %}{{ tools.description(builder, serializer) }}'
         ).render(
@@ -143,7 +147,7 @@ def test_discriminator_generation_preserves_values(code_model, env, value):
         example = textwrap.dedent(docstring.split(".. code-block:: python\n", 1)[1])
         documented_assignments = ast.parse(example).body
         assert len(documented_assignments) == 1
-        assert ast.literal_eval(documented_assignments[0].value) == {"kind": value}
+        assert ast.literal_eval(documented_assignments[0].value) == {wire_name: value}
     calls = []
 
     def marker():
@@ -154,7 +158,7 @@ def test_discriminator_generation_preserves_values(code_model, env, value):
         [
             "class Base(_Model):",
             "    __mapping__ = {}",
-            '    kind: str = rest_discriminator(name="kind")',
+            "    " + serializer.declare_property(prop),
             serializer.declare_model(model),
             "    " + serializer.declare_property(prop),
             "    def __init__(self, *args, **kwargs):",
@@ -181,12 +185,61 @@ def test_discriminator_generation_preserves_values(code_model, env, value):
     for _ in range(2):
         instance = child()
         assert instance.kind == value
-        assert instance.as_dict() == {"kind": value}
+        assert instance.as_dict() == {wire_name: value}
         if value:
-            selected = namespace["Base"]._deserialize({"kind": value}, [])
+            selected = namespace["Base"]._deserialize({wire_name: value}, [])
             assert isinstance(selected, child)
-            assert selected.as_dict() == {"kind": value}
+            assert selected.as_dict() == {wire_name: value}
     assert calls == []
+
+
+@pytest.mark.parametrize("wire_name", [wire_name for wire_name in VALUES if wire_name])
+@pytest.mark.parametrize("optional", [False, True])
+def test_property_wire_names_are_literals(code_model, env, wire_name, optional):
+    model = build_type(
+        {
+            "type": "model",
+            "base": "dpg",
+            "name": "Example",
+            "snakeCaseName": "example",
+            "properties": [
+                {
+                    "wireName": "required",
+                    "clientName": "required",
+                    "optional": False,
+                    "type": {"type": "string"},
+                },
+                {
+                    "wireName": wire_name,
+                    "clientName": "value",
+                    "optional": optional,
+                    "type": {"type": "string"},
+                },
+            ],
+        },
+        code_model,
+    )
+    template = json_dumps_template(model.get_json_template_representation())
+    assert ast.literal_eval(template) == {"required": "str", wire_name: "str"}
+    if optional:
+        assert list(ast.literal_eval(template)) == ["required", wire_name]
+    serializer = DpgModelSerializer(code_model, env, models=[model])
+    source = "\n".join(
+        [serializer.declare_model(model), *["    " + serializer.declare_property(prop) for prop in model.properties]]
+    )
+    runtime = env.get_template("model_base.py.jinja2").render(code_model=code_model)
+    namespace = {"__name__": "wire_name_test"}
+    exec(compile(runtime, "<model_base>", "exec"), namespace)
+    namespace.update(_Model=namespace["Model"], Optional=Optional)
+    exec(compile(source, "<models>", "exec"), namespace)
+    instance = namespace["Example"](required="first", value="example")
+    assert instance.as_dict() == {"required": "first", wire_name: "example"}
+    assert namespace["Example"]({"required": "first", wire_name: "example"}).value == "example"
+    typed_model = build_type({**model.yaml_data, "base": "typeddict"}, code_model)
+    types_source = TypesSerializer(code_model, env, models=[typed_model]).serialize()
+    types_namespace = {"__name__": "wire_name_types_test"}
+    exec(compile(types_source, "<types>", "exec"), types_namespace)
+    assert set(types_namespace["Example"].__annotations__) == {"required", wire_name}
 
 
 @pytest.mark.parametrize("value", VALUES[0:1] + VALUES[2:])
