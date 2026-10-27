@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DurationSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.NumberSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
@@ -133,6 +134,27 @@ public class JavaPackageSseTests {
             "accessor.createArrayMap(read(eventName, data, reader -> reader.readArray(reader1 -> reader1.readMap(reader2 -> reader2.getString()))))"));
         Assertions.assertTrue(converterSource.contains(
             "accessor.createNestedMap(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.readMap(reader2 -> reader2.readArray(reader3 -> reader3.getString())))))"));
+    }
+
+    @Test
+    public void decodesTemporalWireTypesForScalarAndRecursiveCollectionPayloads() {
+        JavaSettings.clear();
+        DurationSchema seconds = new DurationSchema();
+        seconds.setType(Schema.AllSchemaTypes.DURATION);
+        seconds.setFormat(DurationSchema.Format.SECONDS_INTEGER);
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata
+            .setEvents(List.of(event("duration", seconds), event("nested", dictionary(array(dictionary(seconds))))));
+
+        javaPackage.addSseEventFiles(metadata);
+
+        String converterSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(converterSource.contains("import java.time.Duration;"));
+        Assertions.assertTrue(converterSource.contains(
+            "accessor.createDuration(read(eventName, data, reader -> Duration.ofSeconds(reader.getLong())))"));
+        Assertions.assertTrue(converterSource.contains(
+            "accessor.createNested(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.readArray(reader2 -> reader2.readMap(reader3 -> Duration.ofSeconds(reader3.getLong()))))))"));
     }
 
     @Test

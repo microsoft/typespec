@@ -5,6 +5,7 @@
 package tsptest.sse.stream.models;
 
 import com.azure.core.annotation.Generated;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import tsptest.sse.implementation.TestStreamEventConverter;
@@ -24,6 +25,8 @@ import tsptest.sse.models.StartedPayload;
  * @see TestMapStreamEvent
  * @see TestCollectionsStreamEvent
  * @see TestModelMapStreamEvent
+ * @see TestDurationStreamEvent
+ * @see TestDurationsStreamEvent
  * @see TestCompletedStreamEvent
  */
 public abstract class TestStreamEvent {
@@ -96,6 +99,16 @@ public abstract class TestStreamEvent {
             @Override
             public TestModelMapStreamEvent createModelMap(Map<String, StartedPayload> value) {
                 return new TestModelMapStreamEvent(value);
+            }
+
+            @Override
+            public TestDurationStreamEvent createDuration(Duration value) {
+                return new TestDurationStreamEvent(value);
+            }
+
+            @Override
+            public TestDurationsStreamEvent createDurations(Map<String, List<Map<String, List<Duration>>>> value) {
+                return new TestDurationsStreamEvent(value);
             }
 
             @Override

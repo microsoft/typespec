@@ -22,6 +22,9 @@ model CompletedPayload {
   result: string[];
 }
 
+@encode(DurationKnownEncoding.seconds, int32)
+scalar SecondsDuration extends duration;
+
 @clientNamespace("TspTest.Sse.Stream", "java")
 model ScalarEnvelope {
   @data
@@ -47,6 +50,18 @@ model ModelMapEnvelope {
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
+model DurationEnvelope {
+  @data
+  payload: SecondsDuration;
+}
+
+@clientNamespace("TspTest.Sse.Stream", "java")
+model DurationCollectionsEnvelope {
+  @data
+  payload: Record<Record<SecondsDuration[]>[]>;
+}
+
+@clientNamespace("TspTest.Sse.Stream", "java")
 model StartedEnvelope {
   @data
   payload: StartedPayload;
@@ -66,6 +81,8 @@ union TestStreamEvents {
   map: DictionaryEnvelope,
   collections: CollectionsEnvelope,
   modelMap: ModelMapEnvelope,
+  duration: DurationEnvelope,
+  durations: DurationCollectionsEnvelope,
 
   @terminalEvent
   completed: CompletedEnvelope,

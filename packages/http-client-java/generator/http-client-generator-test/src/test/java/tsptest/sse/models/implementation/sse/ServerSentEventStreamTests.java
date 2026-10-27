@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,8 @@ import tsptest.sse.SseClient;
 import tsptest.sse.implementation.TestStreamEventConverter;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
+import tsptest.sse.stream.models.TestDurationStreamEvent;
+import tsptest.sse.stream.models.TestDurationsStreamEvent;
 import tsptest.sse.stream.models.TestEventStreamEvent;
 import tsptest.sse.stream.models.TestMapStreamEvent;
 import tsptest.sse.stream.models.TestModelMapStreamEvent;
@@ -49,6 +52,7 @@ public class ServerSentEventStreamTests {
             + "event: map\r\ndata: {\"first\":\"one\",\"second\":\"two\"}\r\n\r\n"
             + "event: collections\r\ndata: [{\"values\":[\"one\",\"two\"]}]\r\n\r\n"
             + "event: modelMap\r\ndata: {\"first\":{\"message\":\"nested\"}}\r\n\r\n"
+            + "event: duration\r\ndata: 5\r\n\r\n" + "event: durations\r\ndata: {\"group\":[{\"items\":[5,7]}]}\r\n\r\n"
             + "event: completed\r\ndata: {\"result\":[\"one\",\"two\"]}\r\n\r\n"
             + "event: started\r\ndata: {\"message\":\"after terminal\"}\r\n\r\n";
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
@@ -67,7 +71,7 @@ public class ServerSentEventStreamTests {
             .block();
 
         Assertions.assertNotNull(events);
-        Assertions.assertEquals(7, events.size());
+        Assertions.assertEquals(9, events.size());
         TestStartedStreamEvent started = Assertions.assertInstanceOf(TestStartedStreamEvent.class, events.get(0));
         Assertions.assertEquals("h\u20ACllo", started.getValue().getMessage());
         Assertions.assertEquals("future.event", events.get(1).getEventName());
@@ -80,7 +84,13 @@ public class ServerSentEventStreamTests {
         Assertions.assertEquals(List.of(Map.of("values", List.of("one", "two"))), collections.getValue());
         TestModelMapStreamEvent modelMap = Assertions.assertInstanceOf(TestModelMapStreamEvent.class, events.get(5));
         Assertions.assertEquals("nested", modelMap.getValue().get("first").getMessage());
-        TestCompletedStreamEvent completed = Assertions.assertInstanceOf(TestCompletedStreamEvent.class, events.get(6));
+        TestDurationStreamEvent duration = Assertions.assertInstanceOf(TestDurationStreamEvent.class, events.get(6));
+        Assertions.assertEquals(Duration.ofSeconds(5), duration.getValue());
+        TestDurationsStreamEvent durations = Assertions.assertInstanceOf(TestDurationsStreamEvent.class, events.get(7));
+        Assertions.assertEquals(
+            Map.of("group", List.of(Map.of("items", List.of(Duration.ofSeconds(5), Duration.ofSeconds(7))))),
+            durations.getValue());
+        TestCompletedStreamEvent completed = Assertions.assertInstanceOf(TestCompletedStreamEvent.class, events.get(8));
         Assertions.assertEquals(List.of("one", "two"), completed.getValue().getResult());
         Assertions.assertTrue(completed.isTerminal());
         Assertions.assertTrue(cancelled.get());

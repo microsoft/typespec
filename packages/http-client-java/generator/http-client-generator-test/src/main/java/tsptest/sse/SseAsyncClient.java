@@ -76,8 +76,8 @@ public final class SseAsyncClient {
      *
      * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestModelMapStreamEvent#getValue()}. Unrecognized events expose only their names
-     * through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
+     * names through {@link TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
@@ -101,8 +101,8 @@ public final class SseAsyncClient {
      *
      * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestModelMapStreamEvent#getValue()}. Unrecognized events expose only their names
-     * through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
+     * names through {@link TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error

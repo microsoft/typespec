@@ -48,7 +48,9 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
         baseEventType.addImportsTo(imports, false);
         for (SseEventMetadata event : metadata.getEvents()) {
             SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName())).addImportsTo(imports, false);
-            addPayloadImports(Mappers.getSchemaMapper().map(event.getPayload()).getClientType(), imports);
+            IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
+            addPayloadImports(wirePayloadType, imports);
+            addPayloadImports(wirePayloadType.getClientType(), imports);
         }
         javaFile.declareImportPreservingOrder(imports);
 
@@ -131,11 +133,11 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                 method.line("switch (eventName) {");
                 method.indent(() -> {
                     for (SseEventMetadata event : metadata.getEvents()) {
-                        IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+                        IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
                         method.line("case \"" + TemplateUtil.escapeString(event.getName()) + "\":");
                         method.indent(() -> method
                             .methodReturn("accessor." + SseNamingResolver.getEventFactoryMethodName(event.getName())
-                                + "(read(eventName, data, " + getJsonReadCallback(payloadType) + "))"));
+                                + "(read(eventName, data, " + getJsonReadCallback(wirePayloadType) + "))"));
                         method.line();
                     }
                     method.line("default:");
@@ -192,7 +194,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
         if (deserialization == null) {
             throw new IllegalStateException("SSE payload type " + type + " does not support JSON deserialization.");
         }
-        return readerName + " -> " + deserialization;
+        return readerName + " -> " + type.convertToClientType(deserialization);
     }
 
     private static String getIndefiniteArticle(String value) {

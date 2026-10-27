@@ -10,6 +10,7 @@ import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,6 +18,8 @@ import tsptest.sse.models.CompletedPayload;
 import tsptest.sse.models.StartedPayload;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
+import tsptest.sse.stream.models.TestDurationStreamEvent;
+import tsptest.sse.stream.models.TestDurationsStreamEvent;
 import tsptest.sse.stream.models.TestEventStreamEvent;
 import tsptest.sse.stream.models.TestMapStreamEvent;
 import tsptest.sse.stream.models.TestModelMapStreamEvent;
@@ -95,6 +98,22 @@ public final class TestStreamEventConverter {
         TestModelMapStreamEvent createModelMap(Map<String, StartedPayload> value);
 
         /**
+         * Creates a duration event.
+         *
+         * @param value The decoded payload.
+         * @return The event.
+         */
+        TestDurationStreamEvent createDuration(Duration value);
+
+        /**
+         * Creates a durations event.
+         *
+         * @param value The decoded payload.
+         * @return The event.
+         */
+        TestDurationsStreamEvent createDurations(Map<String, List<Map<String, List<Duration>>>> value);
+
+        /**
          * Creates a completed event.
          *
          * @param value The decoded payload.
@@ -160,6 +179,14 @@ public final class TestStreamEventConverter {
             case "modelMap":
                 return accessor
                     .createModelMap(read(eventName, data, reader -> reader.readMap(StartedPayload::fromJson)));
+
+            case "duration":
+                return accessor.createDuration(read(eventName, data, reader -> Duration.ofSeconds(reader.getLong())));
+
+            case "durations":
+                return accessor.createDurations(
+                    read(eventName, data, reader -> reader.readMap(reader1 -> reader1.readArray(reader2 -> reader2
+                        .readMap(reader3 -> reader3.readArray(reader4 -> Duration.ofSeconds(reader4.getLong())))))));
 
             case "completed":
                 return accessor.createCompleted(read(eventName, data, CompletedPayload::fromJson));
