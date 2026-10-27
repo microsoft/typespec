@@ -29,6 +29,7 @@ from pygen.codegen.models.primitive_types import StringType
 from pygen.codegen.serializers.enum_serializer import EnumSerializer
 from pygen.codegen.serializers.builder_serializer import OperationSerializer, _get_polymorphic_subtype_template
 from pygen.codegen.serializers.model_serializer import DpgModelSerializer
+from pygen.codegen.serializers.general_serializer import GeneralSerializer
 from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.utils import json_dumps_template
 
@@ -83,6 +84,51 @@ def env():
 def test_string_declarations_are_literals(code_model, value):
     declaration = StringType({"type": "string"}, code_model).get_declaration(value)
     assert ast.literal_eval(declaration) == value
+
+
+@pytest.mark.parametrize("value", VALUES)
+@pytest.mark.parametrize("async_mode", [False, True])
+@pytest.mark.parametrize("file_kind", ["client", "config"])
+def test_complete_client_preserves_parameter_defaults(code_model, env, value, async_mode, file_kind):
+    string_type = {"type": "string"}
+    code_model = CodeModel(
+        {
+            "namespace": "sample",
+            "types": [string_type],
+            "clients": [
+                {
+                    "name": "Client",
+                    "namespace": "sample",
+                    "moduleName": "sample",
+                    "description": "Example client.",
+                    "url": "https://example.test",
+                    "operationGroups": [],
+                    "parameters": [
+                        {
+                            "wireName": "value",
+                            "clientName": "value",
+                            "location": "query",
+                            "implementation": "Client",
+                            "optional": True,
+                            "clientDefaultValue": value,
+                            "description": "Example value.",
+                            "type": string_type,
+                        }
+                    ],
+                }
+            ],
+        },
+        code_model.options,
+    )
+    serializer = GeneralSerializer(code_model, env, async_mode=async_mode, client_namespace="sample")
+    if file_kind == "client":
+        source = serializer.serialize_service_client_file(code_model.clients)
+    else:
+        source = serializer.serialize_config_file(code_model.clients)
+    module = ast.parse(source)
+    declaration = next(node for node in module.body if isinstance(node, ast.ClassDef))
+    documentation = " ".join(ast.get_docstring(declaration).split())
+    assert f"Default value is {repr(value)}." in documentation
 
 
 @pytest.mark.parametrize("value", VALUES)
