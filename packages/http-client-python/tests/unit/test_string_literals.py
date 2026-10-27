@@ -130,6 +130,7 @@ def test_complete_operation_preserves_parameter_defaults(code_model, env, value,
     source = env.get_template("operation.py.jinja2").render(operation=operation, operation_serializer=serializer)
     function = ast.parse(source).body[0]
     assert isinstance(function, ast.AsyncFunctionDef if async_mode else ast.FunctionDef)
+    # cspell:ignore kwonlyargs
     defaults = {argument.arg: default for argument, default in zip(function.args.kwonlyargs, function.args.kw_defaults)}
     assert ast.literal_eval(defaults["value"]) == value
     documentation = " ".join(ast.get_docstring(function).split())
