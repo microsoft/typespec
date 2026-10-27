@@ -1129,6 +1129,9 @@ export class CodeModelBuilder {
         }
       }
     }
+    if (codeModelOperation.convenienceApi && codeModelOperation.sseStreamId) {
+      this.trackSseSchemaUsage(codeModelOperation.sseStreamId);
+    }
     if (diagnostic) {
       codeModelOperation.language.java = codeModelOperation.language.java ?? {};
       codeModelOperation.language.java.comment = diagnostic.message;
@@ -1309,6 +1312,7 @@ export class CodeModelBuilder {
         typeof event.eventType !== "string" ||
         event.eventType.length === 0 ||
         event.payloadType.kind === "constant" ||
+        this.hasUnsupportedSseNullablePayload(event.payloadType) ||
         !isJson ||
         identities.has(event.eventType)
       ) {
@@ -1353,12 +1357,6 @@ export class CodeModelBuilder {
       return unsupported();
     }
 
-    for (const { payload } of supportedEvents) {
-      this.trackSchemaUsage(payload, {
-        usage: [SchemaContext.Output, SchemaContext.Public],
-        serializationFormats: [KnownMediaType.Json],
-      });
-    }
     const metadata = {
       streamName: streamType.name,
       modelNamespace,
@@ -1371,6 +1369,29 @@ export class CodeModelBuilder {
     (this.codeModel.sseStreams ??= {})[id] = metadata;
     this.sseStreamOwners.set(id, owner);
     return id;
+  }
+
+  private hasUnsupportedSseNullablePayload(type: SdkType): boolean {
+    if (type.kind === "nullable") {
+      return true;
+    }
+    if (type.kind === "array" || type.kind === "dict") {
+      return this.hasUnsupportedSseNullablePayload(type.valueType);
+    }
+    return false;
+  }
+
+  private trackSseSchemaUsage(id: string): void {
+    const metadata = this.codeModel.sseStreams?.[id];
+    if (!metadata) {
+      throw new Error(`Operation references unknown SSE stream '${id}'.`);
+    }
+    for (const event of metadata.events) {
+      this.trackSchemaUsage(event.payload, {
+        usage: [SchemaContext.Output, SchemaContext.Public],
+        serializationFormats: [KnownMediaType.Json],
+      });
+    }
   }
 
   private processRouteForPaged(

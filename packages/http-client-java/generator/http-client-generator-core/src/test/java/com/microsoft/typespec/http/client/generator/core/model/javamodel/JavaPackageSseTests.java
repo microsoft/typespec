@@ -8,7 +8,11 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DurationSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.NumberSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
@@ -16,14 +20,20 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 
 @Isolated
@@ -278,6 +288,43 @@ public class JavaPackageSseTests {
             source.contains("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;"));
     }
 
+    @Test
+    public void fullyQualifiesPayloadTypesThatCollideWithGeneratedSseNames(@TempDir Path tempDir) throws IOException {
+        JavaSettings.clear();
+        ObjectSchema collidingPayload = objectSchema("RetrievalStreamEvent", "com.azure.payload");
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("direct", collidingPayload),
+            event("nested", dictionary(array(dictionary(collidingPayload))))));
+
+        javaPackage.addSseEventFiles(metadata);
+
+        List<Path> sources = new ArrayList<>();
+        for (JavaFile javaFile : javaPackage.getJavaFiles()) {
+            Path source = tempDir.resolve(javaFile.getFilePath());
+            Files.createDirectories(source.getParent());
+            Files.writeString(source, javaFile.getContents().toString());
+            sources.add(source);
+        }
+        Path payloadSource = tempDir.resolve("src/main/java/com/azure/payload/models/RetrievalStreamEvent.java");
+        Files.createDirectories(payloadSource.getParent());
+        Files.writeString(payloadSource,
+            "package com.azure.payload.models;\n\n" + "public final class RetrievalStreamEvent {\n"
+                + "    public static RetrievalStreamEvent fromJson(com.azure.json.JsonReader reader) {\n"
+                + "        return null;\n" + "    }\n" + "}\n");
+        sources.add(payloadSource);
+        Path classes = tempDir.resolve("classes");
+        Files.createDirectories(classes);
+        List<String> arguments
+            = new ArrayList<>(List.of("-classpath", System.getProperty("java.class.path"), "-d", classes.toString()));
+        arguments.addAll(sources.stream().map(Path::toString).collect(Collectors.toList()));
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+
+        Assertions.assertEquals(0,
+            ToolProvider.getSystemJavaCompiler().run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+            diagnostics.toString(StandardCharsets.UTF_8));
+    }
+
     private static SseMetadata metadata() {
         SseMetadata metadata = new SseMetadata();
         metadata.setStreamName("RetrievalStreamEvents");
@@ -297,6 +344,20 @@ public class JavaPackageSseTests {
         StringSchema payload = new StringSchema();
         payload.setType(Schema.AllSchemaTypes.STRING);
         return payload;
+    }
+
+    private static ObjectSchema objectSchema(String name, String namespace) {
+        Language language = new Language();
+        language.setName(name);
+        language.setNamespace(namespace);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        ObjectSchema schema = new ObjectSchema();
+        schema.setType(Schema.AllSchemaTypes.OBJECT);
+        schema.setLanguage(languages);
+        schema.setChildren(new Relations());
+        return schema;
     }
 
     private static DictionarySchema dictionary(Schema elementType) {

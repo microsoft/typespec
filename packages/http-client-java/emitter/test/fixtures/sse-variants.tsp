@@ -20,6 +20,15 @@ model Envelope {
 model LiteralPropertyPayload {
   kind: "fixed";
   value: string;
+  nullableValue: string | null;
+}
+
+model NullablePayloadEnvelope {
+  @data value: string | null;
+}
+
+model NestedNullablePayloadEnvelope {
+  @data value: Record<(string | null)[]>;
 }
 
 @events
@@ -75,6 +84,12 @@ union NamedBooleanLiteral {
 union UnsupportedPayloadEncoding {
   @TypeSpec.Events.contentType("application/xml") named: Payload,
 }
+@events
+union NullablePayload {
+  direct: NullablePayloadEnvelope,
+  nested: NestedNullablePayloadEnvelope,
+  valid: Payload,
+}
 
 @route("/unnamed") @get op unnamed(): SSEStream<Unnamed>;
 @route("/named") @get op named(): SSEStream<Named>;
@@ -88,3 +103,4 @@ union UnsupportedPayloadEncoding {
 @route("/named-boolean-literal") @get op namedBooleanLiteral(): SSEStream<NamedBooleanLiteral>;
 @route("/unsupported-payload-encoding") @get op unsupportedPayloadEncoding(
 ): SSEStream<UnsupportedPayloadEncoding>;
+@route("/nullable-payload") @get op nullablePayload(): SSEStream<NullablePayload>;

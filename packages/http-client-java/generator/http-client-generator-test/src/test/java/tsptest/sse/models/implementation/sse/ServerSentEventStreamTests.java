@@ -171,6 +171,10 @@ public class ServerSentEventStreamTests {
     public void generatedClientsPreserveProtocolAndReplaceRawConvenienceMethods() {
         assertSseApiShape(SseClient.class, CloseableIterableStream.class);
         assertSseApiShape(SseAsyncClient.class, Flux.class);
+        assertProtocolOnlyApiShape(SseClient.class);
+        assertProtocolOnlyApiShape(SseAsyncClient.class);
+        Assertions.assertThrows(ClassNotFoundException.class,
+            () -> Class.forName("tsptest.sse.models.ProtocolOnlyPayload"));
     }
 
     @Test
@@ -201,6 +205,14 @@ public class ServerSentEventStreamTests {
             .anyMatch(method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == String.class));
         Assertions.assertFalse(Arrays.stream(clientType.getDeclaredMethods())
             .anyMatch(method -> method.getName().startsWith("hiddenGenerated")));
+    }
+
+    private static void assertProtocolOnlyApiShape(Class<?> clientType) {
+        Assertions.assertTrue(Arrays.stream(clientType.getDeclaredMethods())
+            .anyMatch(method -> method.getName().equals("readProtocolOnlyWithResponse")
+                && Arrays.equals(method.getParameterTypes(), new Class<?>[] { RequestOptions.class })));
+        Assertions.assertFalse(Arrays.stream(clientType.getDeclaredMethods())
+            .anyMatch(method -> method.getName().equals("readProtocolOnly")));
     }
 
     private static void assertInvalidResponseClosed(int statusCode, String contentType) {

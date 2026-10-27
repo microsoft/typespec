@@ -37,6 +37,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
     public void write(SseMetadata metadata, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType baseEventType = SseUtil.getEventType(metadata, names.getBaseEventName());
+        Set<String> fullyQualifiedTypeNames = SseUtil.getGeneratedTypeNames(metadata, names);
         Set<String> imports = new LinkedHashSet<>();
         imports.add("com.azure.json.JsonProviders");
         imports.add("com.azure.json.JsonReader");
@@ -49,8 +50,8 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
         for (SseEventMetadata event : metadata.getEvents()) {
             SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName())).addImportsTo(imports, false);
             IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
-            addPayloadImports(wirePayloadType, imports);
-            addPayloadImports(wirePayloadType.getClientType(), imports);
+            addPayloadImports(wirePayloadType, imports, fullyQualifiedTypeNames);
+            addPayloadImports(wirePayloadType.getClientType(), imports, fullyQualifiedTypeNames);
         }
         javaFile.declareImportPreservingOrder(imports);
 
@@ -77,6 +78,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType wrapperType = SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName()));
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+                        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType, fullyQualifiedTypeNames);
                         interfaceBlock.javadocComment(comment -> {
                             String eventDescription = event.getName().replace('.', '-');
                             comment.description("Creates " + getIndefiniteArticle(eventDescription) + " "
@@ -86,7 +88,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                         });
                         interfaceBlock.publicMethod(
                             wrapperType + " " + SseNamingResolver.getEventFactoryMethodName(event.getName()) + "("
-                                + payloadType + " value)");
+                                + payloadTypeName + " value)");
                     }
                 });
             javaClass.javadocComment(comment -> {
@@ -135,9 +137,9 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
                         method.line("case \"" + TemplateUtil.escapeString(event.getName()) + "\":");
-                        method.indent(() -> method
-                            .methodReturn("accessor." + SseNamingResolver.getEventFactoryMethodName(event.getName())
-                                + "(read(eventName, data, " + getJsonReadCallback(wirePayloadType) + "))"));
+                        method.indent(() -> method.methodReturn("accessor."
+                            + SseNamingResolver.getEventFactoryMethodName(event.getName()) + "(read(eventName, data, "
+                            + getJsonReadCallback(wirePayloadType, fullyQualifiedTypeNames) + "))"));
                         method.line();
                     }
                     method.line("default:");
@@ -162,37 +164,41 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
         });
     }
 
-    private static void addPayloadImports(IType type, Set<String> imports) {
-        type.addImportsTo(imports, false);
+    private static void addPayloadImports(IType type, Set<String> imports, Set<String> fullyQualifiedTypeNames) {
+        SseUtil.addPayloadImports(type, imports, fullyQualifiedTypeNames, false);
         if (type instanceof IterableType) {
-            addPayloadImports(((IterableType) type).getElementType(), imports);
+            addPayloadImports(((IterableType) type).getElementType(), imports, fullyQualifiedTypeNames);
         } else if (type instanceof MapType) {
-            addPayloadImports(((MapType) type).getValueType(), imports);
+            addPayloadImports(((MapType) type).getValueType(), imports, fullyQualifiedTypeNames);
         } else if (ClassType.DATE_TIME.equals(type)) {
             ClassType.CORE_UTILS.addImportsTo(imports, false);
         }
     }
 
-    private static String getJsonReadCallback(IType type) {
-        return getJsonReadCallback(type, 0);
+    private static String getJsonReadCallback(IType type, Set<String> fullyQualifiedTypeNames) {
+        return getJsonReadCallback(type, 0, fullyQualifiedTypeNames);
     }
 
-    private static String getJsonReadCallback(IType type, int depth) {
+    private static String getJsonReadCallback(IType type, int depth, Set<String> fullyQualifiedTypeNames) {
         String readerName = depth == 0 ? "reader" : "reader" + depth;
         if (type instanceof IterableType) {
             return readerName + " -> " + readerName + ".readArray("
-                + getJsonReadCallback(((IterableType) type).getElementType(), depth + 1) + ")";
+                + getJsonReadCallback(((IterableType) type).getElementType(), depth + 1, fullyQualifiedTypeNames) + ")";
         }
         if (type instanceof MapType) {
             return readerName + " -> " + readerName + ".readMap("
-                + getJsonReadCallback(((MapType) type).getValueType(), depth + 1) + ")";
+                + getJsonReadCallback(((MapType) type).getValueType(), depth + 1, fullyQualifiedTypeNames) + ")";
         }
         if (type instanceof ClassType && ((ClassType) type).isSwaggerType()) {
-            return type + "::fromJson";
+            return SseUtil.getPayloadTypeName(type, fullyQualifiedTypeNames) + "::fromJson";
         }
         String deserialization = type.jsonDeserializationMethod(readerName);
         if (deserialization == null) {
             throw new IllegalStateException("SSE payload type " + type + " does not support JSON deserialization.");
+        }
+        String payloadTypeName = SseUtil.getPayloadTypeName(type, fullyQualifiedTypeNames);
+        if (!payloadTypeName.equals(type.toString()) && deserialization.startsWith(type + ".")) {
+            deserialization = payloadTypeName + deserialization.substring(type.toString().length());
         }
         return readerName + " -> " + type.convertToClientType(deserialization);
     }

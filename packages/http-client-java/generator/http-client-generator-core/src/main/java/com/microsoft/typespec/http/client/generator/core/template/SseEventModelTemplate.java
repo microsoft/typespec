@@ -35,13 +35,15 @@ public final class SseEventModelTemplate {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         String baseEventName = names.getBaseEventName();
         String converterName = names.getConverterName();
+        Set<String> fullyQualifiedTypeNames = SseUtil.getGeneratedTypeNames(metadata, names);
         Set<String> imports = new LinkedHashSet<>();
         new ClassType.Builder().packageName(SseUtil.getConverterPackage())
             .name(converterName)
             .build()
             .addImportsTo(imports, false);
         for (SseEventMetadata event : metadata.getEvents()) {
-            Mappers.getSchemaMapper().map(event.getPayload()).getClientType().addImportsTo(imports, false);
+            SseUtil.addPayloadImports(Mappers.getSchemaMapper().map(event.getPayload()).getClientType(), imports,
+                fullyQualifiedTypeNames, false);
         }
         Annotation.GENERATED.addImportsTo(imports);
         javaFile.declareImport(imports);
@@ -90,11 +92,12 @@ public final class SseEventModelTemplate {
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+                        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType, fullyQualifiedTypeNames);
                         String wrapperName = names.getEventWrapperName(event.getName());
                         staticBlock.line("@Override");
                         staticBlock.block(
                             "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(event.getName())
-                                + "(" + payloadType + " value)",
+                                + "(" + payloadTypeName + " value)",
                             method -> method.methodReturn("new " + wrapperName + "(value)"));
                     }
                 });
@@ -106,8 +109,10 @@ public final class SseEventModelTemplate {
     public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+        Set<String> fullyQualifiedTypeNames = SseUtil.getGeneratedTypeNames(metadata, names);
+        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType, fullyQualifiedTypeNames);
         Set<String> imports = new LinkedHashSet<>();
-        payloadType.addImportsTo(imports, false);
+        SseUtil.addPayloadImports(payloadType, imports, fullyQualifiedTypeNames, false);
         SseUtil.getEventType(metadata, names.getBaseEventName()).addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.IMMUTABLE.addImportsTo(imports);
@@ -124,13 +129,13 @@ public final class SseEventModelTemplate {
         javaFile.annotation(Annotation.IMMUTABLE.getName());
         javaFile.publicFinalClass(wrapperName + " extends " + baseEventName, javaClass -> {
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.privateFinalMemberVariable(payloadType + " value");
+            javaClass.privateFinalMemberVariable(payloadTypeName + " value");
             javaClass.javadocComment(comment -> {
                 comment.description("Creates an event wrapper.");
                 comment.param("value", "The event payload.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.packagePrivateConstructor(wrapperName + "(" + payloadType + " value)", constructor -> {
+            javaClass.packagePrivateConstructor(wrapperName + "(" + payloadTypeName + " value)", constructor -> {
                 constructor.line("super(\"" + TemplateUtil.escapeString(event.getName()) + "\");");
                 constructor.line("this.value = value;");
             });
@@ -139,7 +144,7 @@ public final class SseEventModelTemplate {
                 comment.methodReturns("The event payload.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.publicMethod(payloadType + " getValue()", method -> method.methodReturn("value"));
+            javaClass.publicMethod(payloadTypeName + " getValue()", method -> method.methodReturn("value"));
             if (event.isTerminal()) {
                 javaClass.annotation(Annotation.GENERATED.getName());
                 javaClass.annotation("Override");

@@ -129,6 +129,7 @@ describe("code model characterization", () => {
       "booleanLiteral",
       "namedBooleanLiteral",
       "unsupportedPayloadEncoding",
+      "nullablePayload",
     ];
     for (const operationName of unsupportedOperations) {
       const operation = operations.find(
@@ -330,6 +331,21 @@ describe("code model characterization", () => {
     expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
     expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
     expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
+
+    const protocolOnlyPayloadOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "protocolOnlyPayload",
+    )!;
+    expect(protocolOnlyPayloadOperation.sseStreamId).toBe("SseTest.ProtocolOnlyStreamEvents");
+    expect(protocolOnlyPayloadOperation.convenienceApi).toBeUndefined();
+    const protocolOnlyPayload = enabledModel.schemas.objects?.find(
+      (schema) => schema.language.default.name === "ProtocolOnlyPayload",
+    );
+    expect(protocolOnlyPayload).toBeDefined();
+    expect(protocolOnlyPayload?.usage ?? []).not.toContain(SchemaContext.Public);
+    const sharedTypedPayload = enabledModel.schemas.objects?.find(
+      (schema) => schema.language.default.name === "RetrievalStarted",
+    );
+    expect(sharedTypedPayload?.usage).toContain(SchemaContext.Public);
 
     const jacksonOperations = (
       await new CodeModelBuilder(program, {

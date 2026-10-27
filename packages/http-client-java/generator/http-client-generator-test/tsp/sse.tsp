@@ -22,6 +22,10 @@ model CompletedPayload {
   result: string[];
 }
 
+model ProtocolOnlyPayload {
+  value: string;
+}
+
 @encode(DurationKnownEncoding.seconds, int32)
 scalar SecondsDuration extends duration;
 
@@ -73,6 +77,11 @@ model CompletedEnvelope {
   payload: CompletedPayload;
 }
 
+model ProtocolOnlyEnvelope {
+  @data
+  payload: ProtocolOnlyPayload;
+}
+
 @events
 union TestStreamEvents {
   started: StartedEnvelope,
@@ -88,9 +97,20 @@ union TestStreamEvents {
   completed: CompletedEnvelope,
 }
 
+@events
+union ProtocolOnlyStreamEvents {
+  message: ProtocolOnlyEnvelope,
+}
+
 @clientNamespace("TspTest.Sse.Stream", "java")
 interface Stream {
   @route("/stream")
   @get
   read(@header authorization?: string): SSEStream<TestStreamEvents>;
+
+  @route("/protocol-only")
+  @get
+  @convenientAPI(false, "java")
+  @protocolAPI(true, "java")
+  readProtocolOnly(): SSEStream<ProtocolOnlyStreamEvents>;
 }

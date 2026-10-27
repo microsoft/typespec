@@ -22,6 +22,10 @@ model ResponseCompleted {
   statusCode: int32;
 }
 
+model ProtocolOnlyPayload {
+  value: string;
+}
+
 model ScalarFirstEvent {
   @data
   value: string;
@@ -68,12 +72,22 @@ model CompletedEnvelopeIgnoredByJava {
   payload: ResponseCompleted;
 }
 
+model ProtocolOnlyEnvelopeIgnoredByJava {
+  @data
+  payload: ProtocolOnlyPayload;
+}
+
 @events
 union RetrievalStreamEvents {
   `retrieval.started`: StartedEnvelopeIgnoredByJava,
 
   @terminalEvent
   `response.completed`: CompletedEnvelopeIgnoredByJava,
+}
+
+@events
+union ProtocolOnlyStreamEvents {
+  message: ProtocolOnlyEnvelopeIgnoredByJava,
 }
 
 @events
@@ -110,6 +124,12 @@ interface Retrieve {
       query: string;
     },
   ): SSEStream<RetrievalStreamEvents>;
+
+  @route("/protocol-only-payload")
+  @get
+  @convenientAPI(false, "java")
+  @protocolAPI(true, "java")
+  protocolOnlyPayload(): SSEStream<ProtocolOnlyStreamEvents>;
 
   @route("/scalar-events")
   @get
