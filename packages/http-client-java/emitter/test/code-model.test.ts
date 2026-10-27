@@ -81,7 +81,7 @@ describe("code model characterization", () => {
       }
     },
   );
-  it("catalogs unnamed, mixed and primitive literal streams without inventing event names", async () => {
+  it("catalogs only explicitly named events with nonliteral JSON payloads", async () => {
     const program = await compile(
       NodeHost,
       fileURLToPath(new URL("./fixtures/sse-variants.tsp", import.meta.url)),
@@ -99,63 +99,56 @@ describe("code model characterization", () => {
         report: () => {},
       },
     }).build();
-    expect(model.sseStreams?.["SseVariants.Direct"].events).toMatchObject([
-      { payload: { type: SchemaType.String }, terminal: false },
-    ]);
-    expect(model.sseStreams?.["SseVariants.Direct"].events[0].name).toBeUndefined();
-    expect(model.sseStreams?.["SseVariants.Collections"].events[0].payload).toMatchObject({
-      type: SchemaType.Array,
-      elementType: { type: SchemaType.Dictionary, elementType: { type: SchemaType.Array } },
-    });
-    expect(model.sseStreams?.["SseVariants.Mixed"].events.map((event) => event.name)).toEqual([
-      undefined,
-      "update",
-    ]);
-    expect(model.sseStreams?.["SseVariants.Literals"].events).toMatchObject([
-      { payload: { type: SchemaType.String }, payloadContentType: "application/json" },
+    expect(model.sseStreams?.["SseVariants.Named"].events).toMatchObject([
+      { name: "message", payload: { type: SchemaType.String }, terminal: false },
+      { name: "count", payload: { type: SchemaType.Integer }, terminal: false },
+      { name: "enabled", payload: { type: SchemaType.Boolean }, terminal: false },
       {
-        payload: { type: SchemaType.Constant, value: { value: "[DONE]" } },
-        terminal: true,
-        payloadContentType: "text/plain",
+        name: "collections",
+        payload: {
+          type: SchemaType.Array,
+          elementType: { type: SchemaType.Dictionary, elementType: { type: SchemaType.Array } },
+        },
+        terminal: false,
       },
-      { payload: { type: SchemaType.Constant, value: { value: true } } },
-      { payload: { type: SchemaType.Constant, value: { value: 42 } } },
+      { name: "payloadModel", payload: { type: SchemaType.Object }, terminal: false },
+      { name: "done", payload: { type: SchemaType.Object }, terminal: true },
     ]);
-    expect(model.sseStreams?.["SseVariants.Ambiguous"]).toBeUndefined();
-    expect(model.sseStreams?.["SseVariants.MessageConflict"]).toBeUndefined();
-    for (const name of [
-      "NumericOverlap",
-      "EncodingOverlap",
-      "NumericEncodingOverlap",
-      "UnsupportedEncoding",
-      "UnsupportedPayloadEncoding",
-      "RoundedNumericLiteral",
-      "OutOfRangeNumericLiteral",
-    ]) {
-      expect(model.sseStreams?.[`SseVariants.${name}`]).toBeUndefined();
+
+    const operations = model.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? []);
+    const unsupportedOperations = [
+      "unnamed",
+      "mixed",
+      "stringLiteral",
+      "namedStringLiteral",
+      "terminalLiteral",
+      "numberLiteral",
+      "namedNumberLiteral",
+      "booleanLiteral",
+      "namedBooleanLiteral",
+      "unsupportedPayloadEncoding",
+    ];
+    for (const operationName of unsupportedOperations) {
+      const operation = operations.find(
+        (operation) => operation.language.default.name === operationName,
+      )!;
+      expect(operation.sseStreamId).toBeUndefined();
+      expect(operation.responses?.[0]).toMatchObject({ binary: true });
     }
-    expect(model.sseStreams?.["SseVariants.StringLiteralOnly"].events).toMatchObject([
-      { payload: { type: SchemaType.Constant, value: { value: "stop" } }, terminal: true },
-    ]);
-    expect(model.sseStreams?.["SseVariants.DistinctPreciseWireValues"].events).toHaveLength(2);
+    expect(Object.keys(model.sseStreams ?? {})).toEqual(["SseVariants.Named"]);
     expectDiagnostics(
       program.diagnostics.filter(
         (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
       ),
-      [
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
-      ],
+      unsupportedOperations.map(() => ({
+        code: "@typespec/http-client-java/sse-unsupported" as const,
+        severity: "warning" as const,
+      })),
     );
   });
-  it("generates SSE metadata for direct scalar payloads", async () => {
+  it("generates SSE metadata for named scalar payloads", async () => {
     const program = await compile(
       NodeHost,
       fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),

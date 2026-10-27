@@ -12,9 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
@@ -96,11 +94,10 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
         if (convenienceMethod.getType() == ClientMethodType.SseSync) {
             SseNamingResolver.Names names = SseNamingResolver.resolve(convenienceMethod.getSseMetadata());
-            methodBlock
-                .methodReturn(String.format("ServerSentEventStreams.toIterableStream(%1$s(%2$s), %3$s::convert%4$s)",
+            methodBlock.methodReturn(
+                String.format("ServerSentEventStreams.toIterableStream(%1$s(%2$s), %3$s::convert, %4$s::isTerminal)",
                     getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
-                    SseUtil.getTerminalPredicate(convenienceMethod.getSseMetadata(),
-                        MethodUtil.getMethodVariableNames(convenienceMethod))));
+                    names.getBaseEventName()));
             return;
         }
 

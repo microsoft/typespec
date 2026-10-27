@@ -48,7 +48,12 @@ public class CodeModel extends Client {
                 || metadata.getModelNamespace().isEmpty()
                 || metadata.getEvents() == null
                 || metadata.getEvents().isEmpty()
-                || metadata.getEvents().stream().anyMatch(event -> event == null || event.getPayload() == null)) {
+                || metadata.getEvents()
+                    .stream()
+                    .anyMatch(event -> event == null
+                        || event.getName() == null
+                        || event.getName().isEmpty()
+                        || event.getPayload() == null)) {
                 throw new IllegalStateException("Invalid SSE catalog entry '" + id + "'.");
             }
         });

@@ -55,24 +55,6 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
     }
 
     @Test
-    public void directScalarStreamsNeverExportSyntheticModelPackages() {
-        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
-        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
-        SseMetadata metadata = method("ScalarEvents", "com.azure.empty").getSseMetadata();
-        metadata.getEvents().get(0).setName(null);
-        ModuleInfo moduleInfo = new ModuleInfo("com.azure.mock");
-        Client client
-            = new Client.Builder().moduleInfo(moduleInfo).models(List.of()).sseStreams(List.of(metadata)).build();
-        JavaPackage javaPackage = new JavaPackage(plugin);
-        plugin.writeHelperClasses(client, new CodeModel(), javaPackage, JavaSettings.getInstance());
-        Assertions.assertTrue(moduleInfo.getExportModules().isEmpty());
-        Assertions.assertEquals(4, javaPackage.getJavaFiles().size());
-        Assertions.assertTrue(javaPackage.getJavaFiles()
-            .stream()
-            .noneMatch(file -> file.getFilePath().contains("com/azure/empty/models")));
-    }
-
-    @Test
     public void unusedCatalogEntriesDoNotEmitRuntimeOrModels() {
         TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
         configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));

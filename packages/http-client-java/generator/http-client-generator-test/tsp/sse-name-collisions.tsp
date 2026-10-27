@@ -11,11 +11,6 @@ using Azure.ClientGenerator.Core;
 @server("https://example.org")
 namespace TspTest.SseNameCollisions {
   @events
-  union DirectEvents {
-    @terminalEvent string,
-  }
-
-  @events
   union WrappedEvents {
     @terminalEvent update: string,
   }
@@ -23,13 +18,7 @@ namespace TspTest.SseNameCollisions {
   model CollisionOptions {
     @query response: string;
     @query response1: string;
-    @query value: string;
-    @query value1: string;
   }
-
-  @get
-  @route("/direct")
-  op direct(...CollisionOptions): SSEStream<DirectEvents>;
 
   @get
   @route("/wrapped")
@@ -37,7 +26,7 @@ namespace TspTest.SseNameCollisions {
 
   @get
   @route("/grouped")
-  op grouped(...CollisionOptions): SSEStream<DirectEvents>;
+  op grouped(...CollisionOptions): SSEStream<WrappedEvents>;
 }
 
 namespace Customization {

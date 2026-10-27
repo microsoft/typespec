@@ -72,16 +72,13 @@ export interface Operation extends Aspect {
 
 export interface SseEventMetadata {
   /** SSE event field value. */
-  name?: string;
+  name: string;
 
   /** Typed event payload. */
   payload: Schema;
 
   /** Whether this event inclusively terminates the stream. */
   terminal: boolean;
-
-  /** Effective payload encoding, independent of the envelope content type. */
-  payloadContentType: string;
 }
 
 export interface SseMetadata {
@@ -91,7 +88,7 @@ export interface SseMetadata {
   /** Java namespace used as the base for generated event models. */
   modelNamespace: string;
 
-  /** Supported event variants, preserving absent names. */
+  /** Supported named event variants. */
   events: SseEventMetadata[];
 }
 

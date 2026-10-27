@@ -5,8 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.NumberSchema;
@@ -247,35 +245,6 @@ public class JavaPackageSseTests {
     }
 
     @Test
-    public void emitsOnlyConverterForDirectUnnamedPayload() {
-        JavaSettings.clear();
-        JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
-        SseMetadata metadata = metadata();
-        metadata.setEvents(List.of(event(null, dictionary(array(stringSchema())))));
-        javaPackage.addSseEventFiles(metadata);
-        Assertions.assertEquals(1, javaPackage.getJavaFiles().size());
-        String source = javaPackage.getJavaFiles().get(0).getContents().toString();
-        Assertions.assertTrue(source.contains("Map<String, List<String>> convert("));
-        Assertions.assertTrue(source.contains("Unexpected SSE event name"));
-        Assertions.assertTrue(source.contains("Objects.requireNonNull"));
-        Assertions.assertFalse(source.contains("ConstructorAccessor"));
-    }
-
-    @Test
-    public void emitsTypedDefaultSubtypeAlongsideNamedEvents() {
-        JavaSettings.clear();
-        JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
-        SseMetadata metadata = metadata();
-        metadata.setEvents(List.of(event(null, stringSchema()), event("update", stringSchema())));
-        javaPackage.addSseEventFiles(metadata);
-        Assertions.assertEquals(4, javaPackage.getJavaFiles().size());
-        String source = javaPackage.getJavaFiles().get(3).getContents().toString();
-        Assertions.assertTrue(source.contains("case \"message\":"));
-        Assertions.assertTrue(source.contains("createDefault("));
-        Assertions.assertTrue(source.contains("unknownEvent(eventName)"));
-    }
-
-    @Test
     public void explicitMessageIdentityAlsoNormalizesAbsentNames() {
         JavaSettings.clear();
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
@@ -293,25 +262,6 @@ public class JavaPackageSseTests {
         metadata.setModelNamespace("com.azure.mock");
         metadata.setEvents(List.of(event("retrieval.started", stringSchema())));
         return metadata;
-    }
-
-    @Test
-    public void rejectsDefaultAndLiteralFactoryNameCollisionsBeforeAddingFiles() {
-        for (boolean literal : List.of(false, true)) {
-            JavaSettings.clear();
-            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
-            SseMetadata metadata = metadata();
-            ConstantSchema constant = new ConstantSchema();
-            constant.setType(Schema.AllSchemaTypes.CONSTANT);
-            constant.setValueType(stringSchema());
-            ConstantValue value = new ConstantValue();
-            value.setValue("marker");
-            constant.setValue(value);
-            metadata.setEvents(List.of(event(null, literal ? constant : stringSchema()),
-                event(literal ? "literal1" : "default", stringSchema())));
-            Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(metadata));
-            Assertions.assertTrue(javaPackage.getJavaFiles().isEmpty());
-        }
     }
 
     private static SseEventMetadata event(String name, Schema payload) {

@@ -116,19 +116,18 @@ typed method mapping. Distinct effective union owners claiming one ID are errors
 not candidates for schema fingerprinting or structural deduplication. Generated Java
 names and strict source-path collision preflight remain generator-owned.
 
-For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`,
-`tsp/sse-variants.tsp`, or the Spector `streaming/sse/main.tsp` into separate output
-directories using its default `tspconfig.yaml`. Do not run full `Generate.ps1`.
-Compare the named fixture's sources before copying affected generated sources and
-metadata, excluding `module-info.java`. `tsp/sse-scalar.tsp` additionally verifies
-module-enabled direct scalar clients without synthetic model-package exports.
+For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`
+or the Spector `streaming/sse/main.tsp` into separate output directories using the
+default `tspconfig.yaml`. Do not run full `Generate.ps1`. Compare the named fixture's
+sources before copying affected generated sources and metadata, excluding
+`module-info.java`. The shared Spector streams contain unnamed or literal events and
+therefore verify unsupported-stream binary fallback rather than typed SSE generation.
 Compile `tsp/sse-name-collisions.tsp` and its generated Maven project to check SSE
-lambda names against request parameters, grouped-parameter locals, and numeric suffixes.
+response-lambda names against request parameters and grouped-parameter locals.
 
-Run the generator's catalog, naming, path-preflight, and mapper tests; the test module's
-`tsptest.ssevariants.SseVariantsTests` and existing SSE lifecycle tests exercise actual
-generated converters. `streaming.sse.SseTests` requires a running Spector server and
-checks unnamed, named, and retrieval streams in both asynchronous and synchronous APIs.
+Run the generator's catalog, naming, path-preflight, and mapper tests. The retained
+`tsptest.sse.models.implementation.sse.ServerSentEventStreamTests` exercises the actual
+generated named converter, client API shape, framing, terminal delivery, and lifecycle.
 
 ## Format Code
 

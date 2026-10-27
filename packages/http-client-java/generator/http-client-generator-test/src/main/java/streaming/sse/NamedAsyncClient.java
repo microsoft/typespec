@@ -15,12 +15,9 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import reactor.core.publisher.Flux;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import streaming.sse.implementation.NamedsImpl;
-import streaming.sse.implementation.ResponseEventConverter;
-import streaming.sse.models.implementation.sse.ServerSentEventStreams;
-import streaming.sse.named.models.ResponseEvent;
 
 /**
  * Initializes a new instance of the asynchronous SseClient type.
@@ -66,21 +63,18 @@ public final class NamedAsyncClient {
     /**
      * The receive operation.
      *
-     * Events are polymorphic: see {@link ResponseEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.named.models.ResponseEventResponseDeltaStreamEvent#getValue()}. Unrecognized events expose
-     * only their names through {@link ResponseEvent#getEventName()}; their payloads are not available.
-     *
-     * If received, the terminal {@code message} event is emitted before the stream completes. End-of-stream without a
-     * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
-     * path. The client does not reconnect automatically.
-     *
-     * @return A stream of typed response event events.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
      */
     @Generated
-    public Flux<ResponseEvent> receive() {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BinaryData> receive() {
+        // Generated convenience method for receiveWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return receiveWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            ResponseEventConverter::convert, ResponseEvent::isTerminal));
+        return receiveWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }

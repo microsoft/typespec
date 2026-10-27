@@ -26,53 +26,34 @@ import org.junit.jupiter.api.Test;
 public class SseConvenienceMethodTemplateTests {
     @Test
     public void avoidsEnclosingParametersAndSuffixes() {
-        for (boolean async : List.of(false, true)) {
-            String output = render(async, true, true, List.of("response", "response1", "value", "value1"), List.of());
-            Assertions.assertTrue(output.contains(", value2 -> true)"), output);
-            if (async) {
-                Assertions.assertTrue(output.contains(".flatMapMany(response2 -> "), output);
-                Assertions.assertTrue(output.contains("toFlux(response2, "), output);
-            }
-        }
+        String output = render(true, List.of("response", "response1"), List.of());
+        Assertions.assertTrue(output.contains(".flatMapMany(response2 -> "), output);
+        Assertions.assertTrue(output.contains("toFlux(response2, "), output);
     }
 
     @Test
     public void avoidsTransformationLocalsAndSuffixes() {
-        for (boolean async : List.of(false, true)) {
-            String output = render(async, true, true, List.of("response1", "value1"),
-                List.of("response", "response2", "value", "value2"));
-            Assertions.assertTrue(output.contains(", value3 -> true)"), output);
-            if (async) {
-                Assertions.assertTrue(output.contains(".flatMapMany(response3 -> "), output);
-                Assertions.assertTrue(output.contains("toFlux(response3, "), output);
-            }
-        }
+        String output = render(true, List.of("response1"), List.of("response", "response2"));
+        Assertions.assertTrue(output.contains(".flatMapMany(response3 -> "), output);
+        Assertions.assertTrue(output.contains("toFlux(response3, "), output);
     }
 
     @Test
-    public void preservesOrdinaryNamesAndWrapperTerminalReferences() {
+    public void preservesOrdinaryNamesAndNamedTerminalReferences() {
         for (boolean async : List.of(false, true)) {
-            String terminal = render(async, true, true, List.of(), List.of());
-            Assertions.assertTrue(terminal.contains(", value -> true)"), terminal);
-            String nonterminal = render(async, true, false, List.of("value"), List.of());
-            Assertions.assertFalse(nonterminal.contains(" -> true"), nonterminal);
-            String wrapper = render(async, false, true, List.of("response", "value"), List.of("response1"));
-            Assertions.assertTrue(wrapper.contains(", Event::isTerminal)"), wrapper);
-            Assertions.assertFalse(wrapper.contains(" -> true"), wrapper);
+            String output = render(async, List.of(), List.of());
+            Assertions.assertTrue(output.contains(", Event::isTerminal)"), output);
             if (async) {
-                Assertions.assertTrue(terminal.contains(".flatMapMany(response -> "), terminal);
-                Assertions.assertTrue(nonterminal.contains(".flatMapMany(response -> "), nonterminal);
-                Assertions.assertTrue(wrapper.contains(".flatMapMany(response2 -> "), wrapper);
+                Assertions.assertTrue(output.contains(".flatMapMany(response -> "), output);
             }
         }
     }
 
-    private static String render(boolean async, boolean direct, boolean terminal, List<String> parameters,
-        List<String> locals) {
+    private static String render(boolean async, List<String> parameters, List<String> locals) {
         SseEventMetadata event = new SseEventMetadata();
-        event.setName(direct ? null : "update");
+        event.setName("update");
         event.setPayload(new StringSchema());
-        event.setTerminal(terminal);
+        event.setTerminal(true);
         SseMetadata metadata = new SseMetadata();
         metadata.setStreamName("Events");
         metadata.setModelNamespace("test");

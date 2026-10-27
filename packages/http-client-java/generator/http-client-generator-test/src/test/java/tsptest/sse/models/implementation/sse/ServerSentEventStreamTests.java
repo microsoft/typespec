@@ -163,6 +163,16 @@ public class ServerSentEventStreamTests {
         assertSseApiShape(SseAsyncClient.class, Flux.class);
     }
 
+    @Test
+    public void generatedEventWrappersKeepSdkOnlyConstructors() {
+        for (Class<?> type : List.of(TestStreamEvent.class, TestStartedStreamEvent.class,
+            TestCompletedStreamEvent.class, TestTextStreamEvent.class)) {
+            Assertions.assertTrue(Arrays.stream(type.getDeclaredConstructors())
+                .noneMatch(constructor -> Modifier.isPublic(constructor.getModifiers())
+                    || Modifier.isProtected(constructor.getModifiers())));
+        }
+    }
+
     private static void assertSseApiShape(Class<?> clientType, Class<?> typedReturnType) {
         Method protocolMethod = Arrays.stream(clientType.getDeclaredMethods())
             .filter(method -> method.getName().equals("readWithResponse"))

@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.Collections;
@@ -47,28 +46,24 @@ public final class SseNamingResolver {
             }
         }
 
-        Map<SseEventMetadata, String> eventWrapperNames = new LinkedHashMap<>();
+        Map<String, String> eventWrapperNames = new LinkedHashMap<>();
         Map<String, String> wireNamesByWrapperName = new LinkedHashMap<>();
         for (SseEventMetadata event : metadata.getEvents()) {
-            String variantName = getVariantName(metadata, event);
-            String wrapperName = streamEventPrefix + normalizeEventName(variantName) + STREAM_EVENT_SUFFIX;
+            String wrapperName = streamEventPrefix + normalizeEventName(event.getName()) + STREAM_EVENT_SUFFIX;
             wrapperName = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(wrapperName));
-            String collidingWireName = wireNamesByWrapperName.putIfAbsent(wrapperName, variantName);
+            String collidingWireName = wireNamesByWrapperName.putIfAbsent(wrapperName, event.getName());
             if (wrapperName.equals(baseEventName) || collidingWireName != null) {
                 throw new IllegalStateException(
                     "SSE event names '" + (collidingWireName == null ? event.getName() : collidingWireName) + "' and '"
                         + event.getName() + "' resolve to duplicate Java type '" + wrapperName + "'.");
             }
-            eventWrapperNames.put(event, wrapperName);
+            eventWrapperNames.put(event.getName(), wrapperName);
         }
 
         return new Names(baseEventName, baseEventName + "Converter", toLowerCaseWords(baseStem), eventWrapperNames);
     }
 
     private static String firstEventNameSegment(String eventName) {
-        if (eventName == null) {
-            return "";
-        }
         for (String segment : eventName.split("[^A-Za-z0-9]+")) {
             if (!segment.isEmpty()) {
                 return CodeNamer.toPascalCase(segment);
@@ -91,18 +86,6 @@ public final class SseNamingResolver {
         return "create" + normalizeEventName(eventName);
     }
 
-    public static String getVariantName(SseMetadata metadata, SseEventMetadata event) {
-        return event.getName() == null || event.getName().isEmpty()
-            ? event.getPayload() instanceof ConstantSchema
-                ? "Literal" + (metadata.getEvents().indexOf(event) + 1)
-                : "Default"
-            : event.getName();
-    }
-
-    public static String getEventFactoryMethodName(SseMetadata metadata, SseEventMetadata event) {
-        return getEventFactoryMethodName(getVariantName(metadata, event));
-    }
-
     public static String getServiceImplementationMethodName(String wrapperMethodName) {
         if (wrapperMethodName.endsWith("InternalAsync")) {
             return wrapperMethodName.substring(0, wrapperMethodName.length() - "InternalAsync".length()) + "Async";
@@ -114,29 +97,24 @@ public final class SseNamingResolver {
     }
 
     public static String getRepresentativeEventName(SseMetadata metadata) {
-        SseEventMetadata event = getRepresentativeEvent(metadata);
-        return event == null ? null : event.getWireName();
-    }
-
-    public static SseEventMetadata getRepresentativeEvent(SseMetadata metadata) {
-        SseEventMetadata representativeEvent = null;
-        SseEventMetadata scalarEvent = null;
+        String representativeEventName = null;
+        String scalarEventName = null;
         for (SseEventMetadata event : metadata.getEvents()) {
             if (!event.isTerminal()) {
-                representativeEvent = event;
+                representativeEventName = event.getName();
                 if (!(event.getPayload() instanceof ArraySchema)) {
-                    scalarEvent = event;
+                    scalarEventName = event.getName();
                 }
             }
         }
-        return scalarEvent == null ? representativeEvent : scalarEvent;
+        return scalarEventName == null ? representativeEventName : scalarEventName;
     }
 
     public static List<String> getTerminalEventNames(SseMetadata metadata) {
         return metadata.getEvents()
             .stream()
             .filter(SseEventMetadata::isTerminal)
-            .map(SseEventMetadata::getWireName)
+            .map(SseEventMetadata::getName)
             .sorted((left, right) -> {
                 if (left.equals(right)) {
                     return 0;
@@ -157,10 +135,10 @@ public final class SseNamingResolver {
         private final String baseEventName;
         private final String converterName;
         private final String streamDescription;
-        private final Map<SseEventMetadata, String> eventWrapperNames;
+        private final Map<String, String> eventWrapperNames;
 
         private Names(String baseEventName, String converterName, String streamDescription,
-            Map<SseEventMetadata, String> eventWrapperNames) {
+            Map<String, String> eventWrapperNames) {
             this.baseEventName = baseEventName;
             this.converterName = converterName;
             this.streamDescription = streamDescription;
@@ -185,18 +163,9 @@ public final class SseNamingResolver {
         }
 
         public String getEventWrapperName(String eventName) {
-            return eventWrapperNames.entrySet()
-                .stream()
-                .filter(entry -> java.util.Objects.equals(entry.getKey().getName(), eventName))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown SSE event name '" + eventName + "'."));
-        }
-
-        public String getEventWrapperName(SseEventMetadata event) {
-            String wrapperName = eventWrapperNames.get(event);
+            String wrapperName = eventWrapperNames.get(eventName);
             if (wrapperName == null) {
-                throw new IllegalArgumentException("Unknown SSE event variant.");
+                throw new IllegalArgumentException("Unknown SSE event name '" + eventName + "'.");
             }
             return wrapperName;
         }

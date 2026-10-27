@@ -17,13 +17,25 @@ model Envelope {
   @data value: Record<Payload[]>[];
 }
 
+model LiteralPropertyPayload {
+  kind: "fixed";
+  value: string;
+}
+
 @events
-union Direct {
+union Unnamed {
   string,
 }
 @events
-union Collections {
-  Envelope,
+union Named {
+  message: string,
+  count: int32,
+  enabled: boolean,
+  collections: Envelope,
+  payloadModel: LiteralPropertyPayload,
+
+  @terminalEvent
+  done: Payload,
 }
 @events
 union Mixed {
@@ -31,83 +43,48 @@ union Mixed {
   update: Payload,
 }
 @events
-union Literals {
-  string,
-
-  @TypeSpec.Events.contentType("text/plain")
+union StringLiteral {
+  "literal",
+}
+@events
+union NamedStringLiteral {
+  named: "literal",
+}
+@events
+union TerminalLiteral {
   @terminalEvent
-  "[DONE]",
-
-  true,
+  done: "[DONE]",
+}
+@events
+union NumberLiteral {
   42,
 }
 @events
-union Ambiguous {
-  string,
-  Payload,
+union NamedNumberLiteral {
+  named: 42,
 }
 @events
-union MessageConflict {
-  string,
-  message: Payload,
-}
-@route("/direct") @get op direct(): SSEStream<Direct>;
-@route("/collections") @get op collections(): SSEStream<Collections>;
-@route("/mixed") @get op mixed(): SSEStream<Mixed>;
-@route("/literals") @get op literals(): SSEStream<Literals>;
-@route("/ambiguous") @get op ambiguous(): SSEStream<Ambiguous>;
-@route("/message-conflict") @get op messageConflict(): SSEStream<MessageConflict>;
-
-@events
-union NumericOverlap {
-  message: 42,
-  42.0,
+union BooleanLiteral {
+  true,
 }
 @events
-union EncodingOverlap {
-  @TypeSpec.Events.contentType("text/plain") "\"quoted\"",
-  "quoted",
-}
-@events
-union UnsupportedEncoding {
-  @TypeSpec.Events.contentType("text/plain") 42,
+union NamedBooleanLiteral {
+  named: true,
 }
 @events
 union UnsupportedPayloadEncoding {
-  @TypeSpec.Events.contentType("application/xml") Payload,
+  @TypeSpec.Events.contentType("application/xml") named: Payload,
 }
-@events
-union StringLiteralOnly {
-  @terminalEvent "stop",
-}
-@route("/numeric-overlap") @get op numericOverlap(): SSEStream<NumericOverlap>;
-@route("/encoding-overlap") @get op encodingOverlap(): SSEStream<EncodingOverlap>;
-@route("/unsupported-encoding") @get op unsupportedEncoding(): SSEStream<UnsupportedEncoding>;
+
+@route("/unnamed") @get op unnamed(): SSEStream<Unnamed>;
+@route("/named") @get op named(): SSEStream<Named>;
+@route("/mixed") @get op mixed(): SSEStream<Mixed>;
+@route("/string-literal") @get op stringLiteral(): SSEStream<StringLiteral>;
+@route("/named-string-literal") @get op namedStringLiteral(): SSEStream<NamedStringLiteral>;
+@route("/terminal-literal") @get op terminalLiteral(): SSEStream<TerminalLiteral>;
+@route("/number-literal") @get op numberLiteral(): SSEStream<NumberLiteral>;
+@route("/named-number-literal") @get op namedNumberLiteral(): SSEStream<NamedNumberLiteral>;
+@route("/boolean-literal") @get op booleanLiteral(): SSEStream<BooleanLiteral>;
+@route("/named-boolean-literal") @get op namedBooleanLiteral(): SSEStream<NamedBooleanLiteral>;
 @route("/unsupported-payload-encoding") @get op unsupportedPayloadEncoding(
 ): SSEStream<UnsupportedPayloadEncoding>;
-@route("/literal-only") @get op literalOnly(): SSEStream<StringLiteralOnly>;
-
-@events
-union DistinctPreciseWireValues {
-  @TypeSpec.Events.contentType("text/plain") "42.0000000000000000001",
-  42,
-}
-@events
-union NumericEncodingOverlap {
-  @TypeSpec.Events.contentType("text/plain") "4.20e1",
-  42,
-}
-@route("/precise-wire") @get op preciseWire(): SSEStream<DistinctPreciseWireValues>;
-@route("/numeric-encoding-overlap") @get op numericEncodingOverlap(
-): SSEStream<NumericEncodingOverlap>;
-
-@events
-union RoundedNumericLiteral {
-  43.0000000000000000001,
-}
-@events
-union OutOfRangeNumericLiteral {
-  2147483648,
-}
-@route("/rounded-number") @get op roundedNumber(): SSEStream<RoundedNumericLiteral>;
-@route("/out-of-range-number") @get op outOfRangeNumber(): SSEStream<OutOfRangeNumericLiteral>;

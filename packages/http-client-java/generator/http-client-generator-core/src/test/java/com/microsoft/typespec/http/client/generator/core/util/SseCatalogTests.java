@@ -43,6 +43,8 @@ public class SseCatalogTests {
         load("operationGroups: []").resolveSseStreams();
         Assertions.assertThrows(IllegalStateException.class,
             () -> load(YAML.replace("streamName: Events", "streamName: ''")).resolveSseStreams());
+        Assertions.assertThrows(IllegalStateException.class,
+            () -> load(YAML.replace("name: update", "name: ''")).resolveSseStreams());
     }
 
     private static CodeModel load(String yaml) {

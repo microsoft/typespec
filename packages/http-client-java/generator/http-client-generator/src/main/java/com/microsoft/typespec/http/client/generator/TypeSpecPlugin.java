@@ -116,7 +116,6 @@ public class TypeSpecPlugin extends Javagen {
                 List<ModuleInfo.ExportModule> exports = client.getModuleInfo().getExportModules();
                 client.getSseStreams()
                     .stream()
-                    .filter(metadata -> !SseUtil.isDirect(metadata))
                     .map(SseUtil::getEventPackage)
                     .distinct()
                     .map(ModuleInfo.ExportModule::new)

@@ -1281,7 +1281,7 @@ export class CodeModelBuilder {
     }
 
     const streamType = response.streamMetadata.streamType;
-    if ((streamType.kind !== "union" && streamType.kind !== "enum") || !streamType.name) {
+    if (streamType.kind !== "union" || !streamType.name) {
       return unsupported();
     }
     const id = streamType.crossLanguageDefinitionId;
@@ -1298,85 +1298,29 @@ export class CodeModelBuilder {
       return id;
     }
 
-    const identities = new Map<string, typeof sseMetadata.events>();
+    const identities = new Set<string>();
     for (const event of sseMetadata.events) {
       const contentType = (event.payloadContentType ?? "application/json")
         .split(";")[0]
         .trim()
         .toLowerCase();
       const isJson = /^application\/(?:[\w.+-]+\+)?json$/.test(contentType);
-      if (event.payloadType.kind === "constant") {
-        if (
-          !["string", "number", "boolean"].includes(typeof event.payloadType.value) ||
-          (typeof event.payloadType.value === "number" &&
-            (!Number.isFinite(event.payloadType.value) ||
-              (event.payloadType.__raw?.kind === "Number" &&
-                this.normalizeSseNumber(event.payloadType.__raw.numericValue.toString()) !==
-                  this.normalizeSseNumber(String(event.payloadType.value))) ||
-              (event.payloadType.valueType.kind === "int32" &&
-                (event.payloadType.value < -2147483648 ||
-                  event.payloadType.value > 2147483647)))) ||
-          (!isJson &&
-            !(contentType === "text/plain" && typeof event.payloadType.value === "string"))
-        ) {
-          return unsupported();
-        }
-      } else if (!isJson) {
-        return unsupported();
-      }
-      const identity = event.eventType || "message";
-      const alternatives = identities.get(identity) ?? [];
       if (
-        event.payloadType.kind !== "constant" &&
-        alternatives.some((other) => other.payloadType.kind !== "constant")
+        typeof event.eventType !== "string" ||
+        event.eventType.length === 0 ||
+        event.payloadType.kind === "constant" ||
+        !isJson ||
+        identities.has(event.eventType)
       ) {
         return unsupported();
       }
-      for (const other of alternatives) {
-        if (event.payloadType.kind !== "constant" || other.payloadType.kind !== "constant") {
-          continue;
-        }
-        const otherRaw =
-          other.payloadContentType?.split(";")[0].trim().toLowerCase() === "text/plain";
-        let value: unknown = event.payloadType.value;
-        let otherValue: unknown = other.payloadType.value;
-        // Compare the finite wire intersection, not arbitrary payload schemas.
-        if (isJson && otherRaw) {
-          try {
-            otherValue = JSON.parse(String(otherValue));
-          } catch (error) {
-            if (error instanceof SyntaxError) {
-              continue;
-            }
-            throw error;
-          }
-        } else if (!isJson && !otherRaw) {
-          try {
-            value = JSON.parse(String(value));
-          } catch (error) {
-            if (error instanceof SyntaxError) {
-              continue;
-            }
-            throw error;
-          }
-        }
-        const overlaps =
-          typeof value === "number" && typeof otherValue === "number"
-            ? this.normalizeSseNumber(String(event.payloadType.value)) ===
-              this.normalizeSseNumber(String(other.payloadType.value))
-            : value === otherValue;
-        if (overlaps) {
-          return unsupported();
-        }
-      }
-      alternatives.push(event);
-      identities.set(identity, alternatives);
+      identities.add(event.eventType);
     }
 
     const events = sseMetadata.events.map((event) => {
       // This only names anonymous code-model schemas; the generator owns Java SSE type names.
-      const payloadSchemaNameHint = (event.eventType ?? "Default")
-        .split(/[^A-Za-z0-9]+/)
+      const payloadSchemaNameHint = event
+        .eventType!.split(/[^A-Za-z0-9]+/)
         .filter((segment) => segment.length > 0)
         .map(pascalCase)
         .join("");
@@ -1419,33 +1363,14 @@ export class CodeModelBuilder {
       streamName: streamType.name,
       modelNamespace,
       events: supportedEvents.map(({ event, payload }) => ({
-        name: event.eventType,
+        name: event.eventType!,
         payload,
         terminal: event.isTerminalEvent,
-        payloadContentType: event.payloadContentType ?? "application/json",
       })),
     };
     (this.codeModel.sseStreams ??= {})[id] = metadata;
     this.sseStreamOwners.set(id, owner);
     return id;
-  }
-
-  private normalizeSseNumber(value: string): string {
-    const match = value.trim().match(/^(-?)(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
-    if (!match) {
-      throw new Error(`Invalid numeric SSE literal '${value}'.`);
-    }
-    const fraction = match[3] ?? "";
-    const coefficient = (match[2] + fraction).replace(/^0+/, "");
-    if (coefficient.length === 0) {
-      return "0";
-    }
-    const significant = coefficient.replace(/0+$/, "");
-    const exponent =
-      BigInt(match[4] ?? "0") -
-      BigInt(fraction.length) +
-      BigInt(coefficient.length - significant.length);
-    return `${match[1]}${significant}e${exponent}`;
   }
 
   private processRouteForPaged(

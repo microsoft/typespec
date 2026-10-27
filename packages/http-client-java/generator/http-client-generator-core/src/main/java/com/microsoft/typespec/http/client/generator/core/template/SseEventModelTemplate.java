@@ -55,7 +55,7 @@ public final class SseEventModelTemplate {
             comment.description(
                 "Stream events are envelopes, not JSON payload models; serialize the typed payload instead.");
             for (SseEventMetadata event : metadata.getEvents()) {
-                comment.see(names.getEventWrapperName(event));
+                comment.see(names.getEventWrapperName(event.getName()));
             }
         });
         javaFile.publicClass(List.of(JavaModifier.Abstract), baseEventName, javaClass -> {
@@ -90,10 +90,10 @@ public final class SseEventModelTemplate {
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-                        String wrapperName = names.getEventWrapperName(event);
+                        String wrapperName = names.getEventWrapperName(event.getName());
                         staticBlock.line("@Override");
                         staticBlock.block(
-                            "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(metadata, event)
+                            "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(event.getName())
                                 + "(" + payloadType + " value)",
                             method -> method.methodReturn("new " + wrapperName + "(value)"));
                     }
@@ -113,10 +113,10 @@ public final class SseEventModelTemplate {
         Annotation.IMMUTABLE.addImportsTo(imports);
         javaFile.declareImport(imports);
 
-        String wrapperName = names.getEventWrapperName(event);
+        String wrapperName = names.getEventWrapperName(event.getName());
         String baseEventName = names.getBaseEventName();
         javaFile.javadocComment(comment -> {
-            comment.description("Represents the {@code " + TemplateUtil.escapeString(event.getWireName()) + "} "
+            comment.description("Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} "
                 + names.getStreamDescription() + " stream event.");
             comment.description("Access the typed payload with {@link #getValue()}.");
             comment.see(baseEventName);
@@ -131,7 +131,7 @@ public final class SseEventModelTemplate {
             });
             javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.packagePrivateConstructor(wrapperName + "(" + payloadType + " value)", constructor -> {
-                constructor.line("super(\"" + TemplateUtil.escapeString(event.getWireName()) + "\");");
+                constructor.line("super(\"" + TemplateUtil.escapeString(event.getName()) + "\");");
                 constructor.line("this.value = value;");
             });
             javaClass.javadocComment(comment -> {
