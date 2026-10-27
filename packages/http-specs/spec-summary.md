@@ -9676,6 +9676,54 @@ Expected request to send body:
 }
 ```
 
+### Type_Union_Extends_DerivedScalar_Custom_get
+
+- Endpoint: `get /type/union/extends/derived-scalar/custom`
+
+Receive an ordinary constrained union as JSON, without a discriminator or envelope.
+Expected response body:
+
+```json
+"collection-123"
+```
+
+### Type_Union_Extends_DerivedScalar_Custom_put
+
+- Endpoint: `put /type/union/extends/derived-scalar/custom`
+
+Send an ordinary constrained union as JSON, without a discriminator or envelope.
+Expected request body:
+
+```json
+"collection-123"
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Extends_DerivedScalar_Literal_get
+
+- Endpoint: `get /type/union/extends/derived-scalar/literal`
+
+Receive an ordinary constrained union as JSON, without a discriminator or envelope.
+Expected response body:
+
+```json
+"all"
+```
+
+### Type_Union_Extends_DerivedScalar_Literal_put
+
+- Endpoint: `put /type/union/extends/derived-scalar/literal`
+
+Send an ordinary constrained union as JSON, without a discriminator or envelope.
+Expected request body:
+
+```json
+"all"
+```
+
+The response has status 204 and no body.
+
 ### Type_Union_FloatsOnly_get
 
 - Endpoint: `get /type/union/floats-only`
