@@ -17,8 +17,6 @@ export interface FeatureLifecycleDetails {
   stage: FeatureLifecycleStage;
   /** Diagnostic identifier supplied for this API, or undefined when the decorator omits it. */
   diagnosticId?: string;
-  /** Warning text supplied for this API, or undefined to use the emitter's default. */
-  warningText?: string;
   /**
    * Diagnostic identifiers of experimental features this API depends on; empty when none are supplied.
    * A dependency becoming generally available does not automatically change this API's stage.
@@ -46,7 +44,6 @@ export const $experimental: ExperimentalDecorator = (context, target, options) =
     value: {
       stage: "Experimental",
       diagnosticId: options?.diagnosticId,
-      ...(options?.warningText === undefined ? {} : { warningText: options.warningText }),
       dependsOn: options?.dependsOn ?? [],
     },
   });

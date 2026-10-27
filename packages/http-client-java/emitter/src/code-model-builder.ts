@@ -579,10 +579,7 @@ export class CodeModelBuilder {
     this.program.reportDiagnostics(diagnostics);
     if (details) {
       metadata.language.java ??= {};
-      metadata.language.java.experimental =
-        "warningText" in details && typeof details.warningText === "string"
-          ? { warningText: details.warningText }
-          : {};
+      metadata.language.java.experimental = {};
     }
   }
 

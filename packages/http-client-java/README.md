@@ -36,15 +36,16 @@ import "@typespec/http-client";
 
 @TypeSpec.HttpClient.experimental
 model Preview {
-  @TypeSpec.HttpClient.experimental(#{ warningText: "This property may change." })
+  @TypeSpec.HttpClient.experimental
   value: string;
 }
 ```
 
 The generator creates the configured annotation with a single `String warningText()` element,
 whose default is `Preview API - subject to change in non-backwards compatible way`.
-The generated model receives `@Experimental`, and the property's accessors receive
-`@Experimental(warningText = "This property may change.")`.
+The generated model and the property's accessors receive `@Experimental` without arguments.
+Java code customizations can supply `@Experimental(warningText = "This API may change.")`;
+`warningText` is not configurable through the TypeSpec decorator.
 
 Experimental annotations apply to generated models, enums, enum members, model properties,
 operations, and client types. `emitterScope` can include or exclude `@typespec/http-client-java`.

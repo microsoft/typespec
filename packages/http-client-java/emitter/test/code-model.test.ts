@@ -54,7 +54,7 @@ describe("experimental metadata", () => {
     { flavor: "azure", enabled: true, subclient: true },
     { flavor: "generic", enabled: true, subclient: true },
   ])(
-    "is opt-in for $flavor with annotation enabled=$enabled and subclient=$subclient",
+    "only emits experimental markers for $flavor with annotation enabled=$enabled and subclient=$subclient",
     async ({ flavor, enabled, subclient }) => {
       const program = await compile(
         NodeHost,
@@ -72,7 +72,7 @@ describe("experimental metadata", () => {
         [namespace.enums.get("Choice")!.members.get("One")!, "Enum value preview"],
         [namespace.models.get("EmptyWarning")!, ""],
       ]);
-      // Exercise optional metadata even with published shared-library versions predating warningText.
+      // Ignore warning text even when supplied by a lifecycle metadata producer.
       for (const [target, warningText] of warnings) {
         const details = $(program).client.getFeatureLifecycleDetails(target, {
           emitterName: "@typespec/http-client-java",
@@ -101,19 +101,13 @@ describe("experimental metadata", () => {
       const client = model.clients.find(
         (client) => client.language.default.name === "ExperimentalContractClient",
       )!;
-      expect(client.language.java?.experimental).toEqual(
-        enabled ? { warningText: "Client preview" } : undefined,
-      );
+      expect(client.language.java?.experimental).toEqual(enabled ? {} : undefined);
       const group = client.operationGroups.find((group) => group.language.default.name === "Group");
       const child = client.subClients.find((client) => client.language.default.name === "Group");
-      expect((child ?? group)!.language.java?.experimental).toEqual(
-        enabled ? { warningText: "Group preview" } : undefined,
-      );
+      expect((child ?? group)!.language.java?.experimental).toEqual(enabled ? {} : undefined);
       const operations = client.operationGroups.flatMap((group) => group.operations ?? []);
       const operation = operations.find((operation) => operation.operationId === "read")!;
-      expect(operation.language.java?.experimental).toEqual(
-        enabled ? { warningText: 'Operation "preview"\nwith a \\ path' } : undefined,
-      );
+      expect(operation.language.java?.experimental).toEqual(enabled ? {} : undefined);
       const groupOperations = child
         ? child.operationGroups.flatMap((group) => group.operations ?? [])
         : group!.operations;
@@ -124,18 +118,12 @@ describe("experimental metadata", () => {
       )!;
       expect(preview.language.java?.experimental).toEqual(enabled ? {} : undefined);
       assert.isDefined(preview.properties);
-      expect(preview.properties[0].language.java?.experimental).toEqual(
-        enabled ? { warningText: "Property preview" } : undefined,
-      );
+      expect(preview.properties[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
       const choice = model.schemas.sealedChoices?.find(
         (schema) => schema.language.default.name === "Choice",
       )!;
-      expect(choice.language.java?.experimental).toEqual(
-        enabled ? { warningText: "Enum preview" } : undefined,
-      );
-      expect(choice.choices[0].language.java?.experimental).toEqual(
-        enabled ? { warningText: "Enum value preview" } : undefined,
-      );
+      expect(choice.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(choice.choices[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
       expect(choice.choices[1].language.java?.experimental).toBeUndefined();
       const openChoice = model.schemas.choices?.find(
         (schema) => schema.language.default.name === "OpenChoice",
@@ -151,12 +139,8 @@ describe("experimental metadata", () => {
       const emptyWarning = model.schemas.objects?.find(
         (schema) => schema.language.default.name === "EmptyWarning",
       )!;
-      expect(emptyWarning.language.java?.experimental).toEqual(
-        enabled ? { warningText: "" } : undefined,
-      );
-      expect(parse(stringify(client)).language.java.experimental).toEqual(
-        enabled ? { warningText: "Client preview" } : undefined,
-      );
+      expect(emptyWarning.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(parse(stringify(client)).language.java.experimental).toEqual(enabled ? {} : undefined);
     },
   );
 });
