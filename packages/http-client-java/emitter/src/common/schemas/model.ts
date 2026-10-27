@@ -162,6 +162,7 @@ export interface Language {
   serializedName?: string;
   crossLanguageDefinitionId?: string;
   comment?: string;
+  experimental?: { warningText?: string };
 }
 
 /** custom extensible metadata for individual language generators */

@@ -73,6 +73,13 @@ public class ClientModelPropertyReference implements ClientModelPropertyAccess {
         return targetProperty;
     }
 
+    @Override
+    public ApiMetadata getApiMetadata() {
+        return referenceProperty.getApiMetadata().getExperimental() != null || targetProperty == null
+            ? referenceProperty.getApiMetadata()
+            : targetProperty.getApiMetadata();
+    }
+
     public List<ClientModelProperty> getAllProperties() {
         List<ClientModelProperty> properties = new ArrayList<>();
         if (targetProperty != null) {

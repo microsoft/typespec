@@ -32,6 +32,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaTyp
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -756,6 +757,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
         generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
+        ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
 
         switch (clientMethod.getType()) {
             case PagingSync:

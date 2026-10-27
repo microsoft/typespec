@@ -17,6 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -80,6 +81,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         String enumName = enumType.getName();
         String declaration = enumName + " extends ExpandableStringEnum<" + enumName + ">";
 
+        ExperimentalAnnotationUtil.write(javaFile, enumType.getApiMetadata());
         javaFile.publicFinalClass(declaration, classBlock -> {
             IType elementType = enumType.getElementType();
             String typeName = elementType.getClientType().toString();
@@ -90,6 +92,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                     ? "Static value " + value + " for " + enumName + "."
                     : enumValue.getDescription());
                 addGeneratedAnnotation(classBlock);
+                ExperimentalAnnotationUtil.write(classBlock, enumValue.getApiMetadata());
                 classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = from%3$s(%4$s)", enumName,
                     enumValue.getName(), pascalTypeName, elementType.defaultValueExpression(value)));
             }
@@ -151,9 +154,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
         String declaration = enumType.getName();
 
+        ExperimentalAnnotationUtil.write(javaFile, enumType.getApiMetadata());
         javaFile.publicEnum(declaration, enumBlock -> {
             for (ClientEnumValue value : enumType.getValues()) {
-                enumBlock.value(value.getName(), value.getValue(), value.getDescription(), elementType);
+                String annotation = ExperimentalAnnotationUtil.getAnnotation(value.getApiMetadata());
+                enumBlock.value(value.getName(), value.getValue(), value.getDescription(), elementType,
+                    annotation == null ? new String[0] : new String[] { annotation });
             }
 
             String enumName = enumType.getName();
@@ -245,6 +251,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         } else {
             declaration = String.format("%1$s implements ExpandableEnum<%2$s>", enumName, pascalTypeName);
         }
+        ExperimentalAnnotationUtil.write(javaFile, enumType.getApiMetadata());
         javaFile.publicFinalClass(declaration, classBlock -> {
             classBlock.privateStaticFinalVariable(
                 String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
@@ -257,6 +264,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                     ? "Static value " + value + " for " + enumName + "."
                     : enumValue.getDescription());
                 addGeneratedAnnotation(classBlock);
+                ExperimentalAnnotationUtil.write(classBlock, enumValue.getApiMetadata());
                 classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = fromValue(%3$s)", enumName,
                     enumValue.getName(), elementType.defaultValueExpression(value)));
             }

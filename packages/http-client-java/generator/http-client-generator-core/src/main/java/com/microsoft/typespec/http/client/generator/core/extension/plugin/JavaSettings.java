@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.lang.model.SourceVersion;
 import org.slf4j.Logger;
 
 /**
@@ -41,6 +42,16 @@ public class JavaSettings {
     private final boolean noCustomHeaders;
     private final boolean disableTypedHeadersMethods;
     private final boolean useRestProxy;
+    private final String experimentalAnnotation;
+
+    /**
+     * Gets the fully qualified annotation class name used for experimental APIs.
+     *
+     * @return the annotation class name, or null when experimental annotations are disabled.
+     */
+    public String getExperimentalAnnotation() {
+        return experimentalAnnotation;
+    }
 
     static void setHeader(String value) {
         if ("MICROSOFT_MIT".equals(value)) {
@@ -173,6 +184,14 @@ public class JavaSettings {
 
         // The sub-package that custom types will be put into.
         this.customTypesSubpackage = getStringValue(host, "custom-types-subpackage", "");
+
+        this.experimentalAnnotation = getStringValue(host, "experimental-annotation");
+        if (experimentalAnnotation != null
+            && (!experimentalAnnotation.contains(".") || !SourceVersion.isName(experimentalAnnotation))) {
+            throw new IllegalArgumentException(
+                "experimental-annotation must be a fully qualified Java annotation class name: "
+                    + experimentalAnnotation);
+        }
 
         // The sub-package that Fluent interfaces will be put into.
         this.fluentSubpackage = getStringValue(host, "fluent-subpackage", "fluent");

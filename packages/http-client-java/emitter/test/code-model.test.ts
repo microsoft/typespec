@@ -1,5 +1,7 @@
-import { NodeHost, compile } from "@typespec/compiler";
+import { NodeHost, compile, type Type } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
+import "@typespec/http-client/typekit";
 import { fileURLToPath } from "node:url";
 import { assert, describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
@@ -42,6 +44,122 @@ import {
 import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
+
+describe("experimental metadata", () => {
+  it.each([
+    { flavor: "azure", enabled: true, subclient: false },
+    { flavor: "generic", enabled: true, subclient: false },
+    { flavor: "azure", enabled: false, subclient: false },
+    { flavor: "generic", enabled: false, subclient: false },
+    { flavor: "azure", enabled: true, subclient: true },
+    { flavor: "generic", enabled: true, subclient: true },
+  ])(
+    "is opt-in for $flavor with annotation enabled=$enabled and subclient=$subclient",
+    async ({ flavor, enabled, subclient }) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/experimental.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const namespace = program.getGlobalNamespaceType().namespaces.get("ExperimentalContract")!;
+      const warnings = new Map<Type, string>([
+        [namespace, "Client preview"],
+        [namespace.interfaces.get("Group")!, "Group preview"],
+        [namespace.operations.get("read")!, 'Operation "preview"\nwith a \\ path'],
+        [namespace.models.get("Preview")!.properties.get("value")!, "Property preview"],
+        [namespace.enums.get("Choice")!, "Enum preview"],
+        [namespace.enums.get("Choice")!.members.get("One")!, "Enum value preview"],
+        [namespace.models.get("EmptyWarning")!, ""],
+      ]);
+      // Exercise optional metadata even with published shared-library versions predating warningText.
+      for (const [target, warningText] of warnings) {
+        const details = $(program).client.getFeatureLifecycleDetails(target, {
+          emitterName: "@typespec/http-client-java",
+        });
+        assert.isDefined(details);
+        Object.assign(details, { warningText });
+      }
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+          "experimental-annotation": enabled ? "com.example.Preview" : undefined,
+          "enable-subclient": subclient,
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+
+      const client = model.clients.find(
+        (client) => client.language.default.name === "ExperimentalContractClient",
+      )!;
+      expect(client.language.java?.experimental).toEqual(
+        enabled ? { warningText: "Client preview" } : undefined,
+      );
+      const group = client.operationGroups.find((group) => group.language.default.name === "Group");
+      const child = client.subClients.find((client) => client.language.default.name === "Group");
+      expect((child ?? group)!.language.java?.experimental).toEqual(
+        enabled ? { warningText: "Group preview" } : undefined,
+      );
+      const operations = client.operationGroups.flatMap((group) => group.operations ?? []);
+      const operation = operations.find((operation) => operation.operationId === "read")!;
+      expect(operation.language.java?.experimental).toEqual(
+        enabled ? { warningText: 'Operation "preview"\nwith a \\ path' } : undefined,
+      );
+      const groupOperations = child
+        ? child.operationGroups.flatMap((group) => group.operations ?? [])
+        : group!.operations;
+      expect(groupOperations?.[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
+
+      const preview = model.schemas.objects?.find(
+        (schema) => schema.language.default.name === "Preview",
+      )!;
+      expect(preview.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      assert.isDefined(preview.properties);
+      expect(preview.properties[0].language.java?.experimental).toEqual(
+        enabled ? { warningText: "Property preview" } : undefined,
+      );
+      const choice = model.schemas.sealedChoices?.find(
+        (schema) => schema.language.default.name === "Choice",
+      )!;
+      expect(choice.language.java?.experimental).toEqual(
+        enabled ? { warningText: "Enum preview" } : undefined,
+      );
+      expect(choice.choices[0].language.java?.experimental).toEqual(
+        enabled ? { warningText: "Enum value preview" } : undefined,
+      );
+      expect(choice.choices[1].language.java?.experimental).toBeUndefined();
+      const openChoice = model.schemas.choices?.find(
+        (schema) => schema.language.default.name === "OpenChoice",
+      )!;
+      expect(openChoice.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(openChoice.choices[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
+      for (const name of ["Stable", "Excluded"]) {
+        const schema = model.schemas.objects?.find(
+          (schema) => schema.language.default.name === name,
+        )!;
+        expect(schema.language.java?.experimental).toBeUndefined();
+      }
+      const emptyWarning = model.schemas.objects?.find(
+        (schema) => schema.language.default.name === "EmptyWarning",
+      )!;
+      expect(emptyWarning.language.java?.experimental).toEqual(
+        enabled ? { warningText: "" } : undefined,
+      );
+      expect(parse(stringify(client)).language.java.experimental).toEqual(
+        enabled ? { warningText: "Client preview" } : undefined,
+      );
+    },
+  );
+});
 
 describe("code model characterization", () => {
   it.each(["azure", "standard"] as const)(

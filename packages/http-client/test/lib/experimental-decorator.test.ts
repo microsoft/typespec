@@ -56,6 +56,21 @@ it("should get experimental lifecycle details", async () => {
   });
 });
 
+it.each(["Preview warning", "", 'Preview "API"\nwith a \\ path'])(
+  "should preserve experimental warning text %j",
+  async (warningText) => {
+    const { preview, program } = await runner.compile(t.code`
+      @experimental(#{ warningText: ${JSON.stringify(warningText)} })
+      model ${t.model("preview")} {}
+    `);
+
+    expect($(program).client.getFeatureLifecycleDetails(preview)).toMatchObject({
+      stage: "Experimental",
+      warningText,
+    });
+  },
+);
+
 it("should filter experimental lifecycle details by emitter scope", async () => {
   const { betaProp, program } = await runner.compile(t.code`
     namespace Test;
@@ -64,6 +79,7 @@ it("should filter experimental lifecycle details by emitter scope", async () => 
        @experimental(#{
          emitterScope: "myEmitter",
          diagnosticId: "C",
+         warningText: "Scoped preview",
          dependsOn: #["A", "B"]
        })
        ${t.modelProperty("betaProp")}: string;
@@ -77,6 +93,7 @@ it("should filter experimental lifecycle details by emitter scope", async () => 
   ).toEqual({
     stage: "Experimental",
     diagnosticId: "C",
+    warningText: "Scoped preview",
     dependsOn: ["A", "B"],
   });
   expect(

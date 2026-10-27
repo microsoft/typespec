@@ -15,6 +15,11 @@ model FeatureLifecycleOptions {
   diagnosticId?: string;
 
   /**
+   * Warning text surfaced by emitters for this experimental API.
+   */
+  warningText?: string;
+
+  /**
    * Diagnostic identifiers for experimental features this API depends on. These dependencies do
    * not automatically remove this API's experimental status when they become generally available.
    */

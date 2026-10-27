@@ -94,6 +94,7 @@ public final class MapperUtils {
                         .build())
                 .apiMetadata(new ApiMetadata.Builder()
                     .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                    .experimental(SchemaUtil.getExperimental(enumType))
                     .build())
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)
@@ -126,9 +127,13 @@ public final class MapperUtils {
             final String memberName = useExactJavaName ? enumName : CodeNamer.getEnumMemberName(enumName);
             long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
             if (counter > 0) {
-                enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));
+                enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription,
+                    new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(enumValue.getLanguage()))
+                        .build()));
             } else {
-                enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription));
+                enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription,
+                    new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(enumValue.getLanguage()))
+                        .build()));
             }
         }
         return enumValues;

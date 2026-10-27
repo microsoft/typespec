@@ -14,6 +14,7 @@ public class Language {
     private String namespace;
     private String crossLanguageDefinitionId;
     private String comment;
+    private Experimental experimental;
 
     /**
      * Creates a new instance of the Language class.
@@ -127,6 +128,24 @@ public class Language {
      */
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    /**
+     * Gets the experimental API metadata.
+     *
+     * @return the experimental API metadata.
+     */
+    public Experimental getExperimental() {
+        return experimental;
+    }
+
+    /**
+     * Sets the experimental API metadata.
+     *
+     * @param experimental the experimental API metadata.
+     */
+    public void setExperimental(Experimental experimental) {
+        this.experimental = experimental;
     }
 
     /**

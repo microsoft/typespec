@@ -18,6 +18,41 @@ Install [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (V
 
 Maven is needed to build the generated client, but not to run the emitter.
 
+### Experimental APIs
+
+Set `experimental-annotation` to the fully qualified annotation class name to generate for APIs
+marked with `@TypeSpec.HttpClient.experimental`:
+
+```yaml
+emit:
+  - "@typespec/http-client-java"
+options:
+  "@typespec/http-client-java":
+    experimental-annotation: "com.example.annotations.Experimental"
+```
+
+```typespec
+import "@typespec/http-client";
+
+@TypeSpec.HttpClient.experimental
+model Preview {
+  @TypeSpec.HttpClient.experimental(#{ warningText: "This property may change." })
+  value: string;
+}
+```
+
+The generator creates the configured annotation with a single `String warningText()` element,
+whose default is `Preview API - subject to change in non-backwards compatible way`.
+The generated model receives `@Experimental`, and the property's accessors receive
+`@Experimental(warningText = "This property may change.")`.
+
+Experimental annotations apply to generated models, enums, enum members, model properties,
+operations, and client types. `emitterScope` can include or exclude `@typespec/http-client-java`.
+The annotation is documented and retained in class files; it does not itself produce Java compiler
+warnings. The `diagnosticId` and `dependsOn` options do not affect Java output.
+
+If `experimental-annotation` is omitted, no experimental annotation is generated or applied.
+
 ## Emitter usage
 
 1. Via the command line
@@ -54,12 +89,38 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 ### `license`
 
-**Type:** `object`
+**Type:** `object { name, company, link, header, description }`
 
 License information for the generated client code.
 
+**Properties:**
+
+| Name          | Type     | Default | Description                                                                                                                                                                                                                      |
+| ------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | `string` |         | License name. The config is required. Predefined license are: MIT License, Apache License 2.0, BSD 3-Clause License, MPL 2.0, GPL-3.0, LGPL-3.0. For other license, you need to configure all the other license config manually. |
+| `company`     | `string` |         | License company name. It will be used in copyright sentences.                                                                                                                                                                    |
+| `link`        | `string` |         | License link.                                                                                                                                                                                                                    |
+| `header`      | `string` |         | License header. It will be used in the header comment of generated client code.                                                                                                                                                  |
+| `description` | `string` |         | License description. The full license text.                                                                                                                                                                                      |
+
+### `experimental-annotation`
+
+**Type:** `string`
+
+Fully qualified name of the annotation to generate for APIs marked with @TypeSpec.HttpClient.experimental. Omit this option to disable experimental annotations.
+
 ### `dev-options`
 
-**Type:** `object`
+**Type:** `object { generate-code-model, debug, loglevel, java-temp-dir, profile }`
 
 Developer options for http-client-java emitter.
+
+**Properties:**
+
+| Name                  | Type                                              | Default | Description                                                       |
+| --------------------- | ------------------------------------------------- | ------- | ----------------------------------------------------------------- |
+| `generate-code-model` | `boolean`                                         |         | Generate intermittent 'code-model.yaml' file in output directory. |
+| `debug`               | `boolean`                                         |         | Enable Java remote debug on port 5005.                            |
+| `loglevel`            | `"off" \| "debug" \| "info" \| "warn" \| "error"` |         | Log level for Java logging. Default is 'warn'.                    |
+| `java-temp-dir`       | `string`                                          |         | Temporary working directory for Java code generator.              |
+| `profile`             | `boolean`                                         |         | Enable performance profiling.                                     |

@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -97,6 +98,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             javaFile.annotation(String.format("ServiceClient(builder = %s.class)",
                 serviceClient.getInterfaceName() + ClientModelUtil.getBuilderSuffix()));
         }
+        ExperimentalAnnotationUtil.write(javaFile, serviceClient.getApiMetadata());
         javaFile.publicFinalClass(serviceClientClassDeclaration, classBlock -> {
             // Add proxy service member variable
             if (serviceClient.getProxy() != null) {

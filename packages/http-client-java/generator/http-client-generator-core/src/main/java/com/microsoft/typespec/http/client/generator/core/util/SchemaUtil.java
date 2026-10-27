@@ -4,7 +4,9 @@
 package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Experimental;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -33,6 +35,26 @@ import java.util.stream.Collectors;
 public class SchemaUtil {
 
     private SchemaUtil() {
+    }
+
+    /**
+     * Gets the experimental API metadata for Java.
+     *
+     * @param metadata the code model metadata.
+     * @return the experimental API metadata, or null when the API is not experimental.
+     */
+    public static Experimental getExperimental(Metadata metadata) {
+        return getExperimental(metadata == null ? null : metadata.getLanguage());
+    }
+
+    /**
+     * Gets the experimental API metadata for Java.
+     *
+     * @param languages the language metadata.
+     * @return the experimental API metadata, or null when the API is not experimental.
+     */
+    public static Experimental getExperimental(Languages languages) {
+        return languages == null || languages.getJava() == null ? null : languages.getJava().getExperimental();
     }
 
     public static Schema getLowestCommonParent(List<Schema> schemas) {
