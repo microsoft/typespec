@@ -67,17 +67,6 @@ public class JavaPackageSseTests {
     }
 
     @Test
-    public void preservesDeclaredImportOrder() {
-        JavaFile javaFile = new JavaFile("src/main/java/com/azure/mock/Test.java");
-        javaFile.declarePackage("com.azure.mock");
-        javaFile.declareImportPreservingOrder(new java.util.LinkedHashSet<>(
-            List.of("com.azure.models.TestReferencesCompletedStreamEvent", "com.azure.models.TestReference")));
-
-        String source = javaFile.getContents().toString();
-        Assertions.assertTrue(source.indexOf("TestReferencesCompletedStreamEvent") < source.indexOf("TestReference;"));
-    }
-
-    @Test
     public void includesGeneratedDisclaimerInSseRuntimeFiles() {
         JavaSettings.clear();
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());

@@ -169,17 +169,6 @@ public class JavaFileContents {
         }
     }
 
-    public void declareImportPreservingOrder(List<String> imports) {
-        if (imports != null && !imports.isEmpty()) {
-            for (String toImport : imports) {
-                if (toImport != null && !toImport.isEmpty()) {
-                    line("import " + toImport + ";");
-                }
-            }
-            line();
-        }
-    }
-
     public void lineComment(String text) {
         lineComment(comment -> comment.line(text));
     }

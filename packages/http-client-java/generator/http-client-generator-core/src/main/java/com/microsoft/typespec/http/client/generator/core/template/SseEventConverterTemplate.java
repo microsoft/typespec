@@ -53,7 +53,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
             addPayloadImports(wirePayloadType, imports, fullyQualifiedTypeNames);
             addPayloadImports(wirePayloadType.getClientType(), imports, fullyQualifiedTypeNames);
         }
-        javaFile.declareImportPreservingOrder(imports);
+        javaFile.declareImport(imports);
 
         String converterName = names.getConverterName();
         javaFile.javadocComment(comment -> comment

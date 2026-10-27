@@ -83,10 +83,6 @@ public class JavaFile implements JavaContext {
         getContents().declareImport(filterImports(imports));
     }
 
-    public final void declareImportPreservingOrder(Set<String> imports) {
-        getContents().declareImportPreservingOrder(filterImports(new ArrayList<>(imports)));
-    }
-
     private List<String> filterImports(List<String> imports) {
         if (packageKeyword != null && !packageKeyword.isEmpty()) {
             // Only import paths that don't start with this file's package, or if they do start
