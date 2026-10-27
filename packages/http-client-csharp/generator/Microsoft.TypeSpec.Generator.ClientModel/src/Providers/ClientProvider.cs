@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ProjectPublicName(serviceMethod, operationName);
         }
 
-        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName, bool normalizeAcronyms = true)
+        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName)
         {
             if (serviceMethod.IsExactName)
             {
@@ -268,7 +268,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
-            var normalizedName = normalizeAcronyms ? urlNormalizedName.NormalizeCSharpAcronyms() : urlNormalizedName;
+            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
             if (normalizedName == operationName)
             {
                 return operationName;
@@ -322,15 +322,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var otherBuilderNames = GetRestRequestBuilderNames(other, otherRestName);
                 if (candidateBuilderNames.Intersect(otherBuilderNames, StringComparer.Ordinal).Any())
                 {
-                    // Compatibility with a published contract can place Content-Type before the body, so compare both orderings.
-                    var candidateSignatures = GetRestRequestSignatureVariants(serviceMethod, candidateRestName);
-                    var otherSignatures = GetRestRequestSignatureVariants(other, otherRestName);
-                    if (candidateSignatures.Any(candidate => otherSignatures.Any(otherSignature =>
-                        candidate.Name == otherSignature.Name &&
-                        HasEquivalentParameterTypes(candidate.Parameters, otherSignature.Parameters))))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
                 if (!checkPublicCollisions)
@@ -338,36 +330,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var candidatePublicName = ProjectPublicName(serviceMethod, normalizedName);
-                var otherPublicName = ProjectPublicName(other, other.IsExactName
-                    ? other.Operation.Name
-                    : NormalizeName(otherInputName));
-                foreach (var kind in new[] { ScmMethodKind.Protocol, ScmMethodKind.Convenience })
+                var otherName = other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName);
+                var candidatePublicNames = GetProtocolMethodNames(serviceMethod, ProjectPublicName(serviceMethod, normalizedName));
+                var otherPublicNames = GetProtocolMethodNames(other, ProjectPublicName(other, otherName));
+                var candidateNamesBeforeProjection = GetProtocolMethodNames(serviceMethod, normalizedName);
+                var otherNamesBeforeProjection = GetProtocolMethodNames(other, otherName);
+                if (candidatePublicNames.Intersect(otherPublicNames, StringComparer.Ordinal).Any() &&
+                    candidateNamesBeforeProjection.Intersect(otherNamesBeforeProjection, StringComparer.Ordinal).Any())
                 {
-                    if (kind == ScmMethodKind.Convenience &&
-                        (!serviceMethod.Operation.GenerateConvenienceMethod || !other.Operation.GenerateConvenienceMethod))
-                    {
-                        continue;
-                    }
-
-                    if (HasEquivalentEmittedSignatures(
-                        serviceMethod,
-                        candidatePublicName,
-                        other,
-                        otherPublicName,
-                        kind))
-                    {
-                        var candidateNamesBeforeProjection = GetEmittedMethodNames(serviceMethod, normalizedName, kind);
-                        var otherNamesBeforeProjection = GetEmittedMethodNames(
-                            other,
-                            other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName),
-                            kind);
-                        if (candidateNamesBeforeProjection
-                            .Intersect(otherNamesBeforeProjection, StringComparer.Ordinal).Any())
-                        {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
             }
 
@@ -376,107 +347,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string[] GetRestRequestBuilderNames(InputServiceMethod serviceMethod, string operationName)
         {
-            var names = new List<string> { $"Create{operationName}Request" };
-            if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
+            var hasNextLink = serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null };
+            var names = new string[hasNextLink ? 2 : 1];
+            names[0] = $"Create{operationName}Request";
+            if (hasNextLink)
             {
-                names.Add($"CreateNext{operationName}Request");
+                names[1] = $"CreateNext{operationName}Request";
             }
 
-            return [.. names];
+            return names;
         }
 
-        private (string Name, List<ParameterProvider> Parameters)[] GetRestRequestSignatureVariants(
-            InputServiceMethod serviceMethod,
-            string operationName)
-            => [.. new[] { false, true }.SelectMany(contentTypeBeforeBody => GetRestRequestSignatures(
-                serviceMethod,
-                operationName,
-                RestClientProvider.GetMethodParameters(
-                    serviceMethod,
-                    ScmMethodKind.CreateRequest,
-                    this,
-                    applyBackCompat: false,
-                    contentTypeBeforeBody: contentTypeBeforeBody)))];
-
-        private static (string Name, List<ParameterProvider> Parameters)[] GetRestRequestSignatures(
-            InputServiceMethod serviceMethod,
-            string operationName,
-            List<ParameterProvider> parameters)
-        {
-            var requestOptions = ScmKnownParameters.CreateRequestOptions();
-            var signatures = new List<(string Name, List<ParameterProvider> Parameters)>
-            {
-                ($"Create{operationName}Request", [.. parameters, requestOptions])
-            };
-            if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
-            {
-                signatures.Add((
-                    $"CreateNext{operationName}Request",
-                    [.. RestClientProvider.GetNextLinkRequestParameters(serviceMethod, parameters), requestOptions]));
-            }
-
-            return [.. signatures];
-        }
-
-        private bool HasEquivalentEmittedSignatures(
-            InputServiceMethod first,
-            string firstName,
-            InputServiceMethod second,
-            string secondName,
-            ScmMethodKind kind)
-        {
-            var firstSignatures = GetEmittedMethodSignatures(first, firstName, kind);
-            var secondSignatures = GetEmittedMethodSignatures(second, secondName, kind);
-            return firstSignatures.Any(firstSignature => secondSignatures.Any(secondSignature =>
-                firstSignature.Name == secondSignature.Name &&
-                HasEquivalentParameterTypes(firstSignature.Parameters, secondSignature.Parameters)));
-        }
-
-        private (string Name, IReadOnlyList<ParameterProvider> Parameters)[] GetEmittedMethodSignatures(
-            InputServiceMethod method,
-            string operationName,
-            ScmMethodKind kind)
-        {
-            var names = GetEmittedMethodNames(method, operationName, kind);
-            if (kind != ScmMethodKind.Protocol)
-            {
-                var parameters = RestClientProvider.GetMethodParameters(method, kind, this, operationName: operationName);
-                return [.. names.Select(name => (name, (IReadOnlyList<ParameterProvider>)parameters))];
-            }
-
-            var shouldMakeParametersRequired = ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(method, this, operationName);
-            return [.. names.Select(name =>
-            {
-                var isAsync = name != operationName;
-                var parameters = ScmMethodProviderCollection.BuildProtocolParameters(
-                    method, this, isAsync, shouldMakeParametersRequired, out _, operationName);
-                return (name, (IReadOnlyList<ParameterProvider>)parameters);
-            })];
-        }
-
-        private static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)
-            => first.Count == second.Count &&
-                first.Zip(second).All(pair =>
-                    MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type));
-
-        private static string[] GetEmittedMethodNames(InputServiceMethod method, string operationName, ScmMethodKind kind)
+        private static string[] GetProtocolMethodNames(InputServiceMethod method, string operationName)
         {
             bool hasStreamingResponse = method.Operation.Responses
                 .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
-            if (kind == ScmMethodKind.Protocol)
-            {
-                return hasStreamingResponse
-                    ? [$"{operationName}Async"]
-                    : [operationName, $"{operationName}Async"];
-            }
-
-            if (!method.Operation.GenerateConvenienceMethod)
-            {
-                return [];
-            }
-
-            bool hasStreamingRequest = method.Parameters.Any(parameter => parameter.Type is InputStreamingType);
-            return hasStreamingResponse || method is not InputPagingServiceMethod && hasStreamingRequest
+            return hasStreamingResponse
                 ? [$"{operationName}Async"]
                 : [operationName, $"{operationName}Async"];
         }

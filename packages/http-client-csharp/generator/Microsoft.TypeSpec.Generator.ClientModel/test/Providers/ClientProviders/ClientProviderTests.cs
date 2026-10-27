@@ -2849,245 +2849,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 listNextLinkRequest.Signature.Parameters.Select(parameter => parameter.Type));
         }
 
-        [TestCase(true, "ListWidgets")]
-        [TestCase(false, "GetWidgets")]
-        public void ListNormalizationComparesFinalProtocolSignatures(bool collides, string expectedListName)
-        {
-            var requestBody = InputFactory.Model("RequestBody");
-            InputParameter ContentType() => InputFactory.HeaderParameter(
-                "contentType", InputPrimitiveType.String, isRequired: true, isContentType: true, serializedName: "Content-Type");
-            InputMethodParameter ContentTypeMethod() => InputFactory.MethodParameter(
-                "contentType", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header, serializedName: "Content-Type");
-
-            // collides: list(optional query, required body) and get(required body, content type) both emit (BinaryContent, string).
-            // otherwise: list(content type, optional body) and get(content type, required body) emit different final types.
-            InputParameter[] listParameters = collides
-                ? [InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false), InputFactory.BodyParameter("body", requestBody, isRequired: true)]
-                : [ContentType(), InputFactory.BodyParameter("body", requestBody, isRequired: false)];
-            InputMethodParameter[] listMethodParameters = collides
-                ?
-                [
-                    InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false, location: InputRequestLocation.Query),
-                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
-                ]
-                : [ContentTypeMethod(), InputFactory.MethodParameter("body", requestBody, isRequired: false, location: InputRequestLocation.Body)];
-            InputParameter[] getParameters =
-            [
-                InputFactory.BodyParameter("body", requestBody, isRequired: true),
-                ContentType()
-            ];
-            InputMethodParameter[] getMethodParameters =
-            [
-                InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body),
-                ContentTypeMethod()
-            ];
-            var listOperation = InputFactory.Operation(
-                "ListWidgets", parameters: listParameters, httpMethod: "POST", generateConvenienceMethod: false);
-            var listMethod = InputFactory.BasicServiceMethod("ListWidgets", listOperation, parameters: listMethodParameters);
-            var getOperation = InputFactory.Operation(
-                "GetWidgetsAsync", parameters: getParameters, httpMethod: "POST", generateConvenienceMethod: false, isExactName: collides);
-            var getMethod = InputFactory.BasicServiceMethod("GetWidgetsAsync", getOperation, parameters: getMethodParameters, isExactName: collides);
-            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [requestBody]);
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-
-            Assert.AreEqual(expectedListName, listMethod.Name);
-        }
-
         [Test]
-        public void ListNormalizationPreservesNameWhenCompatOrderingCollidesRequestBuilders()
-        {
-            var requestBody = InputFactory.Model("RequestBody");
-            var listOperation = InputFactory.Operation(
-                "ListWidgets",
-                parameters:
-                [
-                    InputFactory.HeaderParameter("contentType", InputPrimitiveType.String, isRequired: true, isContentType: true, serializedName: "Content-Type"),
-                    InputFactory.BodyParameter("body", requestBody, isRequired: true)
-                ],
-                httpMethod: "POST",
-                generateConvenienceMethod: false);
-            var listMethod = InputFactory.BasicServiceMethod(
-                "ListWidgets",
-                listOperation,
-                parameters:
-                [
-                    InputFactory.MethodParameter("contentType", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header, serializedName: "Content-Type"),
-                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
-                ]);
-            var getOperation = InputFactory.Operation(
-                "GetWidgets",
-                parameters:
-                [
-                    InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.BodyParameter("body", requestBody, isRequired: true)
-                ],
-                httpMethod: "POST",
-                generateConvenienceMethod: false);
-            var getMethod = InputFactory.BasicServiceMethod(
-                "GetWidgets",
-                getOperation,
-                parameters:
-                [
-                    InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
-                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
-                ]);
-            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [requestBody]);
-            _ = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-
-            Assert.AreEqual("ListWidgets", listMethod.Name);
-        }
-
-        [Test]
-        public async Task ListNormalizationPreservesNameWhenLastContractOrderingCollidesAsyncPeer()
-        {
-            var requestBody = InputFactory.Model("RequestBody");
-            var listOperation = InputFactory.Operation(
-                "ListWidgets",
-                parameters:
-                [
-                    InputFactory.HeaderParameter("contentType", InputPrimitiveType.String, isRequired: true, isContentType: true, serializedName: "Content-Type"),
-                    InputFactory.BodyParameter("body", requestBody, isRequired: true)
-                ],
-                httpMethod: "POST",
-                generateConvenienceMethod: false);
-            var listMethod = InputFactory.BasicServiceMethod(
-                "ListWidgets",
-                listOperation,
-                parameters:
-                [
-                    InputFactory.MethodParameter("contentType", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header, serializedName: "Content-Type"),
-                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
-                ]);
-            var getOperation = InputFactory.Operation(
-                "GetWidgetsAsync",
-                parameters:
-                [
-                    InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.BodyParameter("body", requestBody, isRequired: true)
-                ],
-                httpMethod: "POST",
-                generateConvenienceMethod: false,
-                isExactName: true);
-            var getMethod = InputFactory.BasicServiceMethod(
-                "GetWidgetsAsync",
-                getOperation,
-                parameters:
-                [
-                    InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
-                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
-                ],
-                isExactName: true);
-            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
-            await MockHelpers.LoadMockGeneratorAsync(
-                clients: () => [inputClient],
-                inputModels: () => [requestBody],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            _ = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-
-            Assert.AreEqual("ListWidgets", listMethod.Name);
-        }
-
-        [TestCase(true, "ListWidgets")]
-        [TestCase(false, "GetWidgets")]
-        public void ListNormalizationComparesNamedProtocolVariants(bool crossVariantCollision, string expectedListName)
-        {
-            var resource = InputFactory.Model("Resource");
-            var listPathType = crossVariantCollision ? InputPrimitiveType.String : InputPrimitiveType.Int32;
-            InputType listQueryType = crossVariantCollision
-                ? new InputNullableType(InputPrimitiveType.Int32)
-                : InputPrimitiveType.String;
-            InputType getPathType = crossVariantCollision
-                ? InputPrimitiveType.Int32
-                : new InputNullableType(InputPrimitiveType.Int32);
-            var getPathIsRequired = !crossVariantCollision;
-            var getQueryType = InputPrimitiveType.String;
-            var listOperation = InputFactory.Operation(
-                "ListWidgets",
-                parameters:
-                [
-                    InputFactory.PathParameter("listPath", listPathType, isRequired: false),
-                    InputFactory.QueryParameter("listQuery", listQueryType, isRequired: true)
-                ],
-                responses: [InputFactory.OperationResponse([200], resource)]);
-            var listMethod = InputFactory.BasicServiceMethod(
-                "ListWidgets",
-                listOperation,
-                parameters:
-                [
-                    InputFactory.MethodParameter("listPath", listPathType, isRequired: false, location: InputRequestLocation.Path),
-                    InputFactory.MethodParameter("listQuery", listQueryType, isRequired: true, location: InputRequestLocation.Query)
-                ],
-                response: InputFactory.ServiceMethodResponse(resource, null));
-            var getOperation = InputFactory.Operation(
-                "GetWidgetsAsync",
-                parameters:
-                [
-                    InputFactory.PathParameter("getPath", getPathType, isRequired: getPathIsRequired),
-                    InputFactory.QueryParameter("getQuery", getQueryType, isRequired: true)
-                ],
-                responses: [InputFactory.OperationResponse([200], resource)],
-                isExactName: true,
-                generateConvenienceMethod: crossVariantCollision);
-            var getMethod = InputFactory.BasicServiceMethod(
-                "GetWidgetsAsync",
-                getOperation,
-                parameters:
-                [
-                    InputFactory.MethodParameter("getPath", getPathType, isRequired: getPathIsRequired, location: InputRequestLocation.Path),
-                    InputFactory.MethodParameter("getQuery", getQueryType, isRequired: true, location: InputRequestLocation.Query)
-                ],
-                response: InputFactory.ServiceMethodResponse(resource, null),
-                isExactName: true);
-            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource]);
-            _ = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-
-            Assert.AreEqual(expectedListName, listMethod.Name);
-        }
-
-        private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
-        {
-            yield return new TestCaseData(InputPrimitiveType.String, null);
-            yield return new TestCaseData(InputPrimitiveType.String, InputPrimitiveType.Int32);
-            yield return new TestCaseData(InputPrimitiveType.Int32, new InputNullableType(InputPrimitiveType.Int32));
-            yield return new TestCaseData(InputFactory.Array(InputPrimitiveType.Int32), InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32)));
-        }
-
-        [TestCaseSource(nameof(ListNormalizationOverloadCases))]
-        public void ListNormalizationPreservesOverloads(InputType getParameterType, InputType? listParameterType)
+        public void ListNormalizationPreservesNameWhenRequestBuilderNamesCollide()
         {
             var resource = InputFactory.Model("Resource");
             var page = InputFactory.Model("Page", properties: [InputFactory.Property("value", InputFactory.Array(resource))]);
             var getOperation = InputFactory.Operation(
-                "GetWidgets", parameters: [InputFactory.QueryParameter("id", getParameterType, isRequired: true)],
+                "GetWidgets", parameters: [InputFactory.QueryParameter("id", InputPrimitiveType.String, isRequired: true)],
                 responses: [InputFactory.OperationResponse([200], resource)]);
             var getMethod = InputFactory.BasicServiceMethod(
                 "GetWidgets", getOperation,
-                parameters: [InputFactory.MethodParameter("id", getParameterType, isRequired: true, location: InputRequestLocation.Query)],
+                parameters: [InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)],
                 response: InputFactory.ServiceMethodResponse(resource, null));
             var listOperation = InputFactory.Operation(
                 "ListWidgets",
-                parameters: listParameterType is null ? [] : [InputFactory.QueryParameter("count", listParameterType, isRequired: true)],
+                parameters: [InputFactory.QueryParameter("count", InputPrimitiveType.Int32, isRequired: true)],
                 responses: [InputFactory.OperationResponse([200], page)]);
             var listMethod = InputFactory.PagingServiceMethod(
                 "ListWidgets", listOperation,
-                parameters: listParameterType is null ? [] : [InputFactory.MethodParameter("count", listParameterType, isRequired: true, location: InputRequestLocation.Query)],
+                parameters: [InputFactory.MethodParameter("count", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query)],
                 response: InputFactory.ServiceMethodResponse(page, null),
                 pagingMetadata: InputFactory.PagingMetadata(["value"], null, null));
             var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
             MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
 
-            Assert.AreEqual("GetWidgets", listMethod.Name);
-            foreach (var operation in new[] { getOperation, listOperation })
-            {
-                Assert.AreEqual("CreateGetWidgetsRequest", client.RestClient.GetCreateRequestMethod(operation).Signature.Name);
-                CollectionAssert.AreEquivalent(
-                    new[] { "GetWidgets", "GetWidgetsAsync", "GetWidgets", "GetWidgetsAsync" },
-                    client.GetMethodCollectionByOperation(operation).Select(method => method.Signature.Name));
-            }
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+            Assert.AreEqual("CreateGetWidgetsRequest", client.RestClient.GetCreateRequestMethod(getOperation).Signature.Name);
+            Assert.AreEqual("CreateListWidgetsRequest", client.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
         }
 
         [Test]

@@ -190,46 +190,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return method;
         }
 
-        internal static List<ParameterProvider> GetNextLinkRequestParameters(
-            InputServiceMethod serviceMethod,
-            List<ParameterProvider> parameters)
-        {
-            // For next link requests, filter parameters to only include reinjected ones
-            var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
-            var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
-            var reinjectedParamNames = new HashSet<string>(StringComparer.Ordinal);
-
-            // Add parameters from nextLink.ReInjectedParameters
-            if (nextLink?.ReInjectedParameters != null)
-            {
-                foreach (var param in nextLink.ReInjectedParameters)
-                {
-                    reinjectedParamNames.Add(param.Name);
-                }
-            }
-
-            var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-
-            // Only filter if there are reinjected parameters specified
-            if (reinjectedParamNames.Count > 0 || pageSizeParameterName != null)
-            {
-                parameters = parameters
-                    .Where(p =>
-                    {
-                        var name = p.InputParameter?.Name ?? p.Name;
-                        // Reinjected names must match exactly so that parameters differing only by casing are
-                        // not conflated. The page size name is matched case-insensitively because the operation
-                        // and method parameters intentionally differ in casing.
-                        return reinjectedParamNames.Contains(name) ||
-                            (pageSizeParameterName != null &&
-                                name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
-                    })
-                    .ToList();
-            }
-
-            return [ScmKnownParameters.NextPage, .. parameters];
-        }
-
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.CreateRequestOptions();
@@ -237,7 +197,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isNextLinkRequest)
             {
-                parameters = GetNextLinkRequestParameters(serviceMethod, parameters);
+                // For next link requests, filter parameters to only include reinjected ones
+                var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+                var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
+                var reinjectedParamNames = new HashSet<string>(StringComparer.Ordinal);
+
+                // Add parameters from nextLink.ReInjectedParameters
+                if (nextLink?.ReInjectedParameters != null)
+                {
+                    foreach (var param in nextLink.ReInjectedParameters)
+                    {
+                        reinjectedParamNames.Add(param.Name);
+                    }
+                }
+
+                var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+
+                // Only filter if there are reinjected parameters specified
+                if (reinjectedParamNames.Count > 0 || pageSizeParameterName != null)
+                {
+                    parameters = parameters
+                        .Where(p =>
+                        {
+                            var name = p.InputParameter?.Name ?? p.Name;
+                            // Reinjected names must match exactly so that parameters differing only by casing are
+                            // not conflated. The page size name is matched case-insensitively because the operation
+                            // and method parameters intentionally differ in casing.
+                            return reinjectedParamNames.Contains(name) ||
+                                (pageSizeParameterName != null &&
+                                    name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                }
+
+                parameters = [ScmKnownParameters.NextPage, .. parameters];
             }
 
             var operationName = ClientProvider.GetRestOperationName(serviceMethod);
@@ -1251,10 +1244,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
-            ClientProvider client,
-            bool applyBackCompat = true,
-            bool contentTypeBeforeBody = false,
-            string? operationName = null)
+            ClientProvider client)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1324,13 +1314,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (serviceMethod is InputPagingServiceMethod)
                 {
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
-                    if (applyBackCompat && string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client.BackCompatProvider, serviceMethod);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (applyBackCompat && pageSizeParameterName != null && string.Equals(inputParam.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(inputParam.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
                             ? MaxPageSizeParameterName
@@ -1346,10 +1336,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // generalizes back-compat name preservation beyond the paging-specific renames
                 // above so that any rename emitted by the generator falls back to the prior name
                 // when one was already published.
-                if (applyBackCompat)
-                {
-                    UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
-                }
+                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
@@ -1403,10 +1390,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
                         if (IsContentTypeParameter(inputParam)
-                            && !(contentTypeBeforeBody || (applyBackCompat && HasContentTypeBeforeBodyInLastContract(
-                                serviceMethod,
-                                client.BackCompatProvider,
-                                operationName ?? serviceMethod.Name))))
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }
@@ -1553,16 +1537,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// a "contentType" parameter appears before the body parameter.
         /// If so, we should preserve that ordering for backward compatibility.
         /// </summary>
-        private static bool HasContentTypeBeforeBodyInLastContract(
-            InputServiceMethod serviceMethod,
-            TypeProvider backCompatProvider,
-            string operationName) =>
-            GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider, operationName) == LastContractContentTypeOrder.BeforeBody;
+        private static bool HasContentTypeBeforeBodyInLastContract(InputServiceMethod serviceMethod, TypeProvider backCompatProvider) =>
+            GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider) == LastContractContentTypeOrder.BeforeBody;
 
         private static LastContractContentTypeOrder GetContentTypeOrderInLastContract(
             InputServiceMethod serviceMethod,
-            TypeProvider backCompatProvider,
-            string operationName)
+            TypeProvider backCompatProvider)
         {
             const string contentTypeParamName = "contentType";
 
@@ -1572,8 +1552,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return LastContractContentTypeOrder.NoMatchingMethod;
             }
 
-            var syncMethodName = operationName;
-            var asyncMethodName = operationName + "Async";
+            var syncMethodName = serviceMethod.Name;
+            var asyncMethodName = serviceMethod.Name + "Async";
             var bodyParameterNames = GetBodyParameterNames(serviceMethod);
             var matchedMethod = false;
             var foundAfterBody = false;
