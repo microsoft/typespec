@@ -16,8 +16,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -105,15 +103,12 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
      */
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        String serviceMethodName = SseUtil.isSseMethod(clientMethod)
-            ? SseNamingResolver.getServiceImplementationMethodName(clientMethod.getName())
-            : clientMethod.getName();
-        function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", serviceMethodName, parameters
-            .stream()
-            .filter(
-                p -> !clientMethod.isPageStreamingType() || !clientMethod.getMethodPageDetails().shouldHideParameter(p))
-            .map(ClientMethodParameter::getName)
-            .collect(Collectors.joining(", ")));
+        function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
+            parameters.stream()
+                .filter(p -> !clientMethod.isPageStreamingType()
+                    || !clientMethod.getMethodPageDetails().shouldHideParameter(p))
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.joining(", ")));
     }
 
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {

@@ -7,18 +7,17 @@ package tsptest.sse.stream.models;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import java.util.Map;
-import tsptest.sse.models.StartedPayload;
 
 /**
  * Represents the {@code modelMap} test stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see TestStreamEvent
+ * @see tsptest.sse.stream.models.TestStreamEvent
  */
 @Immutable
-public final class TestModelMapStreamEvent extends TestStreamEvent {
+public final class TestModelMapStreamEvent extends tsptest.sse.stream.models.TestStreamEvent {
     @Generated
-    private final Map<String, StartedPayload> value;
+    private final Map<String, tsptest.sse.models.StartedPayload> value;
 
     /**
      * Creates an event wrapper.
@@ -26,7 +25,7 @@ public final class TestModelMapStreamEvent extends TestStreamEvent {
      * @param value The event payload.
      */
     @Generated
-    TestModelMapStreamEvent(Map<String, StartedPayload> value) {
+    TestModelMapStreamEvent(Map<String, tsptest.sse.models.StartedPayload> value) {
         super("modelMap");
         this.value = value;
     }
@@ -37,7 +36,7 @@ public final class TestModelMapStreamEvent extends TestStreamEvent {
      * @return The event payload.
      */
     @Generated
-    public Map<String, StartedPayload> getValue() {
+    public Map<String, tsptest.sse.models.StartedPayload> getValue() {
         return value;
     }
 }

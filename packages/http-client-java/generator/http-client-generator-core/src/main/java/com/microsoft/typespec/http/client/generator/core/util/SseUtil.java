@@ -5,21 +5,14 @@ package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,12 +21,6 @@ import java.util.stream.Collectors;
  */
 public final class SseUtil {
     public static final String SERVER_SENT_EVENT_STREAMS = "ServerSentEventStreams";
-    private static final Set<String> TEMPLATE_DECLARED_TYPE_NAMES = Set.of("ConstructorAccessor", "String", "Boolean",
-        "Byte", "Character", "Double", "Float", "Integer", "Long", "Object", "Short", "Void", "Class",
-        "ClassNotFoundException", "LinkageError", "IllegalStateException", "Override");
-    private static final Set<String> TEMPLATE_IMPORTS
-        = Set.of("com.azure.json.JsonProviders", "com.azure.json.JsonReader", "com.azure.json.ReadValueCallback",
-            "java.io.IOException", "java.io.UncheckedIOException", "java.util.Objects");
 
     private SseUtil() {
     }
@@ -57,193 +44,99 @@ public final class SseUtil {
         return new ClassType.Builder().packageName(getEventPackage(metadata)).name(name).build();
     }
 
-    public static Set<String> getFullyQualifiedClientTypeNames(List<ConvenienceMethod> convenienceMethods,
-        Set<String> imports) {
-        Set<String> sseTypeNames = new LinkedHashSet<>();
-        convenienceMethods.stream()
-            .flatMap(method -> method.getConvenienceMethods().stream())
-            .filter(method -> method.getSseMetadata() != null)
-            .forEach(method -> {
-                SseMetadata metadata = method.getSseMetadata();
-                SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-                method.getReturnValue().getType().addImportsTo(sseTypeNames, false);
-                sseTypeNames.add(getConverterPackage() + "." + names.getConverterName());
-                sseTypeNames.add(getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS);
-            });
-
-        Map<String, Set<String>> importsBySimpleName = new HashMap<>();
-        imports.forEach(importName -> importsBySimpleName
-            .computeIfAbsent(importName.substring(importName.lastIndexOf('.') + 1), ignored -> new LinkedHashSet<>())
-            .add(importName));
-
-        return sseTypeNames.stream()
-            .filter(imports::contains)
-            .filter(typeName -> importsBySimpleName.get(typeName.substring(typeName.lastIndexOf('.') + 1)).size() > 1)
-            .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
     public static String getClientEventTypeName(SseMetadata metadata) {
-        return getClientEventTypeName(metadata, Set.of());
-    }
-
-    public static String getClientEventTypeName(SseMetadata metadata, Set<String> fullyQualifiedTypeNames) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        ClassType eventType = getEventType(metadata, names.getBaseEventName());
-        return fullyQualifiedTypeNames.contains(eventType.getFullName())
-            ? eventType.getFullName()
-            : eventType.getName();
+        return getEventType(metadata, names.getBaseEventName()).getFullName();
     }
 
-    public static String getClientConverterTypeName(SseMetadata metadata, Set<String> fullyQualifiedTypeNames) {
+    public static String getClientConverterTypeName(SseMetadata metadata) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        String converterType = getConverterPackage() + "." + names.getConverterName();
-        return fullyQualifiedTypeNames.contains(converterType) ? converterType : names.getConverterName();
+        return getConverterPackage() + "." + names.getConverterName();
     }
 
-    public static String getClientRuntimeTypeName(Set<String> fullyQualifiedTypeNames) {
-        String runtimeType = getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS;
-        return fullyQualifiedTypeNames.contains(runtimeType) ? runtimeType : SERVER_SENT_EVENT_STREAMS;
+    public static String getClientRuntimeTypeName() {
+        return getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS;
     }
 
-    public static String getClientReturnTypeName(ClientMethod method, Set<String> fullyQualifiedTypeNames) {
+    public static String getClientReturnTypeName(ClientMethod method) {
         if (method.getSseMetadata() == null) {
             return method.getReturnValue().getType().toString();
         }
-        IType returnType = method.getReturnValue().getType();
-        Set<String> returnTypeNames = new LinkedHashSet<>();
-        returnType.addImportsTo(returnTypeNames, false);
-        return fullyQualifiedTypeNames.stream().anyMatch(returnTypeNames::contains)
-            ? getPayloadTypeName(returnType, fullyQualifiedTypeNames)
-            : method.getReturnValue().getType().toString();
+        return getFullyQualifiedTypeName(method.getReturnValue().getType());
     }
 
-    public static Set<String> getFullyQualifiedPayloadTypeNames(SseMetadata metadata, SseNamingResolver.Names names) {
-        Set<String> reservedSimpleNames = new LinkedHashSet<>(TEMPLATE_DECLARED_TYPE_NAMES);
-        reservedSimpleNames.add(names.getBaseEventName());
-        reservedSimpleNames.add(names.getConverterName());
-        metadata.getEvents().forEach(event -> reservedSimpleNames.add(names.getEventWrapperName(event.getName())));
-
-        Set<String> fullyQualifiedTypeNames = new LinkedHashSet<>();
-        Map<String, String> importsBySimpleName = new HashMap<>();
-        Set<String> preferredImports = new LinkedHashSet<>();
-        TEMPLATE_IMPORTS.forEach(importName -> trackImport(importName, true, importsBySimpleName, preferredImports,
-            reservedSimpleNames, fullyQualifiedTypeNames));
-        trackImport(ClassType.CLIENT_LOGGER.getFullName(), true, importsBySimpleName, preferredImports,
-            reservedSimpleNames, fullyQualifiedTypeNames);
-        trackImport(Annotation.GENERATED.getFullName(), true, importsBySimpleName, preferredImports,
-            reservedSimpleNames, fullyQualifiedTypeNames);
-        trackImport(Annotation.IMMUTABLE.getFullName(), true, importsBySimpleName, preferredImports,
-            reservedSimpleNames, fullyQualifiedTypeNames);
-        metadata.getEvents().forEach(event -> {
-            IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
-            trackTypeImports(wirePayloadType, importsBySimpleName, preferredImports, reservedSimpleNames,
-                fullyQualifiedTypeNames);
-            trackTypeImports(wirePayloadType.getClientType(), importsBySimpleName, preferredImports,
-                reservedSimpleNames, fullyQualifiedTypeNames);
-            if (wirePayloadType.contains(ClassType.DATE_TIME)) {
-                trackImport(ClassType.CORE_UTILS.getFullName(), true, importsBySimpleName, preferredImports,
-                    reservedSimpleNames, fullyQualifiedTypeNames);
-            }
-        });
-        return fullyQualifiedTypeNames;
-    }
-
-    public static void addPayloadImports(IType type, Set<String> imports, Set<String> fullyQualifiedTypeNames,
-        boolean includeImplementationImports) {
+    public static void addPayloadImports(IType type, Set<String> imports, boolean includeImplementationImports) {
         Set<String> payloadImports = new LinkedHashSet<>();
         type.addImportsTo(payloadImports, includeImplementationImports);
-        payloadImports.removeIf(fullyQualifiedTypeNames::contains);
+        Set<String> userDefinedImports = new LinkedHashSet<>();
+        collectUserDefinedTypeNames(type, userDefinedImports);
+        payloadImports.removeAll(userDefinedImports);
         imports.addAll(payloadImports);
     }
 
-    public static String getPayloadTypeName(IType type, Set<String> fullyQualifiedTypeNames) {
+    public static String getPayloadTypeName(IType type) {
         if (type instanceof ClassType) {
             ClassType classType = (ClassType) type;
-            return fullyQualifiedTypeNames.contains(classType.getFullName())
-                ? classType.getFullName()
-                : classType.getName();
+            return classType.isSwaggerType() ? classType.getFullName() : classType.getName();
         }
         if (type instanceof EnumType) {
             EnumType enumType = (EnumType) type;
-            String fullName = enumType.getPackage() + "." + enumType.getName();
-            return fullyQualifiedTypeNames.contains(fullName) ? fullName : enumType.getName();
+            return getFullName(enumType.getPackage(), enumType.getName());
         }
         if (type instanceof GenericType) {
             GenericType genericType = (GenericType) type;
-            String fullName = genericType.getPackage() + "." + genericType.getName();
-            String typeName = fullyQualifiedTypeNames.contains(fullName) ? fullName : genericType.getName();
-            return typeName + "<"
+            return genericType.getName() + "<"
                 + Arrays.stream(genericType.getTypeArguments())
-                    .map(typeArgument -> getPayloadTypeName(typeArgument.asNullable(), fullyQualifiedTypeNames))
+                    .map(typeArgument -> getPayloadTypeName(typeArgument.asNullable()))
                     .collect(Collectors.joining(", "))
                 + ">";
         }
         if (type instanceof ArrayType) {
-            return getPayloadTypeName(((ArrayType) type).getElementType(), fullyQualifiedTypeNames) + "[]";
+            return getPayloadTypeName(((ArrayType) type).getElementType()) + "[]";
         }
         return type.toString();
     }
 
-    private static void trackTypeImports(IType type, Map<String, String> importsBySimpleName,
-        Set<String> preferredImports, Set<String> reservedSimpleNames, Set<String> fullyQualifiedTypeNames) {
-        Set<String> imports = new LinkedHashSet<>();
-        type.addImportsTo(imports, false);
-        Set<String> preferredTypeImports = new LinkedHashSet<>();
-        collectPreferredTypeImports(type, preferredTypeImports);
-        imports.forEach(importName -> trackImport(importName, preferredTypeImports.contains(importName),
-            importsBySimpleName, preferredImports, reservedSimpleNames, fullyQualifiedTypeNames));
+    private static String getFullyQualifiedTypeName(IType type) {
+        if (type instanceof ClassType) {
+            return ((ClassType) type).getFullName();
+        }
+        if (type instanceof EnumType) {
+            EnumType enumType = (EnumType) type;
+            return getFullName(enumType.getPackage(), enumType.getName());
+        }
+        if (type instanceof GenericType) {
+            GenericType genericType = (GenericType) type;
+            return getFullName(genericType.getPackage(), genericType.getName()) + "<"
+                + Arrays.stream(genericType.getTypeArguments())
+                    .map(typeArgument -> getFullyQualifiedTypeName(typeArgument.asNullable()))
+                    .collect(Collectors.joining(", "))
+                + ">";
+        }
+        if (type instanceof ArrayType) {
+            return getFullyQualifiedTypeName(((ArrayType) type).getElementType()) + "[]";
+        }
+        return type.toString();
     }
 
-    private static void trackImport(String importName, boolean preferred, Map<String, String> importsBySimpleName,
-        Set<String> preferredImports, Set<String> reservedSimpleNames, Set<String> fullyQualifiedTypeNames) {
-        String simpleName = importName.substring(importName.lastIndexOf('.') + 1);
-        if (reservedSimpleNames.contains(simpleName) && !preferred) {
-            fullyQualifiedTypeNames.add(importName);
-        }
-        String existingImport = importsBySimpleName.putIfAbsent(simpleName, importName);
-        if (preferred) {
-            preferredImports.add(importName);
-        }
-        if (existingImport != null && !existingImport.equals(importName)) {
-            boolean existingPreferred = preferredImports.contains(existingImport);
-            if (existingPreferred && !preferred) {
-                fullyQualifiedTypeNames.add(importName);
-            } else if (!existingPreferred && preferred) {
-                fullyQualifiedTypeNames.add(existingImport);
-                importsBySimpleName.put(simpleName, importName);
-            } else {
-                fullyQualifiedTypeNames.add(existingImport);
-                fullyQualifiedTypeNames.add(importName);
-            }
-        }
-    }
-
-    private static void collectPreferredTypeImports(IType type, Set<String> preferredImports) {
+    private static void collectUserDefinedTypeNames(IType type, Set<String> typeNames) {
         if (type instanceof ClassType) {
             ClassType classType = (ClassType) type;
-            if (!classType.isSwaggerType()) {
-                classType.addImportsTo(preferredImports, false);
+            if (classType.isSwaggerType()) {
+                typeNames.add(classType.getFullName());
             }
+        } else if (type instanceof EnumType) {
+            EnumType enumType = (EnumType) type;
+            typeNames.add(getFullName(enumType.getPackage(), enumType.getName()));
         } else if (type instanceof GenericType) {
-            GenericType genericType = (GenericType) type;
-            preferredImports.add(genericType.getPackage() + "." + genericType.getName());
-            Arrays.stream(genericType.getTypeArguments())
-                .forEach(typeArgument -> collectPreferredTypeImports(typeArgument, preferredImports));
+            Arrays.stream(((GenericType) type).getTypeArguments())
+                .forEach(typeArgument -> collectUserDefinedTypeNames(typeArgument, typeNames));
         } else if (type instanceof ArrayType) {
-            collectPreferredTypeImports(((ArrayType) type).getElementType(), preferredImports);
+            collectUserDefinedTypeNames(((ArrayType) type).getElementType(), typeNames);
         }
     }
 
-    public static boolean isSseMethod(ClientMethod method) {
-        if (method.getSseMetadata() != null) {
-            return true;
-        }
-        return method.getProxyMethod() != null
-            && method.getProxyMethod().getResponseContentTypes() != null
-            && method.getProxyMethod()
-                .getResponseContentTypes()
-                .stream()
-                .map(contentType -> contentType.toLowerCase(Locale.ROOT))
-                .anyMatch(contentType -> contentType.startsWith("text/event-stream"));
+    private static String getFullName(String packageName, String name) {
+        return packageName == null || packageName.isEmpty() ? name : packageName + "." + name;
     }
 }

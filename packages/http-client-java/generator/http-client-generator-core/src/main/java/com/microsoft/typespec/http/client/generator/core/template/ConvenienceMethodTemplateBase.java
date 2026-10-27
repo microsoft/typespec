@@ -293,11 +293,6 @@ abstract class ConvenienceMethodTemplateBase {
 
     public void write(ConvenienceMethod convenienceMethodObj, JavaClass classBlock,
         Set<GenericType> typeReferenceStaticClasses) {
-        write(convenienceMethodObj, classBlock, typeReferenceStaticClasses, Set.of());
-    }
-
-    public void write(ConvenienceMethod convenienceMethodObj, JavaClass classBlock,
-        Set<GenericType> typeReferenceStaticClasses, Set<String> fullyQualifiedSseClientTypeNames) {
         if (!isMethodIncluded(convenienceMethodObj)) {
             return;
         }
@@ -313,8 +308,7 @@ abstract class ConvenienceMethodTemplateBase {
                 classBlock.javadocComment(comment -> ClientMethodTemplate.generateJavadoc(convenienceMethod, comment,
                     convenienceMethod.getProxyMethod(), false));
             } else {
-                classBlock.javadocComment(
-                    comment -> writeSseJavadoc(convenienceMethod, comment, fullyQualifiedSseClientTypeNames));
+                classBlock.javadocComment(comment -> writeSseJavadoc(convenienceMethod, comment));
             }
 
             addGeneratedAnnotation(classBlock);
@@ -325,39 +319,28 @@ abstract class ConvenienceMethodTemplateBase {
             JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
             // convenience method
-            String methodDeclaration = String.format("%1$s %2$s(%3$s)",
-                SseUtil.getClientReturnTypeName(convenienceMethod, fullyQualifiedSseClientTypeNames),
-                getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
+            String methodDeclaration
+                = String.format("%1$s %2$s(%3$s)", SseUtil.getClientReturnTypeName(convenienceMethod),
+                    getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
             classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
                 if (convenienceMethod.getSseMetadata() == null) {
                     methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
                 }
 
-                writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses,
-                    fullyQualifiedSseClientTypeNames);
+                writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
             });
         });
     }
 
-    private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+    private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
         SseMetadata metadata = method.getSseMetadata();
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        String baseEventName = SseUtil.getClientEventTypeName(metadata, fullyQualifiedSseClientTypeNames);
-        String description = method.getDescription();
-        int firstSentenceEnd = description.indexOf('.');
-        String firstSentence = firstSentenceEnd < 0 ? description : description.substring(0, firstSentenceEnd + 1);
-        comment.description(firstSentence.replaceAll("\\s+", " "));
+        String baseEventName = SseUtil.getClientEventTypeName(metadata);
+        comment.description(method.getDescription());
 
-        String representativeEventName = SseNamingResolver.getRepresentativeEventName(metadata);
-        String representativeEvent = representativeEventName == null
-            ? null
-            : SseUtil.getEventPackage(metadata) + "." + names.getEventWrapperName(representativeEventName);
-        String payloadExample
-            = representativeEvent == null ? "" : ", for example {@link " + representativeEvent + "#getValue()}";
         comment.paragraph("Events are polymorphic: see {@link " + baseEventName
             + "} for the known subtypes. Use a known subtype's {@code getValue()} to access its typed payload"
-            + payloadExample + ". Unrecognized events expose only their names through {@link " + baseEventName
+            + ". Unrecognized events expose only their names through {@link " + baseEventName
             + "#getEventName()}; their payloads are not available.");
 
         List<String> terminalEventNames = SseNamingResolver.getTerminalEventNames(metadata);
@@ -400,12 +383,6 @@ abstract class ConvenienceMethodTemplateBase {
      */
     protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
         JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
-        writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses, Set.of());
-    }
-
-    protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
-        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
-        Set<String> fullyQualifiedSseClientTypeNames) {
         // matched parameters from convenience method to protocol method
         Map<MethodParameter, MethodParameter> parametersMap
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
@@ -544,7 +521,7 @@ abstract class ConvenienceMethodTemplateBase {
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
-            typeReferenceStaticClasses, fullyQualifiedSseClientTypeNames);
+            typeReferenceStaticClasses);
     }
 
     protected void addRequestCallback(JavaBlock javaBlock, String variableName) {
@@ -731,7 +708,14 @@ abstract class ConvenienceMethodTemplateBase {
         JavaSettings settings = JavaSettings.getInstance();
         convenienceMethods.stream().flatMap(m -> m.getConvenienceMethods().stream()).forEach(m -> {
             // we need classes many of its parameters and models, hence "includeImplementationImports=true"
-            m.addImportsTo(imports, true, settings);
+            Set<String> methodImports = new java.util.LinkedHashSet<>();
+            m.addImportsTo(methodImports, true, settings);
+            if (m.getSseMetadata() != null) {
+                Set<String> sseReturnImports = new java.util.LinkedHashSet<>();
+                m.getReturnValue().getType().addImportsTo(sseReturnImports, true);
+                methodImports.removeAll(sseReturnImports);
+            }
+            imports.addAll(methodImports);
 
             // add imports from models, as some convenience API need to process model properties
             for (ClientMethodParameter p : m.getParameters()) {
@@ -741,12 +725,6 @@ abstract class ConvenienceMethodTemplateBase {
                         model.addImportsTo(imports, settings);
                     }
                 }
-            }
-
-            if (m.getSseMetadata() != null) {
-                imports.add(SseUtil.getRuntimePackage() + "." + SseUtil.SERVER_SENT_EVENT_STREAMS);
-                imports.add(SseUtil.getConverterPackage() + "."
-                    + SseNamingResolver.resolve(m.getSseMetadata()).getConverterName());
             }
         });
 
@@ -849,15 +827,8 @@ abstract class ConvenienceMethodTemplateBase {
      * @param invocationExpression the prepared expression of invocation on client method.
      * @param methodBlock the code block.
      */
-    protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
-        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
-        writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
-            typeReferenceStaticClasses, Set.of());
-    }
-
     protected abstract void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
-        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
-        Set<String> fullyQualifiedSseClientTypeNames);
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses);
 
     protected enum SupportedMimeType {
         TEXT, XML, MULTIPART, BINARY, JSON;

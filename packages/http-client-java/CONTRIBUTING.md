@@ -111,10 +111,11 @@ Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1
 
 SSE definitions are transported once in `CodeModel.sseStreams`, keyed by the streamed
 union's cross-language definition ID. Operations carry `sseStreamId`; Java resolves
-those references after preprocessing and records only definitions actually used by
-typed method mapping. Distinct effective union owners claiming one ID are errors,
-not candidates for schema fingerprinting or structural deduplication. Generated Java
-names and strict source-path collision preflight remain generator-owned.
+those references after preprocessing. After client mapping completes, Java collects
+the distinct canonical definitions referenced by the final renderable sync and async
+convenience methods. Distinct effective union owners claiming one ID are errors, not
+candidates for schema fingerprinting or structural deduplication. Generated Java names
+and strict source-path collision preflight remain generator-owned.
 
 For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`
 or the Spector `streaming/sse/main.tsp` into separate output directories using the

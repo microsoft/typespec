@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
@@ -35,15 +34,11 @@ public final class SseEventModelTemplate {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         String baseEventName = names.getBaseEventName();
         String converterName = names.getConverterName();
-        Set<String> fullyQualifiedTypeNames = SseUtil.getFullyQualifiedPayloadTypeNames(metadata, names);
+        String converterTypeName = SseUtil.getConverterPackage() + "." + converterName;
         Set<String> imports = new LinkedHashSet<>();
-        new ClassType.Builder().packageName(SseUtil.getConverterPackage())
-            .name(converterName)
-            .build()
-            .addImportsTo(imports, false);
         for (SseEventMetadata event : metadata.getEvents()) {
             SseUtil.addPayloadImports(Mappers.getSchemaMapper().map(event.getPayload()).getClientType(), imports,
-                fullyQualifiedTypeNames, false);
+                false);
         }
         Annotation.GENERATED.addImportsTo(imports);
         javaFile.declareImport(imports);
@@ -84,21 +79,22 @@ public final class SseEventModelTemplate {
             javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("false"));
             javaClass.staticBlock(staticBlock -> {
-                staticBlock
-                    .line(converterName + ".setConstructorAccessor(new " + converterName + ".ConstructorAccessor() {");
+                staticBlock.line(converterTypeName + ".setConstructorAccessor(new " + converterTypeName
+                    + ".ConstructorAccessor() {");
                 staticBlock.indent(() -> {
                     staticBlock.line("@Override");
-                    staticBlock.block("public " + baseEventName + " unknownEvent(String eventName)",
+                    staticBlock.block(
+                        "public " + SseUtil.getClientEventTypeName(metadata) + " unknownEvent(String eventName)",
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-                        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType, fullyQualifiedTypeNames);
+                        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType);
                         String wrapperName = names.getEventWrapperName(event.getName());
+                        String wrapperTypeName = SseUtil.getEventType(metadata, wrapperName).getFullName();
                         staticBlock.line("@Override");
-                        staticBlock.block(
-                            "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(event.getName())
-                                + "(" + payloadTypeName + " value)",
-                            method -> method.methodReturn("new " + wrapperName + "(value)"));
+                        staticBlock.block("public " + wrapperTypeName + " "
+                            + SseNamingResolver.getEventFactoryMethodName(event.getName()) + "(" + payloadTypeName
+                            + " value)", method -> method.methodReturn("new " + wrapperName + "(value)"));
                     }
                 });
                 staticBlock.line("});");
@@ -109,25 +105,23 @@ public final class SseEventModelTemplate {
     public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-        Set<String> fullyQualifiedTypeNames = SseUtil.getFullyQualifiedPayloadTypeNames(metadata, names);
-        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType, fullyQualifiedTypeNames);
+        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType);
         Set<String> imports = new LinkedHashSet<>();
-        SseUtil.addPayloadImports(payloadType, imports, fullyQualifiedTypeNames, false);
-        SseUtil.getEventType(metadata, names.getBaseEventName()).addImportsTo(imports, false);
+        SseUtil.addPayloadImports(payloadType, imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.IMMUTABLE.addImportsTo(imports);
         javaFile.declareImport(imports);
 
         String wrapperName = names.getEventWrapperName(event.getName());
-        String baseEventName = names.getBaseEventName();
+        String baseEventTypeName = SseUtil.getClientEventTypeName(metadata);
         javaFile.javadocComment(comment -> {
             comment.description("Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} "
                 + names.getStreamDescription() + " stream event.");
             comment.description("Access the typed payload with {@link #getValue()}.");
-            comment.see(baseEventName);
+            comment.see(baseEventTypeName);
         });
         javaFile.annotation(Annotation.IMMUTABLE.getName());
-        javaFile.publicFinalClass(wrapperName + " extends " + baseEventName, javaClass -> {
+        javaFile.publicFinalClass(wrapperName + " extends " + baseEventTypeName, javaClass -> {
             javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.privateFinalMemberVariable(payloadTypeName + " value");
             javaClass.javadocComment(comment -> {

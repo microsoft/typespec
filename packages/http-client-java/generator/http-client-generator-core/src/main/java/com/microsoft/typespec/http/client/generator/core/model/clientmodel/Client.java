@@ -214,16 +214,11 @@ public class Client {
     }
 
     public static class Builder {
-        private final java.util.Set<SseMetadata> sseStreams = new java.util.LinkedHashSet<>();
+        private List<SseMetadata> sseStreams = List.of();
 
         public Builder sseStreams(List<SseMetadata> sseStreams) {
-            this.sseStreams.clear();
-            this.sseStreams.addAll(sseStreams);
+            this.sseStreams = List.copyOf(sseStreams);
             return this;
-        }
-
-        public void addSseStream(SseMetadata metadata) {
-            sseStreams.add(metadata);
         }
 
         private String clientName;

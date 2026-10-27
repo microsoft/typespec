@@ -18,7 +18,6 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
-import tsptest.sse.implementation.EnumRequestStreamEventConverter;
 import tsptest.sse.implementation.StreamOperationsImpl;
 import tsptest.sse.models.CloseableIterableStream;
 import tsptest.sse.models.EnumRequestStreamEvent;
@@ -284,9 +283,8 @@ public final class SseAsyncClient {
      * The read operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
-     * subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     * subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
@@ -311,9 +309,8 @@ public final class SseAsyncClient {
      * The read operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
-     * subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     * subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
@@ -334,9 +331,8 @@ public final class SseAsyncClient {
      * The readWithCollidingRequest operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
-     * subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     * subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
@@ -443,9 +439,8 @@ public final class SseAsyncClient {
      * The readEnum operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.EnumRequestStreamEvent} for the known subtypes. Use
-     * a known subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.EnumRequestMessageStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.EnumRequestStreamEvent#getEventName()}; their payloads are not
+     * a known subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names
+     * through {@link tsptest.sse.stream.models.EnumRequestStreamEvent#getEventName()}; their payloads are not
      * available.
      *
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
@@ -458,7 +453,7 @@ public final class SseAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return readEnumWithResponse(requestOptions)
             .flatMapMany(response -> tsptest.sse.models.implementation.sse.ServerSentEventStreams.toFlux(response,
-                EnumRequestStreamEventConverter::convert,
+                tsptest.sse.implementation.EnumRequestStreamEventConverter::convert,
                 tsptest.sse.stream.models.EnumRequestStreamEvent::isTerminal));
     }
 

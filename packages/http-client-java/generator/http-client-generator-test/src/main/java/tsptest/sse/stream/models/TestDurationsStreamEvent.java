@@ -14,10 +14,10 @@ import java.util.Map;
  * Represents the {@code durations} test stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see TestStreamEvent
+ * @see tsptest.sse.stream.models.TestStreamEvent
  */
 @Immutable
-public final class TestDurationsStreamEvent extends TestStreamEvent {
+public final class TestDurationsStreamEvent extends tsptest.sse.stream.models.TestStreamEvent {
     @Generated
     private final Map<String, List<Map<String, List<Duration>>>> value;
 

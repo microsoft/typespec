@@ -28,7 +28,7 @@ public class ClientMethodSseTests {
     }
 
     @Test
-    public void resolvesSyncOverAsyncDeclarationAndCallForHiddenSseProtocolMethods() {
+    public void preservesModeledSyncOverAsyncDeclarationAndCallNames() {
         new MockUnitJavagen();
         JavaSettings.clear();
         for (String contentType : List.of("text/event-stream", "application/json")) {
@@ -42,14 +42,8 @@ public class ClientMethodSseTests {
             javaFile.publicFinalClass("Test", javaClass -> new ClientMethodTemplate().generateSyncMethod(method,
                 javaClass, JavaSettings.getInstance()));
             String source = javaFile.getContents().toString();
-            if ("text/event-stream".equals(contentType)) {
-                Assertions.assertTrue(source.contains("readWithResponse()"));
-                Assertions.assertTrue(source.contains("readWithResponseAsync().block()"));
-                Assertions.assertFalse(source.contains("readWithResponseInternal"));
-            } else {
-                Assertions.assertTrue(source.contains("readWithResponseInternal()"));
-                Assertions.assertTrue(source.contains("readWithResponseInternalAsync().block()"));
-            }
+            Assertions.assertTrue(source.contains("readWithResponseInternal()"), source);
+            Assertions.assertTrue(source.contains("readWithResponseInternalAsync().block()"), source);
         }
     }
 }

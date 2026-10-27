@@ -23,7 +23,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.LinkedHashSet;
@@ -88,10 +87,6 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             imports.add(settings.getPackage(settings.getImplementationSubpackage()) + "."
                 + ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME);
         }
-
-        Set<String> fullyQualifiedSseClientTypeNames
-            = SseUtil.getFullyQualifiedClientTypeNames(asyncClient.getConvenienceMethods(), imports);
-        imports.removeAll(fullyQualifiedSseClientTypeNames);
 
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(String
@@ -159,7 +154,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
 
             writeSubClientAccessors(serviceClient, classBlock, true);
 
-            writeConvenienceMethods(asyncClient.getConvenienceMethods(), classBlock, fullyQualifiedSseClientTypeNames);
+            writeConvenienceMethods(asyncClient.getConvenienceMethods(), classBlock);
 
             ServiceAsyncClientTemplate.addEndpointMethod(classBlock, asyncClient.getClientBuilder(), serviceClient,
                 "this.serviceClient");
@@ -281,12 +276,10 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         return null;
     }
 
-    private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+    private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {
         Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
-
-        convenienceMethods.forEach(m -> Templates.getConvenienceAsyncMethodTemplate()
-            .write(m, classBlock, typeReferenceStaticClasses, fullyQualifiedSseClientTypeNames));
+        convenienceMethods.forEach(
+            m -> Templates.getConvenienceAsyncMethodTemplate().write(m, classBlock, typeReferenceStaticClasses));
 
         // static variables for TypeReference<T>
         for (GenericType typeReferenceStaticClass : typeReferenceStaticClasses) {

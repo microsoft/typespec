@@ -12,10 +12,10 @@ import java.time.Duration;
  * Represents the {@code duration} test stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see TestStreamEvent
+ * @see tsptest.sse.stream.models.TestStreamEvent
  */
 @Immutable
-public final class TestDurationStreamEvent extends TestStreamEvent {
+public final class TestDurationStreamEvent extends tsptest.sse.stream.models.TestStreamEvent {
     @Generated
     private final Duration value;
 

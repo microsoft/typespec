@@ -11,10 +11,10 @@ import com.azure.core.annotation.Immutable;
  * Represents the {@code message} enum request stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see EnumRequestStreamEvent
+ * @see tsptest.sse.stream.models.EnumRequestStreamEvent
  */
 @Immutable
-public final class EnumRequestMessageStreamEvent extends EnumRequestStreamEvent {
+public final class EnumRequestMessageStreamEvent extends tsptest.sse.stream.models.EnumRequestStreamEvent {
     @Generated
     private final String value;
 

@@ -85,10 +85,6 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
     @Override
     public Client map(CodeModel codeModel) {
         Client.Builder builder = new Client.Builder();
-        return Mappers.getClientMethodMapper().withSseUsage(builder::addSseStream, () -> map(codeModel, builder));
-    }
-
-    private Client map(CodeModel codeModel, Client.Builder builder) {
         JavaSettings settings = JavaSettings.getInstance();
 
         // enum model
@@ -376,6 +372,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             asyncClients.addAll(asyncClientsLocal);
         }
         builder.clientBuilders(clientBuilders);
+        builder.sseStreams(collectSseStreams(syncClients, asyncClients));
         builder.apiMetadata(
             new ApiMetadata.Builder().crossLanguageDefinitionId(codeModel.getLanguage().getJava().getName()).build());
 
@@ -394,6 +391,40 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 enumTypes)));
 
         return builder.build();
+    }
+
+    private static List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata>
+        collectSseStreams(List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients) {
+        Set<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata> streams
+            = new LinkedHashSet<>();
+        collectSseStreams(syncClients, ClientMethodType.SseSync, streams);
+        collectSseStreams(asyncClients, ClientMethodType.SseAsync, streams);
+        return new ArrayList<>(streams);
+    }
+
+    private static void collectSseStreams(List<AsyncSyncClient> clients, ClientMethodType methodType,
+        Set<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata> streams) {
+        boolean async = methodType == ClientMethodType.SseAsync;
+        clients.stream().flatMap(client -> client.getConvenienceMethods().stream()).filter(convenienceMethod -> {
+            ClientMethod protocolMethod = convenienceMethod.getProtocolMethod();
+            if (protocolMethod.getMethodVisibility() != JavaVisibility.Public) {
+                return false;
+            }
+            if (async) {
+                return protocolMethod.getType() == ClientMethodType.SimpleAsyncRestResponse
+                    && protocolMethod.getMethodParameters()
+                        .stream()
+                        .noneMatch(parameter -> parameter.getClientType() == ClassType.CONTEXT);
+            }
+            return protocolMethod.getType() == ClientMethodType.SimpleSyncRestResponse;
+        })
+            .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
+            .filter(method -> method.getType() == methodType)
+            .filter(method -> method.getMethodVisibility() == JavaVisibility.Public)
+            .filter(method -> !method.isImplementationOnly())
+            .map(ClientMethod::getSseMetadata)
+            .filter(Objects::nonNull)
+            .forEach(streams::add);
     }
 
     private void addConvenienceExamples(Client.Builder builder, List<AsyncSyncClient> syncClients) {

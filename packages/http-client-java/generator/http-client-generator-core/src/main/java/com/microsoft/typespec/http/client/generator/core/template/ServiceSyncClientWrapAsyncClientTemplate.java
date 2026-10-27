@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientTemplate {
@@ -25,8 +24,7 @@ public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientT
     private static final String ASYNC_CLIENT_VAR_NAME = "client";
 
     @Override
-    protected void writeClass(AsyncSyncClient syncClient, JavaClass classBlock, JavaVisibility constructorVisibility,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+    protected void writeClass(AsyncSyncClient syncClient, JavaClass classBlock, JavaVisibility constructorVisibility) {
         // class variable
         String asyncClassName = ClientModelUtil.clientNameToAsyncClientName(syncClient.getClassName());
 
@@ -46,7 +44,7 @@ public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientT
             });
 
         // methods
-        writeMethods(syncClient, classBlock, fullyQualifiedSseClientTypeNames);
+        writeMethods(syncClient, classBlock);
     }
 
     protected String clientReference() {

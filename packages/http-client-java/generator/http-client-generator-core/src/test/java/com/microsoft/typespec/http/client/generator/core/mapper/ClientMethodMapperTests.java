@@ -56,9 +56,8 @@ public class ClientMethodMapperTests {
                 operation.setInternalApi(internal);
                 SseMetadata metadata = operation.getSseMetadata();
 
-                var used = new java.util.LinkedHashSet<SseMetadata>();
                 var mapper = ClientMethodMapper.getInstance();
-                List<ClientMethod> sseMethods = mapper.withSseUsage(used::add, () -> mapper.map(operation, false))
+                List<ClientMethod> sseMethods = mapper.map(operation, false)
                     .stream()
                     .filter(method -> method.getType() == ClientMethodType.SseSync
                         || method.getType() == ClientMethodType.SseAsync)
@@ -68,17 +67,15 @@ public class ClientMethodMapperTests {
                 sseMethods.forEach(
                     method -> Assertions.assertEquals(internal ? JavaVisibility.PackagePrivate : JavaVisibility.Public,
                         method.getMethodVisibilityInWrapperClient()));
-                Assertions.assertEquals(java.util.Set.of(metadata), used);
-                used.clear();
-                mapper.withSseUsage(used::add, () -> mapper.map(operation, false));
-                Assertions.assertEquals(java.util.Set.of(metadata), used,
-                    "Cached mappings still record canonical usage.");
-                used.clear();
-                mapper.withSseUsage(used::add, () -> mapper.map(operation, true));
-                Assertions.assertTrue(used.isEmpty(), "Protocol-only mappings must not emit typed helpers.");
-                var nextGeneration = new java.util.LinkedHashSet<SseMetadata>();
-                mapper.withSseUsage(nextGeneration::add, () -> List.of());
-                Assertions.assertTrue(nextGeneration.isEmpty());
+                mapper.map(operation, false)
+                    .stream()
+                    .filter(method -> method.getType() == ClientMethodType.SseSync
+                        || method.getType() == ClientMethodType.SseAsync)
+                    .forEach(method -> Assertions.assertSame(metadata, method.getSseMetadata()));
+                Assertions.assertTrue(mapper.map(operation, true)
+                    .stream()
+                    .noneMatch(method -> method.getType() == ClientMethodType.SseSync
+                        || method.getType() == ClientMethodType.SseAsync));
             }
         } finally {
             new MockUnitJavagen();

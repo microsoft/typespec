@@ -3,13 +3,16 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
@@ -17,7 +20,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,13 +35,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.tools.ToolProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Isolated;
 
+@Isolated
 public class SseConvenienceMethodTemplateTests {
     @TempDir
     Path compilationDirectory;
+
+    @AfterEach
+    public void restoreSettings() {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+    }
 
     @Test
     public void avoidsEnclosingParametersAndSuffixes() {
@@ -54,11 +70,74 @@ public class SseConvenienceMethodTemplateTests {
     public void preservesOrdinaryNamesAndNamedTerminalReferences() {
         for (boolean async : List.of(false, true)) {
             String output = render(async, List.of(), List.of());
-            Assertions.assertTrue(output.contains(", Event::isTerminal)"), output);
+            Assertions.assertTrue(output.contains(", test.models.Event::isTerminal)"), output);
             if (async) {
                 Assertions.assertTrue(output.contains(".flatMapMany(response -> "), output);
             }
         }
+    }
+
+    @Test
+    public void preservesFullAuthoredDescriptionAndStandardSseGuidance() {
+        String description = "First sentence. Second sentence with https://example.com/v1.2 and "
+            + "{@link java.time.Instant#parse(CharSequence)}.\nFinal authored line.";
+        for (boolean async : List.of(false, true)) {
+            String output = renderMethod(async, description);
+            Assertions.assertTrue(output.contains("First sentence."), output);
+            Assertions.assertTrue(output.contains("Second sentence with https://example.com/v1.2"), output);
+            Assertions.assertTrue(output.contains("{@link java.time.Instant#parse(CharSequence)}"), output);
+            Assertions.assertTrue(output.contains("Final authored line."), output);
+            Assertions.assertTrue(output.contains("see {@link test.models.Event} for the known subtypes"), output);
+            Assertions.assertFalse(output.contains("UpdateStreamEvent#getValue()"), output);
+            Assertions.assertTrue(
+                output.contains("terminal {@code response.completed} or {@code error} event is emitted before"),
+                output);
+            Assertions.assertTrue(output.contains("The client does not reconnect automatically."), output);
+            if (async) {
+                Assertions.assertTrue(output.contains("reactive error path"), output);
+            } else {
+                Assertions.assertTrue(output.contains("Events are decoded lazily by a single iterator."), output);
+                Assertions.assertTrue(output.contains("Use try-with-resources"), output);
+            }
+        }
+    }
+
+    @Test
+    public void emptyDescriptionStillRendersSseGuidance() {
+        for (boolean async : List.of(false, true)) {
+            String output = renderMethod(async, "");
+            Assertions.assertTrue(
+                output.contains("Events are polymorphic: see {@link test.models.Event} for the known subtypes."),
+                output);
+            Assertions.assertFalse(output.contains("null"), output);
+        }
+    }
+
+    @Test
+    public void doesNotImportReactorFluxOnlyForSseMethods() {
+        SseMetadata metadata = new SseMetadata();
+        metadata.setStreamName("Events");
+        metadata.setModelNamespace("test");
+        metadata.setEvents(List.of(event("update", false)));
+        ClientMethod protocol = new ClientMethod.Builder().name("readWithResponseAsync")
+            .parameters(List.of())
+            .type(ClientMethodType.SimpleAsyncRestResponse)
+            .methodVisibility(JavaVisibility.Public)
+            .returnValue(new ReturnValue("response", GenericType.mono(GenericType.response(ClassType.BINARY_DATA))))
+            .build();
+        ClientMethod convenience = new ClientMethod.Builder().name("read")
+            .parameters(List.of())
+            .sseMetadata(metadata)
+            .type(ClientMethodType.SseAsync)
+            .methodVisibility(JavaVisibility.Public)
+            .returnValue(new ReturnValue("events", GenericType.flux(SseUtil.getEventType(metadata, "Event"))))
+            .build();
+        Set<String> imports = new HashSet<>();
+
+        ConvenienceAsyncMethodTemplate.getInstance()
+            .addImports(imports, List.of(new ConvenienceMethod(protocol, List.of(convenience))));
+
+        Assertions.assertFalse(imports.contains(ClassType.FLUX.getFullName()), imports.toString());
     }
 
     @Test
@@ -111,6 +190,8 @@ public class SseConvenienceMethodTemplateTests {
         metadata.setModelNamespace("test");
         metadata.setEvents(List.of(event));
         ProxyMethod proxy = new ProxyMethod.Builder().name("read")
+            .parameters(List.of())
+            .allParameters(List.of())
             .responseBodyType(ClassType.BINARY_DATA)
             .rawResponseBodyType(ClassType.STRING)
             .responseContentTypes(java.util.Set.of("text/event-stream"))
@@ -142,6 +223,66 @@ public class SseConvenienceMethodTemplateTests {
         template.writeInvocationAndConversion(convenience, protocol, "requestOptions", new JavaBlock(contents),
             new HashSet<>());
         return contents.toString();
+    }
+
+    private static String renderMethod(boolean async, String description) {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+        SseEventMetadata update = event("update", false);
+        SseEventMetadata responseCompleted = event("response.completed", true);
+        SseEventMetadata error = event("error", true);
+        SseMetadata metadata = new SseMetadata();
+        metadata.setStreamName("Events");
+        metadata.setModelNamespace("test");
+        metadata.setEvents(List.of(update, responseCompleted, error));
+        ProxyMethod proxy = new ProxyMethod.Builder().name("read")
+            .parameters(List.of())
+            .allParameters(List.of())
+            .responseBodyType(ClassType.BINARY_DATA)
+            .rawResponseBodyType(ClassType.STRING)
+            .responseContentTypes(java.util.Set.of("text/event-stream"))
+            .build();
+        ClientMethod protocol = new ClientMethod.Builder().name(async ? "readWithResponseAsync" : "readWithResponse")
+            .description(description)
+            .parameters(List.of())
+            .proxyMethod(proxy)
+            .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
+            .methodVisibility(JavaVisibility.Public)
+            .methodVisibilityInWrapperClient(JavaVisibility.Public)
+            .returnValue(new ReturnValue("response",
+                async
+                    ? GenericType.mono(GenericType.response(ClassType.BINARY_DATA))
+                    : GenericType.response(ClassType.BINARY_DATA)))
+            .build();
+        ClassType eventType = SseUtil.getEventType(metadata, SseNamingResolver.resolve(metadata).getBaseEventName());
+        ClientMethod convenience = new ClientMethod.Builder().name(async ? "readAsync" : "read")
+            .description(description)
+            .parameters(List.of())
+            .parameterTransformations(new ParameterTransformations(List.of()))
+            .proxyMethod(proxy)
+            .sseMetadata(metadata)
+            .type(async ? ClientMethodType.SseAsync : ClientMethodType.SseSync)
+            .methodVisibility(JavaVisibility.Public)
+            .methodVisibilityInWrapperClient(JavaVisibility.Public)
+            .returnValue(new ReturnValue("events",
+                async ? GenericType.flux(eventType) : GenericType.closeableIterableStream(eventType)))
+            .build();
+        JavaFileContents contents = new JavaFileContents();
+        ConvenienceMethodTemplateBase template
+            = async ? ConvenienceAsyncMethodTemplate.getInstance() : ConvenienceSyncMethodTemplate.getInstance();
+        template.write(new ConvenienceMethod(protocol, List.of(convenience)), new JavaClass(contents), new HashSet<>());
+        return contents.toString();
+    }
+
+    private static SseEventMetadata event(String name, boolean terminal) {
+        StringSchema payload = new StringSchema();
+        payload.setType(
+            com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema.AllSchemaTypes.STRING);
+        SseEventMetadata event = new SseEventMetadata();
+        event.setName(name);
+        event.setPayload(payload);
+        event.setTerminal(terminal);
+        return event;
     }
 
     private static ClientMethodParameter parameter(String name) {

@@ -11,10 +11,10 @@ import com.azure.core.annotation.Immutable;
  * Represents the {@code text} test stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see TestStreamEvent
+ * @see tsptest.sse.stream.models.TestStreamEvent
  */
 @Immutable
-public final class TestTextStreamEvent extends TestStreamEvent {
+public final class TestTextStreamEvent extends tsptest.sse.stream.models.TestStreamEvent {
     @Generated
     private final String value;
 

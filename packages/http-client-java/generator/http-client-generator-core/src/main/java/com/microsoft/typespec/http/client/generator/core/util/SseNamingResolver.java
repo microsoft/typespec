@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.Collections;
@@ -37,18 +36,14 @@ public final class SseNamingResolver {
             ? baseEventName.substring(0, baseEventName.length() - STREAM_EVENT_SUFFIX.length())
             : baseEventName;
 
-        String streamEventPrefix = baseStem;
-        for (SseEventMetadata event : metadata.getEvents()) {
-            String firstSegment = firstEventNameSegment(event.getName());
-            if (!firstSegment.isEmpty() && baseStem.endsWith(firstSegment)) {
-                streamEventPrefix = baseStem.substring(0, baseStem.length() - firstSegment.length());
-                break;
-            }
-        }
-
         Map<String, String> eventWrapperNames = new LinkedHashMap<>();
         Map<String, String> wireNamesByWrapperName = new LinkedHashMap<>();
         for (SseEventMetadata event : metadata.getEvents()) {
+            String streamEventPrefix = baseStem;
+            String firstSegment = firstEventNameSegment(event.getName());
+            if (!firstSegment.isEmpty() && baseStem.endsWith(firstSegment)) {
+                streamEventPrefix = baseStem.substring(0, baseStem.length() - firstSegment.length());
+            }
             String wrapperName = streamEventPrefix + normalizeEventName(event.getName()) + STREAM_EVENT_SUFFIX;
             wrapperName = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(wrapperName));
             String collidingWireName = wireNamesByWrapperName.putIfAbsent(wrapperName, event.getName());
@@ -87,41 +82,11 @@ public final class SseNamingResolver {
         return "create" + normalizeEventName(eventName);
     }
 
-    public static String getServiceImplementationMethodName(String wrapperMethodName) {
-        if (wrapperMethodName.endsWith("InternalAsync")) {
-            return wrapperMethodName.substring(0, wrapperMethodName.length() - "InternalAsync".length()) + "Async";
-        }
-        if (wrapperMethodName.endsWith("Internal")) {
-            return wrapperMethodName.substring(0, wrapperMethodName.length() - "Internal".length());
-        }
-        return wrapperMethodName;
-    }
-
-    public static String getRepresentativeEventName(SseMetadata metadata) {
-        String representativeEventName = null;
-        String scalarEventName = null;
-        for (SseEventMetadata event : metadata.getEvents()) {
-            if (!event.isTerminal()) {
-                representativeEventName = event.getName();
-                if (!(event.getPayload() instanceof ArraySchema)) {
-                    scalarEventName = event.getName();
-                }
-            }
-        }
-        return scalarEventName == null ? representativeEventName : scalarEventName;
-    }
-
     public static List<String> getTerminalEventNames(SseMetadata metadata) {
         return metadata.getEvents()
             .stream()
             .filter(SseEventMetadata::isTerminal)
             .map(SseEventMetadata::getName)
-            .sorted((left, right) -> {
-                if (left.equals(right)) {
-                    return 0;
-                }
-                return "error".equals(left) ? -1 : "error".equals(right) ? 1 : 0;
-            })
             .collect(Collectors.toList());
     }
 

@@ -8,9 +8,6 @@ import com.azure.core.annotation.Generated;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import tsptest.sse.implementation.TestStreamEventConverter;
-import tsptest.sse.models.CompletedPayload;
-import tsptest.sse.models.StartedPayload;
 
 /**
  * Base for polymorphic events emitted by a streaming test.
@@ -64,57 +61,63 @@ public abstract class TestStreamEvent {
     }
 
     static {
-        TestStreamEventConverter.setConstructorAccessor(new TestStreamEventConverter.ConstructorAccessor() {
-            @Override
-            public TestStreamEvent unknownEvent(String eventName) {
-                return new TestStreamEvent(eventName) {
-                };
-            }
+        tsptest.sse.implementation.TestStreamEventConverter
+            .setConstructorAccessor(new tsptest.sse.implementation.TestStreamEventConverter.ConstructorAccessor() {
+                @Override
+                public tsptest.sse.stream.models.TestStreamEvent unknownEvent(String eventName) {
+                    return new TestStreamEvent(eventName) {
+                    };
+                }
 
-            @Override
-            public TestStartedStreamEvent createStarted(StartedPayload value) {
-                return new TestStartedStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestStartedStreamEvent
+                    createStarted(tsptest.sse.models.StartedPayload value) {
+                    return new TestStartedStreamEvent(value);
+                }
 
-            @Override
-            public TestTextStreamEvent createText(String value) {
-                return new TestTextStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestTextStreamEvent createText(String value) {
+                    return new TestTextStreamEvent(value);
+                }
 
-            @Override
-            public TestEventStreamEvent createEvent(String value) {
-                return new TestEventStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestEventStreamEvent createEvent(String value) {
+                    return new TestEventStreamEvent(value);
+                }
 
-            @Override
-            public TestMapStreamEvent createMap(Map<String, String> value) {
-                return new TestMapStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestMapStreamEvent createMap(Map<String, String> value) {
+                    return new TestMapStreamEvent(value);
+                }
 
-            @Override
-            public TestCollectionsStreamEvent createCollections(List<Map<String, List<String>>> value) {
-                return new TestCollectionsStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestCollectionsStreamEvent
+                    createCollections(List<Map<String, List<String>>> value) {
+                    return new TestCollectionsStreamEvent(value);
+                }
 
-            @Override
-            public TestModelMapStreamEvent createModelMap(Map<String, StartedPayload> value) {
-                return new TestModelMapStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestModelMapStreamEvent
+                    createModelMap(Map<String, tsptest.sse.models.StartedPayload> value) {
+                    return new TestModelMapStreamEvent(value);
+                }
 
-            @Override
-            public TestDurationStreamEvent createDuration(Duration value) {
-                return new TestDurationStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestDurationStreamEvent createDuration(Duration value) {
+                    return new TestDurationStreamEvent(value);
+                }
 
-            @Override
-            public TestDurationsStreamEvent createDurations(Map<String, List<Map<String, List<Duration>>>> value) {
-                return new TestDurationsStreamEvent(value);
-            }
+                @Override
+                public tsptest.sse.stream.models.TestDurationsStreamEvent
+                    createDurations(Map<String, List<Map<String, List<Duration>>>> value) {
+                    return new TestDurationsStreamEvent(value);
+                }
 
-            @Override
-            public TestCompletedStreamEvent createCompleted(CompletedPayload value) {
-                return new TestCompletedStreamEvent(value);
-            }
-        });
+                @Override
+                public tsptest.sse.stream.models.TestCompletedStreamEvent
+                    createCompleted(tsptest.sse.models.CompletedPayload value) {
+                    return new TestCompletedStreamEvent(value);
+                }
+            });
     }
 }

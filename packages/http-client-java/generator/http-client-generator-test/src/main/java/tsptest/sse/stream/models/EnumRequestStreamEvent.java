@@ -5,7 +5,6 @@
 package tsptest.sse.stream.models;
 
 import com.azure.core.annotation.Generated;
-import tsptest.sse.implementation.EnumRequestStreamEventConverter;
 
 /**
  * Base for polymorphic events emitted by a streaming enum request.
@@ -51,16 +50,16 @@ public abstract class EnumRequestStreamEvent {
     }
 
     static {
-        EnumRequestStreamEventConverter
-            .setConstructorAccessor(new EnumRequestStreamEventConverter.ConstructorAccessor() {
+        tsptest.sse.implementation.EnumRequestStreamEventConverter.setConstructorAccessor(
+            new tsptest.sse.implementation.EnumRequestStreamEventConverter.ConstructorAccessor() {
                 @Override
-                public EnumRequestStreamEvent unknownEvent(String eventName) {
+                public tsptest.sse.stream.models.EnumRequestStreamEvent unknownEvent(String eventName) {
                     return new EnumRequestStreamEvent(eventName) {
                     };
                 }
 
                 @Override
-                public EnumRequestMessageStreamEvent createMessage(String value) {
+                public tsptest.sse.stream.models.EnumRequestMessageStreamEvent createMessage(String value) {
                     return new EnumRequestMessageStreamEvent(value);
                 }
             });

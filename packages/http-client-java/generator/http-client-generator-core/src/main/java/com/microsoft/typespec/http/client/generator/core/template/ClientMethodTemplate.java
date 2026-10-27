@@ -34,8 +34,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
@@ -1424,16 +1422,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void generateSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         String asyncMethodName = MethodNamer.getSimpleAsyncMethodName(clientMethod.getName());
-        String effectiveAsyncMethodName = SseUtil.isSseMethod(clientMethod)
-            ? SseNamingResolver.getServiceImplementationMethodName(asyncMethodName)
-            : asyncMethodName;
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
-        writeServiceMethod(typeBlock, clientMethod, function -> {
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
             if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
                 function.line(
                     "Iterator<ByteBufferBackedInputStream> iterator = %s(%s).map(ByteBufferBackedInputStream::new).toStream().iterator();",
-                    effectiveAsyncMethodName, clientMethod.getArgumentList());
+                    asyncMethodName, clientMethod.getArgumentList());
                 function.anonymousClass("Enumeration<InputStream>", "enumeration", javaBlock -> {
                     javaBlock.annotation("Override");
                     javaBlock.publicMethod("boolean hasMoreElements()",
@@ -1446,7 +1441,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             } else if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
                 IType returnType = clientMethod.getReturnValue().getType();
                 if (returnType instanceof PrimitiveType) {
-                    function.line("%s value = %s(%s).block();", returnType.asNullable(), effectiveAsyncMethodName,
+                    function.line("%s value = %s(%s).block();", returnType.asNullable(), asyncMethodName,
                         clientMethod.getArgumentList());
                     function.ifBlock("value != null", ifAction -> ifAction.methodReturn("value"))
                         .elseBlock(elseAction -> {
@@ -1460,7 +1455,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     GenericType genericType = (GenericType) returnType;
                     if ("Response".equals(genericType.getName())
                         && genericType.getTypeArguments()[0].equals(ClassType.INPUT_STREAM)) {
-                        function.line("return %s(%s).map(response -> {", effectiveAsyncMethodName,
+                        function.line("return %s(%s).map(response -> {", asyncMethodName,
                             clientMethod.getArgumentList());
                         function.indent(() -> {
                             function.line(
@@ -1481,19 +1476,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         function.line("}).block();");
 //                    } else if ("Response".equals(genericType.getName()) && genericType.getTypeArguments()[0].equals(ClassType.BinaryData)) {
 //                        function.line("return %s(%s).flatMap(response -> new BinaryData(response.getValue())",
-//                            effectiveAsyncMethodName, clientMethod.getArgumentList());
+//                            asyncMethodName, clientMethod.getArgumentList());
 //                        function.line(".map(bd -> new SimpleResponse<>(response.getRequest(), response.getStatusCode(), response.getHeaders(), bd)))");
 //                        function.line(".block();");
                     } else {
                         function.methodReturn(
-                            String.format("%s(%s).block()", effectiveAsyncMethodName, clientMethod.getArgumentList()));
+                            String.format("%s(%s).block()", asyncMethodName, clientMethod.getArgumentList()));
                     }
                 } else {
-                    function.methodReturn(
-                        String.format("%s(%s).block()", effectiveAsyncMethodName, clientMethod.getArgumentList()));
+                    function
+                        .methodReturn(String.format("%s(%s).block()", asyncMethodName, clientMethod.getArgumentList()));
                 }
             } else {
-                function.line("%s(%s).block();", effectiveAsyncMethodName, clientMethod.getArgumentList());
+                function.line("%s(%s).block();", asyncMethodName, clientMethod.getArgumentList());
             }
         });
     }
@@ -1503,7 +1498,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         String effectiveProxyMethodName = restAPIMethod.getName();
 
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
-        writeServiceMethod(typeBlock, clientMethod, function -> {
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
             addValidations(function, clientMethod, settings);
             addOptionalAndConstantVariables(function, clientMethod, settings);
@@ -1805,7 +1800,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
 
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
-        writeServiceMethod(typeBlock, clientMethod, function -> {
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             if (clientMethod.hasWithContextOverload()) {
                 String arguments = clientMethod.getArgumentList();
                 arguments = CoreUtils.isNullOrEmpty(arguments) ? "context" : arguments + ", context";
@@ -1837,18 +1832,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.methodReturn("FluxUtil.withContext(context -> " + serviceMethodCall + ")");
             }
         });
-    }
-
-    private static void writeServiceMethod(JavaType typeBlock, ClientMethod clientMethod, Consumer<JavaBlock> method) {
-        writeMethod(typeBlock, clientMethod.getMethodVisibility(), getServiceMethodDeclaration(clientMethod), method);
-    }
-
-    private static String getServiceMethodDeclaration(ClientMethod clientMethod) {
-        if (!SseUtil.isSseMethod(clientMethod)) {
-            return clientMethod.getDeclaration();
-        }
-        String serviceMethodName = SseNamingResolver.getServiceImplementationMethodName(clientMethod.getName());
-        return clientMethod.getDeclaration().replace(clientMethod.getName() + "(", serviceMethodName + "(");
     }
 
     protected boolean contextInParameters(ClientMethod clientMethod) {

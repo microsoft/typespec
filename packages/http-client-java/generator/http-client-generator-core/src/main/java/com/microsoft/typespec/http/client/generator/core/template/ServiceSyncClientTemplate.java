@@ -19,7 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCon
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -88,10 +87,6 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             ClassType.SDK_INSTRUMENTATION_OPTIONS.addImportsTo(imports, false);
         }
 
-        Set<String> fullyQualifiedSseClientTypeNames
-            = SseUtil.getFullyQualifiedClientTypeNames(syncClient.getConvenienceMethods(), imports);
-        imports.removeAll(fullyQualifiedSseClientTypeNames);
-
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(String
             .format("Initializes a new instance of the synchronous %1$s type.", serviceClient.getInterfaceName())));
@@ -104,7 +99,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
                 String.format("%s(builder = %s.class)", serviceClientAnnotation, rootClientBuilder.getClassName()));
         }
         javaFile.publicFinalClass(syncClassName, classBlock -> {
-            writeClass(syncClient, classBlock, constructorVisibility, fullyQualifiedSseClientTypeNames);
+            writeClass(syncClient, classBlock, constructorVisibility);
 
             if (JavaSettings.getInstance().isUseClientLogger()) {
                 TemplateUtil.addClientLogger(classBlock, syncClassName, javaFile.getContents());
@@ -119,8 +114,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
      * @param classBlock the class block to write
      * @param constructorVisibility the visibility of class constructor
      */
-    protected void writeClass(AsyncSyncClient syncClient, JavaClass classBlock, JavaVisibility constructorVisibility,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+    protected void writeClass(AsyncSyncClient syncClient, JavaClass classBlock, JavaVisibility constructorVisibility) {
         final ServiceClient serviceClient = syncClient.getServiceClient();
         final MethodGroupClient methodGroupClient = syncClient.getMethodGroupClient();
         final boolean wrapServiceClient = methodGroupClient == null;
@@ -168,7 +162,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
 
         ServiceAsyncClientTemplate.writeSubClientAccessors(serviceClient, classBlock, false);
 
-        writeMethods(syncClient, classBlock, fullyQualifiedSseClientTypeNames);
+        writeMethods(syncClient, classBlock);
     }
 
     /**
@@ -177,8 +171,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
      * @param syncClient the sync client
      * @param classBlock the class block to write
      */
-    protected void writeMethods(AsyncSyncClient syncClient, JavaClass classBlock,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+    protected void writeMethods(AsyncSyncClient syncClient, JavaClass classBlock) {
         final ServiceClient serviceClient = syncClient.getServiceClient();
         final MethodGroupClient methodGroupClient = syncClient.getMethodGroupClient();
 
@@ -196,7 +189,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
                 writeMethod(clientMethod, classBlock);
             });
 
-        writeConvenienceMethods(syncClient.getConvenienceMethods(), classBlock, fullyQualifiedSseClientTypeNames);
+        writeConvenienceMethods(syncClient.getConvenienceMethods(), classBlock);
 
         ServiceAsyncClientTemplate.addEndpointMethod(classBlock, syncClient.getClientBuilder(), serviceClient,
             this.clientReference());
@@ -238,12 +231,11 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         return Templates.getConvenienceSyncMethodTemplate().useXmlSerializerMember(syncClient.getConvenienceMethods());
     }
 
-    private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+    private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {
         Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
 
-        convenienceMethods.forEach(m -> Templates.getConvenienceSyncMethodTemplate()
-            .write(m, classBlock, typeReferenceStaticClasses, fullyQualifiedSseClientTypeNames));
+        convenienceMethods.forEach(
+            m -> Templates.getConvenienceSyncMethodTemplate().write(m, classBlock, typeReferenceStaticClasses));
 
         // static variables for TypeReference<T>
         for (GenericType typeReferenceStaticClass : typeReferenceStaticClasses) {

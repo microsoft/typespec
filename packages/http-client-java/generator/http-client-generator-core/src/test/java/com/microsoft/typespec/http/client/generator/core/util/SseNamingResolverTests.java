@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.List;
@@ -20,13 +19,44 @@ public class SseNamingResolverTests {
         Assertions.assertEquals("RetrievalStreamEvent", names.getBaseEventName());
         Assertions.assertEquals("RetrievalStreamEventConverter", names.getConverterName());
         Assertions.assertEquals("RetrievalStartedStreamEvent", names.getEventWrapperName("retrieval.started"));
-        Assertions.assertEquals("ResponseCompletedStreamEvent", names.getEventWrapperName("response.completed"));
+        Assertions.assertEquals("RetrievalResponseCompletedStreamEvent",
+            names.getEventWrapperName("response.completed"));
         Assertions.assertEquals("createRetrievalStarted",
             SseNamingResolver.getEventFactoryMethodName("retrieval.started"));
     }
 
     @Test
-    public void preservesKnowledgeBasePrefix() {
+    public void eventNamesAreStableWhenOtherEventsAreAddedOrRemoved() {
+        SseNamingResolver.Names responseOnly
+            = SseNamingResolver.resolve(metadata("RetrievalStreamEvents", "response.completed"));
+        SseNamingResolver.Names withRetrieval
+            = SseNamingResolver.resolve(metadata("RetrievalStreamEvents", "retrieval.started", "response.completed"));
+
+        Assertions.assertEquals("RetrievalResponseCompletedStreamEvent",
+            responseOnly.getEventWrapperName("response.completed"));
+        Assertions.assertEquals(responseOnly.getEventWrapperName("response.completed"),
+            withRetrieval.getEventWrapperName("response.completed"));
+    }
+
+    @Test
+    public void eventNamesAreStableWhenMatchingSuffixEventsAreReordered() {
+        SseNamingResolver.Names retrievalFirst = SseNamingResolver
+            .resolve(metadata("KnowledgeBaseRetrievalStreamEvents", "retrieval.started", "baseRetrieval.completed"));
+        SseNamingResolver.Names baseRetrievalFirst = SseNamingResolver
+            .resolve(metadata("KnowledgeBaseRetrievalStreamEvents", "baseRetrieval.completed", "retrieval.started"));
+
+        Assertions.assertEquals("KnowledgeBaseRetrievalStartedStreamEvent",
+            retrievalFirst.getEventWrapperName("retrieval.started"));
+        Assertions.assertEquals("KnowledgeBaseRetrievalCompletedStreamEvent",
+            retrievalFirst.getEventWrapperName("baseRetrieval.completed"));
+        Assertions.assertEquals(retrievalFirst.getEventWrapperName("retrieval.started"),
+            baseRetrievalFirst.getEventWrapperName("retrieval.started"));
+        Assertions.assertEquals(retrievalFirst.getEventWrapperName("baseRetrieval.completed"),
+            baseRetrievalFirst.getEventWrapperName("baseRetrieval.completed"));
+    }
+
+    @Test
+    public void preservesKnowledgeBasePrefixPerEvent() {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata("KnowledgeBaseRetrievalStreamEvents",
             "retrieval.started", "activity.completed", "response.completed"));
 
@@ -35,9 +65,9 @@ public class SseNamingResolverTests {
         Assertions.assertEquals("knowledge base retrieval", names.getStreamDescription());
         Assertions.assertEquals("KnowledgeBaseRetrievalStartedStreamEvent",
             names.getEventWrapperName("retrieval.started"));
-        Assertions.assertEquals("KnowledgeBaseActivityCompletedStreamEvent",
+        Assertions.assertEquals("KnowledgeBaseRetrievalActivityCompletedStreamEvent",
             names.getEventWrapperName("activity.completed"));
-        Assertions.assertEquals("KnowledgeBaseResponseCompletedStreamEvent",
+        Assertions.assertEquals("KnowledgeBaseRetrievalResponseCompletedStreamEvent",
             names.getEventWrapperName("response.completed"));
     }
 
@@ -65,34 +95,27 @@ public class SseNamingResolverTests {
     public void escapesDigitLeadingNamesBeforeCheckingCollisions() {
         SseNamingResolver.Names names
             = SseNamingResolver.resolve(metadata("RetrievalStreamEvents", "retrieval.started", "123.done"));
+        Assertions.assertEquals("Retrieval123DoneStreamEvent", names.getEventWrapperName("123.done"));
+
+        names = SseNamingResolver.resolve(metadata("StreamEvents", "123.done"));
         Assertions.assertEquals("OneTwoThreeDoneStreamEvent", names.getEventWrapperName("123.done"));
+
+        Assertions.assertThrows(IllegalStateException.class,
+            () -> SseNamingResolver.resolve(metadata("StreamEvents", "123.done", "oneTwoThree.done")));
 
         names = SseNamingResolver.resolve(metadata("123Events", "done"));
         Assertions.assertEquals("OneTwoThreeEvent", names.getBaseEventName());
         Assertions.assertEquals("OneTwoThreeEventConverter", names.getConverterName());
-
-        Assertions.assertThrows(IllegalStateException.class, () -> SseNamingResolver
-            .resolve(metadata("RetrievalStreamEvents", "retrieval.started", "123.done", "oneTwoThree.done")));
     }
 
     @Test
-    public void resolvesServiceImplementationMethodNames() {
-        Assertions.assertEquals("retrieveStreamWithResponse",
-            SseNamingResolver.getServiceImplementationMethodName("retrieveStreamWithResponseInternal"));
-        Assertions.assertEquals("retrieveStreamWithResponseAsync",
-            SseNamingResolver.getServiceImplementationMethodName("retrieveStreamWithResponseInternalAsync"));
-    }
-
-    @Test
-    public void resolvesDocumentationEvents() {
+    public void preservesTerminalEventMetadataOrder() {
         SseMetadata metadata = metadata("RetrievalStreamEvents", "retrieval.started", "answer.completed",
             "references.completed", "response.completed", "error");
-        metadata.getEvents().get(2).setPayload(new ArraySchema());
         metadata.getEvents().get(3).setTerminal(true);
         metadata.getEvents().get(4).setTerminal(true);
 
-        Assertions.assertEquals("answer.completed", SseNamingResolver.getRepresentativeEventName(metadata));
-        Assertions.assertEquals(List.of("error", "response.completed"),
+        Assertions.assertEquals(List.of("response.completed", "error"),
             SseNamingResolver.getTerminalEventNames(metadata));
     }
 

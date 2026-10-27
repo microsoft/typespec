@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
@@ -76,20 +75,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     protected ClientMethodMapper() {
     }
 
-    private java.util.function.Consumer<SseMetadata> sseUsage = ignored -> {
-    };
-
-    public <T> T withSseUsage(java.util.function.Consumer<SseMetadata> recorder,
-        java.util.function.Supplier<T> mapping) {
-        var previous = sseUsage;
-        sseUsage = recorder;
-        try {
-            return mapping.get();
-        } finally {
-            sseUsage = previous;
-        }
-    }
-
     /**
      * Gets the global {@link ClientMethodMapper} instance.
      *
@@ -119,7 +104,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             parsed.put(cacheKey, clientMethods);
         }
 
-        clientMethods.stream().map(ClientMethod::getSseMetadata).filter(Objects::nonNull).forEach(sseUsage);
         return clientMethods;
     }
 

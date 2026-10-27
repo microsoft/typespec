@@ -11,14 +11,13 @@ import com.azure.json.ReadValueCallback;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
-import tsptest.sse.stream.models.EnumRequestMessageStreamEvent;
-import tsptest.sse.stream.models.EnumRequestStreamEvent;
 
 /**
  * Converts enum request stream event payloads to typed event models.
  */
 public final class EnumRequestStreamEventConverter {
     private static final ClientLogger LOGGER = new ClientLogger(EnumRequestStreamEventConverter.class);
+
     private static volatile ConstructorAccessor constructorAccessor;
 
     private EnumRequestStreamEventConverter() {
@@ -34,7 +33,7 @@ public final class EnumRequestStreamEventConverter {
          * @param eventName The event name.
          * @return The event.
          */
-        EnumRequestStreamEvent unknownEvent(String eventName);
+        tsptest.sse.stream.models.EnumRequestStreamEvent unknownEvent(String eventName);
 
         /**
          * Creates a message event.
@@ -42,7 +41,7 @@ public final class EnumRequestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        EnumRequestMessageStreamEvent createMessage(String value);
+        tsptest.sse.stream.models.EnumRequestMessageStreamEvent createMessage(String value);
     }
 
     /**
@@ -58,8 +57,8 @@ public final class EnumRequestStreamEventConverter {
         ConstructorAccessor accessor = constructorAccessor;
         if (accessor == null) {
             try {
-                Class.forName(EnumRequestStreamEvent.class.getName(), true,
-                    EnumRequestStreamEvent.class.getClassLoader());
+                Class.forName(tsptest.sse.stream.models.EnumRequestStreamEvent.class.getName(), true,
+                    tsptest.sse.stream.models.EnumRequestStreamEvent.class.getClassLoader());
             } catch (ClassNotFoundException | LinkageError exception) {
                 throw LOGGER.logExceptionAsError(new IllegalStateException(
                     "Failed to initialize enum request stream event constructors.", exception));
@@ -80,7 +79,7 @@ public final class EnumRequestStreamEventConverter {
      * @param data The stream event data.
      * @return The typed stream event.
      */
-    public static EnumRequestStreamEvent convert(String eventName, String data) {
+    public static tsptest.sse.stream.models.EnumRequestStreamEvent convert(String eventName, String data) {
         eventName = eventName == null || eventName.isEmpty() ? "message" : eventName;
         ConstructorAccessor accessor = getConstructorAccessor();
         switch (eventName) {
@@ -100,5 +99,4 @@ public final class EnumRequestStreamEventConverter {
             throw new UncheckedIOException("Failed to decode enum request stream event: " + eventName, exception);
         }
     }
-
 }

@@ -113,7 +113,6 @@ public class JavaPackageSseTests {
         Assertions.assertTrue(converterSource.contains("reader.nextToken();"));
         Assertions.assertFalse(converterSource.contains("BinaryData.fromString"));
         Assertions.assertFalse(converterSource.contains("public static boolean isTerminal"));
-        Assertions.assertTrue(converterSource.endsWith("    }\n\n}"));
     }
 
     @Test
@@ -228,12 +227,16 @@ public class JavaPackageSseTests {
 
         String baseSource = javaPackage.getJavaFiles().get(0).getContents().toString();
         String converterSource = javaPackage.getJavaFiles().get(3).getContents().toString();
-        Assertions.assertTrue(converterSource.contains("RetrievalStreamEvent unknownEvent(String eventName)"));
-        Assertions.assertTrue(converterSource.contains("RetrievalEventStreamEvent createEvent(String value)"));
+        Assertions.assertTrue(
+            converterSource.contains("com.azure.mock.models.RetrievalStreamEvent unknownEvent(String eventName)"));
+        Assertions.assertTrue(
+            converterSource.contains("com.azure.mock.models.RetrievalEventStreamEvent createEvent(String value)"));
         Assertions.assertTrue(converterSource.contains("accessor.createEvent(read(eventName, data,"));
         Assertions.assertTrue(converterSource.contains("accessor.unknownEvent(eventName)"));
-        Assertions.assertTrue(baseSource.contains("public RetrievalStreamEvent unknownEvent(String eventName)"));
-        Assertions.assertTrue(baseSource.contains("public RetrievalEventStreamEvent createEvent(String value)"));
+        Assertions.assertTrue(
+            baseSource.contains("public com.azure.mock.models.RetrievalStreamEvent unknownEvent(String eventName)"));
+        Assertions.assertTrue(
+            baseSource.contains("public com.azure.mock.models.RetrievalEventStreamEvent createEvent(String value)"));
         Assertions.assertTrue(baseSource.contains("createUnknownEvent(String value)"));
     }
 
@@ -402,6 +405,28 @@ public class JavaPackageSseTests {
         Assertions.assertTrue(generatedSources.contains("LocalDate.parse("));
         Assertions.assertTrue(generatedSources.contains("Duration.parse("));
         Assertions.assertTrue(generatedSources.contains("CoreUtils.parseBestOffsetDateTime("));
+    }
+
+    @Test
+    public void fullyQualifiesNoncollidingUserDefinedPayloadTypes() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("payload", objectSchema("Payload", "com.azure.payload")),
+            event("nested", dictionary(array(objectSchema("NestedPayload", "com.azure.payload"))))));
+
+        javaPackage.addSseEventFiles(metadata);
+
+        String generatedSources = javaPackage.getJavaFiles()
+            .stream()
+            .map(javaFile -> javaFile.getContents().toString())
+            .collect(Collectors.joining());
+        Assertions.assertTrue(generatedSources.contains("com.azure.payload.models.Payload"), generatedSources);
+        Assertions.assertTrue(generatedSources.contains("List<com.azure.payload.models.NestedPayload>"),
+            generatedSources);
+        Assertions.assertFalse(generatedSources.contains("import com.azure.payload.models.Payload;"), generatedSources);
+        Assertions.assertFalse(generatedSources.contains("import com.azure.payload.models.NestedPayload;"),
+            generatedSources);
     }
 
     private static Path writePayloadSource(Path tempDir, String packageName, String payloadName) throws IOException {

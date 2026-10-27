@@ -14,24 +14,13 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import tsptest.sse.models.CompletedPayload;
-import tsptest.sse.models.StartedPayload;
-import tsptest.sse.stream.models.TestCollectionsStreamEvent;
-import tsptest.sse.stream.models.TestCompletedStreamEvent;
-import tsptest.sse.stream.models.TestDurationStreamEvent;
-import tsptest.sse.stream.models.TestDurationsStreamEvent;
-import tsptest.sse.stream.models.TestEventStreamEvent;
-import tsptest.sse.stream.models.TestMapStreamEvent;
-import tsptest.sse.stream.models.TestModelMapStreamEvent;
-import tsptest.sse.stream.models.TestStartedStreamEvent;
-import tsptest.sse.stream.models.TestStreamEvent;
-import tsptest.sse.stream.models.TestTextStreamEvent;
 
 /**
  * Converts test stream event payloads to typed event models.
  */
 public final class TestStreamEventConverter {
     private static final ClientLogger LOGGER = new ClientLogger(TestStreamEventConverter.class);
+
     private static volatile ConstructorAccessor constructorAccessor;
 
     private TestStreamEventConverter() {
@@ -47,7 +36,7 @@ public final class TestStreamEventConverter {
          * @param eventName The event name.
          * @return The event.
          */
-        TestStreamEvent unknownEvent(String eventName);
+        tsptest.sse.stream.models.TestStreamEvent unknownEvent(String eventName);
 
         /**
          * Creates a started event.
@@ -55,7 +44,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestStartedStreamEvent createStarted(StartedPayload value);
+        tsptest.sse.stream.models.TestStartedStreamEvent createStarted(tsptest.sse.models.StartedPayload value);
 
         /**
          * Creates a text event.
@@ -63,7 +52,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestTextStreamEvent createText(String value);
+        tsptest.sse.stream.models.TestTextStreamEvent createText(String value);
 
         /**
          * Creates an event event.
@@ -71,7 +60,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestEventStreamEvent createEvent(String value);
+        tsptest.sse.stream.models.TestEventStreamEvent createEvent(String value);
 
         /**
          * Creates a map event.
@@ -79,7 +68,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestMapStreamEvent createMap(Map<String, String> value);
+        tsptest.sse.stream.models.TestMapStreamEvent createMap(Map<String, String> value);
 
         /**
          * Creates a collections event.
@@ -87,7 +76,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestCollectionsStreamEvent createCollections(List<Map<String, List<String>>> value);
+        tsptest.sse.stream.models.TestCollectionsStreamEvent createCollections(List<Map<String, List<String>>> value);
 
         /**
          * Creates a modelMap event.
@@ -95,7 +84,8 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestModelMapStreamEvent createModelMap(Map<String, StartedPayload> value);
+        tsptest.sse.stream.models.TestModelMapStreamEvent
+            createModelMap(Map<String, tsptest.sse.models.StartedPayload> value);
 
         /**
          * Creates a duration event.
@@ -103,7 +93,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestDurationStreamEvent createDuration(Duration value);
+        tsptest.sse.stream.models.TestDurationStreamEvent createDuration(Duration value);
 
         /**
          * Creates a durations event.
@@ -111,7 +101,8 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestDurationsStreamEvent createDurations(Map<String, List<Map<String, List<Duration>>>> value);
+        tsptest.sse.stream.models.TestDurationsStreamEvent
+            createDurations(Map<String, List<Map<String, List<Duration>>>> value);
 
         /**
          * Creates a completed event.
@@ -119,7 +110,7 @@ public final class TestStreamEventConverter {
          * @param value The decoded payload.
          * @return The event.
          */
-        TestCompletedStreamEvent createCompleted(CompletedPayload value);
+        tsptest.sse.stream.models.TestCompletedStreamEvent createCompleted(tsptest.sse.models.CompletedPayload value);
     }
 
     /**
@@ -135,7 +126,8 @@ public final class TestStreamEventConverter {
         ConstructorAccessor accessor = constructorAccessor;
         if (accessor == null) {
             try {
-                Class.forName(TestStreamEvent.class.getName(), true, TestStreamEvent.class.getClassLoader());
+                Class.forName(tsptest.sse.stream.models.TestStreamEvent.class.getName(), true,
+                    tsptest.sse.stream.models.TestStreamEvent.class.getClassLoader());
             } catch (ClassNotFoundException | LinkageError exception) {
                 throw LOGGER.logExceptionAsError(
                     new IllegalStateException("Failed to initialize test stream event constructors.", exception));
@@ -156,11 +148,11 @@ public final class TestStreamEventConverter {
      * @param data The stream event data.
      * @return The typed stream event.
      */
-    public static TestStreamEvent convert(String eventName, String data) {
+    public static tsptest.sse.stream.models.TestStreamEvent convert(String eventName, String data) {
         ConstructorAccessor accessor = getConstructorAccessor();
         switch (eventName) {
             case "started":
-                return accessor.createStarted(read(eventName, data, StartedPayload::fromJson));
+                return accessor.createStarted(read(eventName, data, tsptest.sse.models.StartedPayload::fromJson));
 
             case "text":
                 return accessor.createText(read(eventName, data, reader -> reader.getString()));
@@ -177,8 +169,8 @@ public final class TestStreamEventConverter {
                     reader1 -> reader1.readMap(reader2 -> reader2.readArray(reader3 -> reader3.getString())))));
 
             case "modelMap":
-                return accessor
-                    .createModelMap(read(eventName, data, reader -> reader.readMap(StartedPayload::fromJson)));
+                return accessor.createModelMap(
+                    read(eventName, data, reader -> reader.readMap(tsptest.sse.models.StartedPayload::fromJson)));
 
             case "duration":
                 return accessor.createDuration(read(eventName, data, reader -> Duration.ofSeconds(reader.getLong())));
@@ -189,7 +181,7 @@ public final class TestStreamEventConverter {
                         .readMap(reader3 -> reader3.readArray(reader4 -> Duration.ofSeconds(reader4.getLong())))))));
 
             case "completed":
-                return accessor.createCompleted(read(eventName, data, CompletedPayload::fromJson));
+                return accessor.createCompleted(read(eventName, data, tsptest.sse.models.CompletedPayload::fromJson));
 
             default:
                 return accessor.unknownEvent(eventName);
@@ -204,5 +196,4 @@ public final class TestStreamEventConverter {
             throw new UncheckedIOException("Failed to decode test stream event: " + eventName, exception);
         }
     }
-
 }

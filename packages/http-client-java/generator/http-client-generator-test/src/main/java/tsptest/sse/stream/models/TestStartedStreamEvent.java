@@ -6,18 +6,17 @@ package tsptest.sse.stream.models;
 
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
-import tsptest.sse.models.StartedPayload;
 
 /**
  * Represents the {@code started} test stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see TestStreamEvent
+ * @see tsptest.sse.stream.models.TestStreamEvent
  */
 @Immutable
-public final class TestStartedStreamEvent extends TestStreamEvent {
+public final class TestStartedStreamEvent extends tsptest.sse.stream.models.TestStreamEvent {
     @Generated
-    private final StartedPayload value;
+    private final tsptest.sse.models.StartedPayload value;
 
     /**
      * Creates an event wrapper.
@@ -25,7 +24,7 @@ public final class TestStartedStreamEvent extends TestStreamEvent {
      * @param value The event payload.
      */
     @Generated
-    TestStartedStreamEvent(StartedPayload value) {
+    TestStartedStreamEvent(tsptest.sse.models.StartedPayload value) {
         super("started");
         this.value = value;
     }
@@ -36,7 +35,7 @@ public final class TestStartedStreamEvent extends TestStreamEvent {
      * @return The event payload.
      */
     @Generated
-    public StartedPayload getValue() {
+    public tsptest.sse.models.StartedPayload getValue() {
         return value;
     }
 }

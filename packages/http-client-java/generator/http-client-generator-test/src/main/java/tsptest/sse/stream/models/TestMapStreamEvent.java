@@ -12,10 +12,10 @@ import java.util.Map;
  * Represents the {@code map} test stream event.
  * Access the typed payload with {@link #getValue()}.
  *
- * @see TestStreamEvent
+ * @see tsptest.sse.stream.models.TestStreamEvent
  */
 @Immutable
-public final class TestMapStreamEvent extends TestStreamEvent {
+public final class TestMapStreamEvent extends tsptest.sse.stream.models.TestStreamEvent {
     @Generated
     private final Map<String, String> value;
 

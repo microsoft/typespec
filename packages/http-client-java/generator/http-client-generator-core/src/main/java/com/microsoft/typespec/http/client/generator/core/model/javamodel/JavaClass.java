@@ -25,24 +25,12 @@ public class JavaClass implements JavaType {
         }
     }
 
-    public final void blankLine() {
-        addExpectedNewLine();
-    }
-
     public final void privateMemberVariable(String variableType, String variableName) {
         memberVariable(JavaVisibility.Private, variableType + " " + variableName);
     }
 
     public final void privateMemberVariable(String variableDeclaration) {
         memberVariable(JavaVisibility.Private, variableDeclaration);
-    }
-
-    public final void privateMemberVariables(String... variableDeclarations) {
-        addExpectedNewLine();
-        for (String variableDeclaration : variableDeclarations) {
-            contents.line("private " + variableDeclaration + ";");
-        }
-        addNewLine = true;
     }
 
     /**

@@ -16,7 +16,6 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import tsptest.sse.implementation.EnumRequestStreamEventConverter;
 import tsptest.sse.implementation.StreamOperationsImpl;
 import tsptest.sse.models.CloseableIterableStream;
 import tsptest.sse.models.EnumRequestStreamEvent;
@@ -279,9 +278,8 @@ public final class SseClient {
      * The read operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
-     * subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     * subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -311,9 +309,8 @@ public final class SseClient {
      * The read operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
-     * subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     * subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -338,9 +335,8 @@ public final class SseClient {
      * The readWithCollidingRequest operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
-     * subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     * subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -444,9 +440,8 @@ public final class SseClient {
      * The readEnum operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.EnumRequestStreamEvent} for the known subtypes. Use
-     * a known subtype's {@code getValue()} to access its typed payload, for example
-     * {@link tsptest.sse.stream.models.EnumRequestMessageStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link tsptest.sse.stream.models.EnumRequestStreamEvent#getEventName()}; their payloads are not
+     * a known subtype's {@code getValue()} to access its typed payload. Unrecognized events expose only their names
+     * through {@link tsptest.sse.stream.models.EnumRequestStreamEvent#getEventName()}; their payloads are not
      * available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
@@ -462,7 +457,7 @@ public final class SseClient {
     public com.azure.core.util.CloseableIterableStream<tsptest.sse.stream.models.EnumRequestStreamEvent> readEnum() {
         RequestOptions requestOptions = new RequestOptions();
         return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
-            readEnumWithResponse(requestOptions), EnumRequestStreamEventConverter::convert,
+            readEnumWithResponse(requestOptions), tsptest.sse.implementation.EnumRequestStreamEventConverter::convert,
             tsptest.sse.stream.models.EnumRequestStreamEvent::isTerminal);
     }
 

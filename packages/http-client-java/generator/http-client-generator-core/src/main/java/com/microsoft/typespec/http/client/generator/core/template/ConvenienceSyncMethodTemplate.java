@@ -61,8 +61,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
     @Override
     protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
-        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
         if (!JavaSettings.getInstance().isSyncStackEnabled()) {
             if (protocolMethod.getType() == ClientMethodType.PagingSync) {
                 // Call the convenience method from async client
@@ -78,18 +77,16 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 methodBlock.methodReturn(methodInvoke);
             } else {
                 super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock,
-                    typeReferenceStaticClasses, fullyQualifiedSseClientTypeNames);
+                    typeReferenceStaticClasses);
             }
         } else {
-            super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses,
-                fullyQualifiedSseClientTypeNames);
+            super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
         }
     }
 
     @Override
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
-        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
-        Set<String> fullyQualifiedSseClientTypeNames) {
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
 
         IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
@@ -98,10 +95,9 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         if (convenienceMethod.getType() == ClientMethodType.SseSync) {
             methodBlock.methodReturn(String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::convert, %4$s::isTerminal)",
                 getMethodName(protocolMethod), invocationExpression,
-                SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata(),
-                    fullyQualifiedSseClientTypeNames),
-                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata(), fullyQualifiedSseClientTypeNames),
-                SseUtil.getClientRuntimeTypeName(fullyQualifiedSseClientTypeNames)));
+                SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata()),
+                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata()),
+                SseUtil.getClientRuntimeTypeName()));
             return;
         }
 
