@@ -491,7 +491,6 @@ public class ClientMethod {
         for (ClientMethodParameter parameter : getParameters()) {
             parameter.addImportsTo(imports, includeImplementationImports);
         }
-        SseUtil.removeFullyQualifiedClientEventImport(this, imports);
 
         if (includeImplementationImports) {
             ClassType.CONTEXT.addImportsTo(imports, false);

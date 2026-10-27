@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -62,7 +61,8 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
     @Override
     protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
-        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
+        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
+        Set<String> fullyQualifiedSseClientTypeNames) {
         if (!JavaSettings.getInstance().isSyncStackEnabled()) {
             if (protocolMethod.getType() == ClientMethodType.PagingSync) {
                 // Call the convenience method from async client
@@ -78,27 +78,30 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 methodBlock.methodReturn(methodInvoke);
             } else {
                 super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock,
-                    typeReferenceStaticClasses);
+                    typeReferenceStaticClasses, fullyQualifiedSseClientTypeNames);
             }
         } else {
-            super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
+            super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses,
+                fullyQualifiedSseClientTypeNames);
         }
     }
 
     @Override
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
-        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
+        Set<String> fullyQualifiedSseClientTypeNames) {
 
         IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (convenienceMethod.getType() == ClientMethodType.SseSync) {
-            SseNamingResolver.Names names = SseNamingResolver.resolve(convenienceMethod.getSseMetadata());
-            methodBlock.methodReturn(
-                String.format("ServerSentEventStreams.toIterableStream(%1$s(%2$s), %3$s::convert, %4$s::isTerminal)",
-                    getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
-                    SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata())));
+            methodBlock.methodReturn(String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::convert, %4$s::isTerminal)",
+                getMethodName(protocolMethod), invocationExpression,
+                SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata(),
+                    fullyQualifiedSseClientTypeNames),
+                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata(), fullyQualifiedSseClientTypeNames),
+                SseUtil.getClientRuntimeTypeName(fullyQualifiedSseClientTypeNames)));
             return;
         }
 

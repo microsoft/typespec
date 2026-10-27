@@ -10,13 +10,14 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annot
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -56,34 +57,68 @@ public final class SseUtil {
         return new ClassType.Builder().packageName(getEventPackage(metadata)).name(name).build();
     }
 
-    public static boolean shouldFullyQualifyClientEvent(SseMetadata metadata) {
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        ClientModel collidingModel = ClientModelUtil.getClientModel(names.getBaseEventName());
-        return collidingModel != null && !collidingModel.getPackage().equals(getEventPackage(metadata));
+    public static Set<String> getFullyQualifiedClientTypeNames(List<ConvenienceMethod> convenienceMethods,
+        Set<String> imports) {
+        Set<String> sseTypeNames = new LinkedHashSet<>();
+        convenienceMethods.stream()
+            .flatMap(method -> method.getConvenienceMethods().stream())
+            .map(ClientMethod::getSseMetadata)
+            .filter(metadata -> metadata != null)
+            .forEach(metadata -> {
+                SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+                sseTypeNames.add(getEventType(metadata, names.getBaseEventName()).getFullName());
+                sseTypeNames.add(getConverterPackage() + "." + names.getConverterName());
+                sseTypeNames.add(getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS);
+            });
+
+        Map<String, Set<String>> importsBySimpleName = new HashMap<>();
+        imports.forEach(importName -> importsBySimpleName
+            .computeIfAbsent(importName.substring(importName.lastIndexOf('.') + 1), ignored -> new LinkedHashSet<>())
+            .add(importName));
+
+        return sseTypeNames.stream()
+            .filter(imports::contains)
+            .filter(typeName -> importsBySimpleName.get(typeName.substring(typeName.lastIndexOf('.') + 1)).size() > 1)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public static String getClientEventTypeName(SseMetadata metadata) {
+        return getClientEventTypeName(metadata, Set.of());
+    }
+
+    public static String getClientEventTypeName(SseMetadata metadata, Set<String> fullyQualifiedTypeNames) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         ClassType eventType = getEventType(metadata, names.getBaseEventName());
-        return shouldFullyQualifyClientEvent(metadata) ? eventType.getFullName() : eventType.getName();
+        return fullyQualifiedTypeNames.contains(eventType.getFullName())
+            ? eventType.getFullName()
+            : eventType.getName();
+    }
+
+    public static String getClientConverterTypeName(SseMetadata metadata, Set<String> fullyQualifiedTypeNames) {
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        String converterType = getConverterPackage() + "." + names.getConverterName();
+        return fullyQualifiedTypeNames.contains(converterType) ? converterType : names.getConverterName();
+    }
+
+    public static String getClientRuntimeTypeName(Set<String> fullyQualifiedTypeNames) {
+        String runtimeType = getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS;
+        return fullyQualifiedTypeNames.contains(runtimeType) ? runtimeType : SERVER_SENT_EVENT_STREAMS;
     }
 
     public static String getClientReturnTypeName(ClientMethod method) {
-        if (method.getSseMetadata() == null || !shouldFullyQualifyClientEvent(method.getSseMetadata())) {
+        return getClientReturnTypeName(method, Set.of());
+    }
+
+    public static String getClientReturnTypeName(ClientMethod method, Set<String> fullyQualifiedTypeNames) {
+        if (method.getSseMetadata() == null) {
             return method.getReturnValue().getType().toString();
         }
         SseMetadata metadata = method.getSseMetadata();
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         String eventTypeName = getEventType(metadata, names.getBaseEventName()).getFullName();
-        return getPayloadTypeName(method.getReturnValue().getType(), Set.of(eventTypeName));
-    }
-
-    public static void removeFullyQualifiedClientEventImport(ClientMethod method, Set<String> imports) {
-        if (method.getSseMetadata() != null && shouldFullyQualifyClientEvent(method.getSseMetadata())) {
-            SseMetadata metadata = method.getSseMetadata();
-            imports
-                .remove(getEventType(metadata, SseNamingResolver.resolve(metadata).getBaseEventName()).getFullName());
-        }
+        return fullyQualifiedTypeNames.contains(eventTypeName)
+            ? getPayloadTypeName(method.getReturnValue().getType(), Set.of(eventTypeName))
+            : method.getReturnValue().getType().toString();
     }
 
     public static Set<String> getFullyQualifiedPayloadTypeNames(SseMetadata metadata, SseNamingResolver.Names names) {

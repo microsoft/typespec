@@ -30,6 +30,18 @@ model TestStreamEvent {
   value: string;
 }
 
+model TestStreamEventConverter {
+  value: string;
+}
+
+model ServerSentEventStreams {
+  value: string;
+}
+
+enum EnumRequestStreamEvent {
+  value,
+}
+
 @encode(DurationKnownEncoding.seconds, int32)
 scalar SecondsDuration extends duration;
 
@@ -106,6 +118,11 @@ union ProtocolOnlyStreamEvents {
   message: ProtocolOnlyEnvelope,
 }
 
+@events
+union EnumRequestStreamEvents {
+  message: ScalarEnvelope,
+}
+
 @clientNamespace("TspTest.Sse.Stream", "java")
 interface Stream {
   @route("/stream")
@@ -115,6 +132,22 @@ interface Stream {
   @route("/stream-with-colliding-request")
   @post
   readWithCollidingRequest(@body request: TestStreamEvent): SSEStream<TestStreamEvents>;
+
+  @route("/request-with-colliding-converter")
+  @post
+  useCollidingConverter(@body request: TestStreamEventConverter): void;
+
+  @route("/request-with-colliding-runtime-helper")
+  @post
+  useCollidingRuntimeHelper(@body request: ServerSentEventStreams): void;
+
+  @route("/enum-stream")
+  @get
+  readEnum(): SSEStream<EnumRequestStreamEvents>;
+
+  @route("/request-with-colliding-enum")
+  @get
+  useCollidingEnum(@query request: EnumRequestStreamEvent): void;
 
   @route("/protocol-only")
   @get

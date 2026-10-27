@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
@@ -70,7 +69,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
     }
 
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
-        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
+        Set<String> fullyQualifiedSseClientTypeNames) {
 
         ClientMethodType methodType = protocolMethod.getType();
 
@@ -79,13 +79,15 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
-            SseNamingResolver.Names names = SseNamingResolver.resolve(convenienceMethod.getSseMetadata());
             Set<String> usedNames = MethodUtil.getMethodVariableNames(convenienceMethod);
             String responseName = MethodUtil.getAvailableVariableName("response", usedNames);
             methodBlock.methodReturn(String.format(
-                "%1$s(%2$s).flatMapMany(%5$s -> ServerSentEventStreams.toFlux(%5$s, %3$s::convert, %4$s::isTerminal))",
-                getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
-                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata()), responseName));
+                "%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::convert, %4$s::isTerminal))",
+                getMethodName(protocolMethod), invocationExpression,
+                SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata(),
+                    fullyQualifiedSseClientTypeNames),
+                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata(), fullyQualifiedSseClientTypeNames),
+                responseName, SseUtil.getClientRuntimeTypeName(fullyQualifiedSseClientTypeNames)));
             return;
         }
 

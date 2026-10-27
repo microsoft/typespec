@@ -16,12 +16,15 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tsptest.sse.implementation.EnumRequestStreamEventConverter;
 import tsptest.sse.implementation.StreamOperationsImpl;
-import tsptest.sse.implementation.TestStreamEventConverter;
+import tsptest.sse.models.EnumRequestStreamEvent;
+import tsptest.sse.models.ServerSentEventStreams;
 import tsptest.sse.models.TestStreamEvent;
-import tsptest.sse.models.implementation.sse.ServerSentEventStreams;
+import tsptest.sse.models.TestStreamEventConverter;
 
 /**
  * Initializes a new instance of the asynchronous SseClient type.
@@ -107,6 +110,99 @@ public final class SseAsyncClient {
     }
 
     /**
+     * The useCollidingConverter operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> useCollidingConverterWithResponse(BinaryData request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingConverterWithResponseAsync(request, requestOptions);
+    }
+
+    /**
+     * The useCollidingRuntimeHelper operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> useCollidingRuntimeHelperWithResponse(BinaryData request,
+        RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingRuntimeHelperWithResponseAsync(request, requestOptions);
+    }
+
+    /**
+     * The readEnum operation.
+     * <p><strong>Response Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> readEnumWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.readEnumWithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The useCollidingEnum operation.
+     *
+     * @param request The request parameter. Allowed values: "value".
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> useCollidingEnumWithResponse(String request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingEnumWithResponseAsync(request, requestOptions);
+    }
+
+    /**
      * The readProtocolOnly operation.
      * <p><strong>Response Body Schema</strong></p>
      *
@@ -150,8 +246,10 @@ public final class SseAsyncClient {
         if (authorization != null) {
             requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
         }
-        return readWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal));
+        return readWithResponse(requestOptions)
+            .flatMapMany(response -> tsptest.sse.models.implementation.sse.ServerSentEventStreams.toFlux(response,
+                tsptest.sse.implementation.TestStreamEventConverter::convert,
+                tsptest.sse.stream.models.TestStreamEvent::isTerminal));
     }
 
     /**
@@ -171,8 +269,10 @@ public final class SseAsyncClient {
     @Generated
     public Flux<tsptest.sse.stream.models.TestStreamEvent> read() {
         RequestOptions requestOptions = new RequestOptions();
-        return readWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal));
+        return readWithResponse(requestOptions)
+            .flatMapMany(response -> tsptest.sse.models.implementation.sse.ServerSentEventStreams.toFlux(response,
+                tsptest.sse.implementation.TestStreamEventConverter::convert,
+                tsptest.sse.stream.models.TestStreamEvent::isTerminal));
     }
 
     /**
@@ -194,7 +294,93 @@ public final class SseAsyncClient {
     public Flux<tsptest.sse.stream.models.TestStreamEvent> readWithCollidingRequest(TestStreamEvent request) {
         RequestOptions requestOptions = new RequestOptions();
         return readWithCollidingRequestWithResponse(BinaryData.fromObject(request), requestOptions)
-            .flatMapMany(response -> ServerSentEventStreams.toFlux(response, TestStreamEventConverter::convert,
+            .flatMapMany(response -> tsptest.sse.models.implementation.sse.ServerSentEventStreams.toFlux(response,
+                tsptest.sse.implementation.TestStreamEventConverter::convert,
                 tsptest.sse.stream.models.TestStreamEvent::isTerminal));
+    }
+
+    /**
+     * The useCollidingConverter operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> useCollidingConverter(TestStreamEventConverter request) {
+        // Generated convenience method for useCollidingConverterWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return useCollidingConverterWithResponse(BinaryData.fromObject(request), requestOptions)
+            .flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The useCollidingRuntimeHelper operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> useCollidingRuntimeHelper(ServerSentEventStreams request) {
+        // Generated convenience method for useCollidingRuntimeHelperWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return useCollidingRuntimeHelperWithResponse(BinaryData.fromObject(request), requestOptions)
+            .flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The readEnum operation.
+     *
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.EnumRequestStreamEvent} for the known subtypes. Use
+     * a known subtype's {@code getValue()} to access its typed payload, for example
+     * {@link tsptest.sse.stream.models.EnumRequestMessageStreamEvent#getValue()}. Unrecognized events expose only their
+     * names through {@link tsptest.sse.stream.models.EnumRequestStreamEvent#getEventName()}; their payloads are not
+     * available.
+     *
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     *
+     * @return A stream of typed enum request events.
+     */
+    @Generated
+    public Flux<tsptest.sse.stream.models.EnumRequestStreamEvent> readEnum() {
+        RequestOptions requestOptions = new RequestOptions();
+        return readEnumWithResponse(requestOptions)
+            .flatMapMany(response -> tsptest.sse.models.implementation.sse.ServerSentEventStreams.toFlux(response,
+                EnumRequestStreamEventConverter::convert,
+                tsptest.sse.stream.models.EnumRequestStreamEvent::isTerminal));
+    }
+
+    /**
+     * The useCollidingEnum operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> useCollidingEnum(EnumRequestStreamEvent request) {
+        // Generated convenience method for useCollidingEnumWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return useCollidingEnumWithResponse(request.toString(), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

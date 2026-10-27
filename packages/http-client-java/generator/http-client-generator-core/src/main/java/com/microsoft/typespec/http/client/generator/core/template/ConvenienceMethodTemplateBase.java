@@ -293,6 +293,11 @@ abstract class ConvenienceMethodTemplateBase {
 
     public void write(ConvenienceMethod convenienceMethodObj, JavaClass classBlock,
         Set<GenericType> typeReferenceStaticClasses) {
+        write(convenienceMethodObj, classBlock, typeReferenceStaticClasses, Set.of());
+    }
+
+    public void write(ConvenienceMethod convenienceMethodObj, JavaClass classBlock,
+        Set<GenericType> typeReferenceStaticClasses, Set<String> fullyQualifiedSseClientTypeNames) {
         if (!isMethodIncluded(convenienceMethodObj)) {
             return;
         }
@@ -308,7 +313,8 @@ abstract class ConvenienceMethodTemplateBase {
                 classBlock.javadocComment(comment -> ClientMethodTemplate.generateJavadoc(convenienceMethod, comment,
                     convenienceMethod.getProxyMethod(), false));
             } else {
-                classBlock.javadocComment(comment -> writeSseJavadoc(convenienceMethod, comment));
+                classBlock.javadocComment(
+                    comment -> writeSseJavadoc(convenienceMethod, comment, fullyQualifiedSseClientTypeNames));
             }
 
             addGeneratedAnnotation(classBlock);
@@ -319,23 +325,25 @@ abstract class ConvenienceMethodTemplateBase {
             JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
             // convenience method
-            String methodDeclaration
-                = String.format("%1$s %2$s(%3$s)", SseUtil.getClientReturnTypeName(convenienceMethod),
-                    getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
+            String methodDeclaration = String.format("%1$s %2$s(%3$s)",
+                SseUtil.getClientReturnTypeName(convenienceMethod, fullyQualifiedSseClientTypeNames),
+                getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
             classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
                 if (convenienceMethod.getSseMetadata() == null) {
                     methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
                 }
 
-                writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
+                writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses,
+                    fullyQualifiedSseClientTypeNames);
             });
         });
     }
 
-    private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
+    private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment,
+        Set<String> fullyQualifiedSseClientTypeNames) {
         SseMetadata metadata = method.getSseMetadata();
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        String baseEventName = SseUtil.getClientEventTypeName(metadata);
+        String baseEventName = SseUtil.getClientEventTypeName(metadata, fullyQualifiedSseClientTypeNames);
         String description = method.getDescription();
         int firstSentenceEnd = description.indexOf('.');
         String firstSentence = firstSentenceEnd < 0 ? description : description.substring(0, firstSentenceEnd + 1);
@@ -392,7 +400,12 @@ abstract class ConvenienceMethodTemplateBase {
      */
     protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
         JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
+        writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses, Set.of());
+    }
 
+    protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
+        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
+        Set<String> fullyQualifiedSseClientTypeNames) {
         // matched parameters from convenience method to protocol method
         Map<MethodParameter, MethodParameter> parametersMap
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
@@ -531,7 +544,7 @@ abstract class ConvenienceMethodTemplateBase {
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
-            typeReferenceStaticClasses);
+            typeReferenceStaticClasses, fullyQualifiedSseClientTypeNames);
     }
 
     protected void addRequestCallback(JavaBlock javaBlock, String variableName) {
@@ -836,8 +849,15 @@ abstract class ConvenienceMethodTemplateBase {
      * @param invocationExpression the prepared expression of invocation on client method.
      * @param methodBlock the code block.
      */
+    protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
+        writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
+            typeReferenceStaticClasses, Set.of());
+    }
+
     protected abstract void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
-        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses);
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses,
+        Set<String> fullyQualifiedSseClientTypeNames);
 
     protected enum SupportedMimeType {
         TEXT, XML, MULTIPART, BINARY, JSON;

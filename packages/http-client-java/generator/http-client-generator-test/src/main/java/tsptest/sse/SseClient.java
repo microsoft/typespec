@@ -17,10 +17,12 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
+import tsptest.sse.implementation.EnumRequestStreamEventConverter;
 import tsptest.sse.implementation.StreamOperationsImpl;
-import tsptest.sse.implementation.TestStreamEventConverter;
+import tsptest.sse.models.EnumRequestStreamEvent;
+import tsptest.sse.models.ServerSentEventStreams;
 import tsptest.sse.models.TestStreamEvent;
-import tsptest.sse.models.implementation.sse.ServerSentEventStreams;
+import tsptest.sse.models.TestStreamEventConverter;
 
 /**
  * Initializes a new instance of the synchronous SseClient type.
@@ -106,6 +108,98 @@ public final class SseClient {
     }
 
     /**
+     * The useCollidingConverter operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingConverterWithResponse(BinaryData request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingConverterWithResponse(request, requestOptions);
+    }
+
+    /**
+     * The useCollidingRuntimeHelper operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingRuntimeHelperWithResponse(BinaryData request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingRuntimeHelperWithResponse(request, requestOptions);
+    }
+
+    /**
+     * The readEnum operation.
+     * <p><strong>Response Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> readEnumWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.readEnumWithResponse(requestOptions);
+    }
+
+    /**
+     * The useCollidingEnum operation.
+     *
+     * @param request The request parameter. Allowed values: "value".
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingEnumWithResponse(String request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingEnumWithResponse(request, requestOptions);
+    }
+
+    /**
      * The readProtocolOnly operation.
      * <p><strong>Response Body Schema</strong></p>
      *
@@ -154,8 +248,9 @@ public final class SseClient {
         if (authorization != null) {
             requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
         }
-        return ServerSentEventStreams.toIterableStream(readWithResponse(requestOptions),
-            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal);
+        return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
+            readWithResponse(requestOptions), tsptest.sse.implementation.TestStreamEventConverter::convert,
+            tsptest.sse.stream.models.TestStreamEvent::isTerminal);
     }
 
     /**
@@ -180,8 +275,9 @@ public final class SseClient {
     @Generated
     public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent> read() {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(readWithResponse(requestOptions),
-            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal);
+        return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
+            readWithResponse(requestOptions), tsptest.sse.implementation.TestStreamEventConverter::convert,
+            tsptest.sse.stream.models.TestStreamEvent::isTerminal);
     }
 
     /**
@@ -208,8 +304,92 @@ public final class SseClient {
     public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent>
         readWithCollidingRequest(TestStreamEvent request) {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(
+        return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
             readWithCollidingRequestWithResponse(BinaryData.fromObject(request), requestOptions),
-            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal);
+            tsptest.sse.implementation.TestStreamEventConverter::convert,
+            tsptest.sse.stream.models.TestStreamEvent::isTerminal);
+    }
+
+    /**
+     * The useCollidingConverter operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void useCollidingConverter(TestStreamEventConverter request) {
+        // Generated convenience method for useCollidingConverterWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        useCollidingConverterWithResponse(BinaryData.fromObject(request), requestOptions).getValue();
+    }
+
+    /**
+     * The useCollidingRuntimeHelper operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void useCollidingRuntimeHelper(ServerSentEventStreams request) {
+        // Generated convenience method for useCollidingRuntimeHelperWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        useCollidingRuntimeHelperWithResponse(BinaryData.fromObject(request), requestOptions).getValue();
+    }
+
+    /**
+     * The readEnum operation.
+     *
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.EnumRequestStreamEvent} for the known subtypes. Use
+     * a known subtype's {@code getValue()} to access its typed payload, for example
+     * {@link tsptest.sse.stream.models.EnumRequestMessageStreamEvent#getValue()}. Unrecognized events expose only their
+     * names through {@link tsptest.sse.stream.models.EnumRequestStreamEvent#getEventName()}; their payloads are not
+     * available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are thrown during iteration. The client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed enum request events.
+     */
+    @Generated
+    public CloseableIterableStream<tsptest.sse.stream.models.EnumRequestStreamEvent> readEnum() {
+        RequestOptions requestOptions = new RequestOptions();
+        return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
+            readEnumWithResponse(requestOptions), EnumRequestStreamEventConverter::convert,
+            tsptest.sse.stream.models.EnumRequestStreamEvent::isTerminal);
+    }
+
+    /**
+     * The useCollidingEnum operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void useCollidingEnum(EnumRequestStreamEvent request) {
+        // Generated convenience method for useCollidingEnumWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        useCollidingEnumWithResponse(request.toString(), requestOptions).getValue();
     }
 }
