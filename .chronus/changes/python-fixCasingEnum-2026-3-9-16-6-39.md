@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Fix casing for enums with mix of numbers and letters
+Preserve underscores before numeric enum segments and acronyms such as `A2A` without changing numeric identifiers such as `int32`.
