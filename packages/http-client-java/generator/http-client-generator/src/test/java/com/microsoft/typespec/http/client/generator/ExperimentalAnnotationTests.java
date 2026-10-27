@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
@@ -81,16 +83,16 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
     public void usesDefaultAndCustomWarnings() {
         configureJavaSettings(Map.of("experimental-annotation", ANNOTATION));
         Assertions.assertEquals(ANNOTATION, JavaSettings.getInstance().getExperimentalAnnotation());
-        Assertions.assertEquals(ANNOTATION, ExperimentalAnnotationUtil.getAnnotation(metadata(null)));
-        Assertions.assertEquals(ANNOTATION + "(warningText = \"Custom warning\")",
+        Assertions.assertEquals("Preview(warningText = Preview.WARNING_TEXT)",
+            ExperimentalAnnotationUtil.getAnnotation(metadata(null)));
+        Assertions.assertEquals("Preview(warningText = \"Custom warning\")",
             ExperimentalAnnotationUtil.getAnnotation(metadata("Custom warning")));
-        Assertions.assertEquals(ANNOTATION + "(warningText = \"\")",
-            ExperimentalAnnotationUtil.getAnnotation(metadata("")));
+        Assertions.assertEquals("Preview(warningText = \"\")", ExperimentalAnnotationUtil.getAnnotation(metadata("")));
         Assertions.assertNull(ExperimentalAnnotationUtil.getAnnotation(new ApiMetadata.Builder().build()));
     }
 
     @Test
-    public void generatesAnnotationWithSingleDefaultedStringElement(@TempDir Path directory) throws Exception {
+    public void generatesAnnotationWithRequiredWarningTextAndSharedConstant(@TempDir Path directory) throws Exception {
         configureJavaSettings(Map.of("experimental-annotation", ANNOTATION));
         JavaPackage javaPackage = new JavaPackage(new TestPlugin(Map.of()));
         javaPackage.addExperimentalAnnotation();
@@ -101,12 +103,16 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
 
         JavaFile usage = new JavaFile("Usage.java");
         usage.declarePackage("com.example");
+        usage.declareImport(ANNOTATION);
         ExperimentalAnnotationUtil.write(usage, metadata(null));
         usage.publicFinalClass("Usage", block -> {
             ExperimentalAnnotationUtil.write(block, metadata("Preview \"API\"\nwith a \\ path\tand \r text"));
             block.publicMethod("void preview()", method -> {
             });
         });
+        assertImportedAnnotation(usage.getContents().toString());
+        Assertions.assertTrue(usage.getContents().toString().contains("@Preview(warningText = Preview.WARNING_TEXT)"));
+        Assertions.assertTrue(annotation.getContents().toString().contains("String warningText();"));
         compile(directory, List.of(annotation, usage));
 
         try (URLClassLoader loader = new URLClassLoader(new URL[] { directory.toUri().toURL() })) {
@@ -114,14 +120,16 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
             Assertions.assertTrue(type.isAnnotation());
             Assertions.assertEquals(1, type.getDeclaredMethods().length);
             Assertions.assertEquals(String.class, type.getDeclaredMethod("warningText").getReturnType());
+            Assertions.assertNull(type.getDeclaredMethod("warningText").getDefaultValue());
             Assertions.assertEquals(ExperimentalAnnotationUtil.DEFAULT_WARNING_TEXT,
-                type.getDeclaredMethod("warningText").getDefaultValue());
+                type.getField("WARNING_TEXT").get(null));
         }
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = { false, true })
-    public void annotatesEnumsAndValues(boolean expandable, @TempDir Path directory) throws Exception {
+    @CsvSource({ "false, false", "false, true", "true, false", "true, true" })
+    public void annotatesEnumsAndValues(boolean expandable, boolean annotateType, @TempDir Path directory)
+        throws Exception {
         configureJavaSettings(
             Map.of("experimental-annotation", ANNOTATION, "flavor", "azure", "stream-style-serialization", "true"));
         JavaSettings.getInstance();
@@ -130,7 +138,7 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
             .description("A choice.")
             .expandable(expandable)
             .elementType(ClassType.STRING)
-            .apiMetadata(metadata("Enum warning"))
+            .apiMetadata(annotateType ? metadata("Enum warning") : new ApiMetadata.Builder().build())
             .values(List.of(new ClientEnumValue("ONE", "one", "One.", metadata("Member warning")),
                 new ClientEnumValue("TWO", "two", "Two.", metadata(null)),
                 new ClientEnumValue("STABLE", "stable", "Stable.")))
@@ -139,17 +147,20 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         file.declarePackage("com.example");
         Templates.getEnumTemplate().write(type, file);
         String source = file.getContents().toString();
-        Assertions.assertTrue(source.contains("@" + ANNOTATION + "(warningText = \"Enum warning\")"), source);
-        Assertions.assertTrue(source.contains("@" + ANNOTATION + "(warningText = \"Member warning\")"), source);
-        Assertions.assertEquals(3, source.split("@" + ANNOTATION, -1).length - 1, source);
+        assertImportedAnnotation(source);
+        Assertions.assertEquals(annotateType, source.contains("@Preview(warningText = \"Enum warning\")"), source);
+        Assertions.assertTrue(source.contains("@Preview(warningText = \"Member warning\")"), source);
+        Assertions.assertTrue(source.contains("@Preview(warningText = Preview.WARNING_TEXT)"), source);
+        Assertions.assertEquals(annotateType ? 3 : 2, source.split("@Preview", -1).length - 1, source);
 
         JavaPackage javaPackage = new JavaPackage(new TestPlugin(Map.of()));
         javaPackage.addExperimentalAnnotation();
         compile(directory, List.of(javaPackage.getJavaFiles().get(0), file));
     }
 
-    @Test
-    public void annotatesModelAndPropertyAccessors(@TempDir Path directory) throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void annotatesModelAndPropertyAccessors(boolean annotateModel, @TempDir Path directory) throws Exception {
         configureJavaSettings(Map.of("experimental-annotation", ANNOTATION, "stream-style-serialization", "true"));
         ClientModelProperty property = new ClientModelProperty.Builder().name("value")
             .serializedName("value")
@@ -165,14 +176,15 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
             .properties(List.of(property))
             .implementationDetails(new ImplementationDetails.Builder().usages(Set.of(ImplementationDetails.Usage.PUBLIC,
                 ImplementationDetails.Usage.INPUT, ImplementationDetails.Usage.OUTPUT)).build())
-            .apiMetadata(metadata(null))
+            .apiMetadata(annotateModel ? metadata(null) : new ApiMetadata.Builder().build())
             .build();
         JavaPackage javaPackage = new JavaPackage(new TestPlugin(Map.of()));
         javaPackage.addExperimentalAnnotation();
         javaPackage.addModel("com.example", "Payload", model);
         String source = javaPackage.getJavaFiles().get(1).getContents().toString();
         Assertions.assertEquals(2, source.split("warningText = \"Property warning\"", -1).length - 1, source);
-        Assertions.assertTrue(source.contains("@" + ANNOTATION), source);
+        assertImportedAnnotation(source);
+        Assertions.assertEquals(annotateModel, source.contains("@Preview(warningText = Preview.WARNING_TEXT)"), source);
         compile(directory, javaPackage.getJavaFiles());
     }
 
@@ -189,9 +201,12 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
             .apiMetadata(metadata("Operation warning"))
             .build();
         JavaFile file = new JavaFile("Client.java");
+        Set<String> imports = new LinkedHashSet<>();
+        method.addImportsTo(imports, false, JavaSettings.getInstance());
+        file.declareImport(imports);
         file.publicFinalClass("Client", block -> Templates.getWrapperClientMethodTemplate().write(method, block));
-        Assertions.assertTrue(
-            file.getContents().toString().contains("@" + ANNOTATION + "(warningText = \"Operation warning\")"));
+        assertImportedAnnotation(file.getContents().toString());
+        Assertions.assertTrue(file.getContents().toString().contains("@Preview(warningText = \"Operation warning\")"));
     }
 
     @Test
@@ -206,6 +221,12 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         Experimental experimental = new Experimental();
         experimental.setWarningText(warningText);
         return new ApiMetadata.Builder().experimental(experimental).build();
+    }
+
+    private static void assertImportedAnnotation(String source) {
+        Assertions.assertTrue(source.contains("import " + ANNOTATION + ";"), source);
+        Assertions.assertTrue(source.contains("@Preview(warningText = "), source);
+        Assertions.assertFalse(source.contains("@" + ANNOTATION), source);
     }
 
     private static void compile(Path directory, List<JavaFile> files) throws Exception {

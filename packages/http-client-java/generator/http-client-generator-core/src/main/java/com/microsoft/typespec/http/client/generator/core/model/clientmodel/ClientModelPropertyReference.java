@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -165,6 +166,7 @@ public class ClientModelPropertyReference implements ClientModelPropertyAccess {
 
     @Override
     public void addImportsTo(Set<String> imports, boolean shouldGenerateXmlSerialization) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         referenceProperty.addImportsTo(imports, shouldGenerateXmlSerialization);
     }
 }

@@ -13,6 +13,7 @@ options:
     experimental-annotation: "com.example.annotations.Experimental"
 ```
 
-The generated annotation has a `String warningText()` element defaulting to
-`Preview API - subject to change in non-backwards compatible way`.
-Generated annotations use this default; Java code customizations can supply a custom `warningText` value.
+The generated annotation has a required `String warningText()` element and a `WARNING_TEXT` constant
+containing `Preview API - subject to change in non-backwards compatible way`.
+Generated code imports the annotation and uses `@Experimental(warningText = Experimental.WARNING_TEXT)`;
+Java code customizations can supply a custom `warningText` value.

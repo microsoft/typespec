@@ -464,6 +464,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         while (parentModel != null && !lastParentName.equals(parentModel.getName())) {
             // implementation code of stream-style serialization refs to the element type of the Map
             for (ClientModelProperty parentProperty : parentModel.getProperties()) {
+                ExperimentalAnnotationUtil.addImportsTo(imports, parentProperty.getApiMetadata());
                 if (parentProperty.isAdditionalProperties()) {
                     parentProperty.addImportsTo(imports, false);
                 }

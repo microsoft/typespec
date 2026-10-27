@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
+import java.util.Set;
 
 /**
  * Writes annotations for experimental APIs.
@@ -30,10 +31,23 @@ public final class ExperimentalAnnotationUtil {
         if (annotation == null || experimental == null) {
             return null;
         }
-        return experimental.getWarningText() == null
-            ? annotation
-            : annotation + "(warningText = " + ClassType.STRING.defaultValueExpression(experimental.getWarningText())
-                + ")";
+        String name = annotation.substring(annotation.lastIndexOf('.') + 1);
+        String warningText = experimental.getWarningText() == null
+            ? name + ".WARNING_TEXT"
+            : ClassType.STRING.defaultValueExpression(experimental.getWarningText());
+        return name + "(warningText = " + warningText + ")";
+    }
+
+    /**
+     * Adds the experimental annotation import when it applies to an API.
+     *
+     * @param imports the imports being collected.
+     * @param metadata the API metadata.
+     */
+    public static void addImportsTo(Set<String> imports, ApiMetadata metadata) {
+        if (getAnnotation(metadata) != null) {
+            imports.add(JavaSettings.getInstance().getExperimentalAnnotation());
+        }
     }
 
     /**

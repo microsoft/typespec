@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -309,6 +310,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
      * @param imports The set of imports to add to.
      */
     public final void addImportsTo(Set<String> imports, boolean shouldGenerateXmlSerialization) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         JavaSettings settings = JavaSettings.getInstance();
         final boolean requireJackson = !settings.isStreamStyleSerialization();
 

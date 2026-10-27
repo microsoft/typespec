@@ -55,6 +55,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         ClientBuilder rootClientBuilder = ServiceAsyncClientTemplate.getClientBuilder(syncClient);
 
         Set<String> imports = new LinkedHashSet<>();
+        ExperimentalAnnotationUtil.addImportsTo(imports, syncClient.getApiMetadata());
         if (wrapServiceClient) {
             serviceClient.addImportsTo(imports, true, false, settings);
             imports.add(serviceClient.getPackage() + "." + serviceClient.getClassName());

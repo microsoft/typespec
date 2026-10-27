@@ -10,7 +10,7 @@ public class Experimental {
     private String warningText;
 
     /**
-     * Gets the warning text, or null to use the generated annotation's default.
+     * Gets the warning text, or null to use the generated annotation's WARNING_TEXT constant.
      *
      * @return the warning text.
      */

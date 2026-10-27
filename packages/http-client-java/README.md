@@ -41,9 +41,11 @@ model Preview {
 }
 ```
 
-The generator creates the configured annotation with a single `String warningText()` element,
-whose default is `Preview API - subject to change in non-backwards compatible way`.
-The generated model and the property's accessors receive `@Experimental` without arguments.
+The generator creates the configured annotation with a required `String warningText()` element
+and a `WARNING_TEXT` constant containing
+`Preview API - subject to change in non-backwards compatible way`.
+The generated model and the property's accessors import the annotation and receive
+`@Experimental(warningText = Experimental.WARNING_TEXT)`.
 Java code customizations can supply `@Experimental(warningText = "This API may change.")`;
 `warningText` is not configurable through the TypeSpec decorator.
 

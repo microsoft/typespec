@@ -74,6 +74,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
 
         addGeneratedImport(imports);
+        addExperimentalImports(imports, enumType);
 
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
@@ -147,6 +148,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
 
         addGeneratedImport(imports);
+        addExperimentalImports(imports, enumType);
         IType elementType = enumType.getElementType();
         elementType.getClientType().addImportsTo(imports, false);
 
@@ -215,6 +217,11 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         });
     }
 
+    private void addExperimentalImports(Set<String> imports, EnumType enumType) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, enumType.getApiMetadata());
+        enumType.getValues().forEach(value -> ExperimentalAnnotationUtil.addImportsTo(imports, value.getApiMetadata()));
+    }
+
     private void writeExpandableEnumInterface(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
         Set<String> imports = new LinkedHashSet<>();
         imports.add("java.util.Collection");
@@ -236,6 +243,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
 
         addGeneratedImport(imports);
+        addExperimentalImports(imports, enumType);
 
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));

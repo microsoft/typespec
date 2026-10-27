@@ -107,12 +107,15 @@ public class JavaPackage {
         javaFile.annotation("Documented", "Retention(RetentionPolicy.CLASS)",
             "Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR})");
         javaFile.getContents().block("public @interface " + name, block -> {
+            block.javadocComment(comment -> comment.description("The warning text for generated experimental APIs."));
+            block.line("String WARNING_TEXT = "
+                + ClassType.STRING.defaultValueExpression(ExperimentalAnnotationUtil.DEFAULT_WARNING_TEXT) + ";");
+            block.line();
             block.javadocComment(comment -> {
                 comment.description("Gets the warning text describing the experimental API.");
                 comment.methodReturns("the warning text.");
             });
-            block.line("String warningText() default "
-                + ClassType.STRING.defaultValueExpression(ExperimentalAnnotationUtil.DEFAULT_WARNING_TEXT) + ";");
+            block.line("String warningText();");
         });
         addJavaFile(javaFile);
     }
