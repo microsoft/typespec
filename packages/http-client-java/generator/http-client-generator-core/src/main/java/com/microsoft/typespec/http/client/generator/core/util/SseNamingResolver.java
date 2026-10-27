@@ -60,7 +60,8 @@ public final class SseNamingResolver {
             eventWrapperNames.put(event.getName(), wrapperName);
         }
 
-        return new Names(baseEventName, baseEventName + "Converter", toLowerCaseWords(baseStem), eventWrapperNames);
+        String streamDescription = baseStem.isEmpty() ? "SSE" : toLowerCaseWords(baseStem);
+        return new Names(baseEventName, baseEventName + "Converter", streamDescription, eventWrapperNames);
     }
 
     private static String firstEventNameSegment(String eventName) {

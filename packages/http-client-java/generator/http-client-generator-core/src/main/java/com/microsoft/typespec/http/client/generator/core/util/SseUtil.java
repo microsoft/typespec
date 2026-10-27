@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annot
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -53,6 +54,36 @@ public final class SseUtil {
 
     public static ClassType getEventType(SseMetadata metadata, String name) {
         return new ClassType.Builder().packageName(getEventPackage(metadata)).name(name).build();
+    }
+
+    public static boolean shouldFullyQualifyClientEvent(SseMetadata metadata) {
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        ClientModel collidingModel = ClientModelUtil.getClientModel(names.getBaseEventName());
+        return collidingModel != null && !collidingModel.getPackage().equals(getEventPackage(metadata));
+    }
+
+    public static String getClientEventTypeName(SseMetadata metadata) {
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        ClassType eventType = getEventType(metadata, names.getBaseEventName());
+        return shouldFullyQualifyClientEvent(metadata) ? eventType.getFullName() : eventType.getName();
+    }
+
+    public static String getClientReturnTypeName(ClientMethod method) {
+        if (method.getSseMetadata() == null || !shouldFullyQualifyClientEvent(method.getSseMetadata())) {
+            return method.getReturnValue().getType().toString();
+        }
+        SseMetadata metadata = method.getSseMetadata();
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        String eventTypeName = getEventType(metadata, names.getBaseEventName()).getFullName();
+        return getPayloadTypeName(method.getReturnValue().getType(), Set.of(eventTypeName));
+    }
+
+    public static void removeFullyQualifiedClientEventImport(ClientMethod method, Set<String> imports) {
+        if (method.getSseMetadata() != null && shouldFullyQualifyClientEvent(method.getSseMetadata())) {
+            SseMetadata metadata = method.getSseMetadata();
+            imports
+                .remove(getEventType(metadata, SseNamingResolver.resolve(metadata).getBaseEventName()).getFullName());
+        }
     }
 
     public static Set<String> getFullyQualifiedPayloadTypeNames(SseMetadata metadata, SseNamingResolver.Names names) {

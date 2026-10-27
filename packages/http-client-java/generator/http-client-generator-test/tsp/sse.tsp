@@ -26,6 +26,10 @@ model ProtocolOnlyPayload {
   value: string;
 }
 
+model TestStreamEvent {
+  value: string;
+}
+
 @encode(DurationKnownEncoding.seconds, int32)
 scalar SecondsDuration extends duration;
 
@@ -107,6 +111,10 @@ interface Stream {
   @route("/stream")
   @get
   read(@header authorization?: string): SSEStream<TestStreamEvents>;
+
+  @route("/stream-with-colliding-request")
+  @post
+  readWithCollidingRequest(@body request: TestStreamEvent): SSEStream<TestStreamEvents>;
 
   @route("/protocol-only")
   @get

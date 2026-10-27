@@ -319,8 +319,9 @@ abstract class ConvenienceMethodTemplateBase {
             JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
             // convenience method
-            String methodDeclaration = String.format("%1$s %2$s(%3$s)", convenienceMethod.getReturnValue().getType(),
-                getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
+            String methodDeclaration
+                = String.format("%1$s %2$s(%3$s)", SseUtil.getClientReturnTypeName(convenienceMethod),
+                    getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
             classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
                 if (convenienceMethod.getSseMetadata() == null) {
                     methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
@@ -334,7 +335,7 @@ abstract class ConvenienceMethodTemplateBase {
     private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
         SseMetadata metadata = method.getSseMetadata();
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        String baseEventName = names.getBaseEventName();
+        String baseEventName = SseUtil.getClientEventTypeName(metadata);
         String description = method.getDescription();
         int firstSentenceEnd = description.indexOf('.');
         String firstSentence = firstSentenceEnd < 0 ? description : description.substring(0, firstSentenceEnd + 1);

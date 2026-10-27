@@ -42,6 +42,16 @@ public class SseNamingResolverTests {
     }
 
     @Test
+    public void usesNonemptyDescriptionsForShortStreamNames() {
+        for (String streamName : List.of("StreamEvents", "Stream")) {
+            SseNamingResolver.Names names = SseNamingResolver.resolve(metadata(streamName, "started"));
+
+            Assertions.assertEquals("StreamEvent", names.getBaseEventName());
+            Assertions.assertEquals("SSE", names.getStreamDescription());
+        }
+    }
+
+    @Test
     public void rejectsNormalizedEventNameCollisions() {
         IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class, () -> SseNamingResolver
             .resolve(metadata("RetrievalStreamEvents", "retrieval.started", "retrieval-started")));

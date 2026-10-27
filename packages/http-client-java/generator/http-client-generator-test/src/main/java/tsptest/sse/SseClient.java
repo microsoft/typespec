@@ -19,8 +19,8 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
 import tsptest.sse.implementation.StreamOperationsImpl;
 import tsptest.sse.implementation.TestStreamEventConverter;
+import tsptest.sse.models.TestStreamEvent;
 import tsptest.sse.models.implementation.sse.ServerSentEventStreams;
-import tsptest.sse.stream.models.TestStreamEvent;
 
 /**
  * Initializes a new instance of the synchronous SseClient type.
@@ -71,6 +71,41 @@ public final class SseClient {
     }
 
     /**
+     * The readWithCollidingRequest operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * <p><strong>Response Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> readWithCollidingRequestWithResponse(BinaryData request,
+        RequestOptions requestOptions) {
+        return this.serviceClient.readWithCollidingRequestWithResponse(request, requestOptions);
+    }
+
+    /**
      * The readProtocolOnly operation.
      * <p><strong>Response Body Schema</strong></p>
      *
@@ -96,10 +131,10 @@ public final class SseClient {
     /**
      * The read operation.
      *
-     * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
+     * subtype's {@code getValue()} to access its typed payload, for example
      * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -114,22 +149,22 @@ public final class SseClient {
      * @return A closeable stream of typed test events.
      */
     @Generated
-    public CloseableIterableStream<TestStreamEvent> read(String authorization) {
+    public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent> read(String authorization) {
         RequestOptions requestOptions = new RequestOptions();
         if (authorization != null) {
             requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
         }
         return ServerSentEventStreams.toIterableStream(readWithResponse(requestOptions),
-            TestStreamEventConverter::convert, TestStreamEvent::isTerminal);
+            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal);
     }
 
     /**
      * The read operation.
      *
-     * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
+     * subtype's {@code getValue()} to access its typed payload, for example
      * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -143,9 +178,38 @@ public final class SseClient {
      * @return A closeable stream of typed test events.
      */
     @Generated
-    public CloseableIterableStream<TestStreamEvent> read() {
+    public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent> read() {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreams.toIterableStream(readWithResponse(requestOptions),
-            TestStreamEventConverter::convert, TestStreamEvent::isTerminal);
+            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal);
+    }
+
+    /**
+     * The readWithCollidingRequest operation.
+     *
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
+     * subtype's {@code getValue()} to access its typed payload, for example
+     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
+     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal {@code completed} event is emitted before iteration ends. A failure while closing after
+     * a terminal event is reported by the next iterator access or explicit close, after the terminal event is
+     * delivered. End-of-stream without a terminal event completes normally. Transport and decoding failures are thrown
+     * during iteration. The client does not reconnect automatically.
+     *
+     * @param request The request parameter.
+     * @return A closeable stream of typed test events.
+     */
+    @Generated
+    public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent>
+        readWithCollidingRequest(TestStreamEvent request) {
+        RequestOptions requestOptions = new RequestOptions();
+        return ServerSentEventStreams.toIterableStream(
+            readWithCollidingRequestWithResponse(BinaryData.fromObject(request), requestOptions),
+            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal);
     }
 }

@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -83,8 +84,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
             String responseName = MethodUtil.getAvailableVariableName("response", usedNames);
             methodBlock.methodReturn(String.format(
                 "%1$s(%2$s).flatMapMany(%5$s -> ServerSentEventStreams.toFlux(%5$s, %3$s::convert, %4$s::isTerminal))",
-                getMethodName(protocolMethod), invocationExpression, names.getConverterName(), names.getBaseEventName(),
-                responseName));
+                getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
+                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata()), responseName));
             return;
         }
 

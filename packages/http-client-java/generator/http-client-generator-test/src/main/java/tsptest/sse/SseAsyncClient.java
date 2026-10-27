@@ -20,8 +20,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.sse.implementation.StreamOperationsImpl;
 import tsptest.sse.implementation.TestStreamEventConverter;
+import tsptest.sse.models.TestStreamEvent;
 import tsptest.sse.models.implementation.sse.ServerSentEventStreams;
-import tsptest.sse.stream.models.TestStreamEvent;
 
 /**
  * Initializes a new instance of the asynchronous SseClient type.
@@ -72,6 +72,41 @@ public final class SseAsyncClient {
     }
 
     /**
+     * The readWithCollidingRequest operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * <p><strong>Response Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> readWithCollidingRequestWithResponse(BinaryData request,
+        RequestOptions requestOptions) {
+        return this.serviceClient.readWithCollidingRequestWithResponseAsync(request, requestOptions);
+    }
+
+    /**
      * The readProtocolOnly operation.
      * <p><strong>Response Body Schema</strong></p>
      *
@@ -97,10 +132,10 @@ public final class SseAsyncClient {
     /**
      * The read operation.
      *
-     * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
+     * subtype's {@code getValue()} to access its typed payload, for example
      * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
@@ -110,22 +145,22 @@ public final class SseAsyncClient {
      * @return A stream of typed test events.
      */
     @Generated
-    public Flux<TestStreamEvent> read(String authorization) {
+    public Flux<tsptest.sse.stream.models.TestStreamEvent> read(String authorization) {
         RequestOptions requestOptions = new RequestOptions();
         if (authorization != null) {
             requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
         }
         return readWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            TestStreamEventConverter::convert, TestStreamEvent::isTerminal));
+            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal));
     }
 
     /**
      * The read operation.
      *
-     * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
+     * subtype's {@code getValue()} to access its typed payload, for example
      * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
-     * names through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
      *
      * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
@@ -134,9 +169,32 @@ public final class SseAsyncClient {
      * @return A stream of typed test events.
      */
     @Generated
-    public Flux<TestStreamEvent> read() {
+    public Flux<tsptest.sse.stream.models.TestStreamEvent> read() {
         RequestOptions requestOptions = new RequestOptions();
         return readWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            TestStreamEventConverter::convert, TestStreamEvent::isTerminal));
+            TestStreamEventConverter::convert, tsptest.sse.stream.models.TestStreamEvent::isTerminal));
+    }
+
+    /**
+     * The readWithCollidingRequest operation.
+     *
+     * Events are polymorphic: see {@link tsptest.sse.stream.models.TestStreamEvent} for the known subtypes. Use a known
+     * subtype's {@code getValue()} to access its typed payload, for example
+     * {@link tsptest.sse.stream.models.TestDurationsStreamEvent#getValue()}. Unrecognized events expose only their
+     * names through {@link tsptest.sse.stream.models.TestStreamEvent#getEventName()}; their payloads are not available.
+     *
+     * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
+     * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
+     * path. The client does not reconnect automatically.
+     *
+     * @param request The request parameter.
+     * @return A stream of typed test events.
+     */
+    @Generated
+    public Flux<tsptest.sse.stream.models.TestStreamEvent> readWithCollidingRequest(TestStreamEvent request) {
+        RequestOptions requestOptions = new RequestOptions();
+        return readWithCollidingRequestWithResponse(BinaryData.fromObject(request), requestOptions)
+            .flatMapMany(response -> ServerSentEventStreams.toFlux(response, TestStreamEventConverter::convert,
+                tsptest.sse.stream.models.TestStreamEvent::isTerminal));
     }
 }

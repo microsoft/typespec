@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -324,7 +325,7 @@ public class ClientMethod {
      * The full declaration of this ClientMethod.
      */
     public final String getDeclaration() {
-        return getReturnValue().getType() + " " + getName() + "(" + getParametersDeclaration() + ")";
+        return SseUtil.getClientReturnTypeName(this) + " " + getName() + "(" + getParametersDeclaration() + ")";
     }
 
     /**
@@ -490,6 +491,7 @@ public class ClientMethod {
         for (ClientMethodParameter parameter : getParameters()) {
             parameter.addImportsTo(imports, includeImplementationImports);
         }
+        SseUtil.removeFullyQualifiedClientEventImport(this, imports);
 
         if (includeImplementationImports) {
             ClassType.CONTEXT.addImportsTo(imports, false);

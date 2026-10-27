@@ -128,6 +128,43 @@ public class JavaPackageSseTests {
     }
 
     @Test
+    public void generatesShortStreamNamesWithNonemptyDescriptions(@TempDir Path tempDir) throws IOException {
+        for (String streamName : List.of("StreamEvents", "Stream")) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+            SseMetadata metadata = metadata();
+            metadata.setStreamName(streamName);
+            metadata.setModelNamespace("com.azure." + streamName.toLowerCase());
+
+            javaPackage.addSseEventFiles(metadata);
+
+            List<Path> sources = new ArrayList<>();
+            for (JavaFile javaFile : javaPackage.getJavaFiles()) {
+                Path source = tempDir.resolve(streamName).resolve(javaFile.getFilePath());
+                Files.createDirectories(source.getParent());
+                Files.writeString(source, javaFile.getContents().toString());
+                sources.add(source);
+            }
+            Path classes = tempDir.resolve(streamName).resolve("classes");
+            Files.createDirectories(classes);
+            List<String> arguments = new ArrayList<>(
+                List.of("-classpath", System.getProperty("java.class.path"), "-d", classes.toString()));
+            arguments.addAll(sources.stream().map(Path::toString).collect(Collectors.toList()));
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+
+            Assertions.assertEquals(0,
+                ToolProvider.getSystemJavaCompiler()
+                    .run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+                diagnostics.toString(StandardCharsets.UTF_8));
+            Assertions.assertTrue(javaPackage.getJavaFiles()
+                .stream()
+                .map(javaFile -> javaFile.getContents().toString())
+                .collect(Collectors.joining())
+                .contains("Failed to initialize SSE stream event constructors."));
+        }
+    }
+
+    @Test
     public void generatesRecursiveCollectionReadCallbacks() {
         JavaSettings.clear();
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());

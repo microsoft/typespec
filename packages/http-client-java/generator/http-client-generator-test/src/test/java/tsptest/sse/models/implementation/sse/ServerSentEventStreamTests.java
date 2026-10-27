@@ -203,6 +203,13 @@ public class ServerSentEventStreamTests {
         Assertions.assertTrue(readMethods.stream().anyMatch(method -> method.getParameterCount() == 0));
         Assertions.assertTrue(readMethods.stream()
             .anyMatch(method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == String.class));
+        Method collidingRequestMethod = Arrays.stream(clientType.getDeclaredMethods())
+            .filter(method -> method.getName().equals("readWithCollidingRequest"))
+            .filter(method -> Arrays.equals(method.getParameterTypes(),
+                new Class<?>[] { tsptest.sse.models.TestStreamEvent.class }))
+            .findFirst()
+            .orElseThrow();
+        Assertions.assertEquals(typedReturnType, collidingRequestMethod.getReturnType());
         Assertions.assertFalse(Arrays.stream(clientType.getDeclaredMethods())
             .anyMatch(method -> method.getName().startsWith("hiddenGenerated")));
     }
