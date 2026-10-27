@@ -62,11 +62,11 @@ public final class SseUtil {
         Set<String> sseTypeNames = new LinkedHashSet<>();
         convenienceMethods.stream()
             .flatMap(method -> method.getConvenienceMethods().stream())
-            .map(ClientMethod::getSseMetadata)
-            .filter(metadata -> metadata != null)
-            .forEach(metadata -> {
+            .filter(method -> method.getSseMetadata() != null)
+            .forEach(method -> {
+                SseMetadata metadata = method.getSseMetadata();
                 SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-                sseTypeNames.add(getEventType(metadata, names.getBaseEventName()).getFullName());
+                method.getReturnValue().getType().addImportsTo(sseTypeNames, false);
                 sseTypeNames.add(getConverterPackage() + "." + names.getConverterName());
                 sseTypeNames.add(getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS);
             });
@@ -113,11 +113,11 @@ public final class SseUtil {
         if (method.getSseMetadata() == null) {
             return method.getReturnValue().getType().toString();
         }
-        SseMetadata metadata = method.getSseMetadata();
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        String eventTypeName = getEventType(metadata, names.getBaseEventName()).getFullName();
-        return fullyQualifiedTypeNames.contains(eventTypeName)
-            ? getPayloadTypeName(method.getReturnValue().getType(), Set.of(eventTypeName))
+        IType returnType = method.getReturnValue().getType();
+        Set<String> returnTypeNames = new LinkedHashSet<>();
+        returnType.addImportsTo(returnTypeNames, false);
+        return fullyQualifiedTypeNames.stream().anyMatch(returnTypeNames::contains)
+            ? getPayloadTypeName(returnType, fullyQualifiedTypeNames)
             : method.getReturnValue().getType().toString();
     }
 

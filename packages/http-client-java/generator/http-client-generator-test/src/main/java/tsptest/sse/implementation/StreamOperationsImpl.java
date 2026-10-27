@@ -138,6 +138,46 @@ public final class StreamOperationsImpl {
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData request,
             RequestOptions requestOptions, Context context);
 
+        @Post("/request-with-colliding-sync-container")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> useCollidingSyncContainer(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData request,
+            RequestOptions requestOptions, Context context);
+
+        @Post("/request-with-colliding-sync-container")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> useCollidingSyncContainerSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData request,
+            RequestOptions requestOptions, Context context);
+
+        @Post("/request-with-colliding-async-container")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> useCollidingAsyncContainer(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData request,
+            RequestOptions requestOptions, Context context);
+
+        @Post("/request-with-colliding-async-container")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> useCollidingAsyncContainerSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData request,
+            RequestOptions requestOptions, Context context);
+
         @Get("/enum-stream")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -435,6 +475,116 @@ public final class StreamOperationsImpl {
     public Response<Void> useCollidingRuntimeHelperWithResponse(BinaryData request, RequestOptions requestOptions) {
         final String contentType = "application/json";
         return service.useCollidingRuntimeHelperSync(this.client.getEndpoint(), contentType, request, requestOptions,
+            Context.NONE);
+    }
+
+    /**
+     * The useCollidingSyncContainer operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> useCollidingSyncContainerWithResponseAsync(BinaryData request,
+        RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return FluxUtil.withContext(context -> service.useCollidingSyncContainer(this.client.getEndpoint(), contentType,
+            request, requestOptions, context));
+    }
+
+    /**
+     * The useCollidingSyncContainer operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingSyncContainerWithResponse(BinaryData request, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return service.useCollidingSyncContainerSync(this.client.getEndpoint(), contentType, request, requestOptions,
+            Context.NONE);
+    }
+
+    /**
+     * The useCollidingAsyncContainer operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> useCollidingAsyncContainerWithResponseAsync(BinaryData request,
+        RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return FluxUtil.withContext(context -> service.useCollidingAsyncContainer(this.client.getEndpoint(),
+            contentType, request, requestOptions, context));
+    }
+
+    /**
+     * The useCollidingAsyncContainer operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingAsyncContainerWithResponse(BinaryData request, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return service.useCollidingAsyncContainerSync(this.client.getEndpoint(), contentType, request, requestOptions,
             Context.NONE);
     }
 

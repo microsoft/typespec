@@ -16,10 +16,11 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.CloseableIterableStream;
 import tsptest.sse.implementation.EnumRequestStreamEventConverter;
 import tsptest.sse.implementation.StreamOperationsImpl;
+import tsptest.sse.models.CloseableIterableStream;
 import tsptest.sse.models.EnumRequestStreamEvent;
+import tsptest.sse.models.Flux;
 import tsptest.sse.models.ServerSentEventStreams;
 import tsptest.sse.models.TestStreamEvent;
 import tsptest.sse.models.TestStreamEventConverter;
@@ -160,6 +161,58 @@ public final class SseClient {
     }
 
     /**
+     * The useCollidingSyncContainer operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingSyncContainerWithResponse(BinaryData request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingSyncContainerWithResponse(request, requestOptions);
+    }
+
+    /**
+     * The useCollidingAsyncContainer operation.
+     * <p><strong>Request Body Schema</strong></p>
+     *
+     * <pre>
+     * {@code
+     * {
+     *     value: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> useCollidingAsyncContainerWithResponse(BinaryData request, RequestOptions requestOptions) {
+        return this.serviceClient.useCollidingAsyncContainerWithResponse(request, requestOptions);
+    }
+
+    /**
      * The readEnum operation.
      * <p><strong>Response Body Schema</strong></p>
      *
@@ -243,7 +296,8 @@ public final class SseClient {
      * @return A closeable stream of typed test events.
      */
     @Generated
-    public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent> read(String authorization) {
+    public com.azure.core.util.CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent>
+        read(String authorization) {
         RequestOptions requestOptions = new RequestOptions();
         if (authorization != null) {
             requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
@@ -273,7 +327,7 @@ public final class SseClient {
      * @return A closeable stream of typed test events.
      */
     @Generated
-    public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent> read() {
+    public com.azure.core.util.CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent> read() {
         RequestOptions requestOptions = new RequestOptions();
         return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
             readWithResponse(requestOptions), tsptest.sse.implementation.TestStreamEventConverter::convert,
@@ -301,7 +355,7 @@ public final class SseClient {
      * @return A closeable stream of typed test events.
      */
     @Generated
-    public CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent>
+    public com.azure.core.util.CloseableIterableStream<tsptest.sse.stream.models.TestStreamEvent>
         readWithCollidingRequest(TestStreamEvent request) {
         RequestOptions requestOptions = new RequestOptions();
         return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
@@ -349,6 +403,44 @@ public final class SseClient {
     }
 
     /**
+     * The useCollidingSyncContainer operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void useCollidingSyncContainer(CloseableIterableStream request) {
+        // Generated convenience method for useCollidingSyncContainerWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        useCollidingSyncContainerWithResponse(BinaryData.fromObject(request), requestOptions).getValue();
+    }
+
+    /**
+     * The useCollidingAsyncContainer operation.
+     *
+     * @param request The request parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void useCollidingAsyncContainer(Flux request) {
+        // Generated convenience method for useCollidingAsyncContainerWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        useCollidingAsyncContainerWithResponse(BinaryData.fromObject(request), requestOptions).getValue();
+    }
+
+    /**
      * The readEnum operation.
      *
      * Events are polymorphic: see {@link tsptest.sse.stream.models.EnumRequestStreamEvent} for the known subtypes. Use
@@ -367,7 +459,7 @@ public final class SseClient {
      * @return A closeable stream of typed enum request events.
      */
     @Generated
-    public CloseableIterableStream<tsptest.sse.stream.models.EnumRequestStreamEvent> readEnum() {
+    public com.azure.core.util.CloseableIterableStream<tsptest.sse.stream.models.EnumRequestStreamEvent> readEnum() {
         RequestOptions requestOptions = new RequestOptions();
         return tsptest.sse.models.implementation.sse.ServerSentEventStreams.toIterableStream(
             readEnumWithResponse(requestOptions), EnumRequestStreamEventConverter::convert,

@@ -38,6 +38,14 @@ model ServerSentEventStreams {
   value: string;
 }
 
+model CloseableIterableStream {
+  value: string;
+}
+
+model Flux {
+  value: string;
+}
+
 enum EnumRequestStreamEvent {
   value,
 }
@@ -140,6 +148,14 @@ interface Stream {
   @route("/request-with-colliding-runtime-helper")
   @post
   useCollidingRuntimeHelper(@body request: ServerSentEventStreams): void;
+
+  @route("/request-with-colliding-sync-container")
+  @post
+  useCollidingSyncContainer(@body request: CloseableIterableStream): void;
+
+  @route("/request-with-colliding-async-container")
+  @post
+  useCollidingAsyncContainer(@body request: Flux): void;
 
   @route("/enum-stream")
   @get
