@@ -327,6 +327,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase("True", true)]
         [TestCase("Qualified", false)]
         [TestCase("Qualified", true)]
+        [TestCase("StaticImport", false)]
+        [TestCase("StaticImport", true)]
         public async Task SuppressedPagingMethodsPruneUnreferencedHelpers(string reference, bool keepAll)
         {
             var customReference = reference != "False";

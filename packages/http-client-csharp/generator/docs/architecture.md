@@ -110,7 +110,8 @@ As with other reset state, earlier visitor changes to rebuilt helpers are discar
 Nested paging helpers are retained by actual generated or custom-code references,
 not by their containing client alone. Unresolved qualified references in handwritten
 code are resolved against their lexical scope; absolute and resolved references
-keep their exact identities. With `RemoveOrInternalize`, unused helpers
+keep their exact identities. Static imports also supply containing-type candidates
+for unresolved references to nested helpers. With `RemoveOrInternalize`, unused helpers
 and their otherwise-unreferenced dependencies are pruned, and the collections writer
 omits removed nested types. Other nested types keep the default ownership-based
 retention behavior.

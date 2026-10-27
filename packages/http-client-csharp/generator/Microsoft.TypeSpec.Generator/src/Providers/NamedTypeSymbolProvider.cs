@@ -774,7 +774,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective)
         {
             if (usingDirective.Alias == null &&
-                !usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) &&
                 usingDirective.Name != null)
             {
                 namespaces.Add(usingDirective.Name.ToString());
