@@ -18,4 +18,5 @@ containing `Preview API - subject to change in non-backwards compatible way`.
 Generated code imports the annotation and uses `@Experimental(warningText = Experimental.WARNING_TEXT)`;
 Java code customizations can supply a custom `warningText` value.
 
-Includes generation coverage for experimental annotations and Java warning text customizations.
+Includes generation coverage for experimental annotations and Java warning text customizations,
+including ClientCore and Azure v2 implementation methods and Fluent Lite module exports.

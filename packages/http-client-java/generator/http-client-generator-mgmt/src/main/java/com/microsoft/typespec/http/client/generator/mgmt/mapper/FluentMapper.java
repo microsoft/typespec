@@ -195,6 +195,13 @@ public class FluentMapper {
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentSubpackage())));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentModelsSubpackage())));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getModelsSubpackage())));
+        if (settings.getExperimentalAnnotation() != null) {
+            String annotationPackage = settings.getExperimentalAnnotation()
+                .substring(0, settings.getExperimentalAnnotation().lastIndexOf('.'));
+            if (exportModules.stream().noneMatch(module -> module.getModuleName().equals(annotationPackage))) {
+                exportModules.add(new ModuleInfo.ExportModule(annotationPackage));
+            }
+        }
 
         List<String> openToModules = new ArrayList<>();
         openToModules.add("com.azure.core");

@@ -3,23 +3,40 @@
 
 package com.microsoft.typespec.http.client.generator;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Experimental;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schemas;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
+import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
+import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import io.clientcore.core.serialization.json.JsonReader;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +57,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
@@ -207,6 +226,93 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         file.publicFinalClass("Client", block -> Templates.getWrapperClientMethodTemplate().write(method, block));
         assertImportedAnnotation(file.getContents().toString());
         Assertions.assertTrue(file.getContents().toString().contains("@Preview(warningText = \"Operation warning\")"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "generic, false", "generic, true", "azurev2, false", "azurev2, true" })
+    public void annotatesClientCoreOperationImplementations(String flavor, boolean experimental) {
+        // Initialize shared type constants with the default test settings before switching flavors.
+        GenericType responseType = GenericType.response(ClassType.STRING);
+        configureJavaSettings(Map.of("experimental-annotation", ANNOTATION, "flavor", flavor));
+        Templates
+            .setFactory("azurev2".equals(flavor) ? new AzureVNextTemplateFactory() : new ClientCoreTemplateFactory());
+        Language language = new Language();
+        language.setCrossLanguageDefinitionId("Example.read");
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        Operation operation = new Operation();
+        operation.setLanguage(languages);
+        ProxyMethod proxyMethod = new ProxyMethod.Builder().name("read")
+            .parameters(List.of())
+            .allParameters(List.of())
+            .returnType(responseType)
+            .isSync(true)
+            .build();
+        ClientMethod method = new ClientMethod.Builder().name("readWithResponse")
+            .description("Reads a value.")
+            .type(ClientMethodType.SimpleSyncRestResponse)
+            .parameters(List.of())
+            .returnValue(new ReturnValue("a value", responseType))
+            .proxyMethod(proxyMethod)
+            .clientReference("this")
+            .validateExpressions(Map.of())
+            .requiredNullableParameterExpressions(List.of())
+            .parameterTransformations(new ParameterTransformations(List.of()))
+            .operationInstrumentationInfo(new OperationInstrumentationInfo(operation))
+            .apiMetadata(experimental ? metadata(null) : new ApiMetadata.Builder().build())
+            .build();
+        JavaFile file = new JavaFile("ClientImpl.java");
+        Set<String> imports = new LinkedHashSet<>();
+        method.addImportsTo(imports, false, JavaSettings.getInstance());
+        file.declareImport(imports);
+        file.publicFinalClass("ClientImpl", block -> Templates.getClientMethodTemplate().write(method, block));
+        String source = file.getContents().toString();
+        Assertions.assertTrue(source.contains("readWithResponse()"), source);
+        Assertions.assertEquals(experimental, source.contains("@Preview(warningText = Preview.WARNING_TEXT)"), source);
+        if (experimental) {
+            assertImportedAnnotation(source);
+        }
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(
+        strings = {
+            "com.example.annotations.Preview",
+            "com.example.client.Preview",
+            "com.example.client.models.Preview",
+            "com.example.client.fluent.Preview",
+            "com.example.client.fluent.models.Preview" })
+    public void exportsFluentExperimentalAnnotationPackage(String annotation) {
+        Map<String, String> settings = new LinkedHashMap<>(Map.of("namespace", "com.example.client", "fluent", "lite",
+            "generate-tests", "false", "generate-samples", "false"));
+        if (annotation != null) {
+            settings.put("experimental-annotation", annotation);
+        }
+        new TypeSpecFluentPlugin(new EmitterOptions().setNamespace("com.example.client"), false);
+        ClientModelUtil.setGetClientModelFunction(ClientModels.getInstance()::getModel);
+        configureJavaSettings(settings);
+        Language language = new Language();
+        language.setName("Example");
+        Languages languages = new Languages();
+        languages.setJava(language);
+        CodeModel codeModel = new CodeModel();
+        codeModel.setLanguage(languages);
+        codeModel.setSchemas(new Schemas());
+        Client client = new Client.Builder().models(List.of()).build();
+        var fluentClient = new FluentMapper(new FluentJavaSettings(new TestPlugin(settings))).map(codeModel, client);
+        String annotationPackage
+            = annotation == null ? "com.example.annotations" : annotation.substring(0, annotation.lastIndexOf('.'));
+        Assertions.assertEquals(annotation == null ? 0 : 1,
+            fluentClient.getModuleInfo()
+                .getExportModules()
+                .stream()
+                .filter(module -> module.getModuleName().equals(annotationPackage))
+                .count());
+        JavaPackage javaPackage = new JavaPackage(new TestPlugin(settings));
+        javaPackage.addModuleInfo(fluentClient.getModuleInfo());
+        Assertions.assertEquals(annotation != null,
+            javaPackage.getJavaFiles().get(0).getContents().toString().contains("exports " + annotationPackage + ";"));
     }
 
     @Test
