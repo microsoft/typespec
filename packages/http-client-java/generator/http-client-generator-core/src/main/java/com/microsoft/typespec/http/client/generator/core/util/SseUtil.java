@@ -105,10 +105,6 @@ public final class SseUtil {
         return fullyQualifiedTypeNames.contains(runtimeType) ? runtimeType : SERVER_SENT_EVENT_STREAMS;
     }
 
-    public static String getClientReturnTypeName(ClientMethod method) {
-        return getClientReturnTypeName(method, Set.of());
-    }
-
     public static String getClientReturnTypeName(ClientMethod method, Set<String> fullyQualifiedTypeNames) {
         if (method.getSseMetadata() == null) {
             return method.getReturnValue().getType().toString();
