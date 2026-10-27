@@ -1,4 +1,10 @@
-import { NodeHost, compile } from "@typespec/compiler";
+import {
+  NodeHost,
+  compile,
+  createSourceFile,
+  resolvePath,
+  type CompilerHost,
+} from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { fileURLToPath } from "node:url";
 import { assert, describe, expect, it } from "vitest";
@@ -43,15 +49,36 @@ import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
+const sseFixturePath = resolvePath(fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)));
+
+async function compileSseScenario(namespace: string) {
+  const entrypoint = resolvePath(
+    sseFixturePath.replace(/sse\.tsp$/, `sse-${namespace.toLowerCase()}.tsp`),
+  );
+  const sourceFile = createSourceFile(
+    `import "./sse.tsp";\n@@service(${namespace});\n`,
+    entrypoint,
+  );
+  const isEntrypoint = (path: string) => resolvePath(path) === entrypoint;
+  const host: CompilerHost = {
+    ...NodeHost,
+    readFile: (path) =>
+      isEntrypoint(path) ? Promise.resolve(sourceFile) : NodeHost.readFile(path),
+    stat: (path) =>
+      isEntrypoint(path)
+        ? Promise.resolve({ isDirectory: () => false, isFile: () => true })
+        : NodeHost.stat(path),
+    realpath: (path) =>
+      isEntrypoint(path) ? Promise.resolve(entrypoint) : NodeHost.realpath(path),
+  };
+  return compile(host, entrypoint, { noEmit: true });
+}
+
 describe("code model characterization", () => {
-  it.each(["sse-generic", "sse-generic-encoded", "sse-generic-reused"])(
+  it.each(["SseGeneric", "SseGenericEncoded", "SseGenericReused"])(
     "checks effective generic union ownership: %s",
-    async (fixture) => {
-      const program = await compile(
-        NodeHost,
-        fileURLToPath(new URL(`./fixtures/${fixture}.tsp`, import.meta.url)),
-        { noEmit: true },
-      );
+    async (namespace) => {
+      const program = await compileSseScenario(namespace);
       expectDiagnosticEmpty(program.diagnostics);
       const builder = new CodeModelBuilder(program, {
         program,
@@ -64,7 +91,7 @@ describe("code model characterization", () => {
           report: () => {},
         },
       });
-      if (fixture === "sse-generic-reused") {
+      if (namespace === "SseGenericReused") {
         const model = await builder.build();
         expect(Object.keys(model.sseStreams ?? {})).toHaveLength(1);
         const operations = model.clients
@@ -82,11 +109,7 @@ describe("code model characterization", () => {
     },
   );
   it("catalogs only explicitly named events with nonliteral JSON payloads", async () => {
-    const program = await compile(
-      NodeHost,
-      fileURLToPath(new URL("./fixtures/sse-variants.tsp", import.meta.url)),
-      { noEmit: true },
-    );
+    const program = await compileSseScenario("SseVariants");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
       program,
@@ -150,11 +173,7 @@ describe("code model characterization", () => {
     );
   });
   it("generates SSE metadata for named scalar payloads", async () => {
-    const program = await compile(
-      NodeHost,
-      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
-      { noEmit: true },
-    );
+    const program = await compileSseScenario("SseTest");
     expectDiagnosticEmpty(program.diagnostics);
 
     const codeModel = await new CodeModelBuilder(program, {
@@ -188,11 +207,7 @@ describe("code model characterization", () => {
   });
 
   it("generates SSE metadata for recursive dictionary payloads", async () => {
-    const program = await compile(
-      NodeHost,
-      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
-      { noEmit: true },
-    );
+    const program = await compileSseScenario("SseTest");
     expectDiagnosticEmpty(program.diagnostics);
 
     const codeModel = await new CodeModelBuilder(program, {
@@ -258,11 +273,7 @@ describe("code model characterization", () => {
   });
 
   it("generates supported Azure v1 SSE metadata without developer options", async () => {
-    const program = await compile(
-      NodeHost,
-      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
-      { noEmit: true },
-    );
+    const program = await compileSseScenario("SseTest");
     expectDiagnosticEmpty(program.diagnostics);
 
     const build = async (flavor: string) =>

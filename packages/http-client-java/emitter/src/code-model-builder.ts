@@ -1294,6 +1294,7 @@ export class CodeModelBuilder {
     // TCGC may produce repeated SDK wrappers for the same effective source union.
     const owner = streamType.__raw ?? streamType;
     const existingOwner = this.sseStreamOwners.get(id);
+    // Distinct generic union instantiations can share a TCGC CID while carrying different payloads.
     if (existingOwner && existingOwner !== owner) {
       throw new Error(`Distinct SSE unions claim cross-language definition ID '${id}'.`);
     }
@@ -1301,24 +1302,25 @@ export class CodeModelBuilder {
       return id;
     }
 
-    const identities = new Set<string>();
+    const seenEventNames = new Set<string>();
     for (const event of sseMetadata.events) {
       const contentType = (event.payloadContentType ?? "application/json")
         .split(";")[0]
         .trim()
         .toLowerCase();
       const isJson = /^application\/(?:[\w.+-]+\+)?json$/.test(contentType);
+      // TODO(xiaofei): Typed SSE is limited to nonliteral application/json or +json payloads; add event literals in a future PR.
       if (
         typeof event.eventType !== "string" ||
         event.eventType.length === 0 ||
         event.payloadType.kind === "constant" ||
         this.hasUnsupportedSseNullablePayload(event.payloadType) ||
         !isJson ||
-        identities.has(event.eventType)
+        seenEventNames.has(event.eventType)
       ) {
         return unsupported();
       }
-      identities.add(event.eventType);
+      seenEventNames.add(event.eventType);
     }
 
     const events = sseMetadata.events.map((event) => {
