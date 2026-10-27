@@ -905,6 +905,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public virtual void Reset()
         {
+            _specView = new(BuildSpecView);
             _methods = null;
             _generatedMethodDeprecationAttributes = null;
             _properties = null;

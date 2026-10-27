@@ -102,9 +102,11 @@ this partial declaration. `ClientCollectionsProvider.NestedTypes` contains the
 operation-specific providers returned by `ClientResponseApi.CreateClientCollectionResultDefinition`,
 including helpers for customized paging methods. Only the main client declaration
 synthesizes compatibility overloads; the collections partial does not duplicate them.
-Client identity updates synchronize the collections partial and nested helper
-namespaces and reallocate helper names against the updated client identity while
-retaining constructor customizations applied by visitors.
+Visitors changing client identity must use `Update(name: ..., @namespace: ..., reset: true)`.
+Reset invalidates the spec view, method cache, REST client, and collections partial's
+cached members, rebuilding paging bodies and helper declarations against the new
+identity. The collections partial itself remains registered in the output library.
+As with other reset state, earlier visitor changes to rebuilt helpers are discarded.
 Nested paging helpers are retained by actual generated or custom-code references,
 not by their containing client alone. Unresolved qualified references in handwritten
 code are resolved against their lexical scope; absolute and resolved references

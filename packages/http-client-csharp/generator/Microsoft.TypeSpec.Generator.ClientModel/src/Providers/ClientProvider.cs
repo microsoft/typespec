@@ -498,6 +498,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         public ClientCollectionsProvider CollectionResultProviders => _collectionResultProviders ??= new ClientCollectionsProvider(this);
 
+        public override void Reset()
+        {
+            base.Reset();
+            _methodCache = null;
+            _restClient?.Reset();
+            _collectionResultProviders?.Reset();
+        }
+
         public ClientOptionsProvider? ClientOptions { get; }
         public ClientSettingsProvider? ClientSettings { get; }
 
@@ -527,28 +535,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             UpdateDependentIdentity(_restClient, string.Empty);
             UpdateDependentIdentity(ClientOptions, "Options");
             UpdateDependentIdentity(ClientSettings, "Settings");
-            if (_collectionResultProviders is { } collections)
-            {
-                collections.Update(name: Name, @namespace: Type.Namespace);
-                foreach (var helper in collections.NestedTypes)
-                {
-                    // Identity updates reset constructors; retain customizations from earlier visitors.
-                    var constructors = helper.Constructors;
-                    if (helper is CollectionResultDefinition collectionResult)
-                    {
-                        collectionResult.UpdateClientIdentity();
-                    }
-                    else
-                    {
-                        helper.Update(@namespace: Type.Namespace);
-                    }
-                    foreach (var constructor in constructors)
-                    {
-                        constructor.Signature.Update(name: helper.Name);
-                    }
-                    helper.Update(constructors: constructors);
-                }
-            }
             if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
             {
                 UpdateOptionsReferences(this);

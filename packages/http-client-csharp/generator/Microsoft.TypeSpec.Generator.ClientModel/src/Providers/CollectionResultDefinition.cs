@@ -240,9 +240,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private string GetName(InputOperation operation, bool isAsync)
             => $"{operation.Name.ToIdentifierName()}{(isAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
 
-        internal void UpdateClientIdentity()
-            => Update(name: BuildName(), @namespace: Client.Type.Namespace);
-
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 

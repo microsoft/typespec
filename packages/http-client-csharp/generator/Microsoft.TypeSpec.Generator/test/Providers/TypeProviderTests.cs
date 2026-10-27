@@ -2059,11 +2059,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("UpdatedName", typeProvider.Name);
             Assert.AreEqual(0, typeProvider.Methods.Count);
 
+            var specView = typeProvider.SpecView;
+            specView.Update(methods: []);
             typeProvider.Reset();
 
             // The BuildX methods should be called again, which will return the original state.
             Assert.AreEqual("OriginalName", typeProvider.Name);
             Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreNotSame(specView, typeProvider.SpecView);
+            Assert.AreEqual(1, typeProvider.SpecView.Methods.Count);
         }
 
         [Test]

@@ -51,18 +51,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation(InputResponseLocation.Body);
             var inputClient = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Single();
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var constructors = new Dictionary<TypeProvider, ConstructorProvider[]>();
+            var originalMethods = client.Methods.OfType<ScmMethodProvider>()
+                .Where(m => m.CollectionDefinition != null).ToArray();
+            var originalHelpers = new List<TypeProvider>();
+            ClientCollectionsProvider? originalCollections = null;
             if (materialization != "None")
             {
                 var collections = client.CollectionResultProviders;
+                originalCollections = collections;
                 foreach (var helper in collections.NestedTypes)
                 {
                     helper.EnsureBuilt();
-                    constructors.Add(helper, helper.Constructors.ToArray());
-                    foreach (var constructor in helper.Constructors)
-                    {
-                        constructor.Signature.Update(description: $"Customized paging constructor.");
-                    }
+                    originalHelpers.Add(helper);
                 }
                 if (materialization == "All")
                 {
@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 _ => client.Name
             };
             var expectedNamespace = relocate ? "Sample.Relocated" : client.Type.Namespace;
-            client.Update(name: expectedName, @namespace: expectedNamespace);
+            client.Update(name: expectedName, @namespace: expectedNamespace, reset: true);
 
             var updatedCollections = client.CollectionResultProviders;
             Assert.AreEqual(expectedName, updatedCollections.Name);
@@ -87,7 +87,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(4, updatedCollections.NestedTypes.Count);
             if (materialization != "None")
             {
-                CollectionAssert.AreEquivalent(constructors.Keys, updatedCollections.NestedTypes);
+                Assert.AreSame(originalCollections, updatedCollections);
+                Assert.IsFalse(updatedCollections.NestedTypes.Any(originalHelpers.Contains));
             }
             foreach (var helper in updatedCollections.NestedTypes)
             {
@@ -99,15 +100,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 Assert.AreEqual(expectedNamespace, helper.Type.Namespace);
                 Assert.AreSame(client.Type, helper.Type.DeclaringType);
                 Assert.AreEqual(updatedCollections.RelativeFilePath, helper.RelativeFilePath);
-                if (constructors.TryGetValue(helper, out var previousConstructors))
+                foreach (var constructor in helper.Constructors)
                 {
-                    CollectionAssert.AreEqual(previousConstructors, helper.Constructors);
-                    foreach (var constructor in helper.Constructors)
-                    {
-                        Assert.AreSame(helper.Type, constructor.Signature.Type);
-                        Assert.AreEqual(helper.Name, constructor.Signature.Name);
-                        Assert.AreEqual("Customized paging constructor.", constructor.Signature.Description!.ToString());
-                    }
+                    Assert.AreSame(helper.Type, constructor.Signature.Type);
+                    Assert.AreEqual(helper.Name, constructor.Signature.Name);
+                }
+            }
+            var methods = client.Methods.OfType<ScmMethodProvider>()
+                .Where(m => m.CollectionDefinition != null).ToArray();
+            Assert.AreEqual(4, methods.Length);
+            Assert.IsFalse(methods.Any(originalMethods.Contains));
+            foreach (var method in methods)
+            {
+                var helper = method.CollectionDefinition!;
+                CollectionAssert.Contains(updatedCollections.NestedTypes.Select(t => t.Type), helper.Type);
+                Assert.AreEqual(expectedNamespace, helper.Type.Namespace);
+                Assert.AreSame(client.Type, helper.Type.DeclaringType);
+                StringAssert.Contains($"new global::{helper.Type.FullyQualifiedName}(", method.BodyStatements!.ToDisplayString());
+                if (rename == "Collision")
+                {
+                    StringAssert.DoesNotContain(".GetCatsCollectionResult(", method.BodyStatements.ToDisplayString());
                 }
             }
         }
