@@ -18,6 +18,7 @@ from pygen.codegen.models import (
     BodyParameter,
     CodeModel,
     Operation,
+    Parameter,
     ParameterList,
     RequestBuilder,
     Response,
@@ -82,6 +83,57 @@ def env():
 def test_string_declarations_are_literals(code_model, value):
     declaration = StringType({"type": "string"}, code_model).get_declaration(value)
     assert ast.literal_eval(declaration) == value
+
+
+@pytest.mark.parametrize("value", VALUES)
+@pytest.mark.parametrize("async_mode", [False, True])
+def test_complete_operation_preserves_parameter_defaults(code_model, env, value, async_mode):
+    parameter = Parameter(
+        {
+            "wireName": "value",
+            "clientName": "value",
+            "location": "query",
+            "implementation": "Method",
+            "optional": True,
+            "clientDefaultValue": value,
+            "description": "Example value.",
+        },
+        code_model,
+        type=StringType({"type": "string"}, code_model),
+    )
+    client = code_model.clients[0]
+    yaml_data = {
+        "url": "/example",
+        "method": "GET",
+        "groupName": "",
+        "isOverload": False,
+        "apiVersions": [],
+        "description": "Example operation.",
+    }
+    operation = Operation(
+        yaml_data,
+        code_model,
+        client,
+        "example",
+        RequestBuilder(
+            yaml_data,
+            code_model,
+            client,
+            "build_example_request",
+            RequestBuilderParameterList({}, code_model, parameters=[]),
+        ),
+        ParameterList({}, code_model, parameters=[parameter]),
+        responses=[Response({"statusCodes": [204]}, code_model)],
+        exceptions=[],
+    )
+    serializer = OperationSerializer(code_model, async_mode=async_mode, client_namespace="sample")
+    source = env.get_template("operation.py.jinja2").render(operation=operation, operation_serializer=serializer)
+    function = ast.parse(source).body[0]
+    assert isinstance(function, ast.AsyncFunctionDef if async_mode else ast.FunctionDef)
+    defaults = {argument.arg: default for argument, default in zip(function.args.kwonlyargs, function.args.kw_defaults)}
+    assert ast.literal_eval(defaults["value"]) == value
+    documentation = " ".join(ast.get_docstring(function).split())
+    assert f"Default value is {repr(value)}." in documentation
 
 
 @pytest.mark.parametrize("value", VALUES)
