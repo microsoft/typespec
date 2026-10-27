@@ -88,6 +88,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void WriteDeprecatedEnumWithEscapedMessage()
+        {
+            var input = InputFactory.StringEnum("Legacy", [("One", "one")],
+                deprecation: "Use \"Current\" instead.\nSee C:\\sdk.");
+            var provider = EnumProvider.Create(input);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
         private class TestEnumWithAttributesProvider : TypeProvider
         {
             protected override string BuildRelativeFilePath() => "TestEnum.cs";

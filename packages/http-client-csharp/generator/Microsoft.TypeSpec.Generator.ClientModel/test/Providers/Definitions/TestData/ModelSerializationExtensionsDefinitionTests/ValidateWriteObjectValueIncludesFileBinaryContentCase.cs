@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json;
 
@@ -89,7 +90,7 @@ namespace Sample
                     }
                     writer.WriteEndObject();
                     break;
-                case global::System.Collections.Generic.IEnumerable<object> objectEnumerable:
+                case global::System.Collections.IEnumerable objectEnumerable:
                     writer.WriteStartArray();
                     foreach (var item in objectEnumerable)
                     {

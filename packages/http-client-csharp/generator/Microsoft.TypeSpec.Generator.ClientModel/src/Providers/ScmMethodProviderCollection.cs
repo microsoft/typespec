@@ -215,6 +215,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ApplyExperimentalAttributes(methodSignature, customSignature, BuildConvenienceMethodAttributes() ?? []);
+            ApplyDeprecationAttribute(methodSignature, customSignature);
 
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
@@ -261,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         useConvenienceType: true))
                 ];
             }
-            else if (responseBodyType is null)
+            else if (responseBodyType is null || ServiceMethod.Operation.ResponseAsBool)
             {
                 methodBody =
                 [
@@ -299,6 +300,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
+            var customProtocol = client.CustomCodeView?.Methods.FirstOrDefault(method =>
+                MethodSignatureBase.SignatureComparer.Equals(method.Signature, protocolMethod.Signature));
+            var declarationSuppressions = ExperimentalApiHelpers.GetAttributeSuppressions(
+                methodSignature.Attributes.Concat(customSignature?.Attributes ?? []));
+            convenienceMethod.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                convenienceMethod.Suppressions,
+                ExperimentalApiHelpers.GetAttributeSuppressions(
+                    protocolMethod.Signature.Attributes.Concat(customProtocol?.Signature.Attributes ?? []))
+                    .ExceptBy(declarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                        suppression => suppression.Code.ToDisplayString())));
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -314,6 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            modifiers &= ~MethodSignatureModifiers.Partial;
             // The convenience method's public/internal accessibility follows the service method's
             // accessibility, independent of the protocol method. The protocol method may be internal
             // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the
@@ -788,8 +800,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Map framework types to their Utf8JsonReader method names
             var readerMethodName = frameworkType switch
             {
+                Type t when t == typeof(short) => nameof(Utf8JsonReader.GetInt16),
+                Type t when t == typeof(ushort) => nameof(Utf8JsonReader.GetUInt16),
                 Type t when t == typeof(int) => nameof(Utf8JsonReader.GetInt32),
+                Type t when t == typeof(uint) => nameof(Utf8JsonReader.GetUInt32),
                 Type t when t == typeof(long) => nameof(Utf8JsonReader.GetInt64),
+                Type t when t == typeof(ulong) => nameof(Utf8JsonReader.GetUInt64),
                 Type t when t == typeof(bool) => nameof(Utf8JsonReader.GetBoolean),
                 Type t when t == typeof(double) => nameof(Utf8JsonReader.GetDouble),
                 Type t when t == typeof(float) => nameof(Utf8JsonReader.GetSingle),
@@ -1056,10 +1072,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(short)) ||
+                   type.Equals(typeof(short?)) ||
+                   type.Equals(typeof(ushort)) ||
+                   type.Equals(typeof(ushort?)) ||
                    type.Equals(typeof(int)) ||
                    type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(uint)) ||
+                   type.Equals(typeof(uint?)) ||
                    type.Equals(typeof(long)) ||
                    type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(ulong)) ||
+                   type.Equals(typeof(ulong?)) ||
                    type.Equals(typeof(double)) ||
                    type.Equals(typeof(double?)) ||
                    type.Equals(typeof(float)) ||
@@ -1098,10 +1122,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(short)) ||
+                   type.Equals(typeof(short?)) ||
+                   type.Equals(typeof(ushort)) ||
+                   type.Equals(typeof(ushort?)) ||
                    type.Equals(typeof(int)) ||
                    type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(uint)) ||
+                   type.Equals(typeof(uint?)) ||
                    type.Equals(typeof(long)) ||
                    type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(ulong)) ||
+                   type.Equals(typeof(ulong?)) ||
                    type.Equals(typeof(double)) ||
                    type.Equals(typeof(double?)) ||
                    type.Equals(typeof(float)) ||
@@ -1138,14 +1170,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature? customSignature,
             IReadOnlyList<AttributeStatement> generatedAttributes)
         {
-            if (customSignature?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true)
-            {
-                // The defining partial declaration already carries the custom experiment.
-                signature.Update(attributes: [.. signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a))]);
-            }
-            else if (generatedAttributes.Count > 0)
+            if (customSignature?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true
+                && generatedAttributes.Count > 0)
             {
                 signature.Update(attributes: [.. signature.Attributes, .. generatedAttributes]);
+            }
+        }
+
+        private void ApplyDeprecationAttribute(MethodSignature signature, MethodSignature? customSignature)
+        {
+            if (customSignature?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
+                && !signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
+                && DeprecationApiHelpers.BuildAttribute(ServiceMethod.Operation.Deprecated) is { } attribute)
+            {
+                signature.Update(attributes: [.. signature.Attributes, attribute]);
             }
         }
 
@@ -1492,6 +1530,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ApplyExperimentalAttributes(methodSignature, customSignature, ExperimentalApiHelpers.BuildAttributes(ServiceMethod.Operation.Experimental));
+            ApplyDeprecationAttribute(methodSignature, customSignature);
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
@@ -1511,7 +1550,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. ServiceMethod.Operation.BufferResponse
                         ? []
                         : new MethodBodyStatement[] { message.ToApi<HttpMessageApi>().BufferResponse().Assign(False).Terminate() },
-                    Return(streamingResponse != null
+                    Return(ServiceMethod.Operation.ResponseAsBool
+                        ? client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessHeadAsBoolMessage(
+                            message,
+                            requestOptionsParameter.ToApi<HttpRequestOptionsApi>(),
+                            isAsync)
+                        : streamingResponse != null
                         ? CreateStreamingResultExpression(
                             streamingResponse,
                             client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(
@@ -1764,6 +1808,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             responseBodyType = null;
 
+            if (ServiceMethod.Operation.ResponseAsBool)
+            {
+                responseBodyType = typeof(bool);
+                var boolResultType = new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+                return isAsync ? new CSharpType(typeof(Task<>), boolResultType) : boolResultType;
+            }
+
             if (isConvenience)
             {
                 return GetConvenienceReturnType(responses, isAsync, out responseBodyType);
@@ -1792,14 +1843,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response?.BodyType is InputStreamingType streamingType)
+            var responseType = ServiceMethod is InputBasicServiceMethod ? ServiceMethod.Response.Type : response?.BodyType;
+            if (responseType is InputStreamingType streamingType)
             {
                 responseBodyType = GetConvenienceStreamingItemType(streamingType);
                 var resultType = AsyncStreamingResultSnippets.Of(responseBodyType);
                 return isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
             }
 
-            responseBodyType = GetResponseBodyType(response?.BodyType);
+            responseBodyType = GetResponseBodyType(responseType);
 
             if (_pagingServiceMethod != null)
             {

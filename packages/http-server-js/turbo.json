@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_EXTENDS$", "build-helpers.ts", "$TURBO_ROOT$/pnpm-workspace.yaml"],
+      "outputs": ["$TURBO_EXTENDS$", "generated-defs/package.json.ts"]
+    }
+  }
+}
