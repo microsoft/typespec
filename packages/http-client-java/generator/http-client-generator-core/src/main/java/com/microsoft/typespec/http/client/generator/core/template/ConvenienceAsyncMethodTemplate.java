@@ -83,13 +83,14 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
         if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
             Set<String> usedNames = MethodUtil.getMethodVariableNames(convenienceMethod);
+            usedNames.add(SseUtil.getRuntimePackage().split("\\.", 2)[0]);
+            usedNames.add(SseUtil.getEventPackage(convenienceMethod.getSseMetadata()).split("\\.", 2)[0]);
             String responseName = MethodUtil.getAvailableVariableName("response", usedNames);
-            methodBlock.methodReturn(
-                String.format("%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::convert, %4$s::isTerminal))",
-                    getMethodName(protocolMethod), invocationExpression,
-                    SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata()),
-                    SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata()), responseName,
-                    SseUtil.getClientRuntimeTypeName()));
+            methodBlock.methodReturn(String.format(
+                "%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::convert, %4$s))", getMethodName(protocolMethod),
+                invocationExpression, SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata()),
+                SseUtil.getClientTerminalPredicate(convenienceMethod), responseName,
+                SseUtil.getClientRuntimeTypeName()));
             return;
         }
 

@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -23,6 +24,26 @@ public final class SseUtil {
     public static final String SERVER_SENT_EVENT_STREAMS = "ServerSentEventStreams";
 
     private SseUtil() {
+    }
+
+    public static String escapePackageRootParameterName(String name, Parameter parameter) {
+        JavaSettings settings = JavaSettings.getInstance();
+        if (parameter.getOperation() == null
+            || parameter.getOperation().getSseMetadata() == null
+            || parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT
+            || !settings.isAzureV1()) {
+            return name;
+        }
+        String root = settings.getPackage().split("\\.", 2)[0];
+        if (shadowsPackageRoot(name, root) || shadowsPackageRoot(name, "reactor")) {
+            return name + "Param";
+        }
+        return name;
+    }
+
+    private static boolean shadowsPackageRoot(String name, String root) {
+        // Escape the suffix chain too, so SSE inputs containing both com and comParam remain unambiguous.
+        return name.startsWith(root) && name.substring(root.length()).matches("(Param)*");
     }
 
     public static String getEventPackage(SseMetadata metadata) {
@@ -56,6 +77,16 @@ public final class SseUtil {
 
     public static String getClientRuntimeTypeName() {
         return getRuntimePackage() + "." + SERVER_SENT_EVENT_STREAMS;
+    }
+
+    public static String getClientTerminalPredicate(ClientMethod method) {
+        String eventType = getClientEventTypeName(method.getSseMetadata());
+        Set<String> usedNames = MethodUtil.getMethodVariableNames(method);
+        if (!usedNames.contains(eventType.substring(0, eventType.indexOf('.')))) {
+            return eventType + "::isTerminal";
+        }
+        String eventName = MethodUtil.getAvailableVariableName("event", usedNames);
+        return eventName + " -> " + eventName + ".isTerminal()";
     }
 
     public static String getClientReturnTypeName(ClientMethod method) {

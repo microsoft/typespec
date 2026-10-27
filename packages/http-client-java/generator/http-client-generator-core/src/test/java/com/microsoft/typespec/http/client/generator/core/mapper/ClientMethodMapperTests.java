@@ -48,6 +48,75 @@ import org.junit.jupiter.api.parallel.Isolated;
 @Isolated
 public class ClientMethodMapperTests {
     @Test
+    public void preservesOrdinaryPackageRootParameterAndTransformationNames() {
+        useSseSettings(false);
+        try {
+            Operation operation = sseOperation();
+            operation.setSseMetadata(null);
+            for (String name : List.of("com", "comParam", "reactor", "reactorParam")) {
+                Parameter parameter = optionalQueryParameter(name, List.of());
+                parameter.setOperation(operation);
+                Assertions.assertEquals(name, ClientParameterMapper.getInstance().map(parameter, false).getName());
+                Assertions.assertEquals(name, ClientParameterMapper.getInstance().map(parameter, true).getName());
+                Assertions.assertEquals(name,
+                    ProxyParameterMapper.getInstance().map(parameter).getParameterReference());
+                Assertions.assertEquals(name,
+                    CustomClientParameterMapper.getInstance().map(parameter, false).getName());
+                Assertions.assertEquals(name,
+                    CustomProxyParameterMapper.getInstance().map(parameter).getParameterReference());
+                parameter.setFlattened(true);
+                Request request = new Request();
+                request.setParameters(List.of(parameter));
+                Assertions.assertEquals(name,
+                    new ParametersTransformationProcessor(false).process(request)
+                        .asStream()
+                        .findFirst()
+                        .orElseThrow()
+                        .getOutParameter()
+                        .getName());
+            }
+        } finally {
+            new MockUnitJavagen();
+            JavaSettings.clear();
+        }
+    }
+
+    @Test
+    public void scopesPackageRootEscapingToSseParameterMappings() {
+        useSseSettings(false);
+        try {
+            Operation operation = sseOperation();
+            for (String name : List.of("com", "comParam", "reactor", "reactorParam")) {
+                Parameter parameter = optionalQueryParameter(name, List.of());
+                parameter.setOperation(operation);
+                String expected = name + "Param";
+                Assertions.assertEquals(expected, ClientParameterMapper.getInstance().map(parameter, false).getName());
+                Assertions.assertEquals(expected, ClientParameterMapper.getInstance().map(parameter, true).getName());
+                Assertions.assertEquals(expected, ProxyParameterMapper.getInstance().map(parameter).getName());
+                Assertions.assertEquals(expected,
+                    ProxyParameterMapper.getInstance().map(parameter).getParameterReference());
+                Assertions.assertEquals(expected,
+                    CustomClientParameterMapper.getInstance().map(parameter, false).getName());
+                Assertions.assertEquals(expected,
+                    CustomProxyParameterMapper.getInstance().map(parameter).getParameterReference());
+                parameter.setFlattened(true);
+                Request request = new Request();
+                request.setParameters(List.of(parameter));
+                Assertions.assertEquals(expected,
+                    new ParametersTransformationProcessor(false).process(request)
+                        .asStream()
+                        .findFirst()
+                        .orElseThrow()
+                        .getOutParameter()
+                        .getName());
+            }
+        } finally {
+            new MockUnitJavagen();
+            JavaSettings.clear();
+        }
+    }
+
+    @Test
     public void preservesInternalSseWrapperVisibility() {
         useSseSettings(false);
         try {

@@ -18,6 +18,12 @@ namespace TspTest.SseNameCollisions {
   model CollisionOptions {
     @query response: string;
     @query response1: string;
+    @query com: string;
+    @query comParam: string;
+    @query tsptest: string;
+    @query tsptestParam: string;
+    @query reactor: string;
+    @query reactorParam: string;
   }
 
   @get
@@ -27,9 +33,19 @@ namespace TspTest.SseNameCollisions {
   @get
   @route("/grouped")
   op grouped(...CollisionOptions): SSEStream<WrappedEvents>;
+
+  @get
+  @route("/ordinary")
+  op ordinary(...CollisionOptions): string;
+
+  @get
+  @route("/ordinary-grouped")
+  op ordinaryGrouped(...CollisionOptions): string;
 }
 
 namespace Customization {
   op grouped(options: TspTest.SseNameCollisions.CollisionOptions): void;
   @@override(TspTest.SseNameCollisions.grouped, grouped);
+  op ordinaryGrouped(options: TspTest.SseNameCollisions.CollisionOptions): void;
+  @@override(TspTest.SseNameCollisions.ordinaryGrouped, ordinaryGrouped);
 }

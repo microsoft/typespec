@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.util.ArrayList;
 
 public class CustomClientParameterMapper implements IMapper<Parameter, ClientMethodParameter> {
@@ -33,7 +34,7 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
     }
 
     public ClientMethodParameter map(Parameter parameter, boolean isProtocolMethod) {
-        final String name = getParameterName(parameter);
+        final String name = SseUtil.escapePackageRootParameterName(getParameterName(parameter), parameter);
 
         ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
             .required(parameter.isRequired())

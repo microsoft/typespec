@@ -92,6 +92,30 @@ public class SseNamingResolverTests {
     }
 
     @Test
+    public void rejectsFactoryNameCollisionsWithDistinctWrapperNames() {
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class, () -> SseNamingResolver
+            .resolve(metadata("RetrievalStreamEvents", "retrieval.started", "retrievalStarted")));
+
+        Assertions.assertTrue(exception.getMessage().contains("retrieval.started"));
+        Assertions.assertTrue(exception.getMessage().contains("retrievalStarted"));
+        Assertions.assertTrue(exception.getMessage().contains("createRetrievalStarted"));
+    }
+
+    @Test
+    public void preservesDistinctFactoriesWithOverlappingEventPrefixes() {
+        SseNamingResolver.Names names = SseNamingResolver
+            .resolve(metadata("RetrievalStreamEvents", "retrieval.started", "retrievalStarted.completed"));
+
+        Assertions.assertEquals("RetrievalStartedStreamEvent", names.getEventWrapperName("retrieval.started"));
+        Assertions.assertEquals("RetrievalRetrievalStartedCompletedStreamEvent",
+            names.getEventWrapperName("retrievalStarted.completed"));
+        Assertions.assertEquals("createRetrievalStarted",
+            SseNamingResolver.getEventFactoryMethodName("retrieval.started"));
+        Assertions.assertEquals("createRetrievalStartedCompleted",
+            SseNamingResolver.getEventFactoryMethodName("retrievalStarted.completed"));
+    }
+
+    @Test
     public void escapesDigitLeadingNamesBeforeCheckingCollisions() {
         SseNamingResolver.Names names
             = SseNamingResolver.resolve(metadata("RetrievalStreamEvents", "retrieval.started", "123.done"));

@@ -38,6 +38,7 @@ public final class SseNamingResolver {
 
         Map<String, String> eventWrapperNames = new LinkedHashMap<>();
         Map<String, String> wireNamesByWrapperName = new LinkedHashMap<>();
+        Map<String, String> wireNamesByFactoryName = new LinkedHashMap<>();
         for (SseEventMetadata event : metadata.getEvents()) {
             String streamEventPrefix = baseStem;
             String firstSegment = firstEventNameSegment(event.getName());
@@ -51,6 +52,12 @@ public final class SseNamingResolver {
                 throw new IllegalStateException(
                     "SSE event names '" + (collidingWireName == null ? event.getName() : collidingWireName) + "' and '"
                         + event.getName() + "' resolve to duplicate Java type '" + wrapperName + "'.");
+            }
+            String factoryName = getEventFactoryMethodName(event.getName());
+            String collidingFactoryWireName = wireNamesByFactoryName.putIfAbsent(factoryName, event.getName());
+            if (collidingFactoryWireName != null) {
+                throw new IllegalStateException("SSE event names '" + collidingFactoryWireName + "' and '"
+                    + event.getName() + "' resolve to duplicate Java factory method '" + factoryName + "'.");
             }
             eventWrapperNames.put(event.getName(), wrapperName);
         }

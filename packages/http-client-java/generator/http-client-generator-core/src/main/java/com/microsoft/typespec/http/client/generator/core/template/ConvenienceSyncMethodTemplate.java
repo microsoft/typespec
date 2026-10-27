@@ -93,11 +93,10 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (convenienceMethod.getType() == ClientMethodType.SseSync) {
-            methodBlock.methodReturn(String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::convert, %4$s::isTerminal)",
-                getMethodName(protocolMethod), invocationExpression,
-                SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata()),
-                SseUtil.getClientEventTypeName(convenienceMethod.getSseMetadata()),
-                SseUtil.getClientRuntimeTypeName()));
+            methodBlock.methodReturn(
+                String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::convert, %4$s)", getMethodName(protocolMethod),
+                    invocationExpression, SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata()),
+                    SseUtil.getClientTerminalPredicate(convenienceMethod), SseUtil.getClientRuntimeTypeName()));
             return;
         }
 

@@ -4,6 +4,8 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
@@ -21,8 +23,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Retur
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.ByteArrayOutputStream;
@@ -30,6 +35,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -180,6 +186,110 @@ public class SseConvenienceMethodTemplateTests {
         Assertions.assertTrue(validation.contains("return reactor.core.publisher.Flux.error("), validation);
     }
 
+    @Test
+    public void compilesPackageRootParametersAndTransformationLocals() throws IOException {
+        for (String namespace : List.of("com.example", "contoso.example", "response.example")) {
+            JavaSettings.clear();
+            MockUnitJavagen host = new MockUnitJavagen() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public <T> T getValue(String key,
+                    io.clientcore.core.utils.IOExceptionCheckedFunction<String, T> converter) {
+                    return "namespace".equals(key) ? (T) namespace : super.getValue(key, converter);
+                }
+            };
+            SseMetadata metadata = new SseMetadata();
+            metadata.setStreamName("Events");
+            metadata.setModelNamespace(namespace.equals("contoso.example") ? "response" : "events");
+            metadata.setEvents(List.of(event("update", true)));
+            JavaPackage javaPackage = new JavaPackage(host);
+            javaPackage.addSseEventFiles(metadata);
+            for (String resource : List.of("ServerSentEventStream", "ServerSentEventStreamResponse",
+                "ServerSentEventStreams")) {
+                javaPackage.addJavaFromResources(SseUtil.getRuntimePackage(), resource);
+            }
+            List<Path> sources = new ArrayList<>();
+            for (JavaFile javaFile : javaPackage.getJavaFiles()) {
+                Path source = compilationDirectory.resolve(namespace).resolve(javaFile.getFilePath());
+                Files.createDirectories(source.getParent());
+                Files.writeString(source, javaFile.getContents().toString());
+                sources.add(source);
+            }
+            String root = namespace.substring(0, namespace.indexOf('.'));
+            List<String> names = List.of(root, root + "Param", "reactor", "reactorParam", "events", "event", "event1")
+                .stream()
+                .map(name -> sseParameterName(name, metadata))
+                .collect(Collectors.toList());
+            String parameterNames = names.stream().map(name -> "String " + name).collect(Collectors.joining(", "));
+            StringBuilder client = new StringBuilder("package ").append(namespace)
+                .append(";\nimport java.util.Arrays;\n")
+                .append("public class ShadowingClient {\n")
+                .append("private final ServiceClient serviceClient = new ServiceClient();\n")
+                .append("private final Object requestOptions = null;\n");
+            for (boolean async : List.of(false, true)) {
+                for (boolean local : List.of(false, true)) {
+                    String body = render(async, local ? List.of() : names, local ? names : List.of(), metadata);
+                    String eventType = SseUtil.getClientEventTypeName(metadata);
+                    client.append("public ")
+                        .append(async
+                            ? "reactor.core.publisher.Flux<" + eventType + ">"
+                            : "com.azure.core.util.CloseableIterableStream<" + eventType + ">")
+                        .append(" read")
+                        .append(async)
+                        .append(local)
+                        .append("(")
+                        .append(local ? "" : parameterNames)
+                        .append(") {\n");
+                    if (local) {
+                        for (String name : names) {
+                            client.append("String ").append(name).append(" = null;\n");
+                        }
+                    }
+                    client.append(body).append("}\n");
+                }
+            }
+            ClientMethodParameter added = new ClientMethodParameter.Builder().name("reactor")
+                .annotations(List.of())
+                .wireType(ClassType.STRING)
+                .versioning(new Versioning.Builder().added(List.of("2026-01-01")).build())
+                .build();
+            JavaFileContents validation = new JavaFileContents();
+            ConvenienceAsyncMethodTemplate.getInstance()
+                .writeValidationForVersioning(
+                    new ClientMethod.Builder().parameters(List.of()).type(ClientMethodType.SseAsync).build(),
+                    Set.of(new ConvenienceMethodTemplateBase.MethodParameter(null,
+                        parameter(sseParameterName(added.getName(), metadata)).newBuilder()
+                            .versioning(added.getVersioning())
+                            .build())),
+                    new JavaBlock(validation));
+            client.append("public reactor.core.publisher.Flux<String> versioned(String ")
+                .append(sseParameterName("reactor", metadata))
+                .append(") {\n")
+                .append(validation)
+                .append("return reactor.core.publisher.Flux.empty();\n}\n")
+                .append(
+                    "com.azure.core.http.rest.Response<com.azure.core.util.BinaryData> readWithResponse(Object options) { return null; }\n")
+                .append(
+                    "reactor.core.publisher.Mono<com.azure.core.http.rest.Response<com.azure.core.util.BinaryData>> readAsyncWithResponse(Object options) { return null; }\n")
+                .append("private static final class ServiceClient {\n")
+                .append("ServiceVersion getServiceVersion() { return new ServiceVersion(); }\n}\n")
+                .append(
+                    "private static final class ServiceVersion { String getVersion() { return \"2025-01-01\"; } }\n}\n");
+            Path clientSource = compilationDirectory.resolve(namespace).resolve("ShadowingClient.java");
+            Files.writeString(clientSource, client);
+            sources.add(clientSource);
+            List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+                compilationDirectory.resolve(namespace).toString()));
+            arguments.addAll(sources.stream().map(Path::toString).collect(Collectors.toList()));
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+            Assertions.assertEquals(0,
+                ToolProvider.getSystemJavaCompiler()
+                    .run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+                () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + client);
+        }
+    }
+
     private static String render(boolean async, List<String> parameters, List<String> locals) {
         SseEventMetadata event = new SseEventMetadata();
         event.setName("update");
@@ -189,6 +299,10 @@ public class SseConvenienceMethodTemplateTests {
         metadata.setStreamName("Events");
         metadata.setModelNamespace("test");
         metadata.setEvents(List.of(event));
+        return render(async, parameters, locals, metadata);
+    }
+
+    private static String render(boolean async, List<String> parameters, List<String> locals, SseMetadata metadata) {
         ProxyMethod proxy = new ProxyMethod.Builder().name("read")
             .parameters(List.of())
             .allParameters(List.of())
@@ -196,7 +310,7 @@ public class SseConvenienceMethodTemplateTests {
             .rawResponseBodyType(ClassType.STRING)
             .responseContentTypes(java.util.Set.of("text/event-stream"))
             .build();
-        ClientMethod protocol = new ClientMethod.Builder().name("readWithResponse")
+        ClientMethod protocol = new ClientMethod.Builder().name(async ? "readAsyncWithResponse" : "readWithResponse")
             .parameters(List.of())
             .proxyMethod(proxy)
             .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
@@ -287,5 +401,14 @@ public class SseConvenienceMethodTemplateTests {
 
     private static ClientMethodParameter parameter(String name) {
         return new ClientMethodParameter.Builder().name(name).annotations(List.of()).wireType(ClassType.STRING).build();
+    }
+
+    private static String sseParameterName(String name, SseMetadata metadata) {
+        Operation operation = new Operation();
+        operation.setSseMetadata(metadata);
+        Parameter parameter = new Parameter();
+        parameter.setOperation(operation);
+        return CodeNamer
+            .getEscapedReservedClientMethodParameterName(SseUtil.escapePackageRootParameterName(name, parameter));
     }
 }
