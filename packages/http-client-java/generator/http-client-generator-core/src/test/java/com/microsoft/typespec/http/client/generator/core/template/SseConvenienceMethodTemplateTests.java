@@ -15,15 +15,27 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Param
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.tools.ToolProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class SseConvenienceMethodTemplateTests {
+    @TempDir
+    Path compilationDirectory;
+
     @Test
     public void avoidsEnclosingParametersAndSuffixes() {
         String output = render(true, List.of("response", "response1"), List.of());
@@ -47,6 +59,46 @@ public class SseConvenienceMethodTemplateTests {
                 Assertions.assertTrue(output.contains(".flatMapMany(response -> "), output);
             }
         }
+    }
+
+    @Test
+    public void qualifiesVersionedSseFluxError() throws IOException {
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("added")
+            .annotations(List.of())
+            .wireType(ClassType.STRING)
+            .versioning(new Versioning.Builder().added(List.of("2026-01-01")).build())
+            .build();
+        ClientMethod convenience
+            = new ClientMethod.Builder().parameters(List.of()).type(ClientMethodType.SseAsync).build();
+        JavaFileContents contents = new JavaFileContents();
+        ConvenienceAsyncMethodTemplate.getInstance()
+            .writeValidationForVersioning(convenience,
+                Set.of(new ConvenienceMethodTemplateBase.MethodParameter(null, added)), new JavaBlock(contents));
+
+        String validation = contents.toString();
+        Path modelDirectory = compilationDirectory.resolve("test/models");
+        Files.createDirectories(modelDirectory);
+        Path model = modelDirectory.resolve("Flux.java");
+        Files.writeString(model, "package test.models; public class Flux {}");
+        Path client = compilationDirectory.resolve("VersionedSseValidationCompilation.java");
+        String source = "package test;\n" + "import java.util.Arrays;\n" + "import test.models.Flux;\n"
+            + "public class VersionedSseValidationCompilation {\n"
+            + "    private final ServiceClient serviceClient = new ServiceClient();\n"
+            + "    public reactor.core.publisher.Flux<String> read(String added) {\n" + validation + "\n"
+            + "        return reactor.core.publisher.Flux.empty();\n" + "    }\n"
+            + "    private static final class ServiceClient {\n"
+            + "        private ServiceVersion getServiceVersion() { return new ServiceVersion(); }\n" + "    }\n"
+            + "    private static final class ServiceVersion {\n"
+            + "        private String getVersion() { return \"2025-01-01\"; }\n" + "    }\n" + "}\n";
+        Files.writeString(client, source);
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int result = ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, "--release", "11", "-classpath",
+                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+                compilationDirectory.toString(), model.toString(), client.toString());
+
+        Assertions.assertEquals(0, result, () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + source);
+        Assertions.assertTrue(validation.contains("return reactor.core.publisher.Flux.error("), validation);
     }
 
     private static String render(boolean async, List<String> parameters, List<String> locals) {

@@ -189,7 +189,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
     @Override
     protected void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock) {
         if (methodType == ClientMethodType.SseAsync) {
-            methodBlock.methodReturn(String.format("Flux.error(%s)", exceptionExpression));
+            methodBlock.methodReturn(String.format("reactor.core.publisher.Flux.error(%s)", exceptionExpression));
         } else if (methodType == ClientMethodType.PagingAsync) {
             methodBlock.methodReturn(
                 String.format("PagedFlux.create(() -> (ignoredContinuationToken, ignoredPageSize) -> Flux.error(%s))",
