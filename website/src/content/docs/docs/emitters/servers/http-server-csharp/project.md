@@ -20,10 +20,8 @@ The code layout inside the 'generated' folder is as follows:
 
 ## Scaffolding
 
-If you use the scaffolding cli (hscs-scaffold) or use the `--emit-mocks "mocks-and-project-files"` option on compilation, a fully-functional project targeting `net9.0` will be created with mock implementations of your business
+If you use the scaffolding cli (hscs-scaffold) or use the `--emit-mocks "mocks-and-project-files"` option on compilation, a fully-functional .Net 9 project will be created with mock implementations of your business
 logic, ready to compile and run.
-
-The emitter currently defaults to .NET 9, whose [support ends November 10, 2026](https://dotnet.microsoft.com/platform/support/policy/dotnet-core). For new deployments, retarget the generated project to [.NET 10 LTS](https://dotnet.microsoft.com/download/dotnet/10.0) and follow the [ASP.NET Core migration guide](https://learn.microsoft.com/aspnet/core/migration/90-to-100?view=aspnetcore-10.0).
 
 The following additional files will be generated. It is expected that you will edit or replace these
 files as you implement your service, so you should only regenerate them when needed.

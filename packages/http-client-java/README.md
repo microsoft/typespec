@@ -12,7 +12,7 @@ npm install @typespec/http-client-java
 
 ### Prerequisite
 
-Install [Node.js](https://nodejs.org/) 22 or above. (Verify by running `node --version`)
+Install a supported [Node.js](https://nodejs.org/) LTS. (Verify by running `node --version`)
 
 Install [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (Verify by running `java --version`)
 

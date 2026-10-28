@@ -187,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
 
             protected override string GetTestProjectFileContent()
             {
-                return new CSharpProjectWriter { TargetFramework = "net10.0-windows" }.Write();
+                return new CSharpProjectWriter { TargetFramework = "net10.0" }.Write();
             }
 
             protected override Task WriteAdditionalFiles()

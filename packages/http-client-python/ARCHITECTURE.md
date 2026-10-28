@@ -319,7 +319,7 @@ Two model generation modes:
 
 ### Prerequisites
 
-- Node.js 22+ and npm
+- Supported Node.js LTS and npm
 - Python 3.10+
 - pnpm (for monorepo management)
 

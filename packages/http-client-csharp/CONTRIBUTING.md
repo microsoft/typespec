@@ -18,7 +18,7 @@ Welcome! This guide will help you set up your development environment and contri
 
 Before you begin, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (version 22 or higher)
+- Install a supported [Node.js](https://nodejs.org/) LTS. (Verify by running `node --version`)
 - [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (required - see [global.json](global.json) for the exact SDK version)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Git](https://git-scm.com/)
