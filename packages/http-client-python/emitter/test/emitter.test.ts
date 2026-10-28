@@ -2,6 +2,24 @@ import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
 import { EmitterTester, emitCodeModel } from "./test-host.js";
 
+it("preserves an XML response body with the legacy bytes encoding", async () => {
+  const { codeModel, diagnostics } = await emitCodeModel(`
+    import "@typespec/http";
+    using TypeSpec.Http;
+
+    @service namespace Test;
+    @get op publishingProfile(): {
+      @header("Content-Type") contentType: "application/xml";
+      @bodyRoot @encode("bytes") body: bytes;
+    };
+  `);
+
+  expectDiagnostics(diagnostics, []);
+  expect(codeModel.types).toContainEqual(
+    expect.objectContaining({ type: "bytes", encode: "bytes" }),
+  );
+});
+
 it.each([undefined, false, true])(
   "propagates enable-sse-reconnect=%s to the Python generator",
   async (enabled) => {

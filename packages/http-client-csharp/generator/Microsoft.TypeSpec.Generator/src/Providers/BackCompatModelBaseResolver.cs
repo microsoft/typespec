@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -46,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             }
 
-            if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping))
+            if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping) &&
+                (_model.InputModel.BaseModel is not null || provider is not SystemObjectModelProvider))
             {
                 if (provider is SystemObjectModelProvider mapped && MappedModelBaseUpgrade.IsUpgrade(_model, mapped.SystemType))
                 {
@@ -60,6 +63,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
                 return true;
             }
+            // Flat mapped restoration must go through the downstream opt-in even when a provider
+            // already exists. Rebuild a model-local projection rather than bypassing its veto.
             if (foundAmbiguousMapping)
             {
                 return false;
@@ -70,7 +75,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var currentBase = _model.InputModel.BaseModel;
             if (mappedType is null ||
                 lastContractBase is null ||
-                currentBase is null ||
                 !mappedType.AreNamesEqual(previousBase))
             {
                 provider = null;
@@ -86,9 +90,47 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
                 provider = projected;
             }
-            else
+            else if (currentBase is not null)
             {
                 provider = new SystemObjectModelProvider(mappedType, currentBase, lastContractBase);
+            }
+            else
+            {
+                // Read the shipped surface without projecting any current properties first. Only
+                // compatible inherited properties belong to the mapped base, not the entire flat model.
+                var historicalBase = new SystemObjectModelProvider(mappedType, _model.InputModel, lastContractBase, []);
+                if (!_compatibility.IsSupportedModelBase(historicalBase))
+                {
+                    provider = null;
+                    return false;
+                }
+                var historicalProperties = historicalBase.Properties;
+                var mappedProperties = new List<InputModelProperty>();
+                foreach (var property in _model.InputModel.Properties)
+                {
+                    var matches = historicalProperties.Where(previous =>
+                        CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(mappedType, property, previous)).ToArray();
+                    if (matches.Length > 1 || historicalProperties.Any(previous =>
+                        MappedModelBaseCompatibility.HasKnownPropertyIdentity(property, previous) &&
+                        (matches.Length == 0 || !ReferenceEquals(matches[0], previous))))
+                    {
+                        provider = null;
+                        return false;
+                    }
+                    if (matches.Length == 1)
+                    {
+                        // Preserve known historical wire metadata and honor the source owner's veto,
+                        // including cached removals, without caching a potentially reentrant conversion.
+                        if (MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(property, matches[0]) ||
+                            CodeModelGenerator.Instance.TypeFactory.IsPropertyRemoved(property, _model))
+                        {
+                            provider = null;
+                            return false;
+                        }
+                        mappedProperties.Add(property);
+                    }
+                }
+                provider = new SystemObjectModelProvider(mappedType, _model.InputModel, lastContractBase, mappedProperties);
             }
             return _compatibility.IsSupportedModelBase(provider);
         }
@@ -127,9 +169,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
+                // Flat candidates establish discovery equivalence only. The model-local projection
+                // is rebuilt through the downstream opt-in and validated afterward.
                 var compatibleMappedCandidates = candidates
                     .OfType<SystemObjectModelProvider>()
-                    .Where(_compatibility.CanUseMappedBase)
+                    .Where(candidate => _model.InputModel.BaseModel is null || _compatibility.CanUseMappedBase(candidate))
                     .ToArray();
                 if (compatibleMappedCandidates.Length == 1 ||
                     (compatibleMappedCandidates.Length > 1 &&

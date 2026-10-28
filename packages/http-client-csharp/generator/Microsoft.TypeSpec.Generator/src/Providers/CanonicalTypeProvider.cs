@@ -29,9 +29,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = generatedTypeProvider is SystemObjectModelProvider { HasInputPropertyProjection: true } mappedBase
-                ? mappedBase.ProjectedInputProperties
+            var externalReplacements = GetExternalPropertyReplacements(inputModel);
+            var inputProperties = generatedTypeProvider is SystemObjectModelProvider { HasInputPropertyProjection: true } mappedBase
+                ? mappedBase.MappedInputProperties
                 : inputModel?.Properties ?? [];
+            _specProperties = [.. inputProperties, .. externalReplacements.Select(replacement => replacement.Property)];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
@@ -39,6 +41,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
                 _specPropertiesMap.TryAdd(name, property);
                 _exactSpecPropertyNames.Add(name);
+            }
+            foreach (var replacement in externalReplacements)
+            {
+                _specPropertiesMap.TryAdd(replacement.EmittedName, replacement.Property);
             }
             foreach (var property in _specProperties.Where(p => !p.IsExactName))
             {
@@ -51,6 +57,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _renamedFields = (_generatedTypeProvider.CustomCodeView?.Fields ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
+
+        /// <summary>
+        /// Collects explicitly claimed properties in declaration order, visiting the nearest external base first.
+        /// The custom-name set is used only for membership checks; its enumeration order does not affect property order.
+        /// </summary>
+        private IReadOnlyList<(InputModelProperty Property, string EmittedName)> GetExternalPropertyReplacements(InputModelType? inputModel)
+        {
+            List<(InputModelProperty Property, string EmittedName)> result = [];
+            var replacements = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
+                .Where(property => property.OriginalName is not null)
+                .Select(property => property.OriginalName!)
+                .ToHashSet(StringComparer.Ordinal);
+            for (var baseModel = inputModel?.BaseModel; baseModel?.External is not null; baseModel = baseModel.BaseModel)
+            {
+                foreach (var generatedProperty in CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.Properties ?? [])
+                {
+                    if (generatedProperty.InputProperty is not InputModelProperty property)
+                    {
+                        continue;
+                    }
+                    var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                    // CodeGenMember accepts raw spec names as well as C# names. The emitted name already
+                    // respects IsExactName, including the enclosing-type collision suffix.
+                    if (replacements.Contains(property.Name) || replacements.Contains(name) ||
+                        replacements.Contains(generatedProperty.Name) ||
+                        (!property.IsExactName && replacements.Contains(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()))))
+                    {
+                        result.Add((property, generatedProperty.Name));
+                    }
+                }
+            }
+            return result;
+        }
+
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _generatedTypeProvider.Name;
@@ -189,7 +229,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (_specProperties.Count > 0)
             {
-                // Input properties will only contain this types properties, i.e. it won't include base type properties.
+                // Include local spec properties and explicitly claimed external-base properties.
                 var inputProperties = new HashSet<InputProperty>(_specProperties.Count);
                 var nonSpecProperties = new List<PropertyProvider>();
 
@@ -236,11 +276,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Add non-spec properties
                 result.AddRange(nonSpecProperties);
 
-                return [..result];
+                return [.. result];
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..filteredGeneratedProperties, ..customProperties];
+            return [.. filteredGeneratedProperties, .. customProperties];
         }
 
         protected internal override FieldProvider[] BuildFields()
@@ -305,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..FilterCustomizedFields(generatedFields), ..customFields];
+            return [.. FilterCustomizedFields(generatedFields), .. customFields];
         }
 
         private bool TryGetSpecProperty(

@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Assert.That(model.InputModel.Properties.Select(property => property.Name), Is.EqualTo(new[] { "location", "tags" }));
                 Assert.That(model.InputModel.Properties, Is.All.Matches<InputModelProperty>(property =>
                     ReferenceEquals(property.EnclosingType, model.InputModel) && !property.IsRequired && !property.IsReadOnly));
-                Assert.That(restored.ProjectedInputProperties.Select(property => property.Name),
+                Assert.That(restored.MappedInputProperties.Select(property => property.Name),
                     Is.EquivalentTo(new[] { "location", "tags", "id", "name", "type" }));
                 Assert.That(CodeModelGenerator.Instance.TypeFactory.CreateModel(originalBase)!.Type.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
             });
@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     .Distinct().Single(provider => provider.InputModel.Name == "MappedTrackedResource");
                 Assert.That(CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[shared.Type], Is.SameAs(shared));
                 Assert.That(restored, Is.Not.SameAs(shared));
-                Assert.That(shared.ProjectedInputProperties, Is.Empty);
+                Assert.That(shared.MappedInputProperties, Is.Empty);
                 Assert.That(shared.Properties, Is.Empty);
             }
             else

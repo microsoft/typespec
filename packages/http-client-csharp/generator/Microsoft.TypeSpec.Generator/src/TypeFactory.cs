@@ -52,6 +52,41 @@ namespace Microsoft.TypeSpec.Generator
         {
         }
 
+        internal void UpdateTypeIdentity(TypeProvider provider, InputType? inputType, string name, string @namespace)
+        {
+            var type = provider.Type;
+            if (type.Name == name && type.Namespace == @namespace)
+            {
+                return;
+            }
+            var mappedType = CSharpTypeMap.TryGetValue(type, out var mappedProvider) && ReferenceEquals(mappedProvider, provider);
+            var mappedName = TypeProvidersByName.TryGetValue(type.Name, out var namedProvider) && ReferenceEquals(namedProvider, provider);
+            // Remove mutable keys before changing their hash or lookup identity.
+            if (mappedType)
+            {
+                CSharpTypeMap.Remove(type);
+            }
+            if (mappedName)
+            {
+                TypeProvidersByName.Remove(type.Name);
+            }
+
+            type.Update(name: name, @namespace: @namespace);
+
+            if (mappedType)
+            {
+                CSharpTypeMap[type] = provider;
+            }
+            if (mappedName)
+            {
+                TypeProvidersByName[type.Name] = provider;
+            }
+            if (inputType is not null)
+            {
+                SerializationsCache.Remove(inputType);
+            }
+        }
+
         internal CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
             => CreateLastContractModelBaseCore(previousBase, currentModel);
 
@@ -465,6 +500,14 @@ namespace Microsoft.TypeSpec.Generator
 
         internal PropertyProvider? GetCachedOrUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => PropertyCache.TryGetValue(property, out var cached) ? cached : CreateUncachedProperty(property, enclosingType);
+
+        internal bool IsPropertyRemoved(InputProperty property, TypeProvider enclosingType)
+        {
+            var provider = PropertyCache.TryGetValue(property, out var cachedProperty)
+                ? cachedProperty
+                : CreateUncachedProperty(property, enclosingType);
+            return provider is null || enclosingType.IsPropertySuppressed(provider);
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.

@@ -28,7 +28,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly CSharpType _systemType;
         private readonly bool _skipDerivedConstructorParameters;
         private readonly TypeProvider? _lastContractType;
-        private readonly IReadOnlyList<InputModelProperty>? _projectedInputProperties;
+        private readonly IReadOnlyList<InputModelProperty>? _mappedInputProperties;
+        private readonly bool _isMappedBaseUpgrade;
+
+        // Keep the projection model-local so source properties retain their original owner.
+        internal bool HasInputPropertyProjection => _mappedInputProperties is not null;
+        internal bool HasFlatInputProjection => HasInputPropertyProjection && !_isMappedBaseUpgrade;
+        // An upgrade projects optional child properties too; they need not all be constructor inputs.
+        private IReadOnlyList<InputModelProperty> ConstructorInputProperties =>
+            HasFlatInputProjection ? MappedInputProperties : InputModel.Properties;
+        internal IReadOnlyList<InputModelProperty> MappedInputProperties => _mappedInputProperties ?? InputModel.Properties;
+        internal InputType? MappedAdditionalProperties => _mappedInputProperties is null ? InputModel.AdditionalProperties : null;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
@@ -51,17 +61,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal SystemObjectModelProvider(
             CSharpType systemType,
             InputModelType inputModel,
-            TypeProvider lastContractType)
-            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType)
-        {
-        }
-
-        internal SystemObjectModelProvider(
-            CSharpType systemType,
-            InputModelType inputModel,
             TypeProvider lastContractType,
-            IReadOnlyList<InputModelProperty> projectedInputProperties)
-            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, projectedInputProperties)
+            IReadOnlyList<InputModelProperty>? mappedInputProperties = null,
+            bool isMappedBaseUpgrade = false)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, mappedInputProperties, isMappedBaseUpgrade)
         {
         }
 
@@ -70,13 +73,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputModelType inputModel,
             bool skipDerivedConstructorParameters,
             TypeProvider? lastContractType,
-            IReadOnlyList<InputModelProperty>? projectedInputProperties = null)
+            IReadOnlyList<InputModelProperty>? mappedInputProperties = null,
+            bool isMappedBaseUpgrade = false)
             : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             _lastContractType = lastContractType;
-            _projectedInputProperties = projectedInputProperties;
+            _mappedInputProperties = mappedInputProperties;
+            _isMappedBaseUpgrade = isMappedBaseUpgrade;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -91,10 +96,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool UsesLastContractType => _lastContractType is not null;
 
-        internal bool HasInputPropertyProjection => _projectedInputProperties is not null;
-
-        internal IReadOnlyList<InputModelProperty> ProjectedInputProperties => _projectedInputProperties ?? InputModel.Properties;
-
         internal bool HasReconstructibleLastContractConstructor
         {
             get
@@ -108,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (_lastContractType.Constructors.Count == 0)
                 {
-                    return InputModel.Properties.Count == 0 &&
+                    return ConstructorInputProperties.Count == 0 &&
                         HasCallableInitializationConstructor() &&
                         HasCallableFrameworkConstructor([]);
                 }
@@ -166,7 +167,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasCallableInitializationConstructor()
         {
-            var requiredProperties = Properties.Where(IsRequiredInitializationProperty).ToArray();
+            var initializationProperties = HasInputPropertyProjection ? CanonicalView.Properties : Properties;
+            var requiredProperties = initializationProperties.Where(IsRequiredInitializationProperty).ToArray();
             var constructors = _lastContractType!.Constructors;
             if (constructors.Count == 0)
             {
@@ -301,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         (!property.Type.IsValueType || property.Type.IsNullable == parameter.Type.IsNullable)))
                     .ToArray();
                 if (matches.All(property => property is not null) &&
-                    InputModel.Properties.All(inputProperty => matches.Any(property =>
+                    ConstructorInputProperties.All(inputProperty => matches.Any(property =>
                         property is not null &&
                         CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                             SystemType,
@@ -727,7 +729,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private PropertyProvider? ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
         {
-            var matchingInputProperties = ProjectedInputProperties.Where(property =>
+            var matchingInputProperties = MappedInputProperties.Where(property =>
                 CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                     SystemType,
                     property,
@@ -749,8 +751,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             property.Modifiers = lastContractProperty.Modifiers;
             property.Body = lastContractProperty.Body;
             property.IsInitOnly = lastContractProperty.IsInitOnly;
-            // A property visitor may have materialized AsParameter before the CLR shape was restored.
-            property.AsParameter.SynchronizePropertyShape();
+            // Visitors may have materialized parameter or member expressions before the CLR shape was restored.
+            property.SynchronizePropertyShape();
             return property;
         }
 

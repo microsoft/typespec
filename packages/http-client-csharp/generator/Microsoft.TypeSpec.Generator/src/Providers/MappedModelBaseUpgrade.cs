@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             provider = null;
             var inputBase = model.InputModel.BaseModel!;
-            var historical = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, []);
+            var historical = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, [], isMappedBaseUpgrade: true);
             if (!MappedModelBaseCompatibility.IsSupportedModelBase(historical))
             {
                 return false;
@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties);
+            provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties, isMappedBaseUpgrade: true);
             return true;
         }
 
