@@ -118,9 +118,7 @@ catalog:
   express: ^5.2.1
   fast-xml-parser: ^5.11.0
   graphql: ^17.0.2
-  # Newer versions report Animation.cancel() as an unhandled rejection in Fluent UI tests.
-  # See https://github.com/capricorn86/happy-dom/issues/2412.
-  happy-dom: 20.11.6
+  happy-dom: ^21.0.4
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1
   lzutf8: 0.6.3
@@ -198,5 +196,4 @@ overrides:
   diff@>=6.0.0 <8.0.3: ^8.0.3
   # Monaco pins an older DOMPurify; preserve sanitization fixes without overriding newer versions.
   dompurify@<3.4.17: ^3.4.17
-  happy-dom: 20.11.6
   yaml@>=2.0.0 <2.8.3: ^2.8.3
