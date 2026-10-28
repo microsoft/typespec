@@ -52,7 +52,7 @@ function deconstruct(
         (match: string, digits: string | undefined) => (digits ? `${digits} ` : match),
       )
       .replace(/([a-z]+)([A-Z])/g, "$1 $2") // Add a space in between camelCase words(e.g. fooBar => foo Bar)
-      .replace(/\b([A-Z]+)([A-Z])s([^a-z])(.*)/g, "$1$2« $3$4") // Add a space after a plural upper cased word(e.g. MBsFoo => MBs Foo)
+      .replace(/\b([A-Z]+)([A-Z])s(\d*)([^a-z])(.*)/g, "$1$2«$3 $4$5") // Add a space after a plural upper cased word(e.g. MBsFoo => MBs Foo)
       .replace(/\b([A-Z]+)([A-Z])([a-z]+)/g, "$1 $2$3") // Add a space between an upper case word(2 char+) and the last capital case.(e.g. SQLConnection -> SQL Connection)
       .replace(/«/g, "s")
       .trim()
