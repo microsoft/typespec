@@ -63,12 +63,6 @@ catalogs:
     '@chronus/github-pr-commenter':
       specifier: ^1.1.1
       version: 1.1.2
-    '@docsearch/css':
-      specifier: ^5.1.2
-      version: 5.1.2
-    '@docsearch/js':
-      specifier: ^5.1.2
-      version: 5.1.2
     '@expressive-code/core':
       specifier: ^0.44.1
       version: 0.44.2
@@ -2912,12 +2906,6 @@ importers:
       '@astrojs/starlight':
         specifier: 'catalog:'
         version: 0.42.5(@astrojs/markdown-remark@7.3.2)(@typescript/typescript6@6.0.2)(astro@7.3.6(@astrojs/markdown-remark@7.3.2)(@azure/identity@4.13.3)(@azure/storage-blob@12.34.0)(@types/node@26.6.4)(yaml@2.9.1))
-      '@docsearch/css':
-        specifier: 'catalog:'
-        version: 5.1.2
-      '@docsearch/js':
-        specifier: 'catalog:'
-        version: 5.1.2
       '@expressive-code/core':
         specifier: 'catalog:'
         version: 0.44.2
@@ -3990,12 +3978,6 @@ packages:
   '@ctrl/tinycolor@4.2.1':
     resolution: {integrity: sha512-Vh5uy9Y1JBMId6J1f68TMXnZrTCvNdo9Fu2k0d1YnJngR+sM5kWTKl441c/3TFs+cG0NWOjRWgQ/iaWhbYx+7A==}
     engines: {node: '>=14'}
-
-  '@docsearch/css@5.1.2':
-    resolution: {integrity: sha512-zPkSBM8y6XbMfRwq4DeDSRyE0Jsx/phd2KYRgug7PvoZd9cYLqwf6nb2na4whprxCYe4NB6M5RL84C7NgRv0XA==}
-
-  '@docsearch/js@5.1.2':
-    resolution: {integrity: sha512-ZScgB1upT5i4Ob1EYfp964lc5Xx0w9VUMLTeH099LPAU7v01STDIgIMu31rhYcLRi4RHIr0UtfB2VvcRPKvNWQ==}
 
   '@emmetio/abbreviation@2.3.3':
     resolution: {integrity: sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA==}
@@ -12540,10 +12522,6 @@ snapshots:
   '@csstools/css-tokenizer@3.0.4': {}
 
   '@ctrl/tinycolor@4.2.1': {}
-
-  '@docsearch/css@5.1.2': {}
-
-  '@docsearch/js@5.1.2': {}
 
   '@emmetio/abbreviation@2.3.3':
     dependencies:

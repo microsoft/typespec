@@ -43,8 +43,6 @@ catalog:
   "@chronus/chronus": ^1.5.0
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
-  "@docsearch/css": ^5.1.2
-  "@docsearch/js": ^5.1.2
   "@expressive-code/core": ^0.44.1
   # Pinned to pre-upgrade versions: newer @fluentui/react-components pulls tabster@8.8.0,
   # whose entry-point change breaks ESM named imports. See https://github.com/microsoft/tabster/issues/532
