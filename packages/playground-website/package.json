@@ -83,7 +83,6 @@
   "devDependencies": {
     "@babel/core": "catalog:",
     "@playwright/test": "catalog:",
-    "@types/debounce": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
