@@ -341,7 +341,7 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       docs: fileRef.fromPackageRoot("src/diagnostics/missing-server-variable-default.md"),
       messages: {
-        default: paramMessage`Server variable '${"propName"}' has no default, so '${"value"}', the first of its values, is used. Set a default on the parameter to choose a different one.`,
+        default: paramMessage`Server variable '${"propName"}' has no default, but OpenAPI ${"openapiVersion"} requires its default to be one of its enum values. Set a default on the parameter.`,
       },
     },
     "invalid-format": {
