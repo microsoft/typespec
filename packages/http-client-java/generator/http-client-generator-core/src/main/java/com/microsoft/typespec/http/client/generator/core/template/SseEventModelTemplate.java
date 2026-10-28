@@ -33,13 +33,12 @@ public final class SseEventModelTemplate {
     public void writeBase(SseMetadata metadata, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         String baseEventName = names.getBaseEventName();
-        String converterName = names.getConverterName();
-        String converterTypeName = SseUtil.getConverterPackage() + "." + converterName;
+        String serializerName = names.getSerializerName();
         Set<String> imports = new LinkedHashSet<>();
         for (SseEventMetadata event : metadata.getEvents()) {
-            SseUtil.addPayloadImports(Mappers.getSchemaMapper().map(event.getPayload()).getClientType(), imports,
-                false);
+            Mappers.getSchemaMapper().map(event.getPayload()).getClientType().addImportsTo(imports, false);
         }
+        SseUtil.getSerializerType(metadata).addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> {
@@ -79,8 +78,8 @@ public final class SseEventModelTemplate {
             javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("false"));
             javaClass.staticBlock(staticBlock -> {
-                staticBlock.line(converterTypeName + ".setConstructorAccessor(new " + converterTypeName
-                    + ".ConstructorAccessor() {");
+                staticBlock.line(
+                    serializerName + ".setConstructorAccessor(new " + serializerName + ".ConstructorAccessor() {");
                 staticBlock.indent(() -> {
                     staticBlock.line("@Override");
                     staticBlock.block(
@@ -88,13 +87,13 @@ public final class SseEventModelTemplate {
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-                        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType);
+                        String payloadTypeName = payloadType.toString();
                         String wrapperName = names.getEventWrapperName(event.getName());
-                        String wrapperTypeName = SseUtil.getEventType(metadata, wrapperName).getFullName();
                         staticBlock.line("@Override");
-                        staticBlock.block("public " + wrapperTypeName + " "
-                            + SseNamingResolver.getEventFactoryMethodName(event.getName()) + "(" + payloadTypeName
-                            + " value)", method -> method.methodReturn("new " + wrapperName + "(value)"));
+                        staticBlock.block(
+                            "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(event.getName())
+                                + "(" + payloadTypeName + " value)",
+                            method -> method.methodReturn("new " + wrapperName + "(value)"));
                     }
                 });
                 staticBlock.line("});");
@@ -105,9 +104,9 @@ public final class SseEventModelTemplate {
     public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType);
+        String payloadTypeName = payloadType.toString();
         Set<String> imports = new LinkedHashSet<>();
-        SseUtil.addPayloadImports(payloadType, imports, false);
+        payloadType.addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.IMMUTABLE.addImportsTo(imports);
         javaFile.declareImport(imports);

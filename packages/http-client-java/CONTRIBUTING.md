@@ -109,11 +109,11 @@ Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1
 
 ## SSE generation checks
 
-SSE definitions are transported once in `CodeModel.sseStreams`, keyed by the streamed
-union's cross-language definition ID. Operations carry `sseStreamId`; Java resolves
-those references after preprocessing. After client mapping completes, Java collects
-the distinct canonical definitions referenced by the final renderable sync and async
-convenience methods. Distinct effective union owners claiming one ID are errors, not
+Each supported operation transports complete inline `sseMetadata`, including the
+streamed union's cross-language definition ID. Java validates this metadata after
+preprocessing. After client mapping completes, Java collects the metadata referenced
+by the final renderable sync and async convenience methods, deduplicating by that ID
+in encounter order. Distinct effective union owners claiming one ID are errors, not
 candidates for schema fingerprinting or structural deduplication. Generated Java names
 and strict source-path collision preflight remain generator-owned.
 
@@ -123,12 +123,15 @@ default `tspconfig.yaml`. Do not run full `Generate.ps1`. Compare the named fixt
 sources before copying affected generated sources and metadata, excluding
 `module-info.java`. The shared Spector streams contain unnamed or literal events and
 therefore verify unsupported-stream binary fallback rather than typed SSE generation.
-Compile `tsp/sse-name-collisions.tsp` and its generated Maven project to check SSE
-response-lambda names against request parameters and grouped-parameter locals.
+Compile `tsp/sse-name-collisions.tsp` and its generated Maven project to check ordinary
+SSE references and response-lambda names against request parameters and
+grouped-parameter locals. Special event, payload, runtime-helper, serializer, and Flux
+import collisions are currently outside the supported test scope.
 
-Run the generator's catalog, naming, path-preflight, and mapper tests. The retained
+Run the generator's metadata, naming, path-preflight, and mapper tests. The retained
 `tsptest.sse.models.implementation.sse.ServerSentEventStreamTests` exercises the actual
-generated named converter, client API shape, framing, terminal delivery, and lifecycle.
+generated named serializer, merged `ServerSentEventStreamHelper`, client API shape,
+framing, terminal delivery, and lifecycle.
 
 ## Format Code
 

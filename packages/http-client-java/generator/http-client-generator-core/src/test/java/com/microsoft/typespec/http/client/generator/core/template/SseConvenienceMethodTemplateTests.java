@@ -4,8 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
@@ -27,7 +25,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.ByteArrayOutputStream;
@@ -76,7 +73,7 @@ public class SseConvenienceMethodTemplateTests {
     public void preservesOrdinaryNamesAndNamedTerminalReferences() {
         for (boolean async : List.of(false, true)) {
             String output = render(async, List.of(), List.of());
-            Assertions.assertTrue(output.contains(", test.models.Event::isTerminal)"), output);
+            Assertions.assertTrue(output.contains(", Event::isTerminal)"), output);
             if (async) {
                 Assertions.assertTrue(output.contains(".flatMapMany(response -> "), output);
             }
@@ -93,7 +90,7 @@ public class SseConvenienceMethodTemplateTests {
             Assertions.assertTrue(output.contains("Second sentence with https://example.com/v1.2"), output);
             Assertions.assertTrue(output.contains("{@link java.time.Instant#parse(CharSequence)}"), output);
             Assertions.assertTrue(output.contains("Final authored line."), output);
-            Assertions.assertTrue(output.contains("see {@link test.models.Event} for the known subtypes"), output);
+            Assertions.assertTrue(output.contains("see {@link Event} for the known subtypes"), output);
             Assertions.assertFalse(output.contains("UpdateStreamEvent#getValue()"), output);
             Assertions.assertTrue(
                 output.contains("terminal {@code response.completed} or {@code error} event is emitted before"),
@@ -112,16 +109,16 @@ public class SseConvenienceMethodTemplateTests {
     public void emptyDescriptionStillRendersSseGuidance() {
         for (boolean async : List.of(false, true)) {
             String output = renderMethod(async, "");
-            Assertions.assertTrue(
-                output.contains("Events are polymorphic: see {@link test.models.Event} for the known subtypes."),
+            Assertions.assertTrue(output.contains("Events are polymorphic: see {@link Event} for the known subtypes."),
                 output);
             Assertions.assertFalse(output.contains("null"), output);
         }
     }
 
     @Test
-    public void doesNotImportReactorFluxOnlyForSseMethods() {
+    public void importsReactorFluxForSseMethods() {
         SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId("Events");
         metadata.setStreamName("Events");
         metadata.setModelNamespace("test");
         metadata.setEvents(List.of(event("update", false)));
@@ -143,7 +140,7 @@ public class SseConvenienceMethodTemplateTests {
         ConvenienceAsyncMethodTemplate.getInstance()
             .addImports(imports, List.of(new ConvenienceMethod(protocol, List.of(convenience))));
 
-        Assertions.assertFalse(imports.contains(ClassType.FLUX.getFullName()), imports.toString());
+        Assertions.assertTrue(imports.contains(ClassType.FLUX.getFullName()), imports.toString());
     }
 
     @Test
@@ -161,17 +158,12 @@ public class SseConvenienceMethodTemplateTests {
                 Set.of(new ConvenienceMethodTemplateBase.MethodParameter(null, added)), new JavaBlock(contents));
 
         String validation = contents.toString();
-        Path modelDirectory = compilationDirectory.resolve("test/models");
-        Files.createDirectories(modelDirectory);
-        Path model = modelDirectory.resolve("Flux.java");
-        Files.writeString(model, "package test.models; public class Flux {}");
         Path client = compilationDirectory.resolve("VersionedSseValidationCompilation.java");
-        String source = "package test;\n" + "import java.util.Arrays;\n" + "import test.models.Flux;\n"
+        String source = "package test;\n" + "import java.util.Arrays;\n" + "import reactor.core.publisher.Flux;\n"
             + "public class VersionedSseValidationCompilation {\n"
             + "    private final ServiceClient serviceClient = new ServiceClient();\n"
-            + "    public reactor.core.publisher.Flux<String> read(String added) {\n" + validation + "\n"
-            + "        return reactor.core.publisher.Flux.empty();\n" + "    }\n"
-            + "    private static final class ServiceClient {\n"
+            + "    public Flux<String> read(String added) {\n" + validation + "\n" + "        return Flux.empty();\n"
+            + "    }\n" + "    private static final class ServiceClient {\n"
             + "        private ServiceVersion getServiceVersion() { return new ServiceVersion(); }\n" + "    }\n"
             + "    private static final class ServiceVersion {\n"
             + "        private String getVersion() { return \"2025-01-01\"; }\n" + "    }\n" + "}\n";
@@ -180,14 +172,14 @@ public class SseConvenienceMethodTemplateTests {
         int result = ToolProvider.getSystemJavaCompiler()
             .run(null, diagnostics, diagnostics, "--release", "11", "-classpath",
                 System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
-                compilationDirectory.toString(), model.toString(), client.toString());
+                compilationDirectory.toString(), client.toString());
 
         Assertions.assertEquals(0, result, () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + source);
-        Assertions.assertTrue(validation.contains("return reactor.core.publisher.Flux.error("), validation);
+        Assertions.assertTrue(validation.contains("return Flux.error("), validation);
     }
 
     @Test
-    public void compilesPackageRootParametersAndTransformationLocals() throws IOException {
+    public void compilesNormalSseReferencesAndResponseLambdaNames() throws IOException {
         for (String namespace : List.of("com.example", "contoso.example", "response.example")) {
             JavaSettings.clear();
             MockUnitJavagen host = new MockUnitJavagen() {
@@ -199,13 +191,13 @@ public class SseConvenienceMethodTemplateTests {
                 }
             };
             SseMetadata metadata = new SseMetadata();
+            metadata.setSseStreamId("Events");
             metadata.setStreamName("Events");
             metadata.setModelNamespace(namespace.equals("contoso.example") ? "response" : "events");
             metadata.setEvents(List.of(event("update", true)));
             JavaPackage javaPackage = new JavaPackage(host);
             javaPackage.addSseEventFiles(metadata);
-            for (String resource : List.of("ServerSentEventStream", "ServerSentEventStreamResponse",
-                "ServerSentEventStreams")) {
+            for (String resource : List.of("ServerSentEventStreamHelper", "ServerSentEventStreamResponse")) {
                 javaPackage.addJavaFromResources(SseUtil.getRuntimePackage(), resource);
             }
             List<Path> sources = new ArrayList<>();
@@ -215,14 +207,20 @@ public class SseConvenienceMethodTemplateTests {
                 Files.writeString(source, javaFile.getContents().toString());
                 sources.add(source);
             }
-            String root = namespace.substring(0, namespace.indexOf('.'));
-            List<String> names = List.of(root, root + "Param", "reactor", "reactorParam", "events", "event", "event1")
-                .stream()
-                .map(name -> sseParameterName(name, metadata))
-                .collect(Collectors.toList());
+            List<String> names = List.of("authorization", "request", "events", "event", "event1");
             String parameterNames = names.stream().map(name -> "String " + name).collect(Collectors.joining(", "));
             StringBuilder client = new StringBuilder("package ").append(namespace)
                 .append(";\nimport java.util.Arrays;\n")
+                .append("import reactor.core.publisher.Flux;\n")
+                .append("import ")
+                .append(SseUtil.getEventPackage(metadata))
+                .append(".Event;\n")
+                .append("import ")
+                .append(SseUtil.getSerializerPackage())
+                .append(".EventSerializer;\n")
+                .append("import ")
+                .append(SseUtil.getRuntimePackage())
+                .append(".ServerSentEventStreamHelper;\n")
                 .append("public class ShadowingClient {\n")
                 .append("private final ServiceClient serviceClient = new ServiceClient();\n")
                 .append("private final Object requestOptions = null;\n");
@@ -232,7 +230,7 @@ public class SseConvenienceMethodTemplateTests {
                     String eventType = SseUtil.getClientEventTypeName(metadata);
                     client.append("public ")
                         .append(async
-                            ? "reactor.core.publisher.Flux<" + eventType + ">"
+                            ? "Flux<" + eventType.substring(eventType.lastIndexOf('.') + 1) + ">"
                             : "com.azure.core.util.CloseableIterableStream<" + eventType + ">")
                         .append(" read")
                         .append(async)
@@ -258,15 +256,13 @@ public class SseConvenienceMethodTemplateTests {
                 .writeValidationForVersioning(
                     new ClientMethod.Builder().parameters(List.of()).type(ClientMethodType.SseAsync).build(),
                     Set.of(new ConvenienceMethodTemplateBase.MethodParameter(null,
-                        parameter(sseParameterName(added.getName(), metadata)).newBuilder()
-                            .versioning(added.getVersioning())
-                            .build())),
+                        parameter(added.getName()).newBuilder().versioning(added.getVersioning()).build())),
                     new JavaBlock(validation));
-            client.append("public reactor.core.publisher.Flux<String> versioned(String ")
-                .append(sseParameterName("reactor", metadata))
+            client.append("public Flux<String> versioned(String ")
+                .append("reactor")
                 .append(") {\n")
                 .append(validation)
-                .append("return reactor.core.publisher.Flux.empty();\n}\n")
+                .append("return Flux.empty();\n}\n")
                 .append(
                     "com.azure.core.http.rest.Response<com.azure.core.util.BinaryData> readWithResponse(Object options) { return null; }\n")
                 .append(
@@ -296,6 +292,7 @@ public class SseConvenienceMethodTemplateTests {
         event.setPayload(new StringSchema());
         event.setTerminal(true);
         SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId("Events");
         metadata.setStreamName("Events");
         metadata.setModelNamespace("test");
         metadata.setEvents(List.of(event));
@@ -346,6 +343,7 @@ public class SseConvenienceMethodTemplateTests {
         SseEventMetadata responseCompleted = event("response.completed", true);
         SseEventMetadata error = event("error", true);
         SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId("Events");
         metadata.setStreamName("Events");
         metadata.setModelNamespace("test");
         metadata.setEvents(List.of(update, responseCompleted, error));
@@ -403,12 +401,4 @@ public class SseConvenienceMethodTemplateTests {
         return new ClientMethodParameter.Builder().name(name).annotations(List.of()).wireType(ClassType.STRING).build();
     }
 
-    private static String sseParameterName(String name, SseMetadata metadata) {
-        Operation operation = new Operation();
-        operation.setSseMetadata(metadata);
-        Parameter parameter = new Parameter();
-        parameter.setOperation(operation);
-        return CodeNamer
-            .getEscapedReservedClientMethodParameterName(SseUtil.escapePackageRootParameterName(name, parameter));
-    }
 }

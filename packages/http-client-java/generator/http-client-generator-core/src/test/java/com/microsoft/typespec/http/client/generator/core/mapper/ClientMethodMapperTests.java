@@ -82,14 +82,14 @@ public class ClientMethodMapperTests {
     }
 
     @Test
-    public void scopesPackageRootEscapingToSseParameterMappings() {
+    public void preservesOrdinaryPackageRootNamesForSseParameterMappings() {
         useSseSettings(false);
         try {
             Operation operation = sseOperation();
             for (String name : List.of("com", "comParam", "reactor", "reactorParam")) {
                 Parameter parameter = optionalQueryParameter(name, List.of());
                 parameter.setOperation(operation);
-                String expected = name + "Param";
+                String expected = name;
                 Assertions.assertEquals(expected, ClientParameterMapper.getInstance().map(parameter, false).getName());
                 Assertions.assertEquals(expected, ClientParameterMapper.getInstance().map(parameter, true).getName());
                 Assertions.assertEquals(expected, ProxyParameterMapper.getInstance().map(parameter).getName());
@@ -475,6 +475,7 @@ public class ClientMethodMapperTests {
         event.setName("message");
         event.setPayload(payload);
         SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId("TestEvents");
         metadata.setStreamName("TestEvents");
         metadata.setModelNamespace("com.azure.mock");
         metadata.setEvents(List.of(event));

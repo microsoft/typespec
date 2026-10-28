@@ -45,13 +45,14 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         moduleInfo.getExportModules().add(new ModuleInfo.ExportModule("com.azure.shared.models"));
         Client client = new Client.Builder().moduleInfo(moduleInfo)
             .models(List.of())
-            .sseStreams(List.of(method("FirstEvents", "com.azure.events").getSseMetadata(),
-                method("SecondEvents", "com.azure.events").getSseMetadata(),
-                method("SharedEvents", "com.azure.shared").getSseMetadata()))
+            .sseStreams(List.of(method("first", "FirstEvents", "com.azure.events").getSseMetadata(),
+                method("second", "SecondEvents", "com.azure.events").getSseMetadata(),
+                method("shared", "SharedEvents", "com.azure.shared").getSseMetadata()))
             .serviceClients(List.of(new ServiceClient.Builder().className("TestClientImpl")
                 .methodGroupClients(List.of())
-                .clientMethods(List.of(method("FirstEvents", "com.azure.events"),
-                    method("SecondEvents", "com.azure.events"), method("SharedEvents", "com.azure.shared")))
+                .clientMethods(List.of(method("first", "FirstEvents", "com.azure.events"),
+                    method("second", "SecondEvents", "com.azure.events"),
+                    method("shared", "SharedEvents", "com.azure.shared")))
                 .build()))
             .build();
         JavaPackage javaPackage = new JavaPackage(plugin);
@@ -70,47 +71,91 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
     }
 
     @Test
-    public void unusedCatalogEntriesDoNotEmitRuntimeOrModels() {
+    public void unusedInlineOperationMetadataDoesNotEmitRuntimeOrModels() {
         TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
         configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
-        CodeModel model = new CodeModel();
-        model.setSseStreams(Map.of("Test.Events", method("UnusedEvents", "com.azure.mock").getSseMetadata()));
+        CodeModel model = codeModel(
+            List.of(group("", operation("read", metadata("unused", "UnusedEvents", "com.azure.mock"), false, false))));
         JavaPackage javaPackage = new JavaPackage(plugin);
-        plugin.writeHelperClasses(new Client.Builder().models(List.of()).build(), model, javaPackage,
-            JavaSettings.getInstance());
+        Client client = plugin.processClient(model);
+        Assertions.assertTrue(client.getSseStreams().isEmpty());
+        plugin.writeHelperClasses(client, model, javaPackage, JavaSettings.getInstance());
         Assertions.assertTrue(javaPackage.getJavaFiles().isEmpty());
+    }
+
+    @Test
+    public void processClientValidatesUnusedRootOperationMetadata() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        CodeModel model
+            = codeModel(List.of(group("", operation("rootMalformed", malformedMetadata("root-stream"), false, false))));
+
+        assertInvalidMetadata(plugin, model, "rootMalformed", "root-stream");
+    }
+
+    @Test
+    public void processClientValidatesUnusedDirectClientOperationMetadata() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        CodeModel model = codeModel(List.of());
+        model.setClients(List.of(codeModelClient("DirectClient",
+            List.of(group("", operation("directMalformed", malformedMetadata("direct-stream"), false, false))),
+            List.of())));
+
+        assertInvalidMetadata(plugin, model, "directMalformed", "direct-stream");
+    }
+
+    @Test
+    public void processClientValidatesUnusedSharedNestedSubclientMetadata() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client shared
+            = codeModelClient("SharedClient",
+                List.of(group("", operation("nestedMalformed", malformedMetadata("nested-stream"), false, false))),
+                List.of());
+        com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client first
+            = codeModelClient("FirstClient", List.of(), List.of(shared));
+        com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client second
+            = codeModelClient("SecondClient", List.of(), List.of(shared));
+        CodeModel model = codeModel(List.of());
+        model.setClients(List.of(first, second));
+
+        assertInvalidMetadata(plugin, model, "nestedMalformed", "nested-stream");
     }
 
     @Test
     public void mapsFinalConvenienceUsageBeforeHelperEmission() {
         TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
         configureJavaSettings(sseSettings("all", false, true));
-        SseMetadata shared = metadata("SharedEvents", "com.azure.shared");
-        SseMetadata internal = metadata("InternalEvents", "com.azure.internal");
-        SseMetadata unused = metadata("UnusedEvents", "com.azure.unused");
-        Operation first = operation("readFirst", "shared", false, true);
-        Operation second = operation("readSecond", "shared", false, true);
-        Operation internalOperation = operation("readInternal", "internal", true, true);
-        CodeModel codeModel = codeModel(List.of(group("", first, second), group("Admin", internalOperation)),
-            linkedCatalog("shared", shared, "internal", internal, "unused", unused));
-        codeModel.resolveSseStreams();
+        SseMetadata shared = metadata("shared", "SharedEvents", "com.azure.shared");
+        SseMetadata repeatedShared = metadata("shared", "SharedEvents", "com.azure.shared");
+        SseMetadata internal = metadata("internal", "InternalEvents", "com.azure.internal");
+        SseMetadata unused = metadata("unused", "UnusedEvents", "com.azure.unused");
+        Operation first = operation("readFirst", shared, false, true);
+        Operation second = operation("readSecond", repeatedShared, false, true);
+        Operation internalOperation = operation("readInternal", internal, true, true);
+        CodeModel codeModel = codeModel(List.of(group("", first, second), group("Admin", internalOperation),
+            group("Unused", operation("readUnused", unused, false, false))));
 
         ClientMethodMapper.getInstance().map(first, false);
-        Client client = ClientMapper.getInstance().map(codeModel);
+        Client client = plugin.processClient(codeModel);
 
         Assertions.assertEquals(List.of(shared, internal), client.getSseStreams(), () -> describeClients(client));
+        Assertions.assertNotSame(shared, repeatedShared);
         JavaPackage javaPackage = new JavaPackage(plugin);
         plugin.writeHelperClasses(client, codeModel, javaPackage, JavaSettings.getInstance());
         String generatedPaths
             = javaPackage.getJavaFiles().stream().map(file -> file.getFilePath()).collect(Collectors.joining("\n"));
         Assertions.assertTrue(generatedPaths.contains("SharedEvent.java"), generatedPaths);
         Assertions.assertTrue(generatedPaths.contains("InternalEvent.java"), generatedPaths);
-        Assertions.assertTrue(generatedPaths.contains("ServerSentEventStreams.java"), generatedPaths);
+        Assertions.assertTrue(generatedPaths.contains("SharedEventSerializer.java"), generatedPaths);
+        Assertions.assertTrue(generatedPaths.contains("ServerSentEventStreamHelper.java"), generatedPaths);
+        Assertions.assertFalse(generatedPaths.contains("SharedEventConverter.java"), generatedPaths);
+        Assertions.assertFalse(generatedPaths.contains("ServerSentEventStreams.java"), generatedPaths);
+        Assertions.assertFalse(generatedPaths.contains("ServerSentEventStream.java"), generatedPaths);
         Assertions.assertFalse(generatedPaths.contains("UnusedEvent.java"), generatedPaths);
 
-        CodeModel later = codeModel(List.of(group("", operation("readLater", "unused", false, false))),
-            linkedCatalog("unused", unused));
-        later.resolveSseStreams();
+        CodeModel later = codeModel(List.of(group("", operation("readLater", unused, false, false))));
         Client laterClient = ClientMapper.getInstance().map(later);
         Assertions.assertTrue(laterClient.getSseStreams().isEmpty());
         JavaPackage laterPackage = new JavaPackage(plugin);
@@ -125,10 +170,8 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
             String syncMethods = (String) configuration[0];
             boolean syncStack = (boolean) configuration[1];
             configureJavaSettings(sseSettings(syncMethods, syncStack, true));
-            SseMetadata metadata = metadata("ConfiguredEvents", "com.azure.configured");
-            CodeModel codeModel = codeModel(List.of(group("", operation("read", "configured", false, true))),
-                linkedCatalog("configured", metadata));
-            codeModel.resolveSseStreams();
+            SseMetadata metadata = metadata("configured", "ConfiguredEvents", "com.azure.configured");
+            CodeModel codeModel = codeModel(List.of(group("", operation("read", metadata, false, true))));
 
             Client client = ClientMapper.getInstance().map(codeModel);
 
@@ -139,13 +182,11 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
 
     @Test
     public void excludesUsageWhenWrapperOrConvenienceGenerationIsDisabled() {
-        SseMetadata metadata = metadata("DisabledEvents", "com.azure.disabled");
+        SseMetadata metadata = metadata("disabled", "DisabledEvents", "com.azure.disabled");
         for (boolean wrappersEnabled : List.of(false, true)) {
             configureJavaSettings(sseSettings("all", false, wrappersEnabled));
             CodeModel codeModel
-                = codeModel(List.of(group("", operation("read", "disabled", false, wrappersEnabled ? false : true))),
-                    linkedCatalog("disabled", metadata));
-            codeModel.resolveSseStreams();
+                = codeModel(List.of(group("", operation("read", metadata, false, wrappersEnabled ? false : true))));
 
             Client client = ClientMapper.getInstance().map(codeModel);
 
@@ -153,23 +194,30 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         }
     }
 
-    private static ClientMethod method(String streamName, String namespace) {
+    private static ClientMethod method(String id, String streamName, String namespace) {
         return new ClientMethod.Builder().name("read")
             .parameters(List.of())
-            .sseMetadata(metadata(streamName, namespace))
+            .sseMetadata(metadata(id, streamName, namespace))
             .build();
     }
 
-    private static SseMetadata metadata(String streamName, String namespace) {
+    private static SseMetadata metadata(String id, String streamName, String namespace) {
         StringSchema payload = new StringSchema();
         payload.setType(Schema.AllSchemaTypes.STRING);
         SseEventMetadata event = new SseEventMetadata();
         event.setName("message");
         event.setPayload(payload);
         SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId(id);
         metadata.setStreamName(streamName);
         metadata.setModelNamespace(namespace);
         metadata.setEvents(List.of(event));
+        return metadata;
+    }
+
+    private static SseMetadata malformedMetadata(String id) {
+        SseMetadata metadata = metadata(id, "Events", "com.azure.mock");
+        metadata.setStreamName("");
         return metadata;
     }
 
@@ -184,7 +232,7 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         return settings;
     }
 
-    private static CodeModel codeModel(List<OperationGroup> groups, Map<String, SseMetadata> catalog) {
+    private static CodeModel codeModel(List<OperationGroup> groups) {
         CodeModel codeModel = new CodeModel();
         codeModel.setLanguage(languages("TestClient"));
         Info info = new Info();
@@ -193,9 +241,27 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         codeModel.setInfo(info);
         codeModel.setSchemas(new Schemas());
         codeModel.setOperationGroups(groups);
-        codeModel.setSseStreams(catalog);
         groups.forEach(group -> group.setCodeModel(codeModel));
         return codeModel;
+    }
+
+    private static com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client codeModelClient(
+        String name, List<OperationGroup> groups,
+        List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> subClients) {
+        com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client client
+            = new com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client();
+        client.setLanguage(languages(name));
+        client.setOperationGroups(groups);
+        client.setSubClients(subClients);
+        return client;
+    }
+
+    private static void assertInvalidMetadata(TypeSpecPlugin plugin, CodeModel model, String operationId,
+        String streamId) {
+        IllegalStateException exception
+            = Assertions.assertThrows(IllegalStateException.class, () -> plugin.processClient(model));
+        Assertions.assertEquals("Invalid SSE metadata for operation '" + operationId + "' with stream ID '" + streamId
+            + "': the stream name is missing or empty.", exception.getMessage());
     }
 
     private static OperationGroup group(String name, Operation... operations) {
@@ -209,14 +275,16 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         return group;
     }
 
-    private static Operation operation(String name, String streamId, boolean internal, boolean convenience) {
+    private static Operation operation(String name, SseMetadata metadata, boolean internal, boolean convenience) {
         Operation operation = new Operation();
         operation.setOperationId(name);
         operation.setLanguage(languages(name));
         operation.setInternalApi(internal);
-        operation.setSseStreamId(streamId);
+        operation.setSseMetadata(metadata);
         if (convenience) {
-            operation.setConvenienceApi(new ConvenienceApi());
+            ConvenienceApi convenienceApi = new ConvenienceApi();
+            convenienceApi.setLanguage(languages(name));
+            operation.setConvenienceApi(convenienceApi);
         }
 
         Request request = new Request();
@@ -254,14 +322,6 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         languages.setDefault(language);
         languages.setJava(language);
         return languages;
-    }
-
-    private static Map<String, SseMetadata> linkedCatalog(Object... entries) {
-        Map<String, SseMetadata> catalog = new LinkedHashMap<>();
-        for (int i = 0; i < entries.length; i += 2) {
-            catalog.put((String) entries[i], (SseMetadata) entries[i + 1]);
-        }
-        return catalog;
     }
 
     private static String describeClients(Client client) {

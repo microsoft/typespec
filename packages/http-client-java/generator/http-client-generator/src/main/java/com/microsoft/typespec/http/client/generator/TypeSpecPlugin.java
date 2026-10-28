@@ -51,7 +51,7 @@ public class TypeSpecPlugin extends Javagen {
     public Client processClient(CodeModel codeModel) {
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
-        codeModel.resolveSseStreams();
+        codeModel.validateSseMetadata();
 
         // map to client model
         return Mappers.getClientMapper().map(codeModel);
@@ -109,8 +109,7 @@ public class TypeSpecPlugin extends Javagen {
         if (settings.isAzureV1()) {
             if (!client.getSseStreams().isEmpty()) {
                 String runtimePackage = SseUtil.getRuntimePackage();
-                javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
-                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStream");
+                javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAM_HELPER);
                 javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
                 client.getSseStreams().forEach(javaPackage::addSseEventFiles);
                 List<ModuleInfo.ExportModule> exports = client.getModuleInfo().getExportModules();

@@ -63,7 +63,7 @@ public final class SseNamingResolver {
         }
 
         String streamDescription = baseStem.isEmpty() ? "SSE" : toLowerCaseWords(baseStem);
-        return new Names(baseEventName, baseEventName + "Converter", streamDescription, eventWrapperNames);
+        return new Names(baseEventName, baseEventName + "Serializer", streamDescription, eventWrapperNames);
     }
 
     private static String firstEventNameSegment(String eventName) {
@@ -106,14 +106,14 @@ public final class SseNamingResolver {
      */
     public static final class Names {
         private final String baseEventName;
-        private final String converterName;
+        private final String serializerName;
         private final String streamDescription;
         private final Map<String, String> eventWrapperNames;
 
-        private Names(String baseEventName, String converterName, String streamDescription,
+        private Names(String baseEventName, String serializerName, String streamDescription,
             Map<String, String> eventWrapperNames) {
             this.baseEventName = baseEventName;
-            this.converterName = converterName;
+            this.serializerName = serializerName;
             this.streamDescription = streamDescription;
             this.eventWrapperNames = Collections.unmodifiableMap(eventWrapperNames);
         }
@@ -122,8 +122,8 @@ public final class SseNamingResolver {
             return baseEventName;
         }
 
-        public String getConverterName() {
-            return converterName;
+        public String getSerializerName() {
+            return serializerName;
         }
 
         public String getStreamDescription() {

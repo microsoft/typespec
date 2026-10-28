@@ -21,15 +21,15 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Writes the converter for a named JSON server-sent event union.
+ * Writes the serializer for a named JSON server-sent event union.
  */
-public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadata, JavaFile> {
-    private static final SseEventConverterTemplate INSTANCE = new SseEventConverterTemplate();
+public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetadata, JavaFile> {
+    private static final SseEventSerializerTemplate INSTANCE = new SseEventSerializerTemplate();
 
-    private SseEventConverterTemplate() {
+    private SseEventSerializerTemplate() {
     }
 
-    public static SseEventConverterTemplate getInstance() {
+    public static SseEventSerializerTemplate getInstance() {
         return INSTANCE;
     }
 
@@ -37,7 +37,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
     public void write(SseMetadata metadata, JavaFile javaFile) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         ClassType baseEventType = SseUtil.getEventType(metadata, names.getBaseEventName());
-        String baseEventTypeName = baseEventType.getFullName();
+        String baseEventTypeName = baseEventType.getName();
         Set<String> imports = new LinkedHashSet<>();
         imports.add("com.azure.json.JsonProviders");
         imports.add("com.azure.json.JsonReader");
@@ -46,20 +46,23 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
         imports.add(UncheckedIOException.class.getName());
         imports.add(Objects.class.getName());
         ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
+        baseEventType.addImportsTo(imports, false);
         for (SseEventMetadata event : metadata.getEvents()) {
+            SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName())).addImportsTo(imports, false);
             IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
             addPayloadImports(wirePayloadType, imports);
             addPayloadImports(wirePayloadType.getClientType(), imports);
         }
         javaFile.declareImport(imports);
 
-        String converterName = names.getConverterName();
-        javaFile.javadocComment(comment -> comment
-            .description("Converts " + names.getStreamDescription() + " stream event payloads to typed event models."));
-        javaFile.publicFinalClass(converterName, javaClass -> {
-            javaClass.privateStaticFinalVariable("ClientLogger LOGGER = new ClientLogger(" + converterName + ".class)");
+        String serializerName = names.getSerializerName();
+        javaFile.javadocComment(comment -> comment.description(
+            "Deserializes " + names.getStreamDescription() + " stream event payloads to typed event models."));
+        javaFile.publicFinalClass(serializerName, javaClass -> {
+            javaClass
+                .privateStaticFinalVariable("ClientLogger LOGGER = new ClientLogger(" + serializerName + ".class)");
             javaClass.privateMemberVariable("static volatile ConstructorAccessor constructorAccessor");
-            javaClass.privateConstructor(converterName + "()", ignored -> {
+            javaClass.privateConstructor(serializerName + "()", ignored -> {
             });
             javaClass
                 .javadocComment(comment -> comment.description("Provides access to the SDK-only event constructors."));
@@ -73,10 +76,9 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                     });
                     interfaceBlock.publicMethod(baseEventTypeName + " unknownEvent(String eventName)");
                     for (SseEventMetadata event : metadata.getEvents()) {
-                        String wrapperType
-                            = SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName())).getFullName();
+                        String wrapperType = names.getEventWrapperName(event.getName());
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
-                        String payloadTypeName = SseUtil.getPayloadTypeName(payloadType);
+                        String payloadTypeName = payloadType.toString();
                         interfaceBlock.javadocComment(comment -> {
                             String eventDescription = event.getName().replace('.', '-');
                             comment.description("Creates " + getIndefiniteArticle(eventDescription) + " "
@@ -120,12 +122,12 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                     method.methodReturn("accessor");
                 });
             javaClass.javadocComment(comment -> {
-                comment.description("Converts a stream event payload.");
+                comment.description("Deserializes a stream event payload.");
                 comment.param("eventName", "The stream event name.");
                 comment.param("data", "The stream event data.");
                 comment.methodReturns("The typed stream event.");
             });
-            javaClass.publicStaticMethod(baseEventTypeName + " convert(String eventName, String data)", method -> {
+            javaClass.publicStaticMethod(baseEventTypeName + " deserialize(String eventName, String data)", method -> {
                 if (metadata.getEvents().stream().anyMatch(event -> "message".equals(event.getName()))) {
                     method.line("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;");
                 }
@@ -162,7 +164,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
     }
 
     private static void addPayloadImports(IType type, Set<String> imports) {
-        SseUtil.addPayloadImports(type, imports, false);
+        type.addImportsTo(imports, false);
         if (type instanceof IterableType) {
             addPayloadImports(((IterableType) type).getElementType(), imports);
         } else if (type instanceof MapType) {
@@ -187,15 +189,11 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                 + getJsonReadCallback(((MapType) type).getValueType(), depth + 1) + ")";
         }
         if (type instanceof ClassType && ((ClassType) type).isSwaggerType()) {
-            return SseUtil.getPayloadTypeName(type) + "::fromJson";
+            return type + "::fromJson";
         }
         String deserialization = type.jsonDeserializationMethod(readerName);
         if (deserialization == null) {
             throw new IllegalStateException("SSE payload type " + type + " does not support JSON deserialization.");
-        }
-        String payloadTypeName = SseUtil.getPayloadTypeName(type);
-        if (!payloadTypeName.equals(type.toString()) && deserialization.startsWith(type + ".")) {
-            deserialization = payloadTypeName + deserialization.substring(type.toString().length());
         }
         return readerName + " -> " + type.convertToClientType(deserialization);
     }

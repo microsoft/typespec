@@ -19,12 +19,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class CodeFormatterUtilTests {
     @ParameterizedTest
-    @ValueSource(strings = { "TestStreamEventConverter.java", "ServerSentEventStream.java" })
+    @ValueSource(strings = { "TestStreamEventSerializer.java", "ServerSentEventStreamHelper.java" })
     public void sortsSseHelperImports(String helperFileName) {
         String fileName = "src/main/java/com/azure/mock/implementation/" + helperFileName;
         String initial = String.join("\n", "package com.azure.mock.implementation;", "",
             "import com.azure.mock.models.TestReferencesCompletedStreamEvent;",
-            "import com.azure.mock.models.TestReference;", "", "public final class TestStreamEventConverter {",
+            "import com.azure.mock.models.TestReference;", "", "public final class TestStreamEventSerializer {",
             "private TestReferencesCompletedStreamEvent referencesCompleted;", "private TestReference reference;", "}",
             "");
 

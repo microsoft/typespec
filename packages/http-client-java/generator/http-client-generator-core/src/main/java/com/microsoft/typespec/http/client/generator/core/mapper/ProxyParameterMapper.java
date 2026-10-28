@@ -21,7 +21,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 
 public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParameter> {
     private static final ProxyParameterMapper INSTANCE = new ProxyParameterMapper();
@@ -37,7 +36,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
     public ProxyMethodParameter map(Parameter parameter) {
         JavaSettings settings = JavaSettings.getInstance();
 
-        String name = SseUtil.escapePackageRootParameterName(parameter.getLanguage().getJava().getName(), parameter);
+        String name = parameter.getLanguage().getJava().getName();
 
         ProxyMethodParameter.Builder builder = new ProxyMethodParameter.Builder()
             .requestParameterName(parameter.getLanguage().getDefault().getSerializedName())

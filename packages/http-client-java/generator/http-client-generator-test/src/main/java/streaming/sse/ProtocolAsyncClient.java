@@ -17,9 +17,9 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import streaming.sse.implementation.ProtocolEventConverter;
+import streaming.sse.implementation.ProtocolEventSerializer;
 import streaming.sse.implementation.ProtocolsImpl;
-import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.models.implementation.sse.ServerSentEventStreamHelper;
 import streaming.sse.protocol.models.ProtocolEvent;
 
 /**
@@ -159,9 +159,8 @@ public final class ProtocolAsyncClient {
      * The id operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
@@ -171,17 +170,16 @@ public final class ProtocolAsyncClient {
     @Generated
     public Flux<ProtocolEvent> id() {
         RequestOptions requestOptions = new RequestOptions();
-        return idWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal));
+        return idWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The invalidId operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
@@ -191,17 +189,16 @@ public final class ProtocolAsyncClient {
     @Generated
     public Flux<ProtocolEvent> invalidId() {
         RequestOptions requestOptions = new RequestOptions();
-        return invalidIdWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal));
+        return invalidIdWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The retry operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
@@ -211,17 +208,16 @@ public final class ProtocolAsyncClient {
     @Generated
     public Flux<ProtocolEvent> retry() {
         RequestOptions requestOptions = new RequestOptions();
-        return retryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal));
+        return retryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The invalidRetry operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
@@ -231,17 +227,16 @@ public final class ProtocolAsyncClient {
     @Generated
     public Flux<ProtocolEvent> invalidRetry() {
         RequestOptions requestOptions = new RequestOptions();
-        return invalidRetryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal));
+        return invalidRetryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The reconnect operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
@@ -251,7 +246,7 @@ public final class ProtocolAsyncClient {
     @Generated
     public Flux<ProtocolEvent> reconnect() {
         RequestOptions requestOptions = new RequestOptions();
-        return reconnectWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal));
+        return reconnectWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 }

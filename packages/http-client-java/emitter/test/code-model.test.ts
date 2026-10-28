@@ -93,14 +93,16 @@ describe("code model characterization", () => {
       });
       if (namespace === "SseGenericReused") {
         const model = await builder.build();
-        expect(Object.keys(model.sseStreams ?? {})).toHaveLength(1);
         const operations = model.clients
           .flatMap((client) => client.operationGroups)
           .flatMap((group) => group.operations ?? []);
-        expect(operations.map((operation) => operation.sseStreamId)).toEqual([
+        expect(operations.map((operation) => operation.sseMetadata?.sseStreamId)).toEqual([
           "SseGenericReused.GenericEvents",
           "SseGenericReused.GenericEvents",
         ]);
+        expect(operations[0].sseMetadata).not.toBe(operations[1].sseMetadata);
+        expect(operations[0].sseMetadata).toMatchObject(operations[1].sseMetadata!);
+        expect(model).not.toHaveProperty("sseStreams");
       } else {
         await expect(builder.build()).rejects.toThrow(
           "Distinct SSE unions claim cross-language definition ID",
@@ -108,7 +110,7 @@ describe("code model characterization", () => {
       }
     },
   );
-  it("catalogs only explicitly named events with nonliteral JSON payloads", async () => {
+  it("inlines only explicitly named events with nonliteral JSON payloads", async () => {
     const program = await compileSseScenario("SseVariants");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
@@ -122,25 +124,33 @@ describe("code model characterization", () => {
         report: () => {},
       },
     }).build();
-    expect(model.sseStreams?.["SseVariants.Named"].events).toMatchObject([
-      { name: "message", payload: { type: SchemaType.String }, terminal: false },
-      { name: "count", payload: { type: SchemaType.Integer }, terminal: false },
-      { name: "enabled", payload: { type: SchemaType.Boolean }, terminal: false },
-      {
-        name: "collections",
-        payload: {
-          type: SchemaType.Array,
-          elementType: { type: SchemaType.Dictionary, elementType: { type: SchemaType.Array } },
-        },
-        terminal: false,
-      },
-      { name: "payloadModel", payload: { type: SchemaType.Object }, terminal: false },
-      { name: "done", payload: { type: SchemaType.Object }, terminal: true },
-    ]);
-
     const operations = model.clients
       .flatMap((client) => client.operationGroups)
       .flatMap((group) => group.operations ?? []);
+    const namedOperation = operations.find(
+      (operation) => operation.language.default.name === "named",
+    )!;
+    expect(namedOperation.sseMetadata).toMatchObject({
+      sseStreamId: "SseVariants.Named",
+      streamName: "Named",
+      modelNamespace: "ssevariants",
+      events: [
+        { name: "message", payload: { type: SchemaType.String }, terminal: false },
+        { name: "count", payload: { type: SchemaType.Integer }, terminal: false },
+        { name: "enabled", payload: { type: SchemaType.Boolean }, terminal: false },
+        {
+          name: "collections",
+          payload: {
+            type: SchemaType.Array,
+            elementType: { type: SchemaType.Dictionary, elementType: { type: SchemaType.Array } },
+          },
+          terminal: false,
+        },
+        { name: "payloadModel", payload: { type: SchemaType.Object }, terminal: false },
+        { name: "done", payload: { type: SchemaType.Object }, terminal: true },
+      ],
+    });
+
     const unsupportedOperations = [
       "unnamed",
       "mixed",
@@ -158,10 +168,10 @@ describe("code model characterization", () => {
       const operation = operations.find(
         (operation) => operation.language.default.name === operationName,
       )!;
-      expect(operation.sseStreamId).toBeUndefined();
+      expect(operation.sseMetadata).toBeUndefined();
       expect(operation.responses?.[0]).toMatchObject({ binary: true });
     }
-    expect(Object.keys(model.sseStreams ?? {})).toEqual(["SseVariants.Named"]);
+    expect(model).not.toHaveProperty("sseStreams");
     expectDiagnostics(
       program.diagnostics.filter(
         (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
@@ -199,7 +209,7 @@ describe("code model characterization", () => {
       .flatMap((client) => client.operationGroups)
       .flatMap((group) => group.operations ?? [])
       .find((operation) => operation.language.default.name === "scalarEvents")!;
-    expect(codeModel.sseStreams?.[operation.sseStreamId!]?.events).toMatchObject([
+    expect(operation.sseMetadata?.events).toMatchObject([
       { name: "first", payload: { type: SchemaType.String } },
       { name: "second", payload: { type: SchemaType.String } },
     ]);
@@ -233,7 +243,7 @@ describe("code model characterization", () => {
       .flatMap((client) => client.operationGroups)
       .flatMap((group) => group.operations ?? [])
       .find((operation) => operation.language.default.name === "recursiveDictionaryEvents")!;
-    expect(codeModel.sseStreams?.[operation.sseStreamId!]?.events).toMatchObject([
+    expect(operation.sseMetadata?.events).toMatchObject([
       {
         name: "direct",
         payload: { type: SchemaType.Dictionary, elementType: { type: SchemaType.String } },
@@ -294,7 +304,7 @@ describe("code model characterization", () => {
     for (const flavor of ["standard", "azurev2"]) {
       const operations = (await build(flavor)).clients[0].operationGroups[0].operations!;
       for (const operation of operations) {
-        expect(operation.sseStreamId).toBeUndefined();
+        expect(operation.sseMetadata).toBeUndefined();
         expect(operation.responses?.[0]).toMatchObject({ binary: true });
       }
     }
@@ -310,8 +320,8 @@ describe("code model characterization", () => {
       (operation) => operation.language.default.name === "retrieve",
     )!;
     expect(enabledOperation.generateProtocolApi).toBe(true);
-    expect(enabledOperation.sseStreamId).toBe("SseTest.RetrievalStreamEvents");
-    expect(enabledModel.sseStreams?.[enabledOperation.sseStreamId!]).toMatchObject({
+    expect(enabledOperation.sseMetadata).toMatchObject({
+      sseStreamId: "SseTest.RetrievalStreamEvents",
       streamName: "RetrievalStreamEvents",
       modelNamespace: "ssetest.retrieve",
       events: [
@@ -335,10 +345,25 @@ describe("code model characterization", () => {
     const protocolOnlyOperation = enabledOperations.find(
       (operation) => operation.language.default.name === "retrieveProtocol",
     )!;
-    expect(protocolOnlyOperation.sseStreamId).toBe(enabledOperation.sseStreamId);
+    expect(protocolOnlyOperation.sseMetadata?.sseStreamId).toBe(
+      enabledOperation.sseMetadata?.sseStreamId,
+    );
+    expect(protocolOnlyOperation.sseMetadata).not.toBe(enabledOperation.sseMetadata);
+    expect(protocolOnlyOperation.sseMetadata).toMatchObject(enabledOperation.sseMetadata!);
+    expect(protocolOnlyOperation.sseMetadata?.events[0].payload).toBe(
+      enabledOperation.sseMetadata?.events[0].payload,
+    );
     const serialized = parse(stringify(enabledModel));
-    expect(serialized.sseStreams[enabledOperation.sseStreamId!]).toBeDefined();
-    expect(serialized.clients[0].operationGroups[0].operations[0].sseMetadata).toBeUndefined();
+    const serializedOperations = serialized.clients[0].operationGroups[0].operations;
+    const serializedEnabledOperation = serializedOperations.find(
+      (operation: any) => operation.language.default.name === "retrieve",
+    );
+    expect(serialized).not.toHaveProperty("sseStreams");
+    expect(serializedEnabledOperation).not.toHaveProperty("sseStreamId");
+    expect(serializedEnabledOperation.sseMetadata).toMatchObject({
+      sseStreamId: "SseTest.RetrievalStreamEvents",
+      streamName: "RetrievalStreamEvents",
+    });
     expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
     expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
     expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
@@ -346,7 +371,9 @@ describe("code model characterization", () => {
     const protocolOnlyPayloadOperation = enabledOperations.find(
       (operation) => operation.language.default.name === "protocolOnlyPayload",
     )!;
-    expect(protocolOnlyPayloadOperation.sseStreamId).toBe("SseTest.ProtocolOnlyStreamEvents");
+    expect(protocolOnlyPayloadOperation.sseMetadata?.sseStreamId).toBe(
+      "SseTest.ProtocolOnlyStreamEvents",
+    );
     expect(protocolOnlyPayloadOperation.convenienceApi).toBeUndefined();
     const protocolOnlyPayload = enabledModel.schemas.objects?.find(
       (schema) => schema.language.default.name === "ProtocolOnlyPayload",
@@ -377,7 +404,7 @@ describe("code model characterization", () => {
     const jacksonOperation = jacksonOperations.find(
       (operation) => operation.language.default.name === "retrieve",
     )!;
-    expect(jacksonOperation.sseStreamId).toBeUndefined();
+    expect(jacksonOperation.sseMetadata).toBeUndefined();
     expect(jacksonOperation.responses?.[0]).toMatchObject({ binary: true });
     expectDiagnostics(
       program.diagnostics.filter(

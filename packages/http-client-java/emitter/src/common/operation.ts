@@ -66,8 +66,8 @@ export interface Operation extends Aspect {
   /** the long-running operation metadata */
   lroMetadata?: LongRunningMetadata;
 
-  /** CID of the canonical server-sent event definition in CodeModel.sseStreams. */
-  sseStreamId?: string;
+  /** Typed server-sent event metadata for this operation. */
+  sseMetadata?: SseMetadata;
 }
 
 export interface SseEventMetadata {
@@ -82,6 +82,9 @@ export interface SseEventMetadata {
 }
 
 export interface SseMetadata {
+  /** CID of the streamed union. */
+  sseStreamId: string;
+
   /** Semantic name of the named event stream. */
   streamName: string;
 

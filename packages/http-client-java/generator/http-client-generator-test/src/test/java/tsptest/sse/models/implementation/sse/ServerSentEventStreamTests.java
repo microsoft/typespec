@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import tsptest.sse.SseAsyncClient;
 import tsptest.sse.SseClient;
-import tsptest.sse.implementation.TestStreamEventConverter;
+import tsptest.sse.implementation.TestStreamEventSerializer;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
 import tsptest.sse.stream.models.TestDurationStreamEvent;
@@ -43,7 +43,8 @@ import tsptest.sse.stream.models.TestStreamEvent;
 import tsptest.sse.stream.models.TestTextStreamEvent;
 
 public class ServerSentEventStreamTests {
-    private static final BiFunction<String, String, TestStreamEvent> CONVERTER = TestStreamEventConverter::convert;
+    private static final BiFunction<String, String, TestStreamEvent> DESERIALIZER
+        = TestStreamEventSerializer::deserialize;
 
     @Test
     public void decodesFragmentedUtf8AndCrLfUntilInclusiveTerminalEvent() {
@@ -65,8 +66,8 @@ public class ServerSentEventStreamTests {
             = BinaryData.fromFlux(Flux.fromIterable(fragments).doOnCancel(() -> cancelled.set(true)), null, false)
                 .block();
 
-        List<TestStreamEvent> events = ServerSentEventStreams
-            .toFlux(response(200, "text/event-stream; charset=utf-8", body), CONVERTER, TestStreamEvent::isTerminal)
+        List<TestStreamEvent> events = ServerSentEventStreamHelper
+            .toFlux(response(200, "text/event-stream; charset=utf-8", body), DESERIALIZER, TestStreamEvent::isTerminal)
             .collectList()
             .block();
 
@@ -98,11 +99,11 @@ public class ServerSentEventStreamTests {
 
     @Test
     public void decodesNamedEventWithoutCollidingWithUnknownEventFactory() {
-        TestStreamEvent known = CONVERTER.apply("event", "\"payload\"");
+        TestStreamEvent known = DESERIALIZER.apply("event", "\"payload\"");
         Assertions.assertEquals("event", known.getEventName());
         Assertions.assertEquals("payload", Assertions.assertInstanceOf(TestEventStreamEvent.class, known).getValue());
 
-        TestStreamEvent unknown = CONVERTER.apply("unknown.event", "not JSON");
+        TestStreamEvent unknown = DESERIALIZER.apply("unknown.event", "not JSON");
         Assertions.assertEquals("unknown.event", unknown.getEventName());
         Assertions.assertFalse(unknown.isTerminal());
     }
@@ -112,8 +113,8 @@ public class ServerSentEventStreamTests {
         TrackingInputStream input = new TrackingInputStream(
             "event: started\ndata: {\"message\":\"one\"}\n\n".getBytes(StandardCharsets.UTF_8), 1);
 
-        try (CloseableIterableStream<TestStreamEvent> events = ServerSentEventStreams
-            .toIterableStream(response(200, "text/event-stream", BinaryData.fromStream(input)), CONVERTER)) {
+        try (CloseableIterableStream<TestStreamEvent> events = ServerSentEventStreamHelper
+            .toIterableStream(response(200, "text/event-stream", BinaryData.fromStream(input)), DESERIALIZER)) {
             List<TestStreamEvent> values = new ArrayList<>();
             events.forEach(values::add);
             Assertions.assertEquals(1, values.size());
@@ -131,8 +132,9 @@ public class ServerSentEventStreamTests {
                 .getBytes(StandardCharsets.UTF_8),
             2);
 
-        try (CloseableIterableStream<TestStreamEvent> events = ServerSentEventStreams.toIterableStream(
-            response(200, "text/event-stream", BinaryData.fromStream(input)), CONVERTER, TestStreamEvent::isTerminal)) {
+        try (CloseableIterableStream<TestStreamEvent> events = ServerSentEventStreamHelper.toIterableStream(
+            response(200, "text/event-stream", BinaryData.fromStream(input)), DESERIALIZER,
+            TestStreamEvent::isTerminal)) {
             java.util.Iterator<TestStreamEvent> iterator = events.iterator();
             Assertions.assertInstanceOf(TestCompletedStreamEvent.class, iterator.next());
             Assertions.assertTrue(input.isClosed());
@@ -150,8 +152,8 @@ public class ServerSentEventStreamTests {
     @Test
     public void noContentClosesTheBodyAndCompletesWithoutEvents() {
         TrackingInputStream input = new TrackingInputStream(new byte[] { 1 }, 1);
-        CloseableIterableStream<TestStreamEvent> events
-            = ServerSentEventStreams.toIterableStream(response(204, null, BinaryData.fromStream(input)), CONVERTER);
+        CloseableIterableStream<TestStreamEvent> events = ServerSentEventStreamHelper
+            .toIterableStream(response(204, null, BinaryData.fromStream(input)), DESERIALIZER);
 
         Assertions.assertFalse(events.iterator().hasNext());
         Assertions.assertTrue(input.isClosed());
@@ -159,7 +161,7 @@ public class ServerSentEventStreamTests {
 
     @Test
     public void streamCanOnlyBeConsumedOnce() {
-        Flux<TestStreamEvent> events = ServerSentEventStreams.toFlux(response(204, null, null), CONVERTER);
+        Flux<TestStreamEvent> events = ServerSentEventStreamHelper.toFlux(response(204, null, null), DESERIALIZER);
 
         Assertions.assertTrue(events.collectList().block().isEmpty());
         IllegalStateException exception
@@ -203,13 +205,6 @@ public class ServerSentEventStreamTests {
         Assertions.assertTrue(readMethods.stream().anyMatch(method -> method.getParameterCount() == 0));
         Assertions.assertTrue(readMethods.stream()
             .anyMatch(method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == String.class));
-        Method collidingRequestMethod = Arrays.stream(clientType.getDeclaredMethods())
-            .filter(method -> method.getName().equals("readWithCollidingRequest"))
-            .filter(method -> Arrays.equals(method.getParameterTypes(),
-                new Class<?>[] { tsptest.sse.models.TestStreamEvent.class }))
-            .findFirst()
-            .orElseThrow();
-        Assertions.assertEquals(typedReturnType, collidingRequestMethod.getReturnType());
         Assertions.assertFalse(Arrays.stream(clientType.getDeclaredMethods())
             .anyMatch(method -> method.getName().startsWith("hiddenGenerated")));
     }
@@ -225,8 +220,8 @@ public class ServerSentEventStreamTests {
     private static void assertInvalidResponseClosed(int statusCode, String contentType) {
         TrackingInputStream input = new TrackingInputStream(new byte[] { 1 }, 1);
 
-        Assertions.assertThrows(IllegalStateException.class, () -> ServerSentEventStreams
-            .toIterableStream(response(statusCode, contentType, BinaryData.fromStream(input)), CONVERTER));
+        Assertions.assertThrows(IllegalStateException.class, () -> ServerSentEventStreamHelper
+            .toIterableStream(response(statusCode, contentType, BinaryData.fromStream(input)), DESERIALIZER));
         Assertions.assertTrue(input.isClosed());
     }
 

@@ -395,15 +395,15 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
     private static List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata>
         collectSseStreams(List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients) {
-        Set<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata> streams
-            = new LinkedHashSet<>();
+        Map<String, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata> streams
+            = new LinkedHashMap<>();
         collectSseStreams(syncClients, ClientMethodType.SseSync, streams);
         collectSseStreams(asyncClients, ClientMethodType.SseAsync, streams);
-        return new ArrayList<>(streams);
+        return new ArrayList<>(streams.values());
     }
 
     private static void collectSseStreams(List<AsyncSyncClient> clients, ClientMethodType methodType,
-        Set<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata> streams) {
+        Map<String, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata> streams) {
         boolean async = methodType == ClientMethodType.SseAsync;
         clients.stream().flatMap(client -> client.getConvenienceMethods().stream()).filter(convenienceMethod -> {
             ClientMethod protocolMethod = convenienceMethod.getProtocolMethod();
@@ -424,7 +424,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             .filter(method -> !method.isImplementationOnly())
             .map(ClientMethod::getSseMetadata)
             .filter(Objects::nonNull)
-            .forEach(streams::add);
+            .forEach(metadata -> streams.putIfAbsent(metadata.getSseStreamId(), metadata));
     }
 
     private void addConvenienceExamples(Client.Builder builder, List<AsyncSyncClient> syncClients) {

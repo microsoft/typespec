@@ -319,9 +319,8 @@ abstract class ConvenienceMethodTemplateBase {
             JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
             // convenience method
-            String methodDeclaration
-                = String.format("%1$s %2$s(%3$s)", SseUtil.getClientReturnTypeName(convenienceMethod),
-                    getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
+            String methodDeclaration = String.format("%1$s %2$s(%3$s)", convenienceMethod.getReturnValue().getType(),
+                getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
             classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
                 if (convenienceMethod.getSseMetadata() == null) {
                     methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
@@ -711,9 +710,8 @@ abstract class ConvenienceMethodTemplateBase {
             Set<String> methodImports = new java.util.LinkedHashSet<>();
             m.addImportsTo(methodImports, true, settings);
             if (m.getSseMetadata() != null) {
-                Set<String> sseReturnImports = new java.util.LinkedHashSet<>();
-                m.getReturnValue().getType().addImportsTo(sseReturnImports, true);
-                methodImports.removeAll(sseReturnImports);
+                SseUtil.getSerializerType(m.getSseMetadata()).addImportsTo(methodImports, false);
+                SseUtil.getRuntimeType().addImportsTo(methodImports, false);
             }
             imports.addAll(methodImports);
 

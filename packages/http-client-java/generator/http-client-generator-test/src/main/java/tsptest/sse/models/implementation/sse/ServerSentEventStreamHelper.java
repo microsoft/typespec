@@ -29,13 +29,13 @@ import java.util.function.Predicate;
 import reactor.core.publisher.Flux;
 
 /**
- * Parses one server-sent event response.
+ * Consumes and parses a single HTTP response as a server-sent event stream.
  */
-final class ServerSentEventStream {
-    private static final ClientLogger LOGGER = new ClientLogger(ServerSentEventStream.class);
+public final class ServerSentEventStreamHelper {
+    private static final ClientLogger LOGGER = new ClientLogger(ServerSentEventStreamHelper.class);
     private static final String DEFAULT_EVENT = "message";
 
-    private ServerSentEventStream() {
+    private ServerSentEventStreamHelper() {
     }
 
     /**
@@ -46,7 +46,7 @@ final class ServerSentEventStream {
      * @param <T> The event data type.
      * @return A flux of decoded events.
      */
-    static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter) {
+    public static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter) {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");
         return toFluxInternal(response, converter, null);
@@ -55,13 +55,15 @@ final class ServerSentEventStream {
     /**
      * Decodes an SSE response until an inclusive terminal event is emitted.
      *
+     * <p>HTTP 204 and response-body EOF complete normally without requiring a terminal event.</p>
+     *
      * @param response The streaming response.
      * @param converter Converts an event name and data payload into the event data type.
      * @param terminalEvent Identifies an inclusive terminal event that ends processing early.
      * @param <T> The event data type.
      * @return A flux of decoded events.
      */
-    static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter,
+    public static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter,
         Predicate<T> terminalEvent) {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");
@@ -97,7 +99,7 @@ final class ServerSentEventStream {
      * @param <T> The event data type.
      * @return A closeable stream of decoded events.
      */
-    static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
+    public static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
         BiFunction<String, String, T> converter) {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");
@@ -107,13 +109,15 @@ final class ServerSentEventStream {
     /**
      * Lazily decodes an SSE response until an inclusive terminal event is emitted.
      *
+     * <p>HTTP 204 and response-body EOF close normally without requiring a terminal event.</p>
+     *
      * @param response The streaming response.
      * @param converter Converts an event name and data payload into the event data type.
      * @param terminalEvent Identifies an inclusive terminal event that ends processing early.
      * @param <T> The event data type.
      * @return A closeable stream of decoded events.
      */
-    static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
+    public static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
         BiFunction<String, String, T> converter, Predicate<T> terminalEvent) {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");

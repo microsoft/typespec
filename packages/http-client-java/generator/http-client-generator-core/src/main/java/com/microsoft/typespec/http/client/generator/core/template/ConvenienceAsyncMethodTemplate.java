@@ -43,7 +43,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
             imports.add(ClassType.PAGED_RESPONSE_BASE.getFullName());
             if (convenienceMethods.stream()
                 .flatMap(method -> method.getConvenienceMethods().stream())
-                .anyMatch(method -> method.getType() == ClientMethodType.PagingAsync && isMethodIncluded(method))) {
+                .anyMatch(method -> (method.getType() == ClientMethodType.PagingAsync
+                    || method.getType() == ClientMethodType.SseAsync) && isMethodIncluded(method))) {
                 imports.add(ClassType.FLUX.getFullName());
             }
         }
@@ -83,14 +84,13 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
         if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
             Set<String> usedNames = MethodUtil.getMethodVariableNames(convenienceMethod);
-            usedNames.add(SseUtil.getRuntimePackage().split("\\.", 2)[0]);
-            usedNames.add(SseUtil.getEventPackage(convenienceMethod.getSseMetadata()).split("\\.", 2)[0]);
             String responseName = MethodUtil.getAvailableVariableName("response", usedNames);
-            methodBlock.methodReturn(String.format(
-                "%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::convert, %4$s))", getMethodName(protocolMethod),
-                invocationExpression, SseUtil.getClientConverterTypeName(convenienceMethod.getSseMetadata()),
-                SseUtil.getClientTerminalPredicate(convenienceMethod), responseName,
-                SseUtil.getClientRuntimeTypeName()));
+            methodBlock.methodReturn(
+                String.format("%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::deserialize, %4$s))",
+                    getMethodName(protocolMethod), invocationExpression,
+                    SseUtil.getSerializerType(convenienceMethod.getSseMetadata()).getName(),
+                    SseUtil.getClientTerminalPredicate(convenienceMethod), responseName,
+                    SseUtil.getRuntimeType().getName()));
             return;
         }
 
@@ -192,7 +192,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
     @Override
     protected void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock) {
         if (methodType == ClientMethodType.SseAsync) {
-            methodBlock.methodReturn(String.format("reactor.core.publisher.Flux.error(%s)", exceptionExpression));
+            methodBlock.methodReturn(String.format("Flux.error(%s)", exceptionExpression));
         } else if (methodType == ClientMethodType.PagingAsync) {
             methodBlock.methodReturn(
                 String.format("PagedFlux.create(() -> (ignoredContinuationToken, ignoredPageSize) -> Flux.error(%s))",

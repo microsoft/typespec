@@ -16,13 +16,14 @@ import streaming.sse.protocol.models.ProtocolEventMessageStreamEvent;
 import streaming.sse.protocol.models.ProtocolInfo;
 
 /**
- * Converts protocol event stream event payloads to typed event models.
+ * Deserializes protocol event stream event payloads to typed event models.
  */
-public final class ProtocolEventConverter {
-    private static final ClientLogger LOGGER = new ClientLogger(ProtocolEventConverter.class);
+public final class ProtocolEventSerializer {
+    private static final ClientLogger LOGGER = new ClientLogger(ProtocolEventSerializer.class);
+
     private static volatile ConstructorAccessor constructorAccessor;
 
-    private ProtocolEventConverter() {
+    private ProtocolEventSerializer() {
     }
 
     /**
@@ -74,13 +75,13 @@ public final class ProtocolEventConverter {
     }
 
     /**
-     * Converts a stream event payload.
+     * Deserializes a stream event payload.
      *
      * @param eventName The stream event name.
      * @param data The stream event data.
      * @return The typed stream event.
      */
-    public static ProtocolEvent convert(String eventName, String data) {
+    public static ProtocolEvent deserialize(String eventName, String data) {
         eventName = eventName == null || eventName.isEmpty() ? "message" : eventName;
         ConstructorAccessor accessor = getConstructorAccessor();
         switch (eventName) {
@@ -100,5 +101,4 @@ public final class ProtocolEventConverter {
             throw new UncheckedIOException("Failed to decode protocol event stream event: " + eventName, exception);
         }
     }
-
 }

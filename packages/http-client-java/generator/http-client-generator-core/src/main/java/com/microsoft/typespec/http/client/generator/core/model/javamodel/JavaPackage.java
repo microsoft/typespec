@@ -38,8 +38,8 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
-import com.microsoft.typespec.http.client.generator.core.template.SseEventConverterTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.SseEventModelTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventSerializerTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
@@ -111,12 +111,12 @@ public class JavaPackage {
         List<JavaFile> eventFiles = events.stream()
             .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
             .collect(Collectors.toList());
-        JavaFile converterFile
-            = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(), names.getConverterName());
+        JavaFile serializerFile
+            = javaFileFactory.createSourceFile(SseUtil.getSerializerPackage(), names.getSerializerName());
         List<JavaFile> sseFiles = new ArrayList<>();
         sseFiles.add(baseFile);
         sseFiles.addAll(eventFiles);
-        sseFiles.add(converterFile);
+        sseFiles.add(serializerFile);
         validateSseSourcePaths(sseFiles);
 
         SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
@@ -127,8 +127,8 @@ public class JavaPackage {
             SseEventModelTemplate.getInstance().writeEvent(metadata, event, eventFile);
             addJavaFile(eventFile);
         }
-        SseEventConverterTemplate.getInstance().write(metadata, converterFile);
-        addJavaFile(converterFile);
+        SseEventSerializerTemplate.getInstance().write(metadata, serializerFile);
+        addJavaFile(serializerFile);
     }
 
     private void validateSseSourcePaths(List<JavaFile> sseFiles) {

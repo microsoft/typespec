@@ -35,15 +35,6 @@ public class Operation extends Metadata {
     private Boolean generateProtocolApi;
     private Boolean internalApi;
     private SseMetadata sseMetadata;
-    private String sseStreamId;
-
-    public String getSseStreamId() {
-        return sseStreamId;
-    }
-
-    public void setSseStreamId(String sseStreamId) {
-        this.sseStreamId = sseStreamId;
-    }
 
     // internal
     private OperationGroup operationGroup;

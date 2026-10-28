@@ -10,9 +10,18 @@ import java.util.List;
  * Describes a server-sent event operation.
  */
 public class SseMetadata {
+    private String sseStreamId;
     private String streamName;
     private String modelNamespace;
     private List<SseEventMetadata> events = new ArrayList<>();
+
+    public String getSseStreamId() {
+        return sseStreamId;
+    }
+
+    public void setSseStreamId(String sseStreamId) {
+        this.sseStreamId = sseStreamId;
+    }
 
     public String getStreamName() {
         return streamName;

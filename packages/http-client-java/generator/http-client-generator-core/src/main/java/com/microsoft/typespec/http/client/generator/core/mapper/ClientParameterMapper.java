@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versi
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.util.ArrayList;
 
 /**
@@ -55,8 +54,7 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
                         .toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName())
                         + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
                     : parameter.getLanguage().getJava().getName();
-        name = CodeNamer
-            .getEscapedReservedClientMethodParameterName(SseUtil.escapePackageRootParameterName(name, parameter));
+        name = CodeNamer.getEscapedReservedClientMethodParameterName(name);
 
         ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
             .required(parameter.isRequired())

@@ -17,7 +17,7 @@ public class SseNamingResolverTests {
             = SseNamingResolver.resolve(metadata("RetrievalStreamEvents", "retrieval.started", "response.completed"));
 
         Assertions.assertEquals("RetrievalStreamEvent", names.getBaseEventName());
-        Assertions.assertEquals("RetrievalStreamEventConverter", names.getConverterName());
+        Assertions.assertEquals("RetrievalStreamEventSerializer", names.getSerializerName());
         Assertions.assertEquals("RetrievalStartedStreamEvent", names.getEventWrapperName("retrieval.started"));
         Assertions.assertEquals("RetrievalResponseCompletedStreamEvent",
             names.getEventWrapperName("response.completed"));
@@ -61,7 +61,7 @@ public class SseNamingResolverTests {
             "retrieval.started", "activity.completed", "response.completed"));
 
         Assertions.assertEquals("KnowledgeBaseRetrievalStreamEvent", names.getBaseEventName());
-        Assertions.assertEquals("KnowledgeBaseRetrievalStreamEventConverter", names.getConverterName());
+        Assertions.assertEquals("KnowledgeBaseRetrievalStreamEventSerializer", names.getSerializerName());
         Assertions.assertEquals("knowledge base retrieval", names.getStreamDescription());
         Assertions.assertEquals("KnowledgeBaseRetrievalStartedStreamEvent",
             names.getEventWrapperName("retrieval.started"));
@@ -129,7 +129,7 @@ public class SseNamingResolverTests {
 
         names = SseNamingResolver.resolve(metadata("123Events", "done"));
         Assertions.assertEquals("OneTwoThreeEvent", names.getBaseEventName());
-        Assertions.assertEquals("OneTwoThreeEventConverter", names.getConverterName());
+        Assertions.assertEquals("OneTwoThreeEventSerializer", names.getSerializerName());
     }
 
     @Test
@@ -145,6 +145,7 @@ public class SseNamingResolverTests {
 
     private static SseMetadata metadata(String streamName, String... eventNames) {
         SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId(streamName);
         metadata.setStreamName(streamName);
         metadata
             .setEvents(List.of(eventNames).stream().map(SseNamingResolverTests::event).collect(Collectors.toList()));

@@ -16,9 +16,9 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
-import streaming.sse.implementation.ProtocolEventConverter;
+import streaming.sse.implementation.ProtocolEventSerializer;
 import streaming.sse.implementation.ProtocolsImpl;
-import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.models.implementation.sse.ServerSentEventStreamHelper;
 import streaming.sse.protocol.models.ProtocolEvent;
 
 /**
@@ -158,9 +158,8 @@ public final class ProtocolClient {
      * The id operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -174,17 +173,16 @@ public final class ProtocolClient {
     @Generated
     public CloseableIterableStream<ProtocolEvent> id() {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(idWithResponse(requestOptions), ProtocolEventConverter::convert,
-            ProtocolEvent::isTerminal);
+        return ServerSentEventStreamHelper.toIterableStream(idWithResponse(requestOptions),
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal);
     }
 
     /**
      * The invalidId operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -198,17 +196,16 @@ public final class ProtocolClient {
     @Generated
     public CloseableIterableStream<ProtocolEvent> invalidId() {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(invalidIdWithResponse(requestOptions),
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
+        return ServerSentEventStreamHelper.toIterableStream(invalidIdWithResponse(requestOptions),
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal);
     }
 
     /**
      * The retry operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -222,17 +219,16 @@ public final class ProtocolClient {
     @Generated
     public CloseableIterableStream<ProtocolEvent> retry() {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(retryWithResponse(requestOptions),
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
+        return ServerSentEventStreamHelper.toIterableStream(retryWithResponse(requestOptions),
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal);
     }
 
     /**
      * The invalidRetry operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -246,17 +242,16 @@ public final class ProtocolClient {
     @Generated
     public CloseableIterableStream<ProtocolEvent> invalidRetry() {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(invalidRetryWithResponse(requestOptions),
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
+        return ServerSentEventStreamHelper.toIterableStream(invalidRetryWithResponse(requestOptions),
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal);
     }
 
     /**
      * The reconnect operation.
      *
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
-     * {@code getValue()} to access its typed payload, for example
-     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
-     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
@@ -270,7 +265,7 @@ public final class ProtocolClient {
     @Generated
     public CloseableIterableStream<ProtocolEvent> reconnect() {
         RequestOptions requestOptions = new RequestOptions();
-        return ServerSentEventStreams.toIterableStream(reconnectWithResponse(requestOptions),
-            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
+        return ServerSentEventStreamHelper.toIterableStream(reconnectWithResponse(requestOptions),
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal);
     }
 }

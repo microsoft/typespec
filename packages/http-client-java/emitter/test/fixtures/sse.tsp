@@ -105,15 +105,6 @@ namespace SseTest {
 
   @clientNamespace("SseTest.Retrieve", "java")
   interface Retrieve {
-    @route("/retrieve")
-    @post
-    retrieve(
-      @body request: {
-        query: string;
-      },
-      @header authorization?: string,
-    ): SSEStream<RetrievalStreamEvents>;
-
     @route("/retrieve-protocol")
     @post
     @convenientAPI(false, "java")
@@ -122,6 +113,15 @@ namespace SseTest {
       @body request: {
         query: string;
       },
+    ): SSEStream<RetrievalStreamEvents>;
+
+    @route("/retrieve")
+    @post
+    retrieve(
+      @body request: {
+        query: string;
+      },
+      @header authorization?: string,
     ): SSEStream<RetrievalStreamEvents>;
 
     @route("/protocol-only-payload")

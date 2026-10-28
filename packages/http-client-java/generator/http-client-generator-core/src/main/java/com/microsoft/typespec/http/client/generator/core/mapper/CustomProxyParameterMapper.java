@@ -19,7 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 
 public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMethodParameter> {
 
@@ -35,11 +34,10 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
     @Override
     public ProxyMethodParameter map(Parameter parameter) {
         JavaSettings settings = JavaSettings.getInstance();
-        String name = SseUtil.escapePackageRootParameterName(parameter.getLanguage().getJava().getName(), parameter);
 
         ProxyMethodParameter.Builder builder = new ProxyMethodParameter.Builder()
             .requestParameterName(parameter.getLanguage().getDefault().getSerializedName())
-            .name(name)
+            .name(parameter.getLanguage().getJava().getName())
             .required(parameter.isRequired())
             .nullable(parameter.isNullable());
 
@@ -126,7 +124,7 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
             builder.defaultValue(objValue == null ? null : String.valueOf(objValue));
         }
 
-        String parameterReference = name;
+        String parameterReference = parameter.getLanguage().getJava().getName();
         if (Parameter.ImplementationLocation.CLIENT.equals(parameter.getImplementation())) {
             String operationGroupName = parameter.getOperation().getOperationGroup().getLanguage().getJava().getName();
             String caller = (operationGroupName == null || operationGroupName.isEmpty()) ? "this" : "this.client";

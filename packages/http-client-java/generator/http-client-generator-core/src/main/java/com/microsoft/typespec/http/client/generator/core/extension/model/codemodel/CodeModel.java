@@ -6,9 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -24,59 +22,59 @@ public class CodeModel extends Client {
 
     private String crossLanguagePackageId;
     private String crossLanguageVersion;
-    private Map<String, SseMetadata> sseStreams = new LinkedHashMap<>();
-
-    public Map<String, SseMetadata> getSseStreams() {
-        return sseStreams;
-    }
-
-    public void setSseStreams(Map<String, SseMetadata> sseStreams) {
-        this.sseStreams = new LinkedHashMap<>(sseStreams);
-    }
 
     /**
-     * Resolves operation references after code-model transformations, before mapping.
+     * Validates inline operation metadata after code-model transformations, before mapping.
      */
-    public void resolveSseStreams() {
-        sseStreams.forEach((id, metadata) -> {
-            if (id == null
-                || id.isEmpty()
-                || metadata == null
-                || metadata.getStreamName() == null
-                || metadata.getStreamName().isEmpty()
-                || metadata.getModelNamespace() == null
-                || metadata.getModelNamespace().isEmpty()
-                || metadata.getEvents() == null
-                || metadata.getEvents().isEmpty()
-                || metadata.getEvents()
-                    .stream()
-                    .anyMatch(event -> event == null
-                        || event.getName() == null
-                        || event.getName().isEmpty()
-                        || event.getPayload() == null)) {
-                throw new IllegalStateException("Invalid SSE catalog entry '" + id + "'.");
-            }
-        });
+    public void validateSseMetadata() {
         Set<Client> visited = Collections.newSetFromMap(new IdentityHashMap<>());
-        resolveSseStreams(this, visited);
-        clients.forEach(client -> resolveSseStreams(client, visited));
+        validateSseMetadata(this, visited);
+        clients.forEach(client -> validateSseMetadata(client, visited));
     }
 
-    private void resolveSseStreams(Client client, Set<Client> visited) {
+    private void validateSseMetadata(Client client, Set<Client> visited) {
         if (!visited.add(client)) {
             return;
         }
         client.getOperationGroups().forEach(group -> group.getOperations().forEach(operation -> {
-            String id = operation.getSseStreamId();
-            if (id != null) {
-                SseMetadata metadata = sseStreams.get(id);
-                if (id.isEmpty() || metadata == null) {
-                    throw new IllegalStateException("Invalid SSE stream reference '" + id + "'.");
-                }
-                operation.setSseMetadata(metadata);
+            SseMetadata metadata = operation.getSseMetadata();
+            if (metadata != null) {
+                validateSseMetadata(operation, metadata);
             }
         }));
-        client.getSubClients().forEach(child -> resolveSseStreams(child, visited));
+        client.getSubClients().forEach(child -> validateSseMetadata(child, visited));
+    }
+
+    private static void validateSseMetadata(Operation operation, SseMetadata metadata) {
+        String id = metadata.getSseStreamId();
+        if (id == null || id.isEmpty()) {
+            throw invalidSseMetadata(operation, id, "the stream ID is missing or empty");
+        }
+        if (metadata.getStreamName() == null || metadata.getStreamName().isEmpty()) {
+            throw invalidSseMetadata(operation, id, "the stream name is missing or empty");
+        }
+        if (metadata.getModelNamespace() == null || metadata.getModelNamespace().isEmpty()) {
+            throw invalidSseMetadata(operation, id, "the model namespace is missing or empty");
+        }
+        if (metadata.getEvents() == null || metadata.getEvents().isEmpty()) {
+            throw invalidSseMetadata(operation, id, "the event list is null or empty");
+        }
+        for (SseEventMetadata event : metadata.getEvents()) {
+            if (event == null) {
+                throw invalidSseMetadata(operation, id, "the event list contains a null event");
+            }
+            if (event.getName() == null || event.getName().isEmpty()) {
+                throw invalidSseMetadata(operation, id, "an event name is missing or empty");
+            }
+            if (event.getPayload() == null) {
+                throw invalidSseMetadata(operation, id, "event '" + event.getName() + "' has no payload schema");
+            }
+        }
+    }
+
+    private static IllegalStateException invalidSseMetadata(Operation operation, String id, String reason) {
+        return new IllegalStateException("Invalid SSE metadata for operation '" + operation.getOperationId()
+            + "' with stream ID '" + id + "': " + reason + ".");
     }
 
     /**

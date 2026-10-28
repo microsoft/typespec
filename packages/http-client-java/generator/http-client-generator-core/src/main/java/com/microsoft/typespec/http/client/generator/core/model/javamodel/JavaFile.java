@@ -80,10 +80,6 @@ public class JavaFile implements JavaContext {
     }
 
     public final void declareImport(List<String> imports) {
-        getContents().declareImport(filterImports(imports));
-    }
-
-    private List<String> filterImports(List<String> imports) {
         if (packageKeyword != null && !packageKeyword.isEmpty()) {
             // Only import paths that don't start with this file's package, or if they do start
             // with this file's package, then they must exist within a subpackage.
@@ -92,7 +88,7 @@ public class JavaFile implements JavaContext {
                     || importKeyword.indexOf('.', packageWithPeriodLength) != -1)
                 .collect(Collectors.toList());
         }
-        return imports;
+        getContents().declareImport(imports);
     }
 
     public final void javadocComment(Consumer<JavaJavadocComment> commentAction) {

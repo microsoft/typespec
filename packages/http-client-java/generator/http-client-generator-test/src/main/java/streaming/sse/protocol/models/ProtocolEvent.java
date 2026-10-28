@@ -5,7 +5,7 @@
 package streaming.sse.protocol.models;
 
 import com.azure.core.annotation.Generated;
-import streaming.sse.implementation.ProtocolEventConverter;
+import streaming.sse.implementation.ProtocolEventSerializer;
 
 /**
  * Base for polymorphic events emitted by a streaming protocol event.
@@ -51,7 +51,7 @@ public abstract class ProtocolEvent {
     }
 
     static {
-        ProtocolEventConverter.setConstructorAccessor(new ProtocolEventConverter.ConstructorAccessor() {
+        ProtocolEventSerializer.setConstructorAccessor(new ProtocolEventSerializer.ConstructorAccessor() {
             @Override
             public ProtocolEvent unknownEvent(String eventName) {
                 return new ProtocolEvent(eventName) {

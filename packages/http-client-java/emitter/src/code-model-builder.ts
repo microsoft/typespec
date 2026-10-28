@@ -82,7 +82,7 @@ import type { CodeModel } from "./common/code-model.js";
 import { addGlobalParameter, createCodeModel } from "./common/code-model.js";
 import type { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { createLongRunningMetadata } from "./common/long-running-metadata.js";
-import type { Operation as CodeModelOperation, Request } from "./common/operation.js";
+import type { Operation as CodeModelOperation, Request, SseMetadata } from "./common/operation.js";
 import {
   addException,
   addOperation,
@@ -1052,7 +1052,7 @@ export class CodeModelBuilder {
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
-    codeModelOperation.sseStreamId = this.processSseMetadata(sdkMethod.response);
+    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response);
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
@@ -1129,8 +1129,8 @@ export class CodeModelBuilder {
         }
       }
     }
-    if (codeModelOperation.convenienceApi && codeModelOperation.sseStreamId) {
-      this.trackSseSchemaUsage(codeModelOperation.sseStreamId);
+    if (codeModelOperation.convenienceApi && codeModelOperation.sseMetadata) {
+      this.trackSseSchemaUsage(codeModelOperation.sseMetadata);
     }
     if (diagnostic) {
       codeModelOperation.language.java = codeModelOperation.language.java ?? {};
@@ -1259,7 +1259,7 @@ export class CodeModelBuilder {
     return codeModelOperation;
   }
 
-  private processSseMetadata(response: SdkMethodResponse): string | undefined {
+  private processSseMetadata(response: SdkMethodResponse): SseMetadata | undefined {
     if (!this.isAzureV1()) {
       return undefined;
     }
@@ -1298,10 +1298,6 @@ export class CodeModelBuilder {
     if (existingOwner && existingOwner !== owner) {
       throw new Error(`Distinct SSE unions claim cross-language definition ID '${id}'.`);
     }
-    if (existingOwner) {
-      return id;
-    }
-
     const seenEventNames = new Set<string>();
     for (const event of sseMetadata.events) {
       const contentType = (event.payloadContentType ?? "application/json")
@@ -1359,7 +1355,8 @@ export class CodeModelBuilder {
       return unsupported();
     }
 
-    const metadata = {
+    const metadata: SseMetadata = {
+      sseStreamId: id,
       streamName: streamType.name,
       modelNamespace,
       events: supportedEvents.map(({ event, payload }) => ({
@@ -1368,9 +1365,8 @@ export class CodeModelBuilder {
         terminal: event.isTerminalEvent,
       })),
     };
-    (this.codeModel.sseStreams ??= {})[id] = metadata;
     this.sseStreamOwners.set(id, owner);
-    return id;
+    return metadata;
   }
 
   private hasUnsupportedSseNullablePayload(type: SdkType): boolean {
@@ -1383,11 +1379,7 @@ export class CodeModelBuilder {
     return false;
   }
 
-  private trackSseSchemaUsage(id: string): void {
-    const metadata = this.codeModel.sseStreams?.[id];
-    if (!metadata) {
-      throw new Error(`Operation references unknown SSE stream '${id}'.`);
-    }
+  private trackSseSchemaUsage(metadata: SseMetadata): void {
     for (const event of metadata.events) {
       this.trackSchemaUsage(event.payload, {
         usage: [SchemaContext.Output, SchemaContext.Public],
