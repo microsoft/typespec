@@ -1,7 +1,7 @@
 import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
 import type { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
-import { openApiFor } from "./test-host.js";
+import { emitOpenApiWithDiagnostics, openApiFor } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 describe("schema examples", () => {
@@ -22,6 +22,34 @@ describe("schema examples", () => {
       `,
     );
     expect(res.components.schemas.Test.properties.name.example).toEqual("John");
+  });
+
+  it("apply example on int64 property beyond safe integer range without precision loss in yaml", async () => {
+    const [, diagnostics, content] = await emitOpenApiWithDiagnostics(
+      `
+      model Test {
+        @example(123456789123456789)
+        b: int64;
+      }
+      `,
+      { "file-type": "yaml" },
+    );
+    expect(diagnostics).toHaveLength(0);
+    expect(content).toContain("example: 123456789123456789");
+  });
+
+  it("apply example on int64 property beyond safe integer range in json", async () => {
+    const [, diagnostics, content] = await emitOpenApiWithDiagnostics(
+      `
+      model Test {
+        @example(123456789123456789)
+        b: int64;
+      }
+      `,
+      { "file-type": "json" },
+    );
+    expect(diagnostics).toHaveLength(0);
+    expect(content).toContain('"example": 123456789123456789');
   });
 
   it("serialize the examples with their json encoding", async () => {
