@@ -11,9 +11,11 @@ TypeSpec's code generation capabilities allow you to rapidly build a working API
 
 ## Prerequisites
 
-- .NET 9 installed (required for C# server code generation)
-- Node.js and npm (for the installation method)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) for the default `net9.0` project
+- Node.js 22 or later and npm (for the installation method)
 - Basic familiarity with TypeSpec
+
+> The emitter currently scaffolds projects targeting `net9.0`. [.NET 9 support ends November 10, 2026](https://dotnet.microsoft.com/platform/support/policy/dotnet-core). For new deployments, use [.NET 10 LTS](https://dotnet.microsoft.com/download/dotnet/10.0) by retargeting the generated project and following the [ASP.NET Core migration guide](https://learn.microsoft.com/aspnet/core/migration/90-to-100?view=aspnetcore-10.0) before running it.
 
 ## 1. Installing TypeSpec
 

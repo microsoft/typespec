@@ -1,7 +1,7 @@
 ### Prerequisite
 
-- Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
-- Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
+- Install [Node.js](https://nodejs.org/download/) 22 or above. (Verify by running `node --version`)
+- Install [**.NET 10.0 SDK**](https://dotnet.microsoft.com/download/dotnet/10.0) for your specific platform. (or a higher version)
 
 ### Naming conventions
 

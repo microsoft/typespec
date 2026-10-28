@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             var project = XDocument.Load(Path.Combine(_outputDir, "tests", "TestPackage.Tests.csproj"));
             Assert.AreEqual("Microsoft.NET.Sdk", project.Root!.Attribute("Sdk")!.Value);
             var properties = project.Root.Element("PropertyGroup")!;
-            Assert.AreEqual("net8.0", properties.Element("TargetFramework")!.Value);
+            Assert.AreEqual("net10.0", properties.Element("TargetFramework")!.Value);
             Assert.AreEqual("true", properties.Element("IsTestProject")!.Value);
             Assert.AreEqual("false", properties.Element("IsPackable")!.Value);
 
@@ -70,6 +70,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
                 new[] { ("NUnit", "4.4.0"), ("NUnit3TestAdapter", "4.6.0"), ("Microsoft.NET.Test.Sdk", "18.0.1") },
                 project.Descendants("PackageReference").Select(p => (p.Attribute("Include")!.Value, p.Attribute("Version")!.Value)));
             Assert.IsEmpty(project.Descendants("None"));
+        }
+
+        [Test]
+        public async Task Execute_WritesSourceProjectTargetFrameworks()
+        {
+            var scaffolding = new NewProjectScaffolding();
+            await scaffolding.Execute();
+
+            var project = XDocument.Load(Path.Combine(_outputDir, "src", "TestPackage.csproj"));
+            Assert.AreEqual("netstandard2.0;net10.0", project.Root!.Element("PropertyGroup")!.Element("TargetFrameworks")!.Value);
         }
 
         [Test]
@@ -177,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
 
             protected override string GetTestProjectFileContent()
             {
-                return new CSharpProjectWriter { TargetFramework = "net10.0" }.Write();
+                return new CSharpProjectWriter { TargetFramework = "net10.0-windows" }.Write();
             }
 
             protected override Task WriteAdditionalFiles()

@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- **Using Node 14 and above**
-- For use in **VS Code**, use version `VS Code 1.56` and above.
+- **Node.js 22 or later**
+- For use in **VS Code**, use a current [VS Code release](https://code.visualstudio.com/) with the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode).
 
 ## Getting Started
 
