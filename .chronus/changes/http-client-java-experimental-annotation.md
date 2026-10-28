@@ -4,12 +4,12 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Generate a configurable Java annotation for APIs marked with `@TypeSpec.HttpClient.experimental`.
+Generate a configurable Java annotation for Azure APIs marked with `@TypeSpec.HttpClient.experimental`.
 Set `experimental-annotation` to the annotation's fully qualified class name to enable generation:
 
 ```yaml
 options:
-  "@typespec/http-client-java":
+  "@azure-tools/typespec-java":
     experimental-annotation: "com.example.annotations.Experimental"
 ```
 
@@ -19,4 +19,5 @@ Generated code imports the annotation and uses `@Experimental(warningText = Expe
 Java code customizations can supply a custom `warningText` value.
 
 Includes generation coverage for experimental annotations and Java warning text customizations,
-including ClientCore and Azure v2 implementation methods and Fluent Lite module exports.
+including Azure v2 implementation methods and Fluent Lite module exports.
+Unbranded clients do not support this option or generate experimental annotations.

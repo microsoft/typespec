@@ -71,8 +71,9 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
 
     @Test
     public void pluginSettingIsNotRetainedAcrossGenerations() throws Exception {
-        try (JsonReader reader = JsonReader
-            .fromString("{\"namespace\":\"com.example\",\"experimental-annotation\":\"" + ANNOTATION + "\"}")) {
+        try (JsonReader reader
+            = JsonReader.fromString("{\"namespace\":\"com.example\",\"flavor\":\"azure\",\"experimental-annotation\":\""
+                + ANNOTATION + "\"}")) {
             new TypeSpecPlugin(EmitterOptions.fromJson(reader), false);
         }
         Assertions.assertEquals(ANNOTATION, JavaSettings.getInstance().getExperimentalAnnotation());
@@ -80,6 +81,22 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         JavaSettings.clear();
         new TypeSpecPlugin(new EmitterOptions().setNamespace("com.example"), false);
         Assertions.assertNull(JavaSettings.getInstance().getExperimentalAnnotation());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = { "generic", "standard" })
+    public void doesNotEnableExperimentalAnnotationsForUnbranded(String flavor) throws Exception {
+        String flavorOption = flavor == null ? "" : ",\"flavor\":\"" + flavor + "\"";
+        try (JsonReader reader = JsonReader.fromString(
+            "{\"namespace\":\"com.example\",\"experimental-annotation\":\"" + ANNOTATION + "\"" + flavorOption + "}")) {
+            new TypeSpecPlugin(EmitterOptions.fromJson(reader), false);
+        }
+        Assertions.assertNull(JavaSettings.getInstance().getExperimentalAnnotation());
+        Assertions.assertNull(ExperimentalAnnotationUtil.getAnnotation(metadata(null)));
+        Set<String> imports = new LinkedHashSet<>();
+        ExperimentalAnnotationUtil.addImportsTo(imports, metadata(null));
+        Assertions.assertTrue(imports.isEmpty());
     }
 
     @ParameterizedTest
@@ -230,7 +247,7 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
 
     @ParameterizedTest
     @CsvSource({ "generic, false", "generic, true", "azurev2, false", "azurev2, true" })
-    public void annotatesClientCoreOperationImplementations(String flavor, boolean experimental) {
+    public void onlyAnnotatesAzureV2OperationImplementations(String flavor, boolean experimental) {
         // Initialize shared type constants with the default test settings before switching flavors.
         GenericType responseType = GenericType.response(ClassType.STRING);
         configureJavaSettings(Map.of("experimental-annotation", ANNOTATION, "flavor", flavor));
@@ -268,9 +285,12 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         file.publicFinalClass("ClientImpl", block -> Templates.getClientMethodTemplate().write(method, block));
         String source = file.getContents().toString();
         Assertions.assertTrue(source.contains("readWithResponse()"), source);
-        Assertions.assertEquals(experimental, source.contains("@Preview(warningText = Preview.WARNING_TEXT)"), source);
-        if (experimental) {
+        boolean annotated = experimental && "azurev2".equals(flavor);
+        Assertions.assertEquals(annotated, source.contains("@Preview(warningText = Preview.WARNING_TEXT)"), source);
+        if (annotated) {
             assertImportedAnnotation(source);
+        } else {
+            Assertions.assertFalse(source.contains("import " + ANNOTATION + ";"), source);
         }
     }
 

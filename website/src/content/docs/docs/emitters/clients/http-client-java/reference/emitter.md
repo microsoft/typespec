@@ -52,12 +52,6 @@ License information for the generated client code.
 | `header`      | `string` |         | License header. It will be used in the header comment of generated client code.                                                                                                                                                  |
 | `description` | `string` |         | License description. The full license text.                                                                                                                                                                                      |
 
-### `experimental-annotation`
-
-**Type:** `string`
-
-Fully qualified name of the annotation to generate for APIs marked with @TypeSpec.HttpClient.experimental. Omit this option to disable experimental annotations.
-
 ### `dev-options`
 
 **Type:** `object { generate-code-model, debug, loglevel, java-temp-dir, profile }`

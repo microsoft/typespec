@@ -31,7 +31,6 @@ export interface License {
 
 export interface EmitterOptions {
   license?: License;
-  "experimental-annotation"?: string;
   "dev-options"?: DevOptions;
 }
 
@@ -39,13 +38,6 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
     ...UnbrandedSdkEmitterOptions.license,
-    "experimental-annotation": {
-      type: "string",
-      description:
-        "Fully qualified name of the annotation to generate for APIs marked with @TypeSpec.HttpClient.experimental. Omit this option to disable experimental annotations.",
-      nullable: true,
-      minLength: 1,
-    },
     "dev-options": {
       type: "object",
       description: "Developer options for http-client-java emitter.",

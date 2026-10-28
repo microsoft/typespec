@@ -48,10 +48,14 @@ import { cloneOperationParameter } from "../src/operation-utils.js";
 describe("experimental metadata", () => {
   it.each([
     { flavor: "azure", enabled: true, subclient: false },
+    { flavor: "azurev2", enabled: true, subclient: false },
     { flavor: "generic", enabled: true, subclient: false },
+    { flavor: undefined, enabled: true, subclient: false },
     { flavor: "azure", enabled: false, subclient: false },
+    { flavor: "azurev2", enabled: false, subclient: false },
     { flavor: "generic", enabled: false, subclient: false },
     { flavor: "azure", enabled: true, subclient: true },
+    { flavor: "azurev2", enabled: true, subclient: true },
     { flavor: "generic", enabled: true, subclient: true },
   ])(
     "only emits experimental markers for $flavor with annotation enabled=$enabled and subclient=$subclient",
@@ -97,39 +101,41 @@ describe("experimental metadata", () => {
         },
       }).build();
       expectDiagnosticEmpty(program.diagnostics);
+      const expectedExperimental =
+        enabled && ["azure", "azurev2"].includes(flavor ?? "") ? {} : undefined;
 
       const client = model.clients.find(
         (client) => client.language.default.name === "ExperimentalContractClient",
       )!;
-      expect(client.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(client.language.java?.experimental).toEqual(expectedExperimental);
       const group = client.operationGroups.find((group) => group.language.default.name === "Group");
       const child = client.subClients.find((client) => client.language.default.name === "Group");
-      expect((child ?? group)!.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect((child ?? group)!.language.java?.experimental).toEqual(expectedExperimental);
       const operations = client.operationGroups.flatMap((group) => group.operations ?? []);
       const operation = operations.find((operation) => operation.operationId === "read")!;
-      expect(operation.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(operation.language.java?.experimental).toEqual(expectedExperimental);
       const groupOperations = child
         ? child.operationGroups.flatMap((group) => group.operations ?? [])
         : group!.operations;
-      expect(groupOperations?.[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(groupOperations?.[0].language.java?.experimental).toEqual(expectedExperimental);
 
       const preview = model.schemas.objects?.find(
         (schema) => schema.language.default.name === "Preview",
       )!;
-      expect(preview.language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(preview.language.java?.experimental).toEqual(expectedExperimental);
       assert.isDefined(preview.properties);
-      expect(preview.properties[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(preview.properties[0].language.java?.experimental).toEqual(expectedExperimental);
       const choice = model.schemas.sealedChoices?.find(
         (schema) => schema.language.default.name === "Choice",
       )!;
-      expect(choice.language.java?.experimental).toEqual(enabled ? {} : undefined);
-      expect(choice.choices[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(choice.language.java?.experimental).toEqual(expectedExperimental);
+      expect(choice.choices[0].language.java?.experimental).toEqual(expectedExperimental);
       expect(choice.choices[1].language.java?.experimental).toBeUndefined();
       const openChoice = model.schemas.choices?.find(
         (schema) => schema.language.default.name === "OpenChoice",
       )!;
-      expect(openChoice.language.java?.experimental).toEqual(enabled ? {} : undefined);
-      expect(openChoice.choices[0].language.java?.experimental).toEqual(enabled ? {} : undefined);
+      expect(openChoice.language.java?.experimental).toEqual(expectedExperimental);
+      expect(openChoice.choices[0].language.java?.experimental).toEqual(expectedExperimental);
       for (const name of ["Stable", "Excluded"]) {
         const schema = model.schemas.objects?.find(
           (schema) => schema.language.default.name === name,
@@ -139,8 +145,8 @@ describe("experimental metadata", () => {
       const emptyWarning = model.schemas.objects?.find(
         (schema) => schema.language.default.name === "EmptyWarning",
       )!;
-      expect(emptyWarning.language.java?.experimental).toEqual(enabled ? {} : undefined);
-      expect(parse(stringify(client)).language.java.experimental).toEqual(enabled ? {} : undefined);
+      expect(emptyWarning.language.java?.experimental).toEqual(expectedExperimental);
+      expect(parse(stringify(client)).language.java.experimental).toEqual(expectedExperimental);
     },
   );
 });

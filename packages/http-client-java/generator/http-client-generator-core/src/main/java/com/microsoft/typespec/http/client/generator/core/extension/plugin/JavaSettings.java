@@ -45,7 +45,7 @@ public class JavaSettings {
     private final String experimentalAnnotation;
 
     /**
-     * Gets the fully qualified annotation class name used for experimental APIs.
+     * Gets the fully qualified annotation class name used for experimental Azure APIs.
      *
      * @return the annotation class name, or null when experimental annotations are disabled.
      */
@@ -185,7 +185,7 @@ public class JavaSettings {
         // The sub-package that custom types will be put into.
         this.customTypesSubpackage = getStringValue(host, "custom-types-subpackage", "");
 
-        this.experimentalAnnotation = getStringValue(host, "experimental-annotation");
+        this.experimentalAnnotation = isUnbranded() ? null : getStringValue(host, "experimental-annotation");
         if (experimentalAnnotation != null
             && (!experimentalAnnotation.contains(".") || !SourceVersion.isName(experimentalAnnotation))) {
             throw new IllegalArgumentException(

@@ -370,7 +370,7 @@ export class CodeModelBuilder {
     }
 
     // Metadata-only consumers may load a different version of Alloy.
-    if (this.options["experimental-annotation"] !== undefined) {
+    if (this.isBranded() && this.options["experimental-annotation"] !== undefined) {
       await import("@typespec/http-client/typekit");
     }
 
@@ -567,7 +567,11 @@ export class CodeModelBuilder {
   }
 
   private applyExperimental(target: Type | undefined, metadata: Pick<Metadata, "language">): void {
-    if (this.options["experimental-annotation"] === undefined || target === undefined) {
+    if (
+      !this.isBranded() ||
+      this.options["experimental-annotation"] === undefined ||
+      target === undefined
+    ) {
       return;
     }
 
