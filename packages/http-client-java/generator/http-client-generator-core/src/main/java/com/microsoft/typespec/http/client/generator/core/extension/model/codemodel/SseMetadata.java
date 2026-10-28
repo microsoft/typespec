@@ -12,7 +12,7 @@ import java.util.List;
 public class SseMetadata {
     private String sseStreamId;
     private String streamName;
-    private String modelNamespace;
+    private ObjectSchema baseSchema;
     private List<SseEventMetadata> events = new ArrayList<>();
 
     public String getSseStreamId() {
@@ -31,12 +31,12 @@ public class SseMetadata {
         this.streamName = streamName;
     }
 
-    public String getModelNamespace() {
-        return modelNamespace;
+    public ObjectSchema getBaseSchema() {
+        return baseSchema;
     }
 
-    public void setModelNamespace(String modelNamespace) {
-        this.modelNamespace = modelNamespace;
+    public void setBaseSchema(ObjectSchema baseSchema) {
+        this.baseSchema = baseSchema;
     }
 
     public List<SseEventMetadata> getEvents() {

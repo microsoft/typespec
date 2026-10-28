@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.NumberSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
@@ -19,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -81,7 +83,7 @@ public class JavaPackageSseTests {
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
         SseMetadata metadata = metadata();
         metadata.setStreamName("KnowledgeBaseRetrievalStreamEvents");
-        metadata.setModelNamespace("com.azure.search.documents.knowledgebases");
+        configureSchemas(metadata, "KnowledgeBaseRetrievalStreamEvents", "com.azure.search.documents.knowledgebases");
 
         javaPackage.addSseEventFiles(metadata);
 
@@ -116,13 +118,55 @@ public class JavaPackageSseTests {
     }
 
     @Test
+    public void usesSuppliedAllocatedSchemaNamesInEveryGeneratedSurface() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        setSchemaName(metadata.getBaseSchema(), "RetrievalStreamEvent2");
+        SseEventMetadata event = metadata.getEvents().get(0);
+        setSchemaName(event.getEventSchema(), "RetrievalStartedStreamEvent3");
+        event.getEventSchema()
+            .getParents()
+            .getImmediate()
+            .stream()
+            .filter(ObjectSchema.class::isInstance)
+            .map(ObjectSchema.class::cast)
+            .forEach(parent -> setSchemaName(parent, "RetrievalStreamEvent2"));
+        event.getEventSchema()
+            .getParents()
+            .getAll()
+            .stream()
+            .filter(ObjectSchema.class::isInstance)
+            .map(ObjectSchema.class::cast)
+            .forEach(parent -> setSchemaName(parent, "RetrievalStreamEvent2"));
+
+        javaPackage.addSseEventFiles(metadata);
+
+        Assertions.assertEquals(
+            List.of("src/main/java/com/azure/mock/models/RetrievalStreamEvent2.java",
+                "src/main/java/com/azure/mock/models/RetrievalStartedStreamEvent3.java",
+                "src/main/java/com/azure/mock/implementation/RetrievalStreamEvent2Serializer.java"),
+            javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath).collect(Collectors.toList()));
+        String baseSource = javaPackage.getJavaFiles().get(0).getContents().toString();
+        String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
+        String serializerSource = javaPackage.getJavaFiles().get(2).getContents().toString();
+        Assertions.assertTrue(baseSource.contains("RetrievalStreamEvent2Serializer.setConstructorAccessor("));
+        Assertions.assertTrue(baseSource.contains("public RetrievalStartedStreamEvent3 createRetrievalStarted("));
+        Assertions.assertTrue(
+            wrapperSource.contains("public final class RetrievalStartedStreamEvent3 extends RetrievalStreamEvent2"));
+        Assertions.assertTrue(serializerSource
+            .contains("public static RetrievalStreamEvent2 deserialize(String eventName, String data)"));
+        Assertions.assertTrue(serializerSource.contains("RetrievalStartedStreamEvent3 createRetrievalStarted("));
+    }
+
+    @Test
     public void generatesShortStreamNamesWithNonemptyDescriptions(@TempDir Path tempDir) throws IOException {
         for (String streamName : List.of("StreamEvents", "Stream")) {
             JavaSettings.clear();
             JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
             SseMetadata metadata = metadata();
             metadata.setStreamName(streamName);
-            metadata.setModelNamespace("com.azure." + streamName.toLowerCase());
+            configureSchemas(metadata, streamName, "com.azure." + streamName.toLowerCase());
 
             javaPackage.addSseEventFiles(metadata);
 
@@ -267,9 +311,11 @@ public class JavaPackageSseTests {
             SseMetadata first = metadata();
             first.setStreamName(streams.get(0));
             first.setEvents(List.of(event("bar.started", stringSchema())));
+            configureSchemas(first, streams.get(0), "com.azure.mock");
             SseMetadata second = metadata();
             second.setStreamName(streams.get(1));
             second.setEvents(List.of(event("foo", stringSchema())));
+            configureSchemas(second, streams.get(1), "com.azure.mock");
             javaPackage.addSseEventFiles(first);
             int size = javaPackage.getJavaFiles().size();
             Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(second));
@@ -340,7 +386,8 @@ public class JavaPackageSseTests {
         SseMetadata metadata = new SseMetadata();
         metadata.setSseStreamId("RetrievalStreamEvents");
         metadata.setStreamName("RetrievalStreamEvents");
-        metadata.setModelNamespace("com.azure.mock");
+        metadata.setBaseSchema(objectSchema("RetrievalStreamEvent", "com.azure.mock"));
+        metadata.getBaseSchema().setProperties(List.of(property("eventName", stringSchema())));
         metadata.setEvents(List.of(event("retrieval.started", stringSchema())));
         return metadata;
     }
@@ -348,7 +395,14 @@ public class JavaPackageSseTests {
     private static SseEventMetadata event(String name, Schema payload) {
         SseEventMetadata event = new SseEventMetadata();
         event.setName(name);
-        event.setPayload(payload);
+        ObjectSchema baseSchema = objectSchema("RetrievalStreamEvent", "com.azure.mock");
+        ObjectSchema eventSchema = objectSchema(resolveWrapperName("RetrievalStreamEvents", name), "com.azure.mock");
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(baseSchema));
+        parents.setAll(List.of(baseSchema));
+        eventSchema.setParents(parents);
+        eventSchema.setProperties(List.of(property("value", payload)));
+        event.setEventSchema(eventSchema);
         return event;
     }
 
@@ -370,6 +424,76 @@ public class JavaPackageSseTests {
         schema.setLanguage(languages);
         schema.setChildren(new Relations());
         return schema;
+    }
+
+    private static void setSchemaName(ObjectSchema schema, String name) {
+        schema.getLanguage().getDefault().setName(name);
+        schema.getLanguage().getJava().setName(name);
+    }
+
+    private static Property property(String name, Schema schema) {
+        Language language = new Language();
+        language.setName(name);
+        language.setDescription(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        Property property = new Property();
+        property.setLanguage(languages);
+        property.setSerializedName(name);
+        property.setRequired(true);
+        property.setReadOnly(true);
+        property.setSchema(schema);
+        return property;
+    }
+
+    private static void configureSchemas(SseMetadata metadata, String streamName, String namespace) {
+        ObjectSchema baseSchema = objectSchema(resolveBaseName(streamName), namespace);
+        baseSchema.setProperties(List.of(property("eventName", stringSchema())));
+        metadata.setBaseSchema(baseSchema);
+        for (SseEventMetadata event : metadata.getEvents()) {
+            ObjectSchema eventSchema = objectSchema(resolveWrapperName(streamName, event.getName()), namespace);
+            Relations parents = new Relations();
+            parents.setImmediate(List.of(baseSchema));
+            parents.setAll(List.of(baseSchema));
+            eventSchema.setParents(parents);
+            eventSchema.setProperties(List.of(property("value", SseUtil.getPayloadSchema(event))));
+            event.setEventSchema(eventSchema);
+        }
+    }
+
+    private static String resolveBaseName(String streamName) {
+        String normalized = com.microsoft.typespec.http.client.generator.core.util.CodeNamer.toPascalCase(streamName);
+        String baseName
+            = normalized.endsWith("Events") ? normalized.substring(0, normalized.length() - 1) : normalized + "Event";
+        return com.microsoft.typespec.http.client.generator.core.util.CodeNamer.toPascalCase(
+            com.microsoft.typespec.http.client.generator.core.util.CodeNamer.removeInvalidCharacters(baseName));
+    }
+
+    private static String resolveWrapperName(String streamName, String eventName) {
+        String baseName = resolveBaseName(streamName);
+        String suffix = "StreamEvent";
+        String baseStem
+            = baseName.endsWith(suffix) ? baseName.substring(0, baseName.length() - suffix.length()) : baseName;
+        String[] segments = eventName.split("[^A-Za-z0-9]+");
+        String firstSegment = "";
+        StringBuilder normalizedEventName = new StringBuilder();
+        for (String segment : segments) {
+            if (!segment.isEmpty()) {
+                String normalized
+                    = com.microsoft.typespec.http.client.generator.core.util.CodeNamer.toPascalCase(segment);
+                if (firstSegment.isEmpty()) {
+                    firstSegment = normalized;
+                }
+                normalizedEventName.append(normalized);
+            }
+        }
+        String prefix = !firstSegment.isEmpty() && baseStem.endsWith(firstSegment)
+            ? baseStem.substring(0, baseStem.length() - firstSegment.length())
+            : baseStem;
+        return com.microsoft.typespec.http.client.generator.core.util.CodeNamer
+            .toPascalCase(com.microsoft.typespec.http.client.generator.core.util.CodeNamer
+                .removeInvalidCharacters(prefix + normalizedEventName + suffix));
     }
 
     private static DictionarySchema dictionary(Schema elementType) {

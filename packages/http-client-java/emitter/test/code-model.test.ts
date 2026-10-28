@@ -102,6 +102,10 @@ describe("code model characterization", () => {
         ]);
         expect(operations[0].sseMetadata).not.toBe(operations[1].sseMetadata);
         expect(operations[0].sseMetadata).toMatchObject(operations[1].sseMetadata!);
+        expect(operations[0].sseMetadata?.baseSchema).toBe(operations[1].sseMetadata?.baseSchema);
+        expect(operations[0].sseMetadata?.events[0].eventSchema).toBe(
+          operations[1].sseMetadata?.events[0].eventSchema,
+        );
         expect(model).not.toHaveProperty("sseStreams");
       } else {
         await expect(builder.build()).rejects.toThrow(
@@ -133,21 +137,81 @@ describe("code model characterization", () => {
     expect(namedOperation.sseMetadata).toMatchObject({
       sseStreamId: "SseVariants.Named",
       streamName: "Named",
-      modelNamespace: "ssevariants",
+      baseSchema: {
+        type: SchemaType.Object,
+        language: {
+          default: { name: "NamedEvent" },
+          java: { namespace: "ssevariants" },
+        },
+        properties: [
+          {
+            language: { default: { name: "eventName" } },
+            serializedName: "eventName",
+            required: true,
+            readOnly: true,
+            schema: { type: SchemaType.String },
+          },
+        ],
+      },
       events: [
-        { name: "message", payload: { type: SchemaType.String }, terminal: false },
-        { name: "count", payload: { type: SchemaType.Integer }, terminal: false },
-        { name: "enabled", payload: { type: SchemaType.Boolean }, terminal: false },
         {
-          name: "collections",
-          payload: {
-            type: SchemaType.Array,
-            elementType: { type: SchemaType.Dictionary, elementType: { type: SchemaType.Array } },
+          name: "message",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.String } }],
           },
           terminal: false,
         },
-        { name: "payloadModel", payload: { type: SchemaType.Object }, terminal: false },
-        { name: "done", payload: { type: SchemaType.Object }, terminal: true },
+        {
+          name: "count",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Integer } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "enabled",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Boolean } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "collections",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [
+              {
+                schema: {
+                  type: SchemaType.Array,
+                  elementType: {
+                    type: SchemaType.Dictionary,
+                    elementType: { type: SchemaType.Array },
+                  },
+                },
+              },
+            ],
+          },
+          terminal: false,
+        },
+        {
+          name: "payloadModel",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Object } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "done",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Object } }],
+          },
+          terminal: true,
+        },
       ],
     });
 
@@ -210,8 +274,14 @@ describe("code model characterization", () => {
       .flatMap((group) => group.operations ?? [])
       .find((operation) => operation.language.default.name === "scalarEvents")!;
     expect(operation.sseMetadata?.events).toMatchObject([
-      { name: "first", payload: { type: SchemaType.String } },
-      { name: "second", payload: { type: SchemaType.String } },
+      {
+        name: "first",
+        eventSchema: { properties: [{ schema: { type: SchemaType.String } }] },
+      },
+      {
+        name: "second",
+        eventSchema: { properties: [{ schema: { type: SchemaType.String } }] },
+      },
     ]);
     expect(operation.responses?.[0]).toMatchObject({ binary: true });
   });
@@ -246,36 +316,63 @@ describe("code model characterization", () => {
     expect(operation.sseMetadata?.events).toMatchObject([
       {
         name: "direct",
-        payload: { type: SchemaType.Dictionary, elementType: { type: SchemaType.String } },
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Dictionary,
+                elementType: { type: SchemaType.String },
+              },
+            },
+          ],
+        },
       },
       {
         name: "array",
-        payload: {
-          type: SchemaType.Array,
-          elementType: {
-            type: SchemaType.Dictionary,
-            elementType: { type: SchemaType.String },
-          },
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Array,
+                elementType: {
+                  type: SchemaType.Dictionary,
+                  elementType: { type: SchemaType.String },
+                },
+              },
+            },
+          ],
         },
       },
       {
         name: "nested",
-        payload: {
-          type: SchemaType.Dictionary,
-          elementType: {
-            type: SchemaType.Dictionary,
-            elementType: {
-              type: SchemaType.Array,
-              elementType: { type: SchemaType.String },
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Dictionary,
+                elementType: {
+                  type: SchemaType.Dictionary,
+                  elementType: {
+                    type: SchemaType.Array,
+                    elementType: { type: SchemaType.String },
+                  },
+                },
+              },
             },
-          },
+          ],
         },
       },
       {
         name: "modelMap",
-        payload: {
-          type: SchemaType.Dictionary,
-          elementType: { type: SchemaType.Object },
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Dictionary,
+                elementType: { type: SchemaType.Object },
+              },
+            },
+          ],
         },
       },
     ]);
@@ -323,20 +420,41 @@ describe("code model characterization", () => {
     expect(enabledOperation.sseMetadata).toMatchObject({
       sseStreamId: "SseTest.RetrievalStreamEvents",
       streamName: "RetrievalStreamEvents",
-      modelNamespace: "ssetest.retrieve",
+      baseSchema: {
+        language: {
+          default: { name: "RetrievalStreamEvent" },
+          java: { namespace: "ssetest.retrieve" },
+        },
+      },
       events: [
         {
           name: "retrieval.started",
           terminal: false,
-          payload: {
-            language: { default: { name: "RetrievalStarted" } },
+          eventSchema: {
+            language: { default: { name: "RetrievalStartedStreamEvent" } },
+            properties: [
+              {
+                language: { default: { name: "value" } },
+                required: true,
+                readOnly: true,
+                schema: { language: { default: { name: "RetrievalStarted" } } },
+              },
+            ],
           },
         },
         {
           name: "response.completed",
           terminal: true,
-          payload: {
-            language: { default: { name: "ResponseCompleted" } },
+          eventSchema: {
+            language: { default: { name: "RetrievalResponseCompletedStreamEvent" } },
+            properties: [
+              {
+                language: { default: { name: "value" } },
+                required: true,
+                readOnly: true,
+                schema: { language: { default: { name: "ResponseCompleted" } } },
+              },
+            ],
           },
         },
       ],
@@ -350,8 +468,11 @@ describe("code model characterization", () => {
     );
     expect(protocolOnlyOperation.sseMetadata).not.toBe(enabledOperation.sseMetadata);
     expect(protocolOnlyOperation.sseMetadata).toMatchObject(enabledOperation.sseMetadata!);
-    expect(protocolOnlyOperation.sseMetadata?.events[0].payload).toBe(
-      enabledOperation.sseMetadata?.events[0].payload,
+    expect(protocolOnlyOperation.sseMetadata?.baseSchema).toBe(
+      enabledOperation.sseMetadata?.baseSchema,
+    );
+    expect(protocolOnlyOperation.sseMetadata?.events[0].eventSchema).toBe(
+      enabledOperation.sseMetadata?.events[0].eventSchema,
     );
     const serialized = parse(stringify(enabledModel));
     const serializedOperations = serialized.clients[0].operationGroups[0].operations;
@@ -364,6 +485,9 @@ describe("code model characterization", () => {
       sseStreamId: "SseTest.RetrievalStreamEvents",
       streamName: "RetrievalStreamEvents",
     });
+    expect(serializedEnabledOperation.sseMetadata).not.toHaveProperty("modelNamespace");
+    expect(serializedEnabledOperation.sseMetadata.events[0]).not.toHaveProperty("payload");
+    expect(serializedEnabledOperation.sseMetadata.baseSchema.type).toBe(SchemaType.Object);
     expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
     expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
     expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
@@ -415,6 +539,170 @@ describe("code model characterization", () => {
         severity: "warning",
       })),
     );
+  });
+
+  it("preserves current SSE names in emitter-composed schemas", async () => {
+    const program = await compileSseScenario("SseNaming");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const metadata = Object.fromEntries(
+      model.clients[0].operationGroups[0].operations!.map((operation) => [
+        operation.language.default.name,
+        operation.sseMetadata!,
+      ]),
+    );
+
+    expect(metadata.retrieval.baseSchema.language.default.name).toBe("RetrievalStreamEvent");
+    expect(
+      metadata.retrieval.events.map((event) => event.eventSchema.language.default.name),
+    ).toEqual(["RetrievalStartedStreamEvent", "RetrievalResponseCompletedStreamEvent"]);
+    expect(metadata.knowledgeBase.baseSchema.language.default.name).toBe(
+      "KnowledgeBaseRetrievalStreamEvent",
+    );
+    expect(
+      metadata.knowledgeBase.events.map((event) => event.eventSchema.language.default.name),
+    ).toEqual([
+      "KnowledgeBaseRetrievalStartedStreamEvent",
+      "KnowledgeBaseRetrievalCompletedStreamEvent",
+      "KnowledgeBaseRetrievalActivityCompletedStreamEvent",
+      "KnowledgeBaseRetrievalResponseCompletedStreamEvent",
+    ]);
+    expect(metadata.digitEvent.events[0].eventSchema.language.default.name).toBe(
+      "OneTwoThreeDoneStreamEvent",
+    );
+    expect(metadata.digitStream.baseSchema.language.default.name).toBe("OneTwoThreeEvent");
+  });
+
+  it("keeps per-event names stable across additions and ordering", async () => {
+    const build = async (namespace: string) => {
+      const program = await compileSseScenario(namespace);
+      expectDiagnosticEmpty(program.diagnostics);
+      return new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+    };
+    const eventNames = (model: Awaited<ReturnType<typeof build>>) =>
+      new Map(
+        model.clients[0].operationGroups[0].operations![0].sseMetadata!.events.map((event) => [
+          event.name,
+          event.eventSchema.language.default.name,
+        ]),
+      );
+
+    const responseOnly = eventNames(await build("SseNamingResponseOnly"));
+    const withRetrieval = eventNames(await build("SseNamingWithRetrieval"));
+    expect(responseOnly.get("response.completed")).toBe(withRetrieval.get("response.completed"));
+    const retrievalFirst = eventNames(await build("SseNamingOrderFirst"));
+    const baseRetrievalFirst = eventNames(await build("SseNamingOrderSecond"));
+    expect(retrievalFirst).toEqual(baseRetrievalFirst);
+  });
+
+  it("rejects normalized SSE wrapper name collisions in the emitter", async () => {
+    const program = await compileSseScenario("SseNamingCollision");
+    expectDiagnosticEmpty(program.diagnostics);
+    await expect(
+      new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build(),
+    ).rejects.toThrow("resolve to duplicate Java type 'RetrievalStartedStreamEvent'");
+  });
+
+  it("isolates synthetic SSE schemas from authored envelope hierarchies", async () => {
+    const program = await compileSseScenario("SseSchemaIsolation");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const operations = model.clients[0].operationGroups[0].operations!;
+    const metadata = operations
+      .filter((operation) => operation.sseMetadata)
+      .map((operation) => operation.sseMetadata!);
+
+    expect(new Set(metadata.map((value) => value.baseSchema)).size).toBe(4);
+    for (const stream of metadata) {
+      expect(model.schemas.objects ?? []).not.toContain(stream.baseSchema);
+      for (const event of stream.events) {
+        expect(model.schemas.objects ?? []).not.toContain(event.eventSchema);
+        expect(event.eventSchema.parents?.immediate).toEqual([stream.baseSchema]);
+        expect(event.eventSchema.parents?.all).toEqual([stream.baseSchema]);
+        expect(
+          event.eventSchema.properties?.map((property) => property.language.default.name),
+        ).toEqual(["value"]);
+      }
+    }
+  });
+
+  it("allocates synthetic SSE names after final ordinary schema names", async () => {
+    const program = await compileSseScenario("SseSchemaAllocation");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const operations = Object.fromEntries(
+      model.clients[0].operationGroups[0].operations!.map((operation) => [
+        operation.language.default.name,
+        operation.sseMetadata!,
+      ]),
+    );
+
+    expect(operations.collision.baseSchema.language.default.name).toBe("CollisionEvent2");
+    expect(operations.collision.events[0].eventSchema.language.default.name).toBe(
+      "CollisionEventMessageStreamEvent",
+    );
+    expect(operations.exact.baseSchema.language.default.name).toBe("ExactCollisionEvent1");
+    expect(operations.azure.baseSchema.language.default.name).toBe("AzureCollisionEvent1");
+    expect(operations.one.baseSchema.language.default.name).toBe("SharedEvent");
+    expect(operations.two.baseSchema.language.default.name).toBe("SharedEvent1");
+    expect(
+      model.schemas.objects?.find((schema) => schema.language.default.name === "CollisionEvent")
+        ?.language.default.name,
+    ).toBe("CollisionEvent");
+    expect(
+      model.schemas.objects?.find((schema) => schema.language.default.name === "CollisionEvent1")
+        ?.language.default.name,
+    ).toBe("CollisionEvent1");
   });
 
   it.each(["azure", "standard"] as const)(

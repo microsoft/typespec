@@ -5,8 +5,10 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -53,12 +55,22 @@ public class CodeModel extends Client {
         if (metadata.getStreamName() == null || metadata.getStreamName().isEmpty()) {
             throw invalidSseMetadata(operation, id, "the stream name is missing or empty");
         }
-        if (metadata.getModelNamespace() == null || metadata.getModelNamespace().isEmpty()) {
-            throw invalidSseMetadata(operation, id, "the model namespace is missing or empty");
+        validateSchemaIdentity(operation, id, "the base schema", metadata.getBaseSchema());
+        Property eventName = findProperty(metadata.getBaseSchema(), "eventName");
+        if (eventName == null) {
+            throw invalidSseMetadata(operation, id, "the base schema has no eventName property");
+        }
+        if (!eventName.isRequired() || !eventName.isReadOnly()) {
+            throw invalidSseMetadata(operation, id,
+                "the base schema eventName property must be required and read-only");
+        }
+        if (!(eventName.getSchema() instanceof StringSchema)) {
+            throw invalidSseMetadata(operation, id, "the base schema eventName property must be a string");
         }
         if (metadata.getEvents() == null || metadata.getEvents().isEmpty()) {
             throw invalidSseMetadata(operation, id, "the event list is null or empty");
         }
+        Set<String> eventNames = new HashSet<>();
         for (SseEventMetadata event : metadata.getEvents()) {
             if (event == null) {
                 throw invalidSseMetadata(operation, id, "the event list contains a null event");
@@ -66,10 +78,101 @@ public class CodeModel extends Client {
             if (event.getName() == null || event.getName().isEmpty()) {
                 throw invalidSseMetadata(operation, id, "an event name is missing or empty");
             }
-            if (event.getPayload() == null) {
-                throw invalidSseMetadata(operation, id, "event '" + event.getName() + "' has no payload schema");
+            if (!eventNames.add(event.getName())) {
+                throw invalidSseMetadata(operation, id, "event name '" + event.getName() + "' is duplicated");
+            }
+            validateSchemaIdentity(operation, id, "event '" + event.getName() + "' schema", event.getEventSchema());
+            String baseNamespace = effectiveLanguage(metadata.getBaseSchema()).getNamespace();
+            String eventNamespace = effectiveLanguage(event.getEventSchema()).getNamespace();
+            if (!Objects.equals(baseNamespace, eventNamespace)) {
+                throw invalidSseMetadata(operation, id, "event '" + event.getName() + "' schema namespace '"
+                    + eventNamespace + "' does not match the stream base schema namespace '" + baseNamespace + "'");
+            }
+            Property value = findProperty(event.getEventSchema(), "value");
+            if (value == null) {
+                throw invalidSseMetadata(operation, id, "event '" + event.getName() + "' schema has no value property");
+            }
+            if (!value.isRequired() || !value.isReadOnly()) {
+                throw invalidSseMetadata(operation, id,
+                    "event '" + event.getName() + "' value property must be required and read-only");
+            }
+            if (value.getSchema() == null) {
+                throw invalidSseMetadata(operation, id,
+                    "event '" + event.getName() + "' value property has no payload schema");
+            }
+            if (!hasExactlyOneImmediateParent(event.getEventSchema().getParents(), metadata.getBaseSchema())) {
+                throw invalidSseMetadata(operation, id, "event '" + event.getName()
+                    + "' schema must have exactly one immediate parent matching the stream base schema");
+            }
+            if (!hasAllParent(event.getEventSchema().getParents(), metadata.getBaseSchema())) {
+                throw invalidSseMetadata(operation, id,
+                    "event '" + event.getName() + "' schema all-parent list does not contain the stream base schema");
             }
         }
+    }
+
+    private static void validateSchemaIdentity(Operation operation, String id, String label, ObjectSchema schema) {
+        if (schema == null) {
+            throw invalidSseMetadata(operation, id, label + " is missing");
+        }
+        Language language = effectiveLanguage(schema);
+        if (language == null || language.getName() == null || language.getName().isEmpty()) {
+            throw invalidSseMetadata(operation, id, label + " has no usable name");
+        }
+        if (language.getNamespace() == null || language.getNamespace().isEmpty()) {
+            throw invalidSseMetadata(operation, id, label + " has no usable namespace");
+        }
+    }
+
+    private static Property findProperty(ObjectSchema schema, String serializedName) {
+        if (schema == null || schema.getProperties() == null) {
+            return null;
+        }
+        return schema.getProperties()
+            .stream()
+            .filter(Objects::nonNull)
+            .filter(property -> serializedName.equals(property.getSerializedName()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private static boolean hasExactlyOneImmediateParent(Relations relations, ObjectSchema baseSchema) {
+        if (relations == null) {
+            return false;
+        }
+        List<Schema> parents = relations.getImmediate();
+        return parents != null && parents.size() == 1 && sameSchema(parents.get(0), baseSchema);
+    }
+
+    private static boolean hasAllParent(Relations relations, ObjectSchema baseSchema) {
+        if (relations == null) {
+            return false;
+        }
+        List<Schema> parents = relations.getAll();
+        return parents != null && parents.stream().anyMatch(parent -> sameSchema(parent, baseSchema));
+    }
+
+    private static boolean sameSchema(Schema first, ObjectSchema second) {
+        if (!(first instanceof ObjectSchema)) {
+            return false;
+        }
+        Language firstLanguage = effectiveLanguage((ObjectSchema) first);
+        Language secondLanguage = effectiveLanguage(second);
+        return firstLanguage != null
+            && secondLanguage != null
+            && Objects.equals(firstLanguage.getName(), secondLanguage.getName())
+            && Objects.equals(firstLanguage.getNamespace(), secondLanguage.getNamespace());
+    }
+
+    private static Language effectiveLanguage(Metadata metadata) {
+        if (metadata.getLanguage() == null) {
+            return null;
+        }
+        Language java = metadata.getLanguage().getJava();
+        if (java != null && java.getName() != null && !java.getName().isEmpty()) {
+            return java;
+        }
+        return metadata.getLanguage().getDefault();
     }
 
     private static IllegalStateException invalidSseMetadata(Operation operation, String id, String reason) {

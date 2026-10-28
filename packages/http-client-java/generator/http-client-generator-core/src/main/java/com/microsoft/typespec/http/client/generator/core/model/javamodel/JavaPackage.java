@@ -46,7 +46,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -104,15 +103,16 @@ public class JavaPackage {
     }
 
     public final void addSseEventFiles(SseMetadata metadata) {
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        SseUtil.validateEventFactoryNames(metadata);
         List<SseEventMetadata> events = metadata.getEvents();
-        String eventPackage = SseUtil.getEventPackage(metadata);
-        JavaFile baseFile = javaFileFactory.createSourceFile(eventPackage, names.getBaseEventName());
+        JavaFile baseFile = javaFileFactory.createSourceFile(SseUtil.getEventPackage(metadata),
+            SseUtil.getClientEventTypeName(metadata));
         List<JavaFile> eventFiles = events.stream()
-            .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
+            .map(event -> javaFileFactory.createSourceFile(SseUtil.getEventPackage(event.getEventSchema()),
+                SseUtil.getEventType(event.getEventSchema()).getName()))
             .collect(Collectors.toList());
-        JavaFile serializerFile
-            = javaFileFactory.createSourceFile(SseUtil.getSerializerPackage(), names.getSerializerName());
+        JavaFile serializerFile = javaFileFactory.createSourceFile(SseUtil.getSerializerPackage(),
+            SseUtil.getSerializerType(metadata).getName());
         List<JavaFile> sseFiles = new ArrayList<>();
         sseFiles.add(baseFile);
         sseFiles.addAll(eventFiles);

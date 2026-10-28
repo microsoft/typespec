@@ -8,7 +8,7 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
  */
 public class SseEventMetadata {
     private String name;
-    private Schema payload;
+    private ObjectSchema eventSchema;
     private boolean terminal;
 
     public String getName() {
@@ -19,12 +19,12 @@ public class SseEventMetadata {
         this.name = name;
     }
 
-    public Schema getPayload() {
-        return payload;
+    public ObjectSchema getEventSchema() {
+        return eventSchema;
     }
 
-    public void setPayload(Schema payload) {
-        this.payload = payload;
+    public void setEventSchema(ObjectSchema eventSchema) {
+        this.eventSchema = eventSchema;
     }
 
     public boolean isTerminal() {

@@ -4,9 +4,9 @@ import type {
   Aspect,
   Metadata,
   ModelOptions,
+  ObjectSchema,
   Parameter,
   Response,
-  Schema,
 } from "./schemas/model.js";
 import {
   createAspect,
@@ -74,8 +74,8 @@ export interface SseEventMetadata {
   /** SSE event field value. */
   name: string;
 
-  /** Typed event payload. */
-  payload: Schema;
+  /** Synthetic schema for the generated typed event wrapper. */
+  eventSchema: ObjectSchema;
 
   /** Whether this event inclusively terminates the stream. */
   terminal: boolean;
@@ -88,8 +88,8 @@ export interface SseMetadata {
   /** Semantic name of the named event stream. */
   streamName: string;
 
-  /** Java namespace used as the base for generated event models. */
-  modelNamespace: string;
+  /** Synthetic schema for the generated stream event base type. */
+  baseSchema: ObjectSchema;
 
   /** Supported named event variants. */
   events: SseEventMetadata[];

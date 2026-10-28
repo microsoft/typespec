@@ -46,7 +46,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
@@ -333,7 +332,6 @@ abstract class ConvenienceMethodTemplateBase {
 
     private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
         SseMetadata metadata = method.getSseMetadata();
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         String baseEventName = SseUtil.getClientEventTypeName(metadata);
         comment.description(method.getDescription());
 
@@ -342,7 +340,7 @@ abstract class ConvenienceMethodTemplateBase {
             + ". Unrecognized events expose only their names through {@link " + baseEventName
             + "#getEventName()}; their payloads are not available.");
 
-        List<String> terminalEventNames = SseNamingResolver.getTerminalEventNames(metadata);
+        List<String> terminalEventNames = SseUtil.getTerminalEventNames(metadata);
         String terminalEvents = terminalEventNames.stream()
             .map(eventName -> "{@code " + eventName + "}")
             .collect(Collectors.joining(" or "));
@@ -370,7 +368,7 @@ abstract class ConvenienceMethodTemplateBase {
             comment.param(parameter.getName(), parameter.getDescription());
         }
         comment.methodReturns((isMethodAsync(method) ? "A stream of typed " : "A closeable stream of typed ")
-            + names.getStreamDescription() + " events");
+            + SseUtil.getStreamDescription(metadata) + " events");
     }
 
     /**

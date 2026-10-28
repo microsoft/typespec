@@ -232,14 +232,18 @@ public class CodeModelCustomConstructor extends Constructor {
                         if (tuple.getValueNode() instanceof SequenceNode) {
                             SequenceNode value = (SequenceNode) tuple.getValueNode();
                             for (Node item : value.getValue()) {
-                                item.setType(getSchemaTypeFromMappingNode((MappingNode) item));
+                                if (item instanceof MappingNode) {
+                                    item.setType(getSchemaTypeFromMappingNode((MappingNode) item));
+                                }
                             }
                             break;
                         } else if (tuple.getValueNode() instanceof MappingNode) {
                             MappingNode value = (MappingNode) tuple.getValueNode();
                             for (NodeTuple item : value.getValue()) {
-                                item.getValueNode()
-                                    .setType(getSchemaTypeFromMappingNode((MappingNode) (item.getValueNode())));
+                                if (item.getValueNode() instanceof MappingNode) {
+                                    item.getValueNode()
+                                        .setType(getSchemaTypeFromMappingNode((MappingNode) item.getValueNode()));
+                                }
                             }
                             break;
                         }
@@ -255,14 +259,7 @@ public class CodeModelCustomConstructor extends Constructor {
                     case "elementType":
                     case "valueType":
                     case "schema": {
-                        MappingNode value = (MappingNode) tuple.getValueNode();
-                        value.setType(getSchemaTypeFromMappingNode(value));
-                        break;
-                    }
-
-                    case "payload": {
-                        if (node.getType().equals(SseEventMetadata.class)
-                            && tuple.getValueNode() instanceof MappingNode) {
+                        if (tuple.getValueNode() instanceof MappingNode) {
                             MappingNode value = (MappingNode) tuple.getValueNode();
                             value.setType(getSchemaTypeFromMappingNode(value));
                         }

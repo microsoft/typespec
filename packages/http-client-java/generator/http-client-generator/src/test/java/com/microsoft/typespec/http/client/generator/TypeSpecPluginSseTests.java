@@ -8,10 +8,13 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Info;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
@@ -124,6 +127,63 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
     }
 
     @Test
+    public void processClientRejectsAmbiguousImmediateSseParent() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        SseMetadata metadata = metadata("ambiguous-parent", "Events", "com.azure.mock");
+        ObjectSchema expectedBase = sseObjectSchema("EventsEvent", "com.azure.mock");
+        ObjectSchema otherBase = sseObjectSchema("OtherEvent", "com.azure.mock");
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(otherBase, expectedBase));
+        parents.setAll(List.of(otherBase, expectedBase));
+        metadata.getEvents().get(0).getEventSchema().setParents(parents);
+        CodeModel model = codeModel(List.of(group("", operation("ambiguousParent", metadata, false, false))));
+
+        assertInvalidMetadata(plugin, model, "ambiguousParent", "ambiguous-parent",
+            "event 'message' schema must have exactly one immediate parent matching the stream base schema");
+    }
+
+    @Test
+    public void processClientRejectsMissingImmediateSseParent() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        SseMetadata metadata = metadata("missing-parent", "Events", "com.azure.mock");
+        metadata.getEvents().get(0).getEventSchema().setParents(null);
+        CodeModel model = codeModel(List.of(group("", operation("missingParent", metadata, false, false))));
+
+        assertInvalidMetadata(plugin, model, "missingParent", "missing-parent",
+            "event 'message' schema must have exactly one immediate parent matching the stream base schema");
+    }
+
+    @Test
+    public void processClientRejectsMissingAllSseParent() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        SseMetadata metadata = metadata("missing-all-parent", "Events", "com.azure.mock");
+        metadata.getEvents().get(0).getEventSchema().getParents().setAll(null);
+        CodeModel model = codeModel(List.of(group("", operation("missingAllParent", metadata, false, false))));
+
+        assertInvalidMetadata(plugin, model, "missingAllParent", "missing-all-parent",
+            "event 'message' schema all-parent list does not contain the stream base schema");
+    }
+
+    @Test
+    public void processClientRejectsMismatchedSseEventNamespace() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(Map.of("namespace", "com.azure.mock", "flavor", "azure"));
+        SseMetadata metadata = metadata("mismatched-namespace", "Events", "com.azure.mock");
+        metadata.getEvents()
+            .get(0)
+            .getEventSchema()
+            .setLanguage(languages("EventsMessageStreamEvent", "com.azure.other"));
+        CodeModel model = codeModel(List.of(group("", operation("mismatchedNamespace", metadata, false, false))));
+
+        assertInvalidMetadata(plugin, model, "mismatchedNamespace", "mismatched-namespace",
+            "event 'message' schema namespace 'com.azure.other' does not match the stream base schema namespace "
+                + "'com.azure.mock'");
+    }
+
+    @Test
     public void mapsFinalConvenienceUsageBeforeHelperEmission() {
         TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
         configureJavaSettings(sseSettings("all", false, true));
@@ -204,15 +264,49 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
     private static SseMetadata metadata(String id, String streamName, String namespace) {
         StringSchema payload = new StringSchema();
         payload.setType(Schema.AllSchemaTypes.STRING);
+        String baseName
+            = streamName.endsWith("Events") ? streamName.substring(0, streamName.length() - 1) : streamName + "Event";
+        ObjectSchema baseSchema = sseObjectSchema(baseName, namespace);
+        baseSchema.setProperties(List.of(sseProperty("eventName", stringSchema())));
+        ObjectSchema eventSchema
+            = sseObjectSchema(baseName.replaceFirst("Event$", "") + "MessageStreamEvent", namespace);
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(sseObjectSchema(baseName, namespace)));
+        parents.setAll(List.of(sseObjectSchema(baseName, namespace)));
+        eventSchema.setParents(parents);
+        eventSchema.setProperties(List.of(sseProperty("value", payload)));
         SseEventMetadata event = new SseEventMetadata();
         event.setName("message");
-        event.setPayload(payload);
+        event.setEventSchema(eventSchema);
         SseMetadata metadata = new SseMetadata();
         metadata.setSseStreamId(id);
         metadata.setStreamName(streamName);
-        metadata.setModelNamespace(namespace);
+        metadata.setBaseSchema(baseSchema);
         metadata.setEvents(List.of(event));
         return metadata;
+    }
+
+    private static ObjectSchema sseObjectSchema(String name, String namespace) {
+        ObjectSchema schema = new ObjectSchema();
+        schema.setType(Schema.AllSchemaTypes.OBJECT);
+        schema.setLanguage(languages(name, namespace));
+        return schema;
+    }
+
+    private static Property sseProperty(String name, Schema schema) {
+        Property property = new Property();
+        property.setLanguage(languages(name));
+        property.setSerializedName(name);
+        property.setRequired(true);
+        property.setReadOnly(true);
+        property.setSchema(schema);
+        return property;
+    }
+
+    private static StringSchema stringSchema() {
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        return schema;
     }
 
     private static SseMetadata malformedMetadata(String id) {
@@ -258,10 +352,15 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
 
     private static void assertInvalidMetadata(TypeSpecPlugin plugin, CodeModel model, String operationId,
         String streamId) {
+        assertInvalidMetadata(plugin, model, operationId, streamId, "the stream name is missing or empty");
+    }
+
+    private static void assertInvalidMetadata(TypeSpecPlugin plugin, CodeModel model, String operationId,
+        String streamId, String reason) {
         IllegalStateException exception
             = Assertions.assertThrows(IllegalStateException.class, () -> plugin.processClient(model));
         Assertions.assertEquals("Invalid SSE metadata for operation '" + operationId + "' with stream ID '" + streamId
-            + "': the stream name is missing or empty.", exception.getMessage());
+            + "': " + reason + ".", exception.getMessage());
     }
 
     private static OperationGroup group(String name, Operation... operations) {
@@ -314,9 +413,13 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
     }
 
     private static Languages languages(String name) {
+        return languages(name, "com.azure.mock");
+    }
+
+    private static Languages languages(String name, String namespace) {
         Language language = new Language();
         language.setName(name);
-        language.setNamespace("com.azure.mock");
+        language.setNamespace(namespace);
         language.setDescription(name + " description.");
         Languages languages = new Languages();
         languages.setDefault(language);

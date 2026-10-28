@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.io.IOException;
@@ -35,9 +34,9 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
 
     @Override
     public void write(SseMetadata metadata, JavaFile javaFile) {
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        ClassType baseEventType = SseUtil.getEventType(metadata, names.getBaseEventName());
+        ClassType baseEventType = SseUtil.getEventType(metadata.getBaseSchema());
         String baseEventTypeName = baseEventType.getName();
+        String streamDescription = SseUtil.getStreamDescription(metadata);
         Set<String> imports = new LinkedHashSet<>();
         imports.add("com.azure.json.JsonProviders");
         imports.add("com.azure.json.JsonReader");
@@ -48,16 +47,16 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
         ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         baseEventType.addImportsTo(imports, false);
         for (SseEventMetadata event : metadata.getEvents()) {
-            SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName())).addImportsTo(imports, false);
-            IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
+            SseUtil.getEventType(event.getEventSchema()).addImportsTo(imports, false);
+            IType wirePayloadType = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event));
             addPayloadImports(wirePayloadType, imports);
             addPayloadImports(wirePayloadType.getClientType(), imports);
         }
         javaFile.declareImport(imports);
 
-        String serializerName = names.getSerializerName();
-        javaFile.javadocComment(comment -> comment.description(
-            "Deserializes " + names.getStreamDescription() + " stream event payloads to typed event models."));
+        String serializerName = SseUtil.getSerializerType(metadata).getName();
+        javaFile.javadocComment(comment -> comment
+            .description("Deserializes " + streamDescription + " stream event payloads to typed event models."));
         javaFile.publicFinalClass(serializerName, javaClass -> {
             javaClass
                 .privateStaticFinalVariable("ClientLogger LOGGER = new ClientLogger(" + serializerName + ".class)");
@@ -76,8 +75,9 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
                     });
                     interfaceBlock.publicMethod(baseEventTypeName + " unknownEvent(String eventName)");
                     for (SseEventMetadata event : metadata.getEvents()) {
-                        String wrapperType = names.getEventWrapperName(event.getName());
-                        IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+                        String wrapperType = SseUtil.getEventType(event.getEventSchema()).getName();
+                        IType payloadType
+                            = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType();
                         String payloadTypeName = payloadType.toString();
                         interfaceBlock.javadocComment(comment -> {
                             String eventDescription = event.getName().replace('.', '-');
@@ -86,9 +86,8 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
                             comment.param("value", "The decoded payload.");
                             comment.methodReturns("The event.");
                         });
-                        interfaceBlock.publicMethod(
-                            wrapperType + " " + SseNamingResolver.getEventFactoryMethodName(event.getName()) + "("
-                                + payloadTypeName + " value)");
+                        interfaceBlock.publicMethod(wrapperType + " "
+                            + SseUtil.getEventFactoryMethodName(event.getName()) + "(" + payloadTypeName + " value)");
                     }
                 });
             javaClass.javadocComment(comment -> {
@@ -109,13 +108,12 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
                         method.line("} catch (ClassNotFoundException | LinkageError exception) {");
                         method.indent(() -> method.line(
                             "throw LOGGER.logExceptionAsError(new IllegalStateException(" + "\"Failed to initialize "
-                                + names.getStreamDescription() + " stream event constructors.\", exception));"));
+                                + streamDescription + " stream event constructors.\", exception));"));
                         method.line("}");
                         method.line("accessor = constructorAccessor;");
                         method.line("if (accessor == null) {");
                         method.indent(() -> method.line("throw LOGGER.logExceptionAsError(new IllegalStateException(\""
-                            + capitalize(names.getStreamDescription())
-                            + " stream event constructors were not registered.\"));"));
+                            + capitalize(streamDescription) + " stream event constructors were not registered.\"));"));
                         method.line("}");
                     });
                     method.line("}");
@@ -135,10 +133,10 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
                 method.line("switch (eventName) {");
                 method.indent(() -> {
                     for (SseEventMetadata event : metadata.getEvents()) {
-                        IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
+                        IType wirePayloadType = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event));
                         method.line("case \"" + TemplateUtil.escapeString(event.getName()) + "\":");
-                        method.indent(() -> method
-                            .methodReturn("accessor." + SseNamingResolver.getEventFactoryMethodName(event.getName())
+                        method.indent(
+                            () -> method.methodReturn("accessor." + SseUtil.getEventFactoryMethodName(event.getName())
                                 + "(read(eventName, data, " + getJsonReadCallback(wirePayloadType) + "))"));
                         method.line();
                     }
@@ -157,7 +155,7 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<SseMetada
                     });
                     method.line("} catch (IOException exception) {");
                     method.indent(() -> method.line("throw new UncheckedIOException(\"Failed to decode "
-                        + names.getStreamDescription() + " stream event: \" + eventName, exception);"));
+                        + streamDescription + " stream event: \" + eventName, exception);"));
                     method.line("}");
                 });
         });

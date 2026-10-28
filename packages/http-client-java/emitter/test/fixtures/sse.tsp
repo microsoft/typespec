@@ -277,3 +277,225 @@ namespace SseGenericEncoded {
   @route("/first") @get op first(): SSEStream<GenericEvents<int64>>;
   @route("/second") @get op second(): SSEStream<GenericEvents<EncodedInteger>>;
 }
+
+// Scenario: emitter-owned Java naming for synthetic SSE schemas.
+namespace SseNaming {
+  model PayloadEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union RetrievalStreamEvents {
+    `retrieval.started`: PayloadEnvelope,
+    `response.completed`: PayloadEnvelope,
+  }
+
+  @events
+  union KnowledgeBaseRetrievalStreamEvents {
+    `retrieval.started`: PayloadEnvelope,
+    `baseRetrieval.completed`: PayloadEnvelope,
+    `activity.completed`: PayloadEnvelope,
+    `response.completed`: PayloadEnvelope,
+  }
+
+  @events
+  union StreamEvents {
+    `123.done`: PayloadEnvelope,
+  }
+
+  @events
+  union `123Events` {
+    done: PayloadEnvelope,
+  }
+
+  @route("/retrieval") @get op retrieval(): SSEStream<RetrievalStreamEvents>;
+  @route("/knowledge-base") @get op knowledgeBase(): SSEStream<KnowledgeBaseRetrievalStreamEvents>;
+  @route("/digit-event") @get op digitEvent(): SSEStream<StreamEvents>;
+  @route("/digit-stream") @get op digitStream(): SSEStream<`123Events`>;
+}
+
+namespace SseNamingResponseOnly {
+  model PayloadEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union RetrievalStreamEvents {
+    `response.completed`: PayloadEnvelope,
+  }
+
+  @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
+}
+
+namespace SseNamingWithRetrieval {
+  model PayloadEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union RetrievalStreamEvents {
+    `retrieval.started`: PayloadEnvelope,
+    `response.completed`: PayloadEnvelope,
+  }
+
+  @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
+}
+
+namespace SseNamingOrderFirst {
+  model PayloadEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union KnowledgeBaseRetrievalStreamEvents {
+    `retrieval.started`: PayloadEnvelope,
+    `baseRetrieval.completed`: PayloadEnvelope,
+  }
+
+  @route("/") @get op read(): SSEStream<KnowledgeBaseRetrievalStreamEvents>;
+}
+
+namespace SseNamingOrderSecond {
+  model PayloadEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union KnowledgeBaseRetrievalStreamEvents {
+    `baseRetrieval.completed`: PayloadEnvelope,
+    `retrieval.started`: PayloadEnvelope,
+  }
+
+  @route("/") @get op read(): SSEStream<KnowledgeBaseRetrievalStreamEvents>;
+}
+
+namespace SseNamingCollision {
+  model PayloadEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union RetrievalStreamEvents {
+    `retrieval.started`: PayloadEnvelope,
+    `retrieval-started`: PayloadEnvelope,
+  }
+
+  @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
+}
+
+// Scenario: authored envelope hierarchy and reuse never define the generated hierarchy.
+namespace SseSchemaIsolation {
+  model AuthoredEnvelopeBase {}
+
+  model FirstEnvelope extends AuthoredEnvelopeBase {
+    @data value: string;
+  }
+
+  model SecondEnvelope extends AuthoredEnvelopeBase {
+    @data value: string;
+  }
+
+  model SharedEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union FirstEvents {
+    first: FirstEnvelope,
+  }
+
+  @events
+  union SecondEvents {
+    second: SecondEnvelope,
+  }
+
+  @events
+  union ReusableOneEvents {
+    one: SharedEnvelope,
+  }
+
+  @events
+  union ReusableTwoEvents {
+    two: SharedEnvelope,
+  }
+
+  @route("/first") @get op first(): SSEStream<FirstEvents>;
+  @route("/second") @get op second(): SSEStream<SecondEvents>;
+  @route("/reusable-one") @get op reusableOne(): SSEStream<ReusableOneEvents>;
+  @route("/reusable-two") @get op reusableTwo(): SSEStream<ReusableTwoEvents>;
+  @route("/authored-base") @get op authoredBase(): AuthoredEnvelopeBase;
+}
+
+namespace Azure.SseSchemaAllocation {
+  model AzureCollisionEvent {
+    value: string;
+  }
+}
+
+// Scenario: synthetic names allocate after all ordinary model names.
+namespace SseSchemaAllocation {
+  model CollisionEvent {
+    value: string;
+  }
+
+  model CollisionEvent1 {
+    value: string;
+  }
+
+  @clientName("ExactCollisionEvent", "java")
+  model ExactOrdinary {
+    value: string;
+  }
+
+  model CollisionEnvelope {
+    @data value: CollisionEvent;
+  }
+
+  model ExactEnvelope {
+    @data value: ExactOrdinary;
+  }
+
+  model AzureEnvelope {
+    @data value: Azure.SseSchemaAllocation.AzureCollisionEvent;
+  }
+
+  model SharedEnvelope {
+    @data value: string;
+  }
+
+  @events
+  union CollisionEvents {
+    message: CollisionEnvelope,
+  }
+
+  @events
+  union ExactCollisionEvents {
+    message: ExactEnvelope,
+  }
+
+  @events
+  union AzureCollisionEvents {
+    message: AzureEnvelope,
+  }
+
+  namespace One {
+    @events
+    union SharedEvents {
+      message: SseSchemaAllocation.SharedEnvelope,
+    }
+  }
+
+  namespace Two {
+    @events
+    union SharedEvents {
+      message: SseSchemaAllocation.SharedEnvelope,
+    }
+  }
+
+  @route("/collision") @get op collision(): SSEStream<CollisionEvents>;
+  @route("/collision-one") @get op collisionOne(): CollisionEvent1;
+  @route("/exact") @get op exact(): SSEStream<ExactCollisionEvents>;
+  @route("/azure") @get op azure(): SSEStream<AzureCollisionEvents>;
+  @route("/one") @get op one(): SSEStream<One.SharedEvents>;
+  @route("/two") @get op two(): SSEStream<Two.SharedEvents>;
+}

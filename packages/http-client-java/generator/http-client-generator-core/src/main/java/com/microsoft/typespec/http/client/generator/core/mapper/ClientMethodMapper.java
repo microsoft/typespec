@@ -26,7 +26,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Retur
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
@@ -292,8 +291,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
-        IType eventType = SseUtil.getEventType(operation.getSseMetadata(),
-            SseNamingResolver.resolve(operation.getSseMetadata()).getBaseEventName());
+        IType eventType = SseUtil.getEventType(operation.getSseMetadata().getBaseSchema());
         IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
         MethodNamer methodNamer = createMethodArgs.methodNamer;
         String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();

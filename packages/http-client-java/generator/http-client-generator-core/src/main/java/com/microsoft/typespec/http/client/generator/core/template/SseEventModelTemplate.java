@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annot
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.LinkedHashSet;
@@ -31,19 +30,18 @@ public final class SseEventModelTemplate {
     }
 
     public void writeBase(SseMetadata metadata, JavaFile javaFile) {
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        String baseEventName = names.getBaseEventName();
-        String serializerName = names.getSerializerName();
+        String baseEventName = SseUtil.getClientEventTypeName(metadata);
+        String serializerName = SseUtil.getSerializerType(metadata).getName();
+        String streamDescription = SseUtil.getStreamDescription(metadata);
         Set<String> imports = new LinkedHashSet<>();
         for (SseEventMetadata event : metadata.getEvents()) {
-            Mappers.getSchemaMapper().map(event.getPayload()).getClientType().addImportsTo(imports, false);
+            Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType().addImportsTo(imports, false);
         }
         SseUtil.getSerializerType(metadata).addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> {
-            comment.description(
-                "Base for polymorphic events emitted by a streaming " + names.getStreamDescription() + ".");
+            comment.description("Base for polymorphic events emitted by a streaming " + streamDescription + ".");
             comment
                 .description("Known events expose typed payloads through their subtype's {@code getValue()} method.");
             comment.line("Unrecognized events expose only their names through");
@@ -51,7 +49,7 @@ public final class SseEventModelTemplate {
             comment.description(
                 "Stream events are envelopes, not JSON payload models; serialize the typed payload instead.");
             for (SseEventMetadata event : metadata.getEvents()) {
-                comment.see(names.getEventWrapperName(event.getName()));
+                comment.see(SseUtil.getEventType(event.getEventSchema()).getName());
             }
         });
         javaFile.publicClass(List.of(JavaModifier.Abstract), baseEventName, javaClass -> {
@@ -71,8 +69,8 @@ public final class SseEventModelTemplate {
             javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.publicMethod("final String getEventName()", method -> method.methodReturn("eventName"));
             javaClass.javadocComment(comment -> {
-                comment.description(
-                    "Gets whether this event terminates the " + names.getStreamKindDescription() + " stream.");
+                comment.description("Gets whether this event terminates the "
+                    + SseUtil.getStreamKindDescription(metadata) + " stream.");
                 comment.methodReturns("{@code true} if this is a terminal event; otherwise {@code false}.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
@@ -86,13 +84,14 @@ public final class SseEventModelTemplate {
                         "public " + SseUtil.getClientEventTypeName(metadata) + " unknownEvent(String eventName)",
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
                     for (SseEventMetadata event : metadata.getEvents()) {
-                        IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+                        IType payloadType
+                            = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType();
                         String payloadTypeName = payloadType.toString();
-                        String wrapperName = names.getEventWrapperName(event.getName());
+                        String wrapperName = SseUtil.getEventType(event.getEventSchema()).getName();
                         staticBlock.line("@Override");
                         staticBlock.block(
-                            "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(event.getName())
-                                + "(" + payloadTypeName + " value)",
+                            "public " + wrapperName + " " + SseUtil.getEventFactoryMethodName(event.getName()) + "("
+                                + payloadTypeName + " value)",
                             method -> method.methodReturn("new " + wrapperName + "(value)"));
                     }
                 });
@@ -102,20 +101,21 @@ public final class SseEventModelTemplate {
     }
 
     public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
-        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
-        IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+        IType payloadType = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType();
         String payloadTypeName = payloadType.toString();
         Set<String> imports = new LinkedHashSet<>();
         payloadType.addImportsTo(imports, false);
+        SseUtil.getEventType(SseUtil.getParentSchema(event)).addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.IMMUTABLE.addImportsTo(imports);
         javaFile.declareImport(imports);
 
-        String wrapperName = names.getEventWrapperName(event.getName());
-        String baseEventTypeName = SseUtil.getClientEventTypeName(metadata);
+        String wrapperName = SseUtil.getEventType(event.getEventSchema()).getName();
+        String baseEventTypeName = SseUtil.getEventType(SseUtil.getParentSchema(event)).getName();
+        String streamDescription = SseUtil.getStreamDescription(metadata);
         javaFile.javadocComment(comment -> {
             comment.description("Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} "
-                + names.getStreamDescription() + " stream event.");
+                + streamDescription + " stream event.");
             comment.description("Access the typed payload with {@link #getValue()}.");
             comment.see(baseEventTypeName);
         });

@@ -28,6 +28,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schemas;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
@@ -35,6 +37,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -67,11 +71,76 @@ public class Transformer {
         } else {
             transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         }
+        transformSseMetadata(codeModel);
 
         // process "rename-model" option
         codeModel = new SchemaRenamer(JavaSettings.getInstance().getJavaNamesForRenameModel()).process(codeModel);
 
         return codeModel;
+    }
+
+    private void transformSseMetadata(CodeModel codeModel) {
+        Set<Client> visitedClients = Collections.newSetFromMap(new IdentityHashMap<>());
+        Set<ObjectSchema> transformedSchemas = Collections.newSetFromMap(new IdentityHashMap<>());
+        transformSseMetadata(codeModel, visitedClients, transformedSchemas);
+        if (codeModel.getClients() != null) {
+            codeModel.getClients().forEach(client -> transformSseMetadata(client, visitedClients, transformedSchemas));
+        }
+    }
+
+    private void transformSseMetadata(Client client, Set<Client> visitedClients, Set<ObjectSchema> transformedSchemas) {
+        if (client == null || !visitedClients.add(client)) {
+            return;
+        }
+        if (client.getOperationGroups() != null) {
+            client.getOperationGroups().forEach(group -> {
+                if (group.getOperations() != null) {
+                    group.getOperations().forEach(operation -> {
+                        SseMetadata metadata = operation.getSseMetadata();
+                        if (metadata != null) {
+                            transformSseObjectSchema(metadata.getBaseSchema(), transformedSchemas);
+                            if (metadata.getEvents() != null) {
+                                for (SseEventMetadata event : metadata.getEvents()) {
+                                    if (event != null) {
+                                        transformSseObjectSchema(event.getEventSchema(), transformedSchemas);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        if (client.getSubClients() != null) {
+            client.getSubClients().forEach(child -> transformSseMetadata(child, visitedClients, transformedSchemas));
+        }
+    }
+
+    private void transformSseObjectSchema(ObjectSchema schema, Set<ObjectSchema> transformedSchemas) {
+        if (schema == null || !transformedSchemas.add(schema)) {
+            return;
+        }
+        if (schema.getLanguage() != null && schema.getLanguage().getDefault() != null) {
+            renameType(schema);
+        }
+        if (schema.getProperties() != null) {
+            for (Property property : schema.getProperties()) {
+                if (property != null && property.getLanguage() != null && property.getLanguage().getDefault() != null) {
+                    renameProperty(property);
+                }
+            }
+        }
+        if (schema.getParents() != null) {
+            Stream
+                .concat(
+                    schema.getParents().getImmediate() == null
+                        ? Stream.empty()
+                        : schema.getParents().getImmediate().stream(),
+                    schema.getParents().getAll() == null ? Stream.empty() : schema.getParents().getAll().stream())
+                .filter(ObjectSchema.class::isInstance)
+                .map(ObjectSchema.class::cast)
+                .forEach(parent -> transformSseObjectSchema(parent, transformedSchemas));
+        }
     }
 
     private void transformSchemas(Schemas schemas) {

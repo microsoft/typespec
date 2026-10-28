@@ -110,12 +110,22 @@ Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1
 ## SSE generation checks
 
 Each supported operation transports complete inline `sseMetadata`, including the
-streamed union's cross-language definition ID. Java validates this metadata after
-preprocessing. After client mapping completes, Java collects the metadata referenced
-by the final renderable sync and async convenience methods, deduplicating by that ID
-in encounter order. Distinct effective union owners claiming one ID are errors, not
-candidates for schema fingerprinting or structural deduplication. Generated Java names
-and strict source-path collision preflight remain generator-owned.
+streamed union's cross-language definition ID and emitter-composed object schemas for
+the stream base and concrete event wrappers. These synthetic schemas remain inline:
+they are not added to `schemas.objects`, ordinary model mapping, JSON model generation,
+or cross-language model metadata. Their required, read-only `eventName` and `value`
+properties carry the base contract and typed payload reference.
+
+The emitter preserves the stream/event-derived public names, shares one schema bundle
+per effective union owner, and allocates synthetic names after ordinary schemas without
+renaming ordinary models. Java normalizes the inline schemas with the standard
+transformer, validates their names, namespaces, properties, and parent relationship,
+then renders the specialized immutable SSE envelopes from those schemas. After client
+mapping completes, Java collects metadata referenced by the final renderable sync and
+async convenience methods, deduplicating by stream ID in encounter order. Distinct
+effective union owners claiming one ID are errors, not candidates for schema
+fingerprinting or structural deduplication. Duplicate event factories and generated
+source paths still fail before files are written.
 
 For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`
 or the Spector `streaming/sse/main.tsp` into separate output directories using the
@@ -128,7 +138,8 @@ SSE references and response-lambda names against request parameters and
 grouped-parameter locals. Special event, payload, runtime-helper, serializer, and Flux
 import collisions are currently outside the supported test scope.
 
-Run the generator's metadata, naming, path-preflight, and mapper tests. The retained
+Run the emitter's schema/naming tests and the generator's metadata, path-preflight,
+template, and mapper tests. The retained
 `tsptest.sse.models.implementation.sse.ServerSentEventStreamTests` exercises the actual
 generated named serializer, merged `ServerSentEventStreamHelper`, client API shape,
 framing, terminal delivery, and lifecycle.

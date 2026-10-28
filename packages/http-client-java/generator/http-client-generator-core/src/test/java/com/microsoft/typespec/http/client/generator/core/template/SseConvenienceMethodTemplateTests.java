@@ -4,6 +4,12 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
@@ -25,7 +31,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -117,11 +122,7 @@ public class SseConvenienceMethodTemplateTests {
 
     @Test
     public void importsReactorFluxForSseMethods() {
-        SseMetadata metadata = new SseMetadata();
-        metadata.setSseStreamId("Events");
-        metadata.setStreamName("Events");
-        metadata.setModelNamespace("test");
-        metadata.setEvents(List.of(event("update", false)));
+        SseMetadata metadata = metadata("test", eventDefinition("update", false));
         ClientMethod protocol = new ClientMethod.Builder().name("readWithResponseAsync")
             .parameters(List.of())
             .type(ClientMethodType.SimpleAsyncRestResponse)
@@ -133,7 +134,7 @@ public class SseConvenienceMethodTemplateTests {
             .sseMetadata(metadata)
             .type(ClientMethodType.SseAsync)
             .methodVisibility(JavaVisibility.Public)
-            .returnValue(new ReturnValue("events", GenericType.flux(SseUtil.getEventType(metadata, "Event"))))
+            .returnValue(new ReturnValue("events", GenericType.flux(SseUtil.getEventType(metadata.getBaseSchema()))))
             .build();
         Set<String> imports = new HashSet<>();
 
@@ -190,11 +191,8 @@ public class SseConvenienceMethodTemplateTests {
                     return "namespace".equals(key) ? (T) namespace : super.getValue(key, converter);
                 }
             };
-            SseMetadata metadata = new SseMetadata();
-            metadata.setSseStreamId("Events");
-            metadata.setStreamName("Events");
-            metadata.setModelNamespace(namespace.equals("contoso.example") ? "response" : "events");
-            metadata.setEvents(List.of(event("update", true)));
+            SseMetadata metadata = metadata(namespace.equals("contoso.example") ? "response" : "events",
+                eventDefinition("update", true));
             JavaPackage javaPackage = new JavaPackage(host);
             javaPackage.addSseEventFiles(metadata);
             for (String resource : List.of("ServerSentEventStreamHelper", "ServerSentEventStreamResponse")) {
@@ -287,16 +285,7 @@ public class SseConvenienceMethodTemplateTests {
     }
 
     private static String render(boolean async, List<String> parameters, List<String> locals) {
-        SseEventMetadata event = new SseEventMetadata();
-        event.setName("update");
-        event.setPayload(new StringSchema());
-        event.setTerminal(true);
-        SseMetadata metadata = new SseMetadata();
-        metadata.setSseStreamId("Events");
-        metadata.setStreamName("Events");
-        metadata.setModelNamespace("test");
-        metadata.setEvents(List.of(event));
-        return render(async, parameters, locals, metadata);
+        return render(async, parameters, locals, metadata("test", eventDefinition("update", true)));
     }
 
     private static String render(boolean async, List<String> parameters, List<String> locals, SseMetadata metadata) {
@@ -339,14 +328,8 @@ public class SseConvenienceMethodTemplateTests {
     private static String renderMethod(boolean async, String description) {
         new MockUnitJavagen();
         JavaSettings.clear();
-        SseEventMetadata update = event("update", false);
-        SseEventMetadata responseCompleted = event("response.completed", true);
-        SseEventMetadata error = event("error", true);
-        SseMetadata metadata = new SseMetadata();
-        metadata.setSseStreamId("Events");
-        metadata.setStreamName("Events");
-        metadata.setModelNamespace("test");
-        metadata.setEvents(List.of(update, responseCompleted, error));
+        SseMetadata metadata = metadata("test", eventDefinition("update", false),
+            eventDefinition("response.completed", true), eventDefinition("error", true));
         ProxyMethod proxy = new ProxyMethod.Builder().name("read")
             .parameters(List.of())
             .allParameters(List.of())
@@ -366,7 +349,7 @@ public class SseConvenienceMethodTemplateTests {
                     ? GenericType.mono(GenericType.response(ClassType.BINARY_DATA))
                     : GenericType.response(ClassType.BINARY_DATA)))
             .build();
-        ClassType eventType = SseUtil.getEventType(metadata, SseNamingResolver.resolve(metadata).getBaseEventName());
+        ClassType eventType = SseUtil.getEventType(metadata.getBaseSchema());
         ClientMethod convenience = new ClientMethod.Builder().name(async ? "readAsync" : "read")
             .description(description)
             .parameters(List.of())
@@ -386,15 +369,87 @@ public class SseConvenienceMethodTemplateTests {
         return contents.toString();
     }
 
-    private static SseEventMetadata event(String name, boolean terminal) {
-        StringSchema payload = new StringSchema();
-        payload.setType(
-            com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema.AllSchemaTypes.STRING);
-        SseEventMetadata event = new SseEventMetadata();
-        event.setName(name);
-        event.setPayload(payload);
-        event.setTerminal(terminal);
-        return event;
+    private static EventDefinition eventDefinition(String name, boolean terminal) {
+        return new EventDefinition(name, terminal);
+    }
+
+    private static SseMetadata metadata(String namespace, EventDefinition... definitions) {
+        ObjectSchema baseSchema = objectSchema("Event", namespace);
+        StringSchema eventNameSchema = new StringSchema();
+        eventNameSchema.setType(Schema.AllSchemaTypes.STRING);
+        baseSchema.setProperties(List.of(property("eventName", eventNameSchema)));
+        List<SseEventMetadata> events = new ArrayList<>();
+        for (EventDefinition definition : definitions) {
+            ObjectSchema eventSchema = objectSchema(toWrapperName(definition.name), namespace);
+            Relations parents = new Relations();
+            parents.setImmediate(List.of(baseSchema));
+            parents.setAll(List.of(baseSchema));
+            eventSchema.setParents(parents);
+            StringSchema payload = new StringSchema();
+            payload.setType(Schema.AllSchemaTypes.STRING);
+            eventSchema.setProperties(List.of(property("value", payload)));
+            SseEventMetadata event = new SseEventMetadata();
+            event.setName(definition.name);
+            event.setEventSchema(eventSchema);
+            event.setTerminal(definition.terminal);
+            events.add(event);
+        }
+        SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId("Events");
+        metadata.setStreamName("Events");
+        metadata.setBaseSchema(baseSchema);
+        metadata.setEvents(events);
+        return metadata;
+    }
+
+    private static ObjectSchema objectSchema(String name, String namespace) {
+        Language language = new Language();
+        language.setName(name);
+        language.setNamespace(namespace);
+        language.setDescription(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        ObjectSchema schema = new ObjectSchema();
+        schema.setType(Schema.AllSchemaTypes.OBJECT);
+        schema.setLanguage(languages);
+        return schema;
+    }
+
+    private static Property property(String name, Schema schema) {
+        Language language = new Language();
+        language.setName(name);
+        language.setDescription(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        Property property = new Property();
+        property.setLanguage(languages);
+        property.setSerializedName(name);
+        property.setRequired(true);
+        property.setReadOnly(true);
+        property.setSchema(schema);
+        return property;
+    }
+
+    private static String toWrapperName(String eventName) {
+        StringBuilder name = new StringBuilder();
+        for (String segment : eventName.split("[^A-Za-z0-9]+")) {
+            if (!segment.isEmpty()) {
+                name.append(Character.toUpperCase(segment.charAt(0))).append(segment.substring(1));
+            }
+        }
+        return name.append("StreamEvent").toString();
+    }
+
+    private static final class EventDefinition {
+        private final String name;
+        private final boolean terminal;
+
+        private EventDefinition(String name, boolean terminal) {
+            this.name = name;
+            this.terminal = terminal;
+        }
     }
 
     private static ClientMethodParameter parameter(String name) {

@@ -7,11 +7,14 @@ import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
@@ -136,6 +139,9 @@ public class ClientMethodMapperTests {
                 sseMethods.forEach(
                     method -> Assertions.assertEquals(internal ? JavaVisibility.PackagePrivate : JavaVisibility.Public,
                         method.getMethodVisibilityInWrapperClient()));
+                sseMethods.forEach(
+                    method -> Assertions.assertTrue(method.getReturnValue().getType().toString().contains("TestEvent2"),
+                        method.getReturnValue().getType().toString()));
                 mapper.map(operation, false)
                     .stream()
                     .filter(method -> method.getType() == ClientMethodType.SseSync
@@ -471,16 +477,60 @@ public class ClientMethodMapperTests {
         StringSchema payload = new StringSchema();
         payload.setType(Schema.AllSchemaTypes.STRING);
         response.setSchema(payload);
+        ObjectSchema baseSchema = sseObjectSchema("TestEvent2");
+        baseSchema.setProperties(List.of(sseProperty("eventName", stringSchema())));
+        ObjectSchema eventSchema = sseObjectSchema("TestMessageStreamEvent3");
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(baseSchema));
+        parents.setAll(List.of(baseSchema));
+        eventSchema.setParents(parents);
+        eventSchema.setProperties(List.of(sseProperty("value", payload)));
         SseEventMetadata event = new SseEventMetadata();
         event.setName("message");
-        event.setPayload(payload);
+        event.setEventSchema(eventSchema);
         SseMetadata metadata = new SseMetadata();
         metadata.setSseStreamId("TestEvents");
         metadata.setStreamName("TestEvents");
-        metadata.setModelNamespace("com.azure.mock");
+        metadata.setBaseSchema(baseSchema);
         metadata.setEvents(List.of(event));
         operation.setSseMetadata(metadata);
         return operation;
+    }
+
+    private static ObjectSchema sseObjectSchema(String name) {
+        Language language = new Language();
+        language.setName(name);
+        language.setNamespace("com.azure.mock");
+        language.setDescription(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        ObjectSchema schema = new ObjectSchema();
+        schema.setType(Schema.AllSchemaTypes.OBJECT);
+        schema.setLanguage(languages);
+        return schema;
+    }
+
+    private static Property sseProperty(String name, Schema schema) {
+        Language language = new Language();
+        language.setName(name);
+        language.setDescription(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        Property property = new Property();
+        property.setLanguage(languages);
+        property.setSerializedName(name);
+        property.setRequired(true);
+        property.setReadOnly(true);
+        property.setSchema(schema);
+        return property;
+    }
+
+    private static StringSchema stringSchema() {
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        return schema;
     }
 
     private static Parameter optionalQueryParameter(String name, List<String> addedVersions) {
