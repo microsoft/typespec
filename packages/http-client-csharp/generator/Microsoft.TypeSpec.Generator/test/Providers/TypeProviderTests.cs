@@ -24,6 +24,324 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [TestCase("model", null)]
+        [TestCase("model", "Use \"Current\" instead.\nSee C:\\sdk.")]
+        [TestCase("struct", "")]
+        [TestCase("fixed", "Use Current instead.")]
+        [TestCase("extensible", "Use Current instead.")]
+        [TestCase("fixed", null)]
+        [TestCase("extensible", null)]
+        public void DeprecatedTypesEmitWarningOnlyAttributes(string kind, string? message)
+        {
+            MockHelpers.LoadMockGenerator();
+            TypeProvider provider = kind is "model" or "struct"
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(InputFactory.Model("Legacy", modelAsStruct: kind == "struct", deprecation: message))!
+                : CodeModelGenerator.Instance.TypeFactory.CreateEnum(InputFactory.StringEnum("Legacy",
+                    [("One", "one")], isExtensible: kind == "extensible", deprecation: message))!;
+
+            for (int i = 0; i < 2; i++)
+            {
+                Assert.AreEqual(message, provider.Deprecated);
+                var attribute = provider.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                if (message is null)
+                {
+                    Assert.IsNull(attribute);
+                }
+                else
+                {
+                    Assert.IsNotNull(attribute);
+                    Assert.AreEqual(Snippet.Literal(message).ToDisplayString(), attribute!.Arguments.Single().ToDisplayString());
+                    Assert.IsEmpty(attribute.PositionalArguments);
+                }
+                provider.Reset();
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task DeprecatedCustomModelKeepsExistingAttribute(bool isEnum)
+        {
+            var model = InputFactory.Model("Legacy", deprecation: "Generated message");
+            var choice = InputFactory.StringEnum("LegacyChoice", [("One", "one")], isExtensible: true, deprecation: "Generated message");
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [model],
+                inputEnumTypes: [choice],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            TypeProvider provider = isEnum
+                ? CodeModelGenerator.Instance.TypeFactory.CreateEnum(choice)!
+                : CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.IsFalse(provider.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            Assert.AreEqual("\"Custom message\"", provider.CustomCodeView!.Attributes.Single().Arguments.Single().ToDisplayString());
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("OBS001")]
+        public void CustomObsoleteDiagnosticsArePreserved(string? diagnosticId)
+        {
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Custom message")],
+                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))]);
+            var suppressions = ExperimentalApiHelpers.GetAttributeSuppressions([attribute, attribute]);
+
+            CollectionAssert.AreEqual(
+                (string.IsNullOrEmpty(diagnosticId) ? new[] { "CS0612", "CS0618" } : [diagnosticId])
+                    .Select(id => Snippet.Literal(id).ToDisplayString()),
+                suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+        }
+
+        [TestCase("OBS,001")]
+        [TestCase("OBS\n#pragma warning disable")]
+        public void CustomObsoleteDiagnosticsRejectInvalidWarningIdentifiers(string diagnosticId)
+        {
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [],
+                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))]);
+
+            Assert.Throws<ArgumentException>(() => ExperimentalApiHelpers.GetAttributeSuppressions([attribute]));
+        }
+
+        [TestCase("model")]
+        [TestCase("enum")]
+        [TestCase("collection")]
+        public async Task CustomObsoleteTypeReferencesUseDiagnosticId(string shape)
+        {
+            var model = InputFactory.Model("Legacy", deprecation: "Generated message");
+            var choice = InputFactory.StringEnum("LegacyChoice", [("One", "one")], isExtensible: true);
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [model], inputEnumTypes: [choice],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var type = shape == "enum" ? factory.CreateEnum(choice)!.Type : factory.CreateModel(model)!.Type;
+            if (shape == "collection")
+            {
+                type = new CSharpType(typeof(IReadOnlyList<>), type);
+            }
+
+            CollectionAssert.AreEqual(new[] { "\"OBS001\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(type).Select(suppression => suppression.Code.ToDisplayString()));
+        }
+
+        [TestCase("StableModel", "model", false)]
+        [TestCase("ObsoleteModel", "model", true)]
+        [TestCase("PreviewModel", "model", true)]
+        [TestCase("NewModel", "model", true)]
+        [TestCase("StableEnum", "fixed", false)]
+        [TestCase("ObsoleteEnum", "fixed", true)]
+        [TestCase("StableChoice", "extensible", false)]
+        [TestCase("ObsoleteChoice", "extensible", true)]
+        public async Task DeprecationPreservesLastContract(string name, string kind, bool obsolete)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            TypeProvider provider = kind == "model"
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(InputFactory.Model(name, deprecation: "Current message"))!
+                : CodeModelGenerator.Instance.TypeFactory.CreateEnum(InputFactory.StringEnum(name,
+                    [("One", "one")], isExtensible: kind == "extensible", deprecation: "Current message"))!;
+
+            provider.ProcessTypeForBackCompatibility();
+            Assert.AreEqual(obsolete, provider.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+        }
+
+        [Test]
+        public async Task DeprecationFollowsUpdatedTypeIdentity(
+            [Values("model", "fixed", "extensible")] string kind,
+            [Values] bool changeNamespace,
+            [Values] bool initiallyPublished)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var publishedName = kind switch
+            {
+                "model" => "StableModel",
+                "fixed" => "StableEnum",
+                _ => "StableChoice"
+            };
+            var initialName = changeNamespace || initiallyPublished ? publishedName : "Unpublished";
+            var initialNamespace = changeNamespace && !initiallyPublished ? "Unpublished" : "Sample.Models";
+            TypeProvider provider = kind == "model"
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(InputFactory.Model(initialName,
+                    @namespace: initialNamespace, deprecation: "Current message"))!
+                : CodeModelGenerator.Instance.TypeFactory.CreateEnum(InputFactory.StringEnum(initialName,
+                    [("One", "one")], clientNamespace: initialNamespace, isExtensible: kind == "extensible", deprecation: "Current message"))!;
+            Assert.AreEqual(!initiallyPublished, provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            var visitorAttribute = new AttributeStatement(typeof(SerializableAttribute));
+
+            provider.Update(
+                attributes: [.. provider.Attributes, visitorAttribute],
+                name: changeNamespace ? null : initiallyPublished ? "Unpublished" : publishedName,
+                @namespace: changeNamespace ? initiallyPublished ? "Unpublished" : "Sample.Models" : null);
+            Assert.AreEqual(initiallyPublished, provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.AreSame(visitorAttribute, provider.Attributes.Single(a => a.Type.Equals(typeof(SerializableAttribute))));
+            Assert.AreEqual(initiallyPublished, provider.CanonicalView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.AreEqual(initiallyPublished,
+                provider.GetAttributesForWrite().OfType<AttributeStatement>().Any(DeprecationApiHelpers.IsObsoleteAttribute));
+
+            provider.Update(name: initialName, @namespace: initialNamespace);
+            provider.ProcessTypeForBackCompatibility();
+            Assert.AreEqual(!initiallyPublished, provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.AreSame(visitorAttribute, provider.Attributes.Single(a => a.Type.Equals(typeof(SerializableAttribute))));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task DeprecationIdentityUpdatesPreserveVisitorAttributeOverrides(bool replaceObsolete)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                InputFactory.Model("Unpublished", deprecation: "Generated message"))!;
+            Assert.IsTrue(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            var visitorAttribute = replaceObsolete
+                ? new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")])
+                : new AttributeStatement(typeof(SerializableAttribute));
+            provider.Update(attributes: [visitorAttribute]);
+            provider.Update(name: "StableModel");
+            provider.Update(name: "UnpublishedAgain");
+
+            Assert.AreSame(visitorAttribute, provider.Attributes.Single());
+        }
+
+        [Test]
+        public async Task DeprecationIdentityUpdatesHonorCustomAttributes()
+        {
+            var input = InputFactory.Model("Unpublished", deprecation: "Generated message");
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [input],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecatedCustomModelKeepsExistingAttribute)));
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+            Assert.IsTrue(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+
+            provider.Update(name: "Legacy");
+
+            Assert.IsFalse(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.AreEqual("\"Custom message\"",
+                provider.CanonicalView.Attributes.Single(DeprecationApiHelpers.IsObsoleteAttribute).Arguments.Single().ToDisplayString());
+        }
+
+        [Test]
+        public async Task DeprecationIdentityUpdatesAreReflectedInGeneratedCode()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(
+                InputFactory.StringEnum("Unpublished", [("One", "one")], deprecation: "Generated message"))!;
+            provider.Update(attributes: [.. provider.Attributes, new AttributeStatement(typeof(SerializableAttribute))]);
+            provider.Update(name: "StableEnum");
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [Test]
+        public async Task DeprecationIdentityUpdatesIgnoreStaleAttributeSnapshots()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                InputFactory.Model("Unpublished", deprecation: "Generated message"))!;
+            var originalAttributes = provider.Attributes;
+            provider.Update(name: "StableModel");
+            var visitorAttribute = new AttributeStatement(typeof(SerializableAttribute));
+            provider.Update(attributes: [.. originalAttributes, visitorAttribute]);
+
+            Assert.AreSame(visitorAttribute, provider.Attributes.Single());
+        }
+
+        [TestCase(false, null)]
+        [TestCase(true, null)]
+        [TestCase(false, "OBS001")]
+        [TestCase(true, "OBS001")]
+        public async Task DeprecationPreservesBackCompatOverloads(bool previouslyObsolete, string? diagnosticId)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new TestTypeProvider(name: previouslyObsolete ? "ObsoleteClient" : "LegacyClient", ns: "Sample");
+            var method = new MethodProvider(
+                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null,
+                [
+                    new ParameterProvider("value", $"", typeof(int)),
+                    new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)
+                ],
+                Attributes: [new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Current message")],
+                    diagnosticId is null ? [] : [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))])]),
+                MethodBodyStatement.Empty, provider);
+            provider = new TestTypeProvider(name: provider.Name, ns: "Sample", methods: [method]);
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(2, provider.Methods.Count);
+            Assert.IsTrue(provider.Methods.Single(m => m.Signature.Parameters.Count == 2).Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            var previous = provider.Methods.Single(m => m.Signature.Parameters.Count == 1);
+            Assert.AreEqual(previouslyObsolete, previous.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            if (previouslyObsolete)
+            {
+                Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
+            }
+            Assert.IsTrue(previous.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal(diagnosticId ?? "CS0618").ToDisplayString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task VisitorMethodDeprecationSurvivesCompatibilityOverloadRestoration(bool hasAddedParameter)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
+            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample");
+            ParameterProvider[] parameters = hasAddedParameter
+                ? [new("value", $"", typeof(int)), new("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)]
+                : [new("value", $"", typeof(int))];
+            var method = new MethodProvider(
+                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null, parameters),
+                MethodBodyStatement.Empty, provider);
+            provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample", methods: [method]);
+            provider.EnsureBuilt();
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+            provider.Methods.Single().Signature.Update(attributes: [attribute]);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(hasAddedParameter ? 2 : 1, provider.Methods.Count);
+            foreach (var updated in provider.Methods)
+            {
+                Assert.AreSame(attribute, updated.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+        }
+
+        [Test]
+        public async Task VisitorMethodDeprecationDoesNotKeepAutomaticGaDeprecation()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
+            var method = new MethodProvider(
+                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null,
+                    [new ParameterProvider("value", $"", typeof(int))],
+                    Attributes: [DeprecationApiHelpers.BuildAttribute("Generated message")!]),
+                MethodBodyStatement.Empty, new TestTypeProvider());
+            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample", methods: [method]);
+            provider.EnsureBuilt();
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+            provider.Methods.Single().Signature.Update(attributes: [.. method.Signature.Attributes, attribute]);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreSame(attribute, provider.Methods.Single().Signature.Attributes.Single());
+        }
+
+        [Test]
+        public async Task DeprecationPreservesReorderedLastContractMethods()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
+            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample");
+            var method = new MethodProvider(
+                new MethodSignature("Reorder", null, MethodSignatureModifiers.Public, typeof(string), null,
+                [
+                    new ParameterProvider("value", $"", typeof(int)),
+                    new ParameterProvider("name", $"", typeof(string))
+                ],
+                Attributes: [new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Current message")])]),
+                Snippet.Return(Snippet.Null), provider);
+            provider = new TestTypeProvider(name: provider.Name, ns: "Sample", methods: [method]);
+            provider.ProcessTypeForBackCompatibility();
+
+            CollectionAssert.AreEqual(new[] { "name", "value" }, provider.Methods.Single().Signature.Parameters.Select(p => p.Name));
+            Assert.IsFalse(provider.Methods.Single().Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+        }
+
         [Test]
         public void ExperimentalApiHelpersAreInternal()
         {
@@ -2058,6 +2376,63 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(
                 result.Contains("global::."),
                 $"Partial implementation wrote a return type with no namespace:\n{result}");
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomPartialMethodsKeepObsoleteOnDeclaration(bool expressionBody)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "CustomPartialMethodType");
+            var methods = new[] { "Legacy", "WithoutMessage", "Current" }.Select(name =>
+            {
+                var signature = new MethodSignature(name, null, MethodSignatureModifiers.Public, typeof(int), null, []);
+                return expressionBody
+                    ? new MethodProvider(signature, Snippet.Literal(1), typeProvider)
+                    : new MethodProvider(signature, Snippet.Return(Snippet.Literal(1)), typeProvider);
+            });
+            typeProvider.Update(methods: methods);
+
+            Assert.AreEqual(3, typeProvider.Methods.Count);
+            Assert.IsTrue(typeProvider.Methods.All(method => method.IsPartialMethod));
+            Assert.IsTrue(typeProvider.Methods.All(method => !method.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)));
+            var customMethods = typeProvider.CustomCodeView!.Methods;
+            Assert.AreEqual("\"Use \\\"Current\\\" instead.\\nSee C:\\\\sdk.\"",
+                customMethods.Single(method => method.Signature.Name == "Legacy").Signature.Attributes.Single().Arguments.Single().ToDisplayString());
+            Assert.IsEmpty(customMethods.Single(method => method.Signature.Name == "WithoutMessage").Signature.Attributes.Single().Arguments);
+            Assert.IsEmpty(customMethods.Single(method => method.Signature.Name == "Current").Signature.Attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomPartialMethodsKeepExperimentalOnDeclaration(bool expressionBody)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "CustomPartialMethodType");
+            var methods = new[] { "Preview", "Combined", "Current" }.Select(name =>
+            {
+                var signature = new MethodSignature(name, null, MethodSignatureModifiers.Public, typeof(int), null, []);
+                return expressionBody
+                    ? new MethodProvider(signature, Snippet.Literal(1), typeProvider)
+                    : new MethodProvider(signature, Snippet.Return(Snippet.Literal(1)), typeProvider);
+            });
+            typeProvider.Update(methods: methods);
+
+            Assert.AreEqual(3, typeProvider.Methods.Count);
+            Assert.IsTrue(typeProvider.Methods.All(method => method.IsPartialMethod));
+            Assert.IsTrue(typeProvider.Methods.All(method => method.Signature.Attributes.Count == 0));
+            var customMethods = typeProvider.CustomCodeView!.Methods;
+            foreach (var method in customMethods.Where(method => method.Signature.Name != "Current"))
+            {
+                Assert.AreEqual("\"CUSTOM001\"",
+                    method.Signature.Attributes.Single(ExperimentalApiHelpers.IsExperimentalAttribute).Arguments.Single().ToDisplayString());
+            }
+            Assert.AreEqual("\"Custom message\"",
+                customMethods.Single(method => method.Signature.Name == "Combined").Signature.Attributes
+                    .Single(DeprecationApiHelpers.IsObsoleteAttribute).Arguments.Single().ToDisplayString());
+            Assert.IsEmpty(customMethods.Single(method => method.Signature.Name == "Current").Signature.Attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
         }
 
         [Test]

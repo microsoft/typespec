@@ -1,0 +1,89 @@
+---
+import type {} from "@astrojs/starlight";
+import { Icon } from "@astrojs/starlight/components";
+
+const baseUrl = import.meta.env.BASE_URL;
+const bundlePath = `${baseUrl.replace(/\/$/, "")}/pagefind/`;
+const label = Astro.locals.t?.("search.label") ?? "Search";
+const devWarning =
+  Astro.locals.t?.("search.devWarning") ?? "Search is only available in production builds.";
+---
+
+<div class="pagefind-search" data-pagefind-ignore>
+  {import.meta.env.PROD ? (
+    <>
+      <link rel="stylesheet" href={`${bundlePath}pagefind-component-ui.css`} />
+      <template>
+        <pagefind-modal-trigger placeholder={label} />
+        <pagefind-modal />
+      </template>
+      <script type="module" define:vars={{ baseUrl, bundlePath }}>
+        await import(`${bundlePath}pagefind-component-ui.js`);
+        // Configure the instance before the template's components connect.
+        window.PagefindComponents.configureInstance("default", {
+          baseUrl,
+          bundlePath,
+          ranking: {
+            // Avoid favoring short generated API pages over guides and decorator references.
+            pageLength: 0,
+          },
+        });
+        const template = document.querySelector(".pagefind-search template");
+        template.replaceWith(template.content.cloneNode(true));
+      </script>
+    </>
+  ) : (
+    <button type="button" class="search-dev" disabled title={devWarning}>
+      <Icon name="magnifier" />
+      <span>{label}</span>
+    </button>
+  )}
+</div>
+
+<style>
+  .pagefind-search {
+    --pf-font: var(--fontFamilyBase);
+    --pf-text: var(--colorNeutralForeground1);
+    --pf-text-secondary: var(--colorNeutralForeground2);
+    --pf-text-muted: var(--colorNeutralForeground3);
+    --pf-background: var(--colorNeutralBackground1);
+    --pf-border: var(--colorNeutralStroke1);
+    --pf-border-focus: var(--colorBrandStroke1);
+    --pf-outline-focus: var(--colorBrandStroke1);
+    --pf-hover: var(--colorNeutralBackground1Hover);
+    --pf-mark: var(--colorBrandForeground1);
+    --pf-skeleton: var(--colorNeutralBackground3);
+    --pf-skeleton-shine: var(--colorNeutralBackground1);
+    --pf-scroll-shadow: var(--colorNeutralShadowAmbient);
+    --pf-shadow-lg: var(--shadow64);
+    --pf-error-bg: var(--colorStatusDangerBackground1);
+    --pf-error-border: var(--colorStatusDangerBorder1);
+    --pf-error-text: var(--colorStatusDangerForeground1);
+    --pf-error-text-secondary: var(--colorStatusDangerForeground1);
+    --pf-modal-backdrop: var(--colorNeutralBackgroundAlpha);
+    --pf-modal-max-width: 40rem;
+    --pf-modal-max-height: calc(100dvh - 8rem);
+    --pf-modal-top: 4rem;
+    --pf-border-radius: var(--borderRadiusMedium);
+  }
+
+  .search-dev {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: var(--borderRadiusMedium);
+    background: var(--colorNeutralBackground1);
+    color: var(--colorNeutralForeground3);
+    font: inherit;
+  }
+
+  @media (max-width: 640px) {
+    .pagefind-search :global(.pf-trigger-text),
+    .pagefind-search :global(.pf-trigger-shortcut) {
+      /* Override the Component UI's high-specificity reset for a compact mobile trigger. */
+      display: none !important;
+    }
+  }
+</style>

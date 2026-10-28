@@ -108,7 +108,6 @@ updates:
           - astro-*
           - "@astrojs/*"
           - "@expressive-code/*"
-          - "@docsearch/*"
           - rehype-*
           - remark-*
           - typedoc

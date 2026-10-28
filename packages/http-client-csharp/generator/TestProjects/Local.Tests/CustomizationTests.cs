@@ -13,6 +13,55 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("LegacyDetails", "Use \"CurrentDetails\" instead.\nSee C:\\sdk.")]
+        [TestCase("LegacyChoice", "Use CurrentChoice instead.")]
+        [TestCase("LegacyExtensibleChoice", "Use CurrentExtensibleChoice instead.")]
+        [TestCase("CurrentDetails", null)]
+        public void DeprecatedTypesPreserveWarningOnlyMessages(string typeName, string? message)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{typeName}");
+            Assert.IsNotNull(type);
+            var attribute = type!.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.AreEqual(message, attribute?.Message);
+            if (message is not null)
+            {
+                Assert.IsFalse(attribute!.IsError);
+            }
+        }
+
+        [TestCase("Legacy", "Use \"read\" instead.\nSee C:\\sdk.")]
+        [TestCase("LegacyAsync", "Use \"read\" instead.\nSee C:\\sdk.")]
+        public void DeprecatedOperationsPreserveWarningOnlyMessages(string methodName, string? message)
+        {
+            var methods = typeof(SampleTypeSpecClient).Assembly.GetType("SampleTypeSpec.DeprecationSamples")!
+                .GetMethods().Where(m => m.Name == methodName).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                var attribute = method.GetCustomAttribute<ObsoleteAttribute>();
+                Assert.AreEqual(message, attribute?.Message);
+                if (message is not null)
+                {
+                    Assert.IsFalse(attribute!.IsError);
+                }
+            }
+        }
+
+        [TestCase("Read", "OBS001")]
+        [TestCase("ReadAsync", "OBS002")]
+        public void CustomProtocolDeprecationDoesNotDeprecateConvenienceOverload(string methodName, string diagnosticId)
+        {
+            var methods = typeof(DeprecationSamples).GetMethods().Where(method => method.Name == methodName).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            var protocol = methods.Single(method => method.GetParameters().Last().ParameterType == typeof(RequestOptions));
+            var obsolete = protocol.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.IsNotNull(obsolete);
+            Assert.AreEqual(diagnosticId, obsolete!.DiagnosticId);
+            Assert.AreEqual("Use the convenience overload instead.", obsolete.Message);
+            Assert.IsFalse(obsolete.IsError);
+            Assert.IsNull(methods.Single(method => method != protocol).GetCustomAttribute<ObsoleteAttribute>());
+        }
+
         [TestCase("GetNotebookResult", "GetNotebookResponse", true)]
         [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse", true)]
         [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse", false)]
@@ -48,6 +97,7 @@ namespace TestProjects.Local.Tests
         [TestCase("SampleTypeSpec.PreviewDetails", "SAMPLE0003")]
         [TestCase("SampleTypeSpec.PreviewChoice", "SAMPLE0004")]
         [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "SAMPLE0005")]
+        [TestCase("SampleTypeSpec.LegacyDetails", "SAMPLE0011")]
         [TestCase("SampleTypeSpec.ExperimentalSamples", "SAMPLE0009")]
         [TestCase("SampleTypeSpec.LifecycleModel", null)]
         public void ExperimentalTypeDiagnostics(string typeName, string? diagnosticId)
