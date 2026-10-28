@@ -124,7 +124,7 @@ catalog:
   monaco-editor: ^0.57.0
   monaco-editor-core: ^0.57.0
   morgan: ^1.12.0
-  multer: ^2.4.0
+  multer: ^2.5.0
   mustache: ^4.2.0
   ora: ^9.4.1
   oxlint: ^1.87.0
