@@ -126,7 +126,7 @@ catalog:
   express: ^5.2.1
   fast-xml-parser: ^5.11.0
   graphql: ^17.0.2
-  happy-dom: ^21.0.3
+  happy-dom: ^21.0.4
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1
   lzutf8: 0.6.3
@@ -134,7 +134,7 @@ catalog:
   monaco-editor: ^0.57.0
   monaco-editor-core: ^0.57.0
   morgan: ^1.12.0
-  multer: ^2.4.0
+  multer: ^2.5.0
   mustache: ^4.2.0
   ora: ^9.4.1
   oxlint: ^1.87.0
