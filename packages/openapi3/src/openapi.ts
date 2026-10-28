@@ -2110,7 +2110,7 @@ function serializeDocument(root: SupportedOpenAPIDocuments, fileType: FileType):
   sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
-      return prettierOutput(JSON.stringify(root, null, 2));
+      return prettierOutput(stringifyJson(root));
     case "yaml":
       return stringify(root, {
         singleQuote: true,
@@ -2119,6 +2119,20 @@ function serializeDocument(root: SupportedOpenAPIDocuments, fileType: FileType):
         compat: "yaml-1.1",
       });
   }
+}
+
+function stringifyJson(root: unknown): string {
+  const json = JSON.stringify(
+    root,
+    (_, value) => {
+      if (typeof value === "bigint") {
+        return `__typespec_bigint_${value}__`;
+      }
+      return value;
+    },
+    2,
+  );
+  return json.replace(/"__typespec_bigint_(-?\d+)__"/g, "$1");
 }
 
 function prettierOutput(output: string) {
