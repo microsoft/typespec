@@ -40,6 +40,13 @@ public final class ExperimentalClient {
 
     /**
      * The read operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>previewQuery</td><td>String</td><td>No</td><td>The previewQuery parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -101,7 +108,8 @@ public final class ExperimentalClient {
     @Generated
     @Preview(warningText = Preview.WARNING_TEXT)
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> readWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> readWithResponse(@Preview(warningText = Preview.WARNING_TEXT) BinaryData body,
+        RequestOptions requestOptions) {
         return this.serviceClient.readWithResponse(body, requestOptions);
     }
 
@@ -125,6 +133,7 @@ public final class ExperimentalClient {
      * The read operation.
      * 
      * @param body The body parameter.
+     * @param previewQuery The previewQuery parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -136,7 +145,32 @@ public final class ExperimentalClient {
     @Generated
     @Preview(warningText = Preview.WARNING_TEXT)
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PreviewModel read(PreviewModel body) {
+    public PreviewModel read(@Preview(warningText = Preview.WARNING_TEXT) PreviewModel body,
+        @Preview(warningText = Preview.WARNING_TEXT) String previewQuery) {
+        // Generated convenience method for readWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        if (previewQuery != null) {
+            requestOptions.addQueryParam("previewQuery", previewQuery, false);
+        }
+        return readWithResponse(BinaryData.fromObject(body), requestOptions).getValue().toObject(PreviewModel.class);
+    }
+
+    /**
+     * The read operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @Preview(warningText = Preview.WARNING_TEXT)
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PreviewModel read(@Preview(warningText = Preview.WARNING_TEXT) PreviewModel body) {
         // Generated convenience method for readWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return readWithResponse(BinaryData.fromObject(body), requestOptions).getValue().toObject(PreviewModel.class);

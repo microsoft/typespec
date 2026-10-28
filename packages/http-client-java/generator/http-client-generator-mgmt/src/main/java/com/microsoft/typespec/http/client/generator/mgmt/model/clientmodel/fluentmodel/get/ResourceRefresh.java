@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
@@ -73,9 +74,12 @@ public class ResourceRefresh extends ResourceOperation {
     }
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
-        if (includeImplementationImports) {
-            getRefreshMethods().forEach(m -> m.addImportsTo(imports, true));
-        }
+        getRefreshMethods().forEach(method -> {
+            ExperimentalAnnotationUtil.addImportsTo(imports, method.getApiMetadata());
+            if (includeImplementationImports) {
+                method.addImportsTo(imports, true);
+            }
+        });
     }
 
     public List<MethodTemplate> getGetByIdCollectionMethods() {

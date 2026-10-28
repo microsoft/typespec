@@ -65,8 +65,7 @@ public class FluentMethodParameterMethod extends FluentMethod {
 
     @Override
     protected String getBaseMethodSignature() {
-        return String.format("%1$s(%2$s %3$s)", this.name, methodParameter.getClientType().toString(),
-            methodParameter.getName());
+        return String.format("%1$s(%2$s)", this.name, methodParameter.getDeclaration());
     }
 
     @Override

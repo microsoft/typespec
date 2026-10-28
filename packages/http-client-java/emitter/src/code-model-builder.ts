@@ -583,7 +583,8 @@ export class CodeModelBuilder {
     this.program.reportDiagnostics(diagnostics);
     if (details) {
       metadata.language.java ??= {};
-      metadata.language.java.experimental = {};
+      metadata.language.java.experimental =
+        details.diagnosticId === undefined ? {} : { diagnosticId: details.diagnosticId };
     }
   }
 
@@ -1749,6 +1750,7 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      this.applyExperimental(param.__raw, parameter);
       if (param.isExactName) {
         parameter.language.java = parameter.language.java ?? {};
         parameter.language.java.name = param.name;
@@ -1867,6 +1869,7 @@ export class CodeModelBuilder {
             opParameter = clonedOpParameter;
           }
 
+          this.applyExperimental(sdkMethodParameter.__raw, opParameter);
           request.signatureParameters.push(opParameter);
           request.parameters.push(opParameter);
         }
@@ -2262,6 +2265,7 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
+    this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
 
@@ -2432,7 +2436,7 @@ export class CodeModelBuilder {
             nullable: existBodyProperty.nullable,
           },
         );
-        if (existBodyProperty.language?.java?.name) {
+        if (existBodyProperty.language?.java) {
           virtualParameter.language.java = existBodyProperty.language.java;
         }
         request.parameters.push(virtualParameter);

@@ -67,6 +67,24 @@ public class ExperimentalTests {
     }
 
     @Test
+    public void annotatesOperationParameters() {
+        for (Class<?> client : new Class<?>[] { ExperimentalClient.class, ExperimentalAsyncClient.class }) {
+            TypeDescription type = describe(client);
+            boolean hasQueryParameter = false;
+            for (var method : type.getDeclaredMethods().filter(named("read").or(named("readWithResponse")))) {
+                assertExperimental(method.getParameters().get(0).getDeclaredAnnotations());
+                for (var parameter : method.getParameters()) {
+                    if (parameter.getType().asErasure().represents(String.class)) {
+                        assertExperimental(parameter.getDeclaredAnnotations());
+                        hasQueryParameter = true;
+                    }
+                }
+            }
+            Assertions.assertTrue(hasQueryParameter, client.getName());
+        }
+    }
+
+    @Test
     public void annotatesModelsAndPropertyAccessors() {
         TypeDescription model = describe(PreviewModel.class);
         assertExperimental(model.getDeclaredAnnotations());

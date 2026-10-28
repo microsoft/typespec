@@ -105,7 +105,7 @@ public class JavaPackage {
             "java.lang.annotation.Retention", "java.lang.annotation.RetentionPolicy", "java.lang.annotation.Target");
         javaFile.javadocComment(comment -> comment.description("Marks an API as experimental and subject to change."));
         javaFile.annotation("Documented", "Retention(RetentionPolicy.CLASS)",
-            "Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR})");
+            "Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER})");
         javaFile.getContents().block("public @interface " + name, block -> {
             block.javadocComment(comment -> comment.description("The warning text for generated experimental APIs."));
             block.line("String WARNING_TEXT = "

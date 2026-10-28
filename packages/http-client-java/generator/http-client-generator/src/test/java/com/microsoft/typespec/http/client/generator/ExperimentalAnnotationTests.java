@@ -3,19 +3,29 @@
 
 package com.microsoft.typespec.http.client.generator;
 
+import com.github.javaparser.StaticJavaParser;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Experimental;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schemas;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
+import com.microsoft.typespec.http.client.generator.core.mapper.CustomClientParameterMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -23,8 +33,13 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
@@ -36,6 +51,14 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.CollectionMethodOperationByIdTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.template.FluentResourceCollectionInterfaceTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.template.FluentResourceModelInterfaceTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import io.clientcore.core.serialization.json.JsonReader;
@@ -57,8 +80,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.yaml.snakeyaml.Yaml;
 
 public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
     private static final String ANNOTATION = "com.example.annotations.Preview";
@@ -125,6 +150,195 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
             ExperimentalAnnotationUtil.getAnnotation(metadata("Custom warning")));
         Assertions.assertEquals("Preview(warningText = \"\")", ExperimentalAnnotationUtil.getAnnotation(metadata("")));
         Assertions.assertNull(ExperimentalAnnotationUtil.getAnnotation(new ApiMetadata.Builder().build()));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = { "Custom warning", "" })
+    public void capturesDiagnosticIdWithoutChangingAnnotations(String warningText) {
+        configureJavaSettings(Map.of("experimental-annotation", ANNOTATION));
+        Yaml yaml = new Yaml();
+        Experimental experimental = yaml.loadAs("diagnosticId: PREVIEW001", Experimental.class);
+        experimental.setWarningText(warningText);
+        Map<String, Object> captured = yaml.load(yaml.dumpAsMap(experimental));
+        Assertions.assertEquals("PREVIEW001", captured.get("diagnosticId"));
+        ApiMetadata metadata = new ApiMetadata.Builder().experimental(experimental).build();
+        String warningExpression
+            = warningText == null ? "Preview.WARNING_TEXT" : ClassType.STRING.defaultValueExpression(warningText);
+        Assertions.assertEquals("Preview(warningText = " + warningExpression + ")",
+            ExperimentalAnnotationUtil.getAnnotation(metadata));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = RequestParameterLocation.class, names = { "QUERY", "BODY" })
+    public void annotatesOperationParameters(RequestParameterLocation location, @TempDir Path directory)
+        throws Exception {
+        configureJavaSettings(Map.of("experimental-annotation", ANNOTATION, "flavor", "azure"));
+        Language language = new Language();
+        language.setName("value");
+        language.setExperimental(metadata(null).getExperimental());
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        Protocol protocol = new Protocol();
+        protocol.setIn(location);
+        Protocols protocols = new Protocols();
+        protocols.setHttp(protocol);
+        Parameter parameter = new Parameter();
+        parameter.setLanguage(languages);
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        parameter.setSchema(schema);
+        parameter.setProtocol(protocols);
+        parameter.setRequired(true);
+        for (boolean protocolMethod : List.of(false, true)) {
+            for (ClientMethodParameter mapped : List.of(
+                Mappers.getClientParameterMapper().map(parameter, protocolMethod),
+                CustomClientParameterMapper.getInstance().map(parameter, protocolMethod))) {
+                String type = protocolMethod && location == RequestParameterLocation.BODY ? "BinaryData" : "String";
+                Assertions.assertEquals("@Preview(warningText = Preview.WARNING_TEXT) " + type + " value",
+                    mapped.getDeclaration());
+                Assertions.assertEquals("@Preview(warningText = Preview.WARNING_TEXT) " + type + " renamed",
+                    mapped.newBuilder().name("renamed").build().getDeclaration());
+                Set<String> imports = new LinkedHashSet<>();
+                mapped.addImportsTo(imports, false);
+                Assertions.assertTrue(imports.contains(ANNOTATION));
+                JavaPackage javaPackage = new JavaPackage(new TestPlugin(Map.of()));
+                javaPackage.addExperimentalAnnotation();
+                JavaFile usage = new JavaFile("Usage.java");
+                usage.declarePackage("com.example");
+                usage.declareImport(imports);
+                usage.publicFinalClass("Usage",
+                    block -> block.publicMethod("void read(" + mapped.getDeclaration() + ")", method -> {
+                    }));
+                compile(directory, List.of(javaPackage.getJavaFiles().get(0), usage));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void annotatesBothContinuationTokenPagingOverloads(boolean sync) {
+        configureJavaSettings(
+            Map.of("experimental-annotation", ANNOTATION, "data-plane", "true", "enable-sync-stack", "true"));
+        ProxyMethodParameter token = new ProxyMethodParameter.Builder().name("token")
+            .requestParameterName("token")
+            .requestParameterLocation(RequestParameterLocation.QUERY)
+            .wireType(ClassType.STRING)
+            .build();
+        ClientMethod method = new ClientMethod.Builder().name("list")
+            .description("Lists values.")
+            .type(sync ? ClientMethodType.PagingSync : ClientMethodType.PagingAsync)
+            .parameters(List.of(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER))
+            .returnValue(new ReturnValue("the values",
+                sync ? GenericType.pagedIterable(ClassType.STRING) : GenericType.pagedFlux(ClassType.STRING)))
+            .methodVisibility(JavaVisibility.Public)
+            .proxyMethod(
+                new ProxyMethod.Builder().name("list").parameters(List.of()).allParameters(List.of(token)).build())
+            .methodPageDetails(new MethodPageDetails(
+                List.of(new ModelPropertySegment(null,
+                    new ClientModelProperty.Builder().name("value")
+                        .serializedName("value")
+                        .wireType(new ListType(ClassType.STRING))
+                        .clientType(new ListType(ClassType.STRING))
+                        .build())),
+                null, null, null, new MethodPageDetails.ContinuationToken(token, null, "next-token", null), null, null))
+            .apiMetadata(metadata(null))
+            .build();
+        JavaFile file = new JavaFile("Client.java");
+        file.publicFinalClass("Client", block -> Templates.getClientMethodTemplate().write(method, block));
+        var methods = StaticJavaParser.parse(file.getContents().toString())
+            .getClassByName("Client")
+            .orElseThrow()
+            .getMethodsByName("list");
+        Assertions.assertEquals(2, methods.size());
+        methods.forEach(declaration -> Assertions.assertTrue(declaration.getAnnotationByName("Preview").isPresent(),
+            declaration.toString()));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "false, false", "false, true", "true, false", "true, true" })
+    public void annotatesFluentResourceInterfaces(boolean annotateType, boolean annotateProperty) {
+        new TypeSpecFluentPlugin(new EmitterOptions().setNamespace("com.example"), false);
+        configureJavaSettings(Map.of("experimental-annotation", ANNOTATION, "fluent", "lite"));
+        ClientModelProperty property = new ClientModelProperty.Builder().name("value")
+            .serializedName("value")
+            .description("A value.")
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .apiMetadata(annotateProperty ? metadata(null) : new ApiMetadata.Builder().build())
+            .build();
+        ClientModel inner = new ClientModel.Builder().name("WidgetInner")
+            .packageName("com.example.fluent.models")
+            .properties(List.of(property))
+            .apiMetadata(annotateType ? metadata(null) : new ApiMetadata.Builder().build())
+            .build();
+        FluentResourceModel model = new FluentResourceModel(inner, List.of());
+        JavaFile file = new JavaFile("Widget.java");
+        FluentResourceModelInterfaceTemplate.getInstance().write(model, file);
+        var declaration
+            = StaticJavaParser.parse(file.getContents().toString()).getInterfaceByName(model.getName()).orElseThrow();
+        Assertions.assertEquals(annotateType, declaration.getAnnotationByName("Preview").isPresent());
+        Assertions.assertEquals(annotateProperty,
+            declaration.getMethodsByName(model.getProperties().iterator().next().getMethodName())
+                .get(0)
+                .getAnnotationByName("Preview")
+                .isPresent());
+        Assertions.assertEquals(annotateType || annotateProperty,
+            file.getContents().toString().contains("import " + ANNOTATION + ";"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "false, false", "false, true", "true, false", "true, true" })
+    public void annotatesFluentCollectionInterfaces(boolean annotateType, boolean annotateMethod) {
+        new TypeSpecFluentPlugin(new EmitterOptions().setNamespace("com.example"), false);
+        configureJavaSettings(Map.of("experimental-annotation", ANNOTATION, "fluent", "lite"));
+        ClientMethod method = new ClientMethod.Builder().name("read")
+            .description("Reads a value.")
+            .type(ClientMethodType.SimpleSync)
+            .parameters(List.of())
+            .returnValue(new ReturnValue("a value", ClassType.STRING))
+            .methodVisibility(JavaVisibility.Public)
+            .proxyMethod(new ProxyMethod.Builder().name("read").parameters(List.of()).allParameters(List.of()).build())
+            .apiMetadata(annotateMethod ? metadata(null) : new ApiMetadata.Builder().build())
+            .build();
+        MethodGroupClient inner = new MethodGroupClient.Builder().className("WidgetsClientImpl")
+            .interfaceName("WidgetsClient")
+            .classBaseName("Widgets")
+            .clientMethods(List.of(method))
+            .apiMetadata(annotateType ? metadata(null) : new ApiMetadata.Builder().build())
+            .build();
+        Client previousClient = FluentStatic.getClient();
+        FluentStatic.setClient(new Client.Builder().responseModels(List.of()).build());
+        try {
+            FluentResourceCollection collection = new FluentResourceCollection(inner);
+            FluentResourceModel resource = new FluentResourceModel(new ClientModel.Builder().name("WidgetInner")
+                .packageName("com.example.fluent.models")
+                .properties(List.of())
+                .build(), List.of());
+            for (boolean includeContext : List.of(false, true)) {
+                collection.getAdditionalMethods()
+                    .add(new CollectionMethodOperationByIdTemplate(resource, "getById", List.of(),
+                        new UrlPathSegments("/widgets"), includeContext, new ResourceLocalVariables(method),
+                        collection.getMethods().get(0)).getMethodTemplate());
+            }
+            JavaFile file = new JavaFile("Widgets.java");
+            FluentResourceCollectionInterfaceTemplate.getInstance().write(collection, file);
+            var declaration = StaticJavaParser.parse(file.getContents().toString())
+                .getInterfaceByName(collection.getInterfaceType().getName())
+                .orElseThrow();
+            Assertions.assertEquals(annotateType, declaration.getAnnotationByName("Preview").isPresent());
+            Assertions.assertEquals(annotateMethod,
+                declaration.getMethodsByName("read").get(0).getAnnotationByName("Preview").isPresent());
+            for (String name : List.of("getById", "getByIdWithResponse")) {
+                Assertions.assertEquals(annotateMethod,
+                    declaration.getMethodsByName(name).get(0).getAnnotationByName("Preview").isPresent(), name);
+            }
+            Assertions.assertEquals(annotateType || annotateMethod,
+                file.getContents().toString().contains("import " + ANNOTATION + ";"));
+        } finally {
+            FluentStatic.setClient(previousClient);
+        }
     }
 
     @Test

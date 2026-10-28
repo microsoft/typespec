@@ -100,6 +100,7 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                 .build();
 
         methodTemplate = MethodTemplate.builder()
+            .apiMetadata(collectionMethod.getInnerClientMethod().getApiMetadata())
             .comment(commentBlock -> ClientMethodTemplate.generateJavadoc(dummyClientMethodForJavadoc, commentBlock,
                 dummyClientMethodForJavadoc.getProxyMethod(), true))
             .methodSignature(this.getMethodSignature(returnType, parameters))

@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
@@ -24,6 +25,7 @@ public abstract class FluentMethod implements ImmutableMethod {
     protected FluentResourceModel fluentResourceModel;
 
     protected FluentMethodType type;
+    protected ApiMetadata apiMetadata;
 
     protected MethodTemplate implementationMethodTemplate;
 
@@ -58,6 +60,14 @@ public abstract class FluentMethod implements ImmutableMethod {
 
     public FluentMethodType getType() {
         return type;
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
+    }
+
+    public void setApiMetadata(ApiMetadata apiMetadata) {
+        this.apiMetadata = apiMetadata;
     }
 
     public FluentResourceModel getFluentResourceModel() {

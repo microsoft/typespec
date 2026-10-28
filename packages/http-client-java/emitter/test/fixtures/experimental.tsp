@@ -57,8 +57,23 @@ model EmptyWarning {
 
 @get
 @route("/preview")
-@experimental
+@experimental(#{ diagnosticId: "PREVIEW001" })
 op read(): Preview;
+
+@post
+@route("/parameters")
+op parameters(
+  @experimental(#{ diagnosticId: "QUERY001" })
+  @query
+  previewQuery: string,
+
+  @experimental
+  @body
+  body: Preview,
+
+  @query
+  stableQuery?: string,
+): void;
 
 @experimental
 @route("/group")

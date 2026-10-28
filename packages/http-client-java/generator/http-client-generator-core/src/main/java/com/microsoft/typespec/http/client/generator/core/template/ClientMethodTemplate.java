@@ -1253,6 +1253,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.methodReturn(
                     String.format("%s(null, %s)", clientMethod.getName(), clientMethod.getArgumentList()));
             });
+            ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
         }
         ClientMethod implementationMethod = pagingMethod;
         String initialTokenExpression = initialToken;

@@ -26,9 +26,12 @@ public final class ExperimentalAnnotationUtil {
      * @return the annotation expression, or null when no annotation applies.
      */
     public static String getAnnotation(ApiMetadata metadata) {
-        String annotation = JavaSettings.getInstance().getExperimentalAnnotation();
         Experimental experimental = metadata == null ? null : metadata.getExperimental();
-        if (annotation == null || experimental == null) {
+        if (experimental == null) {
+            return null;
+        }
+        String annotation = JavaSettings.getInstance().getExperimentalAnnotation();
+        if (annotation == null) {
             return null;
         }
         String name = annotation.substring(annotation.lastIndexOf('.') + 1);

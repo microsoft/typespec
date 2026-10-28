@@ -162,7 +162,7 @@ export interface Language {
   serializedName?: string;
   crossLanguageDefinitionId?: string;
   comment?: string;
-  experimental?: Record<string, never>;
+  experimental?: { diagnosticId?: string };
 }
 
 /** custom extensible metadata for individual language generators */

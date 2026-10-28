@@ -184,6 +184,13 @@ public final class ExperimentalClientImpl {
 
     /**
      * The read operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>previewQuery</td><td>String</td><td>No</td><td>The previewQuery parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -244,7 +251,8 @@ public final class ExperimentalClientImpl {
      */
     @Preview(warningText = Preview.WARNING_TEXT)
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> readWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> readWithResponseAsync(
+        @Preview(warningText = Preview.WARNING_TEXT) BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(
@@ -253,6 +261,13 @@ public final class ExperimentalClientImpl {
 
     /**
      * The read operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>previewQuery</td><td>String</td><td>No</td><td>The previewQuery parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -313,7 +328,8 @@ public final class ExperimentalClientImpl {
      */
     @Preview(warningText = Preview.WARNING_TEXT)
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> readWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> readWithResponse(@Preview(warningText = Preview.WARNING_TEXT) BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.readSync(this.getEndpoint(), contentType, accept, body, requestOptions, Context.NONE);

@@ -113,7 +113,32 @@ describe("experimental metadata", () => {
       expect((child ?? group)!.language.java?.experimental).toEqual(expectedExperimental);
       const operations = client.operationGroups.flatMap((group) => group.operations ?? []);
       const operation = operations.find((operation) => operation.operationId === "read")!;
-      expect(operation.language.java?.experimental).toEqual(expectedExperimental);
+      const expectedOperationExperimental = expectedExperimental && { diagnosticId: "PREVIEW001" };
+      expect(operation.language.java?.experimental).toEqual(expectedOperationExperimental);
+      expect(parse(stringify(operation)).language.java?.experimental).toEqual(
+        expectedOperationExperimental,
+      );
+      const parameterOperation = operations.find(
+        (operation) => operation.operationId === "parameters",
+      )!;
+      expect(parameterOperation.language.java?.experimental).toBeUndefined();
+      const parameters = parameterOperation.parameters!;
+      const previewQuery = parameters.find(
+        (parameter) => parameter.language.default.name === "previewQuery",
+      )!;
+      const expectedQueryExperimental = expectedExperimental && { diagnosticId: "QUERY001" };
+      expect(previewQuery.language.java?.experimental).toEqual(expectedQueryExperimental);
+      expect(parse(stringify(previewQuery)).language.java?.experimental).toEqual(
+        expectedQueryExperimental,
+      );
+      expect(
+        parameters.find((parameter) => parameter.language.default.name === "body")!.language.java
+          ?.experimental,
+      ).toEqual(expectedExperimental);
+      expect(
+        parameters.find((parameter) => parameter.language.default.name === "stableQuery")!.language
+          .java?.experimental,
+      ).toBeUndefined();
       const groupOperations = child
         ? child.operationGroups.flatMap((group) => group.operations ?? [])
         : group!.operations;

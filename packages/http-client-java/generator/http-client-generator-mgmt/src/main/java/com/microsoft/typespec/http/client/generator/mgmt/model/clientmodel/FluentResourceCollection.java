@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.delete.ResourceDelete;
@@ -207,6 +208,7 @@ public class FluentResourceCollection {
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         innerClientType.addImportsTo(imports, false);
+        ExperimentalAnnotationUtil.addImportsTo(imports, groupClient.getApiMetadata());
 
         this.getMethods().forEach(m -> m.addImportsTo(imports, includeImplementationImports));
 

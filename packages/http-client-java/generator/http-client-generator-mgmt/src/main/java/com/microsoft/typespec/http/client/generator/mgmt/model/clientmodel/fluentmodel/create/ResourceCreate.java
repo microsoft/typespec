@@ -276,6 +276,8 @@ public class ResourceCreate extends ResourceOperation {
                 defineMethod = new FluentDefineMethod(this.getResourceModel(), FluentMethodType.DEFINE, resourceName,
                     clientMethodParameter);
             }
+            defineMethod.setApiMetadata(
+                getMethodReferencesOfFullParameters().iterator().next().getInnerClientMethod().getApiMetadata());
         }
         return defineMethod;
     }

@@ -20,4 +20,8 @@ Java code customizations can supply a custom `warningText` value.
 
 Includes generation coverage for experimental annotations and Java warning text customizations,
 including Azure v2 implementation methods and Fluent Lite module exports.
+Experimental markers are also preserved on operation parameters, continuation-token paging
+overloads, and Fluent Lite resource APIs.
+The emitter captures `diagnosticId` as metadata only; it does not affect generated Java annotations
+or warning text.
 Unbranded clients do not support this option or generate experimental annotations.

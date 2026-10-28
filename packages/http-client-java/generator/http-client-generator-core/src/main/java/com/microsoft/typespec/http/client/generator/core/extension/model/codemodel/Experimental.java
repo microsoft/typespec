@@ -7,7 +7,26 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
  * Describes an experimental API.
  */
 public class Experimental {
+    private String diagnosticId;
     private String warningText;
+
+    /**
+     * Gets the diagnostic identifier captured as metadata, without affecting generated Java annotations.
+     *
+     * @return the diagnostic identifier.
+     */
+    public String getDiagnosticId() {
+        return diagnosticId;
+    }
+
+    /**
+     * Sets the diagnostic identifier.
+     *
+     * @param diagnosticId the diagnostic identifier.
+     */
+    public void setDiagnosticId(String diagnosticId) {
+        this.diagnosticId = diagnosticId;
+    }
 
     /**
      * Gets the warning text, or null to use the generated annotation's WARNING_TEXT constant.

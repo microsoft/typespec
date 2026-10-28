@@ -64,7 +64,15 @@ model Excluded {
 @post
 @route("/preview")
 @experimental(#{ diagnosticId: "PREVIEW001", dependsOn: #["DEPENDENCY001"] })
-op read(@body body: PreviewModel): PreviewModel;
+op read(
+  @experimental
+  @body
+  body: PreviewModel,
+
+  @experimental(#{ diagnosticId: "QUERY001" })
+  @query
+  previewQuery?: string,
+): PreviewModel;
 
 @get
 @route("/stable")
