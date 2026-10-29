@@ -498,7 +498,8 @@ namespace Microsoft.TypeSpec.Generator
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
 
-        internal PropertyProvider? GetCachedOrUncachedProperty(InputProperty property, TypeProvider enclosingType)
+        // Honor cached results without caching new conversions, which may be reentrant.
+        internal PropertyProvider? GetProperty(InputProperty property, TypeProvider enclosingType)
             => PropertyCache.TryGetValue(property, out var cached) ? cached : CreateUncachedProperty(property, enclosingType);
 
         internal bool IsPropertyRemoved(InputProperty property, TypeProvider enclosingType)

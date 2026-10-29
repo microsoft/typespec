@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping) &&
                 (_model.InputModel.BaseModel is not null || provider is not SystemObjectModelProvider))
             {
-                if (provider is SystemObjectModelProvider mapped && MappedModelBaseUpgrade.IsUpgrade(_model, mapped.SystemType))
+                if (provider is SystemObjectModelProvider mapped && MappedModelBaseUpgrade.IsDerivedFromCurrentMappedBase(_model, mapped.SystemType))
                 {
                     if (_model.LastContractView?.BaseTypeProvider is not { } historicalBase ||
                         !MappedModelBaseUpgrade.TryCreate(_model, mapped.SystemType, historicalBase, out var projected))
@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (MappedModelBaseUpgrade.IsUpgrade(_model, mappedType))
+            if (MappedModelBaseUpgrade.IsDerivedFromCurrentMappedBase(_model, mappedType))
             {
                 if (!MappedModelBaseUpgrade.TryCreate(_model, mappedType, lastContractBase, out var projected))
                 {
@@ -169,11 +169,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                // Flat candidates establish discovery equivalence only. The model-local projection
-                // is rebuilt through the downstream opt-in and validated afterward.
+                // Flat and upgrade candidates establish discovery equivalence only. Their model-local
+                // projection must be built before displaced-base compatibility can be validated.
                 var compatibleMappedCandidates = candidates
                     .OfType<SystemObjectModelProvider>()
-                    .Where(candidate => _model.InputModel.BaseModel is null || _compatibility.CanUseMappedBase(candidate))
+                    .Where(candidate => _model.InputModel.BaseModel is null ||
+                        MappedModelBaseUpgrade.IsDerivedFromCurrentMappedBase(_model, candidate.SystemType) ||
+                        _compatibility.CanUseMappedBase(candidate))
                     .ToArray();
                 if (compatibleMappedCandidates.Length == 1 ||
                     (compatibleMappedCandidates.Length > 1 &&

@@ -145,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (mappedBase.HasFlatInputProjection)
+            if (mappedBase.HasInputPropertyProjection)
             {
                 // Renamed custom members can claim an input property without colliding with
                 // the framework member's CLR name. Keep that property with its source owner.

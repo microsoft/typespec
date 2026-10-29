@@ -20,7 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     internal static class MappedModelBaseUpgrade
     {
-        internal static bool IsUpgrade(ModelProvider model, CSharpType candidateType)
+        internal static bool IsDerivedFromCurrentMappedBase(ModelProvider model, CSharpType candidateType)
             => model.InputModel.BaseModel is { } inputBase &&
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase) is SystemObjectModelProvider current &&
                 current.SystemType.IsFrameworkType && candidateType.IsFrameworkType &&
@@ -62,9 +62,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     var matches = historicalProperties.Where(previous =>
                         factory.IsLastContractModelBasePropertyCompatible(candidateType, property, previous)).ToArray();
-                    var clrName = MappedModelBaseCompatibility.GetInputPropertyClrName(property);
-                    if (matches.Length > 1 || matches.Length == 0 && historicalProperties.Any(previous =>
-                        previous.Name == clrName || previous.WireInfo?.SerializedName == (property.SerializedName ?? property.Name)))
+                    if (matches.Length > 1 || historicalProperties.Any(previous =>
+                        MappedModelBaseCompatibility.HasKnownPropertyIdentity(property, previous) &&
+                        (matches.Length == 0 || !ReferenceEquals(matches[0], previous))))
                     {
                         return false;
                     }
@@ -76,8 +76,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     // Check the real source owner's visitor policy, including cached removals, without
                     // populating the cache during potentially recursive property conversion. Aliases
                     // must already have their historical CLR name; do not leave retained expressions stale.
-                    if (!matchedProperties.Add(matches[0]) ||
-                        factory.GetCachedOrUncachedProperty(property, owner) is not { } current ||
+                    if (MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(property, matches[0]) ||
+                        !matchedProperties.Add(matches[0]) ||
+                        factory.GetProperty(property, owner) is not { } current ||
+                        owner.IsPropertySuppressed(current) ||
                         current.Name != matches[0].Name || HasCustomAlias(owner, property, current.Name, matches[0].Name))
                     {
                         return false;
@@ -108,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal static bool CanReplaceCurrentBase(ModelProvider model, SystemObjectModelProvider candidate)
         {
-            if (!IsUpgrade(model, candidate.SystemType) ||
+            if (!IsDerivedFromCurrentMappedBase(model, candidate.SystemType) ||
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(model.InputModel.BaseModel!) is not SystemObjectModelProvider current ||
                 !PreservesFrameworkMembers(current.SystemType.FrameworkType, candidate.SystemType.FrameworkType))
             {

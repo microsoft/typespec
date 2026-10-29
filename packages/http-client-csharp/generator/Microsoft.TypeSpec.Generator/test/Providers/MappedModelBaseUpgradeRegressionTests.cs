@@ -57,8 +57,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "Projection must not duplicate a wire property already claimed by a differently named custom member.");
         }
 
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task SuppressionRetainsSourceAuthority(bool cachePropertyFirst, bool suppressesProjectedProperty)
+        {
+            var propertyName = suppressesProjectedProperty ? "Location" : "Child";
+            var (model, currentBase) = await CreateModelAsync(
+                customizationAttribute: $"[CodeGenSuppress(\"{propertyName}\")]", cachePropertyFirst: cachePropertyFirst);
+            Assert.That(model.CustomCodeView, Is.Not.Null);
+            Assert.That(model.BaseType?.AreNamesEqual(currentBase.Type), Is.EqualTo(suppressesProjectedProperty));
+            Assert.That(model.CanonicalView.Properties.Select(property => property.Name), Does.Not.Contain(propertyName));
+        }
+
+        [TestCase("Location", "[CodeGenSerialization(\"Location\", \"customLocation\")]", true)]
+        [TestCase("Location", "[CodeGenSerialization(\"Location\", SerializationValueHook = \"SerializeLocation\")]", true)]
+        [TestCase("Location", "[CodeGenSerialization(\"Location\", DeserializationValueHook = \"DeserializeLocation\")]", true)]
+        [TestCase("Child", "[CodeGenSerialization(\"Child\", \"customChild\")]", false)]
+        public async Task SerializationCustomizationRetainsSourceAuthority(string propertyName, string attribute, bool preventsRestoration)
+        {
+            var (model, currentBase) = await CreateModelAsync(customizationAttribute: attribute);
+            Assert.That(model.CustomCodeView!.Attributes, Is.Not.Empty);
+            Assert.That(model.BaseType?.AreNamesEqual(currentBase.Type), Is.EqualTo(preventsRestoration));
+            var property = model.CanonicalView.Properties.Single(value => value.Name == propertyName);
+            if (attribute.Contains("custom", StringComparison.Ordinal))
+            {
+                Assert.That(property.WireInfo?.SerializedName, Is.EqualTo("custom" + propertyName));
+            }
+        }
+
+        [TestCase("location", true)]
+        [TestCase("changedLocation", false)]
+        public async Task KnownHistoricalWireMetadataMustMatch(string wireName, bool restoresBase)
+        {
+            var (model, _) = await CreateModelAsync(locationWireName: wireName);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(NamedTrackedResource))), Is.EqualTo(restoresBase));
+            if (!restoresBase)
+            {
+                Assert.That(model.CanonicalView.Properties.Single(property => property.Name == "Location").WireInfo?.SerializedName,
+                    Is.EqualTo(wireName));
+            }
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        public async Task MultipleMappedCandidatesRequireEquivalentContracts(bool reverseOrder, bool equivalent)
+        {
+            var (model, currentBase) = await CreateModelAsync(mappedCandidateCount: 2,
+                equivalentCandidates: equivalent, reverseCandidateOrder: reverseOrder);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(NamedTrackedResource))), Is.EqualTo(equivalent));
+            Assert.That(model.BaseType?.AreNamesEqual(currentBase.Type), Is.EqualTo(!equivalent));
+            Assert.That(currentBase.InputModel.Properties.Select(property => property.Name), Is.EqualTo(new[] { "name" }));
+        }
+
         private static async Task<(ModelProvider Model, ModelProvider CurrentBase)> CreateModelAsync(
-            bool requiredName = false, bool registerFrameworkKey = false, string? customAlias = null)
+            bool requiredName = false, bool registerFrameworkKey = false, string? customAlias = null,
+            string? customizationAttribute = null, bool cachePropertyFirst = false, string locationWireName = "location",
+            int mappedCandidateCount = 0, bool equivalentCandidates = true, bool reverseCandidateOrder = false)
         {
             var baselineSource = """
                 using Microsoft.TypeSpec.Generator.Tests.Providers.UpgradeFramework;
@@ -79,20 +137,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var current = InputFactory.Model("CurrentBase", properties:
                 [InputFactory.Property("name", InputPrimitiveType.String, isRequired: requiredName)]);
+            var location = InputFactory.Property("location", InputPrimitiveType.String, serializedName: locationWireName);
             var input = InputFactory.Model("Derived", baseModel: current,
-                properties: [InputFactory.Property("location", InputPrimitiveType.String)]);
+                properties: customizationAttribute is null ? [location] : [location, InputFactory.Property("child", InputPrimitiveType.String)]);
+            var mappedInputs = Enumerable.Range(0, mappedCandidateCount)
+                .Select(index => InputFactory.Model($"Mapped{index}", properties: index > 0 && !equivalentCandidates
+                    ? [InputFactory.Property("other", InputPrimitiveType.String)] : []))
+                .ToArray();
+            if (reverseCandidateOrder)
+            {
+                Array.Reverse(mappedInputs);
+            }
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [current, input],
-                createModelCore: model => model == current
-                    ? new SystemObjectModelProvider(new CSharpType(typeof(NamedResource)), model)
-                    : new ModelProvider(model),
+                inputModelTypes: [current, input, .. mappedInputs],
+                createModelCore: model =>
+                {
+                    if (model == current)
+                    {
+                        return new SystemObjectModelProvider(new CSharpType(typeof(NamedResource)), model);
+                    }
+                    if (mappedInputs.Contains(model))
+                    {
+                        return new SystemObjectModelProvider(new CSharpType(typeof(NamedTrackedResource)), model);
+                    }
+                    var provider = new ModelProvider(model);
+                    if (cachePropertyFirst && model == input)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateProperty(location, provider);
+                    }
+                    return provider;
+                },
                 additionalMetadataReferences:
                 [
                     MetadataReference.CreateFromFile(typeof(NamedResource).Assembly.Location),
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll")),
                 ],
-                compilation: customAlias is null ? null : () => Helpers.GetCompilationFromSourceFilesAsync(
-                    [("Derived.cs", "using Microsoft.TypeSpec.Generator.Customizations; namespace Sample.Models { public partial class Derived { " + customAlias + " } }")]),
+                compilation: customAlias is null && customizationAttribute is null ? null : () => Helpers.GetCompilationFromSourceFilesAsync(
+                    [("Derived.cs", "using Microsoft.TypeSpec.Generator.Customizations; namespace Sample.Models { " + customizationAttribute +
+                        " public partial class Derived { " + customAlias + " } }")]),
                 lastContractCompilation: () => Task.FromResult<Compilation>(baseline),
                 createLastContractModelBase: (previous, _) => previous.AreNamesEqual(new CSharpType(typeof(NamedTrackedResource)))
                     ? new CSharpType(typeof(NamedTrackedResource)) : null);
@@ -123,6 +205,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.UpgradeFramework
     {
         protected NamedTrackedResource() { }
         public NamedTrackedResource(string name) : base(name) { }
+        [WirePath("location")]
         public string Location { get; set; } = string.Empty;
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class WirePathAttribute(string path) : Attribute
+    {
+        public string Path { get; } = path;
     }
 }
