@@ -61,6 +61,9 @@ public final class GroupClient {
      *     excluded (Optional): {
      *         value: String (Required)
      *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
+     *     }
      * }
      * }
      * </pre>
@@ -85,6 +88,9 @@ public final class GroupClient {
      *     }
      *     excluded (Optional): {
      *         value: String (Required)
+     *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
      *     }
      * }
      * }

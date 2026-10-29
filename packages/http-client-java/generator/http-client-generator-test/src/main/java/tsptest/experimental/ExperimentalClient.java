@@ -68,6 +68,9 @@ public final class ExperimentalClient {
      *     excluded (Optional): {
      *         value: String (Required)
      *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
+     *     }
      * }
      * }
      * </pre>
@@ -92,6 +95,9 @@ public final class ExperimentalClient {
      *     }
      *     excluded (Optional): {
      *         value: String (Required)
+     *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
      *     }
      * }
      * }

@@ -103,6 +103,9 @@ public final class GroupsImpl {
      *     excluded (Optional): {
      *         value: String (Required)
      *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
+     *     }
      * }
      * }
      * </pre>
@@ -127,6 +130,9 @@ public final class GroupsImpl {
      *     }
      *     excluded (Optional): {
      *         value: String (Required)
+     *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
      *     }
      * }
      * }
@@ -172,6 +178,9 @@ public final class GroupsImpl {
      *     excluded (Optional): {
      *         value: String (Required)
      *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
+     *     }
      * }
      * }
      * </pre>
@@ -196,6 +205,9 @@ public final class GroupsImpl {
      *     }
      *     excluded (Optional): {
      *         value: String (Required)
+     *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
      *     }
      * }
      * }

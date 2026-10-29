@@ -1959,9 +1959,11 @@ export class CodeModelBuilder {
     parameters.forEach((it, index) => {
       // use required/optional from the group property, if available
       const optional = groupProperties?.at(index)?.optional ?? !it.required;
-      addProperty(
-        optionBagSchema,
-        createGroupProperty(it.language.default.name, it.language.default.description, it.schema, {
+      const property = createGroupProperty(
+        it.language.default.name,
+        it.language.default.description,
+        it.schema,
+        {
           experimental: it.experimental,
           language: { java: it.language.java },
           originalParameter: [it],
@@ -1970,8 +1972,10 @@ export class CodeModelBuilder {
           nullable: it.nullable,
           readOnly: false,
           serializedName: it.language.default.serializedName,
-        }),
+        },
       );
+      this.applyExperimental(groupProperties?.at(index)?.__raw, property);
+      addProperty(optionBagSchema, property);
     });
 
     if (type) {

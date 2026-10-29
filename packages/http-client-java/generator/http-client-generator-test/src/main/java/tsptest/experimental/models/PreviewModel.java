@@ -67,6 +67,12 @@ public final class PreviewModel implements JsonSerializable<PreviewModel> {
     @Generated
     private Excluded excluded;
 
+    /*
+     * The customized property.
+     */
+    @Generated
+    private CustomizedModel customized;
+
     /**
      * Creates an instance of PreviewModel class.
      */
@@ -253,6 +259,28 @@ public final class PreviewModel implements JsonSerializable<PreviewModel> {
     }
 
     /**
+     * Get the customized property: The customized property.
+     *
+     * @return the customized value.
+     */
+    @Generated
+    public CustomizedModel getCustomized() {
+        return this.customized;
+    }
+
+    /**
+     * Set the customized property: The customized property.
+     *
+     * @param customized the customized value to set.
+     * @return the PreviewModel object itself.
+     */
+    @Generated
+    public PreviewModel setCustomized(CustomizedModel customized) {
+        this.customized = customized;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -267,6 +295,7 @@ public final class PreviewModel implements JsonSerializable<PreviewModel> {
         jsonWriter.writeJsonField("stable", this.stable);
         jsonWriter.writeJsonField("otherEmitter", this.otherEmitter);
         jsonWriter.writeJsonField("excluded", this.excluded);
+        jsonWriter.writeJsonField("customized", this.customized);
         return jsonWriter.writeEndObject();
     }
 
@@ -302,6 +331,8 @@ public final class PreviewModel implements JsonSerializable<PreviewModel> {
                     deserializedPreviewModel.otherEmitter = OtherEmitter.fromJson(reader);
                 } else if ("excluded".equals(fieldName)) {
                     deserializedPreviewModel.excluded = Excluded.fromJson(reader);
+                } else if ("customized".equals(fieldName)) {
+                    deserializedPreviewModel.customized = CustomizedModel.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

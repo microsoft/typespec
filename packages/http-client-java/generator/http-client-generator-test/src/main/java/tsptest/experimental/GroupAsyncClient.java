@@ -63,6 +63,9 @@ public final class GroupAsyncClient {
      *     excluded (Optional): {
      *         value: String (Required)
      *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
+     *     }
      * }
      * }
      * </pre>
@@ -87,6 +90,9 @@ public final class GroupAsyncClient {
      *     }
      *     excluded (Optional): {
      *         value: String (Required)
+     *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
      *     }
      * }
      * }

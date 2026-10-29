@@ -46,6 +46,56 @@ import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("experimental metadata", () => {
+  it.each(["azure", "azurev2"])(
+    "preserves experimental properties introduced by %s grouped overrides",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/experimental-override.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+          "experimental-annotation": "com.example.Preview",
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(
+        program.diagnostics.filter(
+          (diagnostic) =>
+            diagnostic.code !==
+            "@azure-tools/typespec-client-generator-core/unsupported-generic-decorator-arg-type",
+        ),
+      );
+      const group = model.schemas.groups!.find(
+        (schema) => schema.language.default.name === "OverrideOptions",
+      )!;
+      assert.isDefined(group);
+      expect(
+        group.properties!.find((property) => property.language.default.name === "preview")!
+          .experimental,
+      ).toEqual({ diagnosticId: "OVERRIDE_QUERY" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "original")!
+          .experimental,
+      ).toEqual({ diagnosticId: "ORIGINAL_QUERY" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "stable")!
+          .experimental,
+      ).toBeUndefined();
+    },
+  );
+
   it.each([
     { flavor: "azure", enabled: true, subclient: false },
     { flavor: "azurev2", enabled: true, subclient: false },

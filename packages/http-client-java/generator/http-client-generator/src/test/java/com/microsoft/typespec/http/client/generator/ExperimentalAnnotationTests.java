@@ -66,6 +66,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodParameterMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentParentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentResourceCollectionInterfaceTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentResourceModelInterfaceTemplate;
@@ -98,6 +99,138 @@ import org.yaml.snakeyaml.Yaml;
 
 public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
     private static final String ANNOTATION = "com.example.annotations.Preview";
+
+    @ParameterizedTest
+    @CsvSource({ "getById, QUERY", "getById, HEADER", "deleteById, QUERY", "deleteById, HEADER" })
+    public void annotatesRetainedByIdParameters(String name, RequestParameterLocation location, @TempDir Path directory)
+        throws Exception {
+        new TypeSpecFluentPlugin(new EmitterOptions().setNamespace("com.example"), false);
+        configureJavaSettings(
+            Map.of("namespace", "com.example", "experimental-annotation", ANNOTATION, "fluent", "lite"));
+        ClientMethodParameter parameter = new ClientMethodParameter.Builder().name("preview")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .requestParameterLocation(location)
+            .apiMetadata(metadata(null))
+            .build();
+        ClientMethod method = new ClientMethod.Builder().name("read")
+            .description("Reads a value.")
+            .type(ClientMethodType.SimpleSyncRestResponse)
+            .parameters(List.of(parameter, ClientMethodParameter.CONTEXT_PARAMETER))
+            .returnValue(new ReturnValue("a value", GenericType.response(ClassType.STRING)))
+            .methodVisibility(JavaVisibility.Public)
+            .proxyMethod(new ProxyMethod.Builder().name("read").parameters(List.of()).allParameters(List.of()).build())
+            .build();
+        Client previousClient = FluentStatic.getClient();
+        FluentStatic.setClient(new Client.Builder().responseModels(List.of()).build());
+        try {
+            FluentResourceCollection collection
+                = new FluentResourceCollection(new MethodGroupClient.Builder().className("WidgetsClientImpl")
+                    .interfaceName("WidgetsClient")
+                    .clientMethods(List.of(method))
+                    .build());
+            FluentResourceModel model = new FluentResourceModel(new ClientModel.Builder().name("WidgetInner")
+                .packageName("com.example.fluent.models")
+                .properties(List.of())
+                .build(), List.of());
+            var helper
+                = new CollectionMethodOperationByIdTemplate(model, name, List.of(), new UrlPathSegments("/widgets"),
+                    true, new ResourceLocalVariables(method), collection.getMethods().get(0)).getMethodTemplate();
+            Set<String> imports = new LinkedHashSet<>();
+            method.addImportsTo(imports, false, JavaSettings.getInstance());
+            JavaFile contract = new JavaFile("WidgetHelpers.java");
+            contract.declarePackage("com.example");
+            contract.declareImport(imports);
+            contract.publicInterface("WidgetHelpers", helper::writeMethodInterface);
+            JavaFile implementation = new JavaFile("WidgetHelpersImpl.java");
+            implementation.declarePackage("com.example");
+            implementation.declareImport(imports);
+            implementation.publicFinalClass("WidgetHelpersImpl", block -> {
+                helper.writeMethod(block);
+                block.publicMethod(method.getDeclaration(), body -> body.methodReturn("null"));
+            });
+            for (JavaFile file : List.of(contract, implementation)) {
+                var declaration = StaticJavaParser.parse(file.getContents().toString())
+                    .getType(0)
+                    .getMethodsByName(name + "WithResponse")
+                    .get(0);
+                Assertions.assertTrue(
+                    declaration.getParameterByName("preview").orElseThrow().getAnnotationByName("Preview").isPresent(),
+                    file.getContents().toString());
+                Assertions.assertFalse(
+                    declaration.getParameterByName("id").orElseThrow().getAnnotationByName("Preview").isPresent());
+            }
+            JavaPackage javaPackage = new JavaPackage(new TestPlugin(Map.of()));
+            javaPackage.addExperimentalAnnotation();
+            compile(directory, List.of(javaPackage.getJavaFiles().get(0), contract, implementation));
+        } finally {
+            FluentStatic.setClient(previousClient);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void annotatesFluentParentParameters(boolean experimental, @TempDir Path directory) throws Exception {
+        new TypeSpecFluentPlugin(new EmitterOptions().setNamespace("com.example"), false);
+        configureJavaSettings(
+            Map.of("namespace", "com.example", "experimental-annotation", ANNOTATION, "fluent", "lite"));
+        ClientMethodParameter parent = new ClientMethodParameter.Builder().name("parent")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .apiMetadata(experimental ? metadata(null) : new ApiMetadata.Builder().build())
+            .build();
+        ClientMethodParameter stable
+            = parent.newBuilder().name("stable").apiMetadata(new ApiMetadata.Builder().build()).build();
+        ClientMethod method = new ClientMethod.Builder().parameters(List.of(parent, stable))
+            .proxyMethod(new ProxyMethod.Builder().parameters(List.of(
+                new ProxyMethodParameter.Builder().name("parent")
+                    .wireType(ClassType.STRING)
+                    .requestParameterLocation(RequestParameterLocation.PATH)
+                    .build(),
+                new ProxyMethodParameter.Builder().name("stable")
+                    .wireType(ClassType.STRING)
+                    .requestParameterLocation(RequestParameterLocation.PATH)
+                    .build()))
+                .build())
+            .build();
+        FluentResourceModel model = new FluentResourceModel(new ClientModel.Builder().name("WidgetInner")
+            .packageName("com.example.fluent.models")
+            .properties(List.of())
+            .build(), List.of());
+        DefinitionStage stage = new DefinitionStage("WithCreate");
+        stage.setNextStage(stage);
+        FluentParentMethod helper = new FluentParentMethod(model, FluentMethodType.CREATE_WITH, stage, "Parent",
+            List.of(parent, stable), new ResourceLocalVariables(method));
+        Set<String> imports = new LinkedHashSet<>();
+        helper.addImportsTo(imports, false);
+        JavaFile contract = new JavaFile("WidgetDefinition.java");
+        contract.declarePackage("com.example");
+        contract.declareImport(imports);
+        contract.publicInterface("WidgetDefinition", block -> block.publicMethod(helper.getInterfaceMethodSignature()));
+        contract.getContents().line("interface WithCreate {}");
+        JavaFile implementation = new JavaFile("WidgetImpl.java");
+        implementation.declarePackage("com.example");
+        implementation.declareImport(imports);
+        implementation.publicFinalClass("WidgetImpl", block -> {
+            block.privateMemberVariable("String", "parent");
+            block.privateMemberVariable("String", "stable");
+            helper.getMethodTemplate().writeMethod(block);
+        });
+        for (JavaFile file : List.of(contract, implementation)) {
+            var declaration = StaticJavaParser.parse(file.getContents().toString())
+                .getType(0)
+                .getMethodsByName("withExistingParent")
+                .get(0);
+            Assertions.assertEquals(experimental,
+                declaration.getParameterByName("parent").orElseThrow().getAnnotationByName("Preview").isPresent(),
+                file.getContents().toString());
+            Assertions.assertFalse(
+                declaration.getParameterByName("stable").orElseThrow().getAnnotationByName("Preview").isPresent());
+        }
+        JavaPackage javaPackage = new JavaPackage(new TestPlugin(Map.of()));
+        javaPackage.addExperimentalAnnotation();
+        compile(directory, List.of(javaPackage.getJavaFiles().get(0), contract, implementation));
+    }
 
     @Test
     public void disabledByDefault() {
@@ -687,7 +820,12 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         CodeModel codeModel = new CodeModel();
         codeModel.setLanguage(languages);
         codeModel.setSchemas(new Schemas());
-        Client client = new Client.Builder().models(List.of()).build();
+        Client client = new Client.Builder().models(List.of())
+            .enums(List.of())
+            .responseModels(List.of())
+            .exceptions(List.of())
+            .xmlSequenceWrappers(List.of())
+            .build();
         var fluentClient = new FluentMapper(new FluentJavaSettings(new TestPlugin(settings))).map(codeModel, client);
         String annotationPackage
             = annotation == null ? "com.example.annotations" : annotation.substring(0, annotation.lastIndexOf('.'));

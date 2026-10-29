@@ -114,6 +114,7 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
   } elseif ($tspFile -match "tsp[\\/]experimental\.tsp$") {
     $tspOptions += " --option ""@typespec/http-client-java.experimental-annotation=tsptest.experimental.annotations.Preview"""
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/ExperimentalCustomization.java"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp

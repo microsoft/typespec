@@ -70,6 +70,9 @@ public final class ExperimentalAsyncClient {
      *     excluded (Optional): {
      *         value: String (Required)
      *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
+     *     }
      * }
      * }
      * </pre>
@@ -94,6 +97,9 @@ public final class ExperimentalAsyncClient {
      *     }
      *     excluded (Optional): {
      *         value: String (Required)
+     *     }
+     *     customized (Optional): {
+     *         value: String (Optional)
      *     }
      * }
      * }

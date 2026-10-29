@@ -22,6 +22,12 @@ model PreviewModel {
   stable?: Stable;
   otherEmitter?: OtherEmitter;
   excluded?: Excluded;
+  customized?: CustomizedModel;
+}
+
+@experimental
+model CustomizedModel {
+  value?: string;
 }
 
 @experimental

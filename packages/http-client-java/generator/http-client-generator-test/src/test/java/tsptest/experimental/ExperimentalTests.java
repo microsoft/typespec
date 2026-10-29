@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tsptest.experimental.annotations.Preview;
 import tsptest.experimental.models.Choice;
+import tsptest.experimental.models.CustomizedModel;
 import tsptest.experimental.models.Excluded;
 import tsptest.experimental.models.OpenChoice;
 import tsptest.experimental.models.OtherEmitter;
@@ -144,7 +145,4 @@ public class ExperimentalTests {
             annotations.ofType(Preview.class).getValue("warningText").resolve(String.class));
     }
 
-    @Preview(warningText = "Customized preview")
-    private static final class CustomizedModel {
-    }
 }
