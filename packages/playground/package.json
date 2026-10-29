@@ -76,9 +76,13 @@
     "dist/**",
     "!dist/test/**"
   ],
+  "peerDependencies": {
+    "@fluentui/react-components": "^9.0.0",
+    "@fluentui/react-icons": "^2.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "dependencies": {
-    "@fluentui/react-components": "catalog:",
-    "@fluentui/react-icons": "catalog:",
     "@typespec/bundler": "workspace:^",
     "@typespec/compiler": "workspace:^",
     "@typespec/html-program-viewer": "workspace:^",
@@ -92,8 +96,6 @@
     "debounce": "catalog:",
     "lzutf8": "catalog:",
     "monaco-editor": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
     "react-error-boundary": "catalog:",
     "swagger-ui-dist": "catalog:",
     "vscode-languageserver": "catalog:",
@@ -102,6 +104,8 @@
   },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@fluentui/react-components": "catalog:",
+    "@fluentui/react-icons": "catalog:",
     "@playwright/test": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@testing-library/dom": "catalog:",
@@ -117,6 +121,8 @@
     "concurrently": "catalog:",
     "cross-env": "catalog:",
     "es-module-shims": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "rimraf": "catalog:",
     "storybook": "catalog:",
     "typescript": "catalog:",
