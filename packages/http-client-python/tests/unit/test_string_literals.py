@@ -231,12 +231,22 @@ def test_python_string_literal_preserves_value(value, quote):
     source.encode("utf-8")
 
 
-def test_docstring_wrapping_preserves_ordinary_quotes(env):
-    description = 'Known values are: "function", "file_search", "computer", and "web_search". ' * 3
-    template = env.from_string('{% import "operation_tools.jinja2" as tools %}{{ tools[macro](description, "\\n ") }}')
-    assert template.render(macro="wrap_docstring", description=description) == template.render(
-        macro="wrap_string", description=description
-    )
+@pytest.mark.parametrize(
+    "description",
+    [
+        'Known values are: "function", "file_search", "computer", and "web_search". ' * 3,
+        'Ends with a quote"',
+        'Ends with two quotes""',
+    ],
+)
+def test_docstring_wrapping_preserves_ordinary_quotes(env, description):
+    macros = env.get_template("operation_tools.jinja2").module
+    assert macros.wrap_docstring(description, "\n ", escape_all_quotes=False) == macros.wrap_string(description, "\n ")
+
+
+def test_existing_docstrings_preserve_quote_escaping(env):
+    macros = env.get_template("operation_tools.jinja2").module
+    assert macros.wrap_docstring('"Internal" refers to actions.', "\n ") == '\\"Internal\\" refers to actions.'
 
 
 def test_model_declarations_preserve_quote_style(code_model, env):
