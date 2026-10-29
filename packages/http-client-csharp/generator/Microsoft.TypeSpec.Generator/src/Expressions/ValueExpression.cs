@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public ValueExpression NullConditional() => new NullConditionalExpression(this);
 
-        public MethodBodyStatement AddAndAssign(ValueExpression value) => new BinaryOperatorExpression("+=", this, value).As<int>().Terminate();
+        public MethodBodyStatement AddAndAssign(ValueExpression value) => new BinaryOperatorExpression("+=", this, value, AddParentheses: false).As<int>().Terminate();
 
         public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
 

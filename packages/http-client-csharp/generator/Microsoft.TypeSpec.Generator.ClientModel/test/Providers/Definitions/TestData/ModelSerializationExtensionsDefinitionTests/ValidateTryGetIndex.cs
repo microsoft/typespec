@@ -36,7 +36,7 @@ namespace Sample
                 return false;
             }
 
-            (bytesConsumed += 2);
+            bytesConsumed += 2;
             return true;
         }
     }
