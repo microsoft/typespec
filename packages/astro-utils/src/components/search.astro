@@ -2,6 +2,11 @@
 import type {} from "@astrojs/starlight";
 import { Icon } from "@astrojs/starlight/components";
 
+export interface Props {
+  scopes?: boolean;
+}
+
+const { scopes = false } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL;
 const bundlePath = `${baseUrl.replace(/\/$/, "")}/pagefind/`;
 const label = Astro.locals.t?.("search.label") ?? "Search";
@@ -15,9 +20,66 @@ const devWarning =
       <link rel="stylesheet" href={`${bundlePath}pagefind-component-ui.css`} />
       <template>
         <pagefind-modal-trigger placeholder={label} />
-        <pagefind-modal />
+        <pagefind-modal>
+          {scopes && (
+            <>
+              <pagefind-modal-header>
+                <div class="search-header">
+                  <pagefind-input placeholder={label} />
+                  <label class="search-scope">
+                    Search in
+                    <select>
+                      <option value="Docs">Docs</option>
+                      <option value="JS API">JS API</option>
+                      <option value="">All</option>
+                    </select>
+                  </label>
+                </div>
+              </pagefind-modal-header>
+              <pagefind-modal-body>
+                <pagefind-summary />
+                <pagefind-results>
+                  <script
+                    type="text/pagefind-template"
+                    is:inline
+                    set:html={`
+                    <li class="pf-result">
+                      <div class="pf-result-card">
+                        <div class="pf-result-content">
+                          {{#if meta.searchContext}}
+                          <p class="search-result-context">{{ meta.searchContext }}</p>
+                          {{/if}}
+                          <p class="pf-result-title">
+                            <a class="pf-result-link" href="{{ url | safeUrl }}">{{ meta.title }}</a>
+                          </p>
+                          {{#if excerpt}}
+                          <p class="pf-result-excerpt">{{+ excerpt +}}</p>
+                          {{/if}}
+                        </div>
+                      </div>
+                      {{#if sub_results}}
+                      <ul class="pf-heading-chips">
+                        {{#each sub_results as sub}}
+                        <li class="pf-heading-chip">
+                          <a class="pf-heading-link" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
+                          <p class="pf-heading-excerpt">{{+ sub.excerpt +}}</p>
+                        </li>
+                        {{/each}}
+                      </ul>
+                      {{/if}}
+                    </li>
+                  `}
+                  />
+                </pagefind-results>
+              </pagefind-modal-body>
+              <pagefind-modal-footer>
+                <pagefind-keyboard-hints />
+              </pagefind-modal-footer>
+            </>
+          )}
+        </pagefind-modal>
       </template>
-      <script type="module" define:vars={{ baseUrl, bundlePath }}>
+      <script type="module" define:vars={{ baseUrl, bundlePath, scopes }}>
         await import(`${bundlePath}pagefind-component-ui.js`);
         // Configure the instance before the template's components connect.
         window.PagefindComponents.configureInstance("default", {
@@ -30,6 +92,15 @@ const devWarning =
         });
         const template = document.querySelector(".pagefind-search template");
         template.replaceWith(template.content.cloneNode(true));
+        if (scopes) {
+          const instance = window.PagefindComponents.getInstanceManager().getInstance("default");
+          const select = document.querySelector(".search-scope select");
+          const updateScope = () => {
+            instance.triggerFilters(select.value ? { "search-scope": [select.value] } : {});
+          };
+          select.addEventListener("change", updateScope);
+          select.closest("pagefind-modal").addEventListener("focusin", updateScope, { once: true });
+        }
       </script>
     </>
   ) : (
@@ -77,6 +148,41 @@ const devWarning =
     background: var(--colorNeutralBackground1);
     color: var(--colorNeutralForeground3);
     font: inherit;
+  }
+
+  .search-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .search-scope {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font: 0.875rem var(--fontFamilyBase);
+    color: var(--colorNeutralForeground2);
+  }
+
+  .search-scope select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: var(--borderRadiusMedium);
+    background: var(--colorNeutralBackground1);
+    color: var(--colorNeutralForeground1);
+    font: inherit;
+  }
+
+  .search-scope select:focus-visible {
+    outline: 2px solid var(--colorBrandStroke1);
+    outline-offset: 2px;
+  }
+
+  .pagefind-search :global(.search-result-context) {
+    margin: 0 0 0.25rem;
+    color: var(--colorNeutralForeground2);
+    font-size: 0.75rem;
   }
 
   @media (max-width: 640px) {
