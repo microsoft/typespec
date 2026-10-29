@@ -110,9 +110,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 sourceModel.Properties.Contains(input) && !constructorNames.Contains(property.AsParameter.Name));
         }
 
-        internal static bool CanPopulateInheritedCollection(PropertyProvider property)
+        internal bool CanPopulateInheritedCollection(PropertyProvider property)
             => !property.IsInitOnly && !property.Type.IsNullable &&
-                (property.Type.IsReadWriteDictionary || property.Type.IsReadWriteList);
+                (property.Type.IsReadWriteDictionary || property.Type.IsReadWriteList) &&
+                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBaseCollectionMutable(SystemType, property);
 
         internal bool HasReconstructibleLastContractConstructor
         {

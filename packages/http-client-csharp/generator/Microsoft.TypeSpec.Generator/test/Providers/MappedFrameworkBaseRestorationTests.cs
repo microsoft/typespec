@@ -191,6 +191,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         !previous.IsInitOnly && previous.Body.HasSetter == (input.Name == "location");
                 });
 
+            // The fixture's Tags getter is backed by a stable mutable Dictionary. The downstream
+            // generator must establish this contract separately from CLR/accessor compatibility.
+            Mock.Get(CodeModelGenerator.Instance.TypeFactory).Protected()
+                .Setup<bool>("IsLastContractModelBaseCollectionMutableCore",
+                    ItExpr.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(TrackedResourceData)),
+                    ItExpr.Is<PropertyProvider>(property => property.Name == "Tags"))
+                .Returns(true);
             Mock.Get(CodeModelGenerator.Instance.TypeFactory)
                 .Setup(factory => factory.CreateFrameworkType(typeof(ResourceLocation).FullName!))
                 .Returns(typeof(ResourceLocation));

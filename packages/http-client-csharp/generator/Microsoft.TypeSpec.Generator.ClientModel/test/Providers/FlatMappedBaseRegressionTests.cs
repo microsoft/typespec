@@ -338,6 +338,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
             var frameworkType = readOnly ? typeof(ReadOnlyUpgradedMrwBase) : typeof(UpgradedMrwBase);
             var generator = CreateGenerator(input, frameworkType: frameworkType);
+            // These exact fixture properties are known to return stable mutable collections.
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<bool>("IsLastContractModelBaseCollectionMutableCore",
+                    ItExpr.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(UpgradedMrwBase)),
+                    ItExpr.Is<PropertyProvider>(property => property.Name == "Tags" || property.Name == "Items"))
+                .Returns(true);
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
                 .Returns((InputModelType model) => ReferenceEquals(model, current)
@@ -366,6 +372,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.That(document.RootElement.GetProperty("tags").GetProperty("key").GetString(), Is.EqualTo("value"));
                 Assert.That(document.RootElement.GetProperty("items")[0].GetString(), Is.EqualTo("one"));
             }
+        }
+
+        [TestCase(typeof(ReadOnlyListMrwBase), false)]
+        [TestCase(typeof(ReadOnlyDictionaryMrwBase), true)]
+        [TestCase(typeof(UnapprovedListMrwBase), false)]
+        [TestCase(typeof(UnapprovedDictionaryMrwBase), true)]
+        public void GetterOnlyCollectionsRequireAKnownMutableContract(Type frameworkType, bool dictionary)
+        {
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            var property = InputFactory.Property(dictionary ? "tags" : "items", dictionary
+                ? InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String), isReadOnly: true);
+            var input = InputFactory.Model("DerivedModel", baseModel: current,
+                properties: [property, InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var generator = CreateGenerator(input, frameworkType: frameworkType);
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(FlatMrwBase)), model)
+                    : new ClientModelProvider(model));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            var generatedType = CompileModel(generator, model);
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var options = new ModelReaderWriterOptions("J");
+            var data = BinaryData.FromString(dictionary
+                ? """{"tags":{"key":"value"},"child":"payload"}"""
+                : """{"items":["one"],"child":"payload"}""");
+            var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
+            Assert.That(model.BaseType?.Name, Is.EqualTo(nameof(FlatMrwBase)),
+                "A mutable interface alone does not guarantee that the getter returns a mutable collection.");
+            var serialized = (BinaryData)persistable.GetMethod("Write")!.Invoke(restored, [options])!;
+            using var document = JsonDocument.Parse(serialized);
+            Assert.That(document.RootElement.GetProperty("child").GetString(), Is.EqualTo("payload"));
+            Assert.That(dictionary ? document.RootElement.GetProperty("tags").GetProperty("key").GetString()
+                : document.RootElement.GetProperty("items")[0].GetString(), Is.EqualTo(dictionary ? "value" : "one"));
         }
 
         private static Mock<ScmCodeModelGenerator> CreateGenerator(
@@ -454,6 +496,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public string? Location { get; }
         public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
         public IList<string> Items { get; } = new List<string>();
+    }
+
+    public class ReadOnlyListMrwBase : FlatMrwBase
+    {
+        public IList<string> Items { get; } = Array.AsReadOnly(new[] { "original" });
+    }
+
+    public class ReadOnlyDictionaryMrwBase : FlatMrwBase
+    {
+        public IDictionary<string, string> Tags { get; } = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(
+            new Dictionary<string, string> { ["original"] = "value" });
+    }
+
+    public class UnapprovedListMrwBase : FlatMrwBase
+    {
+        public IList<string> Items { get; } = new List<string>();
+    }
+
+    public class UnapprovedDictionaryMrwBase : FlatMrwBase
+    {
+        public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
     }
 
     public class KnownWirePathMrwBase : IJsonModel<KnownWirePathMrwBase>

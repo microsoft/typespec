@@ -116,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 !PreservesFrameworkMembers(current.SystemType.FrameworkType, candidate.SystemType.FrameworkType) ||
                 candidate.GetAdditionalSerializationProperties(model.InputModel).Any(property =>
                     property.IsInitOnly || !ModelProvider.HasAccessibleInheritedSetter(property) &&
-                        !SystemObjectModelProvider.CanPopulateInheritedCollection(property)))
+                        !candidate.CanPopulateInheritedCollection(property)))
             {
                 return false;
             }

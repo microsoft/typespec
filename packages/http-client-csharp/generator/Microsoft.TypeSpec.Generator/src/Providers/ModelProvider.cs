@@ -1983,7 +1983,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         methodBodyStatements.Add(property.Assign(property.AsParameter).Terminate());
                     }
-                    else if (SystemObjectModelProvider.CanPopulateInheritedCollection(property))
+                    else if (mappedBase.CanPopulateInheritedCollection(property))
                     {
                         var itemType = property.Type.IsDictionary
                             ? new CSharpType(typeof(KeyValuePair<,>), property.Type.Arguments[0], property.Type.Arguments[1])
