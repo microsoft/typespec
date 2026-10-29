@@ -110,3 +110,17 @@ steps:
         -PublishType:"${{ parameters.Publish }}"
         -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
       workingDirectory: $(selfRepositoryPath)
+
+  - ${{ if eq(parameters.LanguageShortName, 'java') }}:
+      - task: PublishTestResults@2
+        displayName: "Publish Java generator test results"
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: "generator/**/target/surefire-reports/TEST-*.xml"
+          searchFolder: $(selfRepositoryPath)${{ parameters.PackagePath }}
+          mergeTestResults: true
+          testRunTitle: Java generator $(Agent.JobName)
+          failTaskOnFailedTests: true
+          failTaskOnFailureToPublishResults: true
+          failTaskOnMissingResultsFile: true

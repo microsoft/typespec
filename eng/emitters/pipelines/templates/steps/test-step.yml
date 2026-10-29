@@ -97,6 +97,22 @@ steps:
       arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)
 
+  - ${{ if eq(parameters.LanguageShortName, 'java') }}:
+      - task: PublishTestResults@2
+        displayName: "Publish Java test results"
+        condition: and(succeededOrFailed(), contains('${{ parameters.TestArgs }}', '-UnitTests'))
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: |
+            generator/**/target/surefire-reports/TEST-*.xml
+            test-results.xml
+          searchFolder: $(selfRepositoryPath)${{ parameters.PackagePath }}
+          mergeTestResults: true
+          testRunTitle: Java $(Agent.JobName)
+          failTaskOnFailedTests: true
+          failTaskOnFailureToPublishResults: true
+          failTaskOnMissingResultsFile: true
+
   - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.EnableCadlRanchReport, true)) }}:
       - task: AzureCLI@2
         displayName: "Upload Cadl Ranch Standard Coverage Report"
