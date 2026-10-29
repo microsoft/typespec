@@ -186,7 +186,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null)
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -198,7 +199,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isExtensible: isExtensible,
                 clientNamespace: clientNamespace,
                 external: external,
-                isExactName: isExactName);
+                isExactName: isExactName,
+                deprecation: deprecation);
 
             foreach (var (valueName, value) in values)
             {
@@ -330,14 +332,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null)
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             var enumType = new InputEnumType(
                 name,
                 clientNamespace,
                 name,
                 access,
-                null,
+                deprecation,
                 "",
                 $"{name} description",
                 usage,
@@ -613,7 +616,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputExternalTypeMetadata? external = null,
             InputSerializationOptions? serializationOptions = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null)
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -622,7 +626,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 @namespace,
                 name,
                 access,
-                null,
+                deprecation,
                 "",
                 $"{name} description",
                 usage,
@@ -758,13 +762,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? ns = null,
             bool isExactName = false,
             bool generateProtocolMethod = true,
-            bool bufferResponse = true)
+            bool bufferResponse = true,
+            string? deprecated = null)
         {
             var operation = new InputOperation(
                 name,
                 "",
                 $"{name} description",
-                null,
+                deprecated,
                 access,
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],

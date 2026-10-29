@@ -243,6 +243,7 @@ packages/http-client-python/venv_build_wheel/
 packages/http-client-python/tests/**.json
 
 # http-server-js emitter
+packages/http-server-js/generated-defs/package.json.ts
 packages/http-server-js/test/e2e/generated
 .pnpm-store/
 packages/http-client-python/tests/.uv-cache/

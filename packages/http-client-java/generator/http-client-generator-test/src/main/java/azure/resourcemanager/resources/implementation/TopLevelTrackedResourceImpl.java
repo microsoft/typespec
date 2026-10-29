@@ -125,9 +125,12 @@ public final class TopLevelTrackedResourceImpl
         azure.resourcemanager.resources.ResourcesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.topLevelTrackedResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelTrackedResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
+            "resourceGroupName");
+        this.topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
+            "topLevelTrackedResourceName");
     }
 
     public TopLevelTrackedResource refresh() {
