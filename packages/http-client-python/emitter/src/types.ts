@@ -434,6 +434,7 @@ function emitArrayOrDict(
   return getSimpleTypeResult(context, {
     type: kind,
     elementType: getType(context, type.valueType),
+    ...(type.valueType.kind === "nullable" ? { elementNullable: true } : {}),
   });
 }
 
