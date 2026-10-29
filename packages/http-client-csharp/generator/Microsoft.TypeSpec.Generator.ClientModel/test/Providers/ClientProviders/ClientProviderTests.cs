@@ -2616,6 +2616,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ListNormalizationRequestBuildersMatchBaseline(bool reverseOrder)
+        {
+            const string collectionPath = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/singletonTrackedResources";
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            InputParameter[] operationParameters =
+            [
+                InputFactory.PathParameter("subscriptionId", InputPrimitiveType.String, isRequired: true),
+                InputFactory.PathParameter("resourceGroupName", InputPrimitiveType.String, isRequired: true)
+            ];
+            InputMethodParameter[] methodParameters =
+            [
+                InputFactory.MethodParameter("subscriptionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                InputFactory.MethodParameter("resourceGroupName", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path)
+            ];
+            var getOperation = InputFactory.Operation(
+                "GetByResourceGroup", parameters: operationParameters, path: collectionPath + "/default",
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetByResourceGroup", getOperation, parameters: methodParameters,
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var listOperation = InputFactory.Operation(
+                "ListByResourceGroup", parameters: operationParameters, path: collectionPath,
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListByResourceGroup", listOperation, parameters: methodParameters,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var inputClient = InputFactory.Client(
+                "TestClient", methods: reverseOrder ? [listMethod, getMethod] : [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            var syntax = CSharpSyntaxTree.ParseText(new TypeProviderWriter(client.RestClient).Write().Content).GetRoot();
+            var requestBuilders = syntax.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.ValueText.StartsWith("Create", StringComparison.Ordinal) &&
+                    method.Identifier.ValueText.EndsWith("Request", StringComparison.Ordinal))
+                .OrderBy(method => method.Identifier.ValueText, StringComparer.Ordinal)
+                .ToArray();
+            CollectionAssert.AreEqual(
+                new[] { "CreateGetByResourceGroupRequest", "CreateListByResourceGroupRequest", "CreateNextListByResourceGroupRequest" },
+                requestBuilders.Select(method => method.Identifier.ValueText));
+            var generatedCode = string.Join(Environment.NewLine + Environment.NewLine, requestBuilders.Select(method => method.NormalizeWhitespace().ToFullString()))
+                .ReplaceLineEndings("\n");
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), generatedCode);
+        }
+
         [Test]
         public void ListNormalizationProtocolMethodBodyMatchesBaseline()
         {
