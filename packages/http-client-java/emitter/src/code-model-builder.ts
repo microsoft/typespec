@@ -193,6 +193,7 @@ import {
 } from "./operation-utils.js";
 import type { DevOptions, EmitterOptions } from "./options.js";
 import { LIB_NAME } from "./options.js";
+import { createSseSchemas, type SseSchemas } from "./sse-utils.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -282,12 +283,10 @@ export interface EmitterOptionsDev {
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
-const SSE_STREAM_EVENT_SUFFIX = "StreamEvent";
 
 interface SseSchemaBundle {
   owner: object;
-  baseSchema: ObjectSchema;
-  eventSchemas: Map<string, ObjectSchema>;
+  schemas: SseSchemas;
 }
 
 export class CodeModelBuilder {
@@ -440,7 +439,6 @@ export class CodeModelBuilder {
     this.processSchemaUsage();
 
     this.deduplicateSchemaName();
-    this.allocateSseSchemaNames();
 
     return this.codeModel;
   }
@@ -675,37 +673,9 @@ export class CodeModelBuilder {
     this.codeModel.schemas.sealedChoices?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.ors?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.constants?.forEach((it) => deduplicateName(it));
-  }
-
-  private allocateSseSchemaNames() {
-    const reservedNames = new Set<string>();
-    const reserveOrdinaryName = (schema: Schema) => {
-      const name =
-        schema.language.java?.name ?? normalizeSseJavaTypeName(schema.language.default.name);
-      if (name) {
-        reservedNames.add(name);
-      }
-    };
-    this.codeModel.schemas.objects?.forEach(reserveOrdinaryName);
-    this.codeModel.schemas.groups?.forEach(reserveOrdinaryName);
-    this.codeModel.schemas.choices?.forEach(reserveOrdinaryName);
-    this.codeModel.schemas.sealedChoices?.forEach(reserveOrdinaryName);
-    this.codeModel.schemas.ors?.forEach(reserveOrdinaryName);
-    this.codeModel.schemas.constants?.forEach(reserveOrdinaryName);
-
-    const allocate = (schema: ObjectSchema) => {
-      const desiredName = schema.language.default.name;
-      let allocatedName = desiredName;
-      let suffix = 1;
-      while (reservedNames.has(allocatedName)) {
-        allocatedName = `${desiredName}${suffix++}`;
-      }
-      schema.language.default.name = allocatedName;
-      reservedNames.add(allocatedName);
-    };
     for (const bundle of this.sseSchemaBundles.values()) {
-      allocate(bundle.baseSchema);
-      bundle.eventSchemas.forEach(allocate);
+      deduplicateName(bundle.schemas.baseSchema);
+      bundle.schemas.eventSchemas.forEach(deduplicateName);
     }
   }
 
@@ -1396,16 +1366,27 @@ export class CodeModelBuilder {
 
     let bundle = existingBundle;
     if (!bundle) {
-      bundle = this.createSseSchemaBundle(owner, streamType, modelNamespace, supportedEvents);
+      bundle = {
+        owner,
+        schemas: createSseSchemas({
+          streamName: streamType.name,
+          sourceNamespace: getNamespace(streamType.__raw),
+          javaNamespace: modelNamespace,
+          events: supportedEvents.map(({ event, payload }) => ({
+            name: event.eventType!,
+            payload,
+          })),
+        }),
+      };
       this.sseSchemaBundles.set(id, bundle);
     }
 
     const metadata: SseMetadata = {
       sseStreamId: id,
       streamName: streamType.name,
-      baseSchema: bundle.baseSchema,
+      baseSchema: bundle.schemas.baseSchema,
       events: supportedEvents.map(({ event }) => {
-        const eventSchema = bundle.eventSchemas.get(event.eventType!);
+        const eventSchema = bundle.schemas.eventSchemas.get(event.eventType!);
         if (!eventSchema) {
           throw new Error(
             `SSE union '${streamType.name}' has no cached schema for event '${event.eventType}'.`,
@@ -1419,72 +1400,6 @@ export class CodeModelBuilder {
       }),
     };
     return metadata;
-  }
-
-  private createSseSchemaBundle(
-    owner: object,
-    streamType: SdkUnionType,
-    modelNamespace: string,
-    events: Array<{ event: SdkSseMetadata["events"][number]; payload: Schema }>,
-  ): SseSchemaBundle {
-    const { baseName, eventNames } = resolveSseSchemaNames(
-      streamType.name!,
-      events.map(({ event }) => event.eventType!),
-    );
-    const defaultNamespace = getNamespace(streamType.__raw);
-    const schemaLanguage = (name: string) => ({
-      default: {
-        name,
-        namespace: defaultNamespace,
-      },
-      java: {
-        namespace: modelNamespace,
-      },
-    });
-    const baseSchema = createObjectSchema(
-      baseName,
-      `Base for polymorphic events emitted by ${streamType.name}.`,
-      {
-        language: schemaLanguage(baseName),
-      },
-    );
-    addProperty(
-      baseSchema,
-      createProperty("eventName", "The server-sent event name.", createStringSchema("string", ""), {
-        required: true,
-        nullable: false,
-        readOnly: true,
-        serializedName: "eventName",
-      }),
-    );
-
-    const eventSchemas = new Map<string, ObjectSchema>();
-    for (const { event, payload } of events) {
-      const eventName = event.eventType!;
-      const schemaName = eventNames.get(eventName)!;
-      const eventSchema = createObjectSchema(
-        schemaName,
-        `Represents the '${eventName}' ${streamType.name} event.`,
-        {
-          language: schemaLanguage(schemaName),
-          parents: {
-            immediate: [baseSchema],
-            all: [baseSchema],
-          },
-        },
-      );
-      addProperty(
-        eventSchema,
-        createProperty("value", "The event payload.", payload, {
-          required: true,
-          nullable: false,
-          readOnly: true,
-          serializedName: "value",
-        }),
-      );
-      eventSchemas.set(eventName, eventSchema);
-    }
-    return { owner, baseSchema, eventSchemas };
   }
 
   private hasUnsupportedSseNullablePayload(type: SdkType): boolean {
@@ -4198,150 +4113,3 @@ export class CodeModelBuilder {
     return type.kind === "dict" && typeof value === "string" ? value : undefined;
   }
 }
-
-function resolveSseSchemaNames(
-  streamName: string,
-  eventNames: string[],
-): { baseName: string; eventNames: Map<string, string> } {
-  const normalizedStreamName = javaToPascalCase(streamName);
-  let baseName = normalizedStreamName.endsWith("Events")
-    ? normalizedStreamName.slice(0, -1)
-    : `${normalizedStreamName}Event`;
-  baseName = normalizeSseJavaTypeName(baseName);
-  const baseStem = baseName.endsWith(SSE_STREAM_EVENT_SUFFIX)
-    ? baseName.slice(0, -SSE_STREAM_EVENT_SUFFIX.length)
-    : baseName;
-  const resolvedEventNames = new Map<string, string>();
-  const wireNamesBySchemaName = new Map<string, string>();
-  for (const eventName of eventNames) {
-    let prefix = baseStem;
-    const firstSegment = eventName
-      .split(/[^A-Za-z0-9]+/)
-      .filter((segment) => segment.length > 0)
-      .map(javaToPascalCase)[0];
-    if (firstSegment && baseStem.endsWith(firstSegment)) {
-      prefix = baseStem.slice(0, -firstSegment.length);
-    }
-    const normalizedEventName = eventName
-      .split(/[^A-Za-z0-9]+/)
-      .filter((segment) => segment.length > 0)
-      .map(javaToPascalCase)
-      .join("");
-    const schemaName = normalizeSseJavaTypeName(
-      `${prefix}${normalizedEventName}${SSE_STREAM_EVENT_SUFFIX}`,
-    );
-    const collidingWireName = wireNamesBySchemaName.get(schemaName);
-    if (schemaName === baseName || collidingWireName) {
-      throw new Error(
-        `SSE event names '${collidingWireName ?? eventName}' and '${eventName}' resolve to duplicate Java type '${schemaName}'.`,
-      );
-    }
-    wireNamesBySchemaName.set(schemaName, eventName);
-    resolvedEventNames.set(eventName, schemaName);
-  }
-  return { baseName, eventNames: resolvedEventNames };
-}
-
-function normalizeSseJavaTypeName(name: string): string {
-  return javaToPascalCase(javaRemoveInvalidCharacters(name));
-}
-
-function javaToPascalCase(name: string): string {
-  if (!name || name.trim().length === 0) {
-    return name;
-  }
-  if (name.startsWith("_")) {
-    return `_${javaToCamelCase(name.slice(1))}`;
-  }
-  return name
-    .split(/[_\- ]/)
-    .filter((segment) => segment.length > 0)
-    .map((segment) => javaFormatCase(segment, false))
-    .join("");
-}
-
-function javaToCamelCase(name: string): string {
-  if (!name || name.trim().length === 0) {
-    return name;
-  }
-  if (name.startsWith("_")) {
-    return javaToCamelCase(name.slice(1));
-  }
-  const segments = name.split(/[_\- ]/);
-  if (segments.length === 0) {
-    return "";
-  }
-  return segments.map((segment, index) => javaFormatCase(segment, index === 0)).join("");
-}
-
-function javaFormatCase(name: string, lowerFirst: boolean): string {
-  if (name.length === 0) {
-    return name;
-  }
-  if (
-    name.length < 2 ||
-    (name.length === 2 && name[0] === name[0].toUpperCase() && name[1] === name[1].toUpperCase())
-  ) {
-    return lowerFirst ? name.toLowerCase() : name.toUpperCase();
-  }
-  return `${lowerFirst ? name[0].toLowerCase() : name[0].toUpperCase()}${name.slice(1)}`;
-}
-
-function javaRemoveInvalidCharacters(name: string): string {
-  let result = name.replace(/[^\p{L}\p{N}_-]/gu, "_");
-  if (!result || BASIC_LATIN_REPLACEMENTS[result.charCodeAt(0)]) {
-    result = Array.from(name)
-      .map((character) => BASIC_LATIN_REPLACEMENTS[character.charCodeAt(0)] ?? character)
-      .join("")
-      .replace(/[^\p{L}\p{N}_-]/gu, "_");
-  }
-  if (!result) {
-    throw new Error(`SSE name '${name}' cannot be used as a Java identifier.`);
-  }
-  return result;
-}
-
-const BASIC_LATIN_REPLACEMENTS: Record<number, string> = {
-  32: "Space",
-  33: "ExclamationMark",
-  34: "QuotationMark",
-  35: "NumberSign",
-  36: "DollarSign",
-  37: "PercentSign",
-  38: "Ampersand",
-  39: "Apostrophe",
-  40: "LeftParenthesis",
-  41: "RightParenthesis",
-  42: "Asterisk",
-  43: "PlusSign",
-  44: "Comma",
-  45: "HyphenMinus",
-  46: "FullStop",
-  47: "Slash",
-  48: "Zero",
-  49: "One",
-  50: "Two",
-  51: "Three",
-  52: "Four",
-  53: "Five",
-  54: "Six",
-  55: "Seven",
-  56: "Eight",
-  57: "Nine",
-  58: "Colon",
-  59: "Semicolon",
-  60: "LessThanSign",
-  61: "EqualSign",
-  62: "GreaterThanSign",
-  63: "QuestionMark",
-  64: "AtSign",
-  91: "LeftSquareBracket",
-  92: "Backslash",
-  93: "RightSquareBracket",
-  94: "CircumflexAccent",
-  96: "GraveAccent",
-  123: "LeftCurlyBracket",
-  124: "VerticalBar",
-  125: "RightCurlyBracket",
-  126: "Tilde",
-};

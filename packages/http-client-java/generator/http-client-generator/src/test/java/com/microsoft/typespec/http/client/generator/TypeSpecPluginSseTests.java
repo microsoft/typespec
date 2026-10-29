@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schemas;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -254,6 +256,93 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         }
     }
 
+    @Test
+    public void processClientNormalizesRawSseNamesBeforeRendering() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(sseSettings("all", false, true));
+        SseMetadata digitEvent = rawMetadata("digit-event", "StreamEvents", "com.azure.mock", "StreamEvent", "123.done",
+            "123DoneStreamEvent");
+        SseMetadata digitStream
+            = rawMetadata("digit-stream", "123Events", "com.azure.mock", "123Event", "done", "123EventDoneStreamEvent");
+        SseMetadata punctuation = rawMetadata("punctuation", "Retry.Events", "com.azure.mock", "Retry.Event", "done",
+            "Retry.EventDoneStreamEvent");
+        CodeModel model = codeModel(List.of(group("", operation("readDigitEvent", digitEvent, false, true),
+            operation("readDigitStream", digitStream, false, true),
+            operation("readPunctuation", punctuation, false, true))));
+
+        Assertions.assertNull(digitEvent.getBaseSchema().getLanguage().getJava().getName());
+        Assertions.assertNull(digitEvent.getEvents().get(0).getEventSchema().getLanguage().getJava().getName());
+
+        Client client = plugin.processClient(model);
+
+        Assertions.assertEquals("StreamEvent", digitEvent.getBaseSchema().getLanguage().getDefault().getName());
+        Assertions.assertEquals("123DoneStreamEvent",
+            digitEvent.getEvents().get(0).getEventSchema().getLanguage().getDefault().getName());
+        Assertions.assertEquals("OneTwoThreeDoneStreamEvent",
+            digitEvent.getEvents().get(0).getEventSchema().getLanguage().getJava().getName());
+        Assertions.assertEquals("OneTwoThreeEvent", digitStream.getBaseSchema().getLanguage().getJava().getName());
+        Assertions.assertEquals("RetryEvent", punctuation.getBaseSchema().getLanguage().getJava().getName());
+        Assertions.assertSame(digitEvent.getBaseSchema(),
+            digitEvent.getEvents().get(0).getEventSchema().getParents().getImmediate().get(0));
+        Assertions.assertSame(digitEvent.getBaseSchema(),
+            digitEvent.getEvents().get(0).getEventSchema().getParents().getAll().get(0));
+
+        JavaPackage javaPackage = new JavaPackage(plugin);
+        plugin.writeHelperClasses(client, model, javaPackage, JavaSettings.getInstance());
+        Map<String, String> sources = javaPackage.getJavaFiles()
+            .stream()
+            .collect(Collectors.toMap(file -> file.getFilePath(), file -> file.getContents().toString()));
+        Assertions.assertTrue(
+            sources.containsKey("src/main/java/com/azure/mock/models/OneTwoThreeDoneStreamEvent.java"),
+            sources.keySet().toString());
+        Assertions.assertTrue(sources.containsKey("src/main/java/com/azure/mock/models/OneTwoThreeEvent.java"),
+            sources.keySet().toString());
+        Assertions.assertTrue(sources.containsKey("src/main/java/com/azure/mock/models/RetryEvent.java"),
+            sources.keySet().toString());
+        Assertions.assertTrue(sources.get("src/main/java/com/azure/mock/models/OneTwoThreeDoneStreamEvent.java")
+            .contains("public final class OneTwoThreeDoneStreamEvent extends StreamEvent"));
+        Assertions.assertTrue(sources.get("src/main/java/com/azure/mock/models/OneTwoThreeEvent.java")
+            .contains("public abstract class OneTwoThreeEvent"));
+    }
+
+    @Test
+    public void renderingRejectsDistinctRawSseNamesWithTheSameFinalPath() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(sseSettings("all", false, true));
+        SseMetadata numeric
+            = rawMetadata("numeric", "123Events", "com.azure.mock", "123Event", "done", "123EventDoneStreamEvent");
+        SseMetadata words = rawMetadata("words", "OneTwoThreeEvents", "com.azure.mock", "OneTwoThreeEvent", "done",
+            "OneTwoThreeEventDoneStreamEvent");
+        CodeModel model = codeModel(List
+            .of(group("", operation("readNumeric", numeric, false, true), operation("readWords", words, false, true))));
+        Client client = plugin.processClient(model);
+        JavaPackage javaPackage = new JavaPackage(plugin);
+
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
+            () -> plugin.writeHelperClasses(client, model, javaPackage, JavaSettings.getInstance()));
+
+        Assertions.assertTrue(exception.getMessage().contains("OneTwoThreeEvent.java"), exception.getMessage());
+    }
+
+    @Test
+    public void renderingRejectsOrdinaryModelAndRawSseNamesWithTheSameFinalPath() {
+        TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+        configureJavaSettings(sseSettings("all", false, true));
+        SseMetadata numeric
+            = rawMetadata("numeric", "123Events", "com.azure.mock", "123Event", "done", "123EventDoneStreamEvent");
+        CodeModel model = codeModel(List.of(group("", operation("readNumeric", numeric, false, true))));
+        model.getSchemas().setObjects(new ArrayList<>(List.of(ordinarySchema("OneTwoThreeEvent", "com.azure.mock"))));
+        Client client = plugin.processClient(model);
+        JavaPackage javaPackage = new JavaPackage(plugin);
+        client.getModels()
+            .forEach(clientModel -> javaPackage.addModel(clientModel.getPackage(), clientModel.getName(), clientModel));
+
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
+            () -> plugin.writeHelperClasses(client, model, javaPackage, JavaSettings.getInstance()));
+
+        Assertions.assertTrue(exception.getMessage().contains("OneTwoThreeEvent.java"), exception.getMessage());
+    }
+
     private static ClientMethod method(String id, String streamName, String namespace) {
         return new ClientMethod.Builder().name("read")
             .parameters(List.of())
@@ -284,6 +373,62 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         metadata.setBaseSchema(baseSchema);
         metadata.setEvents(List.of(event));
         return metadata;
+    }
+
+    private static SseMetadata rawMetadata(String id, String streamName, String namespace, String baseName,
+        String eventName, String eventSchemaName) {
+        StringSchema payload = new StringSchema();
+        payload.setType(Schema.AllSchemaTypes.STRING);
+        ObjectSchema baseSchema = rawSseObjectSchema(baseName, namespace);
+        baseSchema.setProperties(List.of(rawSseProperty("eventName", stringSchema(), namespace)));
+        ObjectSchema eventSchema = rawSseObjectSchema(eventSchemaName, namespace);
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(baseSchema));
+        parents.setAll(List.of(baseSchema));
+        eventSchema.setParents(parents);
+        eventSchema.setProperties(List.of(rawSseProperty("value", payload, namespace)));
+        SseEventMetadata event = new SseEventMetadata();
+        event.setName(eventName);
+        event.setEventSchema(eventSchema);
+        SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId(id);
+        metadata.setStreamName(streamName);
+        metadata.setBaseSchema(baseSchema);
+        metadata.setEvents(List.of(event));
+        return metadata;
+    }
+
+    private static ObjectSchema rawSseObjectSchema(String name, String namespace) {
+        ObjectSchema schema = new ObjectSchema();
+        schema.setType(Schema.AllSchemaTypes.OBJECT);
+        schema.setLanguage(rawLanguages(name, namespace));
+        return schema;
+    }
+
+    private static Property rawSseProperty(String name, Schema schema, String namespace) {
+        Property property = new Property();
+        property.setLanguage(rawLanguages(name, namespace));
+        property.setSerializedName(name);
+        property.setRequired(true);
+        property.setReadOnly(true);
+        property.setSchema(schema);
+        return property;
+    }
+
+    private static ObjectSchema ordinarySchema(String name, String namespace) {
+        ObjectSchema schema = rawSseObjectSchema(name, namespace);
+        schema.setUsage(Set.of(SchemaContext.INPUT, SchemaContext.OUTPUT, SchemaContext.PUBLIC));
+        schema.setProperties(List.of());
+        schema.setChildren(emptyRelations());
+        schema.setParents(emptyRelations());
+        return schema;
+    }
+
+    private static Relations emptyRelations() {
+        Relations relations = new Relations();
+        relations.setImmediate(new ArrayList<>());
+        relations.setAll(new ArrayList<>());
+        return relations;
     }
 
     private static ObjectSchema sseObjectSchema(String name, String namespace) {
@@ -424,6 +569,19 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         Languages languages = new Languages();
         languages.setDefault(language);
         languages.setJava(language);
+        return languages;
+    }
+
+    private static Languages rawLanguages(String name, String namespace) {
+        Language defaultLanguage = new Language();
+        defaultLanguage.setName(name);
+        defaultLanguage.setNamespace(namespace);
+        defaultLanguage.setDescription(name + " description.");
+        Language javaLanguage = new Language();
+        javaLanguage.setNamespace(namespace);
+        Languages languages = new Languages();
+        languages.setDefault(defaultLanguage);
+        languages.setJava(javaLanguage);
         return languages;
     }
 

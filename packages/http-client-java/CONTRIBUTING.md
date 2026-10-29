@@ -116,16 +116,30 @@ they are not added to `schemas.objects`, ordinary model mapping, JSON model gene
 or cross-language model metadata. Their required, read-only `eventName` and `value`
 properties carry the base contract and typed payload reference.
 
-The emitter preserves the stream/event-derived public names, shares one schema bundle
-per effective union owner, and allocates synthetic names after ordinary schemas without
-renaming ordinary models. Java normalizes the inline schemas with the standard
-transformer, validates their names, namespaces, properties, and parent relationship,
-then renders the specialized immutable SSE envelopes from those schemas. After client
-mapping completes, Java collects metadata referenced by the final renderable sync and
-async convenience methods, deduplicating by stream ID in encounter order. Distinct
-effective union owners claiming one ID are errors, not candidates for schema
-fingerprinting or structural deduplication. Duplicate event factories and generated
-source paths still fail before files are written.
+The emitter's `sse-utils.ts` constructs schemas using raw stream/event-derived naming
+patterns. It owns SSE composition such as `Events` singularization, `StreamEvent`
+suffixes, and event-prefix overlap, but it does not sanitize those patterns as Java
+identifiers. The Java transformer and `CodeNamer` are the single owners of final Java
+validity, digit expansion, punctuation handling, and reserved-name escaping.
+`CodeModelBuilder` retains eligibility checks, payload processing, namespace resolution,
+usage tracking, and one cached schema bundle per effective union owner.
+
+The inline schemas pass through ordinary schema deduplication after ordinary models,
+using their raw default names and the same namespace exclusions and suffix rules,
+without renaming ordinary models. There is no separate SSE name allocator. Different
+raw names can therefore converge after Java normalization and fail the strict SSE
+generated source-path checks instead of receiving compatibility suffixes. The generic
+ordinary-model mapper and duplicate-file policy are unchanged and do not provide a new
+global uniqueness guarantee. Unusual digit or punctuation names follow SSE composition
+and then standard Java normalization; for example, `123StreamEvents` with event `123`
+now hits the raw base/wrapper pattern conflict, while conventional names remain
+unchanged. Java validates the normalized names, namespaces, properties, and parent
+relationship, then renders the specialized immutable SSE envelopes from those schemas.
+After client mapping completes, Java collects metadata referenced by the final
+renderable sync and async convenience methods, deduplicating by stream ID in encounter
+order. Distinct effective union owners claiming one ID are errors, not candidates for
+schema fingerprinting or structural deduplication. Duplicate event factories and
+generated source paths still fail before files are written.
 
 For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`
 or the Spector `streaming/sse/main.tsp` into separate output directories using the

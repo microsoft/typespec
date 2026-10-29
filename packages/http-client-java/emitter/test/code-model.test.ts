@@ -102,7 +102,17 @@ describe("code model characterization", () => {
         ]);
         expect(operations[0].sseMetadata).not.toBe(operations[1].sseMetadata);
         expect(operations[0].sseMetadata).toMatchObject(operations[1].sseMetadata!);
+        expect(Object.keys(operations[0].sseMetadata!).sort()).toEqual([
+          "baseSchema",
+          "events",
+          "sseStreamId",
+          "streamName",
+        ]);
+        expect(operations[0].sseMetadata).not.toHaveProperty("owner");
+        expect(operations[0].sseMetadata).not.toHaveProperty("schemas");
         expect(operations[0].sseMetadata?.baseSchema).toBe(operations[1].sseMetadata?.baseSchema);
+        expect(operations[0].sseMetadata?.events).not.toBe(operations[1].sseMetadata?.events);
+        expect(operations[0].sseMetadata?.events[0]).not.toBe(operations[1].sseMetadata?.events[0]);
         expect(operations[0].sseMetadata?.events[0].eventSchema).toBe(
           operations[1].sseMetadata?.events[0].eventSchema,
         );
@@ -541,7 +551,7 @@ describe("code model characterization", () => {
     );
   });
 
-  it("preserves current SSE names in emitter-composed schemas", async () => {
+  it("preserves SSE patterns while leaving Java names for the generator", async () => {
     const program = await compileSseScenario("SseNaming");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
@@ -566,6 +576,10 @@ describe("code model characterization", () => {
     expect(
       metadata.retrieval.events.map((event) => event.eventSchema.language.default.name),
     ).toEqual(["RetrievalStartedStreamEvent", "RetrievalResponseCompletedStreamEvent"]);
+    expect(metadata.retrieval.baseSchema.language.java?.name).toBeUndefined();
+    expect(metadata.retrieval.events.map((event) => event.eventSchema.language.java?.name)).toEqual(
+      [undefined, undefined],
+    );
     expect(metadata.knowledgeBase.baseSchema.language.default.name).toBe(
       "KnowledgeBaseRetrievalStreamEvent",
     );
@@ -578,9 +592,11 @@ describe("code model characterization", () => {
       "KnowledgeBaseRetrievalResponseCompletedStreamEvent",
     ]);
     expect(metadata.digitEvent.events[0].eventSchema.language.default.name).toBe(
-      "OneTwoThreeDoneStreamEvent",
+      "123DoneStreamEvent",
     );
-    expect(metadata.digitStream.baseSchema.language.default.name).toBe("OneTwoThreeEvent");
+    expect(metadata.digitEvent.events[0].eventSchema.language.java?.name).toBeUndefined();
+    expect(metadata.digitStream.baseSchema.language.default.name).toBe("123Event");
+    expect(metadata.digitStream.baseSchema.language.java?.name).toBeUndefined();
   });
 
   it("keeps per-event names stable across additions and ordering", async () => {
@@ -615,7 +631,7 @@ describe("code model characterization", () => {
     expect(retrievalFirst).toEqual(baseRetrievalFirst);
   });
 
-  it("rejects normalized SSE wrapper name collisions in the emitter", async () => {
+  it("rejects duplicate SSE wrapper schema patterns in the emitter", async () => {
     const program = await compileSseScenario("SseNamingCollision");
     expectDiagnosticEmpty(program.diagnostics);
     await expect(
@@ -630,7 +646,7 @@ describe("code model characterization", () => {
           report: () => {},
         },
       }).build(),
-    ).rejects.toThrow("resolve to duplicate Java type 'RetrievalStartedStreamEvent'");
+    ).rejects.toThrow("resolve to duplicate schema name 'RetrievalStartedStreamEvent'");
   });
 
   it("isolates synthetic SSE schemas from authored envelope hierarchies", async () => {
@@ -666,8 +682,8 @@ describe("code model characterization", () => {
     }
   });
 
-  it("allocates synthetic SSE names after final ordinary schema names", async () => {
-    const program = await compileSseScenario("SseSchemaAllocation");
+  it("deduplicates inline SSE schemas with the ordinary naming policy", async () => {
+    const program = await compileSseScenario("SseSchemaDeduplication");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
       program,
@@ -687,14 +703,31 @@ describe("code model characterization", () => {
       ]),
     );
 
-    expect(operations.collision.baseSchema.language.default.name).toBe("CollisionEvent2");
+    expect(operations.collision.baseSchema.language.default.name).toBe("CollisionEvent1");
     expect(operations.collision.events[0].eventSchema.language.default.name).toBe(
       "CollisionEventMessageStreamEvent",
     );
     expect(operations.exact.baseSchema.language.default.name).toBe("ExactCollisionEvent1");
-    expect(operations.azure.baseSchema.language.default.name).toBe("AzureCollisionEvent1");
+    expect(operations.azure.baseSchema.language.default.name).toBe("AzureCollisionEvent");
     expect(operations.one.baseSchema.language.default.name).toBe("SharedEvent");
     expect(operations.two.baseSchema.language.default.name).toBe("SharedEvent1");
+    expect(operations.one.events[0].eventSchema.language.default.name).toBe(
+      "SharedEventMessageStreamEvent1",
+    );
+    expect(operations.two.events[0].eventSchema.language.default.name).toBe(
+      "SharedEventMessageStreamEvent2",
+    );
+    expect(operations.again.baseSchema).toBe(operations.one.baseSchema);
+    expect(operations.again).not.toBe(operations.one);
+    expect(operations.again.events).not.toBe(operations.one.events);
+    expect(operations.again.events[0]).not.toBe(operations.one.events[0]);
+    expect(operations.again.events[0].eventSchema).toBe(operations.one.events[0].eventSchema);
+    expect(operations.again.events[0].eventSchema.parents?.immediate?.[0]).toBe(
+      operations.one.baseSchema,
+    );
+    expect(operations.again.events[0].eventSchema.parents?.all?.[0]).toBe(
+      operations.one.baseSchema,
+    );
     expect(
       model.schemas.objects?.find((schema) => schema.language.default.name === "CollisionEvent")
         ?.language.default.name,
@@ -703,6 +736,33 @@ describe("code model characterization", () => {
       model.schemas.objects?.find((schema) => schema.language.default.name === "CollisionEvent1")
         ?.language.default.name,
     ).toBe("CollisionEvent1");
+  });
+
+  it("preserves ordinary branded namespace exclusions for inline SSE schemas", async () => {
+    const program = await compileSseScenario("Azure.SseSchemaDeduplication");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const metadata = model.clients[0].operationGroups[0].operations!.find(
+      (operation) => operation.language.default.name === "stream",
+    )!.sseMetadata!;
+
+    expect(metadata.baseSchema.language.default.name).toBe("SkippedEvent");
+    expect(metadata.events[0].eventSchema.language.default.name).toBe(
+      "SkippedEventMessageStreamEvent",
+    );
+    expect(model.schemas.objects?.map((schema) => schema.language.default.name)).toEqual(
+      expect.arrayContaining(["SkippedEvent", "SkippedEventMessageStreamEvent"]),
+    );
   });
 
   it.each(["azure", "standard"] as const)(

@@ -278,7 +278,7 @@ namespace SseGenericEncoded {
   @route("/second") @get op second(): SSEStream<GenericEvents<EncodedInteger>>;
 }
 
-// Scenario: emitter-owned Java naming for synthetic SSE schemas.
+// Scenario: emitter-owned SSE name patterns with generator-owned Java normalization.
 namespace SseNaming {
   model PayloadEnvelope {
     @data value: string;
@@ -426,14 +426,34 @@ namespace SseSchemaIsolation {
   @route("/authored-base") @get op authoredBase(): AuthoredEnvelopeBase;
 }
 
-namespace Azure.SseSchemaAllocation {
+namespace Azure.SseSchemaDeduplication {
   model AzureCollisionEvent {
     value: string;
   }
+
+  model SkippedEvent {
+    value: string;
+  }
+
+  model SkippedEventMessageStreamEvent {
+    value: string;
+  }
+
+  model Envelope {
+    @data value: SkippedEvent;
+  }
+
+  @events
+  union SkippedEvents {
+    message: Envelope,
+  }
+
+  @route("/stream") @get op stream(): SSEStream<SkippedEvents>;
+  @route("/ordinary-wrapper") @get op ordinaryWrapper(): SkippedEventMessageStreamEvent;
 }
 
-// Scenario: synthetic names allocate after all ordinary model names.
-namespace SseSchemaAllocation {
+// Scenario: inline SSE schemas share ordinary deduplication rules and limitations.
+namespace SseSchemaDeduplication {
   model CollisionEvent {
     value: string;
   }
@@ -456,11 +476,15 @@ namespace SseSchemaAllocation {
   }
 
   model AzureEnvelope {
-    @data value: Azure.SseSchemaAllocation.AzureCollisionEvent;
+    @data value: Azure.SseSchemaDeduplication.AzureCollisionEvent;
   }
 
   model SharedEnvelope {
     @data value: string;
+  }
+
+  model SharedEventMessageStreamEvent {
+    value: string;
   }
 
   @events
@@ -481,14 +505,14 @@ namespace SseSchemaAllocation {
   namespace One {
     @events
     union SharedEvents {
-      message: SseSchemaAllocation.SharedEnvelope,
+      message: SseSchemaDeduplication.SharedEnvelope,
     }
   }
 
   namespace Two {
     @events
     union SharedEvents {
-      message: SseSchemaAllocation.SharedEnvelope,
+      message: SseSchemaDeduplication.SharedEnvelope,
     }
   }
 
@@ -498,4 +522,6 @@ namespace SseSchemaAllocation {
   @route("/azure") @get op azure(): SSEStream<AzureCollisionEvents>;
   @route("/one") @get op one(): SSEStream<One.SharedEvents>;
   @route("/two") @get op two(): SSEStream<Two.SharedEvents>;
+  @route("/again") @get op again(): SSEStream<One.SharedEvents>;
+  @route("/ordinary-wrapper") @get op ordinaryWrapper(): SharedEventMessageStreamEvent;
 }
