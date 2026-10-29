@@ -24,25 +24,60 @@ const devWarning =
           {scopes && (
             <>
               <pagefind-modal-header>
-                <div class="search-header">
-                  <pagefind-input placeholder={label} />
-                  <label class="search-scope">
-                    Search in
-                    <select>
-                      <option value="Docs">Docs</option>
-                      <option value="JS API">JS API</option>
-                      <option value="">All</option>
-                    </select>
-                  </label>
-                </div>
+                <typespec-search-input class="search-header">
+                  <search class="search-input-wrapper" aria-label={label}>
+                    <input
+                      type="search"
+                      aria-label={label}
+                      aria-describedby="search-prefix-hint"
+                      placeholder={label}
+                      autocomplete="off"
+                      autocapitalize="none"
+                      spellcheck="false"
+                      enterkeyhint="search"
+                    />
+                    <button type="button" class="search-clear" hidden>
+                      Clear
+                    </button>
+                  </search>
+                  <p id="search-prefix-hint" class="search-hint">
+                    <span class="search-mode" aria-live="polite">
+                      Docs
+                    </span>
+                    <span>
+                      Type <kbd>?</kbd> for search selectors
+                    </span>
+                  </p>
+                </typespec-search-input>
               </pagefind-modal-header>
               <pagefind-modal-body>
-                <pagefind-summary />
-                <pagefind-results>
-                  <script
-                    type="text/pagefind-template"
-                    is:inline
-                    set:html={`
+                <ul class="search-selectors" aria-label="Search selectors">
+                  <li>
+                    <button type="button" data-prefix="">
+                      <strong>Docs</strong>
+                      <span>No prefix: guides and decorator references</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" data-prefix="api: ">
+                      <code>api:</code>
+                      <span>JavaScript API reference</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" data-prefix="all: ">
+                      <code>all:</code>
+                      <span>All documentation and JavaScript APIs</span>
+                    </button>
+                  </li>
+                </ul>
+                <div class="search-results" hidden>
+                  <pagefind-summary default-message="Start typing to search." />
+                  <pagefind-results>
+                    <script
+                      type="text/pagefind-template"
+                      is:inline
+                      set:html={`
                     <li class="pf-result">
                       <div class="pf-result-card">
                         <div class="pf-result-content">
@@ -69,8 +104,9 @@ const devWarning =
                       {{/if}}
                     </li>
                   `}
-                  />
-                </pagefind-results>
+                    />
+                  </pagefind-results>
+                </div>
               </pagefind-modal-body>
               <pagefind-modal-footer>
                 <pagefind-keyboard-hints />
@@ -90,17 +126,146 @@ const devWarning =
             pageLength: 0,
           },
         });
+        if (scopes && !customElements.get("typespec-search-input")) {
+          class PrefixSearchInput extends window.PagefindComponents.PagefindElement {
+            init() {
+              this.inputEl = this.querySelector("input");
+              this.clearEl = this.querySelector(".search-clear");
+              this.modeEl = this.querySelector(".search-mode");
+              const modal = this.closest("pagefind-modal");
+              this.selectorsEl = modal.querySelector(".search-selectors");
+              this.resultsEl = modal.querySelector(".search-results");
+              this.abortController = new AbortController();
+              const { signal } = this.abortController;
+              this.hasSearched = false;
+              this.updateState();
+              this.inputEl.addEventListener(
+                "input",
+                (event) => {
+                  this.updateState();
+                  clearTimeout(this.searchTimeout);
+                  if (!event.isComposing) {
+                    this.searchTimeout = setTimeout(() => this.runSearch(), 150);
+                  }
+                },
+                { signal },
+              );
+              this.inputEl.addEventListener(
+                "keydown",
+                (event) => {
+                  if (event.key !== "ArrowDown" || event.isComposing) return;
+                  event.preventDefault();
+                  if (!this.selectorsEl.hidden) {
+                    this.selectorsEl.querySelector("button").focus();
+                  } else {
+                    this.instance.focusNextResults(this.inputEl);
+                  }
+                },
+                { signal },
+              );
+              this.inputEl.addEventListener(
+                "focus",
+                () => {
+                  if (!this.hasSearched) this.runSearch();
+                  this.instance.registerShortcut({ label: "↓", description: "navigate" }, this);
+                  this.instance.registerShortcut({ label: "?", description: "selectors" }, this);
+                },
+                { signal },
+              );
+              this.inputEl.addEventListener(
+                "blur",
+                () => {
+                  this.instance.deregisterAllShortcuts(this);
+                },
+                { signal },
+              );
+              this.clearEl.addEventListener(
+                "click",
+                () => {
+                  clearTimeout(this.searchTimeout);
+                  this.inputEl.value = "";
+                  this.runSearch();
+                  this.focus();
+                },
+                { signal },
+              );
+              this.selectorsEl.addEventListener(
+                "click",
+                (event) => {
+                  const button = event.target.closest("button[data-prefix]");
+                  if (!button) return;
+                  clearTimeout(this.searchTimeout);
+                  this.inputEl.value = button.dataset.prefix;
+                  this.runSearch();
+                  this.focus();
+                },
+                { signal },
+              );
+              this.selectorsEl.addEventListener(
+                "keydown",
+                (event) => {
+                  const buttons = [...this.selectorsEl.querySelectorAll("button")];
+                  const index = buttons.indexOf(document.activeElement);
+                  if (index < 0 || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
+                  event.preventDefault();
+                  if (event.key === "ArrowUp" && index === 0) {
+                    this.focus();
+                  } else {
+                    buttons[
+                      Math.min(buttons.length - 1, index + (event.key === "ArrowDown" ? 1 : -1))
+                    ].focus();
+                  }
+                },
+                { signal },
+              );
+            }
+            updateState() {
+              const value = this.inputEl.value.trimStart();
+              const prefix = /^(api|all):\s*/i.exec(value);
+              const scope = prefix
+                ? prefix[1].toLowerCase() === "api"
+                  ? "JS API"
+                  : "All"
+                : "Docs";
+              const help = value.trim() === "" || value.trim() === "?";
+              if (this.modeEl.textContent !== scope) this.modeEl.textContent = scope;
+              this.clearEl.hidden = this.inputEl.value.length === 0;
+              this.selectorsEl.hidden = !help;
+              this.resultsEl.hidden = help;
+              return { scope, term: help ? "" : value.slice(prefix?.[0].length ?? 0).trim() };
+            }
+            runSearch() {
+              const { scope, term } = this.updateState();
+              this.hasSearched = true;
+              this.instance.triggerSearchWithFilters(
+                term,
+                scope === "All" ? {} : { "search-scope": [scope] },
+              );
+            }
+            register(instance) {
+              instance.registerInput(this, { keyboardNavigation: true });
+              instance.on(
+                "error",
+                () => {
+                  this.selectorsEl.hidden = true;
+                  this.resultsEl.hidden = false;
+                },
+                this,
+              );
+            }
+            focus() {
+              this.inputEl.focus();
+            }
+            cleanup() {
+              clearTimeout(this.searchTimeout);
+              this.abortController.abort();
+              this.instance.deregisterAllShortcuts(this);
+            }
+          }
+          customElements.define("typespec-search-input", PrefixSearchInput);
+        }
         const template = document.querySelector(".pagefind-search template");
         template.replaceWith(template.content.cloneNode(true));
-        if (scopes) {
-          const instance = window.PagefindComponents.getInstanceManager().getInstance("default");
-          const select = document.querySelector(".search-scope select");
-          const updateScope = () => {
-            instance.triggerFilters(select.value ? { "search-scope": [select.value] } : {});
-          };
-          select.addEventListener("change", updateScope);
-          select.closest("pagefind-modal").addEventListener("focusin", updateScope, { once: true });
-        }
       </script>
     </>
   ) : (
@@ -157,26 +322,88 @@ const devWarning =
     width: 100%;
   }
 
-  .search-scope {
+  .search-input-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font: 0.875rem var(--fontFamilyBase);
-    color: var(--colorNeutralForeground2);
-  }
-
-  .search-scope select {
-    padding: 0.25rem 0.5rem;
     border: 1px solid var(--colorNeutralStroke1);
     border-radius: var(--borderRadiusMedium);
     background: var(--colorNeutralBackground1);
     color: var(--colorNeutralForeground1);
+    font: 1rem var(--fontFamilyBase);
+  }
+
+  .search-input-wrapper input {
+    appearance: none;
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
     font: inherit;
   }
 
-  .search-scope select:focus-visible {
+  .search-input-wrapper input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search-input-wrapper:focus-within,
+  .search-selectors button:focus-visible {
     outline: 2px solid var(--colorBrandStroke1);
     outline-offset: 2px;
+  }
+
+  .search-clear {
+    margin-inline-end: 0.75rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: 0.875rem var(--fontFamilyBase);
+    cursor: pointer;
+  }
+
+  .search-hint {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    color: var(--colorNeutralForeground2);
+    font: 0.75rem var(--fontFamilyBase);
+  }
+
+  .search-mode {
+    font-weight: var(--fontWeightSemibold);
+  }
+
+  .search-selectors {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-selectors button {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem;
+    border: 0;
+    border-radius: var(--borderRadiusMedium);
+    background: transparent;
+    color: var(--colorNeutralForeground1);
+    font: 0.875rem var(--fontFamilyBase);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .search-selectors button:hover,
+  .search-selectors button:focus-visible {
+    background: var(--colorNeutralBackground1Hover);
+  }
+
+  .search-selectors code {
+    font-family: var(--fontFamilyMonospace);
   }
 
   .pagefind-search :global(.search-result-context) {

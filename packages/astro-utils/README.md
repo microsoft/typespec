@@ -26,9 +26,19 @@ Enter activation, and avoids favoring short generated API pages over longer docu
 
 ### Search scopes
 
-Use `<Search scopes />` to show a Docs (default), JS API, and All scope selector.
-Scope changes rerun the current query through Pagefind's native filters. Sites without
-the `scopes` prop retain unfiltered search.
+Use `<Search scopes />` for prefix-based search:
+
+| Query                   | Scope          |
+| ----------------------- | -------------- |
+| `versioning`            | Docs (default) |
+| `api: getHttpOperation` | JS API         |
+| `all: versioning`       | All            |
+
+Type `?` to show the selectors, then click one or use Up/Down and Enter to choose.
+Prefixes are case-insensitive and only recognized at the start of the query;
+decorator queries such as `@route` remain documentation searches.
+The visible input keeps the prefix while Pagefind searches the remaining text using
+native filters. Sites without the `scopes` prop retain unfiltered search.
 
 Tag each indexed page with `data-pagefind-filter="search-scope:Docs"` or
 `data-pagefind-filter="search-scope:JS API"`. Use generated pages' `jsApi` frontmatter
