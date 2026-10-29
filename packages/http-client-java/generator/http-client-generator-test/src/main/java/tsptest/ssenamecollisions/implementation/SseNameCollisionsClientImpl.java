@@ -48,7 +48,7 @@ public final class SseNameCollisionsClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -62,7 +62,7 @@ public final class SseNameCollisionsClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -76,7 +76,7 @@ public final class SseNameCollisionsClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     *
+     * 
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -85,7 +85,7 @@ public final class SseNameCollisionsClientImpl {
 
     /**
      * Initializes an instance of SseNameCollisionsClient client.
-     *
+     * 
      * @param endpoint Service host.
      */
     public SseNameCollisionsClientImpl(String endpoint) {
@@ -95,7 +95,7 @@ public final class SseNameCollisionsClientImpl {
 
     /**
      * Initializes an instance of SseNameCollisionsClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      */
@@ -105,7 +105,7 @@ public final class SseNameCollisionsClientImpl {
 
     /**
      * Initializes an instance of SseNameCollisionsClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
@@ -234,13 +234,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The wrapped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -268,13 +268,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The wrapped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -301,13 +301,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The grouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -335,13 +335,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The grouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -368,13 +368,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The ordinary operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -402,13 +402,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The ordinary operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -435,13 +435,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The ordinaryGrouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -469,13 +469,13 @@ public final class SseNameCollisionsClientImpl {
     /**
      * The ordinaryGrouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.

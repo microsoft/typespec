@@ -28,7 +28,7 @@ public final class RetrieveClient {
 
     /**
      * Initializes an instance of RetrieveClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -39,7 +39,7 @@ public final class RetrieveClient {
     /**
      * The stream operation.
      * <p><strong>Request Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -47,15 +47,15 @@ public final class RetrieveClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param request The request parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -72,7 +72,7 @@ public final class RetrieveClient {
 
     /**
      * The stream operation.
-     *
+     * 
      * @param request The request parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.

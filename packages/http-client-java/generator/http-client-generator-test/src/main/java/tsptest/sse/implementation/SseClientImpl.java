@@ -22,7 +22,7 @@ public final class SseClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -36,7 +36,7 @@ public final class SseClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -50,7 +50,7 @@ public final class SseClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     *
+     * 
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -64,7 +64,7 @@ public final class SseClientImpl {
 
     /**
      * Gets the StreamOperationsImpl object to access its operations.
-     *
+     * 
      * @return the StreamOperationsImpl object.
      */
     public StreamOperationsImpl getStreamOperations() {
@@ -73,7 +73,7 @@ public final class SseClientImpl {
 
     /**
      * Initializes an instance of SseClient client.
-     *
+     * 
      * @param endpoint Service host.
      */
     public SseClientImpl(String endpoint) {
@@ -83,7 +83,7 @@ public final class SseClientImpl {
 
     /**
      * Initializes an instance of SseClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      */
@@ -93,7 +93,7 @@ public final class SseClientImpl {
 
     /**
      * Initializes an instance of SseClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.

@@ -198,7 +198,7 @@ public final class SseNameCollisionsClientBuilder implements HttpTrait<SseNameCo
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the SseNameCollisionsClientBuilder.
      */
@@ -210,7 +210,7 @@ public final class SseNameCollisionsClientBuilder implements HttpTrait<SseNameCo
 
     /**
      * Builds an instance of SseNameCollisionsClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of SseNameCollisionsClientImpl.
      */
     @Generated
@@ -266,7 +266,7 @@ public final class SseNameCollisionsClientBuilder implements HttpTrait<SseNameCo
 
     /**
      * Builds an instance of SseNameCollisionsAsyncClient class.
-     *
+     * 
      * @return an instance of SseNameCollisionsAsyncClient.
      */
     @Generated
@@ -276,7 +276,7 @@ public final class SseNameCollisionsClientBuilder implements HttpTrait<SseNameCo
 
     /**
      * Builds an instance of SseNameCollisionsClient class.
-     *
+     * 
      * @return an instance of SseNameCollisionsClient.
      */
     @Generated

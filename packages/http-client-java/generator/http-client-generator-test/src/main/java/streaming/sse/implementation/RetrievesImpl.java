@@ -42,7 +42,7 @@ public final class RetrievesImpl {
 
     /**
      * Initializes an instance of RetrievesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     RetrievesImpl(SseClientImpl client) {
@@ -82,7 +82,7 @@ public final class RetrievesImpl {
     /**
      * The stream operation.
      * <p><strong>Request Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -90,15 +90,15 @@ public final class RetrievesImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param request The request parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -118,7 +118,7 @@ public final class RetrievesImpl {
     /**
      * The stream operation.
      * <p><strong>Request Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -126,15 +126,15 @@ public final class RetrievesImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param request The request parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

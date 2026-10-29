@@ -10,7 +10,7 @@ import com.azure.core.annotation.Immutable;
 /**
  * Represents the {@code update} wrapped event stream event.
  * Access the typed payload with {@link #getValue()}.
- *
+ * 
  * @see WrappedEvent
  */
 @Immutable
@@ -20,7 +20,7 @@ public final class WrappedEventUpdateStreamEvent extends WrappedEvent {
 
     /**
      * Creates an event wrapper.
-     *
+     * 
      * @param value The event payload.
      */
     @Generated
@@ -31,7 +31,7 @@ public final class WrappedEventUpdateStreamEvent extends WrappedEvent {
 
     /**
      * Gets the event payload.
-     *
+     * 
      * @return The event payload.
      */
     @Generated

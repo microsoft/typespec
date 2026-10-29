@@ -31,7 +31,7 @@ public final class WrappedEventSerializer {
     public interface ConstructorAccessor {
         /**
          * Creates a name-only event.
-         *
+         * 
          * @param eventName The event name.
          * @return The event.
          */
@@ -39,7 +39,7 @@ public final class WrappedEventSerializer {
 
         /**
          * Creates an update event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -48,7 +48,7 @@ public final class WrappedEventSerializer {
 
     /**
      * Registers the event constructors from the models package.
-     *
+     * 
      * @param accessor The constructor accessor.
      */
     public static void setConstructorAccessor(ConstructorAccessor accessor) {
@@ -75,7 +75,7 @@ public final class WrappedEventSerializer {
 
     /**
      * Deserializes a stream event payload.
-     *
+     * 
      * @param eventName The stream event name.
      * @param data The stream event data.
      * @return The typed stream event.

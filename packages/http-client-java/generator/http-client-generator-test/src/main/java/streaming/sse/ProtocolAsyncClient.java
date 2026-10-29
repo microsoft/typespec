@@ -32,7 +32,7 @@ public final class ProtocolAsyncClient {
 
     /**
      * Initializes an instance of ProtocolAsyncClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -43,13 +43,13 @@ public final class ProtocolAsyncClient {
     /**
      * The id operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -66,13 +66,13 @@ public final class ProtocolAsyncClient {
     /**
      * The invalidId operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -89,13 +89,13 @@ public final class ProtocolAsyncClient {
     /**
      * The retry operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -112,13 +112,13 @@ public final class ProtocolAsyncClient {
     /**
      * The invalidRetry operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -135,13 +135,13 @@ public final class ProtocolAsyncClient {
     /**
      * The reconnect operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -157,14 +157,14 @@ public final class ProtocolAsyncClient {
 
     /**
      * The id operation.
-     *
+     * 
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
      * {@link ProtocolEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
-     *
+     * 
      * @return A stream of typed protocol event events.
      */
     @Generated
@@ -176,14 +176,14 @@ public final class ProtocolAsyncClient {
 
     /**
      * The invalidId operation.
-     *
+     * 
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
      * {@link ProtocolEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
-     *
+     * 
      * @return A stream of typed protocol event events.
      */
     @Generated
@@ -195,14 +195,14 @@ public final class ProtocolAsyncClient {
 
     /**
      * The retry operation.
-     *
+     * 
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
      * {@link ProtocolEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
-     *
+     * 
      * @return A stream of typed protocol event events.
      */
     @Generated
@@ -214,14 +214,14 @@ public final class ProtocolAsyncClient {
 
     /**
      * The invalidRetry operation.
-     *
+     * 
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
      * {@link ProtocolEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
-     *
+     * 
      * @return A stream of typed protocol event events.
      */
     @Generated
@@ -233,14 +233,14 @@ public final class ProtocolAsyncClient {
 
     /**
      * The reconnect operation.
-     *
+     * 
      * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
      * {@link ProtocolEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
      * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
-     *
+     * 
      * @return A stream of typed protocol event events.
      */
     @Generated

@@ -41,7 +41,7 @@ public final class NamedsImpl {
 
     /**
      * Initializes an instance of NamedsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     NamedsImpl(SseClientImpl client) {
@@ -78,13 +78,13 @@ public final class NamedsImpl {
     /**
      * The receive operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -102,13 +102,13 @@ public final class NamedsImpl {
     /**
      * The receive operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.

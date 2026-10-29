@@ -32,7 +32,7 @@ public final class SseNameCollisionsClient {
 
     /**
      * Initializes an instance of SseNameCollisionsClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -43,13 +43,13 @@ public final class SseNameCollisionsClient {
     /**
      * The wrapped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -76,13 +76,13 @@ public final class SseNameCollisionsClient {
     /**
      * The grouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -109,13 +109,13 @@ public final class SseNameCollisionsClient {
     /**
      * The ordinary operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -142,13 +142,13 @@ public final class SseNameCollisionsClient {
     /**
      * The ordinaryGrouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -175,20 +175,20 @@ public final class SseNameCollisionsClient {
 
     /**
      * The wrapped operation.
-     *
+     * 
      * Events are polymorphic: see {@link WrappedEvent} for the known subtypes. Use a known subtype's {@code getValue()}
      * to access its typed payload. Unrecognized events expose only their names through
      * {@link WrappedEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
-     *
+     * 
      * If received, the terminal {@code update} event is emitted before iteration ends. A failure while closing after a
      * terminal event is reported by the next iterator access or explicit close, after the terminal event is delivered.
      * End-of-stream without a terminal event completes normally. Transport and decoding failures are thrown during
      * iteration. The client does not reconnect automatically.
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -210,20 +210,20 @@ public final class SseNameCollisionsClient {
 
     /**
      * The grouped operation.
-     *
+     * 
      * Events are polymorphic: see {@link WrappedEvent} for the known subtypes. Use a known subtype's {@code getValue()}
      * to access its typed payload. Unrecognized events expose only their names through
      * {@link WrappedEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
-     *
+     * 
      * If received, the terminal {@code update} event is emitted before iteration ends. A failure while closing after a
      * terminal event is reported by the next iterator access or explicit close, after the terminal event is delivered.
      * End-of-stream without a terminal event completes normally. Transport and decoding failures are thrown during
      * iteration. The client does not reconnect automatically.
-     *
+     * 
      * @param options The options parameter.
      * @return A closeable stream of typed wrapped event events.
      */
@@ -245,7 +245,7 @@ public final class SseNameCollisionsClient {
 
     /**
      * The ordinary operation.
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -274,7 +274,7 @@ public final class SseNameCollisionsClient {
 
     /**
      * The ordinaryGrouped operation.
-     *
+     * 
      * @param options The options parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.

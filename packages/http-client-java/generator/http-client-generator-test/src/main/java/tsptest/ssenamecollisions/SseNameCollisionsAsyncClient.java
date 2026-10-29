@@ -34,7 +34,7 @@ public final class SseNameCollisionsAsyncClient {
 
     /**
      * Initializes an instance of SseNameCollisionsAsyncClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -45,13 +45,13 @@ public final class SseNameCollisionsAsyncClient {
     /**
      * The wrapped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -79,13 +79,13 @@ public final class SseNameCollisionsAsyncClient {
     /**
      * The grouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -113,13 +113,13 @@ public final class SseNameCollisionsAsyncClient {
     /**
      * The ordinary operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -147,13 +147,13 @@ public final class SseNameCollisionsAsyncClient {
     /**
      * The ordinaryGrouped operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * String
      * }
      * </pre>
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -180,15 +180,15 @@ public final class SseNameCollisionsAsyncClient {
 
     /**
      * The wrapped operation.
-     *
+     * 
      * Events are polymorphic: see {@link WrappedEvent} for the known subtypes. Use a known subtype's {@code getValue()}
      * to access its typed payload. Unrecognized events expose only their names through
      * {@link WrappedEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * If received, the terminal {@code update} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
      * path. The client does not reconnect automatically.
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -211,15 +211,15 @@ public final class SseNameCollisionsAsyncClient {
 
     /**
      * The grouped operation.
-     *
+     * 
      * Events are polymorphic: see {@link WrappedEvent} for the known subtypes. Use a known subtype's {@code getValue()}
      * to access its typed payload. Unrecognized events expose only their names through
      * {@link WrappedEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * If received, the terminal {@code update} event is emitted before the stream completes. End-of-stream without a
      * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
      * path. The client does not reconnect automatically.
-     *
+     * 
      * @param options The options parameter.
      * @return A stream of typed wrapped event events.
      */
@@ -242,7 +242,7 @@ public final class SseNameCollisionsAsyncClient {
 
     /**
      * The ordinary operation.
-     *
+     * 
      * @param response The response parameter.
      * @param response1 The response1 parameter.
      * @param com The com parameter.
@@ -271,7 +271,7 @@ public final class SseNameCollisionsAsyncClient {
 
     /**
      * The ordinaryGrouped operation.
-     *
+     * 
      * @param options The options parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.

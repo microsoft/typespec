@@ -62,7 +62,7 @@ public final class CollisionOptions {
 
     /**
      * Creates an instance of CollisionOptions class.
-     *
+     * 
      * @param response the response value to set.
      * @param response1 the response1 value to set.
      * @param com the com value to set.
@@ -87,7 +87,7 @@ public final class CollisionOptions {
 
     /**
      * Get the response property: The response property.
-     *
+     * 
      * @return the response value.
      */
     @Generated
@@ -97,7 +97,7 @@ public final class CollisionOptions {
 
     /**
      * Get the response1 property: The response1 property.
-     *
+     * 
      * @return the response1 value.
      */
     @Generated
@@ -107,7 +107,7 @@ public final class CollisionOptions {
 
     /**
      * Get the com property: The com property.
-     *
+     * 
      * @return the com value.
      */
     @Generated
@@ -117,7 +117,7 @@ public final class CollisionOptions {
 
     /**
      * Get the comParam property: The comParam property.
-     *
+     * 
      * @return the comParam value.
      */
     @Generated
@@ -127,7 +127,7 @@ public final class CollisionOptions {
 
     /**
      * Get the tsptest property: The tsptest property.
-     *
+     * 
      * @return the tsptest value.
      */
     @Generated
@@ -137,7 +137,7 @@ public final class CollisionOptions {
 
     /**
      * Get the tsptestParam property: The tsptestParam property.
-     *
+     * 
      * @return the tsptestParam value.
      */
     @Generated
@@ -147,7 +147,7 @@ public final class CollisionOptions {
 
     /**
      * Get the reactor property: The reactor property.
-     *
+     * 
      * @return the reactor value.
      */
     @Generated
@@ -157,7 +157,7 @@ public final class CollisionOptions {
 
     /**
      * Get the reactorParam property: The reactorParam property.
-     *
+     * 
      * @return the reactorParam value.
      */
     @Generated

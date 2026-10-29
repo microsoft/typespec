@@ -25,7 +25,7 @@ public final class RetrievalRequest implements JsonSerializable<RetrievalRequest
 
     /**
      * Creates an instance of RetrievalRequest class.
-     *
+     * 
      * @param query the query value to set.
      */
     @Generated
@@ -35,7 +35,7 @@ public final class RetrievalRequest implements JsonSerializable<RetrievalRequest
 
     /**
      * Get the query property: The query property.
-     *
+     * 
      * @return the query value.
      */
     @Generated
@@ -56,7 +56,7 @@ public final class RetrievalRequest implements JsonSerializable<RetrievalRequest
 
     /**
      * Reads an instance of RetrievalRequest from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of RetrievalRequest if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

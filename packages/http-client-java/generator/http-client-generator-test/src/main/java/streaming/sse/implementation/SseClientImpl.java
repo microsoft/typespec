@@ -22,7 +22,7 @@ public final class SseClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -36,7 +36,7 @@ public final class SseClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -50,7 +50,7 @@ public final class SseClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     *
+     * 
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -64,7 +64,7 @@ public final class SseClientImpl {
 
     /**
      * Gets the UnnamedsImpl object to access its operations.
-     *
+     * 
      * @return the UnnamedsImpl object.
      */
     public UnnamedsImpl getUnnameds() {
@@ -78,7 +78,7 @@ public final class SseClientImpl {
 
     /**
      * Gets the NamedsImpl object to access its operations.
-     *
+     * 
      * @return the NamedsImpl object.
      */
     public NamedsImpl getNameds() {
@@ -92,7 +92,7 @@ public final class SseClientImpl {
 
     /**
      * Gets the RetrievesImpl object to access its operations.
-     *
+     * 
      * @return the RetrievesImpl object.
      */
     public RetrievesImpl getRetrieves() {
@@ -106,7 +106,7 @@ public final class SseClientImpl {
 
     /**
      * Gets the ProtocolsImpl object to access its operations.
-     *
+     * 
      * @return the ProtocolsImpl object.
      */
     public ProtocolsImpl getProtocols() {
@@ -120,7 +120,7 @@ public final class SseClientImpl {
 
     /**
      * Gets the ProtocolDatasImpl object to access its operations.
-     *
+     * 
      * @return the ProtocolDatasImpl object.
      */
     public ProtocolDatasImpl getProtocolDatas() {
@@ -129,7 +129,7 @@ public final class SseClientImpl {
 
     /**
      * Initializes an instance of SseClient client.
-     *
+     * 
      * @param endpoint Service host.
      */
     public SseClientImpl(String endpoint) {
@@ -139,7 +139,7 @@ public final class SseClientImpl {
 
     /**
      * Initializes an instance of SseClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      */
@@ -149,7 +149,7 @@ public final class SseClientImpl {
 
     /**
      * Initializes an instance of SseClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.

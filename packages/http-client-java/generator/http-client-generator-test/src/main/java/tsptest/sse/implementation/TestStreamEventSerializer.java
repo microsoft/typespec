@@ -44,7 +44,7 @@ public final class TestStreamEventSerializer {
     public interface ConstructorAccessor {
         /**
          * Creates a name-only event.
-         *
+         * 
          * @param eventName The event name.
          * @return The event.
          */
@@ -52,7 +52,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a started event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -60,7 +60,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a text event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -68,7 +68,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates an event event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -76,7 +76,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a map event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -84,7 +84,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a collections event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -92,7 +92,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a modelMap event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -100,7 +100,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a duration event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -108,7 +108,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a durations event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -116,7 +116,7 @@ public final class TestStreamEventSerializer {
 
         /**
          * Creates a completed event.
-         *
+         * 
          * @param value The decoded payload.
          * @return The event.
          */
@@ -125,7 +125,7 @@ public final class TestStreamEventSerializer {
 
     /**
      * Registers the event constructors from the models package.
-     *
+     * 
      * @param accessor The constructor accessor.
      */
     public static void setConstructorAccessor(ConstructorAccessor accessor) {
@@ -152,7 +152,7 @@ public final class TestStreamEventSerializer {
 
     /**
      * Deserializes a stream event payload.
-     *
+     * 
      * @param eventName The stream event name.
      * @param data The stream event data.
      * @return The typed stream event.

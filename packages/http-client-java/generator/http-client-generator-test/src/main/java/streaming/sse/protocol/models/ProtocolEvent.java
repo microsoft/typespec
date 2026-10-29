@@ -13,7 +13,7 @@ import streaming.sse.implementation.ProtocolEventSerializer;
  * Unrecognized events expose only their names through
  * {@link #getEventName()}; their payloads are not available and they are not terminal.
  * Stream events are envelopes, not JSON payload models; serialize the typed payload instead.
- *
+ * 
  * @see ProtocolEventMessageStreamEvent
  */
 public abstract class ProtocolEvent {
@@ -22,7 +22,7 @@ public abstract class ProtocolEvent {
 
     /**
      * Creates a stream event.
-     *
+     * 
      * @param eventName The server-sent event name.
      */
     @Generated
@@ -32,7 +32,7 @@ public abstract class ProtocolEvent {
 
     /**
      * Gets the server-sent event name.
-     *
+     * 
      * @return The event name.
      */
     @Generated
@@ -42,7 +42,7 @@ public abstract class ProtocolEvent {
 
     /**
      * Gets whether this event terminates the event stream.
-     *
+     * 
      * @return {@code true} if this is a terminal event; otherwise {@code false}.
      */
     @Generated

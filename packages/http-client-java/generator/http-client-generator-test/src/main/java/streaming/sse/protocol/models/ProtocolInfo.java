@@ -25,7 +25,7 @@ public final class ProtocolInfo implements JsonSerializable<ProtocolInfo> {
 
     /**
      * Creates an instance of ProtocolInfo class.
-     *
+     * 
      * @param message the message value to set.
      */
     @Generated
@@ -35,7 +35,7 @@ public final class ProtocolInfo implements JsonSerializable<ProtocolInfo> {
 
     /**
      * Get the message property: The message property.
-     *
+     * 
      * @return the message value.
      */
     @Generated
@@ -56,7 +56,7 @@ public final class ProtocolInfo implements JsonSerializable<ProtocolInfo> {
 
     /**
      * Reads an instance of ProtocolInfo from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ProtocolInfo if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

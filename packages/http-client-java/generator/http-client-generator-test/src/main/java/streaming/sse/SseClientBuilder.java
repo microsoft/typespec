@@ -208,7 +208,7 @@ public final class SseClientBuilder
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the SseClientBuilder.
      */
@@ -220,7 +220,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of SseClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of SseClientImpl.
      */
     @Generated
@@ -276,7 +276,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of UnnamedAsyncClient class.
-     *
+     * 
      * @return an instance of UnnamedAsyncClient.
      */
     @Generated
@@ -286,7 +286,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of NamedAsyncClient class.
-     *
+     * 
      * @return an instance of NamedAsyncClient.
      */
     @Generated
@@ -296,7 +296,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of RetrieveAsyncClient class.
-     *
+     * 
      * @return an instance of RetrieveAsyncClient.
      */
     @Generated
@@ -306,7 +306,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of ProtocolAsyncClient class.
-     *
+     * 
      * @return an instance of ProtocolAsyncClient.
      */
     @Generated
@@ -316,7 +316,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of ProtocolDataAsyncClient class.
-     *
+     * 
      * @return an instance of ProtocolDataAsyncClient.
      */
     @Generated
@@ -326,7 +326,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of UnnamedClient class.
-     *
+     * 
      * @return an instance of UnnamedClient.
      */
     @Generated
@@ -336,7 +336,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of NamedClient class.
-     *
+     * 
      * @return an instance of NamedClient.
      */
     @Generated
@@ -346,7 +346,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of RetrieveClient class.
-     *
+     * 
      * @return an instance of RetrieveClient.
      */
     @Generated
@@ -356,7 +356,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of ProtocolClient class.
-     *
+     * 
      * @return an instance of ProtocolClient.
      */
     @Generated
@@ -366,7 +366,7 @@ public final class SseClientBuilder
 
     /**
      * Builds an instance of ProtocolDataClient class.
-     *
+     * 
      * @return an instance of ProtocolDataClient.
      */
     @Generated
