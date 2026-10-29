@@ -29,13 +29,14 @@ import {
   type TestClientOptions,
 } from "./api/testClientContext.js";
 import { foo, type FooOptions } from "./api/testClientOperations.js";
+import type { Widget } from "./models/models.js";
 
 export class TestClient {
   #context: TestClientContext;
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async foo(options?: FooOptions) {
+  async foo(options?: FooOptions): Promise<Widget> {
     return foo(this.#context, options);
   }
 }

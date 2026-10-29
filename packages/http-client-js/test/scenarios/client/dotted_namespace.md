@@ -20,7 +20,7 @@ export class BazClient {
   constructor(endpoint: string, options?: BazClientOptions) {
     this.#context = createBazClientContext(endpoint, options);
   }
-  async get(options?: GetOptions) {
+  async get(options?: GetOptions): Promise<Array<string>> {
     return get(this.#context, options);
   }
 }

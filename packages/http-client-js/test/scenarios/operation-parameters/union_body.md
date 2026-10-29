@@ -67,7 +67,7 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async send(prop: EnumsOnlyCases, options?: SendOptions) {
+  async send(prop: EnumsOnlyCases, options?: SendOptions): Promise<void> {
     return send(this.#context, prop, options);
   }
 }
