@@ -1,11 +1,12 @@
 # Build from the http-client-csharp package root:
 #   docker build -f playground-server/Dockerfile -t csharp-playground-server .
+# cspell:ignore libbrotli
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS base
 
 # The SDK base can contain libbrotli1 without the CVE-2026-111497 fix.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade libbrotli1 \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y --no-install-recommends --only-upgrade libbrotli1 \
+  && rm -rf /var/lib/apt/lists/*
 
 FROM base AS build
 WORKDIR /src
