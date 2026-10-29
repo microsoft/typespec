@@ -6,7 +6,7 @@
 from enum import Enum
 from collections import OrderedDict
 from typing import Any, Literal, Optional, TYPE_CHECKING, cast
-from .utils import add_to_pylint_disable, NamespaceType, LOCALS_LENGTH_LIMIT
+from .utils import add_to_pylint_disable, NamespaceType, LOCALS_LENGTH_LIMIT, python_string_literal
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
@@ -164,7 +164,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         # don't add additional properties, because there's not really a concept of
         # additional properties in the template
         representation = {
-            repr(prop.wire_name): prop.get_json_template_representation(
+            python_string_literal(prop.wire_name): prop.get_json_template_representation(
                 client_default_value_declaration=client_default_value_declaration,
             )
             for prop in [
@@ -172,12 +172,14 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
             ]
         }
         if self.discriminator and self.discriminator_value:
-            representation[repr(self.discriminator.wire_name)] = repr(self.discriminator_value)
+            representation[python_string_literal(self.discriminator.wire_name)] = python_string_literal(
+                self.discriminator_value
+            )
 
         # once we've finished, we want to reset created_json_template_representation to false
         # so we can call it again
         self._created_json_template_representation = False
-        optional_keys = [repr(p.wire_name) for p in self.properties if getattr(p, "optional", False)]
+        optional_keys = [python_string_literal(p.wire_name) for p in self.properties if getattr(p, "optional", False)]
         return OrderedDict(
             sorted(
                 representation.items(),

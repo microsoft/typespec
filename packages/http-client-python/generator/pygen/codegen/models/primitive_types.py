@@ -9,7 +9,7 @@ from typing import Any, Optional, Union, TYPE_CHECKING
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
-from .utils import NamespaceType
+from .utils import NamespaceType, python_string_literal
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -333,7 +333,7 @@ class StringType(PrimitiveType):
         return validation or None
 
     def get_declaration(self, value: str) -> str:
-        return repr(value)
+        return python_string_literal(value, quote="'" if value == '"' else '"')
 
     def serialization_type(self, **kwargs: Any) -> str:
         return "str"

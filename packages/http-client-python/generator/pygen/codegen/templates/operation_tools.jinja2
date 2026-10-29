@@ -33,7 +33,11 @@
 
 {# Escape quotes after wrapping so wrapping cannot split an escape sequence. #}
 {% macro wrap_docstring(string, wrapstring, width=95) -%}
-{{ wrap_string(string, wrapstring, width) | replace('"', '\\"') }}
+{%- set wrapped = wrap_string(string, wrapstring, width) -%}
+{%- if wrapped.endswith('"') -%}
+    {%- set wrapped = wrapped[:-1] + '\\"' -%}
+{%- endif -%}
+{{ wrapped | replace('"""', '\\"\\"\\"') }}
 {%- endmacro %}
 
 {% macro description(builder, serializer) %}
@@ -67,7 +71,7 @@ Example:
     .. code-block:: python
     {% for template_line in example_template %}
         {% if template_line %}
-        {{ template_line | replace("\\", "\\\\") | replace('"', '\\"') }}
+        {{ template_line | replace("\\", "\\\\") | replace('"""', '\\"\\"\\"') }}
         {% else %}
 
         {% endif %}

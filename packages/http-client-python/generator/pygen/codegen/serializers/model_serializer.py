@@ -23,7 +23,7 @@ from ..models.primitive_types import (
 )
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-from ..models.utils import NamespaceType, add_to_pylint_disable, escape_sphinx_field_name
+from ..models.utils import NamespaceType, add_to_pylint_disable, escape_sphinx_field_name, python_string_literal
 
 
 def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
@@ -82,17 +82,17 @@ def _documentation_string(
     )
     # Escape names that Sphinx would otherwise misinterpret in the info field target
     # (e.g. a wire name with a leading "@" such as "@search.facets").
-    # Strip repr's delimiters and escape double quotes for the enclosing docstring.
-    doc_name = repr(escape_sphinx_field_name(doc_name))[1:-1].replace('"', '\\"')
+    # Strip repr's delimiters and escape triple quotes for the enclosing docstring.
+    doc_name = repr(escape_sphinx_field_name(doc_name))[1:-1].replace('"""', '\\"\\"\\"')
     sphinx_prefix = f":{description_keyword} {doc_name}:"
-    description = prop.description(is_operation_file=False).replace("\\", "\\\\").replace('"', '\\"')
+    description = prop.description(is_operation_file=False).replace("\\", "\\\\").replace('"""', '\\"\\"\\"')
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
     # In the types file, use type_annotation (the serialized form) for docstrings
     if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
         doc_type = prop.type.type_annotation(**kwargs)
     else:
         doc_type = prop.type.docstring_type(**kwargs)
-    doc_type = doc_type.replace("\\", "\\\\").replace('"', '\\"')
+    doc_type = doc_type.replace("\\", "\\\\").replace('"""', '\\"\\"\\"')
     retval.append(f":{docstring_type_keyword} {doc_name}: {doc_type}")
     return retval
 
@@ -139,7 +139,9 @@ class _ModelSerializer(BaseSerializer, ABC):
 
     @staticmethod
     def initialize_discriminator_property(model: ModelType, prop: Property) -> str:
-        discriminator_value = repr(model.discriminator_value) if model.discriminator_value else None
+        discriminator_value = (
+            python_string_literal(model.discriminator_value, quote="'") if model.discriminator_value else None
+        )
         if not discriminator_value:
             typing = "Optional[str]"
         else:
@@ -424,7 +426,8 @@ class DpgModelSerializer(_ModelSerializer):
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:
-            basename += f", discriminator={model.discriminator_value!r}"
+            discriminator_value = python_string_literal(model.discriminator_value, quote="'")
+            basename += f", discriminator={discriminator_value}"
         return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
 
     def class_pylint_disable(self, model: ModelType) -> str:
@@ -460,7 +463,7 @@ class DpgModelSerializer(_ModelSerializer):
     def declare_property(self, prop: Property) -> str:
         args = []
         if prop.client_name != prop.wire_name or prop.is_discriminator:
-            args.append(f"name={prop.wire_name!r}")
+            args.append(f"name={python_string_literal(prop.wire_name)}")
         if prop.visibility:
             v_list = ", ".join(f'"{x}"' for x in prop.visibility)
             args.append(f"visibility=[{v_list}]")
