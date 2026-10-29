@@ -183,6 +183,14 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 try
                 {
+                    if (node is CastExpressionSyntax sdkCast && sdkCast.Expression is ThisExpressionSyntax)
+                    {
+                        // This occurrence owns the complete constructed type. Keep
+                        // ordinary cast children under their existing exclusions,
+                        // and prove the final cast after its single child visit.
+                        var visited = (CastExpressionSyntax)base.Visit(node)!;
+                        return TryReduceSdkCastType(sdkCast, visited) ?? visited;
+                    }
                     if (node is DefaultExpressionSyntax optionalDefault)
                     {
                         // Decide whole-expression erasure before visiting children.
@@ -335,6 +343,122 @@ namespace Microsoft.TypeSpec.Generator
                     if (!StructuralParenthesesRules.KeepsTokenBoundaries(candidate, replacement)) return false;
                 }
                 return true;
+            }
+
+            private CastExpressionSyntax? TryReduceSdkCastType(CastExpressionSyntax original, CastExpressionSyntax visited)
+            {
+                // Initial SDK-shaped slice: an instance cast used as a retained,
+                // parenthesized receiver, not arbitrary cast/expression grammar.
+                if (_insideAttribute || _scope == null || _insideThisExcludedContext ||
+                    original.Type is not QualifiedNameSyntax { Right: GenericNameSyntax generic } name ||
+                    generic.TypeArgumentList.Arguments.Count != 1 || generic.TypeArgumentList.Arguments[0] is not NameSyntax argument ||
+                    original.Parent is not ParenthesizedExpressionSyntax wrapper || wrapper.Expression != original ||
+                    wrapper.Parent is not MemberAccessExpressionSyntax member || member.Expression != wrapper ||
+                    member.Name is not IdentifierNameSyntax || member.Parent is not InvocationExpressionSyntax invocation || invocation.Expression != member ||
+                    original.Ancestors().Any(static n => n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax) ||
+                    original.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault() is not { } method ||
+                    method.Modifiers.Any(SyntaxKind.StaticKeyword) || ConditionalStaticReceiverRules.HasHardSourceContext(original) ||
+                    visited.Expression.ToFullString() != original.Expression.ToFullString() ||
+                    !_sites.TryGetValue(ReferenceSpan(name), out var headSite)) return null;
+                if (!_canProveCallSource && !CanProveConditionalStaticReceiver(wrapper, member, headSite)) return null;
+                if (_tree.GetLineVisibility(headSite.Span.Start) != LineVisibility.Visible ||
+                    _tree.GetLineVisibility(headSite.Span.End - 1) != LineVisibility.Visible ||
+                    !AllowsConditionalStaticSourceChange(original, headSite.Span)) return null;
+                _model ??= _owner._compilation.GetSemanticModel(_tree);
+                if (_model.GetTypeInfo(name).Type is not INamedTypeSymbol { TypeKind: TypeKind.Interface, Arity: 1, ContainingType: null } construction ||
+                    construction.TypeArguments[0] is not INamedTypeSymbol { TypeKind: TypeKind.Class, Arity: 0, ContainingType: null } modelType ||
+                    !HasUsableTypeGraph(construction) || _owner.Resolve(headSite.Type) is not { } target ||
+                    !SymbolEqualityComparer.Default.Equals(target.Symbol, construction.OriginalDefinition) ||
+                    DescribeRecordedReference(name, target) is not { } source ||
+                    _model.GetOperation(original) is not IConversionOperation conversion || !conversion.Conversion.Exists ||
+                    !conversion.Conversion.IsReference || conversion.OperatorMethod != null ||
+                    _model.GetSymbolInfo(invocation) is not { CandidateReason: CandidateReason.None, Symbol: IMethodSymbol callee } ||
+                    callee.IsStatic || callee.MethodKind != MethodKind.Ordinary || callee.ReducedFrom != null ||
+                    !SymbolEqualityComparer.IncludeNullability.Equals(callee.ContainingType, construction) ||
+                    !HasCastParameterImportWitness(method, construction.ContainingNamespace)) return null;
+
+                NameSyntax selectedArgument = argument;
+                // The self-model name is found in its own containing type scope,
+                // not through an import. A foreign model needs a separate import
+                // certificate; retain its argument while still allowing HEAD-only
+                // reduction under the independent parameter witness above.
+                if (_model.GetDeclaredSymbol(method) is IMethodSymbol ownerMethod &&
+                    SymbolEqualityComparer.Default.Equals(ownerMethod.ContainingType, modelType) &&
+                    _sites.TryGetValue(ReferenceSpan(argument), out var argumentSite) &&
+                    _owner.Resolve(argumentSite.Type) is { } argumentTarget &&
+                    SymbolEqualityComparer.IncludeNullability.Equals(argumentTarget.Symbol, modelType) &&
+                    DescribeRecordedReference(argument, argumentTarget) is { } argumentSource &&
+                    _tree.GetLineVisibility(argumentSite.Span.Start) == LineVisibility.Visible &&
+                    _tree.GetLineVisibility(argumentSite.Span.End - 1) == LineVisibility.Visible &&
+                    AllowsConditionalStaticSourceChange(original, argumentSite.Span))
+                {
+                    var context = new StructuralTypeNameSelector.Context(_owner._compilation, _model, argument, modelType,
+                        KnownDeclarationType: true, Source: argumentSource, ModeOverride: StructuralTypeNameSelector.Mode.Type);
+                    StructuralTypeNameSelector.Choose(new[] { context }, plan =>
+                    {
+                        if (plan.Render(argumentSource) is not IdentifierNameSyntax candidate ||
+                            candidate.Identifier.ValueText != modelType.Name || ExpressionReceiverSyntaxFacts.ExposesContextualRoot(candidate) ||
+                            _model.GetSpeculativeAliasInfo(argument.SpanStart, SyntaxFactory.IdentifierName(candidate.Identifier), SpeculativeBindingOption.BindAsTypeOrNamespace) != null) return false;
+                        selectedArgument = candidate.WithTriviaFrom(argument);
+                        return true;
+                    });
+                }
+                // Compose the actual candidate, including its preserved/new model
+                // argument, before whole-type speculation and parser admission.
+                var parts = (SimpleNameSyntax[])source.Parts.Clone();
+                parts[^1] = ((GenericNameSyntax)parts[^1]).WithTypeArgumentList(generic.TypeArgumentList.WithArguments(
+                    SyntaxFactory.SingletonSeparatedList<TypeSyntax>(selectedArgument)));
+                source = source with { Parts = parts };
+                var headContext = new StructuralTypeNameSelector.Context(_owner._compilation, _model, name, construction,
+                    KnownDeclarationType: true, Source: source, PreserveTerminalArguments: true, ModeOverride: StructuralTypeNameSelector.Mode.Type);
+                CastExpressionSyntax? replacement = null;
+                StructuralTypeNameSelector.Choose(new[] { headContext }, plan =>
+                {
+                    // Bare generic heads only; namespace/type aliases and broader
+                    // cast operand/parent roles are not part of this certificate.
+                    if (plan.Render(source) is not GenericNameSyntax candidate || candidate.Identifier.ValueText != construction.Name ||
+                        ExpressionReceiverSyntaxFacts.ExposesContextualRoot(candidate) || _tree.Options is not CSharpParseOptions options) return false;
+                    var detached = SyntaxFactory.ParseTypeName(candidate.ToString(), options: options);
+                    if (detached.ContainsDiagnostics) return false;
+                    var rebound = _model.GetSpeculativeSymbolInfo(name.SpanStart, detached, SpeculativeBindingOption.BindAsTypeOrNamespace);
+                    if (rebound.CandidateReason != CandidateReason.None || rebound.CandidateSymbols.Length != 0 ||
+                        !SymbolEqualityComparer.IncludeNullability.Equals(construction, rebound.Symbol)) return false;
+                    var cast = visited.WithType(detached.WithTriviaFrom(visited.Type));
+                    var parsedCast = SyntaxFactory.ParseExpression(cast.ToString(), options: options, consumeFullText: true);
+                    if (parsedCast.ContainsDiagnostics || parsedCast is not CastExpressionSyntax || !SyntaxFactory.AreEquivalent(cast, parsedCast)) return false;
+                    var receiver = member.WithExpression(wrapper.WithExpression(cast));
+                    var parsedReceiver = SyntaxFactory.ParseExpression(receiver.ToString(), options: options, consumeFullText: true);
+                    if (parsedReceiver.ContainsDiagnostics || !SyntaxFactory.AreEquivalent(receiver, parsedReceiver)) return false;
+                    replacement = cast;
+                    return true;
+                });
+                return replacement;
+            }
+
+            private bool HasCastParameterImportWitness(MethodDeclarationSyntax method, INamespaceSymbol targetNamespace)
+            {
+                // A cast cannot newly activate an otherwise-unused import. A bare
+                // parameter already witnesses it, or this parameter's existing C9
+                // type-only rule independently proves its surviving bare spelling.
+                // This is an occurrence proof, not a cached choice or hypothetical
+                // rewrite of a source-observed expression.
+                var model = _model ??= _owner._compilation.GetSemanticModel(_tree);
+                foreach (var parameter in method.ParameterList.Parameters)
+                {
+                    if (parameter.Type is not NameSyntax name ||
+                        model.GetTypeInfo(name).Type is not INamedTypeSymbol { Arity: 0, ContainingType: null } type ||
+                        !SymbolEqualityComparer.Default.Equals(type.ContainingNamespace, targetNamespace)) continue;
+                    if (name is IdentifierNameSyntax bare && bare.Identifier.ValueText == type.Name && model.GetAliasInfo(bare) == null) return true;
+                    if (!_sites.TryGetValue(ReferenceSpan(name), out var site) || !IsTypeOnlyContext(name) ||
+                        _owner.Resolve(site.Type) is not { } target || !SymbolEqualityComparer.IncludeNullability.Equals(type, target.Symbol) ||
+                        DescribeRecordedReference(name, target) is not { } source) continue;
+                    var context = new StructuralTypeNameSelector.Context(_owner._compilation, model, name, type,
+                        KnownDeclarationType: true, Source: source, ModeOverride: StructuralTypeNameSelector.Mode.Type);
+                    var selected = StructuralTypeNameSelector.Choose(new[] { context });
+                    if (selected.Plan?.Render(source) is IdentifierNameSyntax identifier && identifier.Identifier.ValueText == type.Name &&
+                        model.GetSpeculativeAliasInfo(name.SpanStart, SyntaxFactory.IdentifierName(identifier.Identifier), SpeculativeBindingOption.BindAsTypeOrNamespace) == null) return true;
+                }
+                return false;
             }
 
             private ExpressionSyntax? TryReduceOptionalDefault(DefaultExpressionSyntax expression, out bool retainOriginal)
