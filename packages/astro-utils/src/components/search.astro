@@ -121,6 +121,7 @@ const devWarning =
         window.PagefindComponents.configureInstance("default", {
           baseUrl,
           bundlePath,
+          highlightParam: "highlight",
           ranking: {
             // Avoid favoring short generated API pages over guides and decorator references.
             pageLength: 0,
@@ -266,6 +267,10 @@ const devWarning =
         }
         const template = document.querySelector(".pagefind-search template");
         template.replaceWith(template.content.cloneNode(true));
+        if (new URLSearchParams(window.location.search).get("highlight")) {
+          await import(`${bundlePath}pagefind-highlight.js`);
+          new window.PagefindHighlight({ highlightParam: "highlight" });
+        }
       </script>
     </>
   ) : (

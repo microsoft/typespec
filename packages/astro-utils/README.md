@@ -24,6 +24,15 @@ The component uses the site's base path, Fluent theme tokens, and Starlight sear
 (with English defaults on non-Starlight pages). It supports Up/Down result navigation and
 Enter activation, and avoids favoring short generated API pages over longer documentation.
 
+### Highlighting result pages
+
+Search result links include a `highlight` query parameter. On the destination page,
+the component loads Pagefind's built-in highlighting script to mark matching text
+in the indexed content. Heading links retain their anchors, and scoped searches
+highlight the search terms without the `api:` or `all:` selector.
+
+Pages without a highlight query and development mode do not load the highlighting script.
+
 ### Search scopes
 
 Use `<Search scopes />` for prefix-based search:
