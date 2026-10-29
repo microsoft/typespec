@@ -137,9 +137,13 @@ unchanged. Java validates the normalized names, namespaces, properties, and pare
 relationship, then renders the specialized immutable SSE envelopes from those schemas.
 After client mapping completes, Java collects metadata referenced by the final
 renderable sync and async convenience methods, deduplicating by stream ID in encounter
-order. Distinct effective union owners claiming one ID are errors, not candidates for
-schema fingerprinting or structural deduplication. Duplicate event factories and
-generated source paths still fail before files are written.
+order. Distinct effective union owners claiming one ID are errors only after both streams
+otherwise pass typed-SSE eligibility; unsupported literal, nullable, content-type, or
+namespace shapes warn and retain their ordinary binary response contract without claiming
+the ID. Typed SSE convenience methods are restricted to Azure-v1 data-plane generation.
+Fluent/ARM and other non-data-plane generation retain ordinary binary value and response
+methods. There is no schema fingerprinting or structural deduplication. Duplicate event
+factories and generated source paths still fail before files are written.
 
 For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`
 or the Spector `streaming/sse/main.tsp` into separate output directories using the

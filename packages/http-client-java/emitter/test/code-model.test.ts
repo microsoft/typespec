@@ -124,6 +124,62 @@ describe("code model characterization", () => {
       }
     },
   );
+  it.each(["SseGenericSupportedFirst", "SseGenericUnsupportedFirst"])(
+    "falls back for unsupported generic SSE streams regardless of operation order: %s",
+    async (namespace) => {
+      const program = await compileSseScenario(namespace);
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      const model = await builder.build();
+      const operations = Object.fromEntries(
+        model.clients
+          .flatMap((client) => client.operationGroups)
+          .flatMap((group) => group.operations ?? [])
+          .map((operation) => [operation.language.default.name, operation]),
+      );
+
+      expect(operations.unsupported.sseMetadata).toBeUndefined();
+      expect(operations.unsupported.responses?.[0]).toMatchObject({ binary: true });
+      expect(operations.supported.responses?.[0]).toMatchObject({ binary: true });
+      expect(operations.supported.sseMetadata).toMatchObject({
+        sseStreamId: `${namespace}.GenericEvents`,
+        streamName: expect.stringMatching(/^GenericEvents\d*$/),
+      });
+      expect(
+        operations.supported.sseMetadata?.events.find((event) => event.name === "value"),
+      ).toMatchObject({
+        eventSchema: {
+          properties: [
+            {
+              serializedName: "value",
+              schema: { type: SchemaType.String },
+            },
+          ],
+        },
+      });
+      expectDiagnostics(
+        program.diagnostics.filter(
+          (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+        ),
+        [
+          {
+            code: "@typespec/http-client-java/sse-unsupported",
+            severity: "warning",
+          },
+        ],
+      );
+    },
+  );
   it("inlines only explicitly named events with nonliteral JSON payloads", async () => {
     const program = await compileSseScenario("SseVariants");
     expectDiagnosticEmpty(program.diagnostics);

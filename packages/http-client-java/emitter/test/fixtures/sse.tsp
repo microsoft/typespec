@@ -278,6 +278,33 @@ namespace SseGenericEncoded {
   @route("/second") @get op second(): SSEStream<GenericEvents<EncodedInteger>>;
 }
 
+// Scenario: unsupported generic instantiations do not claim a shared TCGC CID.
+namespace SseGenericSupportedFirst {
+  model Heartbeat {
+    value: string;
+  }
+  @events
+  union GenericEvents<T> {
+    value: T,
+    heartbeat: Heartbeat,
+  }
+  @route("/supported") @get op supported(): SSEStream<GenericEvents<string>>;
+  @route("/unsupported") @get op unsupported(): SSEStream<GenericEvents<"done">>;
+}
+
+namespace SseGenericUnsupportedFirst {
+  model Heartbeat {
+    value: string;
+  }
+  @events
+  union GenericEvents<T> {
+    value: T,
+    heartbeat: Heartbeat,
+  }
+  @route("/unsupported") @get op unsupported(): SSEStream<GenericEvents<"done">>;
+  @route("/supported") @get op supported(): SSEStream<GenericEvents<string>>;
+}
+
 // Scenario: emitter-owned SSE name patterns with generator-owned Java normalization.
 namespace SseNaming {
   model PayloadEnvelope {

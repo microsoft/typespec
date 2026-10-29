@@ -1301,13 +1301,6 @@ export class CodeModelBuilder {
     if (!id) {
       throw new Error(`SSE union '${streamType.name}' has no cross-language definition ID.`);
     }
-    // TCGC may produce repeated SDK wrappers for the same effective source union.
-    const owner = streamType.__raw ?? streamType;
-    const existingBundle = this.sseSchemaBundles.get(id);
-    // Distinct generic union instantiations can share a TCGC CID while carrying different payloads.
-    if (existingBundle && existingBundle.owner !== owner) {
-      throw new Error(`Distinct SSE unions claim cross-language definition ID '${id}'.`);
-    }
     const seenEventNames = new Set<string>();
     for (const event of sseMetadata.events) {
       const contentType = (event.payloadContentType ?? "application/json")
@@ -1362,6 +1355,14 @@ export class CodeModelBuilder {
       modelNamespaces.values().next().value ?? this.getJavaNamespace(streamType);
     if (!modelNamespace) {
       return unsupported();
+    }
+
+    // TCGC may produce repeated SDK wrappers for the same effective source union.
+    const owner = streamType.__raw ?? streamType;
+    const existingBundle = this.sseSchemaBundles.get(id);
+    // Distinct supported generic union instantiations can share a TCGC CID while carrying different payloads.
+    if (existingBundle && existingBundle.owner !== owner) {
+      throw new Error(`Distinct SSE unions claim cross-language definition ID '${id}'.`);
     }
 
     let bundle = existingBundle;

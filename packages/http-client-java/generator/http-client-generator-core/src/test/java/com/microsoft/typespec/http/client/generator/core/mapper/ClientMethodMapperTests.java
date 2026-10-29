@@ -47,6 +47,9 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @Isolated
 public class ClientMethodMapperTests {
@@ -79,8 +82,7 @@ public class ClientMethodMapperTests {
                         .getName());
             }
         } finally {
-            new MockUnitJavagen();
-            JavaSettings.clear();
+            resetJavaSettings();
         }
     }
 
@@ -114,8 +116,7 @@ public class ClientMethodMapperTests {
                         .getName());
             }
         } finally {
-            new MockUnitJavagen();
-            JavaSettings.clear();
+            resetJavaSettings();
         }
     }
 
@@ -147,14 +148,21 @@ public class ClientMethodMapperTests {
                     .filter(method -> method.getType() == ClientMethodType.SseSync
                         || method.getType() == ClientMethodType.SseAsync)
                     .forEach(method -> Assertions.assertSame(metadata, method.getSseMetadata()));
-                Assertions.assertTrue(mapper.map(operation, true)
-                    .stream()
-                    .noneMatch(method -> method.getType() == ClientMethodType.SseSync
-                        || method.getType() == ClientMethodType.SseAsync));
+
+                Operation protocolOperation = sseOperation();
+                protocolOperation.getResponses().get(0).setBinary(true);
+                protocolOperation.getResponses().get(0).setSchema(null);
+                List<ClientMethod> protocolMethods = mapper.map(protocolOperation, true);
+                Assertions.assertEquals(
+                    java.util.Set.of(ClientMethodType.SimpleSyncRestResponse, ClientMethodType.SimpleAsyncRestResponse),
+                    protocolMethods.stream().map(ClientMethod::getType).collect(Collectors.toSet()));
+                Assertions.assertTrue(protocolMethods.stream().allMatch(method -> method.getSseMetadata() == null));
+                protocolMethods.forEach(
+                    method -> Assertions.assertTrue(method.getReturnValue().getType().toString().contains("BinaryData"),
+                        method.getReturnValue().getType().toString()));
             }
         } finally {
-            new MockUnitJavagen();
-            JavaSettings.clear();
+            resetJavaSettings();
         }
     }
 
@@ -224,8 +232,37 @@ public class ClientMethodMapperTests {
                         .getAdded());
             }
         } finally {
-            new MockUnitJavagen();
-            JavaSettings.clear();
+            resetJavaSettings();
+        }
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = "lite")
+    public void mapsSseAsOrdinaryBinaryMethodsOutsideDataPlane(String fluent) {
+        useSseSettings(false, false, fluent);
+        try {
+            Operation operation = sseOperation();
+            operation.getResponses().get(0).setBinary(true);
+            operation.getResponses().get(0).setSchema(null);
+
+            List<ClientMethod> methods = ClientMethodMapper.getInstance().map(operation);
+            Assertions.assertEquals(
+                java.util.Set.of(ClientMethodType.SimpleSync, ClientMethodType.SimpleAsync,
+                    ClientMethodType.SimpleSyncRestResponse, ClientMethodType.SimpleAsyncRestResponse),
+                methods.stream().map(ClientMethod::getType).collect(Collectors.toSet()));
+            Assertions.assertTrue(methods.stream()
+                .noneMatch(method -> method.getType() == ClientMethodType.SseSync
+                    || method.getType() == ClientMethodType.SseAsync));
+            Assertions.assertTrue(methods.stream().allMatch(method -> method.getSseMetadata() == null));
+            methods.forEach(method -> {
+                String returnType = method.getReturnValue().getType().toString();
+                Assertions.assertTrue(returnType.contains("BinaryData"), returnType);
+                Assertions.assertFalse(returnType.contains("TestEvent"), returnType);
+                Assertions.assertFalse(returnType.contains("ServerSentEventStreamHelper"), returnType);
+            });
+        } finally {
+            resetJavaSettings();
         }
     }
 
@@ -560,6 +597,10 @@ public class ClientMethodMapperTests {
     }
 
     private static void useSseSettings(boolean requiredParameterClientMethods) {
+        useSseSettings(requiredParameterClientMethods, true, null);
+    }
+
+    private static void useSseSettings(boolean requiredParameterClientMethods, boolean dataPlane, String fluent) {
         new MockUnitJavagen() {
             @Override
             public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
@@ -570,12 +611,23 @@ public class ClientMethodMapperTests {
                     if ("required-parameter-client-methods".equals(key)) {
                         return converter.apply(Boolean.toString(requiredParameterClientMethods));
                     }
+                    if ("data-plane".equals(key)) {
+                        return converter.apply(Boolean.toString(dataPlane));
+                    }
+                    if ("fluent".equals(key) && fluent != null) {
+                        return converter.apply(fluent);
+                    }
                     return super.getValue(key, converter);
                 } catch (IOException exception) {
                     throw new UncheckedIOException(exception);
                 }
             }
         };
+        JavaSettings.clear();
+    }
+
+    private static void resetJavaSettings() {
+        new MockUnitJavagen();
         JavaSettings.clear();
     }
 

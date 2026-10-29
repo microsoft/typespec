@@ -247,7 +247,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     // Create Simple Client Methods.
                     //
-                    if (operation.getSseMetadata() != null && settings.isAzureV1() && !isProtocolMethod) {
+                    if (operation.getSseMetadata() != null
+                        && settings.isAzureV1()
+                        && settings.isDataPlaneClient()
+                        && !isProtocolMethod) {
                         if (shouldGenerateSyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods(),
                             settings.isSyncStackEnabled())) {
                             createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
