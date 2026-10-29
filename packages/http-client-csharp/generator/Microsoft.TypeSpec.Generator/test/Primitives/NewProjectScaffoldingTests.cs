@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             await scaffolding.Execute();
 
             var project = XDocument.Load(Path.Combine(_outputDir, "tests", "TestPackage.Tests.csproj"));
-            Assert.AreEqual("net10.0", project.Root!.Element("PropertyGroup")!.Element("TargetFramework")!.Value);
+            Assert.AreEqual("net10.0-windows", project.Root!.Element("PropertyGroup")!.Element("TargetFramework")!.Value);
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
 
             protected override string GetTestProjectFileContent()
             {
-                return new CSharpProjectWriter { TargetFramework = "net10.0" }.Write();
+                return new CSharpProjectWriter { TargetFramework = "net10.0-windows" }.Write();
             }
 
             protected override Task WriteAdditionalFiles()
