@@ -33,13 +33,13 @@ try {
 
             # test the emitter
             Invoke-LoggedCommand "npm run build" -GroupOutput
-            Invoke-LoggedCommand "npm run test:emitter" -GroupOutput
+            Invoke-LoggedCommand "npm run test:emitter -- --reporter=default --reporter=junit" -GroupOutput
 
             # enforce cop static-analysis rules on the generator sources
             Invoke-LoggedCommand "./eng/scripts/Invoke-Cop.ps1" -GroupOutput
 
             # test the generator
-            Invoke-LoggedCommand "dotnet test ./generator -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
+            Invoke-LoggedCommand "dotnet test ./generator --logger trx -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
 
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }

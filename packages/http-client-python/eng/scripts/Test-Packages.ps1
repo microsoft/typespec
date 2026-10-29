@@ -15,6 +15,9 @@
       - Runs Check-GitChanges.ps1 (verify no uncommitted changes)
       - Runs npm run ci (full test suite: pytest, lint, mypy, pyright)
 
+    Azure DevOps collects emitter JUnit results from test-results.xml and
+    pytest JUnit results from tests/test-results/*.xml.
+
 .PARAMETER UnitTests
     Run unit tests only (just builds the project).
 
