@@ -13,6 +13,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
     {
         [TestCase(typeof(PlainDerived), true)]
         [TestCase(typeof(OverrideDerived), true)]
+        [TestCase(typeof(EventOverrideDerived), true)]
+        [TestCase(typeof(FieldLikeEventOverrideDerived), true)]
+        [TestCase(typeof(EventHidingDerived), false)]
         [TestCase(typeof(HidingDerived), false)]
         [TestCase(typeof(PrivateHidingDerived), false)]
         [TestCase(typeof(OverloadDerived), false)]
@@ -36,12 +39,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             public virtual string Value { get; set; } = string.Empty;
             public virtual string Describe() => Value;
+            public virtual event EventHandler? Changed { add { } remove { } }
         }
         public class PlainDerived : Ancestor { }
         public class OverrideDerived : Ancestor
         {
             public override string Value { get; set; } = string.Empty;
             public override string Describe() => Value;
+        }
+        public class EventOverrideDerived : Ancestor
+        {
+            public override event EventHandler? Changed { add { } remove { } }
+        }
+        public class FieldLikeEventOverrideDerived : Ancestor
+        {
+            public override event EventHandler? Changed;
+            public void RaiseChanged() => Changed?.Invoke(this, EventArgs.Empty);
+        }
+        public class EventHidingDerived : Ancestor
+        {
+            public new event EventHandler? Changed { add { } remove { } }
         }
         public class HidingDerived : Ancestor
         {

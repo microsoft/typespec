@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -324,6 +325,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             });
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MappedBaseUpgradeRetainsProjectedPropertiesOnReads(bool readOnly)
+        {
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            var input = InputFactory.Model("DerivedModel", baseModel: current, properties:
+                [InputFactory.Property("location", InputPrimitiveType.String, isReadOnly: readOnly),
+                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String), isReadOnly: true),
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isReadOnly: true),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var frameworkType = readOnly ? typeof(ReadOnlyUpgradedMrwBase) : typeof(UpgradedMrwBase);
+            var generator = CreateGenerator(input, frameworkType: frameworkType);
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(FlatMrwBase)), model)
+                    : new ClientModelProvider(model));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            var generatedType = CompileModel(generator, model);
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var options = new ModelReaderWriterOptions("J");
+            var data = BinaryData.FromString("""{"location":"west","tags":{"key":"value"},"items":["one"],"child":"payload"}""");
+            var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
+            Assert.That(generatedType.GetProperty("Location")!.GetValue(restored), Is.EqualTo("west"),
+                "Moving a child property into a framework base must not remove its deserialization parameter.");
+            Assert.That(model.BaseType?.Name, Is.EqualTo(readOnly ? nameof(FlatMrwBase) : nameof(UpgradedMrwBase)),
+                "Reject restoration when a projected property cannot be initialized safely.");
+            Assert.That((IEnumerable<KeyValuePair<string, string>>)generatedType.GetProperty("Tags")!.GetValue(restored)!,
+                Is.EqualTo(new[] { new KeyValuePair<string, string>("key", "value") }));
+            Assert.That((IEnumerable<string>)generatedType.GetProperty("Items")!.GetValue(restored)!, Is.EqualTo(new[] { "one" }));
+            if (!readOnly)
+            {
+                var serialized = (BinaryData)persistable.GetMethod("Write")!.Invoke(restored, [options])!;
+                using var document = JsonDocument.Parse(serialized);
+                Assert.That(document.RootElement.GetProperty("location").GetString(), Is.EqualTo("west"));
+                Assert.That(document.RootElement.GetProperty("child").GetString(), Is.EqualTo("payload"));
+                Assert.That(document.RootElement.GetProperty("tags").GetProperty("key").GetString(), Is.EqualTo("value"));
+                Assert.That(document.RootElement.GetProperty("items")[0].GetString(), Is.EqualTo("one"));
+            }
+        }
+
         private static Mock<ScmCodeModelGenerator> CreateGenerator(
             InputModelType modelInput,
             bool restoreBase = true,
@@ -388,6 +432,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
     public sealed class WirePathAttribute : Attribute
     {
         public WirePathAttribute(string path) { }
+    }
+
+    public class UpgradedMrwBase : FlatMrwBase
+    {
+        public string? Location { get; set; }
+        public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
+        public IList<string> Items { get; } = new List<string>();
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteString("location", Location);
+            writer.WritePropertyName("tags");
+            JsonSerializer.Serialize(writer, Tags);
+            writer.WritePropertyName("items");
+            JsonSerializer.Serialize(writer, Items);
+        }
+    }
+
+    public class ReadOnlyUpgradedMrwBase : FlatMrwBase
+    {
+        public string? Location { get; }
+        public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
+        public IList<string> Items { get; } = new List<string>();
     }
 
     public class KnownWirePathMrwBase : IJsonModel<KnownWirePathMrwBase>

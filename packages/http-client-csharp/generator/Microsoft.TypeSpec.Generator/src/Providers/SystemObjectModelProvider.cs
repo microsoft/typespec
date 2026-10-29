@@ -96,6 +96,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool UsesLastContractType => _lastContractType is not null;
 
+        internal IEnumerable<PropertyProvider> GetAdditionalSerializationProperties(InputModelType sourceModel)
+        {
+            if (!_isMappedBaseUpgrade)
+            {
+                return [];
+            }
+
+            // The real framework constructor cannot take properties moved from the child. Keep those
+            // values in the generated child's serialization constructor and initialize them there.
+            var constructorNames = FullConstructor.Signature.Parameters.Select(parameter => parameter.Name).ToHashSet(StringComparer.Ordinal);
+            return CanonicalView.Properties.Where(property => property.InputProperty is { } input &&
+                sourceModel.Properties.Contains(input) && !constructorNames.Contains(property.AsParameter.Name));
+        }
+
+        internal static bool CanPopulateInheritedCollection(PropertyProvider property)
+            => !property.IsInitOnly && !property.Type.IsNullable &&
+                (property.Type.IsReadWriteDictionary || property.Type.IsReadWriteList);
+
         internal bool HasReconstructibleLastContractConstructor
         {
             get

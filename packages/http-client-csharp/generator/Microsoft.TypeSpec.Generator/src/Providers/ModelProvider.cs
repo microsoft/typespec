@@ -1508,7 +1508,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private static bool HasAccessibleInheritedSetter(PropertyProvider property)
+        internal static bool HasAccessibleInheritedSetter(PropertyProvider property)
         {
             if (!property.Body.HasSetter)
             {
@@ -1769,6 +1769,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (!isInitializationConstructor)
             {
+                if (BaseModelProvider is SystemObjectModelProvider mappedBase)
+                {
+                    constructorParameters.AddRange(mappedBase.GetAdditionalSerializationProperties(_inputModel)
+                        .Select(property => property.AsParameter));
+                }
                 foreach (var property in AdditionalPropertyProperties)
                 {
                     constructorParameters.Add(property.AsParameter);
@@ -1967,6 +1972,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var field in CanonicalView.Fields)
             {
                 CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
+            }
+
+            if (!isPrimaryConstructor && BaseModelProvider is SystemObjectModelProvider mappedBase)
+            {
+                foreach (var property in mappedBase.GetAdditionalSerializationProperties(_inputModel))
+                {
+                    // Always use the inherited member, never a private backing field owned by the framework.
+                    if (HasAccessibleInheritedSetter(property))
+                    {
+                        methodBodyStatements.Add(property.Assign(property.AsParameter).Terminate());
+                    }
+                    else if (SystemObjectModelProvider.CanPopulateInheritedCollection(property))
+                    {
+                        var itemType = property.Type.IsDictionary
+                            ? new CSharpType(typeof(KeyValuePair<,>), property.Type.Arguments[0], property.Type.Arguments[1])
+                            : property.Type.ElementType;
+                        var loop = new ForEachStatement(itemType, "item", property.AsParameter, false, out var item);
+                        var inheritedProperty = This.Property(property.Name);
+                        loop.Add((property.Type.IsDictionary
+                            ? inheritedProperty.Invoke("Add", item.Property("Key"), item.Property("Value"))
+                            : inheritedProperty.Invoke("Add", item)).Terminate());
+                        methodBodyStatements.Add(new IfStatement(property.AsParameter.NotEqual(Null))
+                        {
+                            inheritedProperty.Invoke("Clear").Terminate(),
+                            loop
+                        });
+                    }
+                }
             }
 
             // If discriminator is defined as optional in the base model, but we have an expression for it, assign it in the

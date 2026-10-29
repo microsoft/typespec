@@ -69,6 +69,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             }
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task InheritedAssignmentEmitsConstructorChaining(bool inheritedBackingField)
+        {
+            var provider = await CreateModelAsync(typeof(TrackedResourceData),
+                "ResourceLocation location = default, int count = 7", "location", includeCount: true);
+            if (inheritedBackingField)
+            {
+                var mappedBase = provider.BaseModelProvider!;
+                var location = mappedBase.CanonicalView.Properties.Single(property => property.Name == "Location");
+                location.BackingField = new FieldProvider(FieldModifiers.Private, location.Type, "_inheritedLocation", mappedBase);
+            }
+            provider.ProcessTypeForBackCompatibility();
+            var restored = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                constructor.Signature.Parameters.Count == 2);
+            Assert.That(restored.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restored.Signature.Initializer.Arguments.Select(argument => argument.ToDisplayString()), Is.EqualTo(new[] { "count" }));
+            Assert.That(restored.BodyStatements!.ToDisplayString(), Does.Contain("Location = location;").And.Not.Contain("_inheritedLocation"));
+            var file = new TypeProviderWriter(provider).Write();
+            TestContext.WriteLine(file.Content);
+            Assert.That(CreateCompilation(file.Content).GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
+            Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile()));
+        }
+
         private static async Task<ModelProvider> CreateModelAsync(Type frameworkType, string declaration, string argument, bool includeCount = false)
         {
             var countAssignment = includeCount ? "Count = " + (declaration.Contains("int?") ? "count.GetValueOrDefault()" : "count") + ";" : "";

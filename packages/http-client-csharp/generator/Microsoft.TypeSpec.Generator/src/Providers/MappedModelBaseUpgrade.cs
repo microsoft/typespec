@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -112,7 +113,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (!IsDerivedFromCurrentMappedBase(model, candidate.SystemType) ||
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(model.InputModel.BaseModel!) is not SystemObjectModelProvider current ||
-                !PreservesFrameworkMembers(current.SystemType.FrameworkType, candidate.SystemType.FrameworkType))
+                !PreservesFrameworkMembers(current.SystemType.FrameworkType, candidate.SystemType.FrameworkType) ||
+                candidate.GetAdditionalSerializationProperties(model.InputModel).Any(property =>
+                    property.IsInitOnly || !ModelProvider.HasAccessibleInheritedSetter(property) &&
+                        !SystemObjectModelProvider.CanPopulateInheritedCollection(property)))
             {
                 return false;
             }
@@ -147,6 +151,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
 
+                    if (member is EventInfo currentEvent)
+                    {
+                        if (!inherited.OfType<EventInfo>().Any(previous => OverridesEvent(currentEvent, previous)))
+                        {
+                            return false;
+                        }
+                        continue;
+                    }
+                    // A field-like event override has a private synthesized field with the event's name.
+                    // It is storage for the override, not a separately introduced hiding member.
+                    if (member is FieldInfo { IsPrivate: true } field &&
+                        field.IsDefined(typeof(CompilerGeneratedAttribute), inherit: false) &&
+                        type.GetEvent(field.Name, flags | BindingFlags.DeclaredOnly) is { } declaredEvent &&
+                        inherited.OfType<EventInfo>().Any(previous => OverridesEvent(declaredEvent, previous)))
+                    {
+                        continue;
+                    }
+
                     // Inheritance retains the ancestor's API unless a nearer declaration hides it.
                     // Permit real overrides, but not new overloads or same-name members that change binding.
                     var method = member switch
@@ -169,6 +191,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             return true;
         }
+
+        private static bool OverridesEvent(EventInfo current, EventInfo previous)
+            => OverridesAccessor(current.AddMethod, previous.AddMethod) &&
+                OverridesAccessor(current.RemoveMethod, previous.RemoveMethod);
+
+        private static bool OverridesAccessor(MethodInfo? current, MethodInfo? previous)
+            => current is { IsVirtual: true } && previous is not null &&
+                current.GetBaseDefinition() != current &&
+                current.GetBaseDefinition() == previous.GetBaseDefinition();
 
         private static bool IsAccessible(MemberInfo member) => member switch
         {
