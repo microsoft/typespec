@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -26,12 +27,16 @@ namespace Microsoft.TypeSpec.Generator
         private const char _space = ' ';
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
+        private readonly List<TypeReferenceSite>? _typeReferenceSites = ProviderNameReducer.IsEnabled ? new() : null;
+        private int _writtenCharacters;
+        internal IReadOnlyList<TypeReferenceSite>? TypeReferences { get; private set; }
 
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
+        private bool _writingCrefType;
         private bool _writingNewInstance;
         internal CodeWriter()
         {
@@ -462,7 +467,18 @@ namespace Microsoft.TypeSpec.Generator
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
-                parameter.DefaultValue.Write(this);
+                if (parameter.DefaultValue is CastExpression { Inner: KeywordExpression { Keyword: "default", Expression: null } } cast &&
+                    cast.Type.Equals(parameter.Type))
+                {
+                    // A casted default of a struct is not a legal optional value
+                    // (CS1736). Emit the typed default directly, without requiring
+                    // Roslyn's cast reducer to repair the generated declaration.
+                    Append($"default({cast.Type})");
+                }
+                else
+                {
+                    parameter.DefaultValue.Write(this);
+                }
             }
         }
 
@@ -569,7 +585,16 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AppendRaw($"<see cref=\"");
-            AppendType(type, false, false);
+            var previousCref = _writingCrefType;
+            try
+            {
+                _writingCrefType = true;
+                AppendType(type, false, false);
+            }
+            finally
+            {
+                _writingCrefType = previousCref;
+            }
             AppendRaw($"\"/>");
 
             if (isNullable)
@@ -651,6 +676,7 @@ namespace Microsoft.TypeSpec.Generator
                 UseNamespace(type.Namespace);
 
                 AppendRaw("global::");
+                var referenceStart = _writtenCharacters - "global::".Length;
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
@@ -659,6 +685,18 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 AppendRaw(type.Name);
+                if (_typeReferenceSites != null && (!_writingXmlDocumentation || _writingCrefType))
+                {
+                    // Array suffixes belong to ArrayTypeSyntax, not the named reference.
+                    var referenceType = type;
+                    while (referenceType.IsArray)
+                    {
+                        referenceType = referenceType.ElementType;
+                    }
+                    var referenceEnd = _writtenCharacters - type.Name.Length + referenceType.Name.Length;
+                    _typeReferenceSites.Add(new TypeReferenceSite(TextSpan.FromBounds(referenceStart, referenceEnd), referenceType,
+                        _writingCrefType ? TypeReferenceRole.WholeTypeCref : TypeReferenceRole.Code));
+                }
             }
 
             if (type.Arguments.Any())
@@ -703,6 +741,7 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(1);
             destination[0] = c;
             _builder.Advance(1);
+            _writtenCharacters++;
             _atBeginningOfLine = true;
             return this;
         }
@@ -719,6 +758,7 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
             _builder.Advance(span.Length);
+            _writtenCharacters += span.Length;
 
             _atBeginningOfLine = span[span.Length - 1] == _newLine;
             return this;
@@ -741,6 +781,7 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
             _builder.Advance(spaces);
+            _writtenCharacters += spaces;
         }
 
         internal CodeWriter WriteIdentifier(string identifier)
@@ -951,6 +992,7 @@ namespace Microsoft.TypeSpec.Generator
             var totalLength = reader.Length;
             if (totalLength == 0)
             {
+                TypeReferences = _typeReferenceSites == null ? null : Array.Empty<TypeReferenceSite>();
                 return string.Empty;
             }
 
@@ -991,6 +1033,16 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
+            if (_typeReferenceSites != null)
+            {
+                var headerLength = builder.Length;
+                TypeReferences = _typeReferenceSites.Select(site => site with
+                {
+                    Span = new TextSpan(site.Span.Start + headerLength, site.Span.Length)
+                }).ToArray();
+                _typeReferenceSites.Clear();
+            }
+            _writtenCharacters = 0;
             reader.CopyTo(builder, default);
             return builder.ToString();
         }

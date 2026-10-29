@@ -1,4 +1,4 @@
-public override async global::System.Threading.Tasks.Task WriteToAsync(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = ((global::System.Threading.CancellationToken)default))
+public override async global::System.Threading.Tasks.Task WriteToAsync(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
 {
     bool first = true;
     await foreach (T value in _values.WithCancellation(cancellationToken))

@@ -9,6 +9,10 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal class MemberRemoverRewriter : CSharpSyntaxRewriter
     {
+        public MemberRemoverRewriter() : this(false) { }
+
+        protected MemberRemoverRewriter(bool visitIntoStructuredTrivia) : base(visitIntoStructuredTrivia) { }
+
         public override SyntaxNode? VisitCompilationUnit(CompilationUnitSyntax node)
         {
             var visitedNode = base.VisitCompilationUnit(node);
