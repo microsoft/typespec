@@ -27,7 +27,10 @@ const searchContext = [section?.replace(/^[^\p{L}\p{N}]+/u, ""), searchScope]
 <Default {...Astro.props}>
   <slot name="header" slot="header" />
   <slot name="sidebar" slot="sidebar" />
-  <div data-pagefind-filter={`search-scope:${searchScope}`}>
+  <div
+    data-pagefind-filter={`search-scope:${searchScope}`}
+    data-pagefind-weight={entry.id.startsWith("release-notes/") ? 0.5 : undefined}
+  >
     <meta data-pagefind-meta="searchContext[content]" content={searchContext} />
     <slot />
     <div class="footer-wrapper">
