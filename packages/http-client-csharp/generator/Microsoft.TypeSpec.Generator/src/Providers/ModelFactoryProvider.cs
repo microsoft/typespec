@@ -709,7 +709,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else if (ctorParam.Property?.IsDiscriminator == true)
                     {
-                        expressions.Add(GetDiscriminatorExpression(ctorParam.Property, modelProvider) ?? defaultExpression);
+                        expressions.Add(modelProvider.GetDiscriminatorValueExpression(ctorParam.Property) ?? defaultExpression);
                     }
                     else
                     {
@@ -734,24 +734,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. expressions];
-        }
-
-        private static ValueExpression? GetDiscriminatorExpression(PropertyProvider property, ModelProvider? model)
-        {
-            if (model == null)
-            {
-                return null;
-            }
-
-            // Make sure we are getting the expression for the correct discriminator property as models may have multiple discriminator
-            // from different levels in the hierarchy.
-            // The DiscriminatorValueExpression is based on the direct parent model provider discriminator.
-            if (model.BaseModelProvider?.DiscriminatorProperty == property)
-            {
-                return model.DiscriminatorValueExpression;
-            }
-
-            return GetDiscriminatorExpression(property, model.BaseModelProvider);
         }
 
         private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
