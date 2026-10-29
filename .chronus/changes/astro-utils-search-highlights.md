@@ -8,5 +8,5 @@ Highlight search terms on destination pages using Pagefind's built-in highlighti
 
 ```text
 api: isHttpFile
--> /docs/libraries/http/reference/typekits/?highlight=ishttpfile#ishttpfile
+-> https://typespec.io/docs/libraries/http/reference/typekits/?highlight=ishttpfile#ishttpfile
 ```
