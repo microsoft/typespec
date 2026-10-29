@@ -1,4 +1,4 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getSpecifiedBy } from "../../src/lib/specified-by.js";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";
@@ -190,5 +190,85 @@ describe("GraphQL Mutation Engine - Scalars", () => {
     );
     expect(warnings.length).toBe(1);
     expect(warnings[0].message).toContain("Float");
+  });
+
+  describe("constraint decorators on custom scalars", () => {
+    it("does not report @pattern as targeting a non-string after stripping extends", async () => {
+      const { MyId } = await tester.compile(
+        t.code`
+          @pattern("^my_[a-z0-9]+$")
+          scalar ${t.scalar("MyId")} extends string;
+        `,
+      );
+
+      const engine = createTestEngine(tester.program);
+      const mutation = engine.mutateScalar(MyId);
+
+      expectDiagnosticEmpty(tester.program.diagnostics);
+      expect(mutation.mutatedType.name).toBe("MyId");
+      expect(mutation.mutatedType.baseScalar).toBeUndefined();
+    });
+
+    it("does not report string length decorators as targeting a non-string", async () => {
+      const { Code } = await tester.compile(
+        t.code`
+          @minLength(1)
+          @maxLength(10)
+          scalar ${t.scalar("Code")} extends string;
+        `,
+      );
+
+      const engine = createTestEngine(tester.program);
+      const mutation = engine.mutateScalar(Code);
+
+      expectDiagnosticEmpty(tester.program.diagnostics);
+      expect(mutation.mutatedType.baseScalar).toBeUndefined();
+    });
+
+    it("does not report @pattern on a scalar extending GraphQL ID", async () => {
+      const { NodeId } = await tester.compile(
+        t.code`
+          @pattern("^node_[a-z0-9]+$")
+          scalar ${t.scalar("NodeId")} extends ID;
+        `,
+      );
+
+      const engine = createTestEngine(tester.program);
+      const mutation = engine.mutateScalar(NodeId);
+
+      expectDiagnosticEmpty(tester.program.diagnostics);
+      expect(mutation.mutatedType.name).toBe("ID");
+    });
+
+    it("does not report @format as targeting a non-string", async () => {
+      const { Link } = await tester.compile(
+        t.code`
+          @format("uri")
+          scalar ${t.scalar("Link")} extends string;
+        `,
+      );
+
+      const engine = createTestEngine(tester.program);
+      const mutation = engine.mutateScalar(Link);
+
+      expectDiagnosticEmpty(tester.program.diagnostics);
+      expect(mutation.mutatedType.baseScalar).toBeUndefined();
+    });
+
+    it("does not report numeric range decorators as targeting a non-numeric", async () => {
+      const { Percent } = await tester.compile(
+        t.code`
+          @minValue(0)
+          @maxValue(100)
+          scalar ${t.scalar("Percent")} extends int32;
+        `,
+      );
+
+      const engine = createTestEngine(tester.program);
+      const mutation = engine.mutateScalar(Percent);
+
+      expectDiagnosticEmpty(tester.program.diagnostics);
+      expect(mutation.mutatedType.baseScalar).toBeUndefined();
+    });
   });
 });
