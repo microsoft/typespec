@@ -1047,6 +1047,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     private static void addModelConstructorParameter(ClientModelProperty property,
         StringBuilder constructorSignatureBuilder, boolean addJsonPropertyAnnotation) {
 
+        String experimentalAnnotation = ExperimentalAnnotationUtil.getAnnotation(property.getApiMetadata());
+        if (experimentalAnnotation != null) {
+            constructorSignatureBuilder.append("@").append(experimentalAnnotation).append(" ");
+        }
         if (addJsonPropertyAnnotation) {
             constructorSignatureBuilder.append("@JsonProperty(").append(property.getAnnotationArguments()).append(") ");
         }
@@ -1064,6 +1068,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     private static void addModelConstructorParameterAsWireType(ClientModelProperty property,
         StringBuilder constructorSignatureBuilder) {
 
+        String experimentalAnnotation = ExperimentalAnnotationUtil.getAnnotation(property.getApiMetadata());
+        if (experimentalAnnotation != null) {
+            constructorSignatureBuilder.append("@").append(experimentalAnnotation).append(" ");
+        }
         constructorSignatureBuilder.append("@JsonProperty(")
             .append(property.getAnnotationArguments())
             .append(") ")

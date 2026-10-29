@@ -566,7 +566,10 @@ export class CodeModelBuilder {
     return this.options["flavor"]?.toLocaleLowerCase() === "azurev2";
   }
 
-  private applyExperimental(target: Type | undefined, metadata: Pick<Metadata, "language">): void {
+  private applyExperimental(
+    target: Type | undefined,
+    metadata: Pick<Metadata, "experimental">,
+  ): void {
     if (
       !this.isBranded() ||
       this.options["experimental-annotation"] === undefined ||
@@ -582,8 +585,7 @@ export class CodeModelBuilder {
     });
     this.program.reportDiagnostics(diagnostics);
     if (details) {
-      metadata.language.java ??= {};
-      metadata.language.java.experimental =
+      metadata.experimental =
         details.diagnosticId === undefined ? {} : { diagnosticId: details.diagnosticId };
     }
   }
@@ -1960,6 +1962,8 @@ export class CodeModelBuilder {
       addProperty(
         optionBagSchema,
         createGroupProperty(it.language.default.name, it.language.default.description, it.schema, {
+          experimental: it.experimental,
+          language: { java: it.language.java },
           originalParameter: [it],
           summary: it.summary,
           required: !optional,
@@ -2425,6 +2429,7 @@ export class CodeModelBuilder {
           {
             originalParameter: originalParameter,
             targetProperty: existBodyProperty,
+            experimental: existBodyProperty.experimental,
             language: {
               default: {
                 serializedName: existBodyProperty.serializedName,

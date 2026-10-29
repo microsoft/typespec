@@ -18,10 +18,12 @@ containing `Preview API - subject to change in non-backwards compatible way`.
 Generated code imports the annotation and uses `@Experimental(warningText = Experimental.WARNING_TEXT)`;
 Java code customizations can supply a custom `warningText` value.
 
-Includes generation coverage for experimental annotations and Java warning text customizations,
+Includes generation and compilation coverage for experimental annotations and Java warning text customizations,
 including Azure v2 implementation methods and Fluent Lite module exports.
-Experimental markers are also preserved on operation parameters, continuation-token paging
-overloads, and Fluent Lite resource APIs.
+Experimental markers are preserved on operation parameters, including flattened parameters and grouped
+options, required constructor parameters, continuation-token paging overloads, and Fluent Lite resource APIs.
+Fluent create/update setters remain merged when their parameter annotations differ.
 The emitter captures `diagnosticId` as metadata only; it does not affect generated Java annotations
 or warning text.
 Unbranded clients do not support this option or generate experimental annotations.
+Unit tests validate unbranded emitter options from source without requiring a prebuilt emitter.

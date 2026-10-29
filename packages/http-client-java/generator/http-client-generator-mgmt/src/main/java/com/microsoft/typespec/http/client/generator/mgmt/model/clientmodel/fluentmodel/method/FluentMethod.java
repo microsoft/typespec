@@ -44,6 +44,10 @@ public abstract class FluentMethod implements ImmutableMethod {
             this.getBaseMethodSignature());
     }
 
+    public String getImplementationMethodSignatureWithoutAnnotations() {
+        return getImplementationMethodSignature();
+    }
+
     protected abstract String getBaseMethodSignature();
 
     public abstract void writeJavadoc(JavaJavadocComment commentBlock);

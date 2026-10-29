@@ -128,12 +128,10 @@ public final class MapperUtils {
             long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
             if (counter > 0) {
                 enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription,
-                    new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(enumValue.getLanguage()))
-                        .build()));
+                    new ApiMetadata.Builder().experimental(enumValue.getExperimental()).build()));
             } else {
                 enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription,
-                    new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(enumValue.getLanguage()))
-                        .build()));
+                    new ApiMetadata.Builder().experimental(enumValue.getExperimental()).build()));
             }
         }
         return enumValues;
