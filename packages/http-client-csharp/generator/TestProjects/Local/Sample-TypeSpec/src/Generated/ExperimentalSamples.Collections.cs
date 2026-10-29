@@ -15,7 +15,6 @@ namespace SampleTypeSpec
     /// <summary></summary>
     public partial class ExperimentalSamples
     {
-
         internal partial class GetAllCollectionResult : CollectionResult
         {
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.

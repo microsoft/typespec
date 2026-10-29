@@ -96,39 +96,6 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
   - `MethodProvider`: Client methods and operations
   - `PropertyProvider`: Model properties with accessors
 
-Paging helpers are nested in their owning client and emitted together in
-`<ClientName>.Collections.cs`. `ClientProvider.CollectionResultProviders` lazily creates and caches
-this partial declaration. `ClientCollectionsProvider.NestedTypes` contains the
-operation-specific providers returned by `ClientResponseApi.CreateClientCollectionResultDefinition`,
-including helpers for customized paging methods. Only the main client declaration
-synthesizes compatibility overloads; the collections partial does not duplicate them.
-Visitors changing client identity must use `Update(name: ..., @namespace: ..., reset: true)`.
-Reset invalidates the spec view, method cache, REST client, and collections partial's
-cached members, rebuilding paging bodies and helper declarations against the new
-identity. The collections partial itself remains registered in the output library.
-As with other reset state, earlier visitor changes to rebuilt helpers are discarded.
-Nested paging helpers are retained by actual generated or custom-code references,
-not by their containing client alone. Unresolved qualified references in handwritten
-code are resolved against their lexical scope; absolute and resolved references
-keep their exact identities. Static imports also supply containing-type candidates
-for unresolved references to nested helpers. With `RemoveOrInternalize`, unused helpers
-and their otherwise-unreferenced dependencies are pruned, and the collections writer
-omits removed nested types. Other nested types keep the default ownership-based
-retention behavior.
-Plugins can continue to customize
-requests, parsing, and diagnostics through these providers; library visitors traverse
-the nested helpers and their members. Helper names follow
-`<OperationName>[Async]CollectionResult[OfT]`, using the normalized current operation
-name without a client-name prefix or original-name fallback. Nesting scopes names to
-one client. Names also avoid the enclosing client name and generated or handwritten
-client members. Generated operation names are reserved directly from the input
-methods, without recursively building client methods. When normalized names or
-sync/async variants collide, input operation order determines the suffix: the first
-available name is unchanged, followed by `2`, `3`, etc., skipping reserved names.
-For example, two operations normalized to `GetAll` produce `GetAllCollectionResult`
-and `GetAllCollectionResult2`. Helper names do not determine output filenames.
-Paging iteration behavior is unchanged.
-
 ### 5. **Transformation Pipeline**
 
 - **`LibraryVisitor`**: Visitor pattern for traversing and modifying the output library

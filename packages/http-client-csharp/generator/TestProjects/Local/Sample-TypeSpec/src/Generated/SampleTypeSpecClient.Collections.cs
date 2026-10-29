@@ -16,7 +16,6 @@ namespace SampleTypeSpec
     /// <summary></summary>
     public partial class SampleTypeSpecClient
     {
-
         internal partial class GetWithNextLinkCollectionResult : CollectionResult
         {
             private readonly SampleTypeSpecClient _client;

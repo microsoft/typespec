@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteMethods(writer);
                 sectionWritten |= _provider.Methods.Any();
 
-                if (sectionWritten = _provider.NestedTypes.Any())
+                if (sectionWritten && _provider.NestedTypes.Any())
                 {
                     writer.WriteLine();
                 }

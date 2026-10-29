@@ -447,7 +447,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var semanticModel = _compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
-                var namespaceCandidates = GetNamespaceCandidates(typeDeclaration);
+                var namespaceCandidates = GetNamespaceCandidates(typeDeclaration, semanticModel);
                 AddPublicTypeSignatureDependencyTypes(typeDeclaration, dependencies, semanticModel, namespaceCandidates);
             }
 
@@ -457,7 +457,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void AddBodyDependencyTypes(SyntaxNode syntax, HashSet<CSharpType> dependencies)
         {
             var semanticModel = _compilation.GetSemanticModel(syntax.SyntaxTree);
-            AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax));
+            AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax, semanticModel));
 
             foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
@@ -477,7 +477,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void AddPublicSignatureDependencyTypes(MemberDeclarationSyntax member, HashSet<CSharpType> dependencies)
         {
             var semanticModel = _compilation.GetSemanticModel(member.SyntaxTree);
-            var namespaceCandidates = GetNamespaceCandidates(member);
+            var namespaceCandidates = GetNamespaceCandidates(member, semanticModel);
             switch (member)
             {
                 case MethodDeclarationSyntax method:
@@ -743,7 +743,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 isPublic: false,
                 isStruct: false);
 
-        private static IReadOnlyList<string> GetNamespaceCandidates(SyntaxNode node)
+        private static IReadOnlyList<string> GetNamespaceCandidates(SyntaxNode node, SemanticModel semanticModel)
         {
             var namespaces = new HashSet<string>(StringComparer.Ordinal);
             for (var current = node; current != null; current = current.Parent)
@@ -754,7 +754,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         namespaces.Add(namespaceDeclaration.Name.ToString());
                         foreach (var usingDirective in namespaceDeclaration.Usings)
                         {
-                            AddUsingNamespace(namespaces, usingDirective);
+                            AddUsingNamespace(namespaces, usingDirective, semanticModel);
                         }
                         break;
                 }
@@ -764,19 +764,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var usingDirective in compilationUnit.Usings)
                 {
-                    AddUsingNamespace(namespaces, usingDirective);
+                    AddUsingNamespace(namespaces, usingDirective, semanticModel);
                 }
             }
 
             return [.. namespaces];
         }
 
-        private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective)
+        private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective, SemanticModel semanticModel)
         {
             if (usingDirective.Alias == null &&
                 usingDirective.Name != null)
             {
-                namespaces.Add(usingDirective.Name.ToString());
+                if (usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) &&
+                    semanticModel.GetSymbolInfo(usingDirective.Name).Symbol is INamedTypeSymbol { TypeKind: not TypeKind.Error } type)
+                {
+                    namespaces.Add(type.ToDisplayString());
+                }
+                else
+                {
+                    namespaces.Add(usingDirective.Name.ToString());
+                }
             }
         }
 

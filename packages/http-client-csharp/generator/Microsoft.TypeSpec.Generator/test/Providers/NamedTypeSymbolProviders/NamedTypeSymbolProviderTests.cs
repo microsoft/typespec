@@ -520,6 +520,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task QualifiedGenericBodyDependenciesIncludeTypeArguments()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = compilation.GetTypeByMetadataName("Sample.PagingFactory");
+            Assert.IsNotNull(symbol);
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var dependencies = provider.BodyDependencyTypes;
+
+            Assert.IsTrue(dependencies.Any(type => type.Name == "GetItemsCollectionResult" &&
+                type.Namespace == "Sample.TestClient" && type.Arguments.Count == 1));
+            Assert.IsTrue(dependencies.Any(type => type.Name == "Item" && type.Namespace == "Sample.Models"));
+            Assert.IsFalse(dependencies.Any(type => type.Name == "GetItemsCollectionResult" && type.Namespace == ""));
+        }
+
+        [Test]
         public async Task PublicNestedMemberSignatureDependenciesAreIncluded()
         {
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
