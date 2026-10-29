@@ -223,7 +223,7 @@ def test_string_declarations_preserve_quote_style(code_model, value, expected):
     assert StringType({"type": "string"}, code_model).get_declaration(value) == expected
 
 
-@pytest.mark.parametrize("value", VALUES + ["\\'", '\\\\"', "\ud800", "\udfff"])
+@pytest.mark.parametrize("value", VALUES + ["\\'", '\\\\"', "\ud800", chr(0xDFFF)])
 @pytest.mark.parametrize("quote", ['"', "'"])
 def test_python_string_literal_preserves_value(value, quote):
     source = python_string_literal(value, quote=quote)
