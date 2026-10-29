@@ -606,7 +606,7 @@ function overlaps(range: IntegerRange, other: IntegerRange): boolean {
 }
 
 /**
- * Optional paramters for model differentiation.
+ * Optional parameters for model differentiation.
  */
 interface DifferentiateModelOptions {
   /**
