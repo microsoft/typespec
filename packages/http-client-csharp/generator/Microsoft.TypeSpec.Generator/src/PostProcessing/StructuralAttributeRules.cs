@@ -23,15 +23,27 @@ namespace Microsoft.TypeSpec.Generator
                 AliasQualifiedNameSyntax { Name: IdentifierNameSyntax identifier } => identifier,
                 _ => null
             };
-            if (terminal == null) return null;
+            if (terminal == null)
+            {
+                return null;
+            }
+
             const string suffix = "Attribute";
             var token = terminal.Identifier;
             if (!token.Text.EndsWith(suffix, StringComparison.Ordinal) || !token.ValueText.EndsWith(suffix, StringComparison.Ordinal) ||
-                token.ValueText.Length == suffix.Length) return null;
+                token.ValueText.Length == suffix.Length)
+            {
+                return null;
+            }
+
             var value = token.ValueText[..^suffix.Length];
             // Constructed identifiers can bind despite invalid serialized keyword
             // syntax. Keep contextual forms too, including newer-consumer field.
-            if (SyntaxFacts.GetKeywordKind(value) != SyntaxKind.None || SyntaxFacts.GetContextualKeywordKind(value) != SyntaxKind.None || value == "field") return null;
+            if (SyntaxFacts.GetKeywordKind(value) != SyntaxKind.None || SyntaxFacts.GetContextualKeywordKind(value) != SyntaxKind.None || value == "field")
+            {
+                return null;
+            }
+
             var shortened = SyntaxFactory.IdentifierName(SyntaxFactory.Identifier(token.LeadingTrivia, SyntaxKind.None,
                 token.Text[..^suffix.Length], value, token.TrailingTrivia));
             return name.ReplaceNode(terminal, shortened);
@@ -41,9 +53,17 @@ namespace Microsoft.TypeSpec.Generator
         {
             var spelling = name.ToString();
             var parsed = SyntaxFactory.ParseCompilationUnit("[" + spelling + "] class __AttributeProof__ {}", options: options);
-            if (parsed.ContainsDiagnostics) return null;
+            if (parsed.ContainsDiagnostics)
+            {
+                return null;
+            }
+
             var attributes = parsed.DescendantNodes().OfType<AttributeSyntax>().ToArray();
-            if (attributes.Length != 1 || attributes[0].Name.ToString() != spelling) return null;
+            if (attributes.Length != 1 || attributes[0].Name.ToString() != spelling)
+            {
+                return null;
+            }
+
             return attributes[0].Name;
         }
 
@@ -60,7 +80,11 @@ namespace Microsoft.TypeSpec.Generator
                 right.Type?.TypeKind is TypeKind.Error or TypeKind.Dynamic or TypeKind.Pointer or TypeKind.FunctionPointer ||
                 left.Kind != right.Kind || !Symbol(left.Type, right.Type) ||
                 left.IsImplicit != right.IsImplicit || left.ConstantValue.HasValue != right.ConstantValue.HasValue ||
-                left.ConstantValue.HasValue && !Equals(left.ConstantValue.Value, right.ConstantValue.Value)) return false;
+                left.ConstantValue.HasValue && !Equals(left.ConstantValue.Value, right.ConstantValue.Value))
+            {
+                return false;
+            }
+
             var same = (left, right) switch
             {
                 (IAttributeOperation, IAttributeOperation) => true,
@@ -88,10 +112,21 @@ namespace Microsoft.TypeSpec.Generator
                 (IParenthesizedOperation, IParenthesizedOperation) => true,
                 _ => false
             };
-            if (!same) return false;
+            if (!same)
+            {
+                return false;
+            }
+
             var first = left.ChildOperations.GetEnumerator();
             var second = right.ChildOperations.GetEnumerator();
-            while (first.MoveNext()) if (!second.MoveNext() || !SameContract(first.Current, second.Current)) return false;
+            while (first.MoveNext())
+            {
+                if (!second.MoveNext() || !SameContract(first.Current, second.Current))
+                {
+                    return false;
+                }
+            }
+
             return !second.MoveNext();
         }
     }

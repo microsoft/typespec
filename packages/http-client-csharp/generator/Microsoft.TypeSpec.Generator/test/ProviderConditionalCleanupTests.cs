@@ -122,8 +122,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.True(new ProviderNameReducer(compilation).TryPlan(target.GetRoot(), writer.TypeReferences!, out var plan));
             StringAssert.DoesNotContain("global::System.DateTimeOffset", plan!.Apply().ToString());
             if (symbol == "DEBUG" || symbol == "HAS_INTERNALS_VISIBLE_CORE")
+            {
                 Assert.False(new ProviderNameReducer(compilation).TryPlan(extra.GetRoot(), Array.Empty<TypeReferenceSite>(), out _),
                     "Unknown project-conditional documents remain opaque themselves");
+            }
         }
 
         [Test]

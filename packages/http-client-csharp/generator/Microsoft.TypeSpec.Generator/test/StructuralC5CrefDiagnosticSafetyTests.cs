@@ -35,7 +35,21 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var code = C5DiagnosticCrefCode("using System;", genuinelyUsed ? "public DateTimeOffset Value=>default;" : "");
             var output = ReduceC5CrefDirect(code, new CSharpParseOptions(LanguageVersion.Preview, mode), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            StringAssert.Contains(genuinelyUsed ? "cref=\"DateTimeOffset\"" : "cref=\"global::System.DateTimeOffset\"", output);
+            // Parse/Diagnose now permit the explicitly approved Hidden-CS8019
+            // activation. None still has no parsed cref and must retain it.
+            var before = C5CrefDiagnostics(code.Content);
+            Assert.That(before.Any(static d => d.StartsWith("CS8019|Hidden|", StringComparison.Ordinal)), Is.EqualTo(!genuinelyUsed));
+            var shouldShorten = mode != DocumentationMode.None;
+            StringAssert.Contains(shouldShorten ? "cref=\"DateTimeOffset\"" : "cref=\"global::System.DateTimeOffset\"", output);
+            if (shouldShorten)
+            {
+                Assert.That(C5CrefDiagnostics(output), Is.Empty);
+                AssertStructuralCrefs(code.Content, output);
+            }
+            else
+            {
+                Assert.That(C5CrefDiagnostics(output), Is.EqualTo(before));
+            }
         }
 
         [TestCase(false)]

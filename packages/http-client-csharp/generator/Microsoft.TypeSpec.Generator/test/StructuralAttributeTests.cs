@@ -199,7 +199,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var original = Snapshot(before); var candidate = Snapshot(after);
             Assert.That(candidate.Contracts, Is.EqualTo(original.Contracts), "Whole attribute constructors/typed constants/named members must remain identical");
             if (formatterRoute)
+            {
                 Assert.That(SyntaxFactory.AreEquivalent(CSharpSyntaxTree.ParseText(candidate.Outside).GetRoot(), CSharpSyntaxTree.ParseText(original.Outside).GetRoot()), Is.True);
+            }
             else
             {
                 Assert.That(candidate.Outside, Is.EqualTo(original.Outside), "All source including argument expressions outside attribute NAME spans must stay exact");

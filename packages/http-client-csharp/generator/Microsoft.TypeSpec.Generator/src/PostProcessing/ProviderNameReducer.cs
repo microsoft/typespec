@@ -65,7 +65,10 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var site = references[index];
                 if (!roots[0].FullSpan.Contains(site.Span) || !sites.TryAdd(site.Span, index) ||
-                    text.ToString(site.Span) != "global::" + site.Type.FullyQualifiedName) return false;
+                    text.ToString(site.Span) != "global::" + site.Type.FullyQualifiedName)
+                {
+                    return false;
+                }
             }
             foreach (var root in roots)
             {
@@ -73,17 +76,38 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var node in root.DescendantNodes(descendIntoTrivia: documentation))
                 {
                     var name = ReferenceName(node);
-                    if (name == null || !sites.TryGetValue(TextSpan.FromBounds(node.SpanStart, name.Identifier.Span.End), out var index)) continue;
-                    if ((node is CrefSyntax) != (references[index].Role == TypeReferenceRole.WholeTypeCref)) continue;
-                    if (!seen.Add(index) || name.Arity != references[index].Type.Arguments.Count) return false;
-                    if (matches[index] != null && (matches[index].RawKind != node.RawKind || matches[index].Span != node.Span || matches[index].Parent?.RawKind != node.Parent?.RawKind)) return false;
+                    if (name == null || !sites.TryGetValue(TextSpan.FromBounds(node.SpanStart, name.Identifier.Span.End), out var index))
+                    {
+                        continue;
+                    }
+
+                    if ((node is CrefSyntax) != (references[index].Role == TypeReferenceRole.WholeTypeCref))
+                    {
+                        continue;
+                    }
+
+                    if (!seen.Add(index) || name.Arity != references[index].Type.Arguments.Count)
+                    {
+                        return false;
+                    }
+
+                    if (matches[index] != null && (matches[index].RawKind != node.RawKind || matches[index].Span != node.Span || matches[index].Parent?.RawKind != node.Parent?.RawKind))
+                    {
+                        return false;
+                    }
+
                     matches[index] ??= node;
                 }
                 if (seen.Count != references.Count)
                 {
                     var disabled = root.DescendantTrivia().Where(static t => t.IsKind(SyntaxKind.DisabledTextTrivia)).Select(static t => t.Span).ToArray();
                     for (var i = 0; i < references.Count; i++)
-                        if (!seen.Contains(i) && !disabled.Any(span => span.Contains(references[i].Span))) return false;
+                    {
+                        if (!seen.Contains(i) && !disabled.Any(span => span.Contains(references[i].Span)))
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
             return matches.All(static node => node != null);
@@ -238,7 +262,10 @@ namespace Microsoft.TypeSpec.Generator
                     QueryContinuationSyntax clause => clause.Identifier,
                     _ => default
                 };
-                if (!identifier.IsKind(SyntaxKind.None)) expressionBlockedNames.Add(identifier.ValueText);
+                if (!identifier.IsKind(SyntaxKind.None))
+                {
+                    expressionBlockedNames.Add(identifier.ValueText);
+                }
             }
             var decisions = new Dictionary<(string Namespace, string MetadataName, LookupKind Kind), Reduction>();
             var deletions = new List<TextSpan>();
@@ -246,21 +273,39 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var node = matches[index];
                 var terminal = ReferenceName(node);
-                if (terminal == null) continue;
+                if (terminal == null)
+                {
+                    continue;
+                }
+
                 LookupKind kind;
                 if (references[index].Role == TypeReferenceRole.WholeTypeCref && node is QualifiedCrefSyntax)
+                {
                     kind = LookupKind.Cref;
+                }
                 else if (node.Parent is AttributeSyntax attribute && attribute.Name == node)
+                {
                     kind = LookupKind.Attribute;
+                }
                 else if (node.Parent is MemberAccessExpressionSyntax receiver && receiver.Expression == node)
+                {
                     kind = LookupKind.StaticReceiver;
+                }
                 else if (node is QualifiedNameSyntax name && IsSupportedTypePosition(name))
+                {
                     kind = LookupKind.Type;
+                }
                 else
+                {
                     continue;
+                }
 
                 var type = references[index].Type;
-                if (type.DeclaringType != null) continue;
+                if (type.DeclaringType != null)
+                {
+                    continue;
+                }
+
                 var key = (type.Namespace, type.ClrMetadataName, kind);
                 if (!decisions.TryGetValue(key, out var reduction))
                 {
@@ -270,9 +315,14 @@ namespace Microsoft.TypeSpec.Generator
                     decisions.Add(key, reduction);
                 }
                 if (reduction.ShortenPrefix)
+                {
                     deletions.Add(TextSpan.FromBounds(node.SpanStart, terminal.SpanStart));
+                }
+
                 if (reduction.OmitAttributeSuffix)
+                {
                     deletions.Add(new TextSpan(terminal.Identifier.Span.End - "Attribute".Length, "Attribute".Length));
+                }
             }
             ProviderSyntaxCleanup.AddEdits(roots, _compilation, namespaceName,
                 usings.Where(static u => u.Alias != null).Select(static u => u.Alias!.Name.Identifier.ValueText), deletions);
@@ -348,11 +398,23 @@ namespace Microsoft.TypeSpec.Generator
             var target = FindType(type.Namespace.Length == 0 ? type.ClrMetadataName : type.Namespace + "." + type.ClrMetadataName);
             var attribute = FindType("System.Attribute");
             if (target == null || target.TypeKind != TypeKind.Class || target.Arity != 0 || target.IsAbstract || attribute == null)
+            {
                 return default;
+            }
+
             var derivesFromAttribute = false;
             for (var current = target.BaseType; current != null; current = current.BaseType)
-                if (SymbolEqualityComparer.Default.Equals(current, attribute)) derivesFromAttribute = true;
-            if (!derivesFromAttribute) return default;
+            {
+                if (SymbolEqualityComparer.Default.Equals(current, attribute))
+                {
+                    derivesFromAttribute = true;
+                }
+            }
+
+            if (!derivesFromAttribute)
+            {
+                return default;
+            }
 
             var shortName = type.Name.EndsWith("Attribute", StringComparison.Ordinal) ? type.Name[..^"Attribute".Length] : string.Empty;
             var canOmitSuffix = shortName.Length > 0 && SyntaxFacts.IsValidIdentifier(shortName) &&
@@ -362,9 +424,14 @@ namespace Microsoft.TypeSpec.Generator
                 // across the entire document by conservatively retaining all of them.
                 SyntaxFacts.GetContextualKeywordKind(shortName) == SyntaxKind.None;
             if (canOmitSuffix && CanUseAttributeName(target, shortName, namespaces, blockedNames))
+            {
                 return new Reduction(true, true);
+            }
+
             if (CanUseAttributeName(target, type.Name, namespaces, blockedNames))
+            {
                 return new Reduction(true);
+            }
             // A global-qualified short spelling does not consult local aliases or
             // imported namespaces. Preserve qualification if only this form is safe.
             return new Reduction(false, canOmitSuffix && CanUseAttributeName(target, shortName, new[] { type.Namespace }, null));
@@ -373,7 +440,11 @@ namespace Microsoft.TypeSpec.Generator
         private bool CanUseAttributeName(INamedTypeSymbol target, string spelling, IEnumerable<string> namespaces, HashSet<string>? blockedNames)
         {
             var expanded = spelling + "Attribute";
-            if (blockedNames != null && (blockedNames.Contains(spelling) || blockedNames.Contains(expanded))) return false;
+            if (blockedNames != null && (blockedNames.Contains(spelling) || blockedNames.Contains(expanded)))
+            {
+                return false;
+            }
+
             var found = false;
             foreach (var ns in namespaces)
             {
@@ -381,9 +452,21 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     foreach (var member in FindMembers(ns, candidate))
                     {
-                        if (member is not INamedTypeSymbol named) return false;
-                        if (named.Arity != 0) continue;
-                        if (!SymbolEqualityComparer.Default.Equals(named.OriginalDefinition, target.OriginalDefinition)) return false;
+                        if (member is not INamedTypeSymbol named)
+                        {
+                            return false;
+                        }
+
+                        if (named.Arity != 0)
+                        {
+                            continue;
+                        }
+
+                        if (!SymbolEqualityComparer.Default.Equals(named.OriginalDefinition, target.OriginalDefinition))
+                        {
+                            return false;
+                        }
+
                         found = true;
                     }
                 }

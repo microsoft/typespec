@@ -34,7 +34,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var source = "class Clock { " + (hiddenFirst ? hidden + visible : visible + hidden) + ConditionalParenthesesBranch + "}";
             var output = await Reduce(new CodeFile(source, "Clock.cs"));
             StringAssert.Contains("Hidden(int x, int y) => ((x == y))", output);
-            if (hiddenFirst) StringAssert.Contains("Visible(int x, int y) => x == y", output);
+            if (hiddenFirst)
+            {
+                StringAssert.Contains("Visible(int x, int y) => x == y", output);
+            }
             // BeforeFirstLineDirective is deliberately non-visible for this slice.
             AssertConditionalParenthesesOperations(source, output);
         }

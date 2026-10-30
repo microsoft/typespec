@@ -19,7 +19,8 @@ namespace Microsoft.TypeSpec.Generator
         {
             var lexical = new HashSet<string>(aliases, StringComparer.Ordinal) { "value", "field" };
             foreach (var root in roots)
-            foreach (var node in root.DescendantNodes())
+            {
+                foreach (var node in root.DescendantNodes())
             {
                 var token = node switch
                 {
@@ -39,11 +40,17 @@ namespace Microsoft.TypeSpec.Generator
                     QueryContinuationSyntax c => c.Identifier,
                     _ => default
                 };
-                if (!token.IsKind(SyntaxKind.None)) lexical.Add(token.ValueText);
+                if (!token.IsKind(SyntaxKind.None))
+                    {
+                        lexical.Add(token.ValueText);
+                    }
+                }
             }
+
             var members = new Dictionary<string, HashSet<string>?>(StringComparer.Ordinal);
             foreach (var root in roots)
-            foreach (var node in root.DescendantNodes())
+            {
+                foreach (var node in root.DescendantNodes())
             {
                 if (node is ParenthesizedExpressionSyntax expression && !expression.Ancestors().Any(static parent => parent is ParenthesizedExpressionSyntax))
                 {
@@ -53,11 +60,19 @@ namespace Microsoft.TypeSpec.Generator
                     var removeAll = SafeExpression(payload) && CanRemove(expression, payload);
                     // Retained chains can be cast-disambiguating: ((f))(1).
                     if (!removeAll || !SafeBoundaries(chain[0].OpenParenToken, chain[^1].OpenParenToken,
-                        payload, chain[^1].CloseParenToken, chain[0].CloseParenToken)) continue;
-                    foreach (var wrapper in chain)
+                        payload, chain[^1].CloseParenToken, chain[0].CloseParenToken))
+                        {
+                            continue;
+                        }
+
+                        foreach (var wrapper in chain)
                     {
-                        if (wrapper.ContainsDiagnostics || wrapper.ContainsDirectives || wrapper.OpenParenToken.IsMissing || wrapper.CloseParenToken.IsMissing) continue;
-                        edits.Add(wrapper.OpenParenToken.Span); edits.Add(wrapper.CloseParenToken.Span);
+                        if (wrapper.ContainsDiagnostics || wrapper.ContainsDirectives || wrapper.OpenParenToken.IsMissing || wrapper.CloseParenToken.IsMissing)
+                            {
+                                continue;
+                            }
+
+                            edits.Add(wrapper.OpenParenToken.Span); edits.Add(wrapper.CloseParenToken.Span);
                     }
                 }
                 else if (node is ParenthesizedPatternSyntax pattern && !pattern.Ancestors().Any(static parent => parent is ParenthesizedPatternSyntax or ParenthesizedExpressionSyntax))
@@ -65,26 +80,46 @@ namespace Microsoft.TypeSpec.Generator
                     var chain = new List<ParenthesizedPatternSyntax>();
                     PatternSyntax payload = pattern;
                     while (payload is ParenthesizedPatternSyntax wrapper) { chain.Add(wrapper); payload = wrapper.Pattern; }
-                    if (!SafePattern(payload)) continue;
-                    var removeAll = pattern.Parent is IsPatternExpressionSyntax or CasePatternSwitchLabelSyntax or SwitchExpressionArmSyntax or SubpatternSyntax ||
+                    if (!SafePattern(payload))
+                        {
+                            continue;
+                        }
+
+                        var removeAll = pattern.Parent is IsPatternExpressionSyntax or CasePatternSwitchLabelSyntax or SwitchExpressionArmSyntax or SubpatternSyntax ||
                         pattern.Parent is BinaryPatternSyntax binary && PatternPrecedence(payload) >= PatternPrecedence(binary) ||
                         pattern.Parent is UnaryPatternSyntax && PatternPrecedence(payload) > 2;
                     if (!removeAll || !SafeBoundaries(chain[0].OpenParenToken, chain[^1].OpenParenToken,
-                        payload, chain[^1].CloseParenToken, chain[0].CloseParenToken)) continue;
-                    foreach (var wrapper in chain)
+                        payload, chain[^1].CloseParenToken, chain[0].CloseParenToken))
+                        {
+                            continue;
+                        }
+
+                        foreach (var wrapper in chain)
                     {
-                        if (wrapper.ContainsDiagnostics || wrapper.ContainsDirectives) continue;
-                        edits.Add(wrapper.OpenParenToken.Span); edits.Add(wrapper.CloseParenToken.Span);
+                        if (wrapper.ContainsDiagnostics || wrapper.ContainsDirectives)
+                            {
+                                continue;
+                            }
+
+                            edits.Add(wrapper.OpenParenToken.Span); edits.Add(wrapper.CloseParenToken.Span);
                     }
                 }
                 else if (node is MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax, Name: IdentifierNameSyntax name } member)
                 {
                     var identifier = name.Identifier.ValueText;
                     if (identifier == "Object" || lexical.Contains(identifier) || SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None ||
-                        member.Parent is InvocationExpressionSyntax call && call.Expression == member || member.ContainsDiagnostics || member.ContainsDirectives) continue;
-                    var declaration = member.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
-                    if (declaration == null) continue;
-                    var names = declaration.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().Reverse().Select(static d =>
+                        member.Parent is InvocationExpressionSyntax call && call.Expression == member || member.ContainsDiagnostics || member.ContainsDirectives)
+                        {
+                            continue;
+                        }
+
+                        var declaration = member.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+                    if (declaration == null)
+                        {
+                            continue;
+                        }
+
+                        var names = declaration.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().Reverse().Select(static d =>
                         d.Identifier.ValueText + (d.TypeParameterList is { } p ? "`" + p.Parameters.Count : string.Empty));
                     var metadata = (namespaceName.Length == 0 ? string.Empty : namespaceName + ".") + string.Join("+", names);
                     if (!members.TryGetValue(metadata, out var eligible))
@@ -93,36 +128,68 @@ namespace Microsoft.TypeSpec.Generator
                         eligible = EligibleMembers(type, compilation);
                         members.Add(metadata, eligible);
                     }
-                    if (eligible?.Contains(identifier) != true) continue;
-                    var prefix = TextSpan.FromBounds(member.SpanStart, name.SpanStart);
+                    if (eligible?.Contains(identifier) != true)
+                        {
+                            continue;
+                        }
+
+                        var prefix = TextSpan.FromBounds(member.SpanStart, name.SpanStart);
                     // Do not erase comments or directives attached to this/dot.
-                    if (root.SyntaxTree.GetText().ToString(prefix) != "this.") continue;
-                    edits.Add(prefix);
+                    if (root.SyntaxTree.GetText().ToString(prefix) != "this.")
+                        {
+                            continue;
+                        }
+
+                        edits.Add(prefix);
                 }
+            }
             }
         }
 
         private static HashSet<string>? EligibleMembers(INamedTypeSymbol? type, Compilation compilation)
         {
             if (type == null || type.DeclaringSyntaxReferences.Any(static reference =>
-                reference.GetSyntax().ChildNodes().OfType<ParameterListSyntax>().Any())) return null;
+                reference.GetSyntax().ChildNodes().OfType<ParameterListSyntax>().Any()))
+            {
+                return null;
+            }
+
             var groups = new Dictionary<string, List<ISymbol>>(StringComparer.Ordinal);
             for (var current = type; current != null; current = current.BaseType)
             {
-                if (current.TypeKind == TypeKind.Error) return null;
+                if (current.TypeKind == TypeKind.Error)
+                {
+                    return null;
+                }
+
                 foreach (var member in current.GetMembers())
                 {
-                    if (!groups.TryGetValue(member.Name, out var list)) groups.Add(member.Name, list = new List<ISymbol>());
+                    if (!groups.TryGetValue(member.Name, out var list))
+                    {
+                        groups.Add(member.Name, list = new List<ISymbol>());
+                    }
+
                     list.Add(member);
                 }
             }
             var result = new HashSet<string>(StringComparer.Ordinal);
             foreach (var (name, values) in groups)
             {
-                if (values.Count != 1) continue;
+                if (values.Count != 1)
+                {
+                    continue;
+                }
+
                 var member = values[0];
-                if (member.IsStatic || !compilation.IsSymbolAccessibleWithin(member, type)) continue;
-                if (member is IFieldSymbol || member is IPropertySymbol { IsIndexer: false, ExplicitInterfaceImplementations.Length: 0 }) result.Add(name);
+                if (member.IsStatic || !compilation.IsSymbolAccessibleWithin(member, type))
+                {
+                    continue;
+                }
+
+                if (member is IFieldSymbol || member is IPropertySymbol { IsIndexer: false, ExplicitInterfaceImplementations.Length: 0 })
+                {
+                    result.Add(name);
+                }
             }
             return result;
         }
@@ -167,8 +234,16 @@ namespace Microsoft.TypeSpec.Generator
                 case ConditionalExpressionSyntax s: return s.Condition == wrapper && Precedence(payload) > 2;
                 case BinaryExpressionSyntax s:
                     var child = Precedence(payload); var parent = Precedence(s);
-                    if (child <= 0 || parent <= 0) return false;
-                    if (child != parent) return child > parent;
+                    if (child <= 0 || parent <= 0)
+                    {
+                        return false;
+                    }
+
+                    if (child != parent)
+                    {
+                        return child > parent;
+                    }
+
                     return s.IsKind(SyntaxKind.CoalesceExpression) ? s.Right == wrapper : s.Left == wrapper;
                 default: return false;
             }

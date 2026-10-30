@@ -38,7 +38,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(model.GetSymbolInfo(creationType).Symbol, Is.InstanceOf<INamedTypeSymbol>(), "Creation names bind canonically through SymbolInfo; TypeInfo can be empty");
             StringAssert.DoesNotContain("global::System.Exception", output);
             foreach (var syntax in new[] { "new Exception()", "typeof(Exception)", "default(Exception)", "new Exception[1]", "(Exception)(value)", "catch (Exception error)" })
+            {
                 StringAssert.Contains(syntax, output);
+            }
+
             AssertOperationBindings(code.Content, output);
         }
 
@@ -105,7 +108,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 .Where(static trivia => trivia.IsKind(SyntaxKind.DisabledTextTrivia)).Select(static trivia => trivia.ToFullString()).ToArray();
             Assert.That(DisabledText(output), Is.EqualTo(DisabledText(code.Content)), "Inactive text must be byte-identical");
             foreach (var options in new[] { new CSharpParseOptions(), new CSharpParseOptions().WithPreprocessorSymbols("NET8_0_OR_GREATER"), new CSharpParseOptions().WithPreprocessorSymbols("NET8_0_OR_GREATER", "NET9_0_OR_GREATER") })
+            {
                 AssertOperationBindings(code.Content, output, options);
+            }
         }
 
         [Test]
@@ -126,7 +131,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             StringAssert.Contains("new global::System.Exception()", output);
             Assert.AreEqual(2, output.Split("typeof(global::System.DateTimeOffset)").Length - 1);
             foreach (var options in new[] { new CSharpParseOptions(), new CSharpParseOptions().WithPreprocessorSymbols("NET8_0_OR_GREATER") })
+            {
                 AssertOperationBindings(code.Content, output, options);
+            }
         }
 
         [Test]
@@ -329,7 +336,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         InvocationExpressionSyntax invocation => model.GetOperation(invocation) is IInvocationOperation operation ? MethodIdentity(operation.TargetMethod) + ":" + ArgumentsIdentity(operation.Arguments) : null,
                         _ => null
                     };
-                    if (value != null) result.Add(node.Kind() + ":" + value);
+                    if (value != null)
+                    {
+                        result.Add(node.Kind() + ":" + value);
+                    }
                 }
                 return result.ToArray();
             }

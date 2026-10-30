@@ -85,7 +85,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             const string source = "class Clock { private int Value; private dynamic Data; private int Other() => 1; public event System.Action Changed; public void E() { this.Changed += () => {}; } public int M() => this.Other(); public object D() => this.Data; public string N() => nameof(this.Value); public object I() => new Clock { Value = this.Value }; }";
             var output = await Reduce(new CodeFile(source, "Clock.cs"));
-            foreach (var retained in new[] { "this.Other()", "this.Changed", "this.Data", "nameof(this.Value)", "Value = this.Value" }) StringAssert.Contains(retained, output);
+            foreach (var retained in new[] { "this.Other()", "this.Changed", "this.Data", "nameof(this.Value)", "Value = this.Value" })
+            {
+                StringAssert.Contains(retained, output);
+            }
+
             AssertThisMemberBindings(source, output);
         }
 
@@ -162,14 +166,22 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 foreach (var expression in tree.GetRoot().DescendantNodes().OfType<ExpressionSyntax>())
                 {
                     var operation = model.GetOperation(expression);
-                    if (operation == null || operation.Syntax.Span != expression.Span) continue;
+                    if (operation == null || operation.Syntax.Span != expression.Span)
+                    {
+                        continue;
+                    }
+
                     var member = operation switch
                     {
                         IFieldReferenceOperation field => (ISymbol)field.Field,
                         IPropertyReferenceOperation property => property.Property,
                         _ => null
                     };
-                    if (member == null || member.IsStatic) continue;
+                    if (member == null || member.IsStatic)
+                    {
+                        continue;
+                    }
+
                     var instance = ((IMemberReferenceOperation)operation).Instance;
                     var instanceIdentity = instance is IInstanceReferenceOperation receiver ? receiver.ReferenceKind.ToString() : instance?.Kind.ToString();
                     values.Add(member.OriginalDefinition.GetDocumentationCommentId() + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(member.ContainingType) + ":" +

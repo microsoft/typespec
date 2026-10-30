@@ -22,7 +22,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             const string type = "global::System.DateTimeOffset";
             var imports = mode == "globalOtherDocument" ? "" : "using System;";
-            if (mode == "alias") imports += "using Alias=System.String;";
+            if (mode == "alias")
+            {
+                imports += "using Alias=System.String;";
+            }
+
             var extraMember = mode == "alias" ? "Alias Name=>\"\";" : mode == "warning" ? "int unused;" : "";
             var source = imports + "\nclass Clock{" + extraMember + "\n/// <summary><see cref=\"" + type + "\"/></summary>\nvoid M(global::System.DateTimeOffset value=default(DateTimeOffset)){} }";
             var extra = mode == "globalOtherDocument" ? "global using System;" : null;

@@ -152,9 +152,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("headerProof")]
         public async Task StructuralThisReceiverEmptyMetadataRespectsWorkspaceGates(string mode)
         {
-            if (mode == "disabled") MockHelpers.LoadMockGenerator(outputPath: _directory,
+            if (mode == "disabled")
+            {
+                MockHelpers.LoadMockGenerator(outputPath: _directory,
                 configuration: "{\"package-name\":\"Sample\",\"disable-xml-docs\":true,\"disable-roslyn-reduce\":true}");
-            if (mode == "custom") CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
+            if (mode == "custom")
+            {
+                CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
             var conditional = mode == "conditional" ? "\n#if NET8_0_OR_GREATER\nint N() => 8;\n#endif\n" : "";
             var source = "class Clock { private int Value; public int M() => this.Value; " + conditional + " }";
             var extra = mode == "headerProof" ? "#if NET8_0_OR_GREATER\nclass Variant<T> {}\n#else\nclass Variant {}\n#endif" : null;

@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator
         private readonly Lazy<bool> _crefImportEnvironment;
         private readonly Lazy<Compilation> _crefDiagnosticCompilation;
         private readonly ConcurrentDictionary<SyntaxTree, Lazy<bool>> _crefOriginalDiagnostics = new();
+        private readonly ConcurrentDictionary<SyntaxTree, Lazy<bool>> _crefImportActivationDiagnostics = new();
         private readonly ConcurrentDictionary<SyntaxTree, Lazy<bool>> _crefSourcePolicies = new();
 
         internal StructuralTypeNameReducer(Compilation compilation)
@@ -46,7 +47,10 @@ namespace Microsoft.TypeSpec.Generator
             // Conditional documents additionally prove body/header eligibility and
             // reject generic local-function scope changes in every supported parse.
             // Only active original syntax is visited; disabled text is untouched.
-            if (root.ContainsDiagnostics || !_conditional.IsTypeOnlyDocument(root)) return null;
+            if (root.ContainsDiagnostics || !_conditional.IsTypeOnlyDocument(root))
+            {
+                return null;
+            }
             // Provenance is unique across roles, not just within a selected role.
             var uniqueSites = references.GroupBy(static site => site.Span).Where(static group => group.Count() == 1)
                 .Select(static group => group.Single()).ToArray();
@@ -62,21 +66,38 @@ namespace Microsoft.TypeSpec.Generator
         private Target? Resolve(CSharpType type)
         {
             for (var current = type; current != null; current = current.DeclaringType)
-                if (current != type && current.Arguments.Count != 0 || current.IsArray || current.IsFrameworkType && current.FrameworkType.IsGenericParameter) return null;
+            {
+                if (current != type && current.Arguments.Count != 0 || current.IsArray || current.IsFrameworkType && current.FrameworkType.IsGenericParameter)
+                {
+                    return null;
+                }
+            }
             // ClrMetadataName contains the declaring-type chain, not its namespace.
             // This is a canonical metadata lookup, never emitted-source rewriting.
             var metadata = type.Namespace.Length == 0 ? type.ClrMetadataName : type.Namespace + "." + type.ClrMetadataName;
             return _targets.GetOrAdd(metadata, name =>
             {
                 var symbol = _compilation.GetTypeByMetadataName(name);
-                if (symbol == null || symbol.TypeKind == TypeKind.Error) return null;
+                if (symbol == null || symbol.TypeKind == TypeKind.Error)
+                {
+                    return null;
+                }
+
                 var parts = new Stack<string>();
                 for (var current = symbol; current != null; current = current.ContainingType)
                 {
-                    if (current.Arity != 0 && !SymbolEqualityComparer.Default.Equals(current, symbol)) return null;
+                    if (current.Arity != 0 && !SymbolEqualityComparer.Default.Equals(current, symbol))
+                    {
+                        return null;
+                    }
+
                     parts.Push(current.Name);
                 }
-                for (var ns = symbol.ContainingNamespace; !ns.IsGlobalNamespace; ns = ns.ContainingNamespace) parts.Push(ns.Name);
+                for (var ns = symbol.ContainingNamespace; !ns.IsGlobalNamespace; ns = ns.ContainingNamespace)
+                {
+                    parts.Push(ns.Name);
+                }
+
                 return new Target(symbol, parts.ToArray());
             });
         }
@@ -130,10 +151,17 @@ namespace Microsoft.TypeSpec.Generator
 
             public override SyntaxNode? Visit(SyntaxNode? node)
             {
-                if (node == null) return null;
+                if (node == null)
+                {
+                    return null;
+                }
                 // Whole-cref proof owns this context. Never send unsupported or
                 // unrecorded member-cref children through ordinary code-name rules.
-                if (node is CrefSyntax cref) return TryReduceWholeTypeCref(cref) ?? cref;
+                if (node is CrefSyntax cref)
+                {
+                    return TryReduceWholeTypeCref(cref) ?? cref;
+                }
+
                 var previous = _scope;
                 var previousAttribute = _insideAttribute;
                 var previousSourceObservableExpression = _insideSourceObservableExpression;
@@ -143,26 +171,50 @@ namespace Microsoft.TypeSpec.Generator
                 var previousValueDepth = _thisValueContexts.Count;
                 var previousThisExcludedContext = _insideThisExcludedContext;
                 if (node is TypeDeclarationSyntax or BaseMethodDeclarationSyntax or LocalFunctionStatementSyntax or DelegateDeclarationSyntax or
-                    BaseListSyntax or TypeParameterConstraintClauseSyntax or ExplicitInterfaceSpecifierSyntax) _scope = node;
-                if (node is AttributeSyntax) _insideAttribute = true;
+                    BaseListSyntax or TypeParameterConstraintClauseSyntax or ExplicitInterfaceSpecifierSyntax)
+                {
+                    _scope = node;
+                }
+
+                if (node is AttributeSyntax)
+                {
+                    _insideAttribute = true;
+                }
+
                 if (node is ParameterSyntax or ConstructorInitializerSyntax ||
                     node is EqualsValueClauseSyntax initializer && (initializer.Parent is PropertyDeclarationSyntax ||
                         initializer.Parent?.Parent?.Parent is BaseFieldDeclarationSyntax) ||
                     node is BaseMethodDeclarationSyntax methodDeclaration && methodDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword) ||
                     node is LocalFunctionStatementSyntax localDeclaration && localDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword) ||
                     node is PropertyDeclarationSyntax propertyDeclaration && propertyDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword))
+                {
                     _insideThisExcludedContext = true;
+                }
+
                 if (node is BinaryExpressionSyntax or AssignmentExpressionSyntax or PrefixUnaryExpressionSyntax or PostfixUnaryExpressionSyntax or
                     CastExpressionSyntax or ConditionalExpressionSyntax or AwaitExpressionSyntax)
+                {
                     _thisValueContexts.Add((ExpressionSyntax)node);
+                }
+
                 if (node is ParameterSyntax or PatternSyntax or QueryExpressionSyntax or WhenClauseSyntax ||
                     node is ArgumentSyntax argumentContext && !argumentContext.RefKindKeyword.IsKind(SyntaxKind.None))
+                {
                     _insideParenthesesExcludedContext = true;
-                if (node is ArgumentListSyntax argumentList) _parenthesesArgumentLists.Add(argumentList);
+                }
+
+                if (node is ArgumentListSyntax argumentList)
+                {
+                    _parenthesesArgumentLists.Add(argumentList);
+                }
                 // Keep hidden-call/conditional contexts conservative. Ordinary call
                 // source is checked lazily once per ORIGINAL call, before name caches.
                 if (node is ConditionalAccessExpressionSyntax or ElementAccessExpressionSyntax or InitializerExpressionSyntax or
-                    InterpolatedStringExpressionSyntax or CollectionExpressionSyntax) _insideSourceObservableExpression = true;
+                    InterpolatedStringExpressionSyntax or CollectionExpressionSyntax)
+                {
+                    _insideSourceObservableExpression = true;
+                }
+
                 if (!_insideAttribute && !_insideSourceObservableExpression)
                 {
                     SyntaxNode? call = node as InvocationExpressionSyntax;
@@ -170,15 +222,24 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         call = argument.Parent is ArgumentListSyntax list && list.Parent is InvocationExpressionSyntax or
                             ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax or ConstructorInitializerSyntax ? list.Parent : null;
-                        if (call == null) _insideSourceObservableExpression = true;
+                        if (call == null)
+                        {
+                            _insideSourceObservableExpression = true;
+                        }
                     }
                     if (call != null)
                     {
                         // A receiver-local's type can vary across framework branches
                         // even when headers/type lookup remain invariant. Original-
                         // configuration call facts alone cannot prove that case.
-                        if (!_canProveCallSource) _insideSourceObservableExpression = true;
-                        else if (_calls.Count == 0 || !ReferenceEquals(_calls[^1], call)) _calls.Add(call);
+                        if (!_canProveCallSource)
+                        {
+                            _insideSourceObservableExpression = true;
+                        }
+                        else if (_calls.Count == 0 || !ReferenceEquals(_calls[^1], call))
+                        {
+                            _calls.Add(call);
+                        }
                     }
                 }
                 try
@@ -218,7 +279,10 @@ namespace Microsoft.TypeSpec.Generator
                             return TryReduce(name, site, visited)?.WithTriviaFrom(name) ?? visited;
                         }
                         var rewritten = TryReduce(name, site);
-                        if (rewritten != null) return rewritten.WithTriviaFrom(name);
+                        if (rewritten != null)
+                        {
+                            return rewritten.WithTriviaFrom(name);
+                        }
                     }
                     if (!_insideAttribute && _scope != null &&
                         node is NameSyntax or MemberAccessExpressionSyntax && node.Parent is MemberAccessExpressionSyntax member &&
@@ -245,10 +309,21 @@ namespace Microsoft.TypeSpec.Generator
                     _insideAttribute = previousAttribute;
                     _insideSourceObservableExpression = previousSourceObservableExpression;
                     _insideParenthesesExcludedContext = previousParenthesesExcludedContext;
-                    if (_calls.Count > previousCallDepth) _calls.RemoveRange(previousCallDepth, _calls.Count - previousCallDepth);
+                    if (_calls.Count > previousCallDepth)
+                    {
+                        _calls.RemoveRange(previousCallDepth, _calls.Count - previousCallDepth);
+                    }
+
                     if (_parenthesesArgumentLists.Count > previousArgumentDepth)
+                    {
                         _parenthesesArgumentLists.RemoveRange(previousArgumentDepth, _parenthesesArgumentLists.Count - previousArgumentDepth);
-                    if (_thisValueContexts.Count > previousValueDepth) _thisValueContexts.RemoveRange(previousValueDepth, _thisValueContexts.Count - previousValueDepth);
+                    }
+
+                    if (_thisValueContexts.Count > previousValueDepth)
+                    {
+                        _thisValueContexts.RemoveRange(previousValueDepth, _thisValueContexts.Count - previousValueDepth);
+                    }
+
                     _insideThisExcludedContext = previousThisExcludedContext;
                 }
             }
@@ -256,7 +331,10 @@ namespace Microsoft.TypeSpec.Generator
             public override SyntaxNode? VisitParenthesizedExpression(ParenthesizedExpressionSyntax node)
             {
                 if (_scope == null || _insideAttribute || _insideSourceObservableExpression || _insideParenthesesExcludedContext ||
-                    HasRelationalArgumentContext()) return base.VisitParenthesizedExpression(node);
+                    HasRelationalArgumentContext())
+                {
+                    return base.VisitParenthesizedExpression(node);
+                }
 
                 var chain = new List<ParenthesizedExpressionSyntax>();
                 ExpressionSyntax payload = node;
@@ -272,12 +350,17 @@ namespace Microsoft.TypeSpec.Generator
                 var supported = StructuralParenthesesRules.SupportsTrivia(node) && chain.All(static wrapper =>
                     !wrapper.OpenParenToken.IsMissing && !wrapper.CloseParenToken.IsMissing) &&
                     StructuralParenthesesRules.CanRemove(node, visited);
-                if (supported && !_canProveCallSource) supported = CanRemoveConditionalParentheses(node, visited);
+                if (supported && !_canProveCallSource)
+                {
+                    supported = CanRemoveConditionalParentheses(node, visited);
+                }
+
                 if (supported)
                 {
                     // New cast-payload admission requires visible ORIGINAL
                     // delimiters. Keep pre-existing non-cast policies unchanged.
                     foreach (var wrapper in chain)
+                    {
                         if (visited is CastExpressionSyntax &&
                             (_tree.GetLineVisibility(wrapper.OpenParenToken.SpanStart) != LineVisibility.Visible ||
                                 _tree.GetLineVisibility(wrapper.CloseParenToken.SpanStart) != LineVisibility.Visible) ||
@@ -286,6 +369,7 @@ namespace Microsoft.TypeSpec.Generator
                             supported = false;
                             break;
                         }
+                    }
                 }
                 if (supported)
                 {
@@ -298,7 +382,11 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralParentheses.Retained", TimeSpan.Zero, 0);
                 ExpressionSyntax retained = visited;
-                for (var index = chain.Count - 1; index >= 0; index--) retained = chain[index].WithExpression(retained);
+                for (var index = chain.Count - 1; index >= 0; index--)
+                {
+                    retained = chain[index].WithExpression(retained);
+                }
+
                 return retained;
             }
 
@@ -308,8 +396,16 @@ namespace Microsoft.TypeSpec.Generator
                 // bindings. Conditional call/static/this permissions remain opaque.
                 // CreateRewriter already required IsTypeOnlyDocument, including its
                 // generic-local-function veto; TryGetRoots alone is not that proof.
-                if (_conditionalParenthesesRoots == null && !_owner._conditional.TryGetRoots(_tree.GetRoot(), out _conditionalParenthesesRoots)) return false;
-                if (original.Parent == null) return false;
+                if (_conditionalParenthesesRoots == null && !_owner._conditional.TryGetRoots(_tree.GetRoot(), out _conditionalParenthesesRoots))
+                {
+                    return false;
+                }
+
+                if (original.Parent == null)
+                {
+                    return false;
+                }
+
                 var role = original.Parent.ChildNodes().TakeWhile(child => child != original).Count();
                 foreach (var root in _conditionalParenthesesRoots!)
                 {
@@ -317,7 +413,10 @@ namespace Microsoft.TypeSpec.Generator
                     if (root.FindNode(original.Span, getInnermostNodeForTie: true) is not ParenthesizedExpressionSyntax candidate ||
                         candidate.Span != original.Span || !SyntaxFactory.AreEquivalent(original, candidate) || candidate.Parent == null ||
                         candidate.Parent.RawKind != original.Parent.RawKind || candidate.Parent.Span != original.Parent.Span ||
-                        candidate.Parent.ChildNodes().TakeWhile(child => child != candidate).Count() != role) return false;
+                        candidate.Parent.ChildNodes().TakeWhile(child => child != candidate).Count() != role)
+                    {
+                        return false;
+                    }
                     // Empty original call frames are NOT evidence of source safety:
                     // conditional calls intentionally have no observer frames. Check
                     // every variant's entire ancestry, including outside the span.
@@ -325,22 +424,37 @@ namespace Microsoft.TypeSpec.Generator
                         ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax or ConstructorInitializerSyntax or
                         AttributeSyntax or ConditionalAccessExpressionSyntax or ElementAccessExpressionSyntax or InitializerExpressionSyntax or
                         InterpolatedStringExpressionSyntax or CollectionExpressionSyntax or ParameterSyntax or PatternSyntax or
-                        QueryExpressionSyntax or WhenClauseSyntax)) return false;
-                    if (!StructuralParenthesesRules.SupportsTrivia(candidate) || !StructuralParenthesesRules.CanRemove(candidate, payload)) return false;
+                        QueryExpressionSyntax or WhenClauseSyntax))
+                    {
+                        return false;
+                    }
+
+                    if (!StructuralParenthesesRules.SupportsTrivia(candidate) || !StructuralParenthesesRules.CanRemove(candidate, payload))
+                    {
+                        return false;
+                    }
+
                     var chain = new List<ParenthesizedExpressionSyntax>();
                     ExpressionSyntax current = candidate;
                     while (current is ParenthesizedExpressionSyntax wrapper)
                     {
                         if (wrapper.OpenParenToken.IsMissing || wrapper.CloseParenToken.IsMissing ||
                             root.SyntaxTree.GetLineVisibility(wrapper.OpenParenToken.SpanStart) != LineVisibility.Visible ||
-                            root.SyntaxTree.GetLineVisibility(wrapper.CloseParenToken.SpanStart) != LineVisibility.Visible) return false;
+                            root.SyntaxTree.GetLineVisibility(wrapper.CloseParenToken.SpanStart) != LineVisibility.Visible)
+                        {
+                            return false;
+                        }
+
                         chain.Add(wrapper);
                         current = wrapper.Expression;
                     }
                     // Use the variant's wrappers/neighbouring tokens, and the FINAL
                     // visited original payload. Only original-tree output is emitted.
                     var replacement = StructuralParenthesesRules.Remove(chain, payload);
-                    if (!StructuralParenthesesRules.KeepsTokenBoundaries(candidate, replacement)) return false;
+                    if (!StructuralParenthesesRules.KeepsTokenBoundaries(candidate, replacement))
+                    {
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -359,11 +473,23 @@ namespace Microsoft.TypeSpec.Generator
                     original.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault() is not { } method ||
                     method.Modifiers.Any(SyntaxKind.StaticKeyword) || ConditionalStaticReceiverRules.HasHardSourceContext(original) ||
                     visited.Expression.ToFullString() != original.Expression.ToFullString() ||
-                    !_sites.TryGetValue(ReferenceSpan(name), out var headSite)) return null;
-                if (!_canProveCallSource && !CanProveConditionalStaticReceiver(wrapper, member, headSite)) return null;
+                    !_sites.TryGetValue(ReferenceSpan(name), out var headSite))
+                {
+                    return null;
+                }
+
+                if (!_canProveCallSource && !CanProveConditionalStaticReceiver(wrapper, member, headSite))
+                {
+                    return null;
+                }
+
                 if (_tree.GetLineVisibility(headSite.Span.Start) != LineVisibility.Visible ||
                     _tree.GetLineVisibility(headSite.Span.End - 1) != LineVisibility.Visible ||
-                    !AllowsConditionalStaticSourceChange(original, headSite.Span)) return null;
+                    !AllowsConditionalStaticSourceChange(original, headSite.Span))
+                {
+                    return null;
+                }
+
                 _model ??= _owner._compilation.GetSemanticModel(_tree);
                 if (_model.GetTypeInfo(name).Type is not INamedTypeSymbol { TypeKind: TypeKind.Interface, Arity: 1, ContainingType: null } construction ||
                     construction.TypeArguments[0] is not INamedTypeSymbol { TypeKind: TypeKind.Class, Arity: 0, ContainingType: null } modelType ||
@@ -375,7 +501,10 @@ namespace Microsoft.TypeSpec.Generator
                     _model.GetSymbolInfo(invocation) is not { CandidateReason: CandidateReason.None, Symbol: IMethodSymbol callee } ||
                     callee.IsStatic || callee.MethodKind != MethodKind.Ordinary || callee.ReducedFrom != null ||
                     !SymbolEqualityComparer.IncludeNullability.Equals(callee.ContainingType, construction) ||
-                    !HasCastParameterImportWitness(method, construction.ContainingNamespace)) return null;
+                    !HasCastParameterImportWitness(method, construction.ContainingNamespace))
+                {
+                    return null;
+                }
 
                 NameSyntax selectedArgument = argument;
                 // The self-model name is found in its own containing type scope,
@@ -398,7 +527,11 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         if (plan.Render(argumentSource) is not IdentifierNameSyntax candidate ||
                             candidate.Identifier.ValueText != modelType.Name || ExpressionReceiverSyntaxFacts.ExposesContextualRoot(candidate) ||
-                            _model.GetSpeculativeAliasInfo(argument.SpanStart, SyntaxFactory.IdentifierName(candidate.Identifier), SpeculativeBindingOption.BindAsTypeOrNamespace) != null) return false;
+                            _model.GetSpeculativeAliasInfo(argument.SpanStart, SyntaxFactory.IdentifierName(candidate.Identifier), SpeculativeBindingOption.BindAsTypeOrNamespace) != null)
+                        {
+                            return false;
+                        }
+
                         selectedArgument = candidate.WithTriviaFrom(argument);
                         return true;
                     });
@@ -417,18 +550,38 @@ namespace Microsoft.TypeSpec.Generator
                     // Bare generic heads only; namespace/type aliases and broader
                     // cast operand/parent roles are not part of this certificate.
                     if (plan.Render(source) is not GenericNameSyntax candidate || candidate.Identifier.ValueText != construction.Name ||
-                        ExpressionReceiverSyntaxFacts.ExposesContextualRoot(candidate) || _tree.Options is not CSharpParseOptions options) return false;
+                        ExpressionReceiverSyntaxFacts.ExposesContextualRoot(candidate) || _tree.Options is not CSharpParseOptions options)
+                    {
+                        return false;
+                    }
+
                     var detached = SyntaxFactory.ParseTypeName(candidate.ToString(), options: options);
-                    if (detached.ContainsDiagnostics) return false;
+                    if (detached.ContainsDiagnostics)
+                    {
+                        return false;
+                    }
+
                     var rebound = _model.GetSpeculativeSymbolInfo(name.SpanStart, detached, SpeculativeBindingOption.BindAsTypeOrNamespace);
                     if (rebound.CandidateReason != CandidateReason.None || rebound.CandidateSymbols.Length != 0 ||
-                        !SymbolEqualityComparer.IncludeNullability.Equals(construction, rebound.Symbol)) return false;
+                        !SymbolEqualityComparer.IncludeNullability.Equals(construction, rebound.Symbol))
+                    {
+                        return false;
+                    }
+
                     var cast = visited.WithType(detached.WithTriviaFrom(visited.Type));
                     var parsedCast = SyntaxFactory.ParseExpression(cast.ToString(), options: options, consumeFullText: true);
-                    if (parsedCast.ContainsDiagnostics || parsedCast is not CastExpressionSyntax || !SyntaxFactory.AreEquivalent(cast, parsedCast)) return false;
+                    if (parsedCast.ContainsDiagnostics || parsedCast is not CastExpressionSyntax || !SyntaxFactory.AreEquivalent(cast, parsedCast))
+                    {
+                        return false;
+                    }
+
                     var receiver = member.WithExpression(wrapper.WithExpression(cast));
                     var parsedReceiver = SyntaxFactory.ParseExpression(receiver.ToString(), options: options, consumeFullText: true);
-                    if (parsedReceiver.ContainsDiagnostics || !SyntaxFactory.AreEquivalent(receiver, parsedReceiver)) return false;
+                    if (parsedReceiver.ContainsDiagnostics || !SyntaxFactory.AreEquivalent(receiver, parsedReceiver))
+                    {
+                        return false;
+                    }
+
                     replacement = cast;
                     return true;
                 });
@@ -447,16 +600,31 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     if (parameter.Type is not NameSyntax name ||
                         model.GetTypeInfo(name).Type is not INamedTypeSymbol { Arity: 0, ContainingType: null } type ||
-                        !SymbolEqualityComparer.Default.Equals(type.ContainingNamespace, targetNamespace)) continue;
-                    if (name is IdentifierNameSyntax bare && bare.Identifier.ValueText == type.Name && model.GetAliasInfo(bare) == null) return true;
+                        !SymbolEqualityComparer.Default.Equals(type.ContainingNamespace, targetNamespace))
+                    {
+                        continue;
+                    }
+
+                    if (name is IdentifierNameSyntax bare && bare.Identifier.ValueText == type.Name && model.GetAliasInfo(bare) == null)
+                    {
+                        return true;
+                    }
+
                     if (!_sites.TryGetValue(ReferenceSpan(name), out var site) || !IsTypeOnlyContext(name) ||
                         _owner.Resolve(site.Type) is not { } target || !SymbolEqualityComparer.IncludeNullability.Equals(type, target.Symbol) ||
-                        DescribeRecordedReference(name, target) is not { } source) continue;
+                        DescribeRecordedReference(name, target) is not { } source)
+                    {
+                        continue;
+                    }
+
                     var context = new StructuralTypeNameSelector.Context(_owner._compilation, model, name, type,
                         KnownDeclarationType: true, Source: source, ModeOverride: StructuralTypeNameSelector.Mode.Type);
                     var selected = StructuralTypeNameSelector.Choose(new[] { context });
                     if (selected.Plan?.Render(source) is IdentifierNameSyntax identifier && identifier.Identifier.ValueText == type.Name &&
-                        model.GetSpeculativeAliasInfo(name.SpanStart, SyntaxFactory.IdentifierName(identifier.Identifier), SpeculativeBindingOption.BindAsTypeOrNamespace) == null) return true;
+                        model.GetSpeculativeAliasInfo(name.SpanStart, SyntaxFactory.IdentifierName(identifier.Identifier), SpeculativeBindingOption.BindAsTypeOrNamespace) == null)
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -470,29 +638,48 @@ namespace Microsoft.TypeSpec.Generator
                     clause.Parent is not ParameterSyntax parameter || parameter.Default != clause ||
                     parameter.Parent is not ParameterListSyntax list || list.Parent is not
                         (MethodDeclarationSyntax or ConstructorDeclarationSyntax or DelegateDeclarationSyntax or LocalFunctionStatementSyntax) ||
-                    expression.ContainsDiagnostics || expression.ContainsDirectives) return null;
+                    expression.ContainsDiagnostics || expression.ContainsDirectives)
+                {
+                    return null;
+                }
+
                 var lines = _tree.GetLineSpan(expression.Span);
                 if (lines.StartLinePosition.Line != lines.EndLinePosition.Line || _tree.GetLineVisibility(expression.SpanStart) != LineVisibility.Visible ||
                     expression.DescendantTrivia().Any(trivia => trivia.Span.End > expression.SpanStart && trivia.SpanStart < expression.Span.End &&
                         !trivia.IsKind(SyntaxKind.WhitespaceTrivia) && !trivia.IsKind(SyntaxKind.EndOfLineTrivia)) ||
-                    !AllowsSourceChange(expression.Span)) return null;
+                    !AllowsSourceChange(expression.Span))
+                {
+                    return null;
+                }
+
                 _model ??= _owner._compilation.GetSemanticModel(_tree);
                 if (_model.GetDeclaredSymbol(parameter) is not IParameterSymbol symbol || !symbol.IsOptional || !symbol.HasExplicitDefaultValue ||
                     symbol.RefKind != RefKind.None || symbol.IsParams || symbol.IsThis || symbol.ContainingSymbol is not IMethodSymbol method ||
-                    method.MethodKind is not (MethodKind.Ordinary or MethodKind.Constructor or MethodKind.DelegateInvoke or MethodKind.LocalFunction)) return null;
+                    method.MethodKind is not (MethodKind.Ordinary or MethodKind.Constructor or MethodKind.DelegateInvoke or MethodKind.LocalFunction))
+                {
+                    return null;
+                }
+
                 var operand = _model.GetTypeInfo(expression.Type).Type;
                 // The declaration supplies the target type. This is Roslyn's
                 // exact-declared-type fast path, never its overload-sensitive fallback.
                 // Null metadata values are valid for some struct/generic defaults.
                 if (operand == null || !SymbolEqualityComparer.IncludeNullability.Equals(symbol.Type, operand) ||
-                    !_owner._optionalDefaultTypes.GetOrAdd(symbol.Type, SupportsOptionalDefaultType)) return null;
+                    !_owner._optionalDefaultTypes.GetOrAdd(symbol.Type, SupportsOptionalDefaultType))
+                {
+                    return null;
+                }
                 // Neither original diagnostic absence nor a reduction elsewhere
                 // proves a final surviving import use. Erase only import-independent
                 // type syntax, or prove this parameter's identical declaration is an
                 // unchanged witness. This also covers newly withheld handler uses.
                 var canEraseType = StructuralCrefImportRules.CanEraseTypeWithoutImportUse(expression.Type, _model) ||
                     HasSurvivingParameterTypeImportWitness(parameter, expression.Type);
-                if (canEraseType) GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralOptionalDefaults.Attempt", TimeSpan.Zero, 0);
+                if (canEraseType)
+                {
+                    GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralOptionalDefaults.Attempt", TimeSpan.Zero, 0);
+                }
+
                 var replacement = SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression,
                     SyntaxFactory.Token(SyntaxKind.DefaultKeyword)).WithTriviaFrom(expression);
                 static bool Separator(SyntaxTriviaList trivia) => trivia.Any(static item => item.FullSpan.Length != 0 &&
@@ -502,7 +689,11 @@ namespace Microsoft.TypeSpec.Generator
                 if (!Separator(previous.TrailingTrivia) && !Separator(replacement.GetLeadingTrivia()) &&
                     !ParenthesesSyntaxFacts.TokensStaySeparate(previous, replacement.GetFirstToken()) ||
                     !Separator(replacement.GetTrailingTrivia()) && !Separator(next.LeadingTrivia) &&
-                    !ParenthesesSyntaxFacts.TokensStaySeparate(replacement.GetLastToken(), next)) return null;
+                    !ParenthesesSyntaxFacts.TokensStaySeparate(replacement.GetLastToken(), next))
+                {
+                    return null;
+                }
+
                 if (!canEraseType)
                 {
                     // Every original C5 eligibility check passed. Only this new
@@ -518,7 +709,10 @@ namespace Microsoft.TypeSpec.Generator
             private bool HasSurvivingParameterTypeImportWitness(ParameterSyntax parameter, TypeSyntax erasedType)
             {
                 if (parameter.Type is not { } declaration || !SyntaxFactory.AreEquivalent(declaration, erasedType) ||
-                    declaration.ToString() != erasedType.ToString()) return false;
+                    declaration.ToString() != erasedType.ToString())
+                {
+                    return false;
+                }
                 // The exact declared/operand symbols and annotations were already
                 // checked. In this parameter context only recorded code-name sites
                 // can rewrite declaration type tokens; do not assume the original
@@ -532,7 +726,11 @@ namespace Microsoft.TypeSpec.Generator
                 var seen = new HashSet<ITypeSymbol>(SymbolEqualityComparer.IncludeNullability);
                 bool VisitType(ITypeSymbol current)
                 {
-                    if (!seen.Add(current)) return true;
+                    if (!seen.Add(current))
+                    {
+                        return true;
+                    }
+
                     return current switch
                     {
                         IErrorTypeSymbol or IDynamicTypeSymbol or IPointerTypeSymbol or IFunctionPointerTypeSymbol => false,
@@ -550,31 +748,80 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var name = attribute.Name;
                 if (!_canProveCallSource || _scope == null || _insideSourceObservableExpression || attribute.ContainsDiagnostics || attribute.ContainsDirectives ||
-                    !_sites.TryGetValue(name.Span, out var site) || site.Type.IsArray || site.Type.IsNullable) return null;
+                    !_sites.TryGetValue(name.Span, out var site) || site.Type.IsArray || site.Type.IsNullable)
+                {
+                    return null;
+                }
+
                 var lines = _tree.GetLineSpan(name.Span);
                 if (lines.StartLinePosition.Line != lines.EndLinePosition.Line || _tree.GetLineVisibility(name.SpanStart) != LineVisibility.Visible ||
-                    !AllowsSourceChange(name.Span)) return null;
+                    !AllowsSourceChange(name.Span))
+                {
+                    return null;
+                }
+
                 var target = _owner.Resolve(site.Type);
-                if (target == null) return null;
-                for (var type = target.Symbol; type != null; type = type.ContainingType) if (type.Arity != 0) return null;
+                if (target == null)
+                {
+                    return null;
+                }
+
+                for (var type = target.Symbol; type != null; type = type.ContainingType)
+                {
+                    if (type.Arity != 0)
+                    {
+                        return null;
+                    }
+                }
+
                 if (!_owner._attributeEligibility.GetOrAdd(target.Symbol, type =>
                 {
-                    if (type.TypeKind != TypeKind.Class || type.IsAbstract || !HasUsableTypeGraph(type)) return false;
+                    if (type.TypeKind != TypeKind.Class || type.IsAbstract || !HasUsableTypeGraph(type))
+                    {
+                        return false;
+                    }
+
                     var baseType = _owner._compilation.GetTypeByMetadataName("System.Attribute");
-                    if (baseType == null) return false;
+                    if (baseType == null)
+                    {
+                        return false;
+                    }
+
                     for (var current = type.BaseType; current != null; current = current.BaseType)
-                        if (SymbolEqualityComparer.Default.Equals(current, baseType)) return true;
+                    {
+                        if (SymbolEqualityComparer.Default.Equals(current, baseType))
+                        {
+                            return true;
+                        }
+                    }
+
                     return false;
-                })) return null;
+                }))
+                {
+                    return null;
+                }
+
                 var source = DescribeRecordedReference(name, target);
-                if (source == null || source.Parts.Any(static part => part is not IdentifierNameSyntax)) return null;
+                if (source == null || source.Parts.Any(static part => part is not IdentifierNameSyntax))
+                {
+                    return null;
+                }
+
                 _model ??= _owner._compilation.GetSemanticModel(_tree);
                 var original = _model.GetSymbolInfo(attribute);
                 if (original.CandidateReason != CandidateReason.None || original.CandidateSymbols.Length != 0 ||
                     original.Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor, IsStatic: false } constructor ||
-                    !SymbolEqualityComparer.IncludeNullability.Equals(constructor.ContainingType, target.Symbol)) return null;
+                    !SymbolEqualityComparer.IncludeNullability.Equals(constructor.ContainingType, target.Symbol))
+                {
+                    return null;
+                }
+
                 var operation = _model.GetOperation(attribute);
-                if (!StructuralAttributeRules.SameContract(operation, operation)) return null;
+                if (!StructuralAttributeRules.SameContract(operation, operation))
+                {
+                    return null;
+                }
+
                 GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralAttributes.Attempt", TimeSpan.Zero, 0);
                 AttributeSyntax? replacement = null;
                 var facts = new StructuralTypeNameSelector.LookupFacts(_model, name.SpanStart);
@@ -584,15 +831,31 @@ namespace Microsoft.TypeSpec.Generator
                 StructuralTypeNameSelector.Choose(new[] { context }, plan =>
                 {
                     var qualified = plan.Render(source);
-                    if (qualified == null) return false;
+                    if (qualified == null)
+                    {
+                        return false;
+                    }
+
                     bool Accept(NameSyntax candidateName)
                     {
-                        if (candidateName.ToString() == name.ToString()) return false;
+                        if (candidateName.ToString() == name.ToString())
+                        {
+                            return false;
+                        }
+
                         var parsedName = StructuralAttributeRules.RoundTripName(candidateName, (CSharpParseOptions)_tree.Options);
-                        if (parsedName == null) return false;
+                        if (parsedName == null)
+                        {
+                            return false;
+                        }
+
                         var candidate = SyntaxFactory.Attribute(parsedName.WithTriviaFrom(name), attribute.ArgumentList).WithTriviaFrom(attribute);
                         GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralAttributes.SpeculativeCheck", TimeSpan.Zero, 0);
-                        if (!_model.TryGetSpeculativeSemanticModel(attribute.SpanStart, candidate, out var speculative) || speculative == null) return false;
+                        if (!_model.TryGetSpeculativeSemanticModel(attribute.SpanStart, candidate, out var speculative) || speculative == null)
+                        {
+                            return false;
+                        }
+
                         var rebound = speculative.GetSymbolInfo(candidate);
                         if (rebound.CandidateReason != CandidateReason.None || rebound.CandidateSymbols.Length != 0 ||
                             !SymbolEqualityComparer.IncludeNullability.Equals(constructor, rebound.Symbol) ||
@@ -607,7 +870,11 @@ namespace Microsoft.TypeSpec.Generator
                     var abbreviated = StructuralAttributeRules.WithoutSuffix(qualified);
                     return abbreviated != null && Accept(abbreviated) || Accept(qualified);
                 });
-                if (replacement != null) GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralAttributes.Accepted", TimeSpan.Zero, 0);
+                if (replacement != null)
+                {
+                    GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralAttributes.Accepted", TimeSpan.Zero, 0);
+                }
+
                 return replacement;
             }
 
@@ -616,21 +883,43 @@ namespace Microsoft.TypeSpec.Generator
                 if (!_canProveCallSource || _scope == null || _insideAttribute || _insideSourceObservableExpression ||
                     !_crefSites.TryGetValue(cref.Span, out var site) || site.Type.IsArray || site.Type.IsNullable ||
                     cref is not QualifiedCrefSyntax { Member: NameMemberCrefSyntax { Name: IdentifierNameSyntax, Parameters: null } } ||
-                    cref.ContainsDiagnostics || cref.ContainsDirectives) return null;
+                    cref.ContainsDiagnostics || cref.ContainsDirectives)
+                {
+                    return null;
+                }
+
                 GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralCrefs.Attempt", TimeSpan.Zero, 0);
                 var target = _owner.Resolve(site.Type);
-                if (target == null) return null;
-                for (var type = target.Symbol; type != null; type = type.ContainingType) if (type.Arity != 0) return null;
+                if (target == null)
+                {
+                    return null;
+                }
+
+                for (var type = target.Symbol; type != null; type = type.ContainingType)
+                {
+                    if (type.Arity != 0)
+                    {
+                        return null;
+                    }
+                }
+
                 var source = DescribeRecordedReference(cref, target);
                 var lines = _tree.GetLineSpan(cref.Span);
                 if (source == null || source.Parts.Any(static part => part is not IdentifierNameSyntax) ||
                     lines.StartLinePosition.Line != lines.EndLinePosition.Line || _tree.GetLineVisibility(cref.SpanStart) != LineVisibility.Visible ||
-                    !AllowsSourceChange(cref.Span)) return null;
+                    !AllowsSourceChange(cref.Span))
+                {
+                    return null;
+                }
+
                 _model ??= _owner._compilation.GetSemanticModel(_tree);
                 var original = _model.GetSymbolInfo(cref);
                 if (original.CandidateReason != CandidateReason.None || original.CandidateSymbols.Length != 0 ||
                     original.Symbol is not INamedTypeSymbol construction || !HasUsableTypeGraph(construction) ||
-                    !SymbolEqualityComparer.IncludeNullability.Equals(construction, target.Symbol)) return null;
+                    !SymbolEqualityComparer.IncludeNullability.Equals(construction, target.Symbol))
+                {
+                    return null;
+                }
                 // A shorter cref can consume a previously unused import while
                 // preserving its symbol and emitted XML. Use original complete-tree
                 // facts, shared once per tree, before selecting any new spelling.
@@ -638,7 +927,12 @@ namespace Microsoft.TypeSpec.Generator
                 // A top-level type directly in the attachment's immediate
                 // namespace is found before namespace imports. This alternate
                 // permission applies ONLY to its bare-name plan below.
-                if (!importCertificate && !HasImmediateNamespaceCrefCertificate(cref, construction)) return null;
+                if (!importCertificate && !HasImmediateNamespaceCrefCertificate(cref, construction) &&
+                    !HasCrefImportActivationCertificate(cref, construction))
+                {
+                    return null;
+                }
+
                 CrefSyntax? replacement = null;
                 var facts = new StructuralTypeNameSelector.LookupFacts(_model, cref.SpanStart);
                 var context = new StructuralTypeNameSelector.Context(_owner._compilation, _model, cref, construction,
@@ -647,14 +941,25 @@ namespace Microsoft.TypeSpec.Generator
                 StructuralTypeNameSelector.Choose(new[] { context }, plan =>
                 {
                     var name = plan.RenderCrefName(source);
-                    if (name == null || name.ToString() == cref.ToString()) return false;
+                    if (name == null || name.ToString() == cref.ToString())
+                    {
+                        return false;
+                    }
+
                     if (!importCertificate && (name is not IdentifierNameSyntax identifier ||
-                        identifier.Identifier.ValueText != construction.Name)) return false;
+                        identifier.Identifier.ValueText != construction.Name))
+                    {
+                        return false;
+                    }
                     // Parse only this prospective XML spelling. A forced TypeCref
                     // AST can select a type even when serialized bare T reparses as
                     // a NameMemberCref and resolves a same-named method instead.
                     var candidate = ParseWholeCref(name);
-                    if (candidate == null) return false;
+                    if (candidate == null)
+                    {
+                        return false;
+                    }
+
                     GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralCrefs.SpeculativeCheck", TimeSpan.Zero, 0);
                     var rebound = _model.GetSpeculativeSymbolInfo(cref.SpanStart, candidate, SpeculativeBindingOption.BindAsTypeOrNamespace);
                     if (rebound.CandidateReason != CandidateReason.None || rebound.CandidateSymbols.Length != 0 ||
@@ -666,8 +971,43 @@ namespace Microsoft.TypeSpec.Generator
                     replacement = candidate.WithTriviaFrom(cref);
                     return true;
                 });
-                if (replacement != null) GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralCrefs.Accepted", TimeSpan.Zero, 0);
+                if (replacement != null)
+                {
+                    GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralCrefs.Accepted", TimeSpan.Zero, 0);
+                }
+
                 return replacement;
+            }
+
+            private bool HasCrefImportActivationCertificate(CrefSyntax cref, INamedTypeSymbol target)
+            {
+                // Bare top-level, nongeneric types can activate only their actual
+                // namespace import. No alias/static/global import, generic argument,
+                // partial namespace plan or unrelated diagnostic is admitted here.
+                if (target.ContainingType != null || target.Arity != 0 || target.ContainingNamespace.IsGlobalNamespace ||
+                    !_owner._crefImportEnvironment.Value ||
+                    !_owner._crefImportActivationDiagnostics.GetOrAdd(_tree,
+                        tree => new Lazy<bool>(() => StructuralCrefImportRules.SupportsHiddenImportActivation(
+                            _owner._compilation, _owner._crefDiagnosticCompilation.Value.GetSemanticModel(tree)))).Value)
+                {
+                    return false;
+                }
+
+                var trivia = cref.Ancestors().OfType<StructuredTriviaSyntax>().FirstOrDefault();
+                var token = trivia?.ParentTrivia.Token ?? default;
+                var owner = token.Parent?.AncestorsAndSelf().OfType<MemberDeclarationSyntax>()
+                    .FirstOrDefault(member => member.GetFirstToken().SpanStart == token.SpanStart);
+                if (owner == null || _tree.GetRoot() is not CompilationUnitSyntax root)
+                {
+                    return false;
+                }
+
+                var imports = root.Usings.Concat(owner.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().SelectMany(ns => ns.Usings));
+                // Imports bind to the compilation's merged namespace, whereas a
+                // metadata type can belong to one constituent assembly namespace.
+                var targetNamespace = _owner._compilation.GetCompilationNamespace(target.ContainingNamespace);
+                return targetNamespace != null && imports.Any(import => import.Name != null &&
+                    SymbolEqualityComparer.Default.Equals(_model.GetSymbolInfo(import.Name).Symbol, targetNamespace));
             }
 
             private bool HasImmediateNamespaceCrefCertificate(CrefSyntax cref, INamedTypeSymbol target)
@@ -675,18 +1015,37 @@ namespace Microsoft.TypeSpec.Generator
                 if (target.ContainingType != null || !_owner._crefImportEnvironment.Value ||
                     !_owner._crefSourcePolicies.GetOrAdd(_tree,
                         tree => new Lazy<bool>(() => StructuralCrefImportRules.SupportsOriginalTreeSourcePolicy(tree))).Value)
+                {
                     return false;
+                }
+
                 var documentation = cref.Ancestors().OfType<DocumentationCommentTriviaSyntax>().FirstOrDefault();
-                if (documentation == null) return false;
+                if (documentation == null)
+                {
+                    return false;
+                }
+
                 var token = documentation.ParentTrivia.Token;
-                if (!token.LeadingTrivia.Contains(documentation.ParentTrivia)) return false;
+                if (!token.LeadingTrivia.Contains(documentation.ParentTrivia))
+                {
+                    return false;
+                }
+
                 var declaration = token.Parent?.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().FirstOrDefault();
                 // In particular, documentation attached to a namespace is not
                 // documentation inside that namespace. Keep uncertain owners out.
                 if (declaration is not TypeDeclarationSyntax and not BaseMethodDeclarationSyntax and
-                    not BasePropertyDeclarationSyntax and not BaseFieldDeclarationSyntax) return false;
+                    not BasePropertyDeclarationSyntax and not BaseFieldDeclarationSyntax)
+                {
+                    return false;
+                }
+
                 var declared = _model!.GetDeclaredSymbol(declaration);
-                if (declared == null) return false;
+                if (declared == null)
+                {
+                    return false;
+                }
+
                 var namespaceDeclaration = declaration.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault();
                 var immediateNamespace = namespaceDeclaration == null ? _owner._compilation.GlobalNamespace :
                     _model.GetDeclaredSymbol(namespaceDeclaration);
@@ -704,9 +1063,16 @@ namespace Microsoft.TypeSpec.Generator
                 var spelling = name.ToString();
                 var options = ((CSharpParseOptions)_tree.Options).WithDocumentationMode(DocumentationMode.Diagnose);
                 var parsed = SyntaxFactory.ParseCompilationUnit("/// <see cref=\"" + spelling + "\"/>\nclass __CrefProof__ {}", options: options);
-                if (parsed.ContainsDiagnostics) return null;
+                if (parsed.ContainsDiagnostics)
+                {
+                    return null;
+                }
+
                 var attributes = parsed.DescendantNodes(descendIntoTrivia: true).OfType<XmlCrefAttributeSyntax>().ToArray();
-                if (attributes.Length != 1 || attributes[0].Cref.ToString() != spelling) return null;
+                if (attributes.Length != 1 || attributes[0].Cref.ToString() != spelling)
+                {
+                    return null;
+                }
                 // Reconstruct the COMPLETE root to detach it from synthetic XML;
                 // token spelling and the actual parser-selected shape are retained.
                 return attributes[0].Cref switch
@@ -731,7 +1097,10 @@ namespace Microsoft.TypeSpec.Generator
                         _relationalArguments.Add(list, relational);
                         GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralParentheses.ArgumentListScan", TimeSpan.Zero, 0);
                     }
-                    if (relational) return true;
+                    if (relational)
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -751,9 +1120,17 @@ namespace Microsoft.TypeSpec.Generator
             private NameSyntax? TryReduce(NameSyntax node, TypeReferenceSite site, NameSyntax? visited = null)
             {
                 var target = _owner.Resolve(site.Type);
-                if (target == null) return null;
+                if (target == null)
+                {
+                    return null;
+                }
+
                 var source = DescribeRecordedReference(node, target);
-                if (source == null || !AllowsSourceChange(site.Span)) return null;
+                if (source == null || !AllowsSourceChange(site.Span))
+                {
+                    return null;
+                }
+
                 if (!_regions.TryGetValue(_scope!, out var region))
                 {
                     _model ??= _owner._compilation.GetSemanticModel(_tree);
@@ -768,7 +1145,11 @@ namespace Microsoft.TypeSpec.Generator
                     // type parameters and nullability; metadata arguments are not
                     // reconstructed or substituted into the emitted syntax.
                     if (_model!.GetSymbolInfo(node).Symbol is not INamedTypeSymbol construction || !HasUsableTypeGraph(construction) ||
-                        !SymbolEqualityComparer.Default.Equals(construction.OriginalDefinition, target.Symbol)) return null;
+                        !SymbolEqualityComparer.Default.Equals(construction.OriginalDefinition, target.Symbol))
+                    {
+                        return null;
+                    }
+
                     var parts = (SimpleNameSyntax[])source.Parts.Clone();
                     parts[^1] = ((GenericNameSyntax)parts[^1]).WithTypeArgumentList(((GenericNameSyntax)Terminal(visited!)).TypeArgumentList);
                     source = source with { Parts = parts };
@@ -801,7 +1182,9 @@ namespace Microsoft.TypeSpec.Generator
                     var selection = StructuralTypeNameSelector.Evaluate(new[] { context });
                     if (selection.Reason == StructuralTypeNameSelector.Retention.None && selection.Name is NameSyntax selected &&
                         !SyntaxFactory.AreEquivalent(node, selected, static _ => false))
+                    {
                         replacement = selected.WithoutLeadingTrivia().WithoutTrailingTrivia();
+                    }
                 }
                 region.Decisions.Add(target.Symbol, replacement);
                 GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralTypeNames.Decision", TimeSpan.Zero, 0);
@@ -815,12 +1198,19 @@ namespace Microsoft.TypeSpec.Generator
                 var source = StructuralTypeNameSelector.Describe(node, preserveBoundaryComments: true);
                 if (source.Diagnostics || source.Directives || source.SignificantTrivia || source.Root?.Parent is not AliasQualifiedNameSyntax alias ||
                     alias.Alias != source.Root || source.Root.Identifier.Text != SyntaxFacts.GetText(SyntaxKind.GlobalKeyword) ||
-                    source.Parts.Length != target.Parts.Length) return null;
+                    source.Parts.Length != target.Parts.Length)
+                {
+                    return null;
+                }
+
                 for (var index = 0; index < source.Parts.Length; index++)
                 {
                     var part = source.Parts[index];
                     var arity = part is GenericNameSyntax generic ? generic.TypeArgumentList.Arguments.Count : 0;
-                    if (part.Identifier.ValueText != target.Parts[index] || arity != (index == source.Parts.Length - 1 ? target.Symbol.Arity : 0)) return null;
+                    if (part.Identifier.ValueText != target.Parts[index] || arity != (index == source.Parts.Length - 1 ? target.Symbol.Arity : 0))
+                    {
+                        return null;
+                    }
                 }
                 return source;
             }
@@ -830,31 +1220,110 @@ namespace Microsoft.TypeSpec.Generator
                 // CreateRewriter has already enforced compilation-wide headers,
                 // type-only document admission and the generic-local-function veto.
                 // This certificate adds value/call invariance, not other permissions.
-                if (_canProveCallSource || ConditionalStaticReceiverRules.HasHardSourceContext(receiver)) return false;
+                if (_canProveCallSource || ConditionalStaticReceiverRules.HasHardSourceContext(receiver))
+                {
+                    return false;
+                }
+
                 var unit = ConditionalStaticReceiverRules.OuterExecutableUnit(receiver);
-                if (unit == null || !_owner._conditional.TryGetRoots(_tree.GetRoot(), out var roots)) return false;
+                if (unit == null || !_owner._conditional.TryGetRoots(_tree.GetRoot(), out var roots))
+                {
+                    return false;
+                }
+
                 if (!_conditionalStaticUnits.TryGetValue(unit, out var invariant))
                 {
                     invariant = roots.All(root => ConditionalStaticReceiverRules.SameUnit(unit,
                         root.FindNode(unit.Span, getInnermostNodeForTie: true)));
                     _conditionalStaticUnits.Add(unit, invariant);
                 }
-                if (!invariant) return false;
+                if (!invariant && !CanProveOptionalStatementScope(receiver, member, site, unit, roots))
+                {
+                    return ConditionalStaticReceiverRules.CanProveBranchLocalMethod(receiver, member, unit, roots, site.Span);
+                }
                 // Never cache occurrence acceptance or infer it from a previous
                 // visible/bindable receiver of the same type in this unit.
                 return roots.All(root => ConditionalStaticReceiverRules.SameOccurrence(receiver, member, root, site.Span));
             }
 
+            private bool CanProveOptionalStatementScope(ExpressionSyntax receiver, MemberAccessExpressionSyntax member,
+                TypeReferenceSite site, BaseMethodDeclarationSyntax unit, SyntaxNode[] roots)
+            {
+                // A bounded source-defined Optional.IsDefined case, not a general
+                // relaxation for methods whose active conditional bodies vary.
+                if (unit is not MethodDeclarationSyntax method || member.Name.Identifier.ValueText != "IsDefined" ||
+                    member.Parent is not InvocationExpressionSyntax invocation || invocation.Expression != member ||
+                    invocation.ArgumentList.Arguments.Count != 1 ||
+                    _owner.Resolve(site.Type) is not { Symbol: { Name: "Optional", Arity: 0, IsStatic: true, TypeKind: TypeKind.Class } target } ||
+                    target.DeclaringSyntaxReferences.Length == 0)
+                {
+                    return false;
+                }
+
+                _model ??= _owner._compilation.GetSemanticModel(_tree);
+                if (_model.GetDeclaredSymbol(method) is not IMethodSymbol declared)
+                {
+                    return false;
+                }
+
+                var scope = declared.ContainingNamespace;
+                while (scope != null && !SymbolEqualityComparer.Default.Equals(scope, target.ContainingNamespace))
+                {
+                    scope = scope.ContainingNamespace;
+                }
+
+                if (scope == null)
+                {
+                    return false; // No imported foreign namespace permission.
+                }
+
+                if (!SymbolEqualityComparer.Default.Equals(declared.ContainingNamespace, target.ContainingNamespace))
+                {
+                    // A nearer namespace import can supply the SAME ancestor type
+                    // while losing Hidden CS8019. Preserve import independence;
+                    // direct membership wins before imports at the target namespace.
+                    foreach (var declaration in receiver.Ancestors().OfType<BaseNamespaceDeclarationSyntax>())
+                    {
+                        var namespaceSymbol = _model.GetDeclaredSymbol(declaration);
+                        if (namespaceSymbol == null)
+                        {
+                            return false;
+                        }
+
+                        if (SymbolEqualityComparer.Default.Equals(namespaceSymbol, target.ContainingNamespace))
+                        {
+                            break;
+                        }
+
+                        if (declaration.Usings.Count != 0 || declaration.Externs.Count != 0)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return roots.All(root => StructuralOptionalReceiverRules.SameStatementScope(method,
+                    root.FindNode(unit.Span, getInnermostNodeForTie: true), receiver));
+            }
+
             private bool AllowsConditionalStaticSourceChange(SyntaxNode receiver, TextSpan prefix)
             {
                 var lines = _tree.GetLineSpan(prefix);
-                if (lines.StartLinePosition.Line != lines.EndLinePosition.Line) return false;
+                if (lines.StartLinePosition.Line != lines.EndLinePosition.Line)
+                {
+                    return false;
+                }
                 // The invariant OUTER unit and global header proof make original
                 // call maps reusable. Walk past lambdas/local functions to every
                 // original ancestor frame; an empty conditional _calls is not proof.
                 foreach (var call in receiver.Ancestors().Where(static ancestor => ancestor is InvocationExpressionSyntax or
                     ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax or ConstructorInitializerSyntax))
-                    if (HasSourceObservationConflict(call, prefix)) return false;
+                {
+                    if (HasSourceObservationConflict(call, prefix))
+                    {
+                        return false;
+                    }
+                }
+
                 return true;
             }
 
@@ -881,7 +1350,11 @@ namespace Microsoft.TypeSpec.Generator
                     GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralStaticReceivers.MetadataRejected", TimeSpan.Zero, 0);
                     return null;
                 }
-                if (lines.StartLinePosition.Line != lines.EndLinePosition.Line) return null;
+                if (lines.StartLinePosition.Line != lines.EndLinePosition.Line)
+                {
+                    return null;
+                }
+
                 var source = DescribeRecordedReference(receiver, target);
                 if (source == null || !(conditionalSource ? AllowsConditionalStaticSourceChange(receiver, site.Span) : AllowsSourceChange(site.Span)))
                 {
@@ -899,16 +1372,30 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 var accessed = _model.GetSymbolInfo(member);
                 if (accessed.CandidateReason != CandidateReason.None || accessed.CandidateSymbols.Length != 0 ||
-                    accessed.Symbol is not (IMethodSymbol or IFieldSymbol or IPropertySymbol or IEventSymbol) || !accessed.Symbol.IsStatic) return null;
-                if (accessed.Symbol is IMethodSymbol method && method.MethodKind != MethodKind.Ordinary) return null;
+                    accessed.Symbol is not (IMethodSymbol or IFieldSymbol or IPropertySymbol or IEventSymbol) || !accessed.Symbol.IsStatic)
+                {
+                    return null;
+                }
+
+                if (accessed.Symbol is IMethodSymbol method && method.MethodKind != MethodKind.Ordinary)
+                {
+                    return null;
+                }
+
                 if (member.Parent is InvocationExpressionSyntax invocation && invocation.Expression == member)
                 {
                     var called = _model.GetSymbolInfo(invocation);
                     if (called.CandidateReason != CandidateReason.None || called.CandidateSymbols.Length != 0 ||
                         called.Symbol is not IMethodSymbol { IsStatic: true, MethodKind: MethodKind.Ordinary } callee ||
-                        !SymbolEqualityComparer.IncludeNullability.Equals(callee, accessed.Symbol)) return null;
+                        !SymbolEqualityComparer.IncludeNullability.Equals(callee, accessed.Symbol))
+                    {
+                        return null;
+                    }
                 }
-                if (ExpressionReceiverSyntaxFacts.MayExposeCastParse(receiver)) return null;
+                if (ExpressionReceiverSyntaxFacts.MayExposeCastParse(receiver))
+                {
+                    return null;
+                }
 
                 // Expression lookup is position-sensitive even within one method.
                 // Share requests across candidate attempts at THIS occurrence, never
@@ -944,29 +1431,58 @@ namespace Microsoft.TypeSpec.Generator
             private IdentifierNameSyntax? TryReduceThisMember(MemberAccessExpressionSyntax member, IdentifierNameSyntax name)
             {
                 GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralThisReceivers.Attempt", TimeSpan.Zero, 0);
-                if (name.Identifier.IsMissing || name.Identifier.ValueText == "Object" || member.ContainsDiagnostics || member.ContainsDirectives) return null;
+                if (name.Identifier.IsMissing || name.Identifier.ValueText == "Object" || member.ContainsDiagnostics || member.ContainsDirectives)
+                {
+                    return null;
+                }
                 // Parentheses do not change which data member is the invocation
                 // target. Keep this deliberately excluded family uniformly, even
                 // when enough wrappers would make the serialized spelling safe.
                 SyntaxNode invocationTarget = member;
-                while (invocationTarget.Parent is ParenthesizedExpressionSyntax wrapper) invocationTarget = wrapper;
-                if (invocationTarget.Parent is InvocationExpressionSyntax invocation && invocation.Expression == invocationTarget) return null;
+                while (invocationTarget.Parent is ParenthesizedExpressionSyntax wrapper)
+                {
+                    invocationTarget = wrapper;
+                }
+
+                if (invocationTarget.Parent is InvocationExpressionSyntax invocation && invocation.Expression == invocationTarget)
+                {
+                    return null;
+                }
                 // Keep removed-token ownership deliberately tight. Boundary comments
                 // are restored from the complete original access; internal trivia is
                 // not discarded or moved from this/dot onto an unrelated identifier.
                 if (member.Expression.GetTrailingTrivia().Count != 0 || member.OperatorToken.LeadingTrivia.Count != 0 ||
-                    member.OperatorToken.TrailingTrivia.Count != 0 || member.Name.GetLeadingTrivia().Count != 0) return null;
+                    member.OperatorToken.TrailingTrivia.Count != 0 || member.Name.GetLeadingTrivia().Count != 0)
+                {
+                    return null;
+                }
+
                 var prefix = TextSpan.FromBounds(member.SpanStart, member.Name.SpanStart);
                 var lines = _tree.GetLineSpan(prefix);
                 if (lines.StartLinePosition.Line != lines.EndLinePosition.Line || _tree.GetLineVisibility(member.SpanStart) != LineVisibility.Visible ||
-                    !AllowsSourceChange(prefix)) return null;
-                if (ExpressionReceiverSyntaxFacts.ExposesContextualRoot(name) || ExpressionReceiverSyntaxFacts.MayExposeCastParse(member)) return null;
+                    !AllowsSourceChange(prefix))
+                {
+                    return null;
+                }
+
+                if (ExpressionReceiverSyntaxFacts.ExposesContextualRoot(name) || ExpressionReceiverSyntaxFacts.MayExposeCastParse(member))
+                {
+                    return null;
+                }
+
                 _model ??= _owner._compilation.GetSemanticModel(_tree);
                 var original = _model.GetSymbolInfo(member);
                 if (original.CandidateReason != CandidateReason.None || original.CandidateSymbols.Length != 0 || original.Symbol == null ||
-                    !_owner._thisMemberEligibility.GetOrAdd(original.Symbol, IsSupportedThisMember) || HasPrimaryConstructorShadowRisk(original.Symbol)) return null;
+                    !_owner._thisMemberEligibility.GetOrAdd(original.Symbol, IsSupportedThisMember) || HasPrimaryConstructorShadowRisk(original.Symbol))
+                {
+                    return null;
+                }
+
                 var memberType = _model.GetTypeInfo(member);
-                if (UnsafeThisType(memberType.Type) || UnsafeThisType(memberType.ConvertedType) || HasDynamicThisContext()) return null;
+                if (UnsafeThisType(memberType.Type) || UnsafeThisType(memberType.ConvertedType) || HasDynamicThisContext())
+                {
+                    return null;
+                }
                 // Never pass the attached original member.Name: Roslyn promotes
                 // that node to this.Member via GetStandaloneExpression. Speculate
                 // the actual detached replacement, otherwise shadows look unchanged.
@@ -980,7 +1496,11 @@ namespace Microsoft.TypeSpec.Generator
                     return null;
                 }
                 if (!ParenthesesSyntaxFacts.TokensStaySeparate(member.GetFirstToken().GetPreviousToken(), replacement.GetFirstToken()) &&
-                    !HasRealThisSeparator(member.GetFirstToken().GetPreviousToken().TrailingTrivia) && !HasRealThisSeparator(replacement.GetLeadingTrivia())) return null;
+                    !HasRealThisSeparator(member.GetFirstToken().GetPreviousToken().TrailingTrivia) && !HasRealThisSeparator(replacement.GetLeadingTrivia()))
+                {
+                    return null;
+                }
+
                 GeneratedCodeWorkspace.PostProcessingProfile?.Add("StructuralThisReceivers.Accepted", TimeSpan.Zero, 0);
                 return replacement;
             }
@@ -991,14 +1511,25 @@ namespace Microsoft.TypeSpec.Generator
                 // inherited member can newly emit CS9179. Speculation discards that
                 // warning (and warnings-as-errors builds would reject the output).
                 var declaration = _scope!.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().FirstOrDefault();
-                if (declaration == null) return true;
+                if (declaration == null)
+                {
+                    return true;
+                }
+
                 if (!_thisContainingTypes.TryGetValue(declaration, out var containingType))
                 {
                     containingType = _model!.GetDeclaredSymbol(declaration) as INamedTypeSymbol;
                     _thisContainingTypes.Add(declaration, containingType);
                 }
-                if (containingType == null) return true;
-                if (SymbolEqualityComparer.Default.Equals(containingType.OriginalDefinition, member.ContainingType!.OriginalDefinition)) return false;
+                if (containingType == null)
+                {
+                    return true;
+                }
+
+                if (SymbolEqualityComparer.Default.Equals(containingType.OriginalDefinition, member.ContainingType!.OriginalDefinition))
+                {
+                    return false;
+                }
                 // Only declaration metadata is shared; source scope, the selected
                 // original member and the binding decision remain occurrence-owned.
                 var parameters = _owner._primaryConstructorParameters.GetOrAdd(containingType.OriginalDefinition, static type =>
@@ -1015,7 +1546,11 @@ namespace Microsoft.TypeSpec.Generator
 
             private static bool IsSupportedThisMember(ISymbol member)
             {
-                if (member.IsStatic || member.ContainingType == null || !HasUsableTypeGraph(member.ContainingType)) return false;
+                if (member.IsStatic || member.ContainingType == null || !HasUsableTypeGraph(member.ContainingType))
+                {
+                    return false;
+                }
+
                 var type = member switch
                 {
                     IFieldSymbol { IsFixedSizeBuffer: false } field => field.Type,
@@ -1049,20 +1584,36 @@ namespace Microsoft.TypeSpec.Generator
                         });
                         _dynamicThisContexts.Add(context, dynamic);
                     }
-                    if (dynamic) return true;
+                    if (dynamic)
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }
 
             private bool AllowsSourceChange(TextSpan prefix)
             {
-                if (_calls.Count == 0) return true;
+                if (_calls.Count == 0)
+                {
+                    return true;
+                }
                 // A newly admitted edit must not shift implicit CallerLineNumber
                 // values, including values in later calls outside this expression.
                 var lines = _tree.GetLineSpan(prefix);
-                if (lines.StartLinePosition.Line != lines.EndLinePosition.Line) return false;
+                if (lines.StartLinePosition.Line != lines.EndLinePosition.Line)
+                {
+                    return false;
+                }
+
                 foreach (var call in _calls)
-                    if (HasSourceObservationConflict(call, prefix)) return false;
+                {
+                    if (HasSourceObservationConflict(call, prefix))
+                    {
+                        return false;
+                    }
+                }
+
                 return true;
             }
 
@@ -1087,15 +1638,24 @@ namespace Microsoft.TypeSpec.Generator
                 // _callFacts shares the result, never occurrence acceptance.
                 if (syntaxArguments != null && syntaxArguments.Arguments.Any(static argument =>
                     argument.DescendantNodesAndSelf().Any(static node => node is InterpolatedStringExpressionSyntax)))
+                {
                     return SourceObservation.Retain;
+                }
+
                 _model ??= _owner._compilation.GetSemanticModel(_tree);
                 var binding = _model.GetSymbolInfo(call);
                 if (binding.CandidateReason != CandidateReason.None || binding.Symbol is not IMethodSymbol method ||
-                    method.MethodKind is not (MethodKind.Ordinary or MethodKind.ReducedExtension or MethodKind.Constructor or MethodKind.DelegateInvoke)) return SourceObservation.Retain;
+                    method.MethodKind is not (MethodKind.Ordinary or MethodKind.ReducedExtension or MethodKind.Constructor or MethodKind.DelegateInvoke))
+                {
+                    return SourceObservation.Retain;
+                }
+
                 var definition = (method.ReducedFrom ?? method).OriginalDefinition;
                 if (!_owner._capturesCallerSource.GetOrAdd(definition, static target =>
                     target.Parameters.Any(static parameter => parameter.GetAttributes().Any(IsCallerExpression))))
+                {
                     return SourceObservation.Unobserved;
+                }
 
                 // Metadata proves the common no-capture case without building an
                 // operation tree. CAE-bearing calls need the actual parameter map.
@@ -1106,26 +1666,48 @@ namespace Microsoft.TypeSpec.Generator
                     IObjectCreationOperation creation => creation.Arguments.ToArray(),
                     _ => null
                 };
-                if (arguments == null) return SourceObservation.Retain;
+                if (arguments == null)
+                {
+                    return SourceObservation.Retain;
+                }
+
                 var captured = new List<TextSpan>();
                 foreach (var supplied in arguments)
                 {
                     // Extension receivers can be implicit EXPLICIT arguments.
                     // Only DefaultValue denotes an omitted capture-text argument.
-                    if (supplied.ArgumentKind != ArgumentKind.DefaultValue || supplied.Parameter == null) continue;
+                    if (supplied.ArgumentKind != ArgumentKind.DefaultValue || supplied.Parameter == null)
+                    {
+                        continue;
+                    }
+
                     foreach (var attribute in supplied.Parameter.GetAttributes().Where(IsCallerExpression))
                     {
                         if (attribute.ConstructorArguments.Length != 1 || attribute.ConstructorArguments[0].Value is not string name)
+                        {
                             return SourceObservation.Retain;
+                        }
+
                         var sources = arguments.Where(argument => argument.Parameter?.Name == name).ToArray();
-                        if (sources.Length == 0) return SourceObservation.Retain;
+                        if (sources.Length == 0)
+                        {
+                            return SourceObservation.Retain;
+                        }
+
                         foreach (var source in sources)
                         {
-                            if (source.ArgumentKind != ArgumentKind.Explicit) return SourceObservation.Retain;
+                            if (source.ArgumentKind != ArgumentKind.Explicit)
+                            {
+                                return SourceObservation.Retain;
+                            }
                             // Classic reduced extensions expose the original static
                             // signature: their 'this' source is argument.Value.Syntax.
                             var syntax = source.Parameter?.IsThis == true ? source.Value.Syntax : source.Syntax;
-                            if (syntax.SyntaxTree != _tree) return SourceObservation.Retain;
+                            if (syntax.SyntaxTree != _tree)
+                            {
+                                return SourceObservation.Retain;
+                            }
+
                             captured.Add(syntax.Span);
                         }
                     }
@@ -1138,7 +1720,11 @@ namespace Microsoft.TypeSpec.Generator
                 var visited = new HashSet<ITypeSymbol>(SymbolEqualityComparer.IncludeNullability);
                 bool VisitType(ITypeSymbol current)
                 {
-                    if (!visited.Add(current)) return true;
+                    if (!visited.Add(current))
+                    {
+                        return true;
+                    }
+
                     return current switch
                     {
                         IErrorTypeSymbol => false,
@@ -1180,8 +1766,15 @@ namespace Microsoft.TypeSpec.Generator
                 // more than type lookup (parse/source/configuration proofs).
                 if (type.Parent is CastExpressionSyntax { Expression: not ParenthesizedExpressionSyntax } or TypePatternSyntax or
                     CrefSyntax or CrefParameterSyntax or IncompleteMemberSyntax or RefValueExpressionSyntax or FromClauseSyntax or JoinClauseSyntax ||
-                    type.Parent?.IsKind(SyntaxKind.IsExpression) == true) return false;
-                if (type.Parent is QualifiedNameSyntax qualifiedParent && qualifiedParent.Left == type) return false;
+                    type.Parent?.IsKind(SyntaxKind.IsExpression) == true)
+                {
+                    return false;
+                }
+
+                if (type.Parent is QualifiedNameSyntax qualifiedParent && qualifiedParent.Left == type)
+                {
+                    return false;
+                }
                 // Classify the original named node, not its complete wrapper:
                 // GetStandaloneExpression promotes array/stackalloc wrappers to
                 // their value expression. Outer normalization above is for policy.

@@ -14,7 +14,11 @@ namespace Microsoft.TypeSpec.Generator
     {
         internal static bool TokensStaySeparate(SyntaxToken left, SyntaxToken right)
         {
-            if (left.RawKind == 0 || right.RawKind == 0) return true;
+            if (left.RawKind == 0 || right.RawKind == 0)
+            {
+                return true;
+            }
+
             var parsed = SyntaxFactory.ParseTokens(left.Text + right.Text).Where(static t => !t.IsKind(SyntaxKind.EndOfFileToken)).ToArray();
             return parsed.Length == 2 && parsed[0].RawKind == left.RawKind && parsed[0].Text == left.Text &&
                 parsed[1].RawKind == right.RawKind && parsed[1].Text == right.Text;

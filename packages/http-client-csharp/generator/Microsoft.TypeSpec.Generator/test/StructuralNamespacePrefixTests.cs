@@ -169,7 +169,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 2 => sites[1] with { Role = TypeReferenceRole.WholeTypeCref },
                 _ => sites[1]
             };
-            if (kind == 3) sites.Add(sites[1]);
+            if (kind == 3)
+            {
+                sites.Add(sites[1]);
+            }
+
             var output = await Reduce(new CodeFile(source, "Clock.cs", sites));
             StringAssert.Contains("List<int> First", output);
             StringAssert.DoesNotContain("global::System.Collections.Generic.List<int> First", output);
@@ -255,7 +259,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 writer.WriteRawLine("namespace Sample { public class Clock<T> {");
                 writer.WriteLine($"public {list} Value => default;");
                 writer.WriteRawLine("public object M() {\n#if NET8_0_OR_GREATER");
-                if (genericLocalFunction) writer.WriteRawLine("void Local<U>() {} ");
+                if (genericLocalFunction)
+                {
+                    writer.WriteRawLine("void Local<U>() {} ");
+                }
+
                 writer.WriteLine($"{list} inactive = default;");
                 writer.WriteRawLine("#else\nint boundary = 0;");
                 writer.WriteLine($"{list} active = default;");
@@ -264,7 +272,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 writer.WriteRawLine("} } }");
             });
             var output = await Reduce(code);
-            if (genericLocalFunction) StringAssert.Contains("global::System.Collections.Generic.List<T> Value", output);
+            if (genericLocalFunction)
+            {
+                StringAssert.Contains("global::System.Collections.Generic.List<T> Value", output);
+            }
             else
             {
                 StringAssert.DoesNotContain("global::System.Collections.Generic.List<T> Value", output);
@@ -276,7 +287,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 .Where(static trivia => trivia.IsKind(SyntaxKind.DisabledTextTrivia)).Select(static trivia => trivia.ToFullString()).ToArray();
             Assert.That(Disabled(output), Is.EqualTo(Disabled(code.Content)));
             foreach (var options in new[] { new CSharpParseOptions(), new CSharpParseOptions().WithPreprocessorSymbols("NET8_0_OR_GREATER"), new CSharpParseOptions().WithPreprocessorSymbols("NET6_0_OR_GREATER", "NET8_0_OR_GREATER", "NET9_0_OR_GREATER") })
+            {
                 AssertOperationBindings(code.Content, output, options);
+            }
         }
 
         private static TypeReferenceSite[] PrefixSites(string source, CSharpType type) => CSharpSyntaxTree.ParseText(source).GetRoot().DescendantNodes()

@@ -52,11 +52,19 @@ namespace Microsoft.TypeSpec.Generator
                     _ => throw new InvalidOperationException("Unsupported expression name")
                 };
                 var name = Render(source);
-                if (name == null) return null;
+                if (name == null)
+                {
+                    return null;
+                }
+
                 var expression = AsExpression(name);
                 // Constructed IdentifierName binding does not prove serialized
                 // contextual-token parsing. Share the same gate with this removal.
-                if (ExpressionReceiverSyntaxFacts.ExposesContextualRoot(expression)) return null;
+                if (ExpressionReceiverSyntaxFacts.ExposesContextualRoot(expression))
+                {
+                    return null;
+                }
+
                 return expression;
             }
             private readonly Segment[] _segments;
@@ -86,7 +94,11 @@ namespace Microsoft.TypeSpec.Generator
                     var sourceIndex = source.Parts.Length - _typeCount + segment.TypeIndex;
                     var arguments = segment.TypeIndex >= 0 && sourceIndex >= 0 && sourceIndex < source.Parts.Length &&
                         source.Parts[sourceIndex] is GenericNameSyntax generic ? generic.TypeArgumentList : null;
-                    if (index >= _form.Start && segment.Arity > 0 && arguments?.Arguments.Count != segment.Arity) return null;
+                    if (index >= _form.Start && segment.Arity > 0 && arguments?.Arguments.Count != segment.Arity)
+                    {
+                        return null;
+                    }
+
                     parts[index] = new Part(segment.Name, segment.TypeIndex, arguments, segment.Arity);
                 }
                 return StructuralTypeNameSelector.Render(parts, _form, source, _typeCount, crefSyntax);
@@ -114,27 +126,46 @@ namespace Microsoft.TypeSpec.Generator
                 Input = input; Target = target;
                 Facts = input.SharedFacts ?? new LookupFacts(input.Model, input.Reference!.SpanStart);
                 var types = new Stack<INamedTypeSymbol>();
-                for (var type = target; type != null; type = type.ContainingType) types.Push(type);
+                for (var type = target; type != null; type = type.ContainingType)
+                {
+                    types.Push(type);
+                }
+
                 Types = types.ToArray();
                 LookupMode = input.ModeOverride ?? (input.Reference is CrefSyntax ? Mode.Cref : Mode.Type);
                 if (input.ModeOverride == null && !input.KnownDeclarationType)
-                foreach (var ancestor in input.Reference!.Ancestors())
+                {
+                    foreach (var ancestor in input.Reference!.Ancestors())
                 {
                     if (ancestor is CastExpressionSyntax cast && cast.Type.Span.Contains(input.Reference.Span) && cast.Expression is not ParenthesizedExpressionSyntax)
-                        UnsupportedCast = true;
-                    if (LookupMode != Mode.Nameof && ancestor is InvocationExpressionSyntax invocation && input.Model.GetOperation(invocation) is INameOfOperation)
+                        {
+                            UnsupportedCast = true;
+                        }
+
+                        if (LookupMode != Mode.Nameof && ancestor is InvocationExpressionSyntax invocation && input.Model.GetOperation(invocation) is INameOfOperation)
                     {
                         LookupMode = Mode.Nameof;
                         WholeNameofOperand = invocation.ArgumentList.Arguments.Single().Expression == input.Reference;
                     }
-                    if (ancestor is MemberDeclarationSyntax) break;
+                    if (ancestor is MemberDeclarationSyntax)
+                        {
+                            break;
+                        }
+                    }
                 }
+
                 if (input.ModeOverride == null && !input.KnownDeclarationType && LookupMode == Mode.Type && input.Reference!.Parent is MemberAccessExpressionSyntax member && member.Expression == input.Reference)
+                {
                     LookupMode = Mode.Expression;
+                }
+
                 Source = input.Source ?? Describe(input.Reference!);
                 SourceNames = Source.Parts;
                 TerminalSpelling = SourceNames.LastOrDefault()?.Identifier.ValueText ?? target.Name;
-                if (!input.KnownDeclarationType && Source.Root != null) PreferredAlias = input.Model.GetAliasInfo(Source.Root)?.Name;
+                if (!input.KnownDeclarationType && Source.Root != null)
+                {
+                    PreferredAlias = input.Model.GetAliasInfo(Source.Root)?.Name;
+                }
             }
 
             internal ISymbol[] Scope(string name, bool expressions) => Facts.Scope(name, expressions);
@@ -188,8 +219,15 @@ namespace Microsoft.TypeSpec.Generator
                 // visibility/precedence/target is resolved in this lookup region.
                 var names = _aliasNames.GetValue(_model.Compilation, static compilation => new Lazy<string[]>(() => CollectAliasNames(compilation))).Value;
                 foreach (var name in names)
-                foreach (var symbol in Scope(name, false))
-                    if (symbol is IAliasSymbol alias) yield return alias;
+                {
+                    foreach (var symbol in Scope(name, false))
+                    {
+                        if (symbol is IAliasSymbol alias)
+                        {
+                            yield return alias;
+                        }
+                    }
+                }
             }
         }
 
@@ -203,33 +241,54 @@ namespace Microsoft.TypeSpec.Generator
 
         private static Selection EvaluateCore(IReadOnlyList<Context> configurations, bool chooseOnly, Func<NamePlan, bool>? acceptPlan = null)
         {
-            if (configurations.Count == 0) throw new ArgumentException("At least one scope view is required", nameof(configurations));
+            if (configurations.Count == 0)
+            {
+                throw new ArgumentException("At least one scope view is required", nameof(configurations));
+            }
+
             var original = configurations[0].Reference ?? throw new ArgumentException("Missing original reference");
             var views = new List<View>();
             foreach (var configuration in configurations)
             {
                 var target = configuration.Target;
                 if (configuration.Reference == null || target == null || original is PredefinedTypeSyntax || target.IsUnboundGenericType)
+                {
                     return new Selection(original, 0, 0, 0, Retention.UnsupportedInput);
+                }
+
                 views.Add(new View(configuration, target));
             }
             var shape = views[0].Types;
             if (views.Any(v => v.Types.Length != shape.Length || v.Types.Where((type, index) =>
                 type.Name != shape[index].Name || type.Arity != shape[index].Arity).Any()))
+            {
                 return Finish(original, views, 0, Retention.ConfigurationShape);
+            }
             // Preserve uncertain trivia and cast forms. Context is captured once,
             // not rediscovered for each candidate. Existing wrappers are untouched.
             if (views.Any(static v => v.Source.Diagnostics || v.Source.Directives || v.Source.SignificantTrivia))
+            {
                 return Finish(original, views, 0, Retention.Trivia);
+            }
+
             if (views.Any(static v => v.UnsupportedCast))
+            {
                 return Finish(original, views, 0, Retention.CastShape);
+            }
+
             if (views.Any(static v => v.LookupMode == Mode.Cref && v.Types.Any(static t => t.Arity > 0)))
+            {
                 return Finish(original, views, 0, Retention.GenericCref);
+            }
 
             var first = views[0];
             var sourceNames = first.SourceNames;
             var namespaces = new Stack<INamespaceSymbol>();
-            for (var ns = first.Target.ContainingNamespace; !ns.IsGlobalNamespace; ns = ns.ContainingNamespace) namespaces.Push(ns);
+            for (var ns = first.Target.ContainingNamespace; !ns.IsGlobalNamespace; ns = ns.ContainingNamespace)
+            {
+                namespaces.Push(ns);
+            }
+
             var parts = namespaces.Select(static ns => new Part(ns.Name, -1, null, 0)).ToList();
             for (var index = 0; index < first.Types.Length; index++)
             {
@@ -238,15 +297,27 @@ namespace Microsoft.TypeSpec.Generator
                 parts.Add(new Part(first.Types[index].Name, index, arguments, first.Types[index].Arity));
             }
             var forms = new List<Form>();
-            for (var start = 0; start < parts.Count; start++) forms.Add(new Form(RootKind.Ordinary, start, null, false, parts.Count - start));
+            for (var start = 0; start < parts.Count; start++)
+            {
+                forms.Add(new Form(RootKind.Ordinary, start, null, false, parts.Count - start));
+            }
+
             forms.Add(new Form(RootKind.Global, 0, null, false, parts.Count + 1));
             foreach (var alias in first.Aliases())
             {
                 var namespaceAlias = alias.Target is INamespaceSymbol;
-                if (alias.Target is not INamespaceOrTypeSymbol) continue;
+                if (alias.Target is not INamespaceOrTypeSymbol)
+                {
+                    continue;
+                }
+
                 for (var start = 0; start <= parts.Count; start++)
                 {
-                    if (namespaceAlias && start == parts.Count) continue;
+                    if (namespaceAlias && start == parts.Count)
+                    {
+                        continue;
+                    }
+
                     forms.Add(new Form(RootKind.Alias, start, alias.Name, namespaceAlias, parts.Count - start + 1, alias.Name == first.PreferredAlias));
                 }
             }
@@ -254,18 +325,37 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var form in forms.OrderBy(static f => f.Cost).ThenBy(static f => f.PreferredAlias ? 0 : 1)
                 .ThenBy(static f => f.Root).ThenBy(static f => f.Alias, StringComparer.Ordinal).ThenBy(static f => f.Start))
             {
-                if (parts.Skip(form.Start).Any(static p => p.Arity > 0 && p.Arguments?.Arguments.Count != p.Arity)) continue;
+                if (parts.Skip(form.Start).Any(static p => p.Arity > 0 && p.Arguments?.Arguments.Count != p.Arity))
+                {
+                    continue;
+                }
                 // Prefix-only integration must not replace the terminal and drop
                 // its opaque argument list via a closed-type alias.
-                if (form.Start == parts.Count && views.Any(static view => view.Input.PreserveTerminalArguments)) continue;
+                if (form.Start == parts.Count && views.Any(static view => view.Input.PreserveTerminalArguments))
+                {
+                    continue;
+                }
+
                 if (views.Any(view => view.LookupMode == Mode.Nameof && view.WholeNameofOperand &&
-                    (form.Start == parts.Count ? form.Alias : parts[^1].Name) != view.TerminalSpelling)) continue;
+                    (form.Start == parts.Count ? form.Alias : parts[^1].Name) != view.TerminalSpelling))
+                {
+                    continue;
+                }
+
                 attempts++;
                 if (views.All(view => Resolves(view, parts, form)))
                 {
-                    if (!chooseOnly) return Finish(Render(parts, form), views, attempts);
+                    if (!chooseOnly)
+                    {
+                        return Finish(Render(parts, form), views, attempts);
+                    }
+
                     var plan = new NamePlan(parts, form, first.Types.Length);
-                    if (acceptPlan != null && !acceptPlan(plan)) continue;
+                    if (acceptPlan != null && !acceptPlan(plan))
+                    {
+                        continue;
+                    }
+
                     return Finish(original, views, attempts, plan: plan);
                 }
             }
@@ -281,14 +371,24 @@ namespace Microsoft.TypeSpec.Generator
             var expression = view.LookupMode is Mode.Expression or Mode.Nameof;
             var start = form.Start;
             List<INamespaceOrTypeSymbol> current;
-            if (form.Root == RootKind.Global) current = new() { view.Input.Compilation.GlobalNamespace };
+            if (form.Root == RootKind.Global)
+            {
+                current = new() { view.Input.Compilation.GlobalNamespace };
+            }
             else if (form.Root == RootKind.Alias)
             {
                 var bindings = view.Scope(form.Alias!, form.NamespaceAlias ? false : expression);
-                if (bindings.Any(static s => s is not INamespaceOrTypeSymbol && s is not IAliasSymbol)) return false;
+                if (bindings.Any(static s => s is not INamespaceOrTypeSymbol && s is not IAliasSymbol))
+                {
+                    return false;
+                }
+
                 current = bindings.OfType<IAliasSymbol>().Where(a => a.Name == form.Alias && (a.Target is INamespaceSymbol) == form.NamespaceAlias)
                     .Select(static a => a.Target).OfType<INamespaceOrTypeSymbol>().ToList();
-                if (current.Count == 0) return false;
+                if (current.Count == 0)
+                {
+                    return false;
+                }
             }
             else
             {
@@ -296,7 +396,11 @@ namespace Microsoft.TypeSpec.Generator
                 start++;
             }
             current = current.Distinct<INamespaceOrTypeSymbol>(SymbolEqualityComparer.IncludeNullability).ToList();
-            if (current.Count != 1) return false;
+            if (current.Count != 1)
+            {
+                return false;
+            }
+
             for (; start < parts.Count; start++)
             {
                 var part = parts[start];
@@ -304,7 +408,10 @@ namespace Microsoft.TypeSpec.Generator
                     .Distinct<INamespaceOrTypeSymbol>(SymbolEqualityComparer.IncludeNullability).ToList();
                 // Ambiguity is a failure at this lookup stage. Later suffixes
                 // cannot discard one ambiguous owner and make the path legal.
-                if (current.Count != 1) return false;
+                if (current.Count != 1)
+                {
+                    return false;
+                }
             }
             return SymbolEqualityComparer.IncludeNullability.Equals(current[0], view.Target);
         }
@@ -316,13 +423,20 @@ namespace Microsoft.TypeSpec.Generator
             // method body. Lazy publication ensures one collection per compilation.
             foreach (var tree in compilation.SyntaxTrees)
             {
-                if (tree.GetRoot() is not CompilationUnitSyntax root) continue;
+                if (tree.GetRoot() is not CompilationUnitSyntax root)
+                {
+                    continue;
+                }
+
                 Add(root.Usings);
                 var pending = new Stack<BaseNamespaceDeclarationSyntax>(root.Members.OfType<BaseNamespaceDeclarationSyntax>());
                 while (pending.TryPop(out var ns))
                 {
                     Add(ns.Usings);
-                    foreach (var nested in ns.Members.OfType<BaseNamespaceDeclarationSyntax>()) pending.Push(nested);
+                    foreach (var nested in ns.Members.OfType<BaseNamespaceDeclarationSyntax>())
+                    {
+                        pending.Push(nested);
+                    }
                 }
             }
             return names.Order(StringComparer.Ordinal).ToArray();
@@ -330,7 +444,12 @@ namespace Microsoft.TypeSpec.Generator
             void Add(IEnumerable<UsingDirectiveSyntax> directives)
             {
                 foreach (var directive in directives)
-                    if (directive.Alias != null) names.Add(directive.Alias.Name.Identifier.ValueText);
+                {
+                    if (directive.Alias != null)
+                    {
+                        names.Add(directive.Alias.Name.Identifier.ValueText);
+                    }
+                }
             }
         }
 
@@ -343,14 +462,24 @@ namespace Microsoft.TypeSpec.Generator
                 var alias = symbol is IAliasSymbol;
                 if (symbol is IAliasSymbol aliased)
                 {
-                    if (part.Arity != 0) continue;
+                    if (part.Arity != 0)
+                    {
+                        continue;
+                    }
+
                     symbol = aliased.Target;
                 }
-                if (symbol is INamespaceSymbol ns && part.Arity == 0) result.Add(ns);
+                if (symbol is INamespaceSymbol ns && part.Arity == 0)
+                {
+                    result.Add(ns);
+                }
                 else if (symbol is INamedTypeSymbol named && (alias || named.Arity == part.Arity))
                 {
                     if (!alias && named.Arity > 0 && part.TypeIndex >= 0)
+                    {
                         named = named.ConstructedFrom.Construct(view.Types[part.TypeIndex].TypeArguments.ToArray());
+                    }
+
                     result.Add(named);
                 }
                 else if (symbol is ITypeParameterSymbol && part.Arity == 0)
@@ -360,7 +489,9 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 else if (symbol is not INamespaceOrTypeSymbol && !alias &&
                     (part.Arity == 0 || symbol is IMethodSymbol method && method.Arity == part.Arity))
+                {
                     return new List<INamespaceOrTypeSymbol>();
+                }
             }
             return result;
         }
@@ -370,7 +501,10 @@ namespace Microsoft.TypeSpec.Generator
             SimpleNameSyntax PartName(Part part)
             {
                 if (source != null && part.TypeIndex >= 0)
+                {
                     return source.Parts[source.Parts.Length - typeCount + part.TypeIndex];
+                }
+
                 return part.Arity == 0 ? SyntaxFactory.IdentifierName(Identifier(part.Name))
                     : SyntaxFactory.GenericName(Identifier(part.Name), part.Arguments!);
             }
@@ -379,14 +513,28 @@ namespace Microsoft.TypeSpec.Generator
             if (form.Root == RootKind.Alias)
             {
                 var alias = SyntaxFactory.IdentifierName(Identifier(form.Alias!));
-                if (start == parts.Count) return alias;
+                if (start == parts.Count)
+                {
+                    return alias;
+                }
+
                 name = form.NamespaceAlias && !crefSyntax ? SyntaxFactory.AliasQualifiedName(alias, PartName(parts[start++]))
                     : SyntaxFactory.QualifiedName(alias, PartName(parts[start++]));
             }
             else if (form.Root == RootKind.Global)
+            {
                 name = SyntaxFactory.AliasQualifiedName(SyntaxFactory.IdentifierName(SyntaxFactory.Token(SyntaxKind.GlobalKeyword)), PartName(parts[start++]));
-            else name = PartName(parts[start++]);
-            for (; start < parts.Count; start++) name = SyntaxFactory.QualifiedName(name, PartName(parts[start]));
+            }
+            else
+            {
+                name = PartName(parts[start++]);
+            }
+
+            for (; start < parts.Count; start++)
+            {
+                name = SyntaxFactory.QualifiedName(name, PartName(parts[start]));
+            }
+
             return name;
         }
 
@@ -407,10 +555,18 @@ namespace Microsoft.TypeSpec.Generator
             var significant = false;
             foreach (var trivia in reference.DescendantTrivia())
             {
-                if (trivia.IsKind(SyntaxKind.WhitespaceTrivia) || trivia.IsKind(SyntaxKind.EndOfLineTrivia)) continue;
+                if (trivia.IsKind(SyntaxKind.WhitespaceTrivia) || trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                {
+                    continue;
+                }
+
                 if (preserveBoundaryComments && (trivia.Span.End <= reference.SpanStart || trivia.SpanStart >= reference.Span.End) &&
                     trivia.Kind() is SyntaxKind.SingleLineCommentTrivia or SyntaxKind.MultiLineCommentTrivia or
-                        SyntaxKind.SingleLineDocumentationCommentTrivia or SyntaxKind.MultiLineDocumentationCommentTrivia) continue;
+                        SyntaxKind.SingleLineDocumentationCommentTrivia or SyntaxKind.MultiLineDocumentationCommentTrivia)
+                {
+                    continue;
+                }
+
                 significant = true;
                 break;
             }
@@ -422,13 +578,21 @@ namespace Microsoft.TypeSpec.Generator
             switch (node)
             {
                 case SimpleNameSyntax simple:
-                    if (parts.Count == 0) rootName = simple as IdentifierNameSyntax;
+                    if (parts.Count == 0)
+                    {
+                        rootName = simple as IdentifierNameSyntax;
+                    }
+
                     parts.Add(simple); break;
                 case QualifiedNameSyntax qualified:
                     CollectSourceParts(qualified.Left, parts, ref rootName);
                     parts.Add(qualified.Right); break;
                 case AliasQualifiedNameSyntax alias:
-                    if (parts.Count == 0) rootName = alias.Alias;
+                    if (parts.Count == 0)
+                    {
+                        rootName = alias.Alias;
+                    }
+
                     parts.Add(alias.Name); break;
                 case MemberAccessExpressionSyntax member:
                     CollectSourceParts(member.Expression, parts, ref rootName);

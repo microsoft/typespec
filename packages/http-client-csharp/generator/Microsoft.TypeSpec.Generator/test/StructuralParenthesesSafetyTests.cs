@@ -127,15 +127,30 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("headerProof")]
         public async Task StructuralParenthesesEmptyMetadataRetainsConfigurationAndCustomGates(string mode)
         {
-            if (mode == "disabled") MockHelpers.LoadMockGenerator(outputPath: _directory,
+            if (mode == "disabled")
+            {
+                MockHelpers.LoadMockGenerator(outputPath: _directory,
                 configuration: "{\"package-name\":\"Sample\",\"disable-xml-docs\":true,\"disable-roslyn-reduce\":true}");
-            if (mode == "custom") CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
+            if (mode == "custom")
+            {
+                CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
             var conditional = mode == "conditional" ? "int N() {\n#if NET8_0_OR_GREATER\nreturn 8;\n#else\nreturn 0;\n#endif\n}" : "";
             var source = "class Clock { public bool M(int x, int y) => ((x == y)); " + conditional + " }";
             var extra = mode == "headerProof" ? "#if NET8_0_OR_GREATER\nclass Variant<T> {}\n#else\nclass Variant {}\n#endif" : null;
             var output = await Reduce(new CodeFile(source, "Clock.cs"), extra);
-            if (mode == "conditional") StringAssert.Contains("=> x == y", output);
-            else StringAssert.Contains("=> ((x == y))", output);
+            if (mode == "conditional")
+            {
+                StringAssert.Contains("=> x == y", output);
+            }
+            else
+            {
+                StringAssert.Contains("=> ((x == y))", output);
+            }
+
             AssertParenthesesOperations(source, output);
         }
 

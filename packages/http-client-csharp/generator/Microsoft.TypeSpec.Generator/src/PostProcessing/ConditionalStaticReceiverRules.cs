@@ -19,18 +19,30 @@ namespace Microsoft.TypeSpec.Generator
                 if (ancestor is AttributeSyntax or ConditionalAccessExpressionSyntax or ElementAccessExpressionSyntax or
                     InitializerExpressionSyntax or InterpolatedStringExpressionSyntax or CollectionExpressionSyntax or
                     QueryExpressionSyntax or PatternSyntax or WhenClauseSyntax or RefExpressionSyntax or AwaitExpressionSyntax)
+                {
                     return true;
+                }
+
                 if (ancestor is ArgumentSyntax argument && (!argument.RefKindKeyword.IsKind(SyntaxKind.None) ||
                     argument.Parent is not ArgumentListSyntax list || list.Parent is not
-                        (InvocationExpressionSyntax or ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax or ConstructorInitializerSyntax))) return true;
+                        (InvocationExpressionSyntax or ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax or ConstructorInitializerSyntax)))
+                {
+                    return true;
+                }
                 // Implicit extension GetEnumerator/GetAsyncEnumerator can observe
                 // COLLECTION source via CAE. Their capture does not include body
                 // occurrences. Continue past lambdas to inspect every ancestor.
-                if (ancestor is CommonForEachStatementSyntax loop && loop.Expression.Span.Contains(receiver.Span)) return true;
+                if (ancestor is CommonForEachStatementSyntax loop && loop.Expression.Span.Contains(receiver.Span))
+                {
+                    return true;
+                }
                 // Optional-CAE deconstruct patterns are rejected by the compiler;
                 // keep this unneeded context conservative in the first slice.
                 if (ancestor is AssignmentExpressionSyntax assignment && (assignment.Left is TupleExpressionSyntax or DeclarationExpressionSyntax) &&
-                    assignment.Right.Span.Contains(receiver.Span)) return true;
+                    assignment.Right.Span.Contains(receiver.Span))
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -60,12 +72,83 @@ namespace Microsoft.TypeSpec.Generator
         internal static bool SameUnit(BaseMethodDeclarationSyntax original, SyntaxNode variant)
         {
             if (variant.RawKind != original.RawKind || variant.Span != original.Span || variant.ContainsDiagnostics ||
-                !SyntaxFactory.AreEquivalent(original, variant, static _ => false)) return false;
+                !SyntaxFactory.AreEquivalent(original, variant, static _ => false))
+            {
+                return false;
+            }
             // Physical text alone can reconstruct the same file while changing
             // active/disabled syntax. Compare the complete active structure and
             // raw token coordinates, not only top-level headers or FullString.
             return original.DescendantTokens().Select(static token => (token.RawKind, token.SpanStart, token.Span.Length, token.Text))
                 .SequenceEqual(variant.DescendantTokens().Select(static token => (token.RawKind, token.SpanStart, token.Span.Length, token.Text)));
+        }
+
+        // Original call-observation facts are reusable only in invariant ACTIVE
+        // methods. Disabled text needs a separate source-observation certificate:
+        // an active lambda/argument can capture that text even with another overload.
+        internal static bool CanProveBranchLocalMethod(ExpressionSyntax receiver, MemberAccessExpressionSyntax member,
+            BaseMethodDeclarationSyntax unit, SyntaxNode[] roots, TextSpan prefix)
+        {
+            if (unit is not MethodDeclarationSyntax { Body: not null } method ||
+                member.Parent is not InvocationExpressionSyntax call || call.Expression != member ||
+                !method.Body.Span.Contains(call.Span) || HasHardSourceContext(receiver) ||
+                receiver.Ancestors().TakeWhile(node => node != method).Any(node => node is
+                    AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax or ArgumentSyntax or AttributeArgumentSyntax))
+            {
+                return false;
+            }
+
+            var hasInactiveRoot = false;
+            foreach (var root in roots)
+            {
+                if (root.FindNode(unit.Span, getInnermostNodeForTie: true) is not MethodDeclarationSyntax { Body: not null } variant ||
+                    variant.Span != method.Span || variant.ContainsDiagnostics || !variant.Body.Span.Contains(call.Span))
+                {
+                    return false;
+                }
+
+                if (SameOccurrence(receiver, member, root, prefix))
+                {
+                    if (!SameUnit(method, variant))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!HasUnobservedDisabledCall(call, root, prefix))
+                    {
+                        return false;
+                    }
+
+                    hasInactiveRoot = true;
+                }
+            }
+            return hasInactiveRoot;
+        }
+
+        internal static bool HasUnobservedDisabledCall(InvocationExpressionSyntax call, SyntaxNode root, TextSpan prefix)
+        {
+            if (prefix.Length == 0 || !call.Span.Contains(prefix) ||
+                !root.DescendantTrivia().Any(trivia => trivia.IsKind(SyntaxKind.DisabledTextTrivia) && trivia.Span.Contains(call.Span)))
+            {
+                return false;
+            }
+
+            var tree = root.SyntaxTree;
+            var line = tree.GetLineSpan(prefix);
+            if (line.StartLinePosition.Line != line.EndLinePosition.Line ||
+                tree.GetLineVisibility(prefix.Start) != LineVisibility.Visible ||
+                tree.GetLineVisibility(prefix.End - 1) != LineVisibility.Visible)
+            {
+                return false;
+            }
+            // Deliberately stronger than checking selected CAE attributes: reject
+            // ANY active expression enclosing/intersecting the edit. This includes
+            // implicit handler/foreach contexts and lambdas introduced only here.
+            return !root.DescendantNodes().Any(node =>
+                (node is ExpressionSyntax or ArgumentSyntax or AttributeArgumentSyntax or LocalFunctionStatementSyntax) &&
+                node.Span.OverlapsWith(prefix));
         }
 
         internal static bool SameOccurrence(ExpressionSyntax original, MemberAccessExpressionSyntax member, SyntaxNode root, TextSpan prefix)
@@ -75,7 +158,11 @@ namespace Microsoft.TypeSpec.Generator
                 !SyntaxFactory.AreEquivalent(original, candidate, static _ => false) ||
                 candidate.Parent is not MemberAccessExpressionSyntax access || access.Expression != candidate ||
                 access.RawKind != member.RawKind || access.Span != member.Span ||
-                !SyntaxFactory.AreEquivalent(member, access, static _ => false)) return false;
+                !SyntaxFactory.AreEquivalent(member, access, static _ => false))
+            {
+                return false;
+            }
+
             var tree = root.SyntaxTree;
             var line = tree.GetLineSpan(prefix);
             return prefix.Length != 0 && line.StartLinePosition.Line == line.EndLinePosition.Line &&

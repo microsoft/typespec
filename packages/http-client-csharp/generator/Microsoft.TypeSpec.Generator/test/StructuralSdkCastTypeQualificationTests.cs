@@ -128,24 +128,54 @@ namespace Microsoft.TypeSpec.Generator.Tests
             using var writer = new CodeWriter();
             writer.AppendRaw("using System;\nnamespace Azure.ResourceManager.AppService {\npublic partial class AiGatewayData : ");
             writer.AppendRaw(noImportWitness ? "global::System.ClientModel.Primitives.IPersistableModel<" + FullArgument + "> {\n" : "IPersistableModel<AiGatewayData> {\n");
-            if (hidden) writer.AppendRaw("#line hidden\n");
+            if (hidden)
+            {
+                writer.AppendRaw("#line hidden\n");
+            }
+
             writer.AppendRaw("public string PersistableModelCreateCore(");
-            if (recordedParameter) writer.Append($"{new CSharpType(typeof(ModelReaderWriterOptions))}");
-            else writer.AppendRaw(noImportWitness ? "global::System.ClientModel.Primitives.ModelReaderWriterOptions" : "ModelReaderWriterOptions");
+            if (recordedParameter)
+            {
+                writer.Append($"{new CSharpType(typeof(ModelReaderWriterOptions))}");
+            }
+            else
+            {
+                writer.AppendRaw(noImportWitness ? "global::System.ClientModel.Primitives.ModelReaderWriterOptions" : "ModelReaderWriterOptions");
+            }
+
             writer.AppendRaw(" options) {\n");
-            if (varyingOwner) writer.AppendRaw("#if NET6_0_OR_GREATER\nint framework = 6;\n#else\nint framework = 0;\n#endif\n");
+            if (varyingOwner)
+            {
+                writer.AppendRaw("#if NET6_0_OR_GREATER\nint framework = 6;\n#else\nint framework = 0;\n#endif\n");
+            }
+
             writer.AppendRaw(captured ? "return Capture(((" : "return ((");
             writer.Append($"{target}");
             writer.AppendRaw(captured ? ")this).GetFormatFromOptions(options));\n}\n" : ")this).GetFormatFromOptions(options);\n}\n");
-            if (hidden) writer.AppendRaw("#line default\n");
+            if (hidden)
+            {
+                writer.AppendRaw("#line default\n");
+            }
+
             if (conditionalDocument && !varyingOwner)
+            {
                 writer.AppendRaw("public int FrameworkVariation() {\n#if NET6_0_OR_GREATER\nreturn 6;\n#else\nreturn 0;\n#endif\n}\n");
+            }
+
             var declarations = "BinaryData IPersistableModel<AiGatewayData>.Write(ModelReaderWriterOptions options) => null;\nAiGatewayData IPersistableModel<AiGatewayData>.Create(BinaryData data, ModelReaderWriterOptions options) => this;\nstring IPersistableModel<AiGatewayData>.GetFormatFromOptions(ModelReaderWriterOptions options) => \"J\";\n";
-            if (noImportWitness) declarations = declarations.Replace("BinaryData", "global::System.BinaryData", StringComparison.Ordinal)
+            if (noImportWitness)
+            {
+                declarations = declarations.Replace("BinaryData", "global::System.BinaryData", StringComparison.Ordinal)
                 .Replace("IPersistableModel<AiGatewayData>", "global::System.ClientModel.Primitives.IPersistableModel<" + FullArgument + ">", StringComparison.Ordinal)
                 .Replace("ModelReaderWriterOptions", "global::System.ClientModel.Primitives.ModelReaderWriterOptions", StringComparison.Ordinal);
+            }
+
             writer.AppendRaw(declarations);
-            if (captured) writer.AppendRaw("static string Capture(string value, [System.Runtime.CompilerServices.CallerArgumentExpression(\"value\")] string source = null) => value;\n");
+            if (captured)
+            {
+                writer.AppendRaw("static string Capture(string value, [System.Runtime.CompilerServices.CallerArgumentExpression(\"value\")] string source = null) => value;\n");
+            }
+
             writer.AppendRaw("}\n}\n");
             return new CodeFile(writer.ToString(), "AiGatewayData.Serialization.cs", writer.TypeReferences);
         }
@@ -170,7 +200,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             int Map(int offset) => offset - edits.Where(e => e.End <= offset).Sum(e => e.Length);
             string LocationKey(Location location, bool project)
             {
-                if (!location.IsInSource) return location.Kind.ToString();
+                if (!location.IsInSource)
+                {
+                    return location.Kind.ToString();
+                }
+
                 var span = location.SourceSpan;var tree = location.SourceTree!;
                 if (project && ReferenceEquals(tree, oldTree))
                 {
@@ -192,7 +226,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var oldEmit = before.Emit(oldPe, xmlDocumentationStream: oldXml);var newEmit = after.Emit(newPe, xmlDocumentationStream: newXml);
             Assert.That(newEmit.Success, Is.EqualTo(oldEmit.Success));
             Assert.That(Bag(newEmit.Diagnostics, false), Is.EqualTo(Bag(oldEmit.Diagnostics, true)), "Complete emit diagnostic multiset");
-            if (oldEmit.Success) Assert.That(newXml.ToArray(), Is.EqualTo(oldXml.ToArray()));
+            if (oldEmit.Success)
+            {
+                Assert.That(newXml.ToArray(), Is.EqualTo(oldXml.ToArray()));
+            }
         }
 
         private static string Reduce(CodeFile code)
@@ -217,7 +254,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(after.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
             PreserveDiagnostics(code, text, before, after, tree, candidate.GetSyntaxTreeAsync().GetAwaiter().GetResult()!);
             if (code.Content.Contains("CreateCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions", StringComparison.Ordinal))
+            {
                 Assert.That(before.GetDiagnostics().Any(d => d.Id == "CS8019" && d.Severity == DiagnosticSeverity.Hidden), Is.True, "Unused-import regression anchor");
+            }
+
             string Snapshot(Compilation compilation, SyntaxTree syntaxTree)
             {
                 var model = compilation.GetSemanticModel(syntaxTree);

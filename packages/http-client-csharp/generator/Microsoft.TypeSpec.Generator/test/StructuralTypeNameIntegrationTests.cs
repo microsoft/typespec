@@ -229,7 +229,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             await workspace.AddGeneratedFile(a);
             await workspace.AddGeneratedFile(new CodeFile(b.Content, "Other.cs", b.TypeReferences));
             var output = new Dictionary<string, string>();
-            await foreach (var file in workspace.GetGeneratedFilesAsync()) output.Add(file.Name, file.Text);
+            await foreach (var file in workspace.GetGeneratedFilesAsync())
+            {
+                output.Add(file.Name, file.Text);
+            }
+
             StringAssert.Contains("System.DateTimeOffset Timestamp", output["Clock.cs"]);
             StringAssert.Contains("public DateTimeOffset Timestamp", output["Other.cs"]);
             AssertBindings(a.Content, output["Clock.cs"]);
@@ -297,8 +301,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var site = CSharpSyntaxTree.ParseText(source).GetRoot().DescendantNodes().OfType<QualifiedNameSyntax>()
                 .Single(static node => node.ToString() == "global::System.DateTimeOffset");
             var output = await Reduce(new CodeFile(source, "Clock.cs", new[] { new TypeReferenceSite(site.Span, typeof(DateTimeOffset)) }));
-            if (containingSegment) StringAssert.Contains("Outer<global::System.DateTimeOffset>.Inner", output);
-            else StringAssert.Contains("List<DateTimeOffset>", output);
+            if (containingSegment)
+            {
+                StringAssert.Contains("Outer<global::System.DateTimeOffset>.Inner", output);
+            }
+            else
+            {
+                StringAssert.Contains("List<DateTimeOffset>", output);
+            }
         }
 
         [Test]
@@ -349,7 +359,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 new(properties[0].Type.Span, typeof(DateTimeOffset)),
                 new(properties[1].Type.Span, typeof(DateTimeOffset), kind == 1 ? TypeReferenceRole.WholeTypeCref : TypeReferenceRole.Code)
             };
-            if (kind == 2) sites.Add(sites[1]);
+            if (kind == 2)
+            {
+                sites.Add(sites[1]);
+            }
+
             var output = await Reduce(new CodeFile(source, "Clock.cs", sites));
             StringAssert.Contains("DateTimeOffset First", output);
             StringAssert.Contains(second + " Second", output);
@@ -376,11 +390,16 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var output = await Reduce(code);
             StringAssert.Contains("Exception Value", output);
             foreach (var supported in new[] { "Clock : Exception", "new Exception()", "typeof(Exception)", "Use<Exception>()" })
+            {
                 StringAssert.Contains(supported, output);
+            }
+
             AssertOperationBindings(code.Content, output);
             StringAssert.Contains("Same() => Exception.ReferenceEquals(null, null)", output);
             foreach (var preserved in new[] { "Holder(typeof(global::System.Exception))", "(global::System.Exception)value", "nameof(global::System.Exception)" })
+            {
                 StringAssert.Contains(preserved, output);
+            }
         }
 
         private static int Count(string profile, string name) => int.Parse(profile.Split('\n').Single(line => line.StartsWith(name + ", ", StringComparison.Ordinal)).Split(',')[1]);
@@ -404,9 +423,20 @@ namespace Microsoft.TypeSpec.Generator.Tests
             GeneratedCodeWorkspace.Initialize();
             var workspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
             await workspace.AddGeneratedFile(code);
-            if (extra != null) await workspace.AddGeneratedFile(new CodeFile(extra, "Additional.cs"));
+            if (extra != null)
+            {
+                await workspace.AddGeneratedFile(new CodeFile(extra, "Additional.cs"));
+            }
+
             string? result = null;
-            await foreach (var file in workspace.GetGeneratedFilesAsync()) if (file.Name == code.Name) result = file.Text;
+            await foreach (var file in workspace.GetGeneratedFilesAsync())
+            {
+                if (file.Name == code.Name)
+                {
+                    result = file.Text;
+                }
+            }
+
             Assert.NotNull(result);
             AssertBindings(code.Content, result!, extra);
             return result!;
@@ -440,7 +470,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         IParameterSymbol parameter => parameter.Type,
                         _ => null
                     };
-                    if (type == null) continue;
+                    if (type == null)
+                    {
+                        continue;
+                    }
+
                     result.Add(result.Count + ":" + symbol!.Kind + ":" + symbol.Name + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(type));
                 }
                 return result.ToArray();

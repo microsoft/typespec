@@ -137,7 +137,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var source = "class Clock {" + (hiddenFirst ? hidden + visible : visible + hidden) + "}";
             var output = await Reduce(new CodeFile(source, "Clock.cs"));
             StringAssert.Contains("Hidden(int value=default(int))", output);
-            if (hiddenFirst) StringAssert.Contains("Visible(int value=default)", output);
+            if (hiddenFirst)
+            {
+                StringAssert.Contains("Visible(int value=default)", output);
+            }
+
             AssertOptionalDefaultContracts(source, output);
         }
 
@@ -146,9 +150,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("header")]
         public async Task StructuralOptionalDefaultWorkspaceAndHeaderGatesRemain(string mode)
         {
-            if (mode == "disabled") MockHelpers.LoadMockGenerator(outputPath: _directory,
+            if (mode == "disabled")
+            {
+                MockHelpers.LoadMockGenerator(outputPath: _directory,
                 configuration: "{\"package-name\":\"Sample\",\"disable-xml-docs\":true,\"disable-roslyn-reduce\":true}");
-            if (mode == "custom") CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
+            if (mode == "custom")
+            {
+                CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
             const string source = "class Clock { public int M(int value=default(int))=>value; }";
             var extra = mode == "header" ? "#if NET8_0_OR_GREATER\nclass Variant<T> {}\n#else\nclass Variant {}\n#endif" : null;
             var output = await Reduce(new CodeFile(source, "Clock.cs"), extra);

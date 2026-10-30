@@ -28,7 +28,10 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static bool CanRemove(ParenthesizedExpressionSyntax outer, ExpressionSyntax payload)
         {
-            if (!SupportsPayload(payload)) return false;
+            if (!SupportsPayload(payload))
+            {
+                return false;
+            }
             // Always retain cast operands, receivers/targets and uncertain roles.
             // In particular an alias-qualified cast type may already have shortened.
             switch (outer.Parent)
@@ -55,10 +58,22 @@ namespace Microsoft.TypeSpec.Generator
                         node.Parent is ArgumentListSyntax list && list.Parent is InvocationExpressionSyntax or ObjectCreationExpressionSyntax;
                 case BinaryExpressionSyntax node:
                     // Relational comma-list ambiguities need more than precedence.
-                    if (node.IsKind(SyntaxKind.LessThanExpression) || node.IsKind(SyntaxKind.GreaterThanExpression)) return false;
+                    if (node.IsKind(SyntaxKind.LessThanExpression) || node.IsKind(SyntaxKind.GreaterThanExpression))
+                    {
+                        return false;
+                    }
+
                     var child = Precedence(payload); var parent = Precedence(node);
-                    if (child <= 0 || parent <= 0) return false;
-                    if (child != parent) return child > parent;
+                    if (child <= 0 || parent <= 0)
+                    {
+                        return false;
+                    }
+
+                    if (child != parent)
+                    {
+                        return child > parent;
+                    }
+
                     return node.IsKind(SyntaxKind.CoalesceExpression) ? node.Right == outer : node.Left == outer;
                 default: return false;
             }

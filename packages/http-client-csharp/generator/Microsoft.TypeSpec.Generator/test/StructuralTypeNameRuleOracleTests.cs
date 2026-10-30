@@ -167,7 +167,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     "namespace Example { public partial class Consumer {\n#if DEBUG\npublic class DateTimeOffset {}\n#endif\n} }",
                     new[] { Array.Empty<string>(), new[] { "DEBUG" } }, new[] { true, false })
             };
-            foreach (var scenario in cases) yield return new TestCaseData(scenario).SetName(scenario.Id);
+            foreach (var scenario in cases)
+            {
+                yield return new TestCaseData(scenario).SetName(scenario.Id);
+            }
         }
 
         [TestCaseSource(nameof(Scenarios))]
@@ -178,7 +181,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var violations = Violation.None;
             var details = new List<string>();
             var configurations = scenario.Configurations ?? new[] { Array.Empty<string>() };
-            if (scenario.ExpectedPerConfiguration != null) Assert.AreEqual(configurations.Length, scenario.ExpectedPerConfiguration.Length);
+            if (scenario.ExpectedPerConfiguration != null)
+            {
+                Assert.AreEqual(configurations.Length, scenario.ExpectedPerConfiguration.Length);
+            }
+
             for (var configuration = 0; configuration < configurations.Length; configuration++)
             {
                 var symbols = configurations[configuration];
@@ -191,19 +198,36 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 Assert.That(originalSymbol, Is.InstanceOf<ITypeSymbol>(), "Original fixture must identify a known type, not merely text");
                 var errors = Errors(after.Compilation);
                 var current = errors.Length > 0 ? Violation.Compilation : Violation.None;
-                if (after.Reference == null || !SyntaxFactory.AreEquivalent(Skeleton(before), Skeleton(after), static _ => false)) current |= Violation.Grammar;
-                if (after.Reference == null || Identity(originalSymbol) != Identity(ReferencedSymbol(after.Model, after.Reference))) current |= Violation.ReferenceIdentity;
-                if (after.Reference != null && !Operations(before).SequenceEqual(Operations(after))) current |= Violation.EnclosingOperation;
+                if (after.Reference == null || !SyntaxFactory.AreEquivalent(Skeleton(before), Skeleton(after), static _ => false))
+                {
+                    current |= Violation.Grammar;
+                }
+
+                if (after.Reference == null || Identity(originalSymbol) != Identity(ReferencedSymbol(after.Model, after.Reference)))
+                {
+                    current |= Violation.ReferenceIdentity;
+                }
+
+                if (after.Reference != null && !Operations(before).SequenceEqual(Operations(after)))
+                {
+                    current |= Violation.EnclosingOperation;
+                }
+
                 if (scenario.ExpectedPerConfiguration != null)
+                {
                     Assert.AreEqual(scenario.ExpectedPerConfiguration[configuration], current == Violation.None,
                         "Candidate validity in [" + string.Join(",", symbols) + "]: " + current);
+                }
+
                 violations |= current;
                 details.Add($"[{string.Join(",", symbols)}] {current}: {string.Join("; ", errors)}");
             }
             Assert.AreEqual(scenario.ExpectedSafe, violations == Violation.None, string.Join(Environment.NewLine, details));
             if (!scenario.ExpectedSafe)
+            {
                 Assert.That((violations & scenario.RequiredViolation) == scenario.RequiredViolation, Is.True,
                     "Negative control must fail for its intended reason: " + string.Join(Environment.NewLine, details));
+            }
         }
 
         [TestCase("using System.Threading.Tasks; namespace Example { public class await { public static int Create() => 1; } public class Consumer { public async Task<int> M() => $TYPE$.Create(); } }",
@@ -262,7 +286,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         private static SyntaxNode Skeleton(Prepared prepared)
         {
-            if (prepared.Reference == null) return prepared.Root;
+            if (prepared.Reference == null)
+            {
+                return prepared.Root;
+            }
+
             SyntaxNode placeholder = prepared.Reference is CrefSyntax
                 ? SyntaxFactory.TypeCref(SyntaxFactory.IdentifierName("__Reference"))
                 : SyntaxFactory.IdentifierName("__Reference");
@@ -300,8 +328,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private static string DeclarationIdentity(ISymbol symbol)
         {
             if (symbol is not IMethodSymbol { MethodKind: MethodKind.LocalFunction })
+            {
                 return symbol.Kind + ":" + (symbol.OriginalDefinition.GetDocumentationCommentId()
                     ?? throw new InvalidOperationException("Oracle needs an explicit declaration identity for " + symbol.Kind));
+            }
 
             // Documentation IDs can collide for member/local methods with the
             // same name/signature. Source offsets also change after shortening.
@@ -313,7 +343,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 var siblings = parent.ChildNodes().ToArray();
                 var index = Array.FindIndex(siblings, child => child == node);
-                if (index < 0) throw new InvalidOperationException("Missing declaration in oracle syntax path");
+                if (index < 0)
+                {
+                    throw new InvalidOperationException("Missing declaration in oracle syntax path");
+                }
+
                 path.Add(index);
                 node = parent;
             }

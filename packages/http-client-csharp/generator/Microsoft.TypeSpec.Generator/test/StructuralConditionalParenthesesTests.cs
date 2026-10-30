@@ -93,7 +93,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             foreach (var symbols in new[] { Array.Empty<string>(), new[] { "NET6_0_OR_GREATER" }, new[] { "NET6_0_OR_GREATER", "NET8_0_OR_GREATER" },
                 new[] { "NET6_0_OR_GREATER", "NET8_0_OR_GREATER", "NET9_0_OR_GREATER" }, new[] { "NET6_0_OR_GREATER", "NET8_0_OR_GREATER", "NET9_0_OR_GREATER", "NET10_0_OR_GREATER" } })
+            {
                 AssertParenthesesOperations(before, after, parseOptions: new CSharpParseOptions(preprocessorSymbols: symbols.Prepend("EXPERIMENTAL")));
+            }
         }
     }
 }

@@ -74,7 +74,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 kind == "enhanced-line" ? "#line (100,1)-(200,10) 40 \"map.cs\"\n" : "",
                 kind == "conditional" ? "#if EXPERIMENTAL\nclass Alternate {}\n#endif" : "",
                 shadow: kind == "shadow", hidden: kind == "hidden");
-            if (kind == "unrecorded") code = new CodeFile(code.Content, code.Name, Array.Empty<TypeReferenceSite>());
+            if (kind == "unrecorded")
+            {
+                code = new CodeFile(code.Content, code.Name, Array.Empty<TypeReferenceSite>());
+            }
+
             var result = Reduce(code);
             StringAssert.Contains("cref=\"global::N.T\"", result.Text);
             Preserve(code.Content, result);
@@ -98,16 +102,47 @@ namespace Microsoft.TypeSpec.Generator.Tests
             writer.WriteRawLine("using N;");
             writer.WriteRawLine(fileScoped ? "namespace N;" : "namespace N {");
             writer.WriteRawLine("public partial class T {}");
-            if (attachment == "ancestor") writer.WriteRawLine("namespace Inner {");
-            if (attachment == "constructor") writer.WriteRawLine("public partial class T {");
-            if (attachment == "method") writer.WriteRawLine("public class C {" + (shadow ? "public void T() {}" : ""));
-            if (hidden) writer.WriteRawLine("#line hidden");
+            if (attachment == "ancestor")
+            {
+                writer.WriteRawLine("namespace Inner {");
+            }
+
+            if (attachment == "constructor")
+            {
+                writer.WriteRawLine("public partial class T {");
+            }
+
+            if (attachment == "method")
+            {
+                writer.WriteRawLine("public class C {" + (shadow ? "public void T() {}" : ""));
+            }
+
+            if (hidden)
+            {
+                writer.WriteRawLine("#line hidden");
+            }
+
             using (new CodeWriter.XmlDocWritingScope(writer))
+            {
                 writer.WriteLine($"/// <summary>{new CSharpType("T", "N", false, false, null, Array.Empty<CSharpType>(), true, false):C}</summary>");
+            }
+
             writer.WriteRawLine(attachment == "constructor" ? "public T() {}" : attachment == "method" ? "public void M() {}" : "public class C {}");
-            if (hidden) writer.WriteRawLine("#line default");
-            if (attachment is "constructor" or "method" or "ancestor") writer.WriteRawLine("}");
-            if (!fileScoped) writer.WriteRawLine("}");
+            if (hidden)
+            {
+                writer.WriteRawLine("#line default");
+            }
+
+            if (attachment is "constructor" or "method" or "ancestor")
+            {
+                writer.WriteRawLine("}");
+            }
+
+            if (!fileScoped)
+            {
+                writer.WriteRawLine("}");
+            }
+
             writer.WriteRawLine(other);
             return new CodeFile(writer.ToString(), "ImmediateNamespace.cs", writer.TypeReferences);
         }
@@ -123,7 +158,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
             var document = project.AddDocument(code.Name, SourceText.From(code.Content), new[] { "Generated" });
             project = document.Project;
-            if (other != null) project = project.AddDocument("Other.cs", SourceText.From(other)).Project;
+            if (other != null)
+            {
+                project = project.AddDocument("Other.cs", SourceText.From(other)).Project;
+            }
+
             document = project.GetDocument(document.Id)!;
             var compilation = (CSharpCompilation)project.GetCompilationAsync().GetAwaiter().GetResult()!;
             var tree = document.GetSyntaxTreeAsync().GetAwaiter().GetResult()!;
@@ -141,11 +180,19 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var oldCref = result.Original.GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<XmlCrefAttributeSyntax>().Single().Cref;
             var changed = original != result.Text;
             var start = oldCref.SpanStart;
-            if (changed) Assert.That(result.Text, Is.EqualTo(original.Remove(start, prefix.Length)), "Only the witnessed namespace prefix may be deleted");
+            if (changed)
+            {
+                Assert.That(result.Text, Is.EqualTo(original.Remove(start, prefix.Length)), "Only the witnessed namespace prefix may be deleted");
+            }
+
             var removed = changed ? prefix.Length : 0;
             string LocationKey(Location location, bool project)
             {
-                if (!location.IsInSource) return location.Kind.ToString();
+                if (!location.IsInSource)
+                {
+                    return location.Kind.ToString();
+                }
+
                 var span = location.SourceSpan;var tree = location.SourceTree!;
                 if (project && ReferenceEquals(tree, result.Original))
                 {
@@ -161,7 +208,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var before = result.Before.Emit(oldPe, xmlDocumentationStream: oldXml);var after = result.After.Emit(newPe, xmlDocumentationStream: newXml);
             Assert.That(after.Success, Is.EqualTo(before.Success));
             Assert.That(Bag(after.Diagnostics, false), Is.EqualTo(Bag(before.Diagnostics, true)), "Complete emit diagnostic multiset");
-            if (before.Success) Assert.That(newXml.ToArray(), Is.EqualTo(oldXml.ToArray()), "Successful emitted XML must remain identical");
+            if (before.Success)
+            {
+                Assert.That(newXml.ToArray(), Is.EqualTo(oldXml.ToArray()), "Successful emitted XML must remain identical");
+            }
         }
     }
 }

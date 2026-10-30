@@ -189,8 +189,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 writer.WriteRawLine(returnFirst ? "namespace N { public interface I { global::N.I M<I>(I value); } }" : "namespace N { public interface I { void M<I>(I value); } }");
                 writer.WriteRawLine("namespace Sample { public class Clock : N.I {");
-                if (returnFirst) writer.WriteLine($"{iface} {iface}.M<I>(I value) {{");
-                else writer.WriteLine($"void {iface}.M<I>(I value) {{");
+                if (returnFirst)
+                {
+                    writer.WriteLine($"{iface} {iface}.M<I>(I value) {{");
+                }
+                else
+                {
+                    writer.WriteLine($"void {iface}.M<I>(I value) {{");
+                }
+
                 writer.WriteLine($"{iface} other = null;");
                 writer.WriteRawLine(returnFirst ? "return other; } } }" : "} } }");
             });
@@ -198,7 +205,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             StringAssert.Contains("I.M<I>(I value)", output);
             StringAssert.DoesNotContain("global::N.I.M", output);
             StringAssert.Contains("N.I other", output);
-            if (returnFirst) StringAssert.Contains("N.I I.M", output);
+            if (returnFirst)
+            {
+                StringAssert.Contains("N.I I.M", output);
+            }
         }
 
         [Test]
@@ -334,7 +344,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var workspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
             await workspace.AddGeneratedFile(code);
             string? output = null;
-            await foreach (var file in workspace.GetGeneratedFilesAsync()) if (file.Name == code.Name) output = file.Text;
+            await foreach (var file in workspace.GetGeneratedFilesAsync())
+            {
+                if (file.Name == code.Name)
+                {
+                    output = file.Text;
+                }
+            }
+
             Assert.NotNull(output);
             AssertRoleBindings(code.Content, output!, allowUnsafe);
             return output!;
@@ -377,21 +394,41 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         result.Add(node.Kind() + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(symbol));
                     }
                     if (node is VariableDeclaratorSyntax variable && model.GetDeclaredSymbol(variable) is ILocalSymbol local)
+                    {
                         result.Add("local:" + StructuralTypeNameRuleOracleTests.TypeIdentity(local.Type));
+                    }
+
                     if (node is TypeDeclarationSyntax && model.GetDeclaredSymbol(node) is INamedTypeSymbol declared)
+                    {
                         result.Add("base:" + StructuralTypeNameRuleOracleTests.TypeIdentity(declared.BaseType));
+                    }
+
                     if (node is BinaryExpressionSyntax isExpression && isExpression.IsKind(SyntaxKind.IsExpression))
+                    {
                         result.Add("is-type:" + StructuralTypeNameRuleOracleTests.TypeIdentity(model.GetTypeInfo(isExpression.Right).Type) + ":" + model.GetSymbolInfo(isExpression.Right).Symbol?.Kind);
+                    }
+
                     if (node is IsPatternExpressionSyntax expression && model.GetOperation(expression.Pattern) is IPatternOperation patternOperation)
+                    {
                         result.Add("pattern:" + patternOperation.Kind + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(patternOperation.NarrowedType) + ":" +
                             (patternOperation is IConstantPatternOperation constant ? constant.Value.ConstantValue.ToString() : "<type>"));
+                    }
+
                     if (node is PropertyDeclarationSyntax or IndexerDeclarationSyntax && model.GetDeclaredSymbol(node) is IPropertySymbol property)
+                    {
                         result.Add("property-interface:" + string.Join("|", property.ExplicitInterfaceImplementations.Select(static implementation => implementation.OriginalDefinition.GetDocumentationCommentId() + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(implementation.ContainingType))));
+                    }
+
                     if (node is EventDeclarationSyntax && model.GetDeclaredSymbol(node) is IEventSymbol @event)
+                    {
                         result.Add("event-interface:" + string.Join("|", @event.ExplicitInterfaceImplementations.Select(static implementation => implementation.OriginalDefinition.GetDocumentationCommentId() + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(implementation.ContainingType))));
+                    }
+
                     if (node is BaseMethodDeclarationSyntax && model.GetDeclaredSymbol(node) is IMethodSymbol method)
+                    {
                         result.Add("method:" + method.RefKind + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(method.ReturnType) + ":" +
                             string.Join("|", method.ExplicitInterfaceImplementations.Select(static implementation => implementation.OriginalDefinition.GetDocumentationCommentId() + ":" + StructuralTypeNameRuleOracleTests.TypeIdentity(implementation.ContainingType))));
+                    }
                 }
                 return result.ToArray();
             }

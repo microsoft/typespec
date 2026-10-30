@@ -80,8 +80,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 writer.WriteRawLine("using System.Runtime.CompilerServices; namespace Sample { public class Clock { public object M() {");
                 writer.WriteLine($"{typeof(Exception)} seed = default;");
-                if (receiver) writer.WriteLine($"return Pass(new {typeof(Exception)}()).CapturedExtension();");
-                else writer.WriteLine($"return Capture(Pass(new {typeof(Exception)}()));");
+                if (receiver)
+                {
+                    writer.WriteLine($"return Pass(new {typeof(Exception)}()).CapturedExtension();");
+                }
+                else
+                {
+                    writer.WriteLine($"return Capture(Pass(new {typeof(Exception)}()));");
+                }
+
                 writer.WriteRawLine("} private object Pass(object value) => value; private string Capture(object value, [CallerArgumentExpression(\"value\")] string text = \"\") => text; }");
                 writer.WriteRawLine("public static class Extensions { public static string CapturedExtension(this object value, [CallerArgumentExpression(\"value\")] string text = \"\") => text; } }");
             });
@@ -129,8 +136,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 writer.WriteRawLine("} private object Capture(object first, object value, [CallerArgumentExpression(\"" + (captureValue ? "value" : "first") + "\")] string text = \"\") => text; } }");
             });
             var output = await Reduce(code);
-            if (captureValue) StringAssert.Contains("new global::System.Exception()", output);
-            else StringAssert.DoesNotContain("global::System.Exception", output);
+            if (captureValue)
+            {
+                StringAssert.Contains("new global::System.Exception()", output);
+            }
+            else
+            {
+                StringAssert.DoesNotContain("global::System.Exception", output);
+            }
+
             AssertOperationBindings(code.Content, output);
         }
 
@@ -160,8 +174,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 writer.WriteRawLine("} private object Capture(Func<Type> make" + (captured ? ", [CallerArgumentExpression(\"make\")] string text = \"\"" : "") + ") => make; } }");
             });
             var output = await Reduce(code);
-            if (captured) StringAssert.Contains("typeof(global::System.Exception)", output);
-            else StringAssert.DoesNotContain("global::System.Exception", output);
+            if (captured)
+            {
+                StringAssert.Contains("typeof(global::System.Exception)", output);
+            }
+            else
+            {
+                StringAssert.DoesNotContain("global::System.Exception", output);
+            }
+
             AssertOperationBindings(code.Content, output);
         }
 
@@ -218,19 +239,36 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var code = Recorded(writer =>
             {
                 writer.WriteRawLine("using System.Runtime.CompilerServices; namespace Sample { public class Consumer { public Consumer(object value, [CallerArgumentExpression(\"value\")] string text = \"\") {} } public class Base { public Base(object value, [CallerArgumentExpression(\"value\")] string text = \"\") {} } public class Clock : Base {");
-                if (kind == 2) writer.WriteLine($"public Clock() : base(new {typeof(Exception)}(){suffix}) {{ }}");
+                if (kind == 2)
+                {
+                    writer.WriteLine($"public Clock() : base(new {typeof(Exception)}(){suffix}) {{ }}");
+                }
                 else
                 {
                     writer.WriteRawLine("public Clock() : base(null) {} public object M() {");
-                    if (kind == 0) writer.WriteLine($"Consumer result = new(new {typeof(Exception)}(){suffix}); return result;");
-                    else writer.WriteLine($"return Extensions.CapturedExtension(new {typeof(Exception)}(){suffix});");
+                    if (kind == 0)
+                    {
+                        writer.WriteLine($"Consumer result = new(new {typeof(Exception)}(){suffix}); return result;");
+                    }
+                    else
+                    {
+                        writer.WriteLine($"return Extensions.CapturedExtension(new {typeof(Exception)}(){suffix});");
+                    }
+
                     writer.WriteRawLine("}");
                 }
                 writer.WriteRawLine("} public static class Extensions { public static string CapturedExtension(this object value, [CallerArgumentExpression(\"value\")] string text = \"\") => text; } }");
             });
             var output = await Reduce(code);
-            if (explicitText) StringAssert.DoesNotContain("global::System.Exception", output);
-            else StringAssert.Contains("new global::System.Exception()", output);
+            if (explicitText)
+            {
+                StringAssert.DoesNotContain("global::System.Exception", output);
+            }
+            else
+            {
+                StringAssert.Contains("new global::System.Exception()", output);
+            }
+
             AssertOperationBindings(code.Content, output);
         }
 
@@ -273,7 +311,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var output = await Reduce(code);
             StringAssert.Contains("new global::System.Exception()", output);
             foreach (var options in new[] { new CSharpParseOptions(), new CSharpParseOptions().WithPreprocessorSymbols("NET8_0_OR_GREATER") })
+            {
                 AssertOperationBindings(code.Content, output, options);
+            }
         }
     }
 }

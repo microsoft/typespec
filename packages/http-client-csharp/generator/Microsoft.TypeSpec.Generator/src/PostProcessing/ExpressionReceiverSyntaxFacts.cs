@@ -25,8 +25,16 @@ namespace Microsoft.TypeSpec.Generator
             // guard: inspect the full enclosing chain and keep hazardous follow
             // tokens. This does not remove or rewrite the parentheses.
             SyntaxNode chain = receiver;
-            while (chain.Parent is MemberAccessExpressionSyntax parent && parent.Expression == chain) chain = parent;
-            if (chain.Parent is not ParenthesizedExpressionSyntax parentheses) return false;
+            while (chain.Parent is MemberAccessExpressionSyntax parent && parent.Expression == chain)
+            {
+                chain = parent;
+            }
+
+            if (chain.Parent is not ParenthesizedExpressionSyntax parentheses)
+            {
+                return false;
+            }
+
             var next = parentheses.GetLastToken().GetNextToken().Kind();
             return next is SyntaxKind.TildeToken or SyntaxKind.ExclamationToken or SyntaxKind.OpenParenToken ||
                 SyntaxFacts.IsKeywordKind(next) && next is not (SyntaxKind.AsKeyword or SyntaxKind.IsKeyword);

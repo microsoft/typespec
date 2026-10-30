@@ -20,21 +20,38 @@ namespace Microsoft.TypeSpec.Generator
             if (compilation is not CSharpCompilation csharp || csharp.ScriptCompilationInfo != null ||
                 !csharp.Options.Usings.IsDefaultOrEmpty ||
                 csharp.Options.GeneralDiagnosticOption != ReportDiagnostic.Default || csharp.Options.SpecificDiagnosticOptions.Count != 0)
+            {
                 return false;
+            }
+
             foreach (var tree in compilation.SyntaxTrees)
             {
                 if (tree.Options is not CSharpParseOptions { Kind: SourceCodeKind.Regular } options ||
                     options.Features.Keys.Any(static key => key.IndexOf("interceptor", StringComparison.OrdinalIgnoreCase) >= 0) ||
-                    tree.GetRoot() is not CompilationUnitSyntax root) return false;
+                    tree.GetRoot() is not CompilationUnitSyntax root)
+                {
+                    return false;
+                }
                 // Global imports can change diagnostics in OTHER documents. Aliases
                 // and static imports need an independent usage certificate. Inspect
                 // only import-bearing namespace containers, not method bodies.
-                if (UnsupportedImports(root.Usings, root.Externs.Count)) return false;
+                if (UnsupportedImports(root.Usings, root.Externs.Count))
+                {
+                    return false;
+                }
+
                 var pending = new Stack<BaseNamespaceDeclarationSyntax>(root.Members.OfType<BaseNamespaceDeclarationSyntax>());
                 while (pending.TryPop(out var ns))
                 {
-                    if (UnsupportedImports(ns.Usings, ns.Externs.Count)) return false;
-                    foreach (var nested in ns.Members.OfType<BaseNamespaceDeclarationSyntax>()) pending.Push(nested);
+                    if (UnsupportedImports(ns.Usings, ns.Externs.Count))
+                    {
+                        return false;
+                    }
+
+                    foreach (var nested in ns.Members.OfType<BaseNamespaceDeclarationSyntax>())
+                    {
+                        pending.Push(nested);
+                    }
                 }
             }
             return true;
@@ -72,14 +89,41 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static bool CanEraseTypeWithoutImportUse(TypeSyntax type, SemanticModel model)
         {
-            if (type is PredefinedTypeSyntax || model.GetTypeInfo(type).Type is ITypeParameterSymbol) return true;
-            if (type is ArrayTypeSyntax array) return CanEraseTypeWithoutImportUse(array.ElementType, model);
-            if (type is NullableTypeSyntax nullable) return CanEraseTypeWithoutImportUse(nullable.ElementType, model);
-            if (type is TupleTypeSyntax tuple) return tuple.Elements.All(element => CanEraseTypeWithoutImportUse(element.Type, model));
-            if (type is not NameSyntax name) return false;
+            if (type is PredefinedTypeSyntax || model.GetTypeInfo(type).Type is ITypeParameterSymbol)
+            {
+                return true;
+            }
+
+            if (type is ArrayTypeSyntax array)
+            {
+                return CanEraseTypeWithoutImportUse(array.ElementType, model);
+            }
+
+            if (type is NullableTypeSyntax nullable)
+            {
+                return CanEraseTypeWithoutImportUse(nullable.ElementType, model);
+            }
+
+            if (type is TupleTypeSyntax tuple)
+            {
+                return tuple.Elements.All(element => CanEraseTypeWithoutImportUse(element.Type, model));
+            }
+
+            if (type is not NameSyntax name)
+            {
+                return false;
+            }
+
             NameSyntax root = name;
-            while (root is QualifiedNameSyntax qualified) root = qualified.Left;
-            if (root is not AliasQualifiedNameSyntax alias || alias.Alias.Identifier.Text != "global") return false;
+            while (root is QualifiedNameSyntax qualified)
+            {
+                root = qualified.Left;
+            }
+
+            if (root is not AliasQualifiedNameSyntax alias || alias.Alias.Identifier.Text != "global")
+            {
+                return false;
+            }
             // A rooted outer name is not enough: an unqualified generic argument
             // can still consume an import, e.g. global::List<DateTimeOffset>.
             return name.DescendantNodesAndSelf().OfType<GenericNameSyntax>().All(generic =>
@@ -88,15 +132,46 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static bool SupportsOriginalTreeSourcePolicy(SyntaxTree tree)
         {
-            if (tree.Options.DocumentationMode == DocumentationMode.None) return false;
+            if (tree.Options.DocumentationMode == DocumentationMode.None)
+            {
+                return false;
+            }
+
             var root = tree.GetRoot();
             return !root.ContainsDirectives || !root.DescendantTrivia(descendIntoTrivia: true).Any(static trivia =>
                 trivia.IsKind(SyntaxKind.PragmaWarningDirectiveTrivia) || trivia.IsKind(SyntaxKind.LineSpanDirectiveTrivia));
         }
 
+        // Separate permission from the strict certificate: a bare type cref may
+        // make its existing normal namespace import used. Only Hidden CS8019
+        // disappearance is an intentional delta; every other diagnostic vetoes.
+        internal static bool SupportsHiddenImportActivation(Compilation original, SemanticModel unfiltered)
+        {
+            if (!SupportsOriginalTreeSourcePolicy(unfiltered.SyntaxTree))
+            {
+                return false;
+            }
+
+            var provider = original.Options.SyntaxTreeOptionsProvider;
+            if (provider != null)
+            {
+                static bool Supported(ReportDiagnostic value) => value is ReportDiagnostic.Default or ReportDiagnostic.Hidden;
+                if (provider.TryGetDiagnosticValue(unfiltered.SyntaxTree, "CS8019", default, out var treeValue) && !Supported(treeValue) ||
+                    provider.TryGetGlobalDiagnosticValue("CS8019", default, out var globalValue) && !Supported(globalValue))
+                {
+                    return false;
+                }
+            }
+            return unfiltered.GetDiagnostics().All(d => d.Id == "CS8019" &&
+                d.Severity == DiagnosticSeverity.Hidden && d.DefaultSeverity == DiagnosticSeverity.Hidden && !d.IsSuppressed);
+        }
+
         internal static bool HasSafeOriginalTreeDiagnostics(SemanticModel model)
         {
-            if (!SupportsOriginalTreeSourcePolicy(model.SyntaxTree)) return false;
+            if (!SupportsOriginalTreeSourcePolicy(model.SyntaxTree))
+            {
+                return false;
+            }
             // Deliberately request the COMPLETE original tree. A cref-sized span
             // does not force Roslyn's unused-import accounting. Empty filtered or
             // unsupported diagnostics are never treated as proof of usage.

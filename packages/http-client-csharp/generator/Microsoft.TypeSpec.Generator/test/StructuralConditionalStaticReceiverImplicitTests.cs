@@ -25,8 +25,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var output = await Reduce(new CodeFile(source, "Clock.cs", sites));
             StringAssert.Contains("foreach(var value in global::Factory.Create())", output,
                 "Implicit GetEnumerator CAE observes the collection spelling");
-            if (bodyOccurrence) StringAssert.Contains("result=Math.Abs(value-3)", output,
+            if (bodyOccurrence)
+            {
+                StringAssert.Contains("result=Math.Abs(value-3)", output,
                 "The loop body is not part of the observed collection expression");
+            }
+
             AssertConditionalParenthesesOperations(source, output);
         }
     }

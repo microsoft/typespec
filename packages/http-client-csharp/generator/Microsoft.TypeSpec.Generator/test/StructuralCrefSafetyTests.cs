@@ -102,7 +102,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 var options = new CSharpParseOptions(documentationMode: DocumentationMode.Diagnose);
                 Assert.That(CSharpSyntaxTree.ParseText(source, options).GetDiagnostics().Any(static d => d.Id == "CS1584"), Is.True);
             }
-            else AssertStructuralCrefs(source, output);
+            else
+            {
+                AssertStructuralCrefs(source, output);
+            }
         }
 
         [TestCase(false)]
@@ -115,7 +118,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var output = await Reduce(RecordedCrefSource(source, typeof(DateTimeOffset)));
             var crefs = CSharpSyntaxTree.ParseText(output).GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<XmlCrefAttributeSyntax>().Select(a => a.Cref.ToString()).ToArray();
             Assert.That(crefs[hiddenFirst ? 0 : 1], Is.EqualTo("global::System.DateTimeOffset"));
-            if (hiddenFirst) Assert.That(crefs[1], Is.EqualTo("DateTimeOffset"));
+            if (hiddenFirst)
+            {
+                Assert.That(crefs[1], Is.EqualTo("DateTimeOffset"));
+            }
+
             AssertStructuralCrefs(source, output);
         }
 
@@ -149,9 +156,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("header")]
         public async Task StructuralCrefWorkspaceAndCompilationGatesRemain(string mode)
         {
-            if (mode == "disabled") MockHelpers.LoadMockGenerator(outputPath: _directory,
+            if (mode == "disabled")
+            {
+                MockHelpers.LoadMockGenerator(outputPath: _directory,
                 configuration: "{\"package-name\":\"Sample\",\"disable-xml-docs\":true,\"disable-roslyn-reduce\":true}");
-            if (mode == "custom") CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
+            if (mode == "custom")
+            {
+                CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
             const string source = "using System;\n/// <summary><see cref=\"global::System.DateTimeOffset\"/></summary>\npublic class Clock {}";
             var extra = mode == "header" ? "#if NET8_0_OR_GREATER\nclass Variant<T> {}\n#else\nclass Variant {}\n#endif" : null;
             // Custom rewriters deliberately use the existing formatter route.

@@ -167,7 +167,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(candidate.Parameters, Is.EqualTo(original.Parameters), "Parameter type/ref/optional/default metadata must remain exact");
             Assert.That(candidate.Reflection, Is.EqualTo(original.Reflection), "Emitted reflection defaults must distinguish null, Missing and DBNull");
             if (formatterRoute)
+            {
                 Assert.That(SyntaxFactory.AreEquivalent(CSharpSyntaxTree.ParseText(candidate.Outside, parse).GetRoot(), CSharpSyntaxTree.ParseText(original.Outside, parse).GetRoot()), Is.True);
+            }
             else
             {
                 Assert.That(candidate.Outside, Is.EqualTo(original.Outside), "All source outside parameter default expressions must stay exact");

@@ -50,7 +50,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             foreach (var data in StructuralTypeNameRuleOracleTests.Scenarios())
             {
                 var scenario = (Scenario)data.Arguments[0]!;
-                if (!scenario.Id.StartsWith("R", StringComparison.Ordinal)) continue;
+                if (!scenario.Id.StartsWith("R", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 var expected = ExpectedSelections.TryGetValue(scenario.Id, out var alternative) ? alternative : scenario.Candidate;
                 yield return new TestCaseData(scenario, expected).SetName("Select_" + scenario.Id);
             }
@@ -116,7 +120,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var spelling = selection.Name.ToString();
             Assert.AreEqual(expected, spelling);
             if (scenario.Id == "R11_ContainmentShapeChanges")
+            {
                 Assert.AreEqual(StructuralTypeNameSelector.Retention.ConfigurationShape, selection.Reason);
+            }
+
             Assert.LessOrEqual(selection.ScopeSnapshots, 2 * configurations.Length, "At most one type and one expression scope snapshot per configuration");
             new StructuralTypeNameRuleOracleTests().CandidateMeetsTheScenarioContract(scenario with
             {

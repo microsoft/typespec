@@ -563,6 +563,22 @@ namespace Microsoft.TypeSpec.Generator
             return true;
         }
 
+        // Write the payload of an existing XML cref attribute without introducing
+        // a nested <see> tag. Text stays qualified; provenance enables later checks.
+        internal void AppendTypeInCref(CSharpType type)
+        {
+            var previousCref = _writingCrefType;
+            try
+            {
+                _writingCrefType = true;
+                AppendType(type, false, false);
+            }
+            finally
+            {
+                _writingCrefType = previousCref;
+            }
+        }
+
         private void AppendTypeForCRef(CSharpType type)
         {
             if (ProviderReferenceMapAnalyzer.IsRemovedTypeReference(type))
@@ -585,16 +601,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AppendRaw($"<see cref=\"");
-            var previousCref = _writingCrefType;
-            try
-            {
-                _writingCrefType = true;
-                AppendType(type, false, false);
-            }
-            finally
-            {
-                _writingCrefType = previousCref;
-            }
+            AppendTypeInCref(type);
             AppendRaw($"\"/>");
 
             if (isNullable)

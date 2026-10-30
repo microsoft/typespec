@@ -134,8 +134,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var code = Recorded(writer =>
             {
                 writer.WriteRawLine("namespace Sample { public class Clock {");
-                if (dynamicCall) writer.WriteLine($"public object M(dynamic value) => {typeof(Convert)}.ToString(value);");
-                else writer.WriteLine($"public string M() => nameof({typeof(DateTimeOffset)}.Now);");
+                if (dynamicCall)
+                {
+                    writer.WriteLine($"public object M(dynamic value) => {typeof(Convert)}.ToString(value);");
+                }
+                else
+                {
+                    writer.WriteLine($"public string M() => nameof({typeof(DateTimeOffset)}.Now);");
+                }
+
                 writer.WriteRawLine("} }");
             });
             var output = await Reduce(code);
@@ -176,7 +183,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var type = new CSharpType("await", "Fixtures", false, false, null, Array.Empty<CSharpType>(), true, false);
             var site = new TypeReferenceSite(TextSpan.FromBounds(receiver.SpanStart, receiver.Name.Identifier.Span.End), type);
             var output = await Reduce(new CodeFile(source, "Clock.cs", new[] { site }));
-            if (escaped) StringAssert.Contains("@await.Value", output);
+            if (escaped)
+            {
+                StringAssert.Contains("@await.Value", output);
+            }
+
             AssertStaticMemberBindings(source, output);
         }
 

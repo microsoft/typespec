@@ -35,8 +35,16 @@ namespace Microsoft.TypeSpec.Generator
         internal bool TryGetRoots(SyntaxNode root, out SyntaxNode[] roots)
         {
             roots = [root];
-            if (!_stableDeclarations.Value) return false;
-            if (!TreeHasConditional(root)) return true;
+            if (!_stableDeclarations.Value)
+            {
+                return false;
+            }
+
+            if (!TreeHasConditional(root))
+            {
+                return true;
+            }
+
             return _roots.TryGetValue(root.SyntaxTree, out roots!);
         }
 
@@ -58,14 +66,24 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var tree in _compilation.SyntaxTrees)
             {
                 var root = tree.GetRoot();
-                if (!TreeHasConditional(root)) continue;
-                if (!HasInvariantHeaders(root)) return false;
+                if (!TreeHasConditional(root))
+                {
+                    continue;
+                }
+
+                if (!HasInvariantHeaders(root))
+                {
+                    return false;
+                }
                 // A fixed-project-flag Shared document may be opaque itself while
                 // proving that it cannot change lookup in other documents.
                 if (TryParseInvariantBodies(root, out var roots, out var hasGenericLocalFunctions))
                 {
                     _roots.TryAdd(tree, roots);
-                    if (!hasGenericLocalFunctions) _typeOnlyTrees.TryAdd(tree, true);
+                    if (!hasGenericLocalFunctions)
+                    {
+                        _typeOnlyTrees.TryAdd(tree, true);
+                    }
                 }
             }
             return true;
@@ -73,25 +91,44 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool HasInvariantHeaders(SyntaxNode root)
         {
-            if (root.ContainsDiagnostics || root.SyntaxTree.Options is not CSharpParseOptions options) return false;
+            if (root.ContainsDiagnostics || root.SyntaxTree.Options is not CSharpParseOptions options)
+            {
+                return false;
+            }
+
             var directives = root.DescendantTrivia().Where(static t => t.IsDirective)
                 .Select(static t => t.GetStructure()).OfType<DirectiveTriviaSyntax>().ToArray();
             var used = new HashSet<string>(StringComparer.Ordinal);
             foreach (var directive in directives)
             {
-                if (directive is DefineDirectiveTriviaSyntax or UndefDirectiveTriviaSyntax) return false;
+                if (directive is DefineDirectiveTriviaSyntax or UndefDirectiveTriviaSyntax)
+                {
+                    return false;
+                }
+
                 var condition = directive switch
                 {
                     IfDirectiveTriviaSyntax branch => branch.Condition,
                     ElifDirectiveTriviaSyntax branch => branch.Condition,
                     _ => null
                 };
-                if (condition == null) continue;
+                if (condition == null)
+                {
+                    continue;
+                }
+
                 foreach (var name in condition.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
                 {
                     var symbol = name.Identifier.ValueText;
-                    if (symbol.StartsWith("NET", StringComparison.Ordinal) && !HeaderThresholds.Contains(symbol)) return false;
-                    if (HeaderThresholds.Contains(symbol)) used.Add(symbol);
+                    if (symbol.StartsWith("NET", StringComparison.Ordinal) && !HeaderThresholds.Contains(symbol))
+                    {
+                        return false;
+                    }
+
+                    if (HeaderThresholds.Contains(symbol))
+                    {
+                        used.Add(symbol);
+                    }
                 }
             }
             // Only framework thresholds vary. Preserve the exact original project
@@ -104,9 +141,16 @@ namespace Microsoft.TypeSpec.Generator
             for (var level = 0; level <= HeaderThresholds.Length; level++)
             {
                 var active = HeaderThresholds.Take(level).ToArray();
-                if (!signatures.Add(Signature(active))) continue;
+                if (!signatures.Add(Signature(active)))
+                {
+                    continue;
+                }
+
                 var variant = CSharpSyntaxTree.ParseText(root.SyntaxTree.GetText(), options.WithPreprocessorSymbols(fixedSymbols.Concat(active)), root.SyntaxTree.FilePath).GetRoot();
-                if (variant.ContainsDiagnostics || !string.Equals(expected, HeaderShape(variant), StringComparison.Ordinal)) return false;
+                if (variant.ContainsDiagnostics || !string.Equals(expected, HeaderShape(variant), StringComparison.Ordinal))
+                {
+                    return false;
+                }
             }
             return true;
         }
@@ -115,21 +159,40 @@ namespace Microsoft.TypeSpec.Generator
         {
             roots = [];
             hasGenericLocalFunctions = false;
-            if (root.ContainsDiagnostics || root.SyntaxTree.Options is not CSharpParseOptions options) return false;
+            if (root.ContainsDiagnostics || root.SyntaxTree.Options is not CSharpParseOptions options)
+            {
+                return false;
+            }
+
             var directives = root.DescendantTrivia().Where(static t => t.IsDirective).Select(static t => t.GetStructure()).OfType<DirectiveTriviaSyntax>().ToArray();
             var used = new HashSet<string>(StringComparer.Ordinal);
             foreach (var directive in directives)
             {
                 if (directive is IfDirectiveTriviaSyntax condition)
                 {
-                    if (condition.Condition is not IdentifierNameSyntax name || !Thresholds.Contains(name.Identifier.ValueText)) return false;
+                    if (condition.Condition is not IdentifierNameSyntax name || !Thresholds.Contains(name.Identifier.ValueText))
+                    {
+                        return false;
+                    }
+
                     used.Add(name.Identifier.ValueText);
                 }
-                else if (directive is ElifDirectiveTriviaSyntax or DefineDirectiveTriviaSyntax or UndefDirectiveTriviaSyntax) return false;
+                else if (directive is ElifDirectiveTriviaSyntax or DefineDirectiveTriviaSyntax or UndefDirectiveTriviaSyntax)
+                {
+                    return false;
+                }
             }
-            if (used.Count == 0) return false;
+            if (used.Count == 0)
+            {
+                return false;
+            }
+
             var fixedSymbols = options.PreprocessorSymbolNames.Where(static s => !Thresholds.Contains(s)).ToArray();
-            if (!BodyShape(root, out var originalShape, out hasGenericLocalFunctions)) return false;
+            if (!BodyShape(root, out var originalShape, out hasGenericLocalFunctions))
+            {
+                return false;
+            }
+
             var originalSymbols = options.PreprocessorSymbolNames.ToHashSet(StringComparer.Ordinal);
             var signatures = new HashSet<string>(StringComparer.Ordinal)
             {
@@ -140,13 +203,25 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var active = Thresholds.Take(level).ToArray();
                 var signature = string.Join(";", used.Order(StringComparer.Ordinal).Select(s => active.Contains(s) ? "1" : "0"));
-                if (!signatures.Add(signature)) continue;
+                if (!signatures.Add(signature))
+                {
+                    continue;
+                }
+
                 var symbols = fixedSymbols.Concat(active).ToArray();
                 var variant = options.PreprocessorSymbolNames.ToHashSet(StringComparer.Ordinal).SetEquals(symbols)
                     ? root : CSharpSyntaxTree.ParseText(root.SyntaxTree.GetText(), options.WithPreprocessorSymbols(symbols), root.SyntaxTree.FilePath).GetRoot();
-                if (variant.ContainsDiagnostics || !BodyShape(variant, out var shape, out var variantHasGenericLocalFunctions)) return false;
+                if (variant.ContainsDiagnostics || !BodyShape(variant, out var shape, out var variantHasGenericLocalFunctions))
+                {
+                    return false;
+                }
+
                 hasGenericLocalFunctions |= variantHasGenericLocalFunctions;
-                if (!string.Equals(shape, originalShape, StringComparison.Ordinal)) return false;
+                if (!string.Equals(shape, originalShape, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
                 parsed.Add(variant);
             }
             roots = parsed.ToArray();
@@ -160,12 +235,19 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var trivia in root.DescendantTrivia().Where(static t => t.IsKind(SyntaxKind.IfDirectiveTrivia) ||
                 t.IsKind(SyntaxKind.ElifDirectiveTrivia) || t.IsKind(SyntaxKind.ElseDirectiveTrivia) || t.IsKind(SyntaxKind.EndIfDirectiveTrivia)))
             {
-                if (!bodies.Any(body => body.Contains(trivia.FullSpan))) return false;
+                if (!bodies.Any(body => body.Contains(trivia.FullSpan)))
+                {
+                    return false;
+                }
+
                 var token = trivia.Token;
                 var statement = token.Parent?.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
                 // Branches must start/end at complete statement boundaries. Never
                 // rejoin fragments of an expression, argument list, or declaration.
-                if (statement?.SpanStart != token.SpanStart && !(token.Parent is BlockSyntax block && block.CloseBraceToken == token)) return false;
+                if (statement?.SpanStart != token.SpanStart && !(token.Parent is BlockSyntax block && block.CloseBraceToken == token))
+                {
+                    return false;
+                }
             }
             shape = HeaderShape(root);
             return true;
@@ -201,20 +283,31 @@ namespace Microsoft.TypeSpec.Generator
         {
             var bodies = Bodies(root);
             var builder = new StringBuilder();
-            foreach (var body in bodies) builder.Append(body.Start).Append(':').Append(body.Length).Append(';');
+            foreach (var body in bodies)
+            {
+                builder.Append(body.Start).Append(':').Append(body.Length).Append(';');
+            }
             // Directive state can escape a body even when its ordinary tokens do
             // not: e.g. #nullable changes later declaration semantics.
             foreach (var directive in root.DescendantTrivia().Where(static t => t.IsDirective)
                 .Select(static t => t.GetStructure()).OfType<DirectiveTriviaSyntax>())
             {
                 if (directive is IfDirectiveTriviaSyntax or ElifDirectiveTriviaSyntax or ElseDirectiveTriviaSyntax or EndIfDirectiveTriviaSyntax or
-                    RegionDirectiveTriviaSyntax or EndRegionDirectiveTriviaSyntax) continue;
+                    RegionDirectiveTriviaSyntax or EndRegionDirectiveTriviaSyntax)
+                {
+                    continue;
+                }
+
                 builder.Append(directive.SpanStart).Append(':').Append(directive.RawKind).Append(':')
                     .Append(directive.IsActive).Append(':').Append(directive.ToFullString()).Append(';');
             }
             foreach (var token in root.DescendantTokens())
             {
-                if (bodies.Any(body => body.Contains(token.Span))) continue;
+                if (bodies.Any(body => body.Contains(token.Span)))
+                {
+                    continue;
+                }
+
                 builder.Append(token.SpanStart).Append(':').Append(token.RawKind).Append(':').Append(token.Text.Length).Append(':').Append(token.Text).Append(';');
             }
             return builder.ToString();

@@ -146,7 +146,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var source = FlagDefinition + (hiddenFirst ? hidden + visible : visible + hidden);
             var output = await Reduce(RecordedAttributeSource(source));
             StringAssert.Contains("[global::Fixtures.FlagAttribute] public class Hidden", output);
-            if (hiddenFirst) StringAssert.Contains("[Flag] public class Visible", output);
+            if (hiddenFirst)
+            {
+                StringAssert.Contains("[Flag] public class Visible", output);
+            }
+
             AssertStructuralAttributes(source, output);
         }
 
@@ -155,9 +159,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("header")]
         public async Task StructuralAttributeWorkspaceAndHeaderGatesRemain(string mode)
         {
-            if (mode == "disabled") MockHelpers.LoadMockGenerator(outputPath: _directory,
+            if (mode == "disabled")
+            {
+                MockHelpers.LoadMockGenerator(outputPath: _directory,
                 configuration: "{\"package-name\":\"Sample\",\"disable-xml-docs\":true,\"disable-roslyn-reduce\":true}");
-            if (mode == "custom") CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
+            if (mode == "custom")
+            {
+                CodeModelGenerator.Instance.AddRewriter(new Probe());
+            }
+
             var source = FlagDefinition + "[global::Fixtures.FlagAttribute] public class Clock {}";
             var extra = mode == "header" ? "#if NET8_0_OR_GREATER\nclass Variant<T> {}\n#else\nclass Variant {}\n#endif" : null;
             var output = await Reduce(RecordedAttributeSource(source), extra);

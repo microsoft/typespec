@@ -131,8 +131,14 @@ namespace Microsoft.TypeSpec.Generator
                 var compilation = await _project.GetCompilationAsync();
                 if (compilation != null)
                 {
-                    if (_structuralMode) structuralReducer = new StructuralTypeNameReducer(compilation);
-                    else providerReducer = new ProviderNameReducer(compilation);
+                    if (_structuralMode)
+                    {
+                        structuralReducer = new StructuralTypeNameReducer(compilation);
+                    }
+                    else
+                    {
+                        providerReducer = new ProviderNameReducer(compilation);
+                    }
                 }
             }
             List<Task<Document>> documents = new List<Task<Document>>();
@@ -191,7 +197,11 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 if (_structuralMode)
                 {
-                    if (ReferenceEquals(root, originalRoot)) PostProcessingProfile?.Add("StructuralTypeNames.KeepQualified", TimeSpan.Zero, 0);
+                    if (ReferenceEquals(root, originalRoot))
+                    {
+                        PostProcessingProfile?.Add("StructuralTypeNames.KeepQualified", TimeSpan.Zero, 0);
+                    }
+
                     return ReferenceEquals(root, originalRoot) ? document : document.WithSyntaxRoot(root);
                 }
                 if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)

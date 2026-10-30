@@ -45,8 +45,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void StaticPrefixRespectsParameterShadowing(string parameter)
         {
             var output = Reduce(WriteStatic(typeof(DateTimeOffset), $"object {parameter}"));
-            if (parameter == "DateTimeOffset") StringAssert.Contains("global::System.DateTimeOffset.Now", output);
-            else StringAssert.DoesNotContain("global::System.DateTimeOffset", output);
+            if (parameter == "DateTimeOffset")
+            {
+                StringAssert.Contains("global::System.DateTimeOffset.Now", output);
+            }
+            else
+            {
+                StringAssert.DoesNotContain("global::System.DateTimeOffset", output);
+            }
         }
 
         [TestCase("from DateTimeOffset in new[] { 1 } select ")]
@@ -238,7 +244,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private static CodeFile WriteAttribute(CSharpType type, string import = "")
         {
             using var writer = new CodeWriter();
-            if (import.Length > 0) writer.WriteRawLine(import);
+            if (import.Length > 0)
+            {
+                writer.WriteRawLine(import);
+            }
+
             writer.WriteRawLine("namespace Example {");
             writer.WriteLine($"[{type}(\"message\")]");
             writer.WriteRawLine("public class Consumer {} }");
@@ -262,11 +272,19 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 observations.Add((reference.Span, Identity(model, reference), false));
                 if (reference.Parent is AttributeSyntax attribute)
+                {
                     observations.Add((attribute.Span, Identity(model, attribute), false));
+                }
+
                 if (reference.Parent is MemberAccessExpressionSyntax member && member.Expression == reference)
+                {
                     observations.Add((member.Span, Identity(model, member), false));
+                }
+
                 foreach (var invocation in reference.Ancestors().OfType<InvocationExpressionSyntax>().Where(static n => n.Expression.ToString() == "nameof"))
+                {
                     observations.Add((invocation.Span, model.GetConstantValue(invocation).Value!.ToString()!, true));
+                }
             }
             var output = plan!.Apply().ToString();
             var parsed = CSharpSyntaxTree.ParseText(output);

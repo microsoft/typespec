@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 {
     public partial class StructuralTypeNameIntegrationTests
     {
-        [TestCase("using System;")]
+        // Global imports can affect OTHER documents and remain unsupported.
         [TestCase("global using System;")]
         public async Task StructuralC5CrefPreservesHiddenUnusedImportDiagnostic(string directive)
         {
@@ -23,6 +23,21 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var before = C5CrefDiagnostics(code.Content);
             Assert.That(before.Any(static d => d.StartsWith("CS8019|Hidden|", StringComparison.Ordinal)), Is.True, "The original import must genuinely be unused.");
             Assert.That(C5CrefDiagnostics(output), Is.EqualTo(before), "Equal cref symbols and XML do not establish preservation of import diagnostics.");
+        }
+
+        [Test]
+        public async Task StructuralCrefImportActivationChangesOnlyHiddenUnusedImport()
+        {
+            // Preserve the original C5 ordinary-import regression input. Its old
+            // exact-Hidden-equality expectation is now an explicit policy delta:
+            // this same import becomes genuinely used by the bare type cref.
+            var code = C5DiagnosticCrefCode("using System;", "");
+            var before = C5CrefDiagnostics(code.Content);
+            Assert.That(before, Is.EqualTo(new[] { "CS8019|Hidden|False|Unnecessary using directive." }));
+            var output = await Reduce(code);
+            StringAssert.Contains("cref=\"DateTimeOffset\"", output);
+            Assert.That(C5CrefDiagnostics(output), Is.Empty);
+            AssertStructuralCrefs(code.Content, output);
         }
 
         [Test]
