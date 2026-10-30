@@ -5,7 +5,8 @@ import type { HasName } from "@typespec/emitter-framework";
 import { TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
 import type { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";
-import { isFormUrlEncodedContentType } from "../../utils/form-urlencoded.js";
+import { FORM_URL_ENCODED_MEDIA_TYPE } from "../../utils/form-urlencoded.js";
+import { isFormUrlEncodedSingleBody } from "../../utils/serializer-transform.js";
 import { getEncodeFormUrlEncodedRef } from "../static-helpers/form-urlencoded.jsx";
 import { ContentTypeEncodingProvider } from "./content-type-encoding-provider.jsx";
 import { JsonTransform } from "./json/json-transform.jsx";
@@ -17,6 +18,7 @@ export interface OperationTransformToTransportExpression {
 }
 
 export function OperationTransformExpression(props: OperationTransformToTransportExpression) {
+  const { $ } = useTsp();
   const body = props.httpOperation.parameters.body;
 
   if (!body) {
@@ -33,21 +35,23 @@ export function OperationTransformExpression(props: OperationTransformToTranspor
   // application/x-www-form-urlencoded. And multiple content types.
   const contentType = body.contentTypes[0];
   const payloadType = body.type;
-  if (
-    body.bodyKind === "single" &&
-    payloadType.kind === "Model" &&
-    isFormUrlEncodedContentType(contentType)
-  ) {
+  if (isFormUrlEncodedSingleBody(body, $)) {
     return (
       <ContentTypeEncodingProvider contentType={contentType}>
         <TransformNamePolicyContext.Provider
           value={{
-            getTransportName: (type) => defaultTransportNameGetter(type, contentType),
+            getTransportName: (type) =>
+              defaultTransportNameGetter(type, FORM_URL_ENCODED_MEDIA_TYPE),
             getApplicationName: payloadApplicationNameGetter,
           }}
         >
           {code`${getEncodeFormUrlEncodedRef()}(${(
-            <JsonTransform itemRef={itemRef} target="transport" type={payloadType} />
+            <JsonTransform
+              itemRef={itemRef}
+              target="transport"
+              type={payloadType}
+              serializationMediaType={FORM_URL_ENCODED_MEDIA_TYPE}
+            />
           )})`}
         </TransformNamePolicyContext.Provider>
       </ContentTypeEncodingProvider>

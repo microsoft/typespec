@@ -12,6 +12,7 @@ export interface JsonModelPropertyTransformProps {
   itemRef: Refkey | Children;
   type: ModelProperty;
   target: "transport" | "application";
+  serializationMediaType?: string;
 }
 
 export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProps) {
@@ -33,7 +34,12 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
     );
   } else {
     propertyValue = (
-      <JsonTransform type={propertyValueType} target={props.target} itemRef={propertyValueRef} />
+      <JsonTransform
+        type={propertyValueType}
+        target={props.target}
+        itemRef={propertyValueRef}
+        serializationMediaType={props.serializationMediaType}
+      />
     );
   }
 

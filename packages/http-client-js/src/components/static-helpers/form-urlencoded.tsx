@@ -1,26 +1,23 @@
 import { code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { useTsp } from "@typespec/emitter-framework";
 import { useClientLibrary } from "@typespec/http-client";
 import { flattenClients } from "../../utils/client-discovery.js";
-import { isFormUrlEncodedContentType } from "../../utils/form-urlencoded.js";
+import { isFormUrlEncodedSingleBody } from "../../utils/serializer-transform.js";
 
 export function getEncodeFormUrlEncodedRef() {
   return refkey("encodeFormUrlEncoded", "function", "static-helpers");
 }
 
 export function libraryNeedsFormUrlEncoded(library: ReturnType<typeof useClientLibrary>): boolean {
+  const { $ } = useTsp();
   const operations = library.topLevel
     .flatMap((client) => flattenClients(client))
     .flatMap((client) => client.operations);
 
-  return operations.some((operation) => {
-    const body = operation.httpOperation.parameters.body;
-    return (
-      body?.bodyKind === "single" &&
-      body.type.kind === "Model" &&
-      isFormUrlEncodedContentType(body.contentTypes[0])
-    );
-  });
+  return operations.some((operation) =>
+    isFormUrlEncodedSingleBody(operation.httpOperation.parameters.body, $),
+  );
 }
 
 export function FormUrlEncodedHelpers() {
