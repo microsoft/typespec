@@ -510,9 +510,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     continue;
                 }
 
-                ApplyCurrentExperimentalMetadata(
+                ApplyCurrentApiMetadata(
                     enclosingType,
                     overload,
+                    previousMethod,
                     optionalityMatch ?? newOptionalMatch ?? nullabilityMatch!);
                 candidates.Add(overload);
                 methods.Add(overload);
@@ -522,7 +523,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
         }
 
-        private static void ApplyCurrentExperimentalMetadata(TypeProvider enclosingType, MethodProvider overload, MethodProvider currentMethod)
+        private static void ApplyCurrentApiMetadata(TypeProvider enclosingType, MethodProvider overload, MethodProvider previousMethod, MethodProvider currentMethod)
         {
             var customMethod = currentMethod.IsPartialMethod
                 ? enclosingType.CustomCodeView?.Methods.FirstOrDefault(
@@ -530,14 +531,22 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 : null;
             var attribute = customMethod?.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute)
                 ?? currentMethod.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute);
+            var obsolete = customMethod?.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute)
+                ?? currentMethod.Signature.Attributes.FirstOrDefault(a => DeprecationApiHelpers.IsObsoleteAttribute(a)
+                    && !enclosingType.IsGeneratedMethodDeprecationAttribute(a))
+                ?? currentMethod.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute);
 
             // Graduation and custom partial attributes follow the current API, not the last contract.
             overload.Signature.Update(attributes:
             [
-                .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)),
-                .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute]
+                .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)
+                    && !DeprecationApiHelpers.IsObsoleteAttribute(a)),
+                .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute],
+                .. obsolete is not null && (!enclosingType.IsGeneratedMethodDeprecationAttribute(obsolete)
+                    || previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)) ? [obsolete] : Array.Empty<AttributeStatement>()
             ]);
-            overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions));
+            overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions,
+                obsolete is null ? [] : DeprecationApiHelpers.GetSuppressions(obsolete)));
         }
 
         // Returns true when both signatures have the same return type (matched by name); a null return type

@@ -316,6 +316,54 @@ interface TopLevelArmResourceInterface
   >;
 }
 
+@route("/subscriptions/{subscriptionId}/resourceGroups/{group}/providers/TspTest.ArmResourceProvider/accounts/{accountName}/topLevelArmResources")
+interface AccountResources {
+  @get
+  @route("/{resourceName}")
+  get(
+    @path subscriptionId: string,
+    @path group: string,
+    @path accountName: string,
+    @path resourceName: string,
+    ...ApiVersionParameter,
+  ): TopLevelArmResource;
+
+  @get
+  @list
+  list(
+    @path subscriptionId: string,
+    @path group: string,
+    @path accountName: string,
+    ...ApiVersionParameter,
+  ): SharedResourceListResult;
+}
+
+@route("/subscriptions/{subscriptionId}/resourceGroups/{group}/providers/TspTest.ArmResourceProvider/labs/{labName}/machines/{machineName}/topLevelArmResources")
+interface MachineResources {
+  @get
+  @route("/{resourceName}")
+  get(
+    @path subscriptionId: string,
+    @path group: string,
+    @path labName: string,
+    @path machineName: string,
+    @path resourceName: string,
+    ...ApiVersionParameter,
+  ): TopLevelArmResource;
+
+  @get
+  @list
+  list(
+    @path subscriptionId: string,
+    @path group: string,
+    @path labName: string,
+    @path machineName: string,
+    ...ApiVersionParameter,
+  ): SharedResourceListResult;
+}
+
+model SharedResourceListResult is Azure.Core.Page<TopLevelArmResource>;
+
 @armResourceOperations
 interface CustomTemplateResourceInterface
   extends ResourceCreate<

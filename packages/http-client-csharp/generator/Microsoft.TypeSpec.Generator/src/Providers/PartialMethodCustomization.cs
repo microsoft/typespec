@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -162,6 +164,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <paramref name="customSignature"/> (modifiers, name, return type, attributes, and
         /// other signature metadata) and the supplied <paramref name="implementationParameters"/>.
         /// The result has <see cref="MethodSignatureModifiers.Partial"/> applied.
+        /// Custom experimental and obsolete attributes remain on the defining declaration to avoid duplicate attributes.
         /// </summary>
         /// <param name="customSignature">The customer's partial declaration signature.</param>
         /// <param name="implementationParameters">The parameters to use for the implementation.
@@ -203,7 +206,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,
-                customSignature.Attributes,
+                [.. customSignature.Attributes.Where(attribute => !ExperimentalApiHelpers.IsExperimentalAttribute(attribute)
+                    && !DeprecationApiHelpers.IsObsoleteAttribute(attribute))],
                 customSignature.GenericArguments,
                 customSignature.GenericParameterConstraints,
                 customSignature.ExplicitInterface,

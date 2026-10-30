@@ -843,8 +843,9 @@ function createOAPIEmitter(
     const values = operations
       .map((op) => func(program, op.operation))
       .filter((op) => op !== undefined) as string[];
-    if (values.length) {
-      return values.join(joinChar);
+    const uniqueValues = [...new Set(values)];
+    if (uniqueValues.length) {
+      return uniqueValues.join(joinChar);
     } else {
       return undefined;
     }

@@ -792,8 +792,9 @@ op internalProtocol(@body body: Thing): Thing;
 op stillConvenient(): void;
 
 @route("/headAsBoolean")
-@doc("head as boolean.")
+@doc("Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.")
 @head
+@responseAsBool
 @convenientAPI(true, "csharp")
 op headAsBoolean(@path id: string): void;
 
@@ -1130,3 +1131,40 @@ op getAcronymParameters(
 @post
 @convenientAPI(true, "csharp")
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
+
+#deprecated "Use \"CurrentDetails\" instead.\nSee C:\\sdk."
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0011",
+})
+model LegacyDetails {
+  choice: LegacyChoice;
+  extensibleChoice: LegacyExtensibleChoice;
+}
+
+#deprecated "Use CurrentChoice instead."
+enum LegacyChoice {
+  one,
+  two,
+}
+
+#deprecated "Use CurrentExtensibleChoice instead."
+union LegacyExtensibleChoice {
+  string,
+  one: "one",
+}
+
+model CurrentDetails extends LegacyDetails {
+  previous?: LegacyDetails[];
+}
+
+interface DeprecationSamples {
+  #deprecated "Use \"read\" instead.\nSee C:\\sdk."
+  @route("/deprecated")
+  @get
+  legacy(): LegacyDetails;
+
+  @route("/deprecated/current")
+  @get
+  read(): CurrentDetails;
+}

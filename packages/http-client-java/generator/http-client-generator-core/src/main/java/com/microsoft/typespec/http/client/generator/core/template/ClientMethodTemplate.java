@@ -544,7 +544,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     /**
-     * Obtain the Java code that converts an enum iterable parameter to a string of delimiter seperated wire values.
+     * Obtain the Java code that converts an enum iterable parameter to a string of delimiter separated wire values.
      *
      * @param parameterName the name of the enum iterable parameter to convert.
      * @param shouldCheckNull whether to check if the parameter is null before converting it.
@@ -576,7 +576,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     /**
-     * Obtain the Java code that converts a primitive iterable parameter to a string of delimiter seperated string wire
+     * Obtain the Java code that converts a primitive iterable parameter to a string of delimiter separated string wire
      * values.
      * <p>
      * The primitive types are Boolean, Byte, Integer, Long, Float, Double, String.

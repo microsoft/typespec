@@ -76,6 +76,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             Assert.AreEqual("value += value;\n", writer.ToString(false));
         }
 
+        [TestCase(true, "(left + right)")]
+        [TestCase(false, "left + right")]
+        public void ExplicitBinaryParenthesesOptionIsPreserved(bool addParentheses, string expected)
+        {
+            using var writer = new CodeWriter();
+            new BinaryOperatorExpression("+", new VariableExpression(typeof(int), "left"), new VariableExpression(typeof(int), "right"), addParentheses).Write(writer);
+            Assert.AreEqual(expected, writer.ToString(false));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void StatementAssignmentRemainsLegalWithEitherParenthesesOption(bool addParentheses)
+        {
+            using var writer = new CodeWriter();
+            var value = new VariableExpression(typeof(int), "value");
+            new ExpressionStatement(new BinaryOperatorExpression("+=", value, value, addParentheses)).Write(writer);
+            Assert.AreEqual("value += value;\n", writer.ToString(false));
+        }
+
         [Test]
         public void AssignmentInsideAnExpressionRetainsParentheses()
         {

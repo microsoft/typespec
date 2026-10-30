@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
@@ -28,11 +27,16 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -137,14 +141,6 @@ public class FluentMapper {
     FluentClient basicMap(CodeModel codeModel, Client client) {
         FluentClient fluentClient = new FluentClient(client);
 
-        final String implementationModelsPackage = JavaSettings.getInstance().getImplementationSubpackage() + "."
-            + JavaSettings.getInstance().getModelsSubpackage();
-        final boolean hasImplementationModels = ClientModels.getInstance()
-            .getModels()
-            .stream()
-            .anyMatch(m -> m.getPackage().endsWith(implementationModelsPackage));
-        fluentClient.setModuleInfo(getModuleInfo(hasImplementationModels));
-
         FluentStatic.setFluentClient(fluentClient);
 
         // manager, service API
@@ -175,12 +171,28 @@ public class FluentMapper {
                 .map(FluentManagerProperty::new)
                 .collect(Collectors.toList()));
 
+        fluentClient.setModuleInfo(getModuleInfo(fluentClient));
+
         return fluentClient;
     }
 
-    private static ModuleInfo getModuleInfo(boolean hasImplementationModels) {
+    private ModuleInfo getModuleInfo(FluentClient fluentClient) {
         JavaSettings settings = JavaSettings.getInstance();
         ModuleInfo moduleInfo = new ModuleInfo(settings.getPackage());
+
+        Client client = fluentClient.getInnerClient();
+        Set<String> modelPackages = new LinkedHashSet<>();
+        client.getModels().forEach(model -> modelPackages.add(model.getPackage()));
+        client.getEnums()
+            .stream()
+            .filter(enumType -> !fluentJavaSettings.getJavaNamesForRemoveModel().contains(enumType.getName()))
+            .forEach(enumType -> modelPackages.add(enumType.getPackage()));
+        client.getResponseModels().forEach(response -> modelPackages.add(response.getPackage()));
+        client.getExceptions().forEach(exception -> modelPackages.add(exception.getPackage()));
+        client.getXmlSequenceWrappers().forEach(wrapper -> modelPackages.add(wrapper.getPackage()));
+        fluentClient.getResourceModels().forEach(model -> modelPackages.add(model.getInterfaceType().getPackage()));
+        fluentClient.getResourceCollections()
+            .forEach(collection -> modelPackages.add(collection.getInterfaceType().getPackage()));
 
         List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule("com.azure.core.management", true));
@@ -188,29 +200,29 @@ public class FluentMapper {
         List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage()));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentSubpackage())));
-        exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentModelsSubpackage())));
-        exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getModelsSubpackage())));
-
         List<String> openToModules = new ArrayList<>();
         openToModules.add("com.azure.core");
         if (!settings.isStreamStyleSerialization()) {
             openToModules.add("com.fasterxml.jackson.databind");
         }
         List<ModuleInfo.OpenModule> openModules = moduleInfo.getOpenModules();
-        openModules
-            .add(new ModuleInfo.OpenModule(settings.getPackage(settings.getFluentModelsSubpackage()), openToModules));
-        openModules.add(new ModuleInfo.OpenModule(settings.getPackage(settings.getModelsSubpackage()), openToModules));
-        if (hasImplementationModels) {
-            openModules.add(new ModuleInfo.OpenModule(
-                settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage()),
-                openToModules));
+        String implementationModelsPackage
+            = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
+        for (String packageName : List.of(settings.getPackage(settings.getFluentModelsSubpackage()),
+            settings.getPackage(settings.getModelsSubpackage()), implementationModelsPackage)) {
+            if (modelPackages.contains(packageName)) {
+                if (!packageName.equals(implementationModelsPackage)) {
+                    exportModules.add(new ModuleInfo.ExportModule(packageName));
+                }
+                openModules.add(new ModuleInfo.OpenModule(packageName, openToModules));
+            }
         }
 
         return moduleInfo;
     }
 
     private void processInnerModel(CodeModel codeModel) {
-        // Add "Inner" to all method response types, and recursively to types having it as property.
+        // Add "Inner" to method response types, then propagate it to models containing them as properties.
 
         final FluentObjectMapper objectMapper = (FluentObjectMapper) Mappers.getObjectMapper();
 
@@ -267,11 +279,17 @@ public class FluentMapper {
         compositeTypes.removeAll(errorTypes);
 
         compositeTypes = objectMapper.addInnerModels(compositeTypes);
+        // Marking an Inner model changes mapper state, not schema names or property edges. The same index can
+        // therefore serve both response-derived seeds and explicitly requested additions below.
+        Map<String, Set<ObjectSchema>> reverseReferences
+            = compositeTypes.isEmpty() && fluentJavaSettings.getJavaNamesForAddInner().isEmpty()
+                ? Map.of()
+                : indexInnerModelReferences(codeModel);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Add Inner to response types: {}",
                 compositeTypes.stream().map(Utils::getJavaName).collect(Collectors.toList()));
         }
-        recursiveAddInnerModel(objectMapper, codeModel, compositeTypes);
+        addInnerModelReferences(objectMapper, reverseReferences, compositeTypes);
 
         final Set<String> javaNamesForAddInner = fluentJavaSettings.getJavaNamesForAddInner();
         if (!javaNamesForAddInner.isEmpty()) {
@@ -286,7 +304,7 @@ public class FluentMapper {
                 LOGGER.info("Add Inner as requested: {}",
                     compositeTypes.stream().map(Utils::getJavaName).collect(Collectors.toList()));
             }
-            recursiveAddInnerModel(objectMapper, codeModel, compositeTypes);
+            addInnerModelReferences(objectMapper, reverseReferences, compositeTypes);
         }
 
         final Set<String> javaNamesForRemoveInner = fluentJavaSettings.getJavaNamesForRemoveInner();
@@ -300,49 +318,69 @@ public class FluentMapper {
 //                || (Utils.getJavaName(operation).equals(WellKnownMethodName.LIST) || Utils.getJavaName(operation).equals(WellKnownMethodName.LIST_BY_RESOURCE_GROUP));
     }
 
-    private static void recursiveAddInnerModel(FluentObjectMapper objectMapper, CodeModel codeModel,
-        Collection<ObjectSchema> compositeTypes) {
-        compositeTypes.forEach(s -> recursiveAddInnerModel(objectMapper, codeModel, Utils.getJavaName(s)));
+    /**
+     * Maps a property type's Java name to the models that contain it, so propagation visits owners directly.
+     * The original scan compared Java names, not schema identity; distinct schema objects with the same Java name
+     * must therefore share a lookup entry. Preserve its search scope: direct object-valued properties on objects,
+     * including object elements registered in the array and dictionary schema lists.
+     */
+    private static Map<String, Set<ObjectSchema>> indexInnerModelReferences(CodeModel codeModel) {
+        Map<String, Set<ObjectSchema>> references = new LinkedHashMap<>();
+        Stream
+            .concat(
+                Stream.concat(codeModel.getSchemas().getObjects().stream(),
+                    codeModel.getSchemas()
+                        .getArrays()
+                        .stream()
+                        .map(ArraySchema::getElementType)
+                        .filter(s -> s instanceof ObjectSchema)
+                        .map(s -> (ObjectSchema) s)),
+                codeModel.getSchemas()
+                    .getDictionaries()
+                    .stream()
+                    .map(DictionarySchema::getElementType)
+                    .filter(s -> s instanceof ObjectSchema)
+                    .map(s -> (ObjectSchema) s))
+            .distinct()
+            .filter(schema -> schema.getProperties() != null)
+            .forEach(schema -> schema.getProperties()
+                .stream()
+                .map(Value::getSchema)
+                .filter(type -> type instanceof ObjectSchema)
+                .forEach(type -> {
+                    String name = Utils.getJavaName(type);
+                    if (name != null) {
+                        references.computeIfAbsent(name, ignored -> new LinkedHashSet<>()).add(schema);
+                    }
+                }));
+        return references;
     }
 
-    private static void recursiveAddInnerModel(FluentObjectMapper objectMapper, CodeModel codeModel, String typeName) {
-        if (typeName == null)
-            return;
-
-        Set<ObjectSchema> compositeTypesInProperties = Stream.concat(Stream.concat(
-            // ObjectSchema
-            codeModel.getSchemas().getObjects().stream(),
-            // ArraySchema
-            codeModel.getSchemas()
-                .getArrays()
-                .stream()
-                .map(ArraySchema::getElementType)
-                .filter(s -> s instanceof ObjectSchema)
-                .map(s -> (ObjectSchema) s)),
-            // DictionarySchema
-            codeModel.getSchemas()
-                .getDictionaries()
-                .stream()
-                .map(DictionarySchema::getElementType)
-                .filter(s -> s instanceof ObjectSchema)
-                .map(s -> (ObjectSchema) s))
-            .filter(s -> {
-                if (s.getProperties() == null)
-                    return false;
-                return s.getProperties()
-                    .stream()
-                    .map(Value::getSchema)
-                    .anyMatch(t -> t instanceof ObjectSchema && typeName.equals(Utils.getJavaName(t)));
-            })
-            .collect(Collectors.toSet());
-
-        if (!compositeTypesInProperties.isEmpty()) {
-            compositeTypesInProperties = objectMapper.addInnerModels(compositeTypesInProperties);
+    /**
+     * Walk reverse edges from each newly marked Inner model to its containing models. An explicit queue avoids
+     * recursive stack growth on deep owner chains and repeated full-model searches at each propagation step.
+     */
+    private static void addInnerModelReferences(FluentObjectMapper objectMapper,
+        Map<String, Set<ObjectSchema>> reverseReferences, Collection<ObjectSchema> compositeTypes) {
+        Queue<ObjectSchema> pending = new ArrayDeque<>(compositeTypes);
+        // Name-based visitation matches the index's equivalence rule, including distinct same-named instances.
+        Set<String> visited = new LinkedHashSet<>();
+        while (!pending.isEmpty()) {
+            String typeName = Utils.getJavaName(pending.remove());
+            if (typeName == null || !visited.add(typeName)) {
+                continue;
+            }
+            // The mapper returns only newly marked owners. Requeue those, not every owner, so shared references
+            // and cycles do not repeatedly propagate models that have already become Inner.
+            Set<ObjectSchema> added = objectMapper.addInnerModels(reverseReferences.getOrDefault(typeName, Set.of()));
+            if (added.isEmpty()) {
+                continue;
+            }
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Add Inner for type '{}': {}", typeName,
-                    compositeTypesInProperties.stream().map(Utils::getJavaName).collect(Collectors.toList()));
+                    added.stream().map(Utils::getJavaName).collect(Collectors.toList()));
             }
-            recursiveAddInnerModel(objectMapper, codeModel, compositeTypesInProperties);
+            pending.addAll(added);
         }
     }
 }
