@@ -370,6 +370,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : content;
             }
 
+            MethodBodyStatement DeclareRequestContent(string name, CSharpType type, ValueExpression value, out VariableExpression content)
+            {
+                // Paging collections retain the content for deferred requests.
+                return _pagingServiceMethod is null
+                    ? UsingDeclare(name, type, value, out content)
+                    : Declare(name, type, value, out content);
+            }
+
             // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
             void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value)
             {
@@ -379,7 +387,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? new TernaryConditionalExpression(value.Equal(Null), Null, New.Instance<Utf8JsonBinaryContentDefinition>())
                     : New.Instance<Utf8JsonBinaryContentDefinition>();
                 var declaration = Declare("content", new Utf8JsonBinaryContentDefinition().Type, initialization, out var content);
-                statements.Add(hasLifecycleVisibility ? UsingDeclare(content, initialization) : declaration);
+                statements.Add(hasLifecycleVisibility && _pagingServiceMethod is null ? UsingDeclare(content, initialization) : declaration);
                 var serialization = ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
                     serializationType,
                     value,
@@ -397,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (parameter.Location == ParameterLocation.Body)
+                if (parameter.Location == ParameterLocation.Body && !parameter.Type.Equals(typeof(BinaryData)))
                 {
                     if (parameter.Type.IsIAsyncEnumerableOfT)
                     {
@@ -412,12 +420,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 Null,
                                 New.Instance(contentType, contentArguments))
                             : New.Instance(contentType, contentArguments);
-                        statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
+                        statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }
                     else if (hasLifecycleVisibility && parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType,
+                        statements.Add(DeclareRequestContent("content", requestContentType,
                             WithOptionalBody(parameter, BinaryContentHelperSnippets.FromDictionary(parameter, requestSerializationOptions)), out var content));
                         declarations["content"] = content;
                     }
@@ -425,7 +433,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span"),
                             hasLifecycleVisibility ? requestSerializationOptions : null);
-                        statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
+                        statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
@@ -434,7 +442,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName),
                                 hasLifecycleVisibility ? requestSerializationOptions : null);
-                            statements.Add(UsingDeclare("content", requestContentType,
+                            statements.Add(DeclareRequestContent("content", requestContentType,
                                 hasLifecycleVisibility ? WithOptionalBody(parameter, contentExpression) : contentExpression, out var content));
                             declarations["content"] = content;
                         }
@@ -442,14 +450,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter,
                                 hasLifecycleVisibility ? requestSerializationOptions : null);
-                            statements.Add(UsingDeclare("content", requestContentType,
+                            statements.Add(DeclareRequestContent("content", requestContentType,
                                 hasLifecycleVisibility ? WithOptionalBody(parameter, contentExpression) : contentExpression, out var content));
                             declarations["content"] = content;
                         }
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(DeclareRequestContent("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (hasLifecycleVisibility && !ServiceMethod.Operation.IsMultipartFormData && !isXmlRequest)
@@ -464,7 +472,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter)), out var content));
+                            var contentExpression = RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter));
+                            statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                             declarations["content"] = content;
                         }
                     }
@@ -474,7 +483,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        statements.Add(DeclareRequestContent("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
@@ -506,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     New.Instance<LifecycleModelReaderWriterOptionsDefinition>(
                                         LifecycleVisibilityDefinition.GetExpression(ServiceMethod.Operation.RequestVisibility!.Value), format).As<ModelReaderWriterOptions>()))
                                 : parameter.Invoke(methodName, format);
-                            statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
+                            statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                             declarations["content"] = content;
                         }
                         else if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
@@ -514,14 +523,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             var bodyExpression = inputParam is { IsRequired: false }
                                 ? parameter.NullConditional()
                                 : parameter;
-                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type,
+                            statements.Add(DeclareRequestContent("content", MultiPartFormContentSnippets.Type,
                                 MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression,
                                     hasLifecycleVisibility ? requestSerializationOptions : null), out var content));
                             declarations["content"] = content;
                         }
                         else if (hasLifecycleVisibility)
                         {
-                            statements.Add(UsingDeclare("content", requestContentType,
+                            statements.Add(DeclareRequestContent("content", requestContentType,
                                 WithOptionalBody(parameter, RequestContentApiSnippets.Create(parameter, requestSerializationOptions)), out var content));
                             declarations["content"] = content;
                         }
@@ -541,13 +550,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (ServiceMethod.Operation.IsMultipartFormData)
                     {
-                        statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type,
+                        statements.Add(DeclareRequestContent("content", MultiPartFormContentSnippets.Type,
                             MultiPartFormContentSnippets.ToMultipartFormContent(spread, requestSerializationOptions), out var content));
                         declarations["content"] = content;
                     }
                     else if (isXmlRequest)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType,
+                        statements.Add(DeclareRequestContent("content", requestContentType,
                             RequestContentApiSnippets.Create(spread, requestSerializationOptions), out var content));
                         declarations["content"] = content;
                     }

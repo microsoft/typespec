@@ -1274,6 +1274,28 @@ interface VisibilitySamples {
   @post
   unionDictionary(@body topics: Record<ChatTopic | string>): void;
 
+  @route("/visibility/union")
+  @post
+  unionBody(@body topic: ChatTopic | string): void;
+
+  @route("/visibility/paged")
+  @post
+  @list
+  paged(@body topic: ChatTopic): {
+    @pageItems items: ChatTopic[];
+    @nextLink next?: url;
+  };
+
+  @route("/visibility/paged-list")
+  @post
+  @list
+  pagedList(@body topics: ChatTopic[]): Page<ChatTopic>;
+
+  @route("/visibility/paged-dictionary")
+  @post
+  @list
+  pagedDictionary(@body topics: Record<ChatTopic>): Page<ChatTopic>;
+
   @route("/visibility/optional")
   @post
   optional(@body topic?: ChatTopic): void;

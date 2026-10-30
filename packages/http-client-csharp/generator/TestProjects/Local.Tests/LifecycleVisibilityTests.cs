@@ -7,6 +7,8 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -97,6 +99,135 @@ namespace TestProjects.Local.Tests
 
         private static ChatTopic CreateTopic() => ModelReaderWriter.Read<ChatTopic>(
             BinaryData.FromString("{\"title\":\"title\",\"state\":\"active\",\"createOnly\":\"create\",\"id\":\"id\"}"))!;
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task PagedRequestsRetainContentUntilEnumeration(bool isAsync)
+        {
+            using var handler = new PagingHandler();
+            using var httpClient = new HttpClient(handler);
+            var options = new SampleTypeSpecClientOptions { Transport = new HttpClientPipelineTransport(httpClient) };
+            var client = new SampleTypeSpecClient(new Uri("https://example.test"), new ApiKeyCredential("key"), options).GetVisibilitySamplesClient();
+            var count = 0;
+            if (isAsync)
+            {
+                var pages = client.PagedAsync(CreateTopic());
+                Assert.AreEqual(0, handler.Payloads.Count);
+                await foreach (var item in pages)
+                {
+                    Assert.AreEqual("title", item.Title);
+                    count++;
+                }
+            }
+            else
+            {
+                var pages = client.Paged(CreateTopic());
+                Assert.AreEqual(0, handler.Payloads.Count);
+                foreach (var item in pages)
+                {
+                    Assert.AreEqual("title", item.Title);
+                    count++;
+                }
+            }
+            Assert.AreEqual(2, count);
+            Assert.AreEqual(2, handler.RequestCount);
+            Assert.AreEqual(1, handler.Payloads.Count);
+            foreach (var payload in handler.Payloads)
+            {
+                AssertTopic(payload, hasState: false, hasCreateOnly: true);
+            }
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task PagedCollectionRequestsRetainContentUntilEnumeration(bool isAsync, bool dictionary)
+        {
+            using var handler = new PagingHandler();
+            using var httpClient = new HttpClient(handler);
+            var options = new SampleTypeSpecClientOptions { Transport = new HttpClientPipelineTransport(httpClient) };
+            var client = new SampleTypeSpecClient(new Uri("https://example.test"), new ApiKeyCredential("key"), options).GetVisibilitySamplesClient();
+            var topic = CreateTopic();
+            var lookup = new Dictionary<string, ChatTopic> { ["topic"] = topic };
+            var count = 0;
+            if (isAsync)
+            {
+                var pages = dictionary ? client.PagedDictionaryAsync(lookup) : client.PagedListAsync([topic]);
+                Assert.AreEqual(0, handler.Payloads.Count);
+                await foreach (var item in pages)
+                {
+                    Assert.AreEqual("title", item.Title);
+                    count++;
+                }
+            }
+            else
+            {
+                var pages = dictionary ? client.PagedDictionary(lookup) : client.PagedList([topic]);
+                Assert.AreEqual(0, handler.Payloads.Count);
+                foreach (var item in pages)
+                {
+                    Assert.AreEqual("title", item.Title);
+                    count++;
+                }
+            }
+            Assert.AreEqual(1, count);
+            var payload = handler.Payloads.Single();
+            AssertTopic(dictionary ? payload.GetProperty("topic") : payload[0], hasState: false, hasCreateOnly: true);
+        }
+
+        private sealed class PagingHandler : HttpMessageHandler
+        {
+            internal List<JsonElement> Payloads { get; } = [];
+            internal int RequestCount { get; private set; }
+
+            protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
+                => SendAsync(request, cancellationToken).GetAwaiter().GetResult();
+
+            protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                RequestCount++;
+                if (request.Content is not null)
+                {
+                    using var document = JsonDocument.Parse(await request.Content.ReadAsStringAsync(cancellationToken));
+                    Payloads.Add(document.RootElement.Clone());
+                }
+                var next = RequestCount == 1 ? ",\"next\":\"https://example.test/visibility/paged/next\"" : "";
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"items\":[{\"title\":\"title\"}]" + next + "}", System.Text.Encoding.UTF8, "application/json")
+                };
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task RawUnionBodyDoesNotSerializeAnUnusedBuffer(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            string? payload = null;
+            void Capture(BinaryContent content, string contentType, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                payload = BinaryData.FromBytes(stream.ToArray()).ToString();
+            }
+            client.Setup(c => c.UnionBody(It.IsAny<BinaryContent>(), It.IsAny<string>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, string, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.UnionBodyAsync(It.IsAny<BinaryContent>(), It.IsAny<string>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, string, RequestOptions>(Capture).ReturnsAsync(result);
+            var body = BinaryData.FromString("raw request content");
+            if (isAsync)
+            {
+                await client.Object.UnionBodyAsync(body, UnionBodyContentType.ApplicationJson);
+            }
+            else
+            {
+                client.Object.UnionBody(body, UnionBodyContentType.ApplicationJson);
+            }
+            Assert.AreEqual(body.ToString(), payload);
+        }
 
         [TestCase(false)]
         [TestCase(true)]

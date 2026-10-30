@@ -41,8 +41,8 @@ namespace SampleTypeSpec
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        /// <summary> Gets the Title. </summary>
-        public string Title { get; }
+        /// <summary> Gets or sets the Title. </summary>
+        public string Title { get; set; }
 
         /// <summary> Gets or sets the State. </summary>
         public ChatTopicState? State { get; set; }

@@ -889,6 +889,280 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] UnionBody
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> Body parameter's content type. Known values are application/json,text/plain. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> or <paramref name="contentType"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="contentType"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult UnionBody(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateUnionBodyRequest(content, contentType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] UnionBody
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> Body parameter's content type. Known values are application/json,text/plain. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> or <paramref name="contentType"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="contentType"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> UnionBodyAsync(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateUnionBodyRequest(content, contentType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> UnionBody. </summary>
+        /// <param name="topic"></param>
+        /// <param name="contentType"> Body parameter's content type. Known values are application/json,text/plain. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult UnionBody(BinaryData topic, UnionBodyContentType contentType, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            return UnionBody(BinaryContent.Create(topic), contentType.ToSerialString(), cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> UnionBody. </summary>
+        /// <param name="topic"></param>
+        /// <param name="contentType"> Body parameter's content type. Known values are application/json,text/plain. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> UnionBodyAsync(BinaryData topic, UnionBodyContentType contentType, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            return await UnionBodyAsync(BinaryContent.Create(topic), contentType.ToSerialString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Paged
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult Paged(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            return new VisibilitySamplesPagedCollectionResult(this, content, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Paged
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult PagedAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            return new VisibilitySamplesPagedAsyncCollectionResult(this, content, options);
+        }
+
+        /// <summary> Paged. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<ChatTopic> Paged(ChatTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return new VisibilitySamplesPagedCollectionResultOfT(this, content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Paged. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<ChatTopic> PagedAsync(ChatTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return new VisibilitySamplesPagedAsyncCollectionResultOfT(this, content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary>
+        /// [Protocol Method] PagedList
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult PagedList(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            return new VisibilitySamplesPagedListCollectionResult(this, content, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] PagedList
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult PagedListAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            return new VisibilitySamplesPagedListAsyncCollectionResult(this, content, options);
+        }
+
+        /// <summary> PagedList. </summary>
+        /// <param name="topics"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topics"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<ChatTopic> PagedList(IEnumerable<ChatTopic> topics, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topics, nameof(topics));
+
+            BinaryContent content = BinaryContentHelper.FromEnumerable(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return new VisibilitySamplesPagedListCollectionResultOfT(this, content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> PagedList. </summary>
+        /// <param name="topics"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topics"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<ChatTopic> PagedListAsync(IEnumerable<ChatTopic> topics, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topics, nameof(topics));
+
+            BinaryContent content = BinaryContentHelper.FromEnumerable(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return new VisibilitySamplesPagedListAsyncCollectionResultOfT(this, content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary>
+        /// [Protocol Method] PagedDictionary
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult PagedDictionary(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            return new VisibilitySamplesPagedDictionaryCollectionResult(this, content, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] PagedDictionary
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult PagedDictionaryAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            return new VisibilitySamplesPagedDictionaryAsyncCollectionResult(this, content, options);
+        }
+
+        /// <summary> PagedDictionary. </summary>
+        /// <param name="topics"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topics"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<ChatTopic> PagedDictionary(IDictionary<string, ChatTopic> topics, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topics, nameof(topics));
+
+            BinaryContent content = BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return new VisibilitySamplesPagedDictionaryCollectionResultOfT(this, content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> PagedDictionary. </summary>
+        /// <param name="topics"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topics"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<ChatTopic> PagedDictionaryAsync(IDictionary<string, ChatTopic> topics, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topics, nameof(topics));
+
+            BinaryContent content = BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return new VisibilitySamplesPagedDictionaryAsyncCollectionResultOfT(this, content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary>
         /// [Protocol Method] Optional
         /// <list type="bullet">
         /// <item>
