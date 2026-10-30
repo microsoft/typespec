@@ -191,6 +191,31 @@ describe("subpath export emitters", () => {
   });
 });
 
+it("keeps filesystem emitter output inside the configured output directory", async () => {
+  let emitContext: EmitContext | undefined;
+  const diagnostics = await Tester.files({
+    "../local-emitter/package.json": JSON.stringify({
+      name: "local-emitter",
+      main: "index.js",
+    }),
+    "../local-emitter/index.js": mockFile.js({
+      $lib: fakeEmitter,
+      $onEmit: (context: EmitContext) => {
+        emitContext = context;
+      },
+    }),
+  }).diagnose("", {
+    compilerOptions: {
+      emit: ["../local-emitter"],
+      outputDir: "/project/tsp-output",
+    },
+  });
+
+  expectDiagnosticEmpty(diagnostics);
+  ok(emitContext, "Emit context should have been set.");
+  strictEqual(emitContext.emitterOutputDir, "/project/tsp-output/local-emitter");
+});
+
 it("emit diagnostic if passing unknown option", async () => {
   const diagnostics = await diagnoseEmitterOptions({
     "invalid-option": "abc",

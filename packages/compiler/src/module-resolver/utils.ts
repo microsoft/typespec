@@ -5,9 +5,15 @@ export interface NodeModuleSpecifier {
   readonly packageName: string;
   readonly subPath: string;
 }
+
+/** Returns whether a module specifier refers to a filesystem path. */
+export function isPathSpecifier(specifier: string): boolean {
+  return /^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(specifier);
+}
+
 // returns the imported package name for bare module imports
 export function parseNodeModuleSpecifier(id: string): NodeModuleSpecifier | null {
-  if (id.startsWith(".") || id.startsWith("/")) {
+  if (isPathSpecifier(id)) {
     return null;
   }
 

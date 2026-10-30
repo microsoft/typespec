@@ -5,6 +5,7 @@ import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
 import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
+import { isPathSpecifier } from "../module-resolver/utils.js";
 import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
@@ -729,7 +730,10 @@ async function createProgram(
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
       emittersOptions[emitterOptionsKey] ?? {};
     if (emitterOutputDir === undefined) {
-      const defaultDirName = metadata.type === "module" ? emitterNameOrPath : libraryName;
+      const defaultDirName =
+        metadata.type === "module" && !isPathSpecifier(emitterNameOrPath)
+          ? emitterNameOrPath
+          : libraryName;
       emitterOutputDir = [options.outputDir, defaultDirName].filter(isDefined).join("/");
     }
     if (libDefinition?.requireImports) {
