@@ -1869,7 +1869,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(client);
 
             // there should be no CollectionResultDefinition
-            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is CollectionResultDefinition));
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).Any(t => t is CollectionResultDefinition));
 
             var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
             Assert.IsNotNull(methodCollection);
@@ -1909,7 +1909,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(client);
 
             // there should be a CollectionResultDefinition
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                t => t is CollectionResultDefinition);
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -2056,7 +2056,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(client);
 
             // there should be a CollectionResultDefinition
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                t => t is CollectionResultDefinition);
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -3463,7 +3463,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(client);
 
             // Verify CollectionResultDefinition is still added even though methods are customized
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition);
             Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
         }

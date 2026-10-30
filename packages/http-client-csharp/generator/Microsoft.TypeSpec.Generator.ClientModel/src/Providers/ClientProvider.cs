@@ -70,6 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private readonly Lazy<IReadOnlyList<ClientProvider>> _subClients;
         private RestClientProvider? _restClient;
+        private ClientCollectionsProvider? _collectionResultProviders;
         private readonly IReadOnlyList<InputParameter> _allClientParameters;
         private readonly Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
@@ -599,6 +600,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Gets the corresponding <see cref="RestClientProvider"/> for this client.
         /// </summary>
         public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
+
+        /// <summary>
+        /// Gets the partial client declaration containing this client's nested paging helpers.
+        /// </summary>
+        public ClientCollectionsProvider CollectionResultProviders => _collectionResultProviders ??= new ClientCollectionsProvider(this);
+
+        public override void Reset()
+        {
+            base.Reset();
+            _methodCache = null;
+            _restClient?.Reset();
+            _collectionResultProviders?.Reset();
+        }
+
         public ClientOptionsProvider? ClientOptions { get; }
         public ClientSettingsProvider? ClientSettings { get; }
 

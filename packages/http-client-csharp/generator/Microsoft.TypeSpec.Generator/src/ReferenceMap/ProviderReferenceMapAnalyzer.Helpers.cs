@@ -679,7 +679,7 @@ namespace Microsoft.TypeSpec.Generator
             if (!publicOnly)
             {
                 AddProviderBodyDependencyTypes(roots, customCodeView.BodyDependencyTypes, generatedTypeNames);
-                AddCustomCodeViewNamespaceBodyDependencyTypes(roots, customCodeView, generatedTypeNames);
+                AddCustomCodeViewScopedBodyDependencyTypes(roots, customCodeView, generatedTypeNames);
                 AddAttributes(roots, customCodeView.Attributes, generatedTypeNames, serializationProviderNamesByType: null, includeArguments: true);
             }
 
@@ -766,18 +766,14 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static void AddCustomCodeViewNamespaceBodyDependencyTypes(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames)
+        private static void AddCustomCodeViewScopedBodyDependencyTypes(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames)
         {
-            var customNamespace = customCodeView.Type.Namespace;
-            if (string.IsNullOrEmpty(customNamespace))
-            {
-                return;
-            }
-
+            // Unresolved body references may name nested generated types in this partial declaration.
+            var containingTypeName = NormalizeMetadataTypeName(GetCustomCodeViewIdentity(customCodeView));
             var customMemberNames = GetCustomCodeViewMemberNames(customCodeView);
             foreach (var dependency in customCodeView.BodyDependencyTypes)
             {
-                AddNamespaceBodyDependencyType(roots, dependency, customNamespace, customMemberNames, generatedTypeNames);
+                AddNamespaceBodyDependencyType(roots, dependency, containingTypeName, customMemberNames, generatedTypeNames);
             }
         }
 

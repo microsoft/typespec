@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteMethods(writer);
                 sectionWritten |= _provider.Methods.Any();
 
-                if (sectionWritten = _provider.NestedTypes.Any())
+                if (sectionWritten && _provider.NestedTypes.Any())
                 {
                     writer.WriteLine();
                 }
@@ -232,6 +232,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.NestedTypes.Count; i++)
             {
+                if (!ProviderReferenceMapAnalyzer.ShouldWriteProvider(_provider.NestedTypes[i]))
+                {
+                    continue;
+                }
                 var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i]);
                 using (writer.SuppressWarnings(_provider.NestedTypes[i].DisabledFileWarnings))
                 {
