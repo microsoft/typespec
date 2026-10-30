@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceImplementation;
@@ -180,6 +181,7 @@ public class FluentResourceModel {
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         imports.add(this.getInnerModel().getFullName());
+        ExperimentalAnnotationUtil.addImportsTo(imports, innerModel.getApiMetadata());
 
         this.getProperties().forEach(p -> p.addImportsTo(imports, includeImplementationImports));
 

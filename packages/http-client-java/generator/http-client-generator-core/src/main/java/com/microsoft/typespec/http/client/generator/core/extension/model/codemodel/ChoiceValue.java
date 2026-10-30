@@ -12,6 +12,7 @@ public class ChoiceValue {
     private Languages language;
     private String value;
     private DictionaryAny extensions;
+    private Experimental experimental;
 
     /**
      * Creates a new instance of the ChoiceValue class.
@@ -71,6 +72,24 @@ public class ChoiceValue {
      */
     public void setExtensions(DictionaryAny extensions) {
         this.extensions = extensions;
+    }
+
+    /**
+     * Gets the experimental API metadata.
+     *
+     * @return the experimental API metadata.
+     */
+    public Experimental getExperimental() {
+        return experimental;
+    }
+
+    /**
+     * Sets the experimental API metadata.
+     *
+     * @param experimental the experimental API metadata.
+     */
+    public void setExperimental(Experimental experimental) {
+        this.experimental = experimental;
     }
 
     @Override

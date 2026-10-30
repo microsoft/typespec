@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -501,6 +502,7 @@ public class ClientModel {
      * @param settings The settings for this Java generator session.
      */
     public void addImportsTo(Set<String> imports, JavaSettings settings) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         // whether annotated as Immutable or Fluent is also determined by its superclass
         imports.add(this.getFullName());
         addFluentAnnotationImport(imports);

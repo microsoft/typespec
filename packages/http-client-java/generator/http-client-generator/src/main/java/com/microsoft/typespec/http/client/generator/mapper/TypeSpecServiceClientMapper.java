@@ -89,6 +89,7 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         builder.apiMetadata(
             new ApiMetadata.Builder().crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client))
+                .experimental(SchemaUtil.getExperimental(client))
                 .build());
 
         List<ClientAccessorMethod> clientAccessorMethods = new ArrayList<>();

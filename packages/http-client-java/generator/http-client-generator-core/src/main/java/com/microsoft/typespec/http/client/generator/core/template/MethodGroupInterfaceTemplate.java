@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +43,7 @@ public class MethodGroupInterfaceTemplate implements IJavaTemplate<MethodGroupCl
                 String.format("An instance of this class provides access to all the operations defined in %1$s.",
                     methodGroupClient.getInterfaceName()));
         });
+        ExperimentalAnnotationUtil.write(javaFile, methodGroupClient.getApiMetadata());
         javaFile.publicInterface(String.format("%1$s%2$s", methodGroupClient.getInterfaceName(), parentDeclaration),
             interfaceBlock -> {
                 for (ClientMethod clientMethod : methodGroupClient.getClientMethods()) {

@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -92,6 +93,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
     private final Boolean requiredForCreate;
     private final ArrayEncoding arrayEncoding;
+    private final ApiMetadata apiMetadata;
 
     /**
      * Create a new ClientModelProperty with the provided properties.
@@ -118,6 +120,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
      * @param xmlPrefix The prefix of the XML attribute or element this property represents.
      * @param requiredForCreate Whether this property is required when create the resource.
      * @param arrayEncoding The array encoding metadata of this property.
+     * @param apiMetadata The API metadata of this property.
      */
     private ClientModelProperty(String name, String description, String annotationArguments, boolean isXmlAttribute,
         String xmlName, String xmlNamespace, String serializedName, boolean isXmlWrapper, String xmlListElementName,
@@ -125,7 +128,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         boolean isConstant, String defaultValue, boolean isReadOnly, List<Mutability> mutabilities, boolean isRequired,
         String headerCollectionPrefix, boolean isAdditionalProperties, boolean needsFlatten, boolean clientFlatten,
         boolean polymorphicDiscriminator, boolean isXmlText, String xmlPrefix, Boolean requiredForCreate,
-        ArrayEncoding arrayEncoding) {
+        ArrayEncoding arrayEncoding, ApiMetadata apiMetadata) {
         this.name = name;
         this.description = description;
         this.annotationArguments = annotationArguments;
@@ -153,6 +156,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         this.xmlPrefix = xmlPrefix;
         this.requiredForCreate = requiredForCreate;
         this.arrayEncoding = arrayEncoding;
+        this.apiMetadata = apiMetadata;
     }
 
     public final String getName() {
@@ -292,11 +296,21 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
     }
 
     /**
+     * Gets the API metadata.
+     *
+     * @return the API metadata.
+     */
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
+    }
+
+    /**
      * Add this ServiceModelProperty's imports to the provided set of imports.
      * 
      * @param imports The set of imports to add to.
      */
     public final void addImportsTo(Set<String> imports, boolean shouldGenerateXmlSerialization) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         JavaSettings settings = JavaSettings.getInstance();
         final boolean requireJackson = !settings.isStreamStyleSerialization();
 
@@ -403,6 +417,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         private String xmlPrefix;
         private Boolean requiredForCreate;
         private ArrayEncoding arrayEncoding;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
 
         /**
          * Sets the name of this property.
@@ -700,6 +715,17 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         }
 
         /**
+         * Sets the API metadata.
+         *
+         * @param apiMetadata the API metadata.
+         * @return this builder.
+         */
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
+            return this;
+        }
+
+        /**
          * Creates a new instance of Builder.
          */
         public Builder() {
@@ -733,6 +759,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
             this.xmlPrefix = property.getXmlPrefix();
             this.requiredForCreate = property.requiredForCreate;
             this.arrayEncoding = property.getArrayEncoding();
+            this.apiMetadata = property.getApiMetadata();
         }
 
         public ClientModelProperty build() {
@@ -740,7 +767,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
                 xmlNamespace, serializedName, isXmlWrapper, xmlListElementName, xmlListElementNamespace,
                 xmlListElementPrefix, wireType, clientType, isConstant, defaultValue, isReadOnly, mutabilities,
                 isRequired, headerCollectionPrefix, isAdditionalProperties, needsFlatten, clientFlatten,
-                polymorphicDiscriminator, isXmlText, xmlPrefix, requiredForCreate, arrayEncoding);
+                polymorphicDiscriminator, isXmlText, xmlPrefix, requiredForCreate, arrayEncoding, apiMetadata);
         }
     }
 }
