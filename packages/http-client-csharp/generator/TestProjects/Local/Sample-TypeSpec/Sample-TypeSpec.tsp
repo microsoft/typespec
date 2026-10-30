@@ -1266,6 +1266,14 @@ interface VisibilitySamples {
   @post
   dictionary(@body topics: Record<ChatTopic>): void;
 
+  @route("/visibility/union-list")
+  @post
+  unionList(@body topics: (ChatTopic | string)[]): void;
+
+  @route("/visibility/union-dictionary")
+  @post
+  unionDictionary(@body topics: Record<ChatTopic | string>): void;
+
   @route("/visibility/optional")
   @post
   optional(@body topic?: ChatTopic): void;

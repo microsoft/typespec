@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -13,6 +15,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 {
     public class BinaryContentHelperDefinitionTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public void BinaryDataCollectionOverloadsAcceptOptions(bool dictionary)
+        {
+            MockHelpers.LoadMockGenerator();
+            var collectionType = dictionary ? typeof(IDictionary<string, BinaryData>) : typeof(IEnumerable<BinaryData>);
+            var method = new BinaryContentHelperDefinition().Methods.Single(m =>
+                m.Signature.Name == (dictionary ? "FromDictionary" : "FromEnumerable") &&
+                m.Signature.Parameters[0].Type.Equals(collectionType));
+
+            Assert.AreEqual(2, method.Signature.Parameters.Count);
+            var options = method.Signature.Parameters[1];
+            Assert.AreEqual(typeof(ModelReaderWriterOptions), options.Type.FrameworkType);
+            Assert.AreEqual("options", options.Name);
+            Assert.IsNotNull(options.DefaultValue);
+        }
+
         [Test]
         public void FromObjectMethodIsCorrectlyDefined()
         {

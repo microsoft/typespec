@@ -96,10 +96,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildFromEnumerableBinaryDataMethod()
         {
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, typeof(IEnumerable<BinaryData>));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter],
+                Parameters: [enumerableParameter, options],
                 ReturnType: _requestBodyType,
                 Description: null,
                 ReturnDescription: null);
@@ -204,10 +205,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildFromDictionaryBinaryDataMethod()
         {
             var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, typeof(IDictionary<string, BinaryData>));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromDictionaryName,
                 Modifiers: _methodModifiers,
-                Parameters: [dictionaryParameter],
+                Parameters: [dictionaryParameter, options],
                 ReturnType: _requestBodyType,
                 Description: null,
                 ReturnDescription: null);

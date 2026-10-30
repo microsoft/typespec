@@ -34,7 +34,8 @@ namespace SampleTypeSpec
         }
 
         /// <param name="enumerable"></param>
-        public static BinaryContent FromEnumerable(IEnumerable<BinaryData> enumerable)
+        /// <param name="options"></param>
+        public static BinaryContent FromEnumerable(IEnumerable<BinaryData> enumerable, ModelReaderWriterOptions options = null)
         {
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
             content.JsonWriter.WriteStartArray();
@@ -96,7 +97,8 @@ namespace SampleTypeSpec
         }
 
         /// <param name="dictionary"></param>
-        public static BinaryContent FromDictionary(IDictionary<string, BinaryData> dictionary)
+        /// <param name="options"></param>
+        public static BinaryContent FromDictionary(IDictionary<string, BinaryData> dictionary, ModelReaderWriterOptions options = null)
         {
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
             content.JsonWriter.WriteStartObject();

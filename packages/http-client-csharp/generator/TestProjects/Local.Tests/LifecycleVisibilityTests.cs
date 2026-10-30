@@ -117,6 +117,78 @@ namespace TestProjects.Local.Tests
 
         [TestCase(false)]
         [TestCase(true)]
+        public void BinaryDataCollectionsPreserveRawJsonWithoutLifecycleOptions(bool passOptions)
+        {
+            var value = BinaryData.FromString("{\"title\":\"title\"}");
+            IEnumerable<BinaryData> values = [value, null!];
+            IDictionary<string, BinaryData> lookup = new Dictionary<string, BinaryData> { ["topic"] = value, ["null"] = null! };
+            using var arrayContent = passOptions
+                ? BinaryContentHelper.FromEnumerable(values, new ModelReaderWriterOptions("W"))
+                : BinaryContentHelper.FromEnumerable(values);
+            using var dictionaryContent = passOptions
+                ? BinaryContentHelper.FromDictionary(lookup, new ModelReaderWriterOptions("W"))
+                : BinaryContentHelper.FromDictionary(lookup);
+            using var arrayStream = new MemoryStream();
+            using var dictionaryStream = new MemoryStream();
+            arrayContent.WriteTo(arrayStream);
+            dictionaryContent.WriteTo(dictionaryStream);
+
+            Assert.AreEqual("[{\"title\":\"title\"},null]", BinaryData.FromBytes(arrayStream.ToArray()).ToString());
+            Assert.AreEqual("{\"topic\":{\"title\":\"title\"},\"null\":null}", BinaryData.FromBytes(dictionaryStream.ToArray()).ToString());
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task UnionCollectionsPreserveRawJson(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            var payloads = new List<JsonElement>();
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                using var document = JsonDocument.Parse(stream.ToArray());
+                payloads.Add(document.RootElement.Clone());
+            }
+            client.Setup(c => c.UnionList(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.UnionListAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            client.Setup(c => c.UnionDictionary(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.UnionDictionaryAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            var topic = BinaryData.FromString("{\"title\":\"title\"}");
+            var text = BinaryData.FromString("\"text\"");
+            BinaryData[] topics = [topic, text, null!];
+            var lookup = new Dictionary<string, BinaryData> { ["topic"] = topic, ["text"] = text, ["null"] = null! };
+
+            if (isAsync)
+            {
+                await client.Object.UnionListAsync(topics);
+                await client.Object.UnionDictionaryAsync(lookup);
+            }
+            else
+            {
+                client.Object.UnionList(topics);
+                client.Object.UnionDictionary(lookup);
+            }
+
+            Assert.AreEqual(2, payloads.Count);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("{\"title\":\"title\"}", payloads[0][0].GetRawText());
+                Assert.AreEqual("text", payloads[0][1].GetString());
+                Assert.AreEqual(JsonValueKind.Null, payloads[0][2].ValueKind);
+                Assert.AreEqual("{\"title\":\"title\"}", payloads[1].GetProperty("topic").GetRawText());
+                Assert.AreEqual("text", payloads[1].GetProperty("text").GetString());
+                Assert.AreEqual(JsonValueKind.Null, payloads[1].GetProperty("null").ValueKind);
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public async Task SharedModelUsesTheRequestLifecycle(bool isAsync)
         {
             var client = CreateClient(out var payloads);
