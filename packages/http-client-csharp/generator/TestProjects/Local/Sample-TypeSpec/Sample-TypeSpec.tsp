@@ -1200,6 +1200,16 @@ model LifecycleMultipart {
   state?: HttpPart<string>;
 
   topic: HttpPart<ChatTopic>;
+
+  @visibility(Lifecycle.Read)
+  id?: HttpPart<string>;
+}
+
+model LifecycleReadOnlyMultipart {
+  title: HttpPart<string>;
+
+  @visibility(Lifecycle.Read)
+  id?: HttpPart<string>;
 }
 
 model LifecycleReadOnlyXmlTopic {
@@ -1341,5 +1351,12 @@ interface VisibilitySamples {
   multipart(
     @header contentType: "multipart/form-data",
     @multipartBody body: LifecycleMultipart,
+  ): void;
+
+  @route("/visibility/read-only-multipart")
+  @post
+  readOnlyMultipart(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: LifecycleReadOnlyMultipart,
   ): void;
 }

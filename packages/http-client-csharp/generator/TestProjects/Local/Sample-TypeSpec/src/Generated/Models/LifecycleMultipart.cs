@@ -29,11 +29,13 @@ namespace SampleTypeSpec
         /// <param name="title"></param>
         /// <param name="state"></param>
         /// <param name="topic"></param>
-        internal LifecycleMultipart(string title, string state, LifecycleMultipartTopic topic)
+        /// <param name="id"></param>
+        internal LifecycleMultipart(string title, string state, LifecycleMultipartTopic topic, string id)
         {
             Title = title;
             State = state;
             Topic = topic;
+            Id = id;
         }
 
         /// <summary> Gets the Title. </summary>
@@ -44,5 +46,8 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the Topic. </summary>
         public LifecycleMultipartTopic Topic { get; }
+
+        /// <summary> Gets the Id. </summary>
+        public string Id { get; }
     }
 }

@@ -35,6 +35,13 @@ namespace SampleTypeSpec
                 }
             }
             content.Add<LifecycleMultipartTopic>("topic", Topic, SampleTypeSpecContext.Default, options, "application/json");
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Read))
+            {
+                if (Optional.IsDefined(Id))
+                {
+                    content.Add("id", Id);
+                }
+            }
 
             return content;
         }

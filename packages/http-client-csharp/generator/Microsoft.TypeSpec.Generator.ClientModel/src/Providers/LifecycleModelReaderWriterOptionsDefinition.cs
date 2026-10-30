@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 InputStreamingType streaming => HasLifecycleVisibility(streaming.ValueType, visited),
                 InputUnionType union => union.VariantTypes.Any(variant => HasLifecycleVisibility(variant, visited)),
                 InputModelType model => model.Properties.Any(property =>
-                        !property.IsReadOnly && property.Visibility != InputVisibility.All || HasLifecycleVisibility(property.Type, visited)) ||
+                        property.IsReadOnly || property.Visibility != InputVisibility.All || HasLifecycleVisibility(property.Type, visited)) ||
                     model.BaseModel != null && HasLifecycleVisibility(model.BaseModel, visited) ||
                     model.DerivedModels.Any(derived => HasLifecycleVisibility(derived, visited)) ||
                     model.AdditionalProperties != null && HasLifecycleVisibility(model.AdditionalProperties, visited),

@@ -15,6 +15,26 @@ import {
 } from "./utils/test-util.js";
 
 describe("Lifecycle visibility", () => {
+  it("retains lifecycle context for read-only multipart parts", async () => {
+    const host = await createEmitterTestHost();
+    const program = await typeSpecCompile(
+      `
+      model Topic {
+        title: HttpPart<string>;
+        @visibility(Lifecycle.Read) id?: HttpPart<string>;
+      }
+      @post op create(@multipartBody input: Topic, @header contentType: "multipart/form-data"): void;
+      `,
+      host,
+    );
+    const context = await createCSharpSdkContext(createEmitterContext(program));
+    createModel(context);
+    strictEqual(
+      [...context.__typeCache.operations.values()][0].requestVisibility,
+      Visibility.Create,
+    );
+  });
+
   it.each(["application/xml", "text/xml", "application/vnd.typespec+xml", "application/json"])(
     "retains read-only request visibility only where serialization needs it: %s",
     async (contentType) => {

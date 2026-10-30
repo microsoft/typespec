@@ -60,15 +60,25 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
   for (const operation of sdkContext.__typeCache.operations.values()) {
     const body = operation.parameters.find((parameter) => parameter.kind === "body");
-    const hasXmlBody =
+    const needsReadOnlyVisibility =
       operation.requestMediaTypes?.some((mediaType) => {
         const type = mediaType.split(";")[0].trim().toLowerCase();
-        return type === "application/xml" || type === "text/xml" || type.endsWith("+xml");
+        return (
+          type === "application/xml" ||
+          type === "text/xml" ||
+          type.endsWith("+xml") ||
+          type === "multipart/form-data"
+        );
       }) ?? false;
     if (
       !body ||
       operation.requestVisibility === undefined ||
-      !applyInputVisibility(body.type, operation.requestVisibility, new Set(), hasXmlBody)
+      !applyInputVisibility(
+        body.type,
+        operation.requestVisibility,
+        new Set(),
+        needsReadOnlyVisibility,
+      )
     ) {
       delete operation.requestVisibility;
     }

@@ -631,10 +631,11 @@ namespace SampleTypeSpec
         /// <param name="title"></param>
         /// <param name="state"></param>
         /// <param name="topic"></param>
+        /// <param name="id"></param>
         /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipart"/> instance for mocking. </returns>
-        public static LifecycleMultipart LifecycleMultipart(string title = default, string state = default, LifecycleMultipartTopic topic = default)
+        public static LifecycleMultipart LifecycleMultipart(string title = default, string state = default, LifecycleMultipartTopic topic = default, string id = default)
         {
-            return new LifecycleMultipart(title, state, topic);
+            return new LifecycleMultipart(title, state, topic, id);
         }
 
         /// <summary> The LifecycleMultipartTopic. </summary>
@@ -644,6 +645,15 @@ namespace SampleTypeSpec
         public static LifecycleMultipartTopic LifecycleMultipartTopic(string title = default, string createOnly = default)
         {
             return new LifecycleMultipartTopic(title, createOnly, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleReadOnlyMultipart. </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleReadOnlyMultipart"/> instance for mocking. </returns>
+        public static LifecycleReadOnlyMultipart LifecycleReadOnlyMultipart(string title = default, string id = default)
+        {
+            return new LifecycleReadOnlyMultipart(title, id);
         }
 
         /// <summary> The NullableDynamicModel. </summary>

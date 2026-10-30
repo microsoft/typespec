@@ -550,7 +550,7 @@ namespace TestProjects.Local.Tests
                 .Callback<BinaryContent, string, RequestOptions>(Capture).Returns(result);
             client.Setup(c => c.MultipartAsync(It.IsAny<BinaryContent>(), It.IsAny<string>(), It.IsAny<RequestOptions>()))
                 .Callback<BinaryContent, string, RequestOptions>(Capture).ReturnsAsync(result);
-            var body = new LifecycleMultipart("title", new LifecycleMultipartTopic("title")) { State = "active" };
+            var body = new LifecycleMultipart("title", "active", new LifecycleMultipartTopic("title"), "response-id");
 
             if (isAsync)
             {
@@ -564,6 +564,46 @@ namespace TestProjects.Local.Tests
             StringAssert.IsMatch("name=\"?title\"?(?:\\r?\\n|;)", payload);
             StringAssert.IsMatch("name=\"?topic\"?(?:\\r?\\n|;)", payload);
             StringAssert.DoesNotContain("state", payload);
+            StringAssert.DoesNotContain("response-id", payload);
+            Assert.AreEqual("response-id", body.Id);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ReadOnlyMultipartPartsUseTheRequestLifecycle(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            string? payload = null;
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            void Capture(BinaryContent content, string contentType, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                payload = BinaryData.FromBytes(stream.ToArray()).ToString();
+            }
+            client.Setup(c => c.ReadOnlyMultipart(It.IsAny<BinaryContent>(), It.IsAny<string>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, string, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.ReadOnlyMultipartAsync(It.IsAny<BinaryContent>(), It.IsAny<string>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, string, RequestOptions>(Capture).ReturnsAsync(result);
+            var body = new LifecycleReadOnlyMultipart("title", "response-id");
+
+            if (isAsync)
+            {
+                await client.Object.ReadOnlyMultipartAsync(body);
+            }
+            else
+            {
+                client.Object.ReadOnlyMultipart(body);
+            }
+
+            StringAssert.IsMatch("name=\"?title\"?(?:\\r?\\n|;)", payload);
+            StringAssert.DoesNotContain("response-id", payload);
+            Assert.AreEqual("response-id", body.Id);
+
+            using var persistence = body.ToMultipartFormContent();
+            using var stream = new MemoryStream();
+            persistence.WriteTo(stream);
+            StringAssert.Contains("response-id", BinaryData.FromBytes(stream.ToArray()).ToString());
         }
 #pragma warning restore SCME0004
 
