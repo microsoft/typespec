@@ -5,6 +5,7 @@ import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
 import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
+import { isPathSpecifier } from "../module-resolver/utils.js";
 import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
@@ -722,10 +723,18 @@ async function createProgram(
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition = library.definition;
 
+    const libraryName = metadata.name;
+    const emitterOptionsKey = Object.hasOwn(emittersOptions, emitterNameOrPath)
+      ? emitterNameOrPath
+      : (libraryName ?? emitterNameOrPath);
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
-      emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
+      emittersOptions[emitterOptionsKey] ?? {};
     if (emitterOutputDir === undefined) {
-      emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
+      const defaultDirName =
+        metadata.type === "module" && !isPathSpecifier(emitterNameOrPath)
+          ? emitterNameOrPath
+          : libraryName;
+      emitterOutputDir = [options.outputDir, defaultDirName].filter(isDefined).join("/");
     }
     if (libDefinition?.requireImports) {
       for (const lib of libDefinition.requireImports) {
@@ -739,7 +748,7 @@ async function createProgram(
           options.configFile?.file
             ? {
                 kind: "path-target",
-                path: ["options", emitterNameOrPath],
+                path: ["options", emitterOptionsKey],
                 script: options.configFile.file,
               }
             : NoTarget,
