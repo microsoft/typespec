@@ -467,6 +467,50 @@ namespace TestProjects.Local.Tests
 
         [TestCase(false)]
         [TestCase(true)]
+        public async Task XmlRequestsHandleFullyFilteredChildren(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            var payloads = new List<XElement>();
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                payloads.Add(XElement.Parse(BinaryData.FromBytes(stream.ToArray()).ToString()));
+            }
+            client.Setup(c => c.EmptyXml(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.EmptyXmlAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            client.Setup(c => c.EmptyXmlList(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.EmptyXmlListAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            var child = new LifecycleXmlChild { State = "active" };
+            var envelope = new LifecycleXmlEnvelope(child, [child]);
+            if (isAsync)
+            {
+                await client.Object.EmptyXmlAsync(envelope);
+                await client.Object.EmptyXmlListAsync([child]);
+            }
+            else
+            {
+                client.Object.EmptyXml(envelope);
+                client.Object.EmptyXmlList([child]);
+            }
+
+            Assert.AreEqual(2, payloads.Count);
+            Assert.IsNotNull(payloads[0].Element("child"));
+            Assert.IsFalse(payloads[0].Element("child")!.HasElements);
+            Assert.IsTrue(payloads[0].Element("children")!.HasElements);
+            Assert.IsFalse(payloads[0].Element("children")!.Elements().Single().HasElements);
+            Assert.IsFalse(payloads[1].Elements().Single().HasElements);
+            Assert.IsFalse(payloads.Any(payload => payload.Descendants("state").Any()));
+            Assert.AreEqual("active", child.State);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public async Task XmlRequestsUseTheRequestLifecycle(bool isAsync)
         {
             var client = new Mock<VisibilitySamples> { CallBase = true };

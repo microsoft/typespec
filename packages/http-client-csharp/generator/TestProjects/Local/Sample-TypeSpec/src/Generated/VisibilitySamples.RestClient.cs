@@ -432,5 +432,31 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateEmptyXmlRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/visibility/empty-xml", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/xml");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateEmptyXmlListRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/visibility/empty-xml-list", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/xml");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
     }
 }

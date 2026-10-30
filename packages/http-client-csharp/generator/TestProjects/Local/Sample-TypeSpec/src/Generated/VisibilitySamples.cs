@@ -1950,5 +1950,141 @@ namespace SampleTypeSpec
             using MultiPartFormContent content = body.ToMultipartFormContent(new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await ReadOnlyMultipartAsync(content, content.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// [Protocol Method] EmptyXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EmptyXml(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEmptyXmlRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EmptyXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EmptyXmlAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEmptyXmlRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EmptyXml. </summary>
+        /// <param name="envelope"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="envelope"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult EmptyXml(LifecycleXmlEnvelope envelope, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(envelope, nameof(envelope));
+
+            using BinaryContent content = BinaryContent.Create(envelope, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return EmptyXml(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> EmptyXml. </summary>
+        /// <param name="envelope"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="envelope"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> EmptyXmlAsync(LifecycleXmlEnvelope envelope, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(envelope, nameof(envelope));
+
+            using BinaryContent content = BinaryContent.Create(envelope, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return await EmptyXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] EmptyXmlList
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EmptyXmlList(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEmptyXmlListRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EmptyXmlList
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EmptyXmlListAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEmptyXmlListRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EmptyXmlList. </summary>
+        /// <param name="children"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="children"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult EmptyXmlList(IEnumerable<LifecycleXmlChild> children, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(children, nameof(children));
+
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(children, "ArrayLifecycleXmlChild", "LifecycleXmlChild", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return EmptyXmlList(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> EmptyXmlList. </summary>
+        /// <param name="children"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="children"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> EmptyXmlListAsync(IEnumerable<LifecycleXmlChild> children, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(children, nameof(children));
+
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(children, "ArrayLifecycleXmlChild", "LifecycleXmlChild", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return await EmptyXmlListAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

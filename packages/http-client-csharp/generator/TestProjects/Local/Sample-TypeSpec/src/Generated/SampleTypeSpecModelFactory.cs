@@ -656,6 +656,25 @@ namespace SampleTypeSpec
             return new LifecycleReadOnlyMultipart(title, id);
         }
 
+        /// <summary> The LifecycleXmlEnvelope. </summary>
+        /// <param name="child"></param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlEnvelope"/> instance for mocking. </returns>
+        public static LifecycleXmlEnvelope LifecycleXmlEnvelope(LifecycleXmlChild child = default, IEnumerable<LifecycleXmlChild> children = default)
+        {
+            children ??= new ChangeTrackingList<LifecycleXmlChild>();
+
+            return new LifecycleXmlEnvelope(child, children.ToList());
+        }
+
+        /// <summary> The LifecycleXmlChild. </summary>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlChild"/> instance for mocking. </returns>
+        public static LifecycleXmlChild LifecycleXmlChild(string state = default)
+        {
+            return new LifecycleXmlChild(state);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

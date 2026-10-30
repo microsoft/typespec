@@ -10,6 +10,10 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 using SampleTypeSpec;
 
@@ -17,6 +21,46 @@ namespace TestProjects.Local.Tests
 {
     public class ModelSerializationExtensionsTests
     {
+        [Test]
+        public void XmlWriteObjectValuePreservesAttributesAndContent(
+            [Values("<Model attr=\"value\" />", "<Model attr=\"value\"></Model>",
+                "<Model attr=\"value\"><item>text</item></Model>", "<Model attr=\"value\" /><!-- trailing -->")] string xml,
+            [Values(null, "child")] string? nameHint)
+        {
+            var model = new Mock<LifecycleXmlChild>();
+            model.Protected().Setup<BinaryData>("PersistableModelWriteCore", ItExpr.IsAny<ModelReaderWriterOptions>())
+                .Returns(BinaryData.FromString(xml));
+            using var stream = new MemoryStream();
+            using (var writer = XmlWriter.Create(stream))
+            {
+                writer.WriteStartElement("parent");
+                writer.WriteObjectValue(model.Object, new ModelReaderWriterOptions("X"), nameHint);
+                writer.WriteEndElement();
+            }
+
+            stream.Position = 0;
+            var root = XElement.Load(stream);
+            var actual = nameHint == null ? root : root.Element(nameHint)!;
+            var expected = XElement.Parse(xml);
+            Assert.AreEqual("value", actual.Attribute("attr")?.Value);
+            Assert.AreEqual(expected.Value, actual.Value);
+            CollectionAssert.AreEqual(expected.Nodes().Select(node => node.ToString()), actual.Nodes().Select(node => node.ToString()));
+        }
+
+        [TestCase(null)]
+        [TestCase("child")]
+        public void XmlWriteObjectValueRejectsMalformedContent(string? nameHint)
+        {
+            var model = new Mock<LifecycleXmlChild>();
+            model.Protected().Setup<BinaryData>("PersistableModelWriteCore", ItExpr.IsAny<ModelReaderWriterOptions>())
+                .Returns(BinaryData.FromString("<Model><item>"));
+            using var stream = new MemoryStream();
+            using var writer = XmlWriter.Create(stream);
+            writer.WriteStartElement("parent");
+
+            Assert.Throws<XmlException>(() => writer.WriteObjectValue(model.Object, new ModelReaderWriterOptions("X"), nameHint));
+        }
+
         [TestCase("[0].description", 0, 3, ".description")]
         [TestCase("[12].description", 12, 4, ".description")]
         [TestCase("[0]", 0, 3, "")]

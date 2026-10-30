@@ -32,6 +32,8 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
     [ModelReaderWriterBuildable(typeof(LifecycleMultipartTopic))]
     [ModelReaderWriterBuildable(typeof(LifecycleReadOnlyXmlTopic))]
+    [ModelReaderWriterBuildable(typeof(LifecycleXmlChild))]
+    [ModelReaderWriterBuildable(typeof(LifecycleXmlEnvelope))]
     [ModelReaderWriterBuildable(typeof(LifecycleXmlOnlyTopic))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]

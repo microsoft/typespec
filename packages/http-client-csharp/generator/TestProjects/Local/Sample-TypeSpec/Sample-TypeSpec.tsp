@@ -1226,6 +1226,16 @@ model LifecycleXmlOnlyTopic {
   state?: string;
 }
 
+model LifecycleXmlChild {
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state?: string;
+}
+
+model LifecycleXmlEnvelope {
+  child: LifecycleXmlChild;
+  children: LifecycleXmlChild[];
+}
+
 interface VisibilitySamples {
   @route("/visibility/read-xml-topic")
   @get
@@ -1359,4 +1369,12 @@ interface VisibilitySamples {
     @header contentType: "multipart/form-data",
     @multipartBody body: LifecycleReadOnlyMultipart,
   ): void;
+
+  @route("/visibility/empty-xml")
+  @post
+  emptyXml(@body envelope: LifecycleXmlEnvelope, @header contentType: "application/xml"): void;
+
+  @route("/visibility/empty-xml-list")
+  @post
+  emptyXmlList(@body children: LifecycleXmlChild[], @header contentType: "application/xml"): void;
 }
