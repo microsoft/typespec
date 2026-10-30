@@ -14,7 +14,7 @@ namespace Documentation._Lists
     {
         protected Lists() => throw null;
 
-        internal Lists(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Lists(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

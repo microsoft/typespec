@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected ExtendsString() => throw null;
 
-        internal ExtendsString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtendsString(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

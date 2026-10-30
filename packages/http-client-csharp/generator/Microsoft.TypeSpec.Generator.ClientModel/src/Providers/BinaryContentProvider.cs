@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -28,5 +30,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override MethodBodyStatement[] Create(ValueExpression argument)
             => [Return(Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [argument, ModelSerializationExtensionsSnippets.Wire]))];
+
+        public override MethodBodyStatement[] Create(ValueExpression argument, ScopedApi<ModelReaderWriterOptions> options)
+            => [Return(Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [argument, options]))];
     }
 }

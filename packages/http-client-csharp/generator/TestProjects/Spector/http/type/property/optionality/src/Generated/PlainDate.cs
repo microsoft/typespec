@@ -14,7 +14,7 @@ namespace _Type.Property.Optional
     {
         protected PlainDate() => throw null;
 
-        internal PlainDate(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PlainDate(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

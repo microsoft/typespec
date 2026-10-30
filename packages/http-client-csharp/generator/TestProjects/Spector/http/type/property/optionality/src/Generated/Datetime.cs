@@ -14,7 +14,7 @@ namespace _Type.Property.Optional
     {
         protected Datetime() => throw null;
 
-        internal Datetime(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Datetime(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

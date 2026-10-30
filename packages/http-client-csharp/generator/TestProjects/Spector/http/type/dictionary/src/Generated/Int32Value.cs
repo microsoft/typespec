@@ -15,7 +15,7 @@ namespace _Type.Dictionary
     {
         protected Int32Value() => throw null;
 
-        internal Int32Value(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Int32Value(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

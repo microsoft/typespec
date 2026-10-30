@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected Never() => throw null;
 
-        internal Never(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Never(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

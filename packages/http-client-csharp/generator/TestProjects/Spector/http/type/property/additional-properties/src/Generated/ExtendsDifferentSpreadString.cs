@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected ExtendsDifferentSpreadString() => throw null;
 
-        internal ExtendsDifferentSpreadString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtendsDifferentSpreadString(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

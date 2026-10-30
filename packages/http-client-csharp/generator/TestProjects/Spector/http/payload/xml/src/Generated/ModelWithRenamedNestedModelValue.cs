@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithRenamedNestedModelValue() => throw null;
 
-        internal ModelWithRenamedNestedModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithRenamedNestedModelValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

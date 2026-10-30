@@ -148,7 +148,7 @@ namespace SampleTypeSpec
                     List<PreviewDetails> array = new List<PreviewDetails>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(PreviewDetails.DeserializePreviewDetails(item, options));
+                        array.Add(options == ModelSerializationExtensions.WireOptions ? PreviewDetails.DeserializePreviewDetails(item, options) : ModelReaderWriter.Read<PreviewDetails>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default));
                     }
                     items = array;
                     continue;
