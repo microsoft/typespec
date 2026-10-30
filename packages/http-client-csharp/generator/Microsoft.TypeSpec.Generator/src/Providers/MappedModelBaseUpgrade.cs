@@ -36,7 +36,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             [NotNullWhen(true)] out SystemObjectModelProvider? provider)
         {
             provider = null;
-            var inputBase = model.InputModel.BaseModel!;
+            if (model.InputModel.BaseModel is not { } inputBase)
+            {
+                return false;
+            }
             var historical = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, [], isMappedBaseUpgrade: true);
             if (!MappedModelBaseCompatibility.IsSupportedModelBase(historical))
             {
@@ -45,8 +48,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var historicalProperties = historical.Properties;
-            var properties = new List<InputModelProperty>();
-            var matchedProperties = new HashSet<PropertyProvider>();
+            List<InputModelProperty>? properties = null;
+            HashSet<PropertyProvider>? matchedProperties = null;
             var visited = new HashSet<InputModelType>();
             for (var input = model.InputModel; input is not null; input = input.BaseModel)
             {
@@ -78,18 +81,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     // populating the cache during potentially recursive property conversion. Aliases
                     // must already have their historical CLR name; do not leave retained expressions stale.
                     if (MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(property, matches[0]) ||
-                        !matchedProperties.Add(matches[0]) ||
+                        !(matchedProperties ??= []).Add(matches[0]) ||
                         factory.GetProperty(property, owner) is not { } current ||
                         owner.IsPropertySuppressed(current) ||
                         current.Name != matches[0].Name || HasCustomAlias(owner, property, current.Name, matches[0].Name))
                     {
                         return false;
                     }
-                    properties.Add(property);
+                    (properties ??= []).Add(property);
                 }
             }
 
-            provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties, isMappedBaseUpgrade: true);
+            provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties ?? [], isMappedBaseUpgrade: true);
             return true;
         }
 
@@ -111,10 +114,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal static bool CanReplaceCurrentBase(ModelProvider model, SystemObjectModelProvider candidate)
         {
-            if (!IsDerivedFromCurrentMappedBase(model, candidate.SystemType) ||
-                CodeModelGenerator.Instance.TypeFactory.CreateModel(model.InputModel.BaseModel!) is not SystemObjectModelProvider current ||
+            if (model.InputModel.BaseModel is not { } inputBase ||
+                !IsDerivedFromCurrentMappedBase(model, candidate.SystemType) ||
+                CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase) is not SystemObjectModelProvider current ||
                 !PreservesFrameworkMembers(current.SystemType.FrameworkType, candidate.SystemType.FrameworkType) ||
-                candidate.GetAdditionalSerializationProperties(model.InputModel).Any(property =>
+                candidate.GetAdditionalSerializationProperties().Any(property =>
                     property.IsInitOnly || !ModelProvider.HasAccessibleInheritedSetter(property) &&
                         !candidate.CanPopulateInheritedCollection(property)))
             {

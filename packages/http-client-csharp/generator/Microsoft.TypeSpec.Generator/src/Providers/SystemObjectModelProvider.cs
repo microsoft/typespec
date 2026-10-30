@@ -96,22 +96,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool UsesLastContractType => _lastContractType is not null;
 
-        internal IEnumerable<PropertyProvider> GetAdditionalSerializationProperties(InputModelType sourceModel)
+        private protected override CanonicalTypeProvider BuildCanonicalView()
+            => HasInputPropertyProjection
+                ? new CanonicalTypeProvider(this, InputModel, MappedInputProperties)
+                : base.BuildCanonicalView();
+
+        internal IEnumerable<PropertyProvider> GetAdditionalSerializationProperties()
         {
             if (!_isMappedBaseUpgrade)
             {
                 return [];
             }
 
-            // The real framework constructor cannot take properties moved from the child. Keep those
-            // values in the generated child's serialization constructor and initialize them there.
+            // The real framework constructor may not consume all projected hierarchy properties. Keep
+            // the remaining values in the generated child's serialization constructor and initialize them there.
             var constructorNames = FullConstructor.Signature.Parameters.Select(parameter => parameter.Name).ToHashSet(StringComparer.Ordinal);
-            return CanonicalView.Properties.Where(property => property.InputProperty is { } input &&
-                sourceModel.Properties.Contains(input) && !constructorNames.Contains(property.AsParameter.Name));
+            return CanonicalView.Properties.Where(property => property.InputProperty is not null &&
+                !constructorNames.Contains(property.AsParameter.Name));
         }
 
         internal bool CanPopulateInheritedCollection(PropertyProvider property)
-            => !property.IsInitOnly && !property.Type.IsNullable &&
+            => !property.IsInitOnly && !property.Type.IsNullable && property.WireInfo?.IsNullable != true &&
                 (property.Type.IsReadWriteDictionary || property.Type.IsReadWriteList) &&
                 CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBaseCollectionMutable(SystemType, property);
 

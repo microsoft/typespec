@@ -1771,7 +1771,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (BaseModelProvider is SystemObjectModelProvider mappedBase)
                 {
-                    constructorParameters.AddRange(mappedBase.GetAdditionalSerializationProperties(_inputModel)
+                    constructorParameters.AddRange(mappedBase.GetAdditionalSerializationProperties()
                         .Select(property => property.AsParameter));
                 }
                 foreach (var property in AdditionalPropertyProperties)
@@ -1976,7 +1976,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (!isPrimaryConstructor && BaseModelProvider is SystemObjectModelProvider mappedBase)
             {
-                foreach (var property in mappedBase.GetAdditionalSerializationProperties(_inputModel))
+                foreach (var property in mappedBase.GetAdditionalSerializationProperties())
                 {
                     // Always use the inherited member, never a private backing field owned by the framework.
                     if (HasAccessibleInheritedSetter(property))

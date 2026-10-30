@@ -35,6 +35,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(MappedModelBaseUpgrade.CanReplaceCurrentBase(model, candidate), Is.EqualTo(compatible));
         }
 
+        [Test]
+        public void UpgradeWithoutAnInputBaseIsRejected()
+        {
+            var input = InputFactory.Model("Root", properties: []);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [input]);
+            var model = new ModelProvider(input);
+            var historical = new ModelProvider(InputFactory.Model("Historical", properties: []));
+
+            Assert.That(MappedModelBaseUpgrade.TryCreate(model, new CSharpType(typeof(PlainDerived)), historical,
+                out var projected), Is.False);
+            Assert.That(projected, Is.Null);
+        }
+
         public class Ancestor
         {
             public virtual string Value { get; set; } = string.Empty;

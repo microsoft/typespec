@@ -10,7 +10,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
-using Microsoft.TypeSpec.Generator.Tests.Providers.Framework;
+using Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -235,6 +235,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             });
             return model;
         }
+    }
+}
+
+namespace Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework
+{
+    // These stand-ins include a full framework constructor for the read-only ancestor properties.
+    // Keep them separate from the constructor-shape fixtures below.
+    public readonly struct ResourceLocation { }
+
+    public class ResourceData
+    {
+        protected ResourceData() { }
+        protected ResourceData(string id, string name, string type)
+        {
+            Id = id;
+            Name = name;
+            Type = type;
+        }
+
+        public string Id { get; } = string.Empty;
+        public string Name { get; } = string.Empty;
+        public string Type { get; } = string.Empty;
+    }
+
+    public class TrackedResourceData : ResourceData
+    {
+        protected TrackedResourceData() { }
+        public TrackedResourceData(ResourceLocation location) => Location = location;
+        protected TrackedResourceData(string id, string name, string type, ResourceLocation location)
+            : base(id, name, type) => Location = location;
+
+        public ResourceLocation Location { get; set; }
+        public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
     }
 }
 

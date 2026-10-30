@@ -328,11 +328,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(false)]
         [TestCase(true)]
         public void MappedBaseUpgradeRetainsProjectedPropertiesOnReads(bool readOnly)
+            => AssertMappedBaseUpgradeRoundTrip(readOnly);
+
+        [Test]
+        public void MappedBaseUpgradeRetainsAncestorOwnedPropertiesOnReads()
+            => AssertMappedBaseUpgradeRoundTrip(ancestorValue: true);
+
+        [Test]
+        public void NullableWireCollectionFallsBackAndPreservesNullPayload()
+            => AssertMappedBaseUpgradeRoundTrip(nullableTags: true);
+
+        [Test]
+        public void MappedBaseUpgradeRejectsUninitializableAncestorProperty()
         {
-            var current = InputFactory.Model("CurrentBase", properties: []);
+            var ancestor = InputFactory.Model("Ancestor",
+                properties: [InputFactory.Property("location", InputPrimitiveType.String, isReadOnly: true)]);
+            var current = InputFactory.Model("CurrentBase", properties: [], baseModel: ancestor);
+            var input = InputFactory.Model("DerivedModel", baseModel: current,
+                properties: [InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var generator = CreateGenerator(input, frameworkType: typeof(ReadOnlyUpgradedMrwBase));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(FlatMrwBase)), model)
+                    : new ClientModelProvider(model));
+
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            Assert.That(model.BaseType?.Name, Is.EqualTo(nameof(FlatMrwBase)),
+                "A getter-only ancestor property absent from the framework constructor must prevent restoration.");
+        }
+
+        private static void AssertMappedBaseUpgradeRoundTrip(
+            bool readOnly = false, bool ancestorValue = false, bool nullableTags = false)
+        {
+            // Keep the immediate mapped input empty: the missing value belongs to a deeper input ancestor,
+            // not to the framework constructor's immediate input model or the generated child.
+            var ancestor = ancestorValue ? InputFactory.Model("Ancestor",
+                properties: [InputFactory.Property("value", InputPrimitiveType.Int32, serializedName: "wireValue")]) : null;
+            var current = InputFactory.Model("CurrentBase", properties: [], baseModel: ancestor);
+            var tagsType = InputFactory.Dictionary(InputPrimitiveType.String);
             var input = InputFactory.Model("DerivedModel", baseModel: current, properties:
                 [InputFactory.Property("location", InputPrimitiveType.String, isReadOnly: readOnly),
-                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String), isReadOnly: true),
+                    InputFactory.Property("tags", nullableTags ? new InputNullableType(tagsType) : tagsType, isReadOnly: true),
                     InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isReadOnly: true),
                     InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
@@ -354,14 +392,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var instance = Activator.CreateInstance(generatedType, "payload")!;
             var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
             var options = new ModelReaderWriterOptions("J");
-            var data = BinaryData.FromString("""{"location":"west","tags":{"key":"value"},"items":["one"],"child":"payload"}""");
+            var data = BinaryData.FromString(nullableTags
+                ? """{"location":"west","tags":null,"items":["one"],"child":"payload"}"""
+                : ancestorValue
+                    ? """{"wireValue":42,"location":"west","tags":{"key":"value"},"items":["one"],"child":"payload"}"""
+                    : """{"location":"west","tags":{"key":"value"},"items":["one"],"child":"payload"}""");
             var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
             Assert.That(generatedType.GetProperty("Location")!.GetValue(restored), Is.EqualTo("west"),
                 "Moving a child property into a framework base must not remove its deserialization parameter.");
-            Assert.That(model.BaseType?.Name, Is.EqualTo(readOnly ? nameof(FlatMrwBase) : nameof(UpgradedMrwBase)),
+            Assert.That(model.BaseType?.Name, Is.EqualTo(readOnly || nullableTags ? nameof(FlatMrwBase) : nameof(UpgradedMrwBase)),
                 "Reject restoration when a projected property cannot be initialized safely.");
-            Assert.That((IEnumerable<KeyValuePair<string, string>>)generatedType.GetProperty("Tags")!.GetValue(restored)!,
-                Is.EqualTo(new[] { new KeyValuePair<string, string>("key", "value") }));
+            if (ancestorValue)
+            {
+                Assert.That(generatedType.GetProperty("Value")!.GetValue(restored), Is.EqualTo(42),
+                    "An unconsumed ancestor property must still be deserialized into the inherited member.");
+            }
+            var tags = generatedType.GetProperty("Tags")!.GetValue(restored);
+            if (nullableTags)
+            {
+                Assert.That(tags, Is.Null);
+            }
+            else
+            {
+                Assert.That((IEnumerable<KeyValuePair<string, string>>)tags!,
+                    Is.EqualTo(new[] { new KeyValuePair<string, string>("key", "value") }));
+            }
             Assert.That((IEnumerable<string>)generatedType.GetProperty("Items")!.GetValue(restored)!, Is.EqualTo(new[] { "one" }));
             if (!readOnly)
             {
@@ -369,7 +424,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 using var document = JsonDocument.Parse(serialized);
                 Assert.That(document.RootElement.GetProperty("location").GetString(), Is.EqualTo("west"));
                 Assert.That(document.RootElement.GetProperty("child").GetString(), Is.EqualTo("payload"));
-                Assert.That(document.RootElement.GetProperty("tags").GetProperty("key").GetString(), Is.EqualTo("value"));
+                if (ancestorValue)
+                {
+                    Assert.That(document.RootElement.GetProperty("wireValue").GetInt32(), Is.EqualTo(42));
+                }
+                if (nullableTags)
+                {
+                    Assert.That(document.RootElement.GetProperty("tags").ValueKind, Is.EqualTo(JsonValueKind.Null));
+                }
+                else
+                {
+                    Assert.That(document.RootElement.GetProperty("tags").GetProperty("key").GetString(), Is.EqualTo("value"));
+                }
                 Assert.That(document.RootElement.GetProperty("items")[0].GetString(), Is.EqualTo("one"));
             }
         }
@@ -483,6 +549,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public IList<string> Items { get; } = new List<string>();
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            base.JsonModelWriteCore(writer, options);
             writer.WriteString("location", Location);
             writer.WritePropertyName("tags");
             JsonSerializer.Serialize(writer, Tags);

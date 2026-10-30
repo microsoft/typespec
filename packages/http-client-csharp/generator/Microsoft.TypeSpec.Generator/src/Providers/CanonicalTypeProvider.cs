@@ -25,15 +25,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly HashSet<string> _renamedFields;
         private readonly IReadOnlyList<InputModelProperty> _specProperties;
 
-        public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
+        public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType,
+            IReadOnlyList<InputModelProperty>? inputProperties = null)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             var externalReplacements = GetExternalPropertyReplacements(inputModel);
-            var inputProperties = generatedTypeProvider is SystemObjectModelProvider { HasInputPropertyProjection: true } mappedBase
-                ? mappedBase.MappedInputProperties
-                : inputModel?.Properties ?? [];
-            _specProperties = [.. inputProperties, .. externalReplacements.Select(replacement => replacement.Property)];
+            _specProperties = [.. inputProperties ?? inputModel?.Properties ?? [], .. externalReplacements.Select(replacement => replacement.Property)];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
