@@ -2,6 +2,7 @@ vi.resetModules();
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { TestHost } from "@typespec/compiler/testing";
+import { Visibility } from "@typespec/http";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -12,6 +13,221 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
+
+describe("Lifecycle visibility", () => {
+  it("retains lifecycle context for read-only multipart parts", async () => {
+    const host = await createEmitterTestHost();
+    const program = await typeSpecCompile(
+      `
+      model Topic {
+        title: HttpPart<string>;
+        @visibility(Lifecycle.Read) id?: HttpPart<string>;
+      }
+      @post op create(@multipartBody input: Topic, @header contentType: "multipart/form-data"): void;
+      `,
+      host,
+    );
+    const context = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(context);
+    const id = root.models
+      .find((model) => model.name === "Topic")
+      ?.properties.find((p) => p.name === "id");
+    ok(id);
+    strictEqual(id.readOnly, true);
+    strictEqual(id.lifecycleVisibility, undefined);
+    strictEqual(
+      [...context.__typeCache.operations.values()][0].requestVisibility,
+      Visibility.Create,
+    );
+  });
+
+  it.each(["application/xml", "text/xml", "application/vnd.typespec+xml", "application/json"])(
+    "retains read-only request visibility only where serialization needs it: %s",
+    async (contentType) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+        model Topic {
+          title: string;
+          @visibility(Lifecycle.Read) id: string;
+        }
+        @post op create(@body input: Topic, @header contentType: "${contentType}"): Topic;
+        `,
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      createModel(context);
+      strictEqual(
+        [...context.__typeCache.operations.values()][0].requestVisibility,
+        contentType === "application/json" ? undefined : Visibility.Create,
+      );
+    },
+  );
+
+  it.each(["@body input: Topic", "@body input: Topic[]", "@body input: Record<Topic>"])(
+    "keeps one shared model and relaxes properties excluded from an input lifecycle: %s",
+    async (body) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+        model Topic {
+          title: string;
+          @visibility(Lifecycle.Read, Lifecycle.Update)
+          state: int32;
+          @visibility(Lifecycle.Read)
+          id: string;
+        }
+        @route("/create") @post op create(${body}): Topic;
+        @route("/update") @put @parameterVisibility(Lifecycle.Update)
+        op update(${body}): Topic;
+        `,
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(context);
+      const topics = root.models.filter((model) => model.name === "Topic");
+      strictEqual(topics.length, 1);
+      const [topic] = topics;
+      strictEqual(topic.properties.find((p) => p.name === "title")?.optional, false);
+      strictEqual(topic.properties.find((p) => p.name === "state")?.optional, true);
+      strictEqual(topic.properties.find((p) => p.name === "id")?.readOnly, true);
+      strictEqual(
+        topic.properties.find((p) => p.name === "state")?.lifecycleVisibility,
+        Visibility.Read | Visibility.Update,
+      );
+      deepStrictEqual(
+        [...context.__typeCache.operations.values()].map((op) => op.requestVisibility),
+        [Visibility.Create, Visibility.Update],
+      );
+    },
+  );
+
+  it("keeps a visible required property required for an update-only input", async () => {
+    const host = await createEmitterTestHost();
+    const program = await typeSpecCompile(
+      `
+      model Topic {
+        @visibility(Lifecycle.Read, Lifecycle.Update)
+        state: int32;
+      }
+      @put @parameterVisibility(Lifecycle.Update)
+      op update(@body input: Topic): Topic;
+      `,
+      host,
+    );
+    const context = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(context);
+    strictEqual(root.models[0].properties[0].optional, false);
+  });
+
+  it.each(["", '@discriminator("kind")'])(
+    "does not apply a derived input's lifecycle to sibling models: %s",
+    async (discriminator) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+      ${discriminator} model Topic {
+        title: string;
+      }
+      model CreateTopic extends Topic { kind: "create"; }
+      model UpdateTopic extends Topic {
+        kind: "update";
+        @visibility(Lifecycle.Read, Lifecycle.Update) state: int32;
+      }
+      @route("/create") @post op create(@body input: CreateTopic): Topic;
+      @route("/update") @put @parameterVisibility(Lifecycle.Update)
+      op update(@body input: UpdateTopic): Topic;
+      `,
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(context);
+      strictEqual(
+        root.models
+          .find((m) => m.name === "UpdateTopic")
+          ?.properties.find((p) => p.name === "state")?.optional,
+        false,
+      );
+    },
+  );
+
+  it.each(["Topic", "Topic[]", "Record<Topic>"])(
+    "includes non-discriminated descendants in base-typed requests: %s",
+    async (bodyType) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+        model Topic { title: string; }
+        model DerivedTopic extends Topic {
+          @visibility(Lifecycle.Read, Lifecycle.Update) state: string;
+        }
+        model SpecialTopic extends DerivedTopic {
+          @visibility(Lifecycle.Read, Lifecycle.Update) specialState: string;
+        }
+        @route("/create") @post op create(@body input: ${bodyType}): void;
+        @route("/read") @get op read(): SpecialTopic;
+        `,
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(context);
+      strictEqual(
+        [...context.__typeCache.operations.values()].find(
+          (operation) => operation.name === "create",
+        )?.requestVisibility,
+        Visibility.Create,
+      );
+      for (const [modelName, propertyName] of [
+        ["DerivedTopic", "state"],
+        ["SpecialTopic", "specialState"],
+      ]) {
+        const property = root.models
+          .find((model) => model.name === modelName)
+          ?.properties.find((p) => p.name === propertyName);
+        ok(property);
+        strictEqual(property.lifecycleVisibility, Visibility.Read | Visibility.Update);
+        strictEqual(property.optional, true);
+      }
+    },
+  );
+
+  it("propagates visibility through recursive, inherited, and polymorphic inputs", async () => {
+    const host = await createEmitterTestHost();
+    const program = await typeSpecCompile(
+      `
+      @discriminator("kind") model Topic {
+        title: string;
+        child?: Topic;
+        @visibility(Lifecycle.Read, Lifecycle.Update) state: int32;
+      }
+      model SpecialTopic extends Topic {
+        kind: "special";
+        @visibility(Lifecycle.Read, Lifecycle.Update) specialState: string;
+      }
+      model Envelope { topics: Topic[]; }
+      @post op create(@body input: Envelope): Topic;
+      `,
+      host,
+    );
+    const context = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(context);
+    strictEqual(
+      root.models.find((m) => m.name === "Topic")?.properties.find((p) => p.name === "state")
+        ?.optional,
+      true,
+    );
+    strictEqual(
+      root.models
+        .find((m) => m.name === "SpecialTopic")
+        ?.properties.find((p) => p.name === "specialState")?.optional,
+      true,
+    );
+    strictEqual(
+      [...context.__typeCache.operations.values()][0].requestVisibility,
+      Visibility.Create,
+    );
+  });
+});
 
 describe("Discriminator property", () => {
   let runner: TestHost;

@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -61,10 +62,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableTType = typeof(IEnumerable<>);
             CSharpType tType = enumerableTType.GetGenericArguments()[0];
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter],
+                Parameters: [enumerableParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -81,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteStartArray(),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    writer.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.As(tType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))
                 },
                 writer.WriteEndArray(),
                 MethodBodyStatement.EmptyLine,
@@ -94,10 +96,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildFromEnumerableBinaryDataMethod()
         {
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, typeof(IEnumerable<BinaryData>));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter],
+                Parameters: [enumerableParameter, options],
                 ReturnType: _requestBodyType,
                 Description: null,
                 ReturnDescription: null);
@@ -130,10 +133,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var spanType = typeof(ReadOnlySpan<>);
             CSharpType tType = spanType.GetGenericArguments()[0];
             var spanParameter = new ParameterProvider("span", FormattableStringHelpers.Empty, spanType);
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [spanParameter],
+                Parameters: [spanParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -151,7 +155,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, i.LessThan(spanParameter.Property(nameof(ReadOnlySpan<byte>.Length))), i.Increment())
                 {
-                    writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))
                 },
                 writer.WriteEndArray(),
                 MethodBodyStatement.EmptyLine,
@@ -166,10 +170,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dictionaryTType = typeof(IDictionary<,>);
             CSharpType valueType = dictionaryTType.GetGenericArguments()[1];
             var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, new CSharpType(dictionaryTType, typeof(string), valueType));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromDictionaryName,
                 Modifiers: _methodModifiers,
-                Parameters: [dictionaryParameter],
+                Parameters: [dictionaryParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [valueType],
                 GenericParameterConstraints: [Where.NotNull(valueType)],
@@ -187,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
-                    writer.WriteObjectValue(item.Property("Value").As(valueType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.Property("Value").As(valueType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))
                 },
                 writer.WriteEndObject(),
                 MethodBodyStatement.EmptyLine,
@@ -200,10 +205,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildFromDictionaryBinaryDataMethod()
         {
             var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, typeof(IDictionary<string, BinaryData>));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromDictionaryName,
                 Modifiers: _methodModifiers,
-                Parameters: [dictionaryParameter],
+                Parameters: [dictionaryParameter, options],
                 ReturnType: _requestBodyType,
                 Description: null,
                 ReturnDescription: null);
@@ -285,10 +291,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
             var rootNameHintParameter = new ParameterProvider("rootNameHint", FormattableStringHelpers.Empty, typeof(string));
             var childNameHintParameter = new ParameterProvider("childNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter],
+                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -304,7 +311,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 xmlWriter.WriteStartElement(rootNameHintParameter),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
+                    xmlWriter.WriteObjectValue(item.As(tType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire), childNameHintParameter)
                 },
                 xmlWriter.WriteEndElement(),
             ]);
