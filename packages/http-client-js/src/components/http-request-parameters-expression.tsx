@@ -3,8 +3,12 @@ import { code, For, List, NamePolicyContext, useNamePolicy } from "@alloy-js/cor
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import type { HttpOperation, HttpProperty } from "@typespec/http";
-import { getDefaultValue, hasDefaultValue } from "../utils/parameters.jsx";
-import { JsonTransform } from "./transforms/json/json-transform.jsx";
+import {
+  getDefaultValue,
+  getHttpParameterWireName,
+  hasDefaultValue,
+} from "../utils/parameters.jsx";
+import { JsonModelPropertyTransform } from "./transforms/json/json-model-property-transform.jsx";
 export interface HttpRequestParametersExpressionProps {
   httpOperation: HttpOperation;
   optionsParameter: Children;
@@ -36,7 +40,9 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
           httpProperty,
           optionsParamRef,
         );
-        const transportParamName = transformNamer.getTransportName(httpProperty.property);
+        const transportParamName =
+          getHttpParameterWireName(httpProperty) ??
+          transformNamer.getTransportName(httpProperty.property);
 
         if (defaultValue) {
           const paramValue = (
@@ -54,14 +60,15 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
 
         if (propertyExpression.isNullish) {
           return code`
-        ...(${propertyExpression.fullExpression} && {${(<JsonTransform itemRef={propertyExpression.leadingExpression} type={httpProperty.property} target="transport" />)}})
+        ...(${propertyExpression.fullExpression} && {${(<JsonModelPropertyTransform itemRef={propertyExpression.leadingExpression} type={httpProperty.property} target="transport" transportName={transportParamName} />)}})
       `;
         } else {
           return (
-            <JsonTransform
+            <JsonModelPropertyTransform
               itemRef={propertyExpression.leadingExpression}
               type={httpProperty.property}
               target="transport"
+              transportName={transportParamName}
             />
           );
         }
