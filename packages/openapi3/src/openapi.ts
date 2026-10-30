@@ -360,6 +360,11 @@ function createOAPIEmitter(
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tagsUsedInOperations: Set<string>;
 
+  // Server parameters already warned about for a missing default, keyed by their declaration.
+  // Servers are resolved once per document and each version of a versioned service gets its own
+  // copy of the parameter, so without this the same warning would be reported for every version.
+  const serverVariablesWarnedForDefault = new Set<ModelProperty["node"] | ModelProperty>();
+
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
@@ -547,6 +552,21 @@ function createOAPIEmitter(
     return isValid;
   }
 
+  function reportMissingServerVariableDefault(prop: ModelProperty) {
+    const key = prop.node ?? prop;
+    if (serverVariablesWarnedForDefault.has(key)) {
+      return;
+    }
+    serverVariablesWarnedForDefault.add(key);
+    diagnostics.add(
+      createDiagnostic({
+        code: "missing-server-variable-default",
+        format: { propName: prop.name, openapiVersion: specVersion },
+        target: prop,
+      }),
+    );
+  }
+
   function resolveServers(servers: HttpServer[]): OpenAPI3Server[] {
     return servers.map((server) => {
       const variables: Record<string, OpenAPI3ServerVariable> = {};
@@ -568,6 +588,11 @@ function createOAPIEmitter(
             .enum as any;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
+        }
+        // OpenAPI 3.1 and later require `default` to be one of the `enum` values (3.0 only says
+        // it should be). Picking one could choose the wrong value, so ask the author to set it.
+        if (!prop.defaultValue && variable.enum?.length && specVersion !== "3.0.0") {
+          reportMissingServerVariableDefault(prop);
         }
         attachExtensions(program, prop, variable);
         variables[name] = variable;
