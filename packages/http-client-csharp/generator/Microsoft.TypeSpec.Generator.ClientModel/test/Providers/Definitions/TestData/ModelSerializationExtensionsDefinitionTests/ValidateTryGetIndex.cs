@@ -31,7 +31,13 @@ namespace Sample
                 return false;
             }
 
-            return global::System.Buffers.Text.Utf8Parser.TryParse(indexSlice.Slice(0, (indexEnd + 1)), out index, out bytesConsumed);
+            if (!global::System.Buffers.Text.Utf8Parser.TryParse(indexSlice.Slice(0, (indexEnd + 1)), out index, out bytesConsumed))
+            {
+                return false;
+            }
+
+            bytesConsumed += 2;
+            return true;
         }
     }
 }

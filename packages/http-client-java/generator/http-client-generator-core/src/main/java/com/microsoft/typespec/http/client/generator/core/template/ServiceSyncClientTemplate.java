@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCon
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,6 +55,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         ClientBuilder rootClientBuilder = ServiceAsyncClientTemplate.getClientBuilder(syncClient);
 
         Set<String> imports = new LinkedHashSet<>();
+        ExperimentalAnnotationUtil.addImportsTo(imports, syncClient.getApiMetadata());
         if (wrapServiceClient) {
             serviceClient.addImportsTo(imports, true, false, settings);
             imports.add(serviceClient.getPackage() + "." + serviceClient.getClassName());
@@ -98,6 +100,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             javaFile.annotation(
                 String.format("%s(builder = %s.class)", serviceClientAnnotation, rootClientBuilder.getClassName()));
         }
+        ExperimentalAnnotationUtil.write(javaFile, syncClient.getApiMetadata());
         javaFile.publicFinalClass(syncClassName, classBlock -> {
             writeClass(syncClient, classBlock, constructorVisibility);
 
