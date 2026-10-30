@@ -50,6 +50,7 @@ public class FluentMethodParameterMethod extends FluentMethod {
         this.localVariable = localVariable;
 
         this.name = methodName;
+        this.parameters.add(methodParameter);
         this.description = String.format("Specifies the %1$s property: %2$s.", methodParameter.getName(),
             methodParameter.getDescription());
         this.interfaceReturnValue = new ReturnValue("the next definition stage.",
@@ -65,8 +66,13 @@ public class FluentMethodParameterMethod extends FluentMethod {
 
     @Override
     protected String getBaseMethodSignature() {
-        return String.format("%1$s(%2$s %3$s)", this.name, methodParameter.getClientType().toString(),
-            methodParameter.getName());
+        return String.format("%1$s(%2$s)", this.name, methodParameter.getDeclaration());
+    }
+
+    @Override
+    public String getImplementationMethodSignatureWithoutAnnotations() {
+        return String.format("%1$s %2$s(%3$s %4$s)", implementationReturnValue.getType(), name,
+            methodParameter.getClientType(), methodParameter.getName());
     }
 
     @Override

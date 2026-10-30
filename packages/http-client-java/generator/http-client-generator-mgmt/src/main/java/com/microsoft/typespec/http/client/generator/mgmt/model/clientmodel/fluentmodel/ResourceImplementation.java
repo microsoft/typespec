@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.flue
 
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class ResourceImplementation {
 
@@ -53,8 +55,8 @@ public class ResourceImplementation {
         Map<String, GroupedMethod> groupedMethodsMap = new LinkedHashMap<>();
         for (FluentMethod method : fluentMethods) {
             if (method.getType() == FluentMethodType.CREATE_WITH || method.getType() == FluentMethodType.UPDATE_WITH) {
-                GroupedMethod groupedMethod = groupedMethodsMap
-                    .computeIfAbsent(method.getImplementationMethodSignature(), key -> new GroupedMethod());
+                GroupedMethod groupedMethod = groupedMethodsMap.computeIfAbsent(
+                    method.getImplementationMethodSignatureWithoutAnnotations(), key -> new GroupedMethod());
                 if (method.getType() == FluentMethodType.CREATE_WITH) {
                     groupedMethod.methodCreateWith = method;
                 } else {
@@ -101,8 +103,16 @@ public class ResourceImplementation {
                 this.implementationMethodTemplate = groupedMethod.methodCreateWith.getMethodTemplate();
                 branchMethodNeeded = false;
             } else {
+                FluentMethod signatureMethod
+                    = Stream.of(groupedMethod.methodCreateWith, groupedMethod.methodUpdateWith)
+                        .filter(method -> method.getParameters()
+                            .stream()
+                            .anyMatch(parameter -> ExperimentalAnnotationUtil.getAnnotation(parameter.getApiMetadata())
+                                != null))
+                        .findFirst()
+                        .orElse(groupedMethod.methodCreateWith);
                 this.implementationMethodTemplate = MethodTemplate.builder()
-                    .methodSignature(groupedMethod.methodCreateWith.getImplementationMethodSignature())
+                    .methodSignature(signatureMethod.getImplementationMethodSignature())
                     .method(block -> {
                         block.ifBlock("isInCreateMode()", ifBlock -> {
                             groupedMethod.methodCreateWith.getMethodTemplate().writeMethodContent(ifBlock);

@@ -3,10 +3,17 @@
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,9 +39,92 @@ public class CodeFormatterUtilTests {
             "    opens com.azure.resourcemanager.avs.models to com.azure.core;",
             "    opens com.azure.resourcemanager.avs.implementation.models to com.azure.core;", "}", "");
 
-        List<String> formattingResult = CodeFormatterUtil.formatCode(new HashMap<>(Map.of(fileName, initial)));
+        List<String> formattingResult = CodeFormatterUtil.formatCode(Map.of(fileName, initial));
 
         assertEquals(1, formattingResult.size());
         assertEquals(expected, formattingResult.get(0));
+    }
+
+    @Test
+    public void emptyBatch() {
+        assertTrue(CodeFormatterUtil.formatCode(Map.of()).isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "module-info.java", "src/main/module-info.java" })
+    public void moduleInfoFileNameWithoutModuleDeclaration(String fileName) {
+        String initial = "package test;\npublic class Example{int value=1;}\n";
+
+        assertEquals(CodeFormatterUtil.formatCode(Map.of("Example.java", initial)),
+            CodeFormatterUtil.formatCode(Map.of(fileName, initial)));
+    }
+
+    @Test
+    public void mixedBatchMatchesIndividuallyFormattedFiles() {
+        Map<String, String> files = new LinkedHashMap<>();
+        files.put("Example.java", "package test;\nimport java.util.List;\nimport java.time.Instant;\n"
+            + "public class Example{List<Instant> values;}\n");
+        files.put("module-info.java", "module test {requires java.logging;exports test;}\n");
+        files.put("Empty.java", "package test;\npublic class Empty{}\n");
+        files.put("package-info.java", "/** Package documentation. */\npackage test;\n");
+        Map<String, String> originalFiles = new LinkedHashMap<>(files);
+
+        List<String> expected = files.entrySet()
+            .stream()
+            .map(entry -> CodeFormatterUtil.formatCode(Map.of(entry.getKey(), entry.getValue())).get(0))
+            .collect(Collectors.toList());
+
+        assertEquals(expected, CodeFormatterUtil.formatCode(files));
+        assertEquals(originalFiles, files);
+    }
+
+    @Test
+    public void importsAndCommentsArePreserved() {
+        String initial = String.join("\n", "// File header.", "package test;", "", "import java.util.Set;",
+            "import static java.util.Collections.emptyList;", "import java.util.List;", "import java.time.Instant;",
+            "import java.util.List;", "", "/**", " * Example values.", " *", " * @see Instant", " */",
+            "public class Example {", "public List<String> values(){return emptyList();}", "}", "");
+        Map<String, String> files = Map.of("Example.java", initial);
+
+        String formatted = CodeFormatterUtil.formatCode(files).get(0);
+
+        assertTrue(formatted.contains("// File header."));
+        assertTrue(formatted.contains("@see Instant"));
+        assertTrue(formatted.contains("import static java.util.Collections.emptyList;"));
+        assertTrue(formatted.contains("import java.time.Instant;"));
+        assertFalse(formatted.contains("import java.util.Set;"));
+        assertEquals(1L, formatted.lines().filter("import java.util.List;"::equals).count());
+        assertTrue(formatted.indexOf("import java.time.Instant;") < formatted.indexOf("import java.util.List;"));
+        assertEquals(initial, files.get("Example.java"));
+        assertEquals(formatted, CodeFormatterUtil.formatCode(Map.of("Example.java", formatted)).get(0));
+    }
+
+    @Test
+    public void errorsAreAggregatedAcrossFiles() {
+        Map<String, String> files = new LinkedHashMap<>();
+        files.put("First.java", "public class First {\n    void broken(;) {}\n}\n");
+        files.put("Valid.java", "public class Valid {}\n");
+        files.put("Second.java", "public class Second {\n    void broken(;) {}\n}\n");
+
+        IllegalStateException exception
+            = assertThrows(IllegalStateException.class, () -> CodeFormatterUtil.formatCode(files));
+
+        assertTrue(exception.getMessage().contains("First.java"));
+        assertTrue(exception.getMessage().contains("Second.java"));
+        assertFalse(exception.getMessage().contains("Valid.java"));
+    }
+
+    @Test
+    public void concurrentBatchesAreIndependent() {
+        Map<String, String> files = Map.of("Example.java", "package test;\npublic class Example{int value=1;}\n",
+            "module-info.java", "module test {requires java.logging;}\n");
+        List<String> expected = CodeFormatterUtil.formatCode(files);
+        List<CompletableFuture<List<String>>> batches = IntStream.range(0, 4)
+            .mapToObj(index -> CompletableFuture.supplyAsync(() -> CodeFormatterUtil.formatCode(files)))
+            .collect(Collectors.toList());
+
+        for (CompletableFuture<List<String>> batch : batches) {
+            assertEquals(expected, batch.join());
+        }
     }
 }

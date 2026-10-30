@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -29,8 +30,13 @@ public class ModelProperty {
         return property.getSetterName();
     }
 
+    public ApiMetadata getApiMetadata() {
+        return property.getApiMetadata();
+    }
+
     public void addImportsTo(Set<String> imports) {
         property.addImportsTo(imports, false);
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
     }
 
     public String getName() {

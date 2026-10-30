@@ -1,10 +1,43 @@
+import { createTester, expectDiagnostics, mockFile } from "@typespec/compiler/testing";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { $lib } from "../src/lib.js";
 import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
+  LIB_NAME,
 } from "../src/options.js";
+
+describe("emitter options", () => {
+  const tester = createTester(fileURLToPath(new URL("../..", import.meta.url)), {
+    libraries: [],
+  }).files({
+    [`node_modules/${LIB_NAME}/package.json`]: JSON.stringify({ name: LIB_NAME, main: "index.js" }),
+    [`node_modules/${LIB_NAME}/index.js`]: mockFile.js({
+      $lib,
+      $onEmit: () => {},
+    }),
+  });
+
+  it("accepts default unbranded emitter options", async () => {
+    await tester.emit(LIB_NAME).compile("");
+  });
+
+  it("does not expose experimental annotations for unbranded clients", async () => {
+    const [, diagnostics] = await tester
+      .emit(LIB_NAME, {
+        "experimental-annotation": "com.example.Preview",
+      })
+      .compileAndDiagnose("");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-schema",
+      severity: "error",
+      message:
+        "Schema violation: must NOT have additional properties (/)\n  additionalProperty: experimental-annotation",
+    });
+  });
+});
 
 describe("diagnostic documentation", () => {
   it("links documented diagnostics to their documentation", () => {

@@ -51,6 +51,7 @@ public final class PatchAsyncClient {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
+     *     state: String (Optional)
      *     map (Optional, Required on create): {
      *         String (Required): {
      *             name: String (Optional, Required on create)
@@ -83,6 +84,7 @@ public final class PatchAsyncClient {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
+     *     state: String (Optional)
      *     map (Optional, Required on create): {
      *         String (Required): {
      *             name: String (Optional, Required on create)
@@ -140,6 +142,7 @@ public final class PatchAsyncClient {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
+     *     state: String (Optional)
      *     map (Optional, Required on create): {
      *         String (Required): {
      *             name: String (Optional, Required on create)
@@ -172,6 +175,7 @@ public final class PatchAsyncClient {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
+     *     state: String (Optional)
      *     map (Optional, Required on create): {
      *         String (Required): {
      *             name: String (Optional, Required on create)

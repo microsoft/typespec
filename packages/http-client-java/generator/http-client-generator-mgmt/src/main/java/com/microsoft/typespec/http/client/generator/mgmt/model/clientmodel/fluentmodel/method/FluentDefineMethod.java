@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import java.util.Set;
@@ -73,7 +74,8 @@ public class FluentDefineMethod extends FluentMethod {
         if (constantResourceName) {
             return String.format("%1$s()", this.name);
         } else {
-            return String.format("%1$s(%2$s name)", this.name, resourceNameType.toString());
+            return String.format("%1$s(%2$s)", this.name,
+                methodParameter.newBuilder().name("name").build().getDeclaration());
         }
     }
 
@@ -88,13 +90,14 @@ public class FluentDefineMethod extends FluentMethod {
 
     @Override
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, apiMetadata);
         if (includeImplementationImports) {
             fluentResourceModel.getInterfaceType().addImportsTo(imports, false);
         } else {
             fluentResourceModel.getImplementationType().addImportsTo(imports, false);
         }
         if (resourceNameType != null) {
-            resourceNameType.addImportsTo(imports, false);
+            methodParameter.addImportsTo(imports, false);
         }
     }
 

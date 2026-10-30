@@ -42,6 +42,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
         this.emitterOptions = options;
 
         SETTINGS_MAP.put("namespace", options.getNamespace());
+        if (options.getExperimentalAnnotation() == null) {
+            SETTINGS_MAP.remove("experimental-annotation");
+        } else {
+            SETTINGS_MAP.put("experimental-annotation", options.getExperimentalAnnotation());
+        }
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
         }
@@ -130,6 +135,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
     public FluentJavaPackage processTemplates(CodeModel codeModel, Client client) {
         FluentJavaPackage javaPackage = handleTemplate(client);
         handleFluentLite(codeModel, client, javaPackage, codeModel.getApiVersionMap());
+        if (JavaSettings.getInstance().getExperimentalAnnotation() != null) {
+            javaPackage.addExperimentalAnnotation();
+        }
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(FluentUtils.getArtifactId())

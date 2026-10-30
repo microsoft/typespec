@@ -18,11 +18,11 @@ Welcome! This guide will help you set up your development environment and contri
 
 Before you begin, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (version 20 or higher)
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (required - see global.json for exact version)
+- Install a supported [Node.js](https://nodejs.org/) LTS. (Verify by running `node --version`)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (required - see [global.json](global.json) for the exact SDK version)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Git](https://git-scm.com/)
-- [PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) (version 7.0 or higher, for advanced testing and code generation scenarios)
+- [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) (use a [supported release](https://learn.microsoft.com/powershell/scripting/install/powershell-support-lifecycle) for advanced testing and code generation scenarios)
 - [Long Path Support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=powershell#registry-setting-to-enable-long-paths) (Windows only required to avoid path length limitations during development)
 
 ## Getting Started

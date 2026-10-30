@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayEncoding;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -52,11 +53,23 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         ClientModelProperty.Builder builder
             = new ClientModelProperty.Builder().name(property.getLanguage().getJava().getName())
                 .required(property.isRequired())
+                .apiMetadata(new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(property)).build())
                 .readOnly(property.isReadOnly());
+
+        List<ClientModelProperty.Mutability> mutabilities = null;
+        if (property.getExtensions() != null && property.getExtensions().getXmsMutability() != null) {
+            mutabilities = property.getExtensions()
+                .getXmsMutability()
+                .stream()
+                .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
+                .collect(Collectors.toList());
+            builder.mutabilities(mutabilities);
+        }
 
         if (mutableAsOptional && !property.isReadOnly() && !property.isIsDiscriminator()) {
             builder.required(false);
-            builder.requiredForCreate(property.isRequired());
+            builder.requiredForCreate(property.isRequired()
+                && (mutabilities == null || mutabilities.contains(ClientModelProperty.Mutability.CREATE)));
         }
 
         String description;
@@ -225,17 +238,6 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             builder.constant(property.isRequired());
             builder.defaultValue(
                 objValue == null ? null : propertyClientType.defaultValueExpression(String.valueOf(objValue)));
-        }
-
-        // x-ms-mutability
-        if (property.getExtensions() != null) {
-            List<String> xmsMutability = property.getExtensions().getXmsMutability();
-            if (xmsMutability != null) {
-                List<ClientModelProperty.Mutability> mutabilities = xmsMutability.stream()
-                    .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
-                    .collect(Collectors.toList());
-                builder.mutabilities(mutabilities);
-            }
         }
 
         // handle x-ms-client-default for primitive type, enum, boxed type and string

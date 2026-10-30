@@ -1,12 +1,34 @@
 ---
 import Default from "@astrojs/starlight/components/PageFrame.astro";
 import Footer from "../footer/footer.astro";
+
+const { entry, sidebar } = Astro.locals.starlightRoute;
+const searchScope = entry.data.jsApi ? "JS API" : "Docs";
+
+function findSidebarGroups(entries: typeof sidebar, parents: string[] = []): string[] | undefined {
+  for (const item of entries) {
+    if (item.type === "link") {
+      if (item.isCurrent) return parents;
+    } else {
+      const groups = findSidebarGroups(item.entries, [...parents, item.label]);
+      if (groups) return groups;
+    }
+  }
+}
+
+const groups = findSidebarGroups(sidebar) ?? [];
+const apiGroupIndex = groups.findIndex((group) => group.toLowerCase() === "js api");
+const section = groups[apiGroupIndex > 0 ? apiGroupIndex - 1 : groups.length - 1];
+const searchContext = [section?.replace(/^[^\p{L}\p{N}]+/u, ""), searchScope]
+  .filter(Boolean)
+  .join(" · ");
 ---
 
 <Default {...Astro.props}>
   <slot name="header" slot="header" />
   <slot name="sidebar" slot="sidebar" />
-  <div>
+  <div data-pagefind-filter={`search-scope:${searchScope}`}>
+    <meta data-pagefind-meta="searchContext[content]" content={searchContext} />
     <slot />
     <div class="footer-wrapper">
       <div class="footer">

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>This is the _Specs_.Azure.ClientGenerator.Core.ResponseAsBool client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation _Specs_.Azure.ClientGenerator.Core.ResponseAsBool</AssemblyTitle>
+    <Version>1.0.0-beta.1</Version>
+    <PackageTags>_Specs_.Azure.ClientGenerator.Core.ResponseAsBool</PackageTags>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" Version="1.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\_Specs_.Azure.ClientGenerator.Core.ResponseAsBool.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\_Specs_.Azure.ClientGenerator.Core.ResponseAsBool.targets" />
+  </ItemGroup>
+</Project>

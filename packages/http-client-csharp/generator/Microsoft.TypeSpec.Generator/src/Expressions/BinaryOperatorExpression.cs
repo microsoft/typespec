@@ -3,17 +3,17 @@
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
-    public sealed record BinaryOperatorExpression(string Operator, ValueExpression Left, ValueExpression Right) : ValueExpression
+    public sealed record BinaryOperatorExpression(string Operator, ValueExpression Left, ValueExpression Right, bool AddParentheses = true) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {
-            writer.AppendRaw("(");
+            writer.AppendRawIf("(", AddParentheses);
             Left.Write(writer);
             writer.AppendRawIf(" ", !Left.IsEmptyExpression());
             writer.AppendRaw(Operator);
             writer.AppendRawIf(" ", !Right.IsEmptyExpression());
             Right.Write(writer);
-            writer.AppendRaw(")");
+            writer.AppendRawIf(")", AddParentheses);
         }
     }
 }
