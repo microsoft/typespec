@@ -100,10 +100,10 @@ steps:
   - task: PublishTestResults@2
     displayName: "Publish ${{ parameters.LanguageShortName }} test script results"
     ${{ if eq(parameters.LanguageShortName, 'python') }}:
-      condition: and(succeededOrFailed(), contains('${{ parameters.TestArgs }}', '-GenerationChecks'))
+      condition: and(succeededOrFailed(), contains(coalesce(variables['TestArguments'], '${{ parameters.TestArgs }}'), '-GenerationChecks'))
     ${{ elseif eq(parameters.LanguageShortName, 'java') }}:
       # Regeneration also rebuilds the Java generator and runs its Maven tests.
-      condition: and(succeededOrFailed(), or(contains('${{ parameters.TestArgs }}', '-UnitTests'), contains('${{ parameters.TestArgs }}', '-GenerationChecks')))
+      condition: and(succeededOrFailed(), or(contains(coalesce(variables['TestArguments'], '${{ parameters.TestArgs }}'), '-UnitTests'), contains(coalesce(variables['TestArguments'], '${{ parameters.TestArgs }}'), '-GenerationChecks')))
     ${{ else }}:
       condition: and(succeededOrFailed(), contains('${{ parameters.TestArgs }}', '-UnitTests'))
     inputs:
