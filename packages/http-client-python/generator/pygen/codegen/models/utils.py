@@ -13,6 +13,15 @@ T = TypeVar("T")
 OrderedSet = dict[T, None]
 
 
+def python_string_literal(value: str, *, quote: str = '"') -> str:
+    literal = repr(value)
+    if literal[0] == quote:
+        return literal
+    # Change delimiter escaping without changing the escaped value.
+    body = literal[1:-1].replace("\\" + literal[0], literal[0])
+    return quote + body.replace(quote, "\\" + quote) + quote
+
+
 def add_to_description(description: str, entry: str) -> str:
     if not description:
         return entry

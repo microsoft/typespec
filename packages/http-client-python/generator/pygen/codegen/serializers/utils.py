@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
+import re
 from typing import Optional, Any
 from pathlib import Path
 
@@ -43,19 +44,8 @@ def get_namespace_from_package_name(package_name: Optional[str]) -> str:
 
 
 def _improve_json_string(template_representation: str) -> Any:
-    origin = template_representation.split("\n")
-    final = []
-    for line in origin:
-        idx0 = line.find("#")
-        idx1 = line.rfind('"')
-        modified_line = ""
-        if idx0 > -1 and idx1 > -1:
-            modified_line = line[:idx0] + line[idx1:] + "  " + line[idx0:idx1] + "\n"
-        else:
-            modified_line = line + "\n"
-        modified_line = modified_line.replace('"', "").replace("\\", '"')
-        final.append(modified_line)
-    return "".join(final)
+    # Unwrap JSON strings without changing the Python expressions stored inside them.
+    return re.sub(r'"(?:[^"\\]|\\.)*"', lambda match: json.loads(match.group()), template_representation) + "\n"
 
 
 def json_dumps_template(template_representation: Any) -> Any:

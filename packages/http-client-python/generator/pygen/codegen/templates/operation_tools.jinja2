@@ -32,8 +32,13 @@
 {{ normalized_string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
 
 {# Escape quotes after wrapping so wrapping cannot split an escape sequence. #}
-{% macro wrap_docstring(string, wrapstring, width=95) -%}
-{{ wrap_string(string, wrapstring, width) | replace('"', '\\"') }}
+{% macro wrap_docstring(string, wrapstring, width=95, escape_all_quotes=true) -%}
+{%- set wrapped = wrap_string(string, wrapstring, width) -%}
+{%- if escape_all_quotes -%}
+{{ wrapped | replace('"', '\\"') }}
+{%- else -%}
+{{ wrapped | replace('"""', '\\"\\"\\"') }}
+{%- endif -%}
 {%- endmacro %}
 
 {% macro description(builder, serializer) %}
@@ -55,7 +60,7 @@
     {% endfor %}
     {% for description in param_description_and_response_docstring %}
         {% if description %}
-{% set description = wrap_string(description, wrapstring='\n ') %}
+{% set description = wrap_docstring(description, wrapstring='\n ', escape_all_quotes=false) %}
 {{ " " if description[0] != ":" and description[0] != " " else "" }}{{ description}}
         {% else %}
 
@@ -67,8 +72,7 @@ Example:
     .. code-block:: python
     {% for template_line in example_template %}
         {% if template_line %}
-            {% set wrap_amount = (template_line | length) - (template_line.lstrip() | length) + 10 %}
-        {{  wrap_string(template_line, wrapstring='\n' + " " * wrap_amount, width=(95 - wrap_amount)) }}
+        {{ template_line | replace("\\", "\\\\") | replace('"""', '\\"\\"\\"') }}
         {% else %}
 
         {% endif %}
@@ -89,7 +93,11 @@ Example:
 {% macro serialize_with_wrap(lines, wrapstring) %}
 {% for line in lines %}
     {% if line %}
-{{ wrap_string(line, wrapstring=wrapstring) }}
+        {% if line == '"""' %}
+{{ line }}
+        {% else %}
+{{ wrap_docstring(line, wrapstring=wrapstring, escape_all_quotes=false) }}
+        {% endif %}
     {% else %}
 
     {% endif %}
