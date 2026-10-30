@@ -10,6 +10,56 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null)]
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestCase(6)]
+        public void LoadsRequestVisibility(int? visibility)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "send",
+                  {{(visibility.HasValue ? $"\"requestVisibility\": {visibility.Value}," : "")}}
+                  "httpMethod": "POST",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.send"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options)!;
+            Assert.AreEqual(visibility.HasValue ? (InputVisibility)visibility.Value : null, operation.RequestVisibility);
+            operation.Update(requestVisibility: InputVisibility.Update);
+            operation.Update();
+            Assert.AreEqual(InputVisibility.Update, operation.RequestVisibility);
+        }
+
+        [TestCase(null, InputVisibility.All)]
+        [TestCase(0, InputVisibility.None)]
+        [TestCase(5, InputVisibility.Read | InputVisibility.Update)]
+        public void LoadsPropertyLifecycleVisibility(int? visibility, InputVisibility expected)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Topic",
+                    "properties": [{
+                      "$id": "property", "name": "state",
+                      {{(visibility.HasValue ? $"\"lifecycleVisibility\": {visibility.Value}," : "")}}
+                      "type": {"kind": "string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+            Assert.AreEqual(expected, property.Visibility);
+        }
+
         [TestCase(null, false)]
         [TestCase(false, false)]
         [TestCase(true, true)]

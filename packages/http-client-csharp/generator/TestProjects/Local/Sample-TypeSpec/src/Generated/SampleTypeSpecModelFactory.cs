@@ -585,6 +585,49 @@ namespace SampleTypeSpec
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
+        /// <summary> The ChatTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <param name="createOnly"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ChatTopic"/> instance for mocking. </returns>
+        public static ChatTopic ChatTopic(string title = default, ChatTopicState? state = default, string createOnly = default, string id = default)
+        {
+            return new ChatTopic(title, state, createOnly, id, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ChatTopicEnvelope. </summary>
+        /// <param name="topic"></param>
+        /// <param name="topics"></param>
+        /// <param name="lookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ChatTopicEnvelope"/> instance for mocking. </returns>
+        public static ChatTopicEnvelope ChatTopicEnvelope(ChatTopic topic = default, IEnumerable<ChatTopic> topics = default, IDictionary<string, ChatTopic> lookup = default)
+        {
+            topics ??= new ChangeTrackingList<ChatTopic>();
+            lookup ??= new ChangeTrackingDictionary<string, ChatTopic>();
+
+            return new ChatTopicEnvelope(topic, topics.ToList(), lookup, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleMultipart. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <param name="topic"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipart"/> instance for mocking. </returns>
+        public static LifecycleMultipart LifecycleMultipart(string title = default, string state = default, LifecycleMultipartTopic topic = default)
+        {
+            return new LifecycleMultipart(title, state, topic);
+        }
+
+        /// <summary> The LifecycleMultipartTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="createOnly"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipartTopic"/> instance for mocking. </returns>
+        public static LifecycleMultipartTopic LifecycleMultipartTopic(string title = default, string createOnly = default)
+        {
+            return new LifecycleMultipartTopic(title, createOnly, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

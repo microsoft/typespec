@@ -8,9 +8,15 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic } from "@typespec/compiler";
 import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type { CodeModel } from "../type/code-model.js";
-import type { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
+import type {
+  InputEnumType,
+  InputLiteralType,
+  InputModelType,
+  InputType,
+} from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
@@ -52,6 +58,16 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const rootClients = sdkPackage.clients;
   const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
   const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
+  for (const operation of sdkContext.__typeCache.operations.values()) {
+    const body = operation.parameters.find((parameter) => parameter.kind === "body");
+    if (
+      !body ||
+      operation.requestVisibility === undefined ||
+      !applyInputVisibility(body.type, operation.requestVisibility, new Set())
+    ) {
+      delete operation.requestVisibility;
+    }
+  }
 
   const models: InputModelType[] = [];
   const enums: InputEnumType[] = [];
@@ -124,6 +140,57 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   };
 
   return diagnostics.wrap(clientModel);
+}
+
+function applyInputVisibility(
+  type: InputType,
+  visibility: number,
+  visited: Set<InputType>,
+): boolean {
+  if (visited.has(type)) return false;
+  visited.add(type);
+  let hasLifecycleVisibility = false;
+  switch (type.kind) {
+    case "nullable":
+      return applyInputVisibility(type.type, visibility, visited);
+    case "array":
+    case "dict":
+    case "streaming":
+      return applyInputVisibility(type.valueType, visibility, visited);
+    case "union":
+      for (const variant of type.variantTypes) {
+        hasLifecycleVisibility =
+          applyInputVisibility(variant, visibility, visited) || hasLifecycleVisibility;
+      }
+      break;
+    case "model": {
+      for (const subtype of Object.values(type.discriminatedSubtypes ?? {})) {
+        hasLifecycleVisibility =
+          applyInputVisibility(subtype, visibility, visited) || hasLifecycleVisibility;
+      }
+      // Include inherited properties without applying this operation's lifecycle to sibling subtypes.
+      for (let model: InputModelType | undefined = type; model; model = model.baseModel) {
+        if (model.additionalProperties) {
+          hasLifecycleVisibility =
+            applyInputVisibility(model.additionalProperties, visibility, visited) ||
+            hasLifecycleVisibility;
+        }
+        for (const property of model.properties) {
+          if (property.readOnly || property.discriminator) continue;
+          hasLifecycleVisibility ||= property.lifecycleVisibility !== undefined;
+          if (((property.lifecycleVisibility ?? Visibility.All) & visibility) === 0) {
+            // A shared input must be constructible without properties excluded from this request.
+            property.optional = true;
+          } else {
+            hasLifecycleVisibility =
+              applyInputVisibility(property.type, visibility, visited) || hasLifecycleVisibility;
+          }
+        }
+      }
+      break;
+    }
+  }
+  return hasLifecycleVisibility;
 }
 
 /**

@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -166,10 +167,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dictionaryTType = typeof(IDictionary<,>);
             CSharpType valueType = dictionaryTType.GetGenericArguments()[1];
             var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, new CSharpType(dictionaryTType, typeof(string), valueType));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromDictionaryName,
                 Modifiers: _methodModifiers,
-                Parameters: [dictionaryParameter],
+                Parameters: [dictionaryParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [valueType],
                 GenericParameterConstraints: [Where.NotNull(valueType)],
@@ -187,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
-                    writer.WriteObjectValue(item.Property("Value").As(valueType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.Property("Value").As(valueType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))
                 },
                 writer.WriteEndObject(),
                 MethodBodyStatement.EmptyLine,
@@ -285,10 +287,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
             var rootNameHintParameter = new ParameterProvider("rootNameHint", FormattableStringHelpers.Empty, typeof(string));
             var childNameHintParameter = new ParameterProvider("childNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter],
+                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -304,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 xmlWriter.WriteStartElement(rootNameHintParameter),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
+                    xmlWriter.WriteObjectValue(item.As(tType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire), childNameHintParameter)
                 },
                 xmlWriter.WriteEndElement(),
             ]);

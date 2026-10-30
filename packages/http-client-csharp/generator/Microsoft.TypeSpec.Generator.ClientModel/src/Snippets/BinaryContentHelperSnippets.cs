@@ -12,11 +12,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ValueExpression FromEnumerable(ValueExpression body)
             => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable", body);
 
-        public static ValueExpression FromEnumerable(ValueExpression body, ValueExpression rootNameHint, ValueExpression childNameHint)
-            => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable", [body, rootNameHint, childNameHint]);
+        public static ValueExpression FromEnumerable(ValueExpression body, ValueExpression rootNameHint, ValueExpression childNameHint, ValueExpression? options = null)
+            => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable",
+                options is null ? [body, rootNameHint, childNameHint] : [body, rootNameHint, childNameHint, options]);
 
-        public static ValueExpression FromDictionary(ValueExpression body)
-            => Static<BinaryContentHelperDefinition>().Invoke("FromDictionary", body);
+        public static ValueExpression FromDictionary(ValueExpression body, ValueExpression? options = null)
+            => Static<BinaryContentHelperDefinition>().Invoke("FromDictionary", options is null ? [body] : [body, options]);
 
         public static ValueExpression FromObject(ValueExpression body)
             => Static<BinaryContentHelperDefinition>().Invoke("FromObject", body);

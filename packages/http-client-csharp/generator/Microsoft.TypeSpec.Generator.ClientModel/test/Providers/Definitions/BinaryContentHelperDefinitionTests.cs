@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var binaryContentHelper = new BinaryContentHelperDefinition();
             Assert.IsNotNull(binaryContentHelper.Methods);
             var method = binaryContentHelper.Methods.Single(m => m.Signature.Name == "FromEnumerable"
-                && m.Signature.Parameters.Count == 3
+                && m.Signature.Parameters.Count == 4
                 && m.Signature.Parameters[1].Name == "rootNameHint");
             Assert.IsNotNull(method);
 
@@ -63,10 +63,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual("FromEnumerable", signature.Name);
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Static, signature.Modifiers);
             Assert.IsNotNull(signature.ReturnType);
-            Assert.AreEqual(3, signature.Parameters.Count);
+            Assert.AreEqual(4, signature.Parameters.Count);
             Assert.AreEqual("enumerable", signature.Parameters[0].Name);
             Assert.AreEqual("rootNameHint", signature.Parameters[1].Name);
             Assert.AreEqual("childNameHint", signature.Parameters[2].Name);
+            Assert.AreEqual("options", signature.Parameters[3].Name);
             Assert.IsNotNull(signature.GenericArguments);
             Assert.AreEqual(1, signature.GenericArguments!.Count);
             Assert.IsNotNull(signature.GenericParameterConstraints);
