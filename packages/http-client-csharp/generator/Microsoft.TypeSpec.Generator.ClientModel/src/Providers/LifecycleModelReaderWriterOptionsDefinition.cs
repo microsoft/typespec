@@ -49,11 +49,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override CSharpType BuildBaseType() => typeof(ModelReaderWriterOptions);
 
         protected override PropertyProvider[] BuildProperties()
-            => [new PropertyProvider(null, MethodSignatureModifiers.Internal, typeof(int), "Visibility", new AutoPropertyBody(false), this)];
+            => [new PropertyProvider(null, MethodSignatureModifiers.Internal, new LifecycleVisibilityDefinition().Type, "Visibility", new AutoPropertyBody(false), this)];
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var visibility = new ParameterProvider("visibility", FormattableStringHelpers.Empty, typeof(int));
+            var visibility = new ParameterProvider("visibility", FormattableStringHelpers.Empty, new LifecycleVisibilityDefinition().Type);
             var format = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string), defaultValue: Literal("W"));
             return
             [
@@ -68,14 +68,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override MethodProvider[] BuildMethods()
         {
             var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
-            var visibility = new ParameterProvider("visibility", FormattableStringHelpers.Empty, typeof(int));
+            var visibility = new ParameterProvider("visibility", FormattableStringHelpers.Empty, new LifecycleVisibilityDefinition().Type);
             var isLifecycleOptions = options.Is(new DeclarationExpression(Type, "lifecycleOptions", out var lifecycleOptions));
             return
             [
                 new MethodProvider(
                     new MethodSignature("IsVisible", null, MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static,
                         typeof(bool), null, [options, visibility]),
-                    Return(Not(isLifecycleOptions).Or(new BinaryOperatorExpression("&", lifecycleOptions.Property("Visibility"), visibility).NotEqual(Int(0)))),
+                    Return(Not(isLifecycleOptions).Or(new BinaryOperatorExpression("&", lifecycleOptions.Property("Visibility"), visibility)
+                        .NotEqual(LifecycleVisibilityDefinition.GetExpression(InputVisibility.None)))),
                     this)
             ];
         }

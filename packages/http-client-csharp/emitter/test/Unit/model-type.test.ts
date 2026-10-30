@@ -15,6 +15,29 @@ import {
 } from "./utils/test-util.js";
 
 describe("Lifecycle visibility", () => {
+  it.each(["application/xml", "text/xml", "application/vnd.typespec+xml", "application/json"])(
+    "retains read-only request visibility only where serialization needs it: %s",
+    async (contentType) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+        model Topic {
+          title: string;
+          @visibility(Lifecycle.Read) id: string;
+        }
+        @post op create(@body input: Topic, @header contentType: "${contentType}"): Topic;
+        `,
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      createModel(context);
+      strictEqual(
+        [...context.__typeCache.operations.values()][0].requestVisibility,
+        contentType === "application/json" ? undefined : Visibility.Create,
+      );
+    },
+  );
+
   it.each(["@body input: Topic", "@body input: Topic[]", "@body input: Record<Topic>"])(
     "keeps one shared model and relaxes properties excluded from an input lifecycle: %s",
     async (body) => {

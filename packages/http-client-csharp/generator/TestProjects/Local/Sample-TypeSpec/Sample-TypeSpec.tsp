@@ -1202,7 +1202,40 @@ model LifecycleMultipart {
   topic: HttpPart<ChatTopic>;
 }
 
+model LifecycleReadOnlyXmlTopic {
+  title: string;
+
+  @visibility(Lifecycle.Read)
+  id: string;
+}
+
+model LifecycleXmlOnlyTopic {
+  title: string;
+
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state?: string;
+}
+
 interface VisibilitySamples {
+  @route("/visibility/read-xml-topic")
+  @get
+  readXmlTopic(): LifecycleReadOnlyXmlTopic;
+
+  @route("/visibility/read-only-xml")
+  @post
+  readOnlyXml(@body topic: LifecycleReadOnlyXmlTopic, @header contentType: "application/xml"): void;
+
+  @route("/visibility/text-xml")
+  @post
+  textXml(@body topic: LifecycleXmlOnlyTopic, @header contentType: "text/xml"): void;
+
+  @route("/visibility/vendor-xml")
+  @post
+  vendorXml(
+    @body topic: LifecycleXmlOnlyTopic,
+    @header contentType: "application/vnd.typespec+xml",
+  ): void;
+
   @route("/visibility/create")
   @post
   create(@body topic: ChatTopic): void;
@@ -1240,6 +1273,10 @@ interface VisibilitySamples {
   @route("/visibility/optional-dictionary")
   @post
   optionalDictionary(@body topics?: Record<ChatTopic>): void;
+
+  @route("/visibility/optional-list")
+  @post
+  optionalList(@body topics?: ChatTopic[]): void;
 
   @route("/visibility/optional-xml")
   @post

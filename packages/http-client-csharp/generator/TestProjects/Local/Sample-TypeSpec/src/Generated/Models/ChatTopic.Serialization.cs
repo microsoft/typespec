@@ -123,7 +123,7 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("title"u8);
             writer.WriteStringValue(Title);
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 5))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Read | LifecycleVisibility.Update))
             {
                 if (Optional.IsDefined(State))
                 {
@@ -131,7 +131,7 @@ namespace SampleTypeSpec
                     writer.WriteStringValue(State.Value.ToSerialString());
                 }
             }
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 2))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Create))
             {
                 if (Optional.IsDefined(CreateOnly))
                 {
@@ -256,7 +256,7 @@ namespace SampleTypeSpec
             writer.WriteStartElement("title");
             writer.WriteValue(Title);
             writer.WriteEndElement();
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 5))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Read | LifecycleVisibility.Update))
             {
                 if (Optional.IsDefined(State))
                 {
@@ -265,7 +265,7 @@ namespace SampleTypeSpec
                     writer.WriteEndElement();
                 }
             }
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 2))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Create))
             {
                 if (Optional.IsDefined(CreateOnly))
                 {
@@ -274,7 +274,7 @@ namespace SampleTypeSpec
                     writer.WriteEndElement();
                 }
             }
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 1))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Read))
             {
                 if (Optional.IsDefined(Id))
                 {

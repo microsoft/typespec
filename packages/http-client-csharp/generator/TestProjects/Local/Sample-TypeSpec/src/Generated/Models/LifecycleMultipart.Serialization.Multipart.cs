@@ -27,7 +27,7 @@ namespace SampleTypeSpec
             MultiPartFormContent content = new MultiPartFormContent();
 
             content.Add("title", Title);
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 5))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Read | LifecycleVisibility.Update))
             {
                 if (Optional.IsDefined(State))
                 {

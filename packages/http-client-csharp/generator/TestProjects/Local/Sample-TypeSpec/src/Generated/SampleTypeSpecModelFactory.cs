@@ -585,6 +585,24 @@ namespace SampleTypeSpec
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
+        /// <summary> The LifecycleReadOnlyXmlTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleReadOnlyXmlTopic"/> instance for mocking. </returns>
+        public static LifecycleReadOnlyXmlTopic LifecycleReadOnlyXmlTopic(string title = default, string id = default)
+        {
+            return new LifecycleReadOnlyXmlTopic(title, id, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleXmlOnlyTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlOnlyTopic"/> instance for mocking. </returns>
+        public static LifecycleXmlOnlyTopic LifecycleXmlOnlyTopic(string title = default, string state = default)
+        {
+            return new LifecycleXmlOnlyTopic(title, state);
+        }
+
         /// <summary> The ChatTopic. </summary>
         /// <param name="title"></param>
         /// <param name="state"></param>

@@ -121,7 +121,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var part = BuildAddPartStatement(contentVar, prop);
                 if (prop.WireInfo.Visibility != InputVisibility.All && !prop.WireInfo.IsReadOnly)
                 {
-                    part = new IfStatement(Static<LifecycleModelReaderWriterOptionsDefinition>().Invoke("IsVisible", SerializationOptions, Int((int)prop.WireInfo.Visibility)))
+                    part = new IfStatement(Static<LifecycleModelReaderWriterOptionsDefinition>().Invoke("IsVisible", SerializationOptions,
+                        LifecycleVisibilityDefinition.GetExpression(prop.WireInfo.Visibility)))
                     {
                         part
                     };

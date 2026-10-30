@@ -39,6 +39,262 @@ namespace SampleTypeSpec
         public ClientPipeline Pipeline { get; }
 
         /// <summary>
+        /// [Protocol Method] ReadXmlTopic
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ReadXmlTopic(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReadXmlTopicRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReadXmlTopic
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ReadXmlTopicAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReadXmlTopicRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReadXmlTopic. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<LifecycleReadOnlyXmlTopic> ReadXmlTopic(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = ReadXmlTopic(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((LifecycleReadOnlyXmlTopic)result, result.GetRawResponse());
+        }
+
+        /// <summary> ReadXmlTopic. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<LifecycleReadOnlyXmlTopic>> ReadXmlTopicAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await ReadXmlTopicAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((LifecycleReadOnlyXmlTopic)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReadOnlyXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ReadOnlyXml(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateReadOnlyXmlRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReadOnlyXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ReadOnlyXmlAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateReadOnlyXmlRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReadOnlyXml. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult ReadOnlyXml(LifecycleReadOnlyXmlTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return ReadOnlyXml(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> ReadOnlyXml. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> ReadOnlyXmlAsync(LifecycleReadOnlyXmlTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return await ReadOnlyXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] TextXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult TextXml(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateTextXmlRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] TextXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> TextXmlAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateTextXmlRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> TextXml. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult TextXml(LifecycleXmlOnlyTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return TextXml(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> TextXml. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> TextXmlAsync(LifecycleXmlOnlyTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return await TextXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] VendorXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult VendorXml(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateVendorXmlRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] VendorXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> VendorXmlAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateVendorXmlRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> VendorXml. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult VendorXml(LifecycleXmlOnlyTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return VendorXml(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> VendorXml. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> VendorXmlAsync(LifecycleXmlOnlyTopic topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
+            return await VendorXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// [Protocol Method] Create
         /// <list type="bullet">
         /// <item>
@@ -90,7 +346,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(topic, nameof(topic));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return Create(content, cancellationToken.ToRequestOptions());
         }
 
@@ -104,7 +360,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(topic, nameof(topic));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await CreateAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -160,7 +416,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(topic, nameof(topic));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(4, "W"));
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Update, "W"));
             return Update(content, cancellationToken.ToRequestOptions());
         }
 
@@ -174,7 +430,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(topic, nameof(topic));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(4, "W"));
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Update, "W"));
             return await UpdateAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -230,7 +486,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(topic, nameof(topic));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return Replace(content, cancellationToken.ToRequestOptions());
         }
 
@@ -244,7 +500,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(topic, nameof(topic));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await ReplaceAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -342,7 +598,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(envelope, nameof(envelope));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(envelope, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(envelope, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return Nested(content, cancellationToken.ToRequestOptions());
         }
 
@@ -356,7 +612,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(envelope, nameof(envelope));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(envelope, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(envelope, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await NestedAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -411,8 +667,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topics, nameof(topics));
 
-            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topics, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return SendList(content, cancellationToken.ToRequestOptions());
         }
 
@@ -425,8 +680,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topics, nameof(topics));
 
-            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(topics, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await SendListAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -481,7 +735,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topics, nameof(topics));
 
-            using BinaryContent content = BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return Dictionary(content, cancellationToken.ToRequestOptions());
         }
 
@@ -494,7 +748,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topics, nameof(topics));
 
-            using BinaryContent content = BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await DictionaryAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -543,7 +797,7 @@ namespace SampleTypeSpec
             using Utf8JsonBinaryContent content = topic == null ? null : new Utf8JsonBinaryContent();
             if (content != null)
             {
-                content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(2, "W"));
+                content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             }
             return Optional(content, cancellationToken.ToRequestOptions());
         }
@@ -557,7 +811,7 @@ namespace SampleTypeSpec
             using Utf8JsonBinaryContent content = topic == null ? null : new Utf8JsonBinaryContent();
             if (content != null)
             {
-                content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(2, "W"));
+                content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             }
             return await OptionalAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -604,7 +858,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult OptionalDictionary(IDictionary<string, ChatTopic> topics = default, CancellationToken cancellationToken = default)
         {
-            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return OptionalDictionary(content, cancellationToken.ToRequestOptions());
         }
 
@@ -614,8 +868,64 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> OptionalDictionaryAsync(IDictionary<string, ChatTopic> topics = default, CancellationToken cancellationToken = default)
         {
-            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromDictionary(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await OptionalDictionaryAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] OptionalList
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult OptionalList(BinaryContent content, RequestOptions options = null)
+        {
+            using PipelineMessage message = CreateOptionalListRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] OptionalList
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> OptionalListAsync(BinaryContent content, RequestOptions options = null)
+        {
+            using PipelineMessage message = CreateOptionalListRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> OptionalList. </summary>
+        /// <param name="topics"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult OptionalList(IEnumerable<ChatTopic> topics = default, CancellationToken cancellationToken = default)
+        {
+            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromEnumerable(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return OptionalList(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> OptionalList. </summary>
+        /// <param name="topics"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> OptionalListAsync(IEnumerable<ChatTopic> topics = default, CancellationToken cancellationToken = default)
+        {
+            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromEnumerable(topics, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return await OptionalListAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -660,7 +970,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult OptionalXml(ChatTopic topic = default, CancellationToken cancellationToken = default)
         {
-            using BinaryContent content = topic == null ? null : BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = topic == null ? null : BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return OptionalXml(content, cancellationToken.ToRequestOptions());
         }
 
@@ -670,7 +980,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> OptionalXmlAsync(ChatTopic topic = default, CancellationToken cancellationToken = default)
         {
-            using BinaryContent content = topic == null ? null : BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = topic == null ? null : BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return await OptionalXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -716,7 +1026,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult OptionalXmlList(IEnumerable<ChatTopic> topics = default, CancellationToken cancellationToken = default)
         {
-            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return OptionalXmlList(content, cancellationToken.ToRequestOptions());
         }
 
@@ -726,7 +1036,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> OptionalXmlListAsync(IEnumerable<ChatTopic> topics = default, CancellationToken cancellationToken = default)
         {
-            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = topics == null ? null : BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return await OptionalXmlListAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -787,7 +1097,7 @@ namespace SampleTypeSpec
 
             ChatTopicEnvelope spreadModel = new ChatTopicEnvelope(topic, topics?.ToList() as IList<ChatTopic> ?? new ChangeTrackingList<ChatTopic>(), lookup ?? new ChangeTrackingDictionary<string, ChatTopic>(), default);
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(spreadModel, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(spreadModel, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return Spread(content, cancellationToken.ToRequestOptions());
         }
 
@@ -806,7 +1116,7 @@ namespace SampleTypeSpec
 
             ChatTopicEnvelope spreadModel = new ChatTopicEnvelope(topic, topics?.ToList() as IList<ChatTopic> ?? new ChangeTrackingList<ChatTopic>(), lookup ?? new ChangeTrackingDictionary<string, ChatTopic>(), default);
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            content.JsonWriter.WriteObjectValue(spreadModel, new LifecycleModelReaderWriterOptions(2, "W"));
+            content.JsonWriter.WriteObjectValue(spreadModel, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await SpreadAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -866,7 +1176,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(lookup, nameof(lookup));
 
             ChatTopicEnvelope spreadModel = new ChatTopicEnvelope(topic, topics?.ToList() as IList<ChatTopic> ?? new ChangeTrackingList<ChatTopic>(), lookup ?? new ChangeTrackingDictionary<string, ChatTopic>(), default);
-            using BinaryContent content = BinaryContent.Create(spreadModel, new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = BinaryContent.Create(spreadModel, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return SpreadXml(content, cancellationToken.ToRequestOptions());
         }
 
@@ -884,7 +1194,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(lookup, nameof(lookup));
 
             ChatTopicEnvelope spreadModel = new ChatTopicEnvelope(topic, topics?.ToList() as IList<ChatTopic> ?? new ChangeTrackingList<ChatTopic>(), lookup ?? new ChangeTrackingDictionary<string, ChatTopic>(), default);
-            using BinaryContent content = BinaryContent.Create(spreadModel, new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = BinaryContent.Create(spreadModel, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return await SpreadXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -939,7 +1249,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topic, nameof(topic));
 
-            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return Xml(content, cancellationToken.ToRequestOptions());
         }
 
@@ -952,7 +1262,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topic, nameof(topic));
 
-            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = BinaryContent.Create(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return await XmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -1007,7 +1317,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topics, nameof(topics));
 
-            using BinaryContent content = BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return XmlList(content, cancellationToken.ToRequestOptions());
         }
 
@@ -1020,7 +1330,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(topics, nameof(topics));
 
-            using BinaryContent content = BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(2, "X"));
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(topics, "ArrayChatTopic", "ChatTopic", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return await XmlListAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -1075,7 +1385,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(stream, nameof(stream));
 
-            using BinaryContent content = new JsonLinesBinaryContent<ChatTopic>(stream, new LifecycleModelReaderWriterOptions(2, "W"));
+            using BinaryContent content = new JsonLinesBinaryContent<ChatTopic>(stream, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await JsonLinesAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -1137,7 +1447,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormContent content = body.ToMultipartFormContent(new LifecycleModelReaderWriterOptions(2, "W"));
+            using MultiPartFormContent content = body.ToMultipartFormContent(new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return Multipart(content, content.MediaType, cancellationToken.ToRequestOptions());
         }
 
@@ -1151,7 +1461,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormContent content = body.ToMultipartFormContent(new LifecycleModelReaderWriterOptions(2, "W"));
+            using MultiPartFormContent content = body.ToMultipartFormContent(new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
             return await MultipartAsync(content, content.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }

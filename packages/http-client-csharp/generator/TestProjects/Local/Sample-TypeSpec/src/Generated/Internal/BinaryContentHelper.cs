@@ -18,14 +18,15 @@ namespace SampleTypeSpec
     internal static partial class BinaryContentHelper
     {
         /// <param name="enumerable"></param>
-        public static BinaryContent FromEnumerable<T>(IEnumerable<T> enumerable)
+        /// <param name="options"></param>
+        public static BinaryContent FromEnumerable<T>(IEnumerable<T> enumerable, ModelReaderWriterOptions options = null)
             where T : notnull
         {
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
             content.JsonWriter.WriteStartArray();
             foreach (var item in enumerable)
             {
-                content.JsonWriter.WriteObjectValue(item, ModelSerializationExtensions.WireOptions);
+                content.JsonWriter.WriteObjectValue(item, options ?? ModelSerializationExtensions.WireOptions);
             }
             content.JsonWriter.WriteEndArray();
 
@@ -61,7 +62,8 @@ namespace SampleTypeSpec
         }
 
         /// <param name="span"></param>
-        public static BinaryContent FromEnumerable<T>(ReadOnlySpan<T> span)
+        /// <param name="options"></param>
+        public static BinaryContent FromEnumerable<T>(ReadOnlySpan<T> span, ModelReaderWriterOptions options = null)
             where T : notnull
         {
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
@@ -69,7 +71,7 @@ namespace SampleTypeSpec
             int i = 0;
             for (; i < span.Length; i++)
             {
-                content.JsonWriter.WriteObjectValue(span[i], ModelSerializationExtensions.WireOptions);
+                content.JsonWriter.WriteObjectValue(span[i], options ?? ModelSerializationExtensions.WireOptions);
             }
             content.JsonWriter.WriteEndArray();
 

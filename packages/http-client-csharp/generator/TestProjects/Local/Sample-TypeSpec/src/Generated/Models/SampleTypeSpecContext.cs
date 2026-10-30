@@ -31,6 +31,8 @@ namespace SampleTypeSpec
 #pragma warning restore SAMPLE0011 // global::SampleTypeSpec.LegacyDetails is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
     [ModelReaderWriterBuildable(typeof(LifecycleMultipartTopic))]
+    [ModelReaderWriterBuildable(typeof(LifecycleReadOnlyXmlTopic))]
+    [ModelReaderWriterBuildable(typeof(LifecycleXmlOnlyTopic))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]

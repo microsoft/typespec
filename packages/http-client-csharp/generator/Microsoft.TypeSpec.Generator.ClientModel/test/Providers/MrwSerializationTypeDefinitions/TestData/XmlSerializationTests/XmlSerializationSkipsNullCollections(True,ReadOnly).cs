@@ -4,7 +4,7 @@ if ((format != "X"))
     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{format}' format.");
 }
 
-if (global::Sample.LifecycleModelReaderWriterOptions.IsVisible(options, 1))
+if (global::Sample.LifecycleModelReaderWriterOptions.IsVisible(options, global::Sample.LifecycleVisibility.Read))
 {
     if (((Numbers != null) && global::Sample.Optional.IsCollectionDefined(Numbers)))
     {
@@ -16,7 +16,7 @@ if (global::Sample.LifecycleModelReaderWriterOptions.IsVisible(options, 1))
         }
     }
 }
-if (global::Sample.LifecycleModelReaderWriterOptions.IsVisible(options, 1))
+if (global::Sample.LifecycleModelReaderWriterOptions.IsVisible(options, global::Sample.LifecycleVisibility.Read))
 {
     if (((Labels != null) && global::Sample.Optional.IsCollectionDefined(Labels)))
     {

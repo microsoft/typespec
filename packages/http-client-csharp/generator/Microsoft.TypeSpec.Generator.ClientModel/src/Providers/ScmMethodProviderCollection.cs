@@ -355,13 +355,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
             var hasLifecycleVisibility = ServiceMethod.Operation.RequestVisibility.HasValue;
-            var isXmlRequest = ServiceMethod.Operation.RequestMediaTypes?
-                .FirstOrDefault(mediaType => mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                    mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))?
-                .Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) == true;
+            var requestMediaType = GetRequestMediaType();
+            var isXmlRequest = requestMediaType is not null && IsXmlMediaType(requestMediaType);
             ScopedApi<ModelReaderWriterOptions> requestSerializationOptions = hasLifecycleVisibility
                 ? New.Instance<LifecycleModelReaderWriterOptionsDefinition>(
-                    Int((int)ServiceMethod.Operation.RequestVisibility!.Value),
+                    LifecycleVisibilityDefinition.GetExpression(ServiceMethod.Operation.RequestVisibility!.Value),
                     isXmlRequest ? ModelReaderWriterOptionsSnippets.XmlFormat : ModelReaderWriterOptionsSnippets.WireFormat).As<ModelReaderWriterOptions>()
                 : ModelSerializationExtensionsSnippets.Wire;
 
@@ -423,13 +421,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             WithOptionalBody(parameter, BinaryContentHelperSnippets.FromDictionary(parameter, requestSerializationOptions)), out var content));
                         declarations["content"] = content;
                     }
-                    else if (hasLifecycleVisibility && !ServiceMethod.Operation.IsMultipartFormData && !isXmlRequest)
-                    {
-                        AddUtf8JsonContent(parameter.Type, parameter);
-                    }
                     else if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
+                        var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span"),
+                            hasLifecycleVisibility ? requestSerializationOptions : null);
+                        statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
@@ -444,7 +440,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                            var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter,
+                                hasLifecycleVisibility ? requestSerializationOptions : null);
+                            statements.Add(UsingDeclare("content", requestContentType,
+                                hasLifecycleVisibility ? WithOptionalBody(parameter, contentExpression) : contentExpression, out var content));
                             declarations["content"] = content;
                         }
                     }
@@ -452,6 +451,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
                         declarations["content"] = content;
+                    }
+                    else if (hasLifecycleVisibility && !ServiceMethod.Operation.IsMultipartFormData && !isXmlRequest)
+                    {
+                        AddUtf8JsonContent(parameter.Type, parameter);
                     }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
@@ -501,7 +504,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             ValueExpression contentExpression = hasLifecycleVisibility
                                 ? WithOptionalBody(parameter, RequestContentApiSnippets.Create(parameter,
                                     New.Instance<LifecycleModelReaderWriterOptionsDefinition>(
-                                        Int((int)ServiceMethod.Operation.RequestVisibility!.Value), format).As<ModelReaderWriterOptions>()))
+                                        LifecycleVisibilityDefinition.GetExpression(ServiceMethod.Operation.RequestVisibility!.Value), format).As<ModelReaderWriterOptions>()))
                                 : parameter.Invoke(methodName, format);
                             statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
                             declarations["content"] = content;
@@ -2248,6 +2251,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Equals(typeof(TimeSpan)) || type.Equals(typeof(BinaryData));
         }
 
+        private static bool IsXmlMediaType(string mediaType)
+        {
+            var type = mediaType.Split(';', 2)[0].Trim();
+            return type.Equals(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                type.Equals("text/xml", StringComparison.OrdinalIgnoreCase) ||
+                type.EndsWith("+xml", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string? GetRequestMediaType()
+            => ServiceMethod.Operation.RequestMediaTypes?
+                .FirstOrDefault(mediaType => IsXmlMediaType(mediaType) ||
+                    mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase));
+
         private bool TryGetFormatArgumentForDualFormatModel(
             ModelProvider? bodyModel,
             InputModelType? bodyInputModel,
@@ -2256,19 +2272,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             format = null;
 
             // Find the first JSON or XML media type
-            string? matchedMediaType = null;
-            if (ServiceMethod.Operation.RequestMediaTypes != null)
-            {
-                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
-                {
-                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
-                    {
-                        matchedMediaType = mediaType;
-                        break;
-                    }
-                }
-            }
+            var matchedMediaType = GetRequestMediaType();
 
             // Check if this is a dual-format model
             if (matchedMediaType != null &&
@@ -2278,7 +2282,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
             {
                 // Determine the format: XML or JSON
-                format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                format = IsXmlMediaType(matchedMediaType)
                     ? ModelReaderWriterOptionsSnippets.XmlFormat
                     : ModelReaderWriterOptionsSnippets.JsonFormat;
                 return true;
@@ -2300,8 +2304,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             childName = null;
 
             // Check if the request uses XML content type
-            if (ServiceMethod.Operation.RequestMediaTypes == null ||
-                !ServiceMethod.Operation.RequestMediaTypes.Any(m => m.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            var requestMediaType = GetRequestMediaType();
+            if (requestMediaType is null || !IsXmlMediaType(requestMediaType))
             {
                 return false;
             }

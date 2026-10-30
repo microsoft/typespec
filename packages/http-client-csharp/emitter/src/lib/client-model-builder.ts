@@ -60,10 +60,15 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
   for (const operation of sdkContext.__typeCache.operations.values()) {
     const body = operation.parameters.find((parameter) => parameter.kind === "body");
+    const hasXmlBody =
+      operation.requestMediaTypes?.some((mediaType) => {
+        const type = mediaType.split(";")[0].trim().toLowerCase();
+        return type === "application/xml" || type === "text/xml" || type.endsWith("+xml");
+      }) ?? false;
     if (
       !body ||
       operation.requestVisibility === undefined ||
-      !applyInputVisibility(body.type, operation.requestVisibility, new Set())
+      !applyInputVisibility(body.type, operation.requestVisibility, new Set(), hasXmlBody)
     ) {
       delete operation.requestVisibility;
     }
@@ -146,44 +151,56 @@ function applyInputVisibility(
   type: InputType,
   visibility: number,
   visited: Set<InputType>,
+  includeReadOnly: boolean,
 ): boolean {
   if (visited.has(type)) return false;
   visited.add(type);
   let hasLifecycleVisibility = false;
   switch (type.kind) {
     case "nullable":
-      return applyInputVisibility(type.type, visibility, visited);
+      return applyInputVisibility(type.type, visibility, visited, includeReadOnly);
     case "array":
     case "dict":
     case "streaming":
-      return applyInputVisibility(type.valueType, visibility, visited);
+      return applyInputVisibility(type.valueType, visibility, visited, includeReadOnly);
     case "union":
       for (const variant of type.variantTypes) {
         hasLifecycleVisibility =
-          applyInputVisibility(variant, visibility, visited) || hasLifecycleVisibility;
+          applyInputVisibility(variant, visibility, visited, includeReadOnly) ||
+          hasLifecycleVisibility;
       }
       break;
     case "model": {
       for (const subtype of Object.values(type.discriminatedSubtypes ?? {})) {
         hasLifecycleVisibility =
-          applyInputVisibility(subtype, visibility, visited) || hasLifecycleVisibility;
+          applyInputVisibility(subtype, visibility, visited, includeReadOnly) ||
+          hasLifecycleVisibility;
       }
       // Include inherited properties without applying this operation's lifecycle to sibling subtypes.
       for (let model: InputModelType | undefined = type; model; model = model.baseModel) {
         if (model.additionalProperties) {
           hasLifecycleVisibility =
-            applyInputVisibility(model.additionalProperties, visibility, visited) ||
-            hasLifecycleVisibility;
+            applyInputVisibility(
+              model.additionalProperties,
+              visibility,
+              visited,
+              includeReadOnly,
+            ) || hasLifecycleVisibility;
         }
         for (const property of model.properties) {
-          if (property.readOnly || property.discriminator) continue;
+          if (property.readOnly) {
+            hasLifecycleVisibility ||= includeReadOnly;
+            continue;
+          }
+          if (property.discriminator) continue;
           hasLifecycleVisibility ||= property.lifecycleVisibility !== undefined;
           if (((property.lifecycleVisibility ?? Visibility.All) & visibility) === 0) {
             // A shared input must be constructible without properties excluded from this request.
             property.optional = true;
           } else {
             hasLifecycleVisibility =
-              applyInputVisibility(property.type, visibility, visited) || hasLifecycleVisibility;
+              applyInputVisibility(property.type, visibility, visited, includeReadOnly) ||
+              hasLifecycleVisibility;
           }
         }
       }

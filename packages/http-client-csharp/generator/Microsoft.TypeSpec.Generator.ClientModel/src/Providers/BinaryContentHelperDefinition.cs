@@ -62,10 +62,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableTType = typeof(IEnumerable<>);
             CSharpType tType = enumerableTType.GetGenericArguments()[0];
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter],
+                Parameters: [enumerableParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -82,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteStartArray(),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    writer.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.As(tType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))
                 },
                 writer.WriteEndArray(),
                 MethodBodyStatement.EmptyLine,
@@ -131,10 +132,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var spanType = typeof(ReadOnlySpan<>);
             CSharpType tType = spanType.GetGenericArguments()[0];
             var spanParameter = new ParameterProvider("span", FormattableStringHelpers.Empty, spanType);
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [spanParameter],
+                Parameters: [spanParameter, options],
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -152,7 +154,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, i.LessThan(spanParameter.Property(nameof(ReadOnlySpan<byte>.Length))), i.Increment())
                 {
-                    writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))
                 },
                 writer.WriteEndArray(),
                 MethodBodyStatement.EmptyLine,

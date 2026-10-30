@@ -80,7 +80,7 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("title"u8);
             writer.WriteStringValue(Title);
-            if (LifecycleModelReaderWriterOptions.IsVisible(options, 2))
+            if (LifecycleModelReaderWriterOptions.IsVisible(options, LifecycleVisibility.Create))
             {
                 if (Optional.IsDefined(CreateOnly))
                 {

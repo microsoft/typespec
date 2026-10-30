@@ -19,8 +19,101 @@ namespace TestProjects.Local.Tests
 {
     public class LifecycleVisibilityTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ReadOnlyXmlRequestsExcludePopulatedResponseProperties(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            XElement? payload = null;
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                payload = XElement.Parse(BinaryData.FromBytes(stream.ToArray()).ToString());
+            }
+            client.Setup(c => c.ReadOnlyXml(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.ReadOnlyXmlAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            var topic = ModelReaderWriter.Read<LifecycleReadOnlyXmlTopic>(
+                BinaryData.FromString("{\"title\":\"title\",\"id\":\"id\"}"))!;
+
+            if (isAsync)
+            {
+                await client.Object.ReadOnlyXmlAsync(topic);
+            }
+            else
+            {
+                client.Object.ReadOnlyXml(topic);
+            }
+
+            Assert.AreEqual("id", topic.Id);
+            Assert.AreEqual("title", payload!.Element("title")?.Value);
+            Assert.IsNull(payload.Element("id"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task XmlOnlyRequestsRecognizeTextAndVendorMediaTypes(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            var payloads = new List<XElement>();
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                payloads.Add(XElement.Parse(BinaryData.FromBytes(stream.ToArray()).ToString()));
+            }
+            client.Setup(c => c.TextXml(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.TextXmlAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            client.Setup(c => c.VendorXml(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.VendorXmlAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            var topic = new LifecycleXmlOnlyTopic("title") { State = "active" };
+
+            if (isAsync)
+            {
+                await client.Object.TextXmlAsync(topic);
+                await client.Object.VendorXmlAsync(topic);
+            }
+            else
+            {
+                client.Object.TextXml(topic);
+                client.Object.VendorXml(topic);
+            }
+
+            Assert.AreEqual(2, payloads.Count);
+            foreach (var payload in payloads)
+            {
+                Assert.AreEqual("title", payload.Element("title")?.Value);
+                Assert.IsNull(payload.Element("state"));
+            }
+        }
+
         private static ChatTopic CreateTopic() => ModelReaderWriter.Read<ChatTopic>(
             BinaryData.FromString("{\"title\":\"title\",\"state\":\"active\",\"createOnly\":\"create\",\"id\":\"id\"}"))!;
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void CollectionHelpersPreserveLifecycleOptions(bool useSpan)
+        {
+            ChatTopic[] topics = [CreateTopic()];
+            var options = new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W");
+            using var content = useSpan
+                ? BinaryContentHelper.FromEnumerable<ChatTopic>(topics.AsSpan(), options)
+                : BinaryContentHelper.FromEnumerable((IEnumerable<ChatTopic>)topics, options);
+            using var stream = new MemoryStream();
+            content.WriteTo(stream);
+            using var document = JsonDocument.Parse(stream.ToArray());
+
+            AssertTopic(document.RootElement[0], hasState: false, hasCreateOnly: true);
+            Assert.AreEqual(ChatTopicState.Active, topics[0].State);
+        }
 
         [TestCase(false)]
         [TestCase(true)]
@@ -135,6 +228,10 @@ namespace TestProjects.Local.Tests
                 .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
             client.Setup(c => c.OptionalDictionaryAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
                 .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            client.Setup(c => c.OptionalList(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.OptionalListAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
             client.Setup(c => c.OptionalXml(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
                 .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
             client.Setup(c => c.OptionalXmlAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
@@ -148,6 +245,7 @@ namespace TestProjects.Local.Tests
             {
                 await client.Object.OptionalAsync();
                 await client.Object.OptionalDictionaryAsync();
+                await client.Object.OptionalListAsync();
                 await client.Object.OptionalXmlAsync();
                 await client.Object.OptionalXmlListAsync();
             }
@@ -155,11 +253,12 @@ namespace TestProjects.Local.Tests
             {
                 client.Object.Optional();
                 client.Object.OptionalDictionary();
+                client.Object.OptionalList();
                 client.Object.OptionalXml();
                 client.Object.OptionalXmlList();
             }
 
-            Assert.AreEqual(4, payloads.Count);
+            Assert.AreEqual(5, payloads.Count);
             Assert.That(payloads, Is.All.Null);
         }
 

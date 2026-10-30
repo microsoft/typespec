@@ -13,19 +13,19 @@ namespace SampleTypeSpec
     {
         /// <param name="visibility"></param>
         /// <param name="format"></param>
-        internal LifecycleModelReaderWriterOptions(int visibility, string format = "W") : base(format)
+        internal LifecycleModelReaderWriterOptions(LifecycleVisibility visibility, string format = "W") : base(format)
         {
             Visibility = visibility;
         }
 
         /// <summary> Gets the Visibility. </summary>
-        internal int Visibility { get; }
+        internal LifecycleVisibility Visibility { get; }
 
         /// <param name="options"></param>
         /// <param name="visibility"></param>
-        internal static bool IsVisible(ModelReaderWriterOptions options, int visibility)
+        internal static bool IsVisible(ModelReaderWriterOptions options, LifecycleVisibility visibility)
         {
-            return !(options is LifecycleModelReaderWriterOptions lifecycleOptions) || (lifecycleOptions.Visibility & visibility) != 0;
+            return !(options is LifecycleModelReaderWriterOptions lifecycleOptions) || (lifecycleOptions.Visibility & visibility) != LifecycleVisibility.None;
         }
     }
 }

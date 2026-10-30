@@ -9,8 +9,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
     internal static class BinaryContentHelperSnippets
     {
-        public static ValueExpression FromEnumerable(ValueExpression body)
-            => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable", body);
+        public static ValueExpression FromEnumerable(ValueExpression body, ValueExpression? options = null)
+            => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable", options is null ? [body] : [body, options]);
 
         public static ValueExpression FromEnumerable(ValueExpression body, ValueExpression rootNameHint, ValueExpression childNameHint, ValueExpression? options = null)
             => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable",
