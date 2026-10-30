@@ -69,7 +69,7 @@ function Generate-Compile ($folder) {
 
   Push-Location $folder
   try {
-    mvn package
+    mvn package --no-transfer-progress
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to compile smoke test of $folder"
     }
