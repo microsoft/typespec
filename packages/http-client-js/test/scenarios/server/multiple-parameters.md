@@ -27,9 +27,7 @@ The client context should use the parameters to build the baseUrl using the temp
 import { type Client, type ClientOptions, getClient } from "@typespec/ts-http-runtime";
 
 export interface TestClientContext extends Client {}
-export interface TestClientOptions extends ClientOptions {
-  endpoint?: string;
-}
+export interface TestClientOptions extends ClientOptions {}
 export function createTestClientContext(
   endpoint: string,
   apiVersion: string,
