@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.Recursive
     {
         public Extension(sbyte level) => throw null;
 
-        internal Extension(IList<Extension> extension, IDictionary<string, BinaryData> additionalBinaryDataProperties, sbyte level) : base(extension, additionalBinaryDataProperties) => throw null;
+        internal Extension(IList<Extension> @extension, IDictionary<string, BinaryData> additionalBinaryDataProperties, sbyte level) : base(@extension, additionalBinaryDataProperties) => throw null;
 
         public sbyte Level
         {
