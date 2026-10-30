@@ -458,5 +458,30 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateCreateBaseRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/visibility/base", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateReadDerivedRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/visibility/derived", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
     }
 }

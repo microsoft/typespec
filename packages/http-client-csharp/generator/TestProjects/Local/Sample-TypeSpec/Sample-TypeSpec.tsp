@@ -1236,6 +1236,15 @@ model LifecycleXmlEnvelope {
   children: LifecycleXmlChild[];
 }
 
+model LifecycleBase {
+  title: string;
+}
+
+model LifecycleDerived extends LifecycleBase {
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state: string;
+}
+
 interface VisibilitySamples {
   @route("/visibility/read-xml-topic")
   @get
@@ -1377,4 +1386,12 @@ interface VisibilitySamples {
   @route("/visibility/empty-xml-list")
   @post
   emptyXmlList(@body children: LifecycleXmlChild[], @header contentType: "application/xml"): void;
+
+  @route("/visibility/base")
+  @post
+  createBase(@body topic: LifecycleBase): void;
+
+  @route("/visibility/derived")
+  @get
+  readDerived(): LifecycleDerived;
 }

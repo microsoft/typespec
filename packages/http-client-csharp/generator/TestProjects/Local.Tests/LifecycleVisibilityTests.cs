@@ -23,6 +23,43 @@ namespace TestProjects.Local.Tests
     {
         [TestCase(false)]
         [TestCase(true)]
+        public async Task BaseTypedRequestsFilterNonDiscriminatedDescendants(bool isAsync)
+        {
+            var client = new Mock<VisibilitySamples> { CallBase = true };
+            JsonElement payload = default;
+            var result = ClientResult.FromResponse(Mock.Of<PipelineResponse>());
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream);
+                using var document = JsonDocument.Parse(stream.ToArray());
+                payload = document.RootElement.Clone();
+            }
+            client.Setup(c => c.CreateBase(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(result);
+            client.Setup(c => c.CreateBaseAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(result);
+            var derived = ModelReaderWriter.Read<LifecycleDerived>(
+                BinaryData.FromString("{\"title\":\"title\",\"state\":\"active\"}"))!;
+            LifecycleBase topic = derived;
+            if (isAsync)
+            {
+                await client.Object.CreateBaseAsync(topic);
+            }
+            else
+            {
+                client.Object.CreateBase(topic);
+            }
+
+            Assert.AreEqual("title", payload.GetProperty("title").GetString());
+            Assert.IsFalse(payload.TryGetProperty("state", out _));
+            Assert.AreEqual("active", derived.State);
+            using var persisted = JsonDocument.Parse(ModelReaderWriter.Write(derived));
+            Assert.AreEqual("active", persisted.RootElement.GetProperty("state").GetString());
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public async Task ReadOnlyXmlRequestsExcludePopulatedResponseProperties(bool isAsync)
         {
             var client = new Mock<VisibilitySamples> { CallBase = true };

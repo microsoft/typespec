@@ -2086,5 +2086,127 @@ namespace SampleTypeSpec
             using BinaryContent content = BinaryContentHelper.FromEnumerable(children, "ArrayLifecycleXmlChild", "LifecycleXmlChild", new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "X"));
             return await EmptyXmlListAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// [Protocol Method] CreateBase
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult CreateBase(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateCreateBaseRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] CreateBase
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> CreateBaseAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateCreateBaseRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> CreateBase. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult CreateBase(LifecycleBase topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return CreateBase(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> CreateBase. </summary>
+        /// <param name="topic"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="topic"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> CreateBaseAsync(LifecycleBase topic, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(topic, nameof(topic));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            content.JsonWriter.WriteObjectValue(topic, new LifecycleModelReaderWriterOptions(LifecycleVisibility.Create, "W"));
+            return await CreateBaseAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReadDerived
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ReadDerived(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReadDerivedRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReadDerived
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ReadDerivedAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReadDerivedRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReadDerived. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<LifecycleDerived> ReadDerived(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = ReadDerived(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((LifecycleDerived)result, result.GetRawResponse());
+        }
+
+        /// <summary> ReadDerived. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<LifecycleDerived>> ReadDerivedAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await ReadDerivedAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((LifecycleDerived)result, result.GetRawResponse());
+        }
     }
 }

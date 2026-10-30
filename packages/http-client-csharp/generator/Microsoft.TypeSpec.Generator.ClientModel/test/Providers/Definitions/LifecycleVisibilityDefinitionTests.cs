@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -15,9 +16,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void GeneratesInternalFlagsEnum()
         {
-            MockHelpers.LoadMockGenerator();
+            MockHelpers.LoadMockGenerator(configuration: "{\"disable-xml-docs\": false, \"package-name\": \"Sample\"}");
             var file = new TypeProviderWriter(new LifecycleVisibilityDefinition()).Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void AllIncludesEveryLifecycle()
+        {
+            var lifecycles = Enum.GetValues<InputVisibility>()
+                .Where(visibility => visibility is not (InputVisibility.None or InputVisibility.All));
+            Assert.AreEqual(InputVisibility.All, lifecycles.Aggregate(InputVisibility.None, (all, visibility) => all | visibility));
         }
 
         [TestCase(InputVisibility.None)]

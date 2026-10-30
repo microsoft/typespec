@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Enum;
 
-        protected override FormattableString BuildDescription() => $"The lifecycle visibility of a model property or operation.";
+        protected override FormattableString BuildDescription() => $"Service lifecycle visibility used to filter model properties when serializing SDK requests.";
 
         protected override CSharpType BuildEnumUnderlyingType() => typeof(int);
 
@@ -42,11 +42,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var name = visibility.ToString();
                 var field = new FieldProvider(FieldModifiers.Public | FieldModifiers.Static,
-                    EnumUnderlyingType, name, this, initializationValue: Int((int)visibility));
+                    EnumUnderlyingType, name, this, description: GetDescription(visibility), initializationValue: Int((int)visibility));
                 return new EnumTypeMember(name, field, (int)visibility);
             }).ToArray();
 
         protected override FieldProvider[] BuildFields() => EnumValues.Select(value => value.Field).ToArray();
+
+        private static FormattableString GetDescription(InputVisibility visibility) => visibility switch
+        {
+            InputVisibility.None => $"Not visible in any service lifecycle.",
+            InputVisibility.Read => $"Visible in service responses. Excluded from SDK requests unless the operation explicitly uses the Read lifecycle.",
+            InputVisibility.Create => $"Visible in requests that create a resource, such as POST and PUT.",
+            InputVisibility.Update => $"Visible in requests that update a resource, such as PUT and PATCH.",
+            InputVisibility.Delete => $"Visible in requests that delete a resource, such as DELETE.",
+            InputVisibility.Query => $"Visible in requests that query a resource, such as GET and HEAD.",
+            InputVisibility.All => $"Visible in every service lifecycle.",
+            _ => throw new ArgumentOutOfRangeException(nameof(visibility), visibility, "Unknown lifecycle visibility.")
+        };
 
         internal static ValueExpression GetExpression(InputVisibility visibility)
         {

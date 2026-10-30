@@ -675,6 +675,23 @@ namespace SampleTypeSpec
             return new LifecycleXmlChild(state);
         }
 
+        /// <summary> The LifecycleBase. </summary>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleBase"/> instance for mocking. </returns>
+        public static LifecycleBase LifecycleBase(string title = default)
+        {
+            return new LifecycleBase(title, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleDerived. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleDerived"/> instance for mocking. </returns>
+        public static LifecycleDerived LifecycleDerived(string title = default, string state = default)
+        {
+            return new LifecycleDerived(title, additionalBinaryDataProperties: null, state);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

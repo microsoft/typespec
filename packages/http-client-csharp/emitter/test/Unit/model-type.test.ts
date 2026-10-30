@@ -28,7 +28,13 @@ describe("Lifecycle visibility", () => {
       host,
     );
     const context = await createCSharpSdkContext(createEmitterContext(program));
-    createModel(context);
+    const [root] = createModel(context);
+    const id = root.models
+      .find((model) => model.name === "Topic")
+      ?.properties.find((p) => p.name === "id");
+    ok(id);
+    strictEqual(id.readOnly, true);
+    strictEqual(id.lifecycleVisibility, undefined);
     strictEqual(
       [...context.__typeCache.operations.values()][0].requestVisibility,
       Visibility.Create,
@@ -114,11 +120,13 @@ describe("Lifecycle visibility", () => {
     strictEqual(root.models[0].properties[0].optional, false);
   });
 
-  it("does not apply a derived input's lifecycle to sibling models", async () => {
-    const host = await createEmitterTestHost();
-    const program = await typeSpecCompile(
-      `
-      @discriminator("kind") model Topic {
+  it.each(["", '@discriminator("kind")'])(
+    "does not apply a derived input's lifecycle to sibling models: %s",
+    async (discriminator) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+      ${discriminator} model Topic {
         title: string;
       }
       model CreateTopic extends Topic { kind: "create"; }
@@ -130,16 +138,58 @@ describe("Lifecycle visibility", () => {
       @route("/update") @put @parameterVisibility(Lifecycle.Update)
       op update(@body input: UpdateTopic): Topic;
       `,
-      host,
-    );
-    const context = await createCSharpSdkContext(createEmitterContext(program));
-    const [root] = createModel(context);
-    strictEqual(
-      root.models.find((m) => m.name === "UpdateTopic")?.properties.find((p) => p.name === "state")
-        ?.optional,
-      false,
-    );
-  });
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(context);
+      strictEqual(
+        root.models
+          .find((m) => m.name === "UpdateTopic")
+          ?.properties.find((p) => p.name === "state")?.optional,
+        false,
+      );
+    },
+  );
+
+  it.each(["Topic", "Topic[]", "Record<Topic>"])(
+    "includes non-discriminated descendants in base-typed requests: %s",
+    async (bodyType) => {
+      const host = await createEmitterTestHost();
+      const program = await typeSpecCompile(
+        `
+        model Topic { title: string; }
+        model DerivedTopic extends Topic {
+          @visibility(Lifecycle.Read, Lifecycle.Update) state: string;
+        }
+        model SpecialTopic extends DerivedTopic {
+          @visibility(Lifecycle.Read, Lifecycle.Update) specialState: string;
+        }
+        @route("/create") @post op create(@body input: ${bodyType}): void;
+        @route("/read") @get op read(): SpecialTopic;
+        `,
+        host,
+      );
+      const context = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(context);
+      strictEqual(
+        [...context.__typeCache.operations.values()].find(
+          (operation) => operation.name === "create",
+        )?.requestVisibility,
+        Visibility.Create,
+      );
+      for (const [modelName, propertyName] of [
+        ["DerivedTopic", "state"],
+        ["SpecialTopic", "specialState"],
+      ]) {
+        const property = root.models
+          .find((model) => model.name === modelName)
+          ?.properties.find((p) => p.name === propertyName);
+        ok(property);
+        strictEqual(property.lifecycleVisibility, Visibility.Read | Visibility.Update);
+        strictEqual(property.optional, true);
+      }
+    },
+  );
 
   it("propagates visibility through recursive, inherited, and polymorphic inputs", async () => {
     const host = await createEmitterTestHost();
