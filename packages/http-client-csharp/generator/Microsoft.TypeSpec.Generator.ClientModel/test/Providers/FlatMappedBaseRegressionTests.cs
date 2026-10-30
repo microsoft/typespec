@@ -339,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             => AssertMappedBaseUpgradeRoundTrip(nullableTags: true);
 
         [Test]
-        public void MappedBaseUpgradeRejectsUninitializableAncestorProperty()
+        public void MappedBaseUpgradeRejectsAncestorPropertyWithoutInitialization()
         {
             var ancestor = InputFactory.Model("Ancestor",
                 properties: [InputFactory.Property("location", InputPrimitiveType.String, isReadOnly: true)]);
