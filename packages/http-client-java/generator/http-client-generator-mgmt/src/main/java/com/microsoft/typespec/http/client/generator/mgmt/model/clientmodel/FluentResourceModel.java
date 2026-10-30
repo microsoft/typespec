@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceImplementation;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.action.ResourceActions;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +51,7 @@ public class FluentResourceModel {
     private ResourceRefresh resourceRefresh;
     private ResourceActions resourceActions;
     private final List<MethodTemplate> additionalMethods = new ArrayList<>();
+    private final Set<UrlPathSegments> resourceIdPaths = new LinkedHashSet<>();
 
     public FluentResourceModel(ClientModel innerModel, List<ClientModel> parentModels) {
         JavaSettings settings = JavaSettings.getInstance();
@@ -169,6 +172,10 @@ public class FluentResourceModel {
 
     public List<MethodTemplate> getAdditionalMethods() {
         return additionalMethods;
+    }
+
+    public Set<UrlPathSegments> getResourceIdPaths() {
+        return resourceIdPaths;
     }
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
