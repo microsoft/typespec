@@ -4,12 +4,18 @@ import * as ef from "@typespec/emitter-framework/typescript";
 import { type Children, type Refkey, code, refkey } from "@alloy-js/core";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import {
+  getArrayTransformRefkey,
+  getSerializerTransformFunctionPrefix,
+  type SerializerTransformKind,
+} from "../../../utils/serializer-transform.js";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonArrayTransformProps {
   itemRef: Refkey | Children;
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonArrayTransform(props: JsonArrayTransformProps) {
@@ -19,6 +25,8 @@ export function JsonArrayTransform(props: JsonArrayTransformProps) {
   }
 
   const elementType = $.array.getElementType(props.type);
+  const serializationMediaType =
+    props.serializerKind === "form_urlencoded" ? "application/x-www-form-urlencoded" : undefined;
 
   return code`
     if(!${props.itemRef}) {
@@ -27,7 +35,14 @@ export function JsonArrayTransform(props: JsonArrayTransformProps) {
     const _transformedArray = [];
 
     for (const item of ${props.itemRef} ?? []) {
-      const transformedItem = ${(<JsonTransform type={elementType} target={props.target} itemRef="item as any" />)};
+      const transformedItem = ${(
+        <JsonTransform
+          type={elementType}
+          target={props.target}
+          itemRef="item as any"
+          serializationMediaType={serializationMediaType}
+        />
+      )};
       _transformedArray.push(transformedItem);
     }
 
@@ -38,13 +53,15 @@ export function JsonArrayTransform(props: JsonArrayTransformProps) {
 export function getJsonArrayTransformRefkey(
   type: Model,
   target: "transport" | "application",
+  kind: SerializerTransformKind = "json",
 ): Refkey {
-  return refkey(type, "json_array_transform", target);
+  return getArrayTransformRefkey(type, target, kind);
 }
 
 export interface JsonArrayTransformDeclarationProps {
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarationProps) {
@@ -53,13 +70,14 @@ export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarati
     return null;
   }
 
+  const serializerKind = props.serializerKind ?? "json";
   const elementType = $.array.getElementType(props.type);
   const elementName =
     "name" in elementType && typeof elementType.name === "string" ? elementType.name : "element";
 
   const namePolicy = ts.useTSNamePolicy();
   const transformName = namePolicy.getName(
-    `json_Array_${elementName}_to_${props.target}_transform`,
+    `${getSerializerTransformFunctionPrefix(serializerKind)}_Array_${elementName}_to_${props.target}_transform`,
     "function",
   );
 
@@ -72,7 +90,7 @@ export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarati
     { name: "items_", type: inputType, refkey: inputRef, optional: true },
   ];
 
-  const declarationRefkey = getJsonArrayTransformRefkey(props.type, props.target);
+  const declarationRefkey = getJsonArrayTransformRefkey(props.type, props.target, serializerKind);
   return (
     <ts.FunctionDeclaration
       name={transformName}
@@ -81,7 +99,7 @@ export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarati
       parameters={parameters}
       refkey={declarationRefkey}
     >
-      <JsonArrayTransform {...props} itemRef={inputRef} />
+      <JsonArrayTransform {...props} itemRef={inputRef} serializerKind={serializerKind} />
     </ts.FunctionDeclaration>
   );
 }

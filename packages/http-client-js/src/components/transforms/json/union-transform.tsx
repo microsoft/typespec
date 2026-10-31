@@ -4,6 +4,11 @@ import * as ts from "@alloy-js/typescript";
 import type { Union } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import {
+  getSerializerTransformFunctionPrefix,
+  getUnionTransformRefkey,
+  type SerializerTransformKind,
+} from "../../../utils/serializer-transform.js";
+import {
   getJsonTransformDiscriminatorRefkey,
   JsonTransformDiscriminatorDeclaration,
 } from "./json-transform-discriminator.jsx";
@@ -13,6 +18,7 @@ export interface JsonUnionTransformProps {
   itemRef: Refkey | Children;
   type: Union;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonUnionTransform(props: JsonUnionTransformProps) {
@@ -28,30 +34,41 @@ export function JsonUnionTransform(props: JsonUnionTransformProps) {
   }
 
   const variantType = props.type.variants.values().next().value!.type;
+  const serializationMediaType =
+    props.serializerKind === "form_urlencoded" ? "application/x-www-form-urlencoded" : undefined;
 
   if (!$.union.isExtensible(props.type)) {
     return props.itemRef;
   }
 
   // TODO: Handle non-discriminated unions
-  return <JsonTransform {...props} type={variantType} />;
+  return (
+    <JsonTransform
+      {...props}
+      type={variantType}
+      serializationMediaType={serializationMediaType}
+    />
+  );
 }
 
 export function getJsonUnionTransformRefkey(
   type: Union,
   target: "transport" | "application",
+  kind: SerializerTransformKind = "json",
 ): Refkey {
-  return refkey(type, "json_union_transform", target);
+  return getUnionTransformRefkey(type, target, kind);
 }
 export interface JsonUnionTransformDeclarationProps {
   type: Union;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarationProps) {
+  const serializerKind = props.serializerKind ?? "json";
   const namePolicy = ts.useTSNamePolicy();
   const transformName = namePolicy.getName(
-    `json_${props.type.name}_to_${props.target}_transform`,
+    `${getSerializerTransformFunctionPrefix(serializerKind)}_${props.type.name}_to_${props.target}_transform`,
     "function",
   );
 
@@ -64,7 +81,7 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
     { name: "input_", type: inputType, refkey: inputRef, optional: true },
   ];
 
-  const declarationRefkey = getJsonUnionTransformRefkey(props.type, props.target);
+  const declarationRefkey = getJsonUnionTransformRefkey(props.type, props.target, serializerKind);
   return (
     <>
       <JsonTransformDiscriminatorDeclaration target={props.target} type={props.type} />
@@ -80,7 +97,7 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
       return ${inputRef} as any;
     }
     `}
-        return <JsonUnionTransform {...props} itemRef={inputRef} />
+        return <JsonUnionTransform {...props} itemRef={inputRef} serializerKind={serializerKind} />
       </ts.FunctionDeclaration>
     </>
   );
