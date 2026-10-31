@@ -224,7 +224,12 @@ function getFlattenedUnionEnumMembers(
       // path instead of emitting an enum that has no `Group` member. Anonymous
       // inline literal unions (e.g. `Group: "a" | "b"`) are still flattened,
       // preserving the behavior supported before nested named unions were added.
-      if (typeof variant.name === "string" && variant.type.name) return undefined;
+      if (
+        typeof variant.name === "string" &&
+        (variant.type.name || !isAnonymousStringLiteralUnion(variant.type))
+      ) {
+        return undefined;
+      }
       // Anonymous inline groups are only flattenable when every member is a
       // string literal. Keeping null/open/mixed groups on the normal union path
       // preserves their type semantics and avoids emitting invalid enum refs.
