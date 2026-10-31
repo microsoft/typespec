@@ -65,7 +65,12 @@ export function ControllerAction(props: ControllerActionProps): Children {
       callArgBySourceName.set(p.property.sourceType.name, paramName);
       pathParams.push({
         name: paramName,
-        type: <TypeExpression type={nullableValueType ?? p.property.sourceType.type} />,
+        type: (
+          <TypeExpression
+            type={nullableValueType ?? p.property.sourceType.type}
+            nullable={!isOptional}
+          />
+        ),
         attributes: attr ? [attr] : undefined,
         optional: isOptional,
         default: literalDefault,
@@ -76,7 +81,12 @@ export function ControllerAction(props: ControllerActionProps): Children {
       callArgBySourceName.set(p.property.sourceType.name, paramName);
       queryHeaderParams.push({
         name: paramName,
-        type: <TypeExpression type={nullableValueType ?? p.property.sourceType.type} />,
+        type: (
+          <TypeExpression
+            type={nullableValueType ?? p.property.sourceType.type}
+            nullable={!isOptional}
+          />
+        ),
         attributes: attr ? [attr] : undefined,
         optional: isOptional,
         default: literalDefault,

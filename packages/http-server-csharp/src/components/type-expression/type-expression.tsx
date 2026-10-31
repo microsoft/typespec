@@ -9,12 +9,14 @@ import {
 } from "@typespec/emitter-framework/csharp";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
-import { isUnionEnum } from "../enums/enums.jsx";
+import { isNullableUnionEnum, isUnionEnum } from "../enums/enums.jsx";
 import { isValueType } from "../models/model-helpers.js";
 import { getAnonymousModelName } from "../models/models.jsx";
 
 export interface TypeExpressionProps {
   type: Type;
+  /** Whether this expression should render the type's own nullable suffix. */
+  nullable?: boolean;
 }
 
 // Re-export efRefkey for consumers that were using serverRefkey
@@ -43,17 +45,17 @@ export function getNullableValueTypeUnionInnerType($: Typekit, type: Type): Type
  */
 export function TypeExpression(props: TypeExpressionProps): Children {
   const { $ } = useTsp();
-  const type = props.type;
+  const { type, nullable = true } = props;
 
   switch (type.kind) {
     case "Union":
-      return resolveUnionType($, type);
+      return resolveUnionType($, type, nullable);
     case "UnionVariant":
       // If this variant belongs to a union-as-enum, resolve to the parent enum type
       if (type.union && isUnionEnum(type.union)) {
         return code`${efRefkey(type.union)}`;
       }
-      return <TypeExpression type={type.type} />;
+      return <TypeExpression type={type.type} nullable={nullable} />;
     case "Enum":
       try {
         return <EfTypeExpression type={type} />;
@@ -110,7 +112,7 @@ export function TypeExpression(props: TypeExpressionProps): Children {
     case "TemplateParameter":
       return code`${(type.node as any)?.id?.sv ?? "T"}`;
     case "ModelProperty":
-      return <TypeExpression type={type.type} />;
+      return <TypeExpression type={type.type} nullable={nullable} />;
     case "Model":
       // Handle Record<T> → IDictionary<string, T> or JsonObject for Record<unknown>
       if ($.record.is(type)) {
@@ -202,10 +204,19 @@ function isInStdLibNamespace(namespace: Namespace | undefined): boolean {
   return false;
 }
 
-function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union): Children {
-  // Named unions that qualify as enums should reference the enum type
+function resolveUnionType(
+  $: Typekit,
+  union: import("@typespec/compiler").Union,
+  nullable: boolean,
+): Children {
+  // Named unions that qualify as enums should reference the enum type.
+  // A direct null member still makes the generated enum type nullable.
   if (isUnionEnum(union)) {
-    return code`${efRefkey(union)}`;
+    return isNullableUnionEnum(union) && nullable ? (
+      <>{code`${efRefkey(union)}`}?</>
+    ) : (
+      code`${efRefkey(union)}`
+    );
   }
 
   // Use emitter-framework's nullable union detection
@@ -220,12 +231,12 @@ function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union)
     if (nullableValueType) {
       return (
         <>
-          <TypeExpression type={nullableValueType} />?
+          <TypeExpression type={nullableValueType} nullable={false} />?
         </>
       );
     }
     // Nullable reference type or multi-variant nullable → resolve inner type
-    return <TypeExpression type={innerType} />;
+    return <TypeExpression type={innerType} nullable={nullable} />;
   }
 
   // Non-nullable union: check if all variants resolve to the same base kind
@@ -245,7 +256,7 @@ function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union)
     return v.type === firstType;
   });
 
-  if (allSameKind) return <TypeExpression type={firstType} />;
+  if (allSameKind) return <TypeExpression type={firstType} nullable={nullable} />;
 
   // For mixed types, use object
   return code`object`;
