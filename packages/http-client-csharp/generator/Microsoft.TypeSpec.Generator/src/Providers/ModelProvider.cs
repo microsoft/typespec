@@ -1339,9 +1339,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var restoredParameter = new ParameterProvider(
                     previousParameter.Name,
                     property.AsParameter.Description,
-                    property.AsParameter.Type.WithNullable(previousParameter.Type.IsNullable),
+                    property.AsParameter.Type.WithNullable(previousParameter.Type.IsNullable ||
+                        previousParameter.HasNullableReferenceTypeAnnotation),
                     property: property,
                     validation: previousParameter.DefaultValue is null
+                        && !previousParameter.HasNullableReferenceTypeAnnotation
                         && previousParameter.Type is { IsValueType: false, IsNullable: false }
                         ? ParameterValidationType.AssertNotNull
                         : ParameterValidationType.None);
@@ -1357,7 +1359,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
             foreach (var (property, parameter) in extraAssignments)
             {
-                ValueExpression assignee = property.BackingField is null || property.EnclosingType != this
+                ValueExpression assignee = property.BackingField is null ||
+                    (property.EnclosingType != this && property.EnclosingType != CustomCodeView)
                     ? property
                     : property.BackingField;
                 ValueExpression value = parameter;
@@ -1450,32 +1453,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
         {
             var lookup = new Dictionary<string, PropertyProvider>();
-            var propertyNames = new HashSet<string>();
-            foreach (var property in CanonicalView.Properties.Concat(
-                EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)))
+            var memberNames = new HashSet<string>();
+            foreach (var model in new[] { this }.Concat(EnumerateBaseModelProviders()))
             {
-                if (!propertyNames.Add(property.Name)
-                    || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                foreach (var property in model.CanonicalView.Properties)
                 {
-                    continue;
+                    if (!memberNames.Add(property.Name)
+                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                    {
+                        continue;
+                    }
+
+                    var setterModifiers = property.Body switch
+                    {
+                        AutoPropertyBody body => body.SetterModifiers,
+                        MethodPropertyBody body => body.SetterModifiers,
+                        _ => MethodSignatureModifiers.None,
+                    };
+                    if (model != this && setterModifiers == MethodSignatureModifiers.Private)
+                    {
+                        continue;
+                    }
+
+                    lookup.TryAdd(property.AsParameter.Name, property);
+
+                    if (property.OriginalName != null)
+                    {
+                        lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                    }
                 }
 
-                var setterModifiers = property.Body switch
+                memberNames.UnionWith(model.CanonicalView.Fields.Select(field => field.Name));
+                if (model.CustomCodeView is NamedTypeSymbolProvider customCode)
                 {
-                    AutoPropertyBody body => body.SetterModifiers,
-                    MethodPropertyBody body => body.SetterModifiers,
-                    _ => MethodSignatureModifiers.None,
-                };
-                if (property.EnclosingType != this && setterModifiers == MethodSignatureModifiers.Private)
-                {
-                    continue;
-                }
-
-                lookup.TryAdd(property.AsParameter.Name, property);
-
-                if (property.OriginalName != null)
-                {
-                    lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                    memberNames.UnionWith(customCode.DeclaredMemberNames);
                 }
             }
 

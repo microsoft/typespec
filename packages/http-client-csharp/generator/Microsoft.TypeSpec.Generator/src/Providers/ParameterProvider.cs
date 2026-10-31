@@ -39,6 +39,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // the fallback expression as evidence that a historical base member is compatible.
         internal bool HasUnsupportedDefaultValue { get; init; }
         internal bool HasUnsupportedParameterModifiers { get; init; }
+        // Keep source annotations separately because symbol-backed CSharpType does not model nullable references.
+        internal bool HasNullableReferenceTypeAnnotation { get; init; }
 
         public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
 

@@ -54,6 +54,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool IsExperimental { get; }
 
+        internal IEnumerable<string> DeclaredMemberNames => _namedTypeSymbol.GetMembers().Select(member => member.Name);
+
         private static bool HasExperimentalAttribute(ISymbol symbol)
             => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName);
 
@@ -864,6 +866,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 isRef: parameterSymbol.RefKind == RefKind.Ref,
                 isParams: parameterSymbol.IsParams)
             {
+                HasNullableReferenceTypeAnnotation = parameterSymbol.Type.IsReferenceType &&
+                    parameterSymbol.NullableAnnotation == NullableAnnotation.Annotated,
                 HasUnsupportedParameterModifiers = parameterSymbol.RefKind is not
                     (RefKind.None or RefKind.Ref or RefKind.In or RefKind.Out),
                 HasUnsupportedDefaultValue = parameterSymbol.IsOptional &&

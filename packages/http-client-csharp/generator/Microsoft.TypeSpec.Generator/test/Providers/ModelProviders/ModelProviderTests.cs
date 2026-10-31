@@ -4961,6 +4961,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("FileDataset", "file", false)]
         [TestCase("FolderDataset", "folder", false)]
         [TestCase("FileDataset", "file", true)]
+        [TestCase("NullableDataset", "nullable", false)]
         public async Task BackCompat_InheritedRequiredToOptionalConstructorIsRestored(string modelName, string discriminator, bool privateBackingField)
         {
             var baseModel = InputFactory.Model(
@@ -4995,8 +4996,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var parameter = restoredConstructor.Signature.Parameters.Single();
             Assert.That(parameter.Name, Is.EqualTo("dataUri"));
             Assert.That(parameter.Type.AreNamesEqual(new CSharpType(typeof(Uri))), Is.True);
-            Assert.That(parameter.Type.IsNullable, Is.False);
-            Assert.That(parameter.Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
+            Assert.That(parameter.Type.IsNullable, Is.EqualTo(modelName == "NullableDataset"));
+            Assert.That(parameter.Validation, Is.EqualTo(modelName == "NullableDataset"
+                ? ParameterValidationType.None : ParameterValidationType.AssertNotNull));
             Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
             Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
             Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("DataUri = dataUri"));
@@ -5044,6 +5046,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.That(modelProvider.Constructors.Any(c =>
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [TestCase("StringFieldDataset")]
+        [TestCase("UriFieldDataset")]
+        [TestCase("MethodDataset")]
+        [TestCase("EventDataset")]
+        [TestCase("NestedTypeDataset")]
+        public async Task BackCompat_InheritedConstructorNotRestoredWhenCustomMemberHidesProperty(string modelName)
+        {
+            var baseModel = InputFactory.Model("AIProjectDataset", properties:
+                [InputFactory.Property("dataUri", InputPrimitiveType.Url)]);
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                compilation: async () => (await Helpers.GetCompilationFromDirectoryAsync())
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)),
+                lastContractCompilation: async () => (await Helpers.GetCompilationFromDirectoryAsync(parameters: "LastContract"))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [Test]
+        public async Task BackCompat_LocalCustomPrivateSetterConstructorIsRestored()
+        {
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json, properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_RenamedPropertyConstructorIsRestored_LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2), Is.True);
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile(
+                method: "BackCompat_RenamedPropertyConstructorIsRestored")));
         }
 
         [Test]
