@@ -98,6 +98,83 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
         }
 
+        [TestCase("type", false)]
+        [TestCase("type", true)]
+        [TestCase("setter", false)]
+        [TestCase("setter", true)]
+        [TestCase("setter-accessibility", false)]
+        [TestCase("setter-accessibility", true)]
+        [TestCase("accessibility", false)]
+        [TestCase("accessibility", true)]
+        [TestCase("init-only", false)]
+        [TestCase("init-only", true)]
+        public async Task SourceOwnerShapeChangesAreNotDiscardedByProjection(string change, bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerShapeChange(change);
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(visitor.VisitedSourceOwner, Is.True,
+                    "The regression must exercise the source-owner-specific visitor, not a missing candidate.");
+                Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                    "Restoration must not discard a visitor's source-owner CLR customization.");
+                var location = model.Properties.Single(property => property.Name == "Location");
+                switch (change)
+                {
+                    case "type":
+                        Assert.That(location.Type, Is.EqualTo(new CSharpType(typeof(int))));
+                        break;
+                    case "setter":
+                        Assert.That(location.Body.HasSetter, Is.False);
+                        break;
+                    case "setter-accessibility":
+                        Assert.That(((AutoPropertyBody)location.Body).SetterModifiers, Is.EqualTo(MethodSignatureModifiers.Private));
+                        break;
+                    case "accessibility":
+                        Assert.That(location.Modifiers, Is.EqualTo(MethodSignatureModifiers.Internal));
+                        break;
+                    case "init-only":
+                        Assert.That(location.IsInitOnly, Is.True);
+                        break;
+                }
+            });
+        }
+
+        private sealed class SourceOwnerShapeChange(string change) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name != "location" || property?.EnclosingType is not ModelProvider owner ||
+                    !ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    return property;
+                }
+                VisitedSourceOwner = true;
+                switch (change)
+                {
+                    case "type":
+                        property.Type = new CSharpType(typeof(int));
+                        break;
+                    case "setter":
+                        property.Body = new AutoPropertyBody(false);
+                        break;
+                    case "setter-accessibility":
+                        property.Body = new AutoPropertyBody(true, MethodSignatureModifiers.Private);
+                        break;
+                    case "accessibility":
+                        property.Modifiers = MethodSignatureModifiers.Internal;
+                        break;
+                    case "init-only":
+                        property.IsInitOnly = true;
+                        break;
+                }
+                return property;
+            }
+        }
+
         private sealed class SourceOwnerVeto : LibraryVisitor
         {
             protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
@@ -191,12 +268,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         !previous.IsInitOnly && previous.Body.HasSetter == (input.Name == "location");
                 });
 
-            // The fixture's Tags getter is backed by a stable mutable Dictionary. The downstream
-            // generator must establish this contract separately from CLR/accessor compatibility.
-            Mock.Get(CodeModelGenerator.Instance.TypeFactory).Protected()
-                .Setup<bool>("IsLastContractModelBaseCollectionMutableCore",
-                    ItExpr.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(TrackedResourceData)),
-                    ItExpr.Is<PropertyProvider>(property => property.Name == "Tags"))
+            // The fixture's Tags getter is backed by a stable mutable Dictionary. Establish this
+            // contract separately from CLR/accessor compatibility.
+            Mock.Get(CodeModelGenerator.Instance.TypeFactory)
+                .Setup(factory => factory.IsLastContractModelBaseCollectionMutable(
+                    It.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(TrackedResourceData)),
+                    It.Is<PropertyProvider>(property => property.Name == "Tags")))
                 .Returns(true);
             Mock.Get(CodeModelGenerator.Instance.TypeFactory)
                 .Setup(factory => factory.CreateFrameworkType(typeof(ResourceLocation).FullName!))

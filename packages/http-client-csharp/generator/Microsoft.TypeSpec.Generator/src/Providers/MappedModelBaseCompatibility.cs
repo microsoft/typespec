@@ -212,6 +212,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
             });
         }
 
+        // A successful lookup may have no match. An ambiguous identity or conflicting known wire
+        // metadata instead rejects restoration, even when another historical member is compatible.
+        internal static bool TryMatchHistoricalProperty(CSharpType mappedType, InputModelProperty input,
+            IReadOnlyList<PropertyProvider> historicalProperties, out PropertyProvider? match)
+        {
+            match = null;
+            var matches = historicalProperties.Where(previous =>
+                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                    mappedType, input, previous)).ToArray();
+            if (matches.Length > 1 || historicalProperties.Any(previous =>
+                HasKnownPropertyIdentity(input, previous) &&
+                (matches.Length == 0 || !ReferenceEquals(matches[0], previous))))
+            {
+                return false;
+            }
+            if (matches.Length == 0)
+            {
+                return true;
+            }
+            if (HasConflictingKnownWireMetadata(input, matches[0]))
+            {
+                return false;
+            }
+            match = matches[0];
+            return true;
+        }
+
         internal static bool HasKnownPropertyIdentity(InputModelProperty current, PropertyProvider previous)
         {
             var wireName = current.SerializedName ?? current.Name;

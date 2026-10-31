@@ -377,10 +377,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var frameworkType = readOnly ? typeof(ReadOnlyUpgradedMrwBase) : typeof(UpgradedMrwBase);
             var generator = CreateGenerator(input, frameworkType: frameworkType);
             // These exact fixture properties are known to return stable mutable collections.
-            Mock.Get(generator.Object.TypeFactory).Protected()
-                .Setup<bool>("IsLastContractModelBaseCollectionMutableCore",
-                    ItExpr.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(UpgradedMrwBase)),
-                    ItExpr.Is<PropertyProvider>(property => property.Name == "Tags" || property.Name == "Items"))
+            Mock.Get(generator.Object.TypeFactory)
+                .Setup(factory => factory.IsLastContractModelBaseCollectionMutable(
+                    It.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(UpgradedMrwBase)),
+                    It.Is<PropertyProvider>(property => property.Name == "Tags" || property.Name == "Items")))
                 .Returns(true);
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())

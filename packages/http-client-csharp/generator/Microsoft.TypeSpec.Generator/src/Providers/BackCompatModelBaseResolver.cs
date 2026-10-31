@@ -108,21 +108,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var mappedProperties = new List<InputModelProperty>();
                 foreach (var property in _model.InputModel.Properties)
                 {
-                    var matches = historicalProperties.Where(previous =>
-                        CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(mappedType, property, previous)).ToArray();
-                    if (matches.Length > 1 || historicalProperties.Any(previous =>
-                        MappedModelBaseCompatibility.HasKnownPropertyIdentity(property, previous) &&
-                        (matches.Length == 0 || !ReferenceEquals(matches[0], previous))))
+                    if (!MappedModelBaseCompatibility.TryMatchHistoricalProperty(
+                        mappedType, property, historicalProperties, out var match))
                     {
                         provider = null;
                         return false;
                     }
-                    if (matches.Length == 1)
+                    if (match is not null)
                     {
-                        // Preserve known historical wire metadata and honor the source owner's veto,
-                        // including cached removals, without caching a potentially reentrant conversion.
-                        if (MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(property, matches[0]) ||
-                            CodeModelGenerator.Instance.TypeFactory.IsPropertyRemoved(property, _model))
+                        // Honor the source owner's veto, including cached removals, without caching
+                        // a potentially reentrant conversion.
+                        if (CodeModelGenerator.Instance.TypeFactory.IsPropertyRemoved(property, _model))
                         {
                             provider = null;
                             return false;

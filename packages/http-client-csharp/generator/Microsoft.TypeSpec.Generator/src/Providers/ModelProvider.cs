@@ -1989,13 +1989,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             ? new CSharpType(typeof(KeyValuePair<,>), property.Type.Arguments[0], property.Type.Arguments[1])
                             : property.Type.ElementType;
                         var loop = new ForEachStatement(itemType, "item", property.AsParameter, false, out var item);
-                        var inheritedProperty = This.Property(property.Name);
-                        loop.Add((property.Type.IsDictionary
-                            ? inheritedProperty.Invoke("Add", item.Property("Key"), item.Property("Value"))
-                            : inheritedProperty.Invoke("Add", item)).Terminate());
+                        var inheritedProperty = This.Property(property.Name).As(property.Type);
+                        loop.Add(property.Type.IsDictionary
+                            ? DictionarySnippets.Add(inheritedProperty, item.Property(nameof(KeyValuePair<object, object>.Key)),
+                                item.Property(nameof(KeyValuePair<object, object>.Value)))
+                            : ListSnippets.Add(inheritedProperty, item));
                         methodBodyStatements.Add(new IfStatement(property.AsParameter.NotEqual(Null))
                         {
-                            inheritedProperty.Invoke("Clear").Terminate(),
+                            inheritedProperty.Invoke(nameof(ICollection<object>.Clear)).Terminate(),
                             loop
                         });
                     }

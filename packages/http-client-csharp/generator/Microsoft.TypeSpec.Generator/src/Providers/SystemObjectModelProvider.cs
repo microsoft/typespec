@@ -98,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected override CanonicalTypeProvider BuildCanonicalView()
             => HasInputPropertyProjection
-                ? new CanonicalTypeProvider(this, InputModel, MappedInputProperties)
+                ? CanonicalTypeProvider.CreateForPropertyProjection(this, InputModel, MappedInputProperties)
                 : base.BuildCanonicalView();
 
         internal IEnumerable<PropertyProvider> GetAdditionalSerializationProperties()

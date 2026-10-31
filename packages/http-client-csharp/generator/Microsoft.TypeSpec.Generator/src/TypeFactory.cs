@@ -43,7 +43,9 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
         private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
-        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+        // Internal consumers may read cached conversions; only TypeFactory populates the cache.
+        internal IReadOnlyDictionary<InputProperty, PropertyProvider?> PropertyCache => _propertyCache;
+        private readonly Dictionary<InputProperty, PropertyProvider?> _propertyCache = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
@@ -132,18 +134,15 @@ namespace Microsoft.TypeSpec.Generator
                 lastContractProperty.Body.HasSetter == !currentProperty.IsReadOnly;
         }
 
-        internal bool IsLastContractModelBaseCollectionMutable(CSharpType mappedBase, PropertyProvider property)
-            => IsLastContractModelBaseCollectionMutableCore(mappedBase, property);
-
         /// <summary>
         /// Determines whether a known framework property guarantees a non-null, stable collection
         /// that supports Clear and Add from a derived constructor. A mutable interface alone is not
-        /// sufficient evidence. Downstream generators must opt in only for established contracts.
+        /// sufficient evidence. Opt in only for established contracts.
         /// </summary>
         /// <param name="mappedBase">The mapped framework base containing the property.</param>
         /// <param name="property">The inherited property to populate during deserialization.</param>
         /// <returns>True only when the framework contract guarantees safe collection population.</returns>
-        protected virtual bool IsLastContractModelBaseCollectionMutableCore(CSharpType mappedBase, PropertyProvider property)
+        internal virtual bool IsLastContractModelBaseCollectionMutable(CSharpType mappedBase, PropertyProvider property)
             => false;
 
         public CSharpType? CreateCSharpType(InputType inputType)
@@ -505,16 +504,14 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
-            PropertyCache.Add(property, propertyProvider);
+            _propertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
 
+        // Dispatch through factory overrides and visitors for a specific owner without reading or
+        // populating the input-keyed cache. Projection and reentrant validation require this path.
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
-
-        // Honor cached results without caching new conversions, which may be reentrant.
-        internal PropertyProvider? GetProperty(InputProperty property, TypeProvider enclosingType)
-            => PropertyCache.TryGetValue(property, out var cached) ? cached : CreateUncachedProperty(property, enclosingType);
 
         internal bool IsPropertyRemoved(InputProperty property, TypeProvider enclosingType)
         {

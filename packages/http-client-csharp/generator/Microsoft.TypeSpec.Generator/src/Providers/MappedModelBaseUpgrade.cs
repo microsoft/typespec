@@ -64,27 +64,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
                 foreach (var property in input.Properties)
                 {
-                    var matches = historicalProperties.Where(previous =>
-                        factory.IsLastContractModelBasePropertyCompatible(candidateType, property, previous)).ToArray();
-                    if (matches.Length > 1 || historicalProperties.Any(previous =>
-                        MappedModelBaseCompatibility.HasKnownPropertyIdentity(property, previous) &&
-                        (matches.Length == 0 || !ReferenceEquals(matches[0], previous))))
+                    if (!MappedModelBaseCompatibility.TryMatchHistoricalProperty(
+                        candidateType, property, historicalProperties, out var match))
                     {
                         return false;
                     }
-                    if (matches.Length == 0)
+                    if (match is null)
                     {
                         continue;
                     }
 
-                    // Check the real source owner's visitor policy, including cached removals, without
-                    // populating the cache during potentially recursive property conversion. Aliases
-                    // must already have their historical CLR name; do not leave retained expressions stale.
-                    if (MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(property, matches[0]) ||
-                        !(matchedProperties ??= []).Add(matches[0]) ||
-                        factory.GetProperty(property, owner) is not { } current ||
-                        owner.IsPropertySuppressed(current) ||
-                        current.Name != matches[0].Name || HasCustomAlias(owner, property, current.Name, matches[0].Name))
+                    if (!(matchedProperties ??= []).Add(match) ||
+                        !PreservesSourceOwnerProperty(owner, property, match))
                     {
                         return false;
                     }
@@ -94,6 +85,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties ?? [], isMappedBaseUpgrade: true);
             return true;
+        }
+
+        private static bool PreservesSourceOwnerProperty(ModelProvider owner, InputModelProperty input,
+            PropertyProvider historicalProperty)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            // Honor cached visitor results, including removals, without populating the cache during
+            // potentially recursive property conversion.
+            var current = factory.PropertyCache.TryGetValue(input, out var cached)
+                ? cached
+                : factory.CreateUncachedProperty(input, owner);
+            if (current is null || owner.IsPropertySuppressed(current) ||
+                current.Name != historicalProperty.Name ||
+                HasCustomAlias(owner, input, current.Name, historicalProperty.Name))
+            {
+                return false;
+            }
+
+            // Projection recreates the property under the framework owner and restores its shipped
+            // CLR shape. Reject source-owner factory/visitor changes that this process would discard.
+            // Compare to the unvisited source property, not the historical member: ordinary input
+            // properties can legitimately have a different shape from their mapped CLR counterparts.
+            return PropertyProvider.TryCreate(input, owner, out var unvisited) &&
+                unvisited is not null && current.Type.Equals(unvisited.Type) &&
+                current.Modifiers == unvisited.Modifiers && current.IsInitOnly == unvisited.IsInitOnly &&
+                current.Body is AutoPropertyBody currentBody && unvisited.Body is AutoPropertyBody unvisitedBody &&
+                currentBody.HasSetter == unvisitedBody.HasSetter &&
+                currentBody.SetterModifiers == unvisitedBody.SetterModifiers;
         }
 
         private static bool HasCustomAlias(ModelProvider owner, InputModelProperty input, string generatedName, string inheritedName)
