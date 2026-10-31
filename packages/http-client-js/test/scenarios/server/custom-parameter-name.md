@@ -1,8 +1,9 @@
-# Should use the declared optional server parameter name in client options
+# Should use the declared default-valued server parameter name in client options
 
 ## Spec
 
-This spec defines a server whose optional URL parameter is not named `endpoint`.
+This spec defines a server whose default-valued URL parameter is not named `endpoint` and is not
+explicitly marked optional.
 
 ```tsp
 @service(#{ title: "Custom server parameter" })
@@ -10,7 +11,7 @@ This spec defines a server whose optional URL parameter is not named `endpoint`.
   "{baseUrl}",
   "Test server with a custom parameter name.",
   {
-    baseUrl?: url = "http://localhost:3000",
+    baseUrl: url = "http://localhost:3000",
   }
 )
 namespace Test;

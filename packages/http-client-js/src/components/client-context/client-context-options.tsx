@@ -21,7 +21,7 @@ export function ClientContextOptionsDeclaration(props: ClientContextOptionsDecla
   const name = namePolicy.getName(`${props.client.name}Options`, "interface");
   const optionalEndpointParameters = $.client
     .getUrlTemplate(props.client)
-    .parameters.filter((parameter) => parameter.optional);
+    .parameters.filter((parameter) => parameter.optional || parameter.defaultValue !== undefined);
 
   return (
     <ts.InterfaceDeclaration
