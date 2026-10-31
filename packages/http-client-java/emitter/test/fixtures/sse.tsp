@@ -246,6 +246,18 @@ namespace SseVariants {
   @route("/nullable-payload") @get op nullablePayload(): SSEStream<NullablePayload>;
 }
 
+namespace SseSuppressedUnsupported {
+  @events
+  union StringLiteral {
+    "literal",
+  }
+
+  #suppress "@typespec/http-client-java/sse-unsupported" "The binary fallback is expected."
+  @route("/read")
+  @get
+  op read(): SSEStream<StringLiteral>;
+}
+
 // Scenario: distinct generic instantiations with different numeric payloads.
 namespace SseGeneric {
   @events
@@ -479,7 +491,7 @@ namespace Azure.SseSchemaDeduplication {
   @route("/ordinary-wrapper") @get op ordinaryWrapper(): SkippedEventMessageStreamEvent;
 }
 
-// Scenario: inline SSE schemas share ordinary deduplication rules and limitations.
+// Scenario: registered SSE schemas share ordinary deduplication rules and limitations.
 namespace SseSchemaDeduplication {
   model CollisionEvent {
     value: string;

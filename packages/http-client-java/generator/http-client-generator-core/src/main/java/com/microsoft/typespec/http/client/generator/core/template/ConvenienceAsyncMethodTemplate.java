@@ -88,7 +88,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
             methodBlock.methodReturn(
                 String.format("%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::deserialize, %4$s))",
                     getMethodName(protocolMethod), invocationExpression,
-                    SseUtil.getSerializerType(convenienceMethod.getSseMetadata()).getName(),
+                    convenienceMethod.getSseMetadata().getSerializerType().getName(),
                     SseUtil.getClientTerminalPredicate(convenienceMethod), responseName,
                     SseUtil.getRuntimeType().getName()));
             return;

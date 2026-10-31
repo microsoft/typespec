@@ -12,13 +12,13 @@ import static com.microsoft.typespec.http.client.generator.core.model.clientmode
 import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -331,8 +331,8 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
-        SseMetadata metadata = method.getSseMetadata();
-        String baseEventName = SseUtil.getClientEventTypeName(metadata);
+        ClientMethodSseMetadata metadata = method.getSseMetadata();
+        String baseEventName = metadata.getEventType().getName();
         comment.description(method.getDescription());
 
         comment.paragraph("Events are polymorphic: see {@link " + baseEventName
@@ -340,7 +340,7 @@ abstract class ConvenienceMethodTemplateBase {
             + ". Unrecognized events expose only their names through {@link " + baseEventName
             + "#getEventName()}; their payloads are not available.");
 
-        List<String> terminalEventNames = SseUtil.getTerminalEventNames(metadata);
+        List<String> terminalEventNames = metadata.getTerminalEventNames();
         String terminalEvents = terminalEventNames.stream()
             .map(eventName -> "{@code " + eventName + "}")
             .collect(Collectors.joining(" or "));
@@ -368,7 +368,7 @@ abstract class ConvenienceMethodTemplateBase {
             comment.param(parameter.getName(), parameter.getDescription());
         }
         comment.methodReturns((isMethodAsync(method) ? "A stream of typed " : "A closeable stream of typed ")
-            + SseUtil.getStreamDescription(metadata) + " events");
+            + SseUtil.getStreamDescription(method) + " events");
     }
 
     /**
@@ -705,13 +705,11 @@ abstract class ConvenienceMethodTemplateBase {
         JavaSettings settings = JavaSettings.getInstance();
         convenienceMethods.stream().flatMap(m -> m.getConvenienceMethods().stream()).forEach(m -> {
             // we need classes many of its parameters and models, hence "includeImplementationImports=true"
-            Set<String> methodImports = new java.util.LinkedHashSet<>();
-            m.addImportsTo(methodImports, true, settings);
+            m.addImportsTo(imports, true, settings);
             if (m.getSseMetadata() != null) {
-                SseUtil.getSerializerType(m.getSseMetadata()).addImportsTo(methodImports, false);
-                SseUtil.getRuntimeType().addImportsTo(methodImports, false);
+                m.getSseMetadata().getSerializerType().addImportsTo(imports, false);
+                SseUtil.getRuntimeType().addImportsTo(imports, false);
             }
-            imports.addAll(methodImports);
 
             // add imports from models, as some convenience API need to process model properties
             for (ClientMethodParameter p : m.getParameters()) {

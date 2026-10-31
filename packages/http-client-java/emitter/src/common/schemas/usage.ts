@@ -22,6 +22,9 @@ export enum SchemaContext {
   /** Schema is used from the pageable operation. This usage does not propagate. */
   Paged = "paged",
 
+  /** Schema is a synthetic server-sent event envelope. This usage does not propagate. */
+  Sse = "sse",
+
   /** Schema as spread/flatten model. "Public", if present in usage, will have precedence over "PublicSpread". This usage does not propagate. Instead, it propagate "Public". */
   PublicSpread = "spread",
 

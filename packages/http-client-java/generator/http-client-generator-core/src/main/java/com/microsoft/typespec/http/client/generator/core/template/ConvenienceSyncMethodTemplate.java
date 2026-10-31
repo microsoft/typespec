@@ -95,7 +95,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         if (convenienceMethod.getType() == ClientMethodType.SseSync) {
             methodBlock.methodReturn(String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::deserialize, %4$s)",
                 getMethodName(protocolMethod), invocationExpression,
-                SseUtil.getSerializerType(convenienceMethod.getSseMetadata()).getName(),
+                convenienceMethod.getSseMetadata().getSerializerType().getName(),
                 SseUtil.getClientTerminalPredicate(convenienceMethod), SseUtil.getRuntimeType().getName()));
             return;
         }

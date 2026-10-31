@@ -68,6 +68,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     }
 
     public final void write(ClientModel model, JavaFile javaFile) {
+        if (model.hasUsage(ImplementationDetails.Usage.SSE)) {
+            SseEventModelTemplate.getInstance().write(model, javaFile);
+            return;
+        }
+
         if (model.getParentModelName() != null && model.getParentModelName().equals(model.getName())) {
             throw new IllegalStateException("Parent model name is same as model name: " + model.getName());
         }

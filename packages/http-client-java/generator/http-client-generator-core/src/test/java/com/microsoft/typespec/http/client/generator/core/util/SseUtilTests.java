@@ -5,10 +5,17 @@ package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SseModelMetadata;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class SseUtilTests {
     @Test
@@ -33,9 +40,21 @@ public class SseUtilTests {
     @Test
     public void preservesStreamDescriptions() {
         Assertions.assertEquals("knowledge base retrieval",
-            SseUtil.getStreamDescription(metadata("KnowledgeBaseRetrievalStreamEvents", "started")));
-        Assertions.assertEquals("SSE", SseUtil.getStreamDescription(metadata("StreamEvents", "started")));
-        Assertions.assertEquals("SSE", SseUtil.getStreamDescription(metadata("Stream", "started")));
+            SseUtil.getStreamDescription(model("KnowledgeBaseRetrievalStreamEvents")));
+        Assertions.assertEquals("SSE", SseUtil.getStreamDescription(model("StreamEvents")));
+        Assertions.assertEquals("SSE", SseUtil.getStreamDescription(model("Stream")));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "TypedWrappedEvent,typed wrapped event", "ProtocolStreamEvent,protocol" })
+    public void describesMappedMethodEventTypes(String eventTypeName, String description) {
+        ClassType eventType = new ClassType.Builder().name(eventTypeName).build();
+        ClassType serializer = new ClassType.Builder().name(eventTypeName + "Serializer").build();
+        ClientMethod method = new ClientMethod.Builder().parameters(List.of())
+            .sseMetadata(new ClientMethodSseMetadata(eventType, serializer, List.of()))
+            .build();
+
+        Assertions.assertEquals(description, SseUtil.getStreamDescription(method));
     }
 
     @Test
@@ -54,6 +73,14 @@ public class SseUtilTests {
         metadata.setStreamName(streamName);
         metadata.setEvents(List.of(eventNames).stream().map(SseUtilTests::event).collect(Collectors.toList()));
         return metadata;
+    }
+
+    private static ClientModel model(String streamName) {
+        ClassType eventType = new ClassType.Builder().name(streamName).build();
+        ClassType serializer = new ClassType.Builder().name(streamName + "Serializer").build();
+        return new ClientModel.Builder().name(streamName)
+            .sseMetadata(new SseModelMetadata(streamName, null, false, eventType, serializer))
+            .build();
     }
 
     private static SseEventMetadata event(String name) {

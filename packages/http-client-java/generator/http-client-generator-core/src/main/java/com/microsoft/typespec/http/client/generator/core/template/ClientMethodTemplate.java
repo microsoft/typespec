@@ -1422,13 +1422,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void generateSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         String asyncMethodName = MethodNamer.getSimpleAsyncMethodName(clientMethod.getName());
+        String effectiveAsyncMethodName = asyncMethodName;
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
             if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
                 function.line(
                     "Iterator<ByteBufferBackedInputStream> iterator = %s(%s).map(ByteBufferBackedInputStream::new).toStream().iterator();",
-                    asyncMethodName, clientMethod.getArgumentList());
+                    effectiveAsyncMethodName, clientMethod.getArgumentList());
                 function.anonymousClass("Enumeration<InputStream>", "enumeration", javaBlock -> {
                     javaBlock.annotation("Override");
                     javaBlock.publicMethod("boolean hasMoreElements()",
@@ -1441,7 +1442,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             } else if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
                 IType returnType = clientMethod.getReturnValue().getType();
                 if (returnType instanceof PrimitiveType) {
-                    function.line("%s value = %s(%s).block();", returnType.asNullable(), asyncMethodName,
+                    function.line("%s value = %s(%s).block();", returnType.asNullable(), effectiveAsyncMethodName,
                         clientMethod.getArgumentList());
                     function.ifBlock("value != null", ifAction -> ifAction.methodReturn("value"))
                         .elseBlock(elseAction -> {
@@ -1455,7 +1456,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     GenericType genericType = (GenericType) returnType;
                     if ("Response".equals(genericType.getName())
                         && genericType.getTypeArguments()[0].equals(ClassType.INPUT_STREAM)) {
-                        function.line("return %s(%s).map(response -> {", asyncMethodName,
+                        function.line("return %s(%s).map(response -> {", effectiveAsyncMethodName,
                             clientMethod.getArgumentList());
                         function.indent(() -> {
                             function.line(
@@ -1476,19 +1477,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         function.line("}).block();");
 //                    } else if ("Response".equals(genericType.getName()) && genericType.getTypeArguments()[0].equals(ClassType.BinaryData)) {
 //                        function.line("return %s(%s).flatMap(response -> new BinaryData(response.getValue())",
-//                            asyncMethodName, clientMethod.getArgumentList());
+//                            effectiveAsyncMethodName, clientMethod.getArgumentList());
 //                        function.line(".map(bd -> new SimpleResponse<>(response.getRequest(), response.getStatusCode(), response.getHeaders(), bd)))");
 //                        function.line(".block();");
                     } else {
                         function.methodReturn(
-                            String.format("%s(%s).block()", asyncMethodName, clientMethod.getArgumentList()));
+                            String.format("%s(%s).block()", effectiveAsyncMethodName, clientMethod.getArgumentList()));
                     }
                 } else {
-                    function
-                        .methodReturn(String.format("%s(%s).block()", asyncMethodName, clientMethod.getArgumentList()));
+                    function.methodReturn(
+                        String.format("%s(%s).block()", effectiveAsyncMethodName, clientMethod.getArgumentList()));
                 }
             } else {
-                function.line("%s(%s).block();", asyncMethodName, clientMethod.getArgumentList());
+                function.line("%s(%s).block();", effectiveAsyncMethodName, clientMethod.getArgumentList());
             }
         });
     }

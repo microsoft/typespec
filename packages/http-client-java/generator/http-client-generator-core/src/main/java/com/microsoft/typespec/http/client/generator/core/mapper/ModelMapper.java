@@ -10,6 +10,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseSchemaMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
@@ -21,8 +23,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SseModelMetadata;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,6 +60,18 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
         ClassType modelType = objectMapper.map(compositeType);
         String modelName = modelType.getName();
         ClientModel result = serviceModels.getModel(modelType.getName());
+        boolean sseModel = compositeType.getUsage() != null && compositeType.getUsage().contains(SchemaContext.SSE);
+        SseModelMetadata sseMetadata = sseModel ? getSseModelMetadata(compositeType, modelType) : null;
+        if (sseModel
+            && result != null
+            && (result.getType() != modelType || !result.hasUsage(ImplementationDetails.Usage.SSE))) {
+            throw new IllegalStateException("SSE schema '" + modelType.getFullName()
+                + "' conflicts with the existing ModelMapper cache entry '" + result.getFullName() + "'.");
+        }
+        if (sseModel && result != null && !sseMetadata.equals(result.getSseMetadata())) {
+            throw new IllegalStateException(
+                "Conflicting SSE rendering information for schema '" + modelType.getFullName() + "'.");
+        }
         if (result == null && !isPlainObject(compositeType)) {
             Set<ImplementationDetails.Usage> usages = SchemaUtil.mapSchemaContext(compositeType.getUsage());
             if (isPredefinedModel(modelType)) {
@@ -81,6 +97,9 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 .usedInXml(SchemaUtil.treatAsXml(compositeType))
                 .serializationFormats(compositeType.getSerializationFormats())
                 .implementationDetails(new ImplementationDetails.Builder().usages(usages).build());
+            if (sseModel) {
+                builder.sseMetadata(sseMetadata);
+            }
 
             boolean isPolymorphic
                 = compositeType.getDiscriminator() != null || compositeType.getDiscriminatorValue() != null;
@@ -436,6 +455,26 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
         for (ClientModel derived : child.getDerivedModels()) {
             passPolymorphicDiscriminatorToChildren(parentDiscriminator, derived);
         }
+    }
+
+    private SseModelMetadata getSseModelMetadata(ObjectSchema schema, ClassType modelType) {
+        SseSchemaMetadata metadata = schema.getSseMetadata();
+        if (metadata == null || metadata.getStreamName() == null || metadata.getStreamName().isEmpty()) {
+            throw new IllegalStateException(
+                "SSE schema '" + modelType.getFullName() + "' was mapped without its rendering metadata.");
+        }
+        ObjectSchema baseSchema = schema;
+        if (metadata.getEventName() != null) {
+            baseSchema = schema.getParents() == null || schema.getParents().getImmediate() == null
+                ? null
+                : getParentSchemaInfo(schema).getParentSchema();
+        }
+        if (baseSchema == null) {
+            throw new IllegalStateException("SSE event schema '" + modelType.getFullName() + "' has no base schema.");
+        }
+        ClassType baseEventType = Mappers.getObjectMapper().map(baseSchema);
+        return new SseModelMetadata(metadata.getStreamName(), metadata.getEventName(), metadata.isTerminal(),
+            baseEventType, SseUtil.getSerializerType(baseEventType));
     }
 
     private static class ParentSchemaInfo {

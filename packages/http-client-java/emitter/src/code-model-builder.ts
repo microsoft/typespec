@@ -42,6 +42,7 @@ import {
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
 import type {
+  DiagnosticTarget,
   EmitContext,
   Interface,
   Namespace,
@@ -436,6 +437,8 @@ export class CodeModelBuilder {
 
     this.processModels();
 
+    this.registerSseSchemas();
+
     this.processSchemaUsage();
 
     this.deduplicateSchemaName();
@@ -619,7 +622,9 @@ export class CodeModelBuilder {
   }
 
   private processSchemaUsage() {
-    this.codeModel.schemas.objects?.forEach((it) => this.propagateSchemaUsage(it));
+    this.codeModel.schemas.objects
+      ?.filter((it) => !it.usage?.includes(SchemaContext.Sse))
+      .forEach((it) => this.propagateSchemaUsage(it));
 
     // post process for schema usage
     this.codeModel.schemas.objects?.forEach((it) => this.resolveSchemaUsage(it));
@@ -628,6 +633,13 @@ export class CodeModelBuilder {
     this.codeModel.schemas.sealedChoices?.forEach((it) => this.resolveSchemaUsage(it));
     this.codeModel.schemas.ors?.forEach((it) => this.resolveSchemaUsage(it));
     this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
+  }
+
+  private registerSseSchemas() {
+    for (const bundle of this.sseSchemaBundles.values()) {
+      addSchema(this.codeModel.schemas, bundle.schemas.baseSchema);
+      bundle.schemas.eventSchemas.forEach((schema) => addSchema(this.codeModel.schemas, schema));
+    }
   }
 
   private deduplicateSchemaName() {
@@ -667,16 +679,19 @@ export class CodeModelBuilder {
         }
       }
     };
-    this.codeModel.schemas.objects?.forEach((it) => deduplicateName(it));
+    const ordinaryObjects = this.codeModel.schemas.objects?.filter(
+      (it) => !it.usage?.includes(SchemaContext.Sse),
+    );
+    const sseObjects = this.codeModel.schemas.objects?.filter((it) =>
+      it.usage?.includes(SchemaContext.Sse),
+    );
+    ordinaryObjects?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.groups?.forEach((it) => deduplicateName(it)); // it may contain RequestConditions under "com.azure.core."
     this.codeModel.schemas.choices?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.sealedChoices?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.ors?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.constants?.forEach((it) => deduplicateName(it));
-    for (const bundle of this.sseSchemaBundles.values()) {
-      deduplicateName(bundle.schemas.baseSchema);
-      bundle.schemas.eventSchemas.forEach(deduplicateName);
-    }
+    sseObjects?.forEach((it) => deduplicateName(it));
   }
 
   private resolveSchemaUsage(schema: Schema) {
@@ -1062,7 +1077,7 @@ export class CodeModelBuilder {
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
-    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response);
+    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response, sdkMethod.__raw);
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
@@ -1269,7 +1284,10 @@ export class CodeModelBuilder {
     return codeModelOperation;
   }
 
-  private processSseMetadata(response: SdkMethodResponse): SseMetadata | undefined {
+  private processSseMetadata(
+    response: SdkMethodResponse,
+    diagnosticTarget: DiagnosticTarget | undefined,
+  ): SseMetadata | undefined {
     if (!this.isAzureV1()) {
       return undefined;
     }
@@ -1281,7 +1299,7 @@ export class CodeModelBuilder {
     const unsupported = () => {
       reportDiagnostic(this.program, {
         code: "sse-unsupported",
-        target: response.type?.__raw ?? NoTarget,
+        target: diagnosticTarget ?? NoTarget,
       });
       return undefined;
     };
@@ -1376,6 +1394,7 @@ export class CodeModelBuilder {
           events: supportedEvents.map(({ event, payload }) => ({
             name: event.eventType!,
             payload,
+            terminal: event.isTerminalEvent,
           })),
         }),
       };
@@ -1414,7 +1433,13 @@ export class CodeModelBuilder {
   }
 
   private trackSseSchemaUsage(metadata: SseMetadata): void {
+    this.trackSchemaUsage(metadata.baseSchema, {
+      usage: [SchemaContext.Output, SchemaContext.Public],
+    });
     for (const event of metadata.events) {
+      this.trackSchemaUsage(event.eventSchema, {
+        usage: [SchemaContext.Output, SchemaContext.Public],
+      });
       const payload = event.eventSchema.properties?.find(
         (property) => property.serializedName === "value",
       )?.schema;
@@ -4039,7 +4064,8 @@ export class CodeModelBuilder {
 
     // Exclude context that not to be propagated
     const updatedSchemaUsage = (schema as SchemaUsage).usage?.filter(
-      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread,
+      (it) =>
+        it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread && it !== SchemaContext.Sse,
     );
     const indexSpread = (schema as SchemaUsage).usage?.indexOf(SchemaContext.PublicSpread);
     if (

@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { SchemaType, createObjectSchema, createStringSchema } from "../src/common/schemas/model.js";
+import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createSseSchemas } from "../src/sse-utils.js";
 
 describe("SSE schema construction", () => {
-  it("creates inline immutable envelopes around the supplied payload schemas", () => {
+  it("creates registered-model-ready immutable envelopes around the supplied payload schemas", () => {
     const payload = createObjectSchema("Payload", "The wire payload.");
     const originalPayload = structuredClone(payload);
     const schemas = createSseSchemas({
@@ -11,8 +12,8 @@ describe("SSE schema construction", () => {
       sourceNamespace: "Search.Retrieval",
       javaNamespace: "com.azure.search.retrieval",
       events: [
-        { name: "retrieval.started", payload },
-        { name: "response.completed", payload: createStringSchema("string", "") },
+        { name: "retrieval.started", payload, terminal: false },
+        { name: "response.completed", payload: createStringSchema("string", ""), terminal: true },
       ],
     });
 
@@ -31,6 +32,8 @@ describe("SSE schema construction", () => {
           schema: { type: SchemaType.String },
         },
       ],
+      usage: [SchemaContext.Sse],
+      sseMetadata: { streamName: "RetrievalStreamEvents" },
     });
     expect([...schemas.eventSchemas.keys()]).toEqual(["retrieval.started", "response.completed"]);
     const started = schemas.eventSchemas.get("retrieval.started")!;
@@ -38,8 +41,21 @@ describe("SSE schema construction", () => {
       default: { name: "RetrievalStartedStreamEvent", namespace: "Search.Retrieval" },
       java: { namespace: "com.azure.search.retrieval" },
     });
+    expect(started).toMatchObject({
+      sseMetadata: {
+        streamName: "RetrievalStreamEvents",
+        eventName: "retrieval.started",
+        terminal: false,
+      },
+    });
     expect(started.parents?.immediate?.[0]).toBe(schemas.baseSchema);
     expect(started.parents?.all?.[0]).toBe(schemas.baseSchema);
+    expect(schemas.baseSchema.children?.immediate).toEqual([
+      schemas.eventSchemas.get("retrieval.started"),
+      schemas.eventSchemas.get("response.completed"),
+    ]);
+    expect(schemas.baseSchema.children?.all).toEqual(schemas.baseSchema.children?.immediate);
+    expect(started.usage).toEqual([SchemaContext.Sse]);
     expect(started.properties).toHaveLength(1);
     expect(started.properties?.[0]).toMatchObject({
       serializedName: "value",
@@ -52,6 +68,13 @@ describe("SSE schema construction", () => {
     expect(schemas.eventSchemas.get("response.completed")!.language.default.name).toBe(
       "RetrievalResponseCompletedStreamEvent",
     );
+    expect(schemas.eventSchemas.get("response.completed")).toMatchObject({
+      sseMetadata: {
+        streamName: "RetrievalStreamEvents",
+        eventName: "response.completed",
+        terminal: true,
+      },
+    });
   });
 
   it("keeps raw digit patterns and leaves Java names unset", () => {
@@ -59,7 +82,7 @@ describe("SSE schema construction", () => {
       streamName: "StreamEvents",
       sourceNamespace: "SseNaming",
       javaNamespace: "com.azure.sse",
-      events: [{ name: "123.done", payload: createStringSchema("string", "") }],
+      events: [{ name: "123.done", payload: createStringSchema("string", ""), terminal: false }],
     });
 
     expect(schemas.baseSchema.language).toMatchObject({
@@ -78,7 +101,7 @@ describe("SSE schema construction", () => {
         streamName: "123StreamEvents",
         sourceNamespace: "SseNaming",
         javaNamespace: "com.azure.sse",
-        events: [{ name: "123", payload: createStringSchema("string", "") }],
+        events: [{ name: "123", payload: createStringSchema("string", ""), terminal: false }],
       }),
     ).toThrow("resolves to duplicate schema name '123StreamEvent'");
   });

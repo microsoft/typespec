@@ -10,14 +10,21 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseSchemaMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
@@ -57,6 +64,7 @@ public class SseConvenienceMethodTemplateTests {
     @AfterEach
     public void restoreSettings() {
         new MockUnitJavagen();
+        ClientModels.getInstance().clear();
         JavaSettings.clear();
     }
 
@@ -131,10 +139,10 @@ public class SseConvenienceMethodTemplateTests {
             .build();
         ClientMethod convenience = new ClientMethod.Builder().name("read")
             .parameters(List.of())
-            .sseMetadata(metadata)
+            .sseMetadata(clientMetadata(metadata))
             .type(ClientMethodType.SseAsync)
             .methodVisibility(JavaVisibility.Public)
-            .returnValue(new ReturnValue("events", GenericType.flux(SseUtil.getEventType(metadata.getBaseSchema()))))
+            .returnValue(new ReturnValue("events", GenericType.flux(eventType(metadata))))
             .build();
         Set<String> imports = new HashSet<>();
 
@@ -194,7 +202,7 @@ public class SseConvenienceMethodTemplateTests {
             SseMetadata metadata = metadata(namespace.equals("contoso.example") ? "response" : "events",
                 eventDefinition("update", true));
             JavaPackage javaPackage = new JavaPackage(host);
-            javaPackage.addSseEventFiles(metadata);
+            addMappedSseFamily(javaPackage, metadata);
             for (String resource : List.of("ServerSentEventStreamHelper", "ServerSentEventStreamResponse")) {
                 javaPackage.addJavaFromResources(SseUtil.getRuntimePackage(), resource);
             }
@@ -211,7 +219,7 @@ public class SseConvenienceMethodTemplateTests {
                 .append(";\nimport java.util.Arrays;\n")
                 .append("import reactor.core.publisher.Flux;\n")
                 .append("import ")
-                .append(SseUtil.getEventPackage(metadata))
+                .append(eventType(metadata).getPackage())
                 .append(".Event;\n")
                 .append("import ")
                 .append(SseUtil.getSerializerPackage())
@@ -225,7 +233,7 @@ public class SseConvenienceMethodTemplateTests {
             for (boolean async : List.of(false, true)) {
                 for (boolean local : List.of(false, true)) {
                     String body = render(async, local ? List.of() : names, local ? names : List.of(), metadata);
-                    String eventType = SseUtil.getClientEventTypeName(metadata);
+                    String eventType = eventType(metadata).getName();
                     client.append("public ")
                         .append(async
                             ? "Flux<" + eventType.substring(eventType.lastIndexOf('.') + 1) + ">"
@@ -312,7 +320,7 @@ public class SseConvenienceMethodTemplateTests {
                 .map(name -> new ParameterTransformation(parameter(name), List.of()))
                 .collect(Collectors.toList())))
             .proxyMethod(proxy)
-            .sseMetadata(metadata)
+            .sseMetadata(clientMetadata(metadata))
             .type(async ? ClientMethodType.SseAsync : ClientMethodType.SseSync)
             .returnValue(new ReturnValue("events",
                 async ? GenericType.flux(ClassType.STRING) : GenericType.closeableIterableStream(ClassType.STRING)))
@@ -349,13 +357,13 @@ public class SseConvenienceMethodTemplateTests {
                     ? GenericType.mono(GenericType.response(ClassType.BINARY_DATA))
                     : GenericType.response(ClassType.BINARY_DATA)))
             .build();
-        ClassType eventType = SseUtil.getEventType(metadata.getBaseSchema());
+        ClassType eventType = eventType(metadata);
         ClientMethod convenience = new ClientMethod.Builder().name(async ? "readAsync" : "read")
             .description(description)
             .parameters(List.of())
             .parameterTransformations(new ParameterTransformations(List.of()))
             .proxyMethod(proxy)
-            .sseMetadata(metadata)
+            .sseMetadata(clientMetadata(metadata))
             .type(async ? ClientMethodType.SseAsync : ClientMethodType.SseSync)
             .methodVisibility(JavaVisibility.Public)
             .methodVisibilityInWrapperClient(JavaVisibility.Public)
@@ -367,6 +375,52 @@ public class SseConvenienceMethodTemplateTests {
             = async ? ConvenienceAsyncMethodTemplate.getInstance() : ConvenienceSyncMethodTemplate.getInstance();
         template.write(new ConvenienceMethod(protocol, List.of(convenience)), new JavaClass(contents), new HashSet<>());
         return contents.toString();
+    }
+
+    private static ClientMethodSseMetadata clientMetadata(SseMetadata metadata) {
+        ClassType eventType = eventType(metadata);
+        return new ClientMethodSseMetadata(eventType, SseUtil.getSerializerType(eventType),
+            metadata.getEvents()
+                .stream()
+                .filter(SseEventMetadata::isTerminal)
+                .map(SseEventMetadata::getName)
+                .collect(Collectors.toList()));
+    }
+
+    private static ClassType eventType(SseMetadata metadata) {
+        return Mappers.getObjectMapper().map(metadata.getBaseSchema());
+    }
+
+    private static void addMappedSseFamily(JavaPackage javaPackage, SseMetadata metadata) {
+        ClientModels.getInstance().clear();
+        ObjectSchema baseSchema = metadata.getBaseSchema();
+        SseSchemaMetadata baseMetadata = new SseSchemaMetadata();
+        baseMetadata.setStreamName(metadata.getStreamName());
+        baseSchema.setSseMetadata(baseMetadata);
+        baseSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.SSE));
+        List<Schema> eventSchemas
+            = metadata.getEvents().stream().map(SseEventMetadata::getEventSchema).collect(Collectors.toList());
+        Relations children = new Relations();
+        children.setImmediate(eventSchemas);
+        children.setAll(eventSchemas);
+        baseSchema.setChildren(children);
+        for (SseEventMetadata event : metadata.getEvents()) {
+            event.getEventSchema().setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.SSE));
+            SseSchemaMetadata eventMetadata = new SseSchemaMetadata();
+            eventMetadata.setStreamName(metadata.getStreamName());
+            eventMetadata.setEventName(event.getName());
+            eventMetadata.setTerminal(event.isTerminal());
+            event.getEventSchema().setSseMetadata(eventMetadata);
+        }
+        ClientModel baseModel = ModelMapper.getInstance().map(baseSchema);
+        List<ObjectSchema> schemas = new ArrayList<>();
+        schemas.add(baseSchema);
+        metadata.getEvents().forEach(event -> schemas.add(event.getEventSchema()));
+        for (ObjectSchema schema : schemas) {
+            ClientModel model = ModelMapper.getInstance().map(schema);
+            javaPackage.addModel(model.getPackage(), model.getName(), model);
+        }
+        javaPackage.addSseEventSerializer(baseModel);
     }
 
     private static EventDefinition eventDefinition(String name, boolean terminal) {

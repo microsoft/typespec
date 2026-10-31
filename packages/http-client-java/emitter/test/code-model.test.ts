@@ -51,7 +51,7 @@ import { cloneOperationParameter } from "../src/operation-utils.js";
 
 const sseFixturePath = resolvePath(fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)));
 
-async function compileSseScenario(namespace: string) {
+async function compileSseScenario(namespace: string, warningAsError = false) {
   const entrypoint = resolvePath(
     sseFixturePath.replace(/sse\.tsp$/, `sse-${namespace.toLowerCase()}.tsp`),
   );
@@ -71,7 +71,7 @@ async function compileSseScenario(namespace: string) {
     realpath: (path) =>
       isEntrypoint(path) ? Promise.resolve(entrypoint) : NodeHost.realpath(path),
   };
-  return compile(host, entrypoint, { noEmit: true });
+  return compile(host, entrypoint, { noEmit: true, warningAsError });
 }
 
 describe("code model characterization", () => {
@@ -180,7 +180,7 @@ describe("code model characterization", () => {
       );
     },
   );
-  it("inlines only explicitly named events with nonliteral JSON payloads", async () => {
+  it("creates registered wrappers only for explicitly named events with nonliteral JSON payloads", async () => {
     const program = await compileSseScenario("SseVariants");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
@@ -311,6 +311,30 @@ describe("code model characterization", () => {
         severity: "warning" as const,
       })),
     );
+  });
+  it("allows an unsupported SSE operation to suppress its fallback warning", async () => {
+    const program = await compileSseScenario("SseSuppressedUnsupported", true);
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnosticEmpty(program.diagnostics);
+    const operation = model.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? [])
+      .find((operation) => operation.language.default.name === "read")!;
+    expect(operation.sseMetadata).toBeUndefined();
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
   });
   it("generates SSE metadata for named scalar payloads", async () => {
     const program = await compileSseScenario("SseTest");
@@ -565,15 +589,22 @@ describe("code model characterization", () => {
       "SseTest.ProtocolOnlyStreamEvents",
     );
     expect(protocolOnlyPayloadOperation.convenienceApi).toBeUndefined();
+    expect(protocolOnlyPayloadOperation.sseMetadata?.baseSchema.usage).toEqual([SchemaContext.Sse]);
+    for (const event of protocolOnlyPayloadOperation.sseMetadata!.events) {
+      expect(event.eventSchema.usage).toEqual([SchemaContext.Sse]);
+    }
     const protocolOnlyPayload = enabledModel.schemas.objects?.find(
       (schema) => schema.language.default.name === "ProtocolOnlyPayload",
     );
     expect(protocolOnlyPayload).toBeDefined();
-    expect(protocolOnlyPayload?.usage ?? []).not.toContain(SchemaContext.Public);
+    expect(protocolOnlyPayload?.usage).toBeUndefined();
+    expect(protocolOnlyPayload?.serializationFormats).toBeUndefined();
     const sharedTypedPayload = enabledModel.schemas.objects?.find(
       (schema) => schema.language.default.name === "RetrievalStarted",
     );
     expect(sharedTypedPayload?.usage).toContain(SchemaContext.Public);
+    expect(sharedTypedPayload?.usage).toContain(SchemaContext.Output);
+    expect(sharedTypedPayload?.serializationFormats).toContain(KnownMediaType.Json);
 
     const jacksonOperations = (
       await new CodeModelBuilder(program, {
@@ -705,7 +736,7 @@ describe("code model characterization", () => {
     ).rejects.toThrow("resolve to duplicate schema name 'RetrievalStartedStreamEvent'");
   });
 
-  it("isolates synthetic SSE schemas from authored envelope hierarchies", async () => {
+  it("registers synthetic SSE schemas without propagating SSE usage to payloads", async () => {
     const program = await compileSseScenario("SseSchemaIsolation");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
@@ -726,19 +757,51 @@ describe("code model characterization", () => {
 
     expect(new Set(metadata.map((value) => value.baseSchema)).size).toBe(4);
     for (const stream of metadata) {
-      expect(model.schemas.objects ?? []).not.toContain(stream.baseSchema);
+      const hasTypedConsumer = operations.some(
+        (operation) =>
+          operation.convenienceApi && operation.sseMetadata?.baseSchema === stream.baseSchema,
+      );
+      expect(model.schemas.objects?.filter((schema) => schema === stream.baseSchema)).toHaveLength(
+        1,
+      );
+      const expectedUsage = hasTypedConsumer
+        ? [SchemaContext.Sse, SchemaContext.Output, SchemaContext.Public]
+        : [SchemaContext.Sse];
+      expect(new Set(stream.baseSchema.usage)).toEqual(new Set(expectedUsage));
+      expect(stream.baseSchema).toMatchObject({
+        sseMetadata: { streamName: stream.streamName },
+      });
+      expect(stream.baseSchema.children?.immediate).toEqual(
+        stream.events.map((event) => event.eventSchema),
+      );
+      expect(stream.baseSchema.children?.all).toEqual(
+        stream.events.map((event) => event.eventSchema),
+      );
       for (const event of stream.events) {
-        expect(model.schemas.objects ?? []).not.toContain(event.eventSchema);
+        expect(
+          model.schemas.objects?.filter((schema) => schema === event.eventSchema),
+        ).toHaveLength(1);
+        expect(new Set(event.eventSchema.usage)).toEqual(new Set(expectedUsage));
+        expect(event.eventSchema).toMatchObject({
+          sseMetadata: {
+            streamName: stream.streamName,
+            eventName: event.name,
+            terminal: event.terminal,
+          },
+        });
         expect(event.eventSchema.parents?.immediate).toEqual([stream.baseSchema]);
         expect(event.eventSchema.parents?.all).toEqual([stream.baseSchema]);
         expect(
           event.eventSchema.properties?.map((property) => property.language.default.name),
         ).toEqual(["value"]);
+        expect(
+          (event.eventSchema.properties?.[0].schema as { usage?: SchemaContext[] }).usage ?? [],
+        ).not.toContain(SchemaContext.Sse);
       }
     }
   });
 
-  it("deduplicates inline SSE schemas with the ordinary naming policy", async () => {
+  it("deduplicates registered SSE schemas with the ordinary naming policy", async () => {
     const program = await compileSseScenario("SseSchemaDeduplication");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {
@@ -794,7 +857,7 @@ describe("code model characterization", () => {
     ).toBe("CollisionEvent1");
   });
 
-  it("preserves ordinary branded namespace exclusions for inline SSE schemas", async () => {
+  it("preserves ordinary branded namespace exclusions for registered SSE schemas", async () => {
     const program = await compileSseScenario("Azure.SseSchemaDeduplication");
     expectDiagnosticEmpty(program.diagnostics);
     const model = await new CodeModelBuilder(program, {

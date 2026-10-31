@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalDocumentation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -98,10 +99,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     public List<ClientMethod> map(Operation operation, boolean isProtocolMethod) {
         CacheKey cacheKey = new CacheKey(operation, isProtocolMethod);
         List<ClientMethod> clientMethods = parsed.get(cacheKey);
-        if (clientMethods == null) {
-            clientMethods = createClientMethods(operation, isProtocolMethod);
-            parsed.put(cacheKey, clientMethods);
+        if (clientMethods != null) {
+            return clientMethods;
         }
+
+        clientMethods = createClientMethods(operation, isProtocolMethod);
+        parsed.put(cacheKey, clientMethods);
 
         return clientMethods;
     }
@@ -247,10 +250,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     // Create Simple Client Methods.
                     //
-                    if (operation.getSseMetadata() != null
-                        && settings.isAzureV1()
-                        && settings.isDataPlaneClient()
-                        && !isProtocolMethod) {
+                    if (!isProtocolMethod && SseUtil.isSseOperation(operation)) {
                         if (shouldGenerateSyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods(),
                             settings.isSyncStackEnabled())) {
                             createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
@@ -294,7 +294,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
-        IType eventType = SseUtil.getEventType(operation.getSseMetadata().getBaseSchema());
+        ClassType eventType = Mappers.getObjectMapper().map(operation.getSseMetadata().getBaseSchema());
         IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
         MethodNamer methodNamer = createMethodArgs.methodNamer;
         String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
@@ -305,7 +305,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .type(methodType)
             .returnValue(new ReturnValue("the stream of server-sent events", returnType))
             .methodVisibility(JavaVisibility.Public)
-            .sseMetadata(operation.getSseMetadata())
+            .sseMetadata(new ClientMethodSseMetadata(eventType, SseUtil.getSerializerType(eventType),
+                SseUtil.getTerminalEventNames(operation.getSseMetadata())))
             .build();
         methods.add(sseMethod);
         if (createMethodArgs.generateRequiredOnlyParamsMethodOverload) {

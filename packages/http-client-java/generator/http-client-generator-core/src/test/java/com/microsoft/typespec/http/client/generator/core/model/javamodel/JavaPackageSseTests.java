@@ -15,12 +15,15 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseSchemaMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +47,7 @@ public class JavaPackageSseTests {
     @AfterEach
     public void restoreSettings() {
         new MockUnitJavagen();
+        ClientModels.getInstance().clear();
         JavaSettings.clear();
     }
 
@@ -78,6 +83,37 @@ public class JavaPackageSseTests {
     }
 
     @Test
+    public void routesSseModelsThroughBothSerializationTemplatePaths() {
+        for (boolean streamStyle : List.of(false, true)) {
+            JavaSettings.clear();
+            ClientModels.getInstance().clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                    if ("stream-style-serialization".equals(key)) {
+                        return (T) Boolean.valueOf(streamStyle);
+                    }
+                    return super.getValue(key, converter);
+                }
+            });
+
+            addMappedSseFamily(javaPackage, metadata());
+
+            String modelSources = javaPackage.getJavaFiles()
+                .stream()
+                .limit(2)
+                .map(file -> file.getContents().toString())
+                .collect(Collectors.joining());
+            Assertions.assertTrue(modelSources.contains("public abstract class RetrievalStreamEvent"), modelSources);
+            Assertions.assertTrue(modelSources.contains("public final class RetrievalStartedStreamEvent"),
+                modelSources);
+            Assertions.assertFalse(modelSources.contains("toJson("), modelSources);
+            Assertions.assertFalse(modelSources.contains("fromJson("), modelSources);
+        }
+    }
+
+    @Test
     public void placesSseFilesUsingSemanticNamespaces() {
         JavaSettings.clear();
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
@@ -85,7 +121,7 @@ public class JavaPackageSseTests {
         metadata.setStreamName("KnowledgeBaseRetrievalStreamEvents");
         configureSchemas(metadata, "KnowledgeBaseRetrievalStreamEvents", "com.azure.search.documents.knowledgebases");
 
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
 
         Assertions.assertEquals(List.of(
             "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStreamEvent.java",
@@ -140,7 +176,7 @@ public class JavaPackageSseTests {
             .map(ObjectSchema.class::cast)
             .forEach(parent -> setSchemaName(parent, "RetrievalStreamEvent2"));
 
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
 
         Assertions.assertEquals(
             List.of("src/main/java/com/azure/mock/models/RetrievalStreamEvent2.java",
@@ -168,7 +204,7 @@ public class JavaPackageSseTests {
             metadata.setStreamName(streamName);
             configureSchemas(metadata, streamName, "com.azure." + streamName.toLowerCase());
 
-            javaPackage.addSseEventFiles(metadata);
+            addMappedSseFamily(javaPackage, metadata);
 
             List<Path> sources = new ArrayList<>();
             for (JavaFile javaFile : javaPackage.getJavaFiles()) {
@@ -205,7 +241,7 @@ public class JavaPackageSseTests {
             event("array.map", array(dictionary(stringSchema()))),
             event("nested.map", dictionary(dictionary(array(stringSchema()))))));
 
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
 
         String serializerSource = javaPackage.getJavaFiles().get(4).getContents().toString();
         Assertions.assertTrue(serializerSource.contains(
@@ -227,7 +263,7 @@ public class JavaPackageSseTests {
         metadata
             .setEvents(List.of(event("duration", seconds), event("nested", dictionary(array(dictionary(seconds))))));
 
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
 
         String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
         Assertions.assertTrue(serializerSource.contains("import java.time.Duration;"));
@@ -247,7 +283,7 @@ public class JavaPackageSseTests {
             SseMetadata metadata = metadata();
             metadata.setEvents(List.of(event("time", payload)));
 
-            javaPackage.addSseEventFiles(metadata);
+            addMappedSseFamily(javaPackage, metadata);
 
             String serializerSource = javaPackage.getJavaFiles().get(2).getContents().toString();
             Assertions.assertTrue(serializerSource.contains("import com.azure.core.util.CoreUtils;"));
@@ -267,7 +303,7 @@ public class JavaPackageSseTests {
         SseMetadata metadata = metadata();
         metadata.setEvents(List.of(event("event", stringSchema()), event("unknownEvent", stringSchema())));
 
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
 
         String baseSource = javaPackage.getJavaFiles().get(0).getContents().toString();
         String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
@@ -281,25 +317,46 @@ public class JavaPackageSseTests {
     }
 
     @Test
-    public void rejectsOrdinaryModelCollisionsBeforeAddingSseFiles() {
-        for (String collidingClassName : List.of("RetrievalStreamEvent", "RetrievalStartedStreamEvent",
-            "RetrievalStreamEventSerializer")) {
+    public void rejectsOrdinaryModelCacheCollisionsBeforeMappingSseModels() {
+        for (String collidingClassName : List.of("RetrievalStreamEvent", "RetrievalStartedStreamEvent")) {
             JavaSettings.clear();
+            ClientModels.getInstance().clear();
             JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
-            String packageName
-                = collidingClassName.endsWith("Serializer") ? "com.azure.mock.implementation" : "com.azure.mock.models";
-            javaPackage.addModel(packageName, collidingClassName,
-                new ClientModel.Builder().name(collidingClassName)
-                    .packageName(packageName)
-                    .properties(List.of())
-                    .build());
+            String packageName = "com.azure.mock.models";
+            ClientModel ordinaryModel = new ClientModel.Builder().name(collidingClassName)
+                .packageName(packageName)
+                .properties(List.of())
+                .build();
+            ClientModels.getInstance().addModel(ordinaryModel);
+            javaPackage.addModel(packageName, collidingClassName, ordinaryModel);
 
-            IllegalStateException exception
-                = Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(metadata()));
+            IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> addMappedSseFamily(javaPackage, metadata()));
 
             Assertions.assertTrue(exception.getMessage().contains(collidingClassName));
             Assertions.assertEquals(1, javaPackage.getJavaFiles().size());
         }
+    }
+
+    @Test
+    public void rejectsSerializerSourceCollisionBeforeAddingSerializer() {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+        javaPackage.addModel("com.azure.mock.implementation", "RetrievalStreamEventSerializer",
+            new ClientModel.Builder().name("RetrievalStreamEventSerializer")
+                .packageName("com.azure.mock.implementation")
+                .properties(List.of())
+                .build());
+        SseMetadata metadata = metadata();
+        prepareSseFamily(metadata);
+        ClientModel baseModel = ModelMapper.getInstance().map(metadata.getBaseSchema());
+
+        IllegalStateException exception
+            = Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventSerializer(baseModel));
+
+        Assertions.assertTrue(exception.getMessage().contains("RetrievalStreamEventSerializer"));
+        Assertions.assertEquals(1, javaPackage.getJavaFiles().size());
     }
 
     @Test
@@ -316,9 +373,9 @@ public class JavaPackageSseTests {
             second.setStreamName(streams.get(1));
             second.setEvents(List.of(event("foo", stringSchema())));
             configureSchemas(second, streams.get(1), "com.azure.mock");
-            javaPackage.addSseEventFiles(first);
+            addMappedSseFamily(javaPackage, first);
             int size = javaPackage.getJavaFiles().size();
-            Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(second));
+            Assertions.assertThrows(IllegalStateException.class, () -> addMappedSseFamily(javaPackage, second));
             Assertions.assertEquals(size, javaPackage.getJavaFiles().size());
         }
     }
@@ -341,9 +398,9 @@ public class JavaPackageSseTests {
             first.setEvents(List.of(event("value", dictionary(int32))));
             SseMetadata second = metadata();
             second.setEvents(List.of(event("value", dictionary(int64))));
-            javaPackage.addSseEventFiles(first);
+            addMappedSseFamily(javaPackage, first);
             int size = javaPackage.getJavaFiles().size();
-            Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(second));
+            Assertions.assertThrows(IllegalStateException.class, () -> addMappedSseFamily(javaPackage, second));
             Assertions.assertEquals(size, javaPackage.getJavaFiles().size());
         }
     }
@@ -354,7 +411,7 @@ public class JavaPackageSseTests {
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
         SseMetadata metadata = metadata();
         metadata.setEvents(List.of(event("message", stringSchema())));
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
         String source = javaPackage.getJavaFiles().get(2).getContents().toString();
         Assertions.assertTrue(
             source.contains("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;"));
@@ -368,7 +425,7 @@ public class JavaPackageSseTests {
         metadata.setEvents(List.of(event("payload", objectSchema("Payload", "com.azure.payload")),
             event("nested", dictionary(array(objectSchema("NestedPayload", "com.azure.payload"))))));
 
-        javaPackage.addSseEventFiles(metadata);
+        addMappedSseFamily(javaPackage, metadata);
 
         String generatedSources = javaPackage.getJavaFiles()
             .stream()
@@ -380,6 +437,47 @@ public class JavaPackageSseTests {
         Assertions.assertTrue(generatedSources.contains("Payload value"), generatedSources);
         Assertions.assertTrue(generatedSources.contains("List<NestedPayload>"), generatedSources);
         Assertions.assertFalse(generatedSources.contains("com.azure.payload.models.Payload value"), generatedSources);
+    }
+
+    private static void addMappedSseFamily(JavaPackage javaPackage, SseMetadata metadata) {
+        if (javaPackage.getJavaFiles().isEmpty()) {
+            ClientModels.getInstance().clear();
+        }
+        prepareSseFamily(metadata);
+        List<ClientModel> models = new java.util.ArrayList<>();
+        models.add(ModelMapper.getInstance().map(metadata.getBaseSchema()));
+        metadata.getEvents().forEach(event -> models.add(ModelMapper.getInstance().map(event.getEventSchema())));
+        for (ClientModel model : models) {
+            javaPackage.addModel(model.getPackage(), model.getName(), model);
+        }
+        javaPackage.addSseEventSerializer(models.get(0));
+    }
+
+    private static void prepareSseFamily(SseMetadata metadata) {
+        ObjectSchema baseSchema = metadata.getBaseSchema();
+        SseSchemaMetadata baseMetadata = new SseSchemaMetadata();
+        baseMetadata.setStreamName(metadata.getStreamName());
+        baseSchema.setSseMetadata(baseMetadata);
+        baseSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.SSE));
+        List<Schema> eventSchemas
+            = metadata.getEvents().stream().map(SseEventMetadata::getEventSchema).collect(Collectors.toList());
+        Relations children = new Relations();
+        children.setImmediate(eventSchemas);
+        children.setAll(eventSchemas);
+        baseSchema.setChildren(children);
+        for (SseEventMetadata event : metadata.getEvents()) {
+            ObjectSchema eventSchema = event.getEventSchema();
+            SseSchemaMetadata eventMetadata = new SseSchemaMetadata();
+            eventMetadata.setStreamName(metadata.getStreamName());
+            eventMetadata.setEventName(event.getName());
+            eventMetadata.setTerminal(event.isTerminal());
+            eventSchema.setSseMetadata(eventMetadata);
+            eventSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.SSE));
+            Relations parents = new Relations();
+            parents.setImmediate(List.of(baseSchema));
+            parents.setAll(List.of(baseSchema));
+            eventSchema.setParents(parents);
+        }
     }
 
     private static SseMetadata metadata() {
@@ -409,6 +507,7 @@ public class JavaPackageSseTests {
     private static StringSchema stringSchema() {
         StringSchema payload = new StringSchema();
         payload.setType(Schema.AllSchemaTypes.STRING);
+        setSchemaLanguage(payload, "String");
         return payload;
     }
 
@@ -457,7 +556,8 @@ public class JavaPackageSseTests {
             parents.setImmediate(List.of(baseSchema));
             parents.setAll(List.of(baseSchema));
             eventSchema.setParents(parents);
-            eventSchema.setProperties(List.of(property("value", SseUtil.getPayloadSchema(event))));
+            eventSchema
+                .setProperties(List.of(property("value", event.getEventSchema().getProperties().get(0).getSchema())));
             event.setEventSchema(eventSchema);
         }
     }
@@ -500,6 +600,7 @@ public class JavaPackageSseTests {
         DictionarySchema schema = new DictionarySchema();
         schema.setType(Schema.AllSchemaTypes.DICTIONARY);
         schema.setElementType(elementType);
+        setSchemaLanguage(schema, "Dictionary");
         return schema;
     }
 
@@ -507,7 +608,17 @@ public class JavaPackageSseTests {
         ArraySchema schema = new ArraySchema();
         schema.setType(Schema.AllSchemaTypes.ARRAY);
         schema.setElementType(elementType);
+        setSchemaLanguage(schema, "Array");
         return schema;
+    }
+
+    private static void setSchemaLanguage(Schema schema, String name) {
+        Language language = new Language();
+        language.setName(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        schema.setLanguage(languages);
     }
 
     private static MockUnitJavagen mockJavagenWithGeneratedHeader() {

@@ -81,8 +81,12 @@ public class CodeModelCustomConstructor extends Constructor {
                 ScalarNode key = (ScalarNode) tuple.getKeyNode();
                 switch (key.getValue()) {
                     case "sseMetadata": {
-                        if (node.getType().equals(Operation.class) && tuple.getValueNode() instanceof MappingNode) {
-                            tuple.getValueNode().setType(SseMetadata.class);
+                        if (tuple.getValueNode() instanceof MappingNode) {
+                            if (node.getType().equals(Operation.class)) {
+                                tuple.getValueNode().setType(SseMetadata.class);
+                            } else if (node.getType().equals(ObjectSchema.class)) {
+                                tuple.getValueNode().setType(SseSchemaMetadata.class);
+                            }
                         }
                         break;
                     }

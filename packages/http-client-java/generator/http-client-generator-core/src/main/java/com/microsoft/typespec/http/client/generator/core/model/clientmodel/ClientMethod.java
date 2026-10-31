@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
@@ -117,7 +116,7 @@ public class ClientMethod {
     private final OperationInstrumentationInfo instrumentationInfo;
 
     private final ClientMethod overloadedClientMethod;
-    private final SseMetadata sseMetadata;
+    private final ClientMethodSseMetadata sseMetadata;
 
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
@@ -177,7 +176,7 @@ public class ClientMethod {
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation, ApiMetadata apiMetadata,
         boolean hasWithContextOverload, OperationInstrumentationInfo instrumentationInfo,
-        ClientMethod overloadedClientMethod, SseMetadata sseMetadata) {
+        ClientMethod overloadedClientMethod, ClientMethodSseMetadata sseMetadata) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -454,7 +453,7 @@ public class ClientMethod {
         return overloadedClientMethod;
     }
 
-    public SseMetadata getSseMetadata() {
+    public ClientMethodSseMetadata getSseMetadata() {
         return sseMetadata;
     }
 
@@ -649,7 +648,7 @@ public class ClientMethod {
         protected boolean hidePageableParams;
         protected OperationInstrumentationInfo instrumentationInfo;
         protected ClientMethod overloadedClientMethod;
-        protected SseMetadata sseMetadata;
+        protected ClientMethodSseMetadata sseMetadata;
 
         public Builder apiMetadata(ApiMetadata apiMetadata) {
             this.apiMetadata = apiMetadata;
@@ -910,7 +909,7 @@ public class ClientMethod {
             return this;
         }
 
-        public Builder sseMetadata(SseMetadata sseMetadata) {
+        public Builder sseMetadata(ClientMethodSseMetadata sseMetadata) {
             this.sseMetadata = sseMetadata;
             return this;
         }

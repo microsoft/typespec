@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
-import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SseModelMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Writes the generated model wrappers for a named server-sent event union.
+ * Writes mapped model wrappers for a named server-sent event union.
  */
 public final class SseEventModelTemplate {
     private static final SseEventModelTemplate INSTANCE = new SseEventModelTemplate();
@@ -29,15 +29,25 @@ public final class SseEventModelTemplate {
         return INSTANCE;
     }
 
-    public void writeBase(SseMetadata metadata, JavaFile javaFile) {
-        String baseEventName = SseUtil.getClientEventTypeName(metadata);
-        String serializerName = SseUtil.getSerializerType(metadata).getName();
-        String streamDescription = SseUtil.getStreamDescription(metadata);
-        Set<String> imports = new LinkedHashSet<>();
-        for (SseEventMetadata event : metadata.getEvents()) {
-            Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType().addImportsTo(imports, false);
+    public void write(ClientModel model, JavaFile javaFile) {
+        SseModelMetadata metadata = SseUtil.requireSseMetadata(model);
+        if (metadata.isBaseModel()) {
+            writeBase(model, metadata, javaFile);
+        } else {
+            writeEvent(model, metadata, javaFile);
         }
-        SseUtil.getSerializerType(metadata).addImportsTo(imports, false);
+    }
+
+    private void writeBase(ClientModel model, SseModelMetadata metadata, JavaFile javaFile) {
+        ClientModelProperty eventNameProperty = getProperty(model, "eventName");
+        String baseEventName = model.getName();
+        String serializerName = metadata.getSerializerType().getName();
+        String streamDescription = SseUtil.getStreamDescription(model);
+        Set<String> imports = new LinkedHashSet<>();
+        for (ClientModel event : model.getDerivedModels()) {
+            getProperty(event, "value").getClientType().addImportsTo(imports, false);
+        }
+        metadata.getSerializerType().addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> {
@@ -48,29 +58,33 @@ public final class SseEventModelTemplate {
             comment.description("{@link #getEventName()}; their payloads are not available and they are not terminal.");
             comment.description(
                 "Stream events are envelopes, not JSON payload models; serialize the typed payload instead.");
-            for (SseEventMetadata event : metadata.getEvents()) {
-                comment.see(SseUtil.getEventType(event.getEventSchema()).getName());
+            for (ClientModel event : model.getDerivedModels()) {
+                comment.see(event.getName());
             }
         });
         javaFile.publicClass(List.of(JavaModifier.Abstract), baseEventName, javaClass -> {
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.privateFinalMemberVariable("String eventName");
+            javaClass.privateFinalMemberVariable(eventNameProperty.getClientType() + " " + eventNameProperty.getName());
             javaClass.javadocComment(comment -> {
                 comment.description("Creates a stream event.");
-                comment.param("eventName", "The server-sent event name.");
+                comment.param(eventNameProperty.getName(), "The server-sent event name.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.packagePrivateConstructor(baseEventName + "(String eventName)",
-                constructor -> constructor.line("this.eventName = eventName;"));
+            javaClass.packagePrivateConstructor(
+                baseEventName + "(" + eventNameProperty.getClientType() + " " + eventNameProperty.getName() + ")",
+                constructor -> constructor
+                    .line("this." + eventNameProperty.getName() + " = " + eventNameProperty.getName() + ";"));
             javaClass.javadocComment(comment -> {
                 comment.description("Gets the server-sent event name.");
                 comment.methodReturns("The event name.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.publicMethod("final String getEventName()", method -> method.methodReturn("eventName"));
+            javaClass.publicMethod(
+                "final " + eventNameProperty.getClientType() + " " + eventNameProperty.getGetterName() + "()",
+                method -> method.methodReturn(eventNameProperty.getName()));
             javaClass.javadocComment(comment -> {
-                comment.description("Gets whether this event terminates the "
-                    + SseUtil.getStreamKindDescription(metadata) + " stream.");
+                comment.description(
+                    "Gets whether this event terminates the " + SseUtil.getStreamKindDescription(model) + " stream.");
                 comment.methodReturns("{@code true} if this is a terminal event; otherwise {@code false}.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
@@ -80,19 +94,17 @@ public final class SseEventModelTemplate {
                     serializerName + ".setConstructorAccessor(new " + serializerName + ".ConstructorAccessor() {");
                 staticBlock.indent(() -> {
                     staticBlock.line("@Override");
-                    staticBlock.block(
-                        "public " + SseUtil.getClientEventTypeName(metadata) + " unknownEvent(String eventName)",
+                    staticBlock.block("public " + baseEventName + " unknownEvent(String eventName)",
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
-                    for (SseEventMetadata event : metadata.getEvents()) {
-                        IType payloadType
-                            = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType();
-                        String payloadTypeName = payloadType.toString();
-                        String wrapperName = SseUtil.getEventType(event.getEventSchema()).getName();
+                    for (ClientModel event : model.getDerivedModels()) {
+                        SseModelMetadata eventMetadata = SseUtil.requireSseMetadata(event);
+                        ClientModelProperty value = getProperty(event, "value");
                         staticBlock.line("@Override");
                         staticBlock.block(
-                            "public " + wrapperName + " " + SseUtil.getEventFactoryMethodName(event.getName()) + "("
-                                + payloadTypeName + " value)",
-                            method -> method.methodReturn("new " + wrapperName + "(value)"));
+                            "public " + event.getName() + " "
+                                + SseUtil.getEventFactoryMethodName(eventMetadata.getEventName()) + "("
+                                + value.getClientType() + " value)",
+                            method -> method.methodReturn("new " + event.getName() + "(value)"));
                     }
                 });
                 staticBlock.line("});");
@@ -100,49 +112,58 @@ public final class SseEventModelTemplate {
         });
     }
 
-    public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
-        IType payloadType = Mappers.getSchemaMapper().map(SseUtil.getPayloadSchema(event)).getClientType();
-        String payloadTypeName = payloadType.toString();
+    private void writeEvent(ClientModel model, SseModelMetadata metadata, JavaFile javaFile) {
+        ClientModelProperty value = getProperty(model, "value");
+        IType payloadType = value.getClientType();
         Set<String> imports = new LinkedHashSet<>();
         payloadType.addImportsTo(imports, false);
-        SseUtil.getEventType(SseUtil.getParentSchema(event)).addImportsTo(imports, false);
+        metadata.getBaseEventType().addImportsTo(imports, false);
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.IMMUTABLE.addImportsTo(imports);
         javaFile.declareImport(imports);
 
-        String wrapperName = SseUtil.getEventType(event.getEventSchema()).getName();
-        String baseEventTypeName = SseUtil.getEventType(SseUtil.getParentSchema(event)).getName();
-        String streamDescription = SseUtil.getStreamDescription(metadata);
+        String streamDescription = SseUtil.getStreamDescription(model);
         javaFile.javadocComment(comment -> {
-            comment.description("Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} "
+            comment.description("Represents the {@code " + TemplateUtil.escapeString(metadata.getEventName()) + "} "
                 + streamDescription + " stream event.");
             comment.description("Access the typed payload with {@link #getValue()}.");
-            comment.see(baseEventTypeName);
+            comment.see(metadata.getBaseEventType().getName());
         });
         javaFile.annotation(Annotation.IMMUTABLE.getName());
-        javaFile.publicFinalClass(wrapperName + " extends " + baseEventTypeName, javaClass -> {
+        javaFile.publicFinalClass(model.getName() + " extends " + metadata.getBaseEventType().getName(), javaClass -> {
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.privateFinalMemberVariable(payloadTypeName + " value");
+            javaClass.privateFinalMemberVariable(payloadType + " " + value.getName());
             javaClass.javadocComment(comment -> {
                 comment.description("Creates an event wrapper.");
-                comment.param("value", "The event payload.");
+                comment.param(value.getName(), "The event payload.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.packagePrivateConstructor(wrapperName + "(" + payloadTypeName + " value)", constructor -> {
-                constructor.line("super(\"" + TemplateUtil.escapeString(event.getName()) + "\");");
-                constructor.line("this.value = value;");
-            });
+            javaClass.packagePrivateConstructor(model.getName() + "(" + payloadType + " " + value.getName() + ")",
+                constructor -> {
+                    constructor.line("super(\"" + TemplateUtil.escapeString(metadata.getEventName()) + "\");");
+                    constructor.line("this." + value.getName() + " = " + value.getName() + ";");
+                });
             javaClass.javadocComment(comment -> {
                 comment.description("Gets the event payload.");
                 comment.methodReturns("The event payload.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.publicMethod(payloadTypeName + " getValue()", method -> method.methodReturn("value"));
-            if (event.isTerminal()) {
+            javaClass.publicMethod(payloadType + " " + value.getGetterName() + "()",
+                method -> method.methodReturn(value.getName()));
+            if (metadata.isTerminal()) {
                 javaClass.annotation(Annotation.GENERATED.getName());
                 javaClass.annotation("Override");
                 javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("true"));
             }
         });
+    }
+
+    private static ClientModelProperty getProperty(ClientModel model, String serializedName) {
+        return model.getProperties()
+            .stream()
+            .filter(property -> serializedName.equals(property.getSerializedName()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException(
+                "SSE model '" + model.getFullName() + "' has no '" + serializedName + "' property."));
     }
 }

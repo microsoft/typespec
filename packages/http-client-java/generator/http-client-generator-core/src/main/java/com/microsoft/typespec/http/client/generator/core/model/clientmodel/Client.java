@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.List;
 
 /**
@@ -66,11 +65,6 @@ public class Client {
     private final List<UnionModel> unionModels;
     private final List<ClientMethodExample> clientMethodExamples;
     private final GraalVmConfig graalVmConfig;
-    private final List<SseMetadata> sseStreams;
-
-    public List<SseMetadata> getSseStreams() {
-        return sseStreams;
-    }
 
     /**
      * Create a new Client with the provided values.
@@ -97,7 +91,7 @@ public class Client {
         List<ServiceClient> serviceClients, ModuleInfo moduleInfo, List<AsyncSyncClient> syncClients,
         List<AsyncSyncClient> asyncClients, List<ClientBuilder> clientBuilders, List<ProtocolExample> protocolExamples,
         List<LiveTests> liveTests, List<UnionModel> unionModels, List<ClientMethodExample> clientMethodExamples,
-        ApiMetadata apiMetadata, GraalVmConfig graalVmConfig, List<SseMetadata> sseStreams) {
+        ApiMetadata apiMetadata, GraalVmConfig graalVmConfig) {
         this.clientName = clientName;
         this.clientDescription = clientDescription;
         this.enums = enums;
@@ -119,7 +113,6 @@ public class Client {
         this.clientMethodExamples = clientMethodExamples;
         this.apiMetadata = apiMetadata;
         this.graalVmConfig = graalVmConfig;
-        this.sseStreams = List.copyOf(sseStreams);
     }
 
     public ApiMetadata getApiMetadata() {
@@ -214,13 +207,6 @@ public class Client {
     }
 
     public static class Builder {
-        private List<SseMetadata> sseStreams = List.of();
-
-        public Builder sseStreams(List<SseMetadata> sseStreams) {
-            this.sseStreams = List.copyOf(sseStreams);
-            return this;
-        }
-
         private String clientName;
         private String clientDescription;
         private List<EnumType> enums;
@@ -458,7 +444,7 @@ public class Client {
             return new Client(clientName, clientDescription, enums, exceptions, xmlSequenceWrappers, responseModels,
                 models, packageInfos, manager, serviceClient, serviceClients, moduleInfo, syncClients, asyncClients,
                 clientBuilders, protocolExamples, liveTests, unionModels, clientMethodExamples, apiMetadata,
-                graalVmConfig, List.copyOf(sseStreams));
+                graalVmConfig);
         }
     }
 }

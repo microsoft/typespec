@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
@@ -51,7 +50,6 @@ public class TypeSpecPlugin extends Javagen {
     public Client processClient(CodeModel codeModel) {
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
-        codeModel.validateSseMetadata();
 
         // map to client model
         return Mappers.getClientMapper().map(codeModel);
@@ -107,19 +105,18 @@ public class TypeSpecPlugin extends Javagen {
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
         if (settings.isAzureV1()) {
-            if (!client.getSseStreams().isEmpty()) {
+            List<ClientModel> sseBaseModels = client.getModels()
+                .stream()
+                .filter(ModelUtil::isGeneratingModel)
+                .filter(model -> model.hasUsage(
+                    com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+                .filter(model -> model.getSseMetadata() != null && model.getSseMetadata().isBaseModel())
+                .collect(Collectors.toList());
+            if (!sseBaseModels.isEmpty()) {
                 String runtimePackage = SseUtil.getRuntimePackage();
                 javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAM_HELPER);
                 javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
-                client.getSseStreams().forEach(javaPackage::addSseEventFiles);
-                List<ModuleInfo.ExportModule> exports = client.getModuleInfo().getExportModules();
-                client.getSseStreams()
-                    .stream()
-                    .map(SseUtil::getEventPackage)
-                    .distinct()
-                    .map(ModuleInfo.ExportModule::new)
-                    .filter(export -> !exports.contains(export))
-                    .forEach(exports::add);
+                sseBaseModels.forEach(javaPackage::addSseEventSerializer);
             }
         }
 
@@ -449,10 +446,15 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         // Client model
-        client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getApiMetadata().getCrossLanguageDefinitionId());
-        });
+        client.getModels()
+            .stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .filter(model -> !model.hasUsage(
+                com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+            .forEach(model -> {
+                crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                    model.getApiMetadata().getCrossLanguageDefinitionId());
+            });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {

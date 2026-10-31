@@ -35,6 +35,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
@@ -147,7 +148,14 @@ public class ClientMethodMapperTests {
                     .stream()
                     .filter(method -> method.getType() == ClientMethodType.SseSync
                         || method.getType() == ClientMethodType.SseAsync)
-                    .forEach(method -> Assertions.assertSame(metadata, method.getSseMetadata()));
+                    .forEach(method -> {
+                        Assertions.assertEquals(Mappers.getObjectMapper().map(metadata.getBaseSchema()),
+                            method.getSseMetadata().getEventType());
+                        Assertions.assertEquals(SseUtil.getSerializerType(method.getSseMetadata().getEventType()),
+                            method.getSseMetadata().getSerializerType());
+                        Assertions.assertEquals(SseUtil.getTerminalEventNames(metadata),
+                            method.getSseMetadata().getTerminalEventNames());
+                    });
 
                 Operation protocolOperation = sseOperation();
                 protocolOperation.getResponses().get(0).setBinary(true);

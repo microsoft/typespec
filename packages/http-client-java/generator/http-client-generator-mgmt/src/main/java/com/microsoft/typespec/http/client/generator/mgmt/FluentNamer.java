@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.mgmt;
 
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -82,6 +83,7 @@ public class FluentNamer extends Preprocessor {
 
         // Step 2: Transform
         logger.info("Transform code model");
+        removeSseSchemas(codeModel);
         FluentTransformer transformer = new FluentTransformer(fluentJavaSettings);
         codeModel = transformer.preTransform(codeModel);
 
@@ -90,6 +92,12 @@ public class FluentNamer extends Preprocessor {
         codeModel = transformer.postTransform(codeModel);
 
         return codeModel;
+    }
+
+    static void removeSseSchemas(CodeModel codeModel) {
+        codeModel.getSchemas()
+            .getObjects()
+            .removeIf(schema -> schema.getUsage() != null && schema.getUsage().contains(SchemaContext.SSE));
     }
 
     private void clear() {

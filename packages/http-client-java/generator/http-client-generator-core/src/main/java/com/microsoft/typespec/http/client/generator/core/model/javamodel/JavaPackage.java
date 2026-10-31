@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -38,7 +36,6 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
-import com.microsoft.typespec.http.client.generator.core.template.SseEventModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.SseEventSerializerTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
@@ -57,7 +54,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 public class JavaPackage {
@@ -102,44 +98,15 @@ public class JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public final void addSseEventFiles(SseMetadata metadata) {
-        SseUtil.validateEventFactoryNames(metadata);
-        List<SseEventMetadata> events = metadata.getEvents();
-        JavaFile baseFile = javaFileFactory.createSourceFile(SseUtil.getEventPackage(metadata),
-            SseUtil.getClientEventTypeName(metadata));
-        List<JavaFile> eventFiles = events.stream()
-            .map(event -> javaFileFactory.createSourceFile(SseUtil.getEventPackage(event.getEventSchema()),
-                SseUtil.getEventType(event.getEventSchema()).getName()))
-            .collect(Collectors.toList());
+    public final void addSseEventSerializer(ClientModel baseModel) {
         JavaFile serializerFile = javaFileFactory.createSourceFile(SseUtil.getSerializerPackage(),
-            SseUtil.getSerializerType(metadata).getName());
-        List<JavaFile> sseFiles = new ArrayList<>();
-        sseFiles.add(baseFile);
-        sseFiles.addAll(eventFiles);
-        sseFiles.add(serializerFile);
-        validateSseSourcePaths(sseFiles);
-
-        SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
-        addJavaFile(baseFile);
-        for (int i = 0; i < events.size(); i++) {
-            JavaFile eventFile = eventFiles.get(i);
-            SseEventMetadata event = events.get(i);
-            SseEventModelTemplate.getInstance().writeEvent(metadata, event, eventFile);
-            addJavaFile(eventFile);
+            SseUtil.requireSseMetadata(baseModel).getSerializerType().getName());
+        if (filePaths.contains(serializerFile.getFilePath())) {
+            throw new IllegalStateException("SSE generated source file '" + serializerFile.getFilePath()
+                + "' conflicts with another generated source file.");
         }
-        SseEventSerializerTemplate.getInstance().write(metadata, serializerFile);
+        SseEventSerializerTemplate.getInstance().write(baseModel, serializerFile);
         addJavaFile(serializerFile);
-    }
-
-    private void validateSseSourcePaths(List<JavaFile> sseFiles) {
-        Set<String> sseFilePaths = new LinkedHashSet<>();
-        for (JavaFile javaFile : sseFiles) {
-            String filePath = javaFile.getFilePath();
-            if (filePaths.contains(filePath) || !sseFilePaths.add(filePath)) {
-                throw new IllegalStateException(
-                    "SSE generated source file '" + filePath + "' conflicts with another generated source file.");
-            }
-        }
     }
 
     public final void addAsyncServiceClient(String packageKeyWord, AsyncSyncClient asyncClient) {

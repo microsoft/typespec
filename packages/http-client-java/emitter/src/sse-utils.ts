@@ -3,8 +3,10 @@ import {
   addProperty,
   createObjectSchema,
   createProperty,
+  createRelations,
   createStringSchema,
 } from "./common/schemas/model.js";
+import { SchemaContext } from "./common/schemas/usage.js";
 
 const SSE_STREAM_EVENT_SUFFIX = "StreamEvent";
 
@@ -22,7 +24,7 @@ export function createSseSchemas({
   streamName: string;
   sourceNamespace: string | undefined;
   javaNamespace: string;
-  events: readonly { name: string; payload: Schema }[];
+  events: readonly { name: string; payload: Schema; terminal: boolean }[];
 }): SseSchemas {
   const { baseName, eventNames } = resolveSseSchemaNames(
     streamName,
@@ -42,6 +44,9 @@ export function createSseSchemas({
     `Base for polymorphic events emitted by ${streamName}.`,
     {
       language: schemaLanguage(baseName),
+      usage: [SchemaContext.Sse],
+      sseMetadata: { streamName },
+      children: createRelations(),
     },
   );
   addProperty(
@@ -55,13 +60,15 @@ export function createSseSchemas({
   );
 
   const eventSchemas = new Map<string, ObjectSchema>();
-  for (const { name, payload } of events) {
+  for (const { name, payload, terminal } of events) {
     const schemaName = eventNames.get(name)!;
     const eventSchema = createObjectSchema(
       schemaName,
       `Represents the '${name}' ${streamName} event.`,
       {
         language: schemaLanguage(schemaName),
+        usage: [SchemaContext.Sse],
+        sseMetadata: { streamName, eventName: name, terminal },
         parents: {
           immediate: [baseSchema],
           all: [baseSchema],
@@ -77,6 +84,8 @@ export function createSseSchemas({
         serializedName: "value",
       }),
     );
+    baseSchema.children!.immediate.push(eventSchema);
+    baseSchema.children!.all.push(eventSchema);
     eventSchemas.set(name, eventSchema);
   }
   return { baseSchema, eventSchemas };
