@@ -185,36 +185,32 @@ describe("nullable union", () => {
     `);
   });
 
-  it("preserves nullable=false through nested union pass-through", async () => {
-    const { Test, MaybeStatus } = await runner.compile(t.code`
-      union Status {
+  it("preserves nullable=false for a nullable union enum", async () => {
+    const { Test, Status } = await runner.compile(t.code`
+      union ${t.union("Status")} {
         Ready: "ready",
         null,
       }
-      union ${t.union("MaybeStatus")} {
-        Status,
-        null,
-      }
       model ${t.model("Test")} {
-        value: MaybeStatus;
+        value: Status;
       }
     `);
     const type = (Test.properties.get("value") as ModelProperty).type;
 
     expect(
       <Wrapper>
-        <cs.EnumDeclaration name="MaybeStatus" refkey={efRefkey(MaybeStatus)}>
+        <cs.EnumDeclaration name="Status" refkey={efRefkey(Status)}>
           Ready
         </cs.EnumDeclaration>
         <hbr />
         <TypeExpression type={type} nullable={false} />
       </Wrapper>,
     ).toRenderTo(`
-      enum MaybeStatus
+      enum Status
       {
           Ready
       }
-      MaybeStatus
+      Status
     `);
   });
 

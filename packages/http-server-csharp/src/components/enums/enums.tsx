@@ -152,6 +152,16 @@ type UnionEnumMember = {
   variant: import("@typespec/compiler").UnionVariant;
 };
 
+/** Whether an anonymous union contains only string literal variants. */
+function isAnonymousStringLiteralUnion(type: Type): type is Union {
+  return (
+    type.kind === "Union" &&
+    !type.name &&
+    type.variants.size > 0 &&
+    Array.from(type.variants.values()).every((variant) => variant.type.kind === "String")
+  );
+}
+
 /**
  * Returns all string-literal members that can be flattened into a C# enum.
  *
@@ -215,6 +225,12 @@ function getFlattenedUnionEnumMembers(
       // inline literal unions (e.g. `Group: "a" | "b"`) are still flattened,
       // preserving the behavior supported before nested named unions were added.
       if (typeof variant.name === "string" && variant.type.name) return undefined;
+      // Anonymous inline groups are only flattenable when every member is a
+      // string literal. Keeping null/open/mixed groups on the normal union path
+      // preserves their type semantics and avoids emitting invalid enum refs.
+      if (!variant.type.name && !isAnonymousStringLiteralUnion(variant.type)) {
+        return undefined;
+      }
 
       const nestedMembers = getFlattenedUnionEnumMembers(variant.type, nextActiveUnions);
       if (!nestedMembers) return undefined;

@@ -378,6 +378,17 @@ describe("union-as-enum rendering", () => {
     expect(getUnionEnumMembers(Choice).map((member) => member.value)).toEqual(["a", "b", "c"]);
   });
 
+  it("does not flatten named variants containing nullable anonymous unions", async () => {
+    const { Choice } = await runner.compile(t.code`
+      union ${t.union("Choice")} {
+        Group: "a" | null,
+        Other: "b",
+      }
+    `);
+
+    expect(isUnionEnum(Choice)).toBe(false);
+  });
+
   it("renders union with inline anonymous union of string literals and null", async () => {
     const { ReasoningEffort } = await runner.compile(t.code`
       union ${t.union("ReasoningEffort")} {
