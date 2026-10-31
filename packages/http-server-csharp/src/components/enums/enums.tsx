@@ -172,8 +172,6 @@ function getFlattenedUnionEnumMembers(
   const members: UnionEnumMember[] = [];
   const memberNames = new Map<string, string>();
   const memberValues = new Map<string, string>();
-  let hasNamedNestedUnion = false;
-  let hasNullVariant = false;
 
   for (const variant of union.variants.values()) {
     // Open-string and null variants are only valid at the union being emitted.
@@ -182,10 +180,7 @@ function getFlattenedUnionEnumMembers(
       (variant.type.kind === "Scalar" && variant.type.name === "string") ||
       (variant.type.kind === "Intrinsic" && variant.type.name === "null")
     ) {
-      // Anonymous inline literal unions may include null as a member of the
-      // inline expression. Named nested unions retain their own nullability.
       if (!isRootUnion && union.name) return undefined;
-      if (variant.type.kind === "Intrinsic") hasNullVariant = true;
       continue;
     }
 
@@ -216,9 +211,10 @@ function getFlattenedUnionEnumMembers(
     if (variant.type.kind === "Union") {
       // A named nested union variant (e.g. `Group: Inner`) is a reference to
       // the nested type, not an enum member. Keep the existing type-resolution
-      // path instead of emitting an enum that has no `Group` member.
-      if (typeof variant.name === "string") return undefined;
-      hasNamedNestedUnion ||= Boolean(variant.type.name);
+      // path instead of emitting an enum that has no `Group` member. Anonymous
+      // inline literal unions (e.g. `Group: "a" | "b"`) are still flattened,
+      // preserving the behavior supported before nested named unions were added.
+      if (typeof variant.name === "string" && variant.type.name) return undefined;
 
       const nestedMembers = getFlattenedUnionEnumMembers(variant.type, nextActiveUnions);
       if (!nestedMembers) return undefined;
@@ -243,10 +239,6 @@ function getFlattenedUnionEnumMembers(
     return undefined;
   }
 
-  // A nullable wrapper around a named nested union must remain a union so type
-  // resolution can preserve `?`; anonymous inline literal unions are safe to
-  // flatten because their literal members are part of this union itself.
-  if (hasNamedNestedUnion && hasNullVariant) return undefined;
   return members;
 }
 
@@ -257,6 +249,16 @@ function getFlattenedUnionEnumMembers(
  */
 export function isUnionEnum(union: Union): boolean {
   return Boolean(union.name && getFlattenedUnionEnumMembers(union)?.length);
+}
+
+/** Whether a union-as-enum has a direct `null` variant and needs a nullable C# reference. */
+export function isNullableUnionEnum(union: Union): boolean {
+  return (
+    isUnionEnum(union) &&
+    Array.from(union.variants.values()).some(
+      (variant) => variant.type.kind === "Intrinsic" && variant.type.name === "null",
+    )
+  );
 }
 
 /** Gets the string members of a union-as-enum, flattening nested named unions. */

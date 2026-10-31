@@ -153,12 +153,12 @@ describe("nullable union", () => {
     ).toRenderTo("string");
   });
 
-  it("preserves nullability for a nested union enum", async () => {
-    const { Test, Status } = await runner.compile(t.code`
-      union ${t.union("Status")} {
+  it("uses the emitted nullable union enum", async () => {
+    const { Test, MaybeStatus } = await runner.compile(t.code`
+      union Status {
         Ready: "ready",
       }
-      union MaybeStatus {
+      union ${t.union("MaybeStatus")} {
         Status,
         null,
       }
@@ -170,18 +170,52 @@ describe("nullable union", () => {
 
     expect(
       <Wrapper>
-        <cs.EnumDeclaration name="Status" refkey={efRefkey(Status)}>
+        <cs.EnumDeclaration name="MaybeStatus" refkey={efRefkey(MaybeStatus)}>
           Ready
         </cs.EnumDeclaration>
         <hbr />
         <TypeExpression type={type} />
       </Wrapper>,
     ).toRenderTo(`
-      enum Status
+      enum MaybeStatus
       {
           Ready
       }
-      Status?
+      MaybeStatus?
+    `);
+  });
+
+  it("uses the emitted nullable union enum with multiple members", async () => {
+    const { Test, Outer } = await runner.compile(t.code`
+      union Inner {
+        Ready: "ready",
+      }
+      union ${t.union("Outer")} {
+        Inner,
+        Extra: "extra",
+        null,
+      }
+      model ${t.model("Test")} {
+        value: Outer;
+      }
+    `);
+    const type = (Test.properties.get("value") as ModelProperty).type;
+
+    expect(
+      <Wrapper>
+        <cs.EnumDeclaration name="Outer" refkey={efRefkey(Outer)}>
+          Ready{"\n"}Extra
+        </cs.EnumDeclaration>
+        <hbr />
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo(`
+      enum Outer
+      {
+          Ready
+          Extra
+      }
+      Outer?
     `);
   });
 

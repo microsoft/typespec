@@ -225,7 +225,7 @@ describe("isUnionEnum", () => {
     expect(isUnionEnum(Outer)).toBe(false);
   });
 
-  it("preserves nullable wrappers around nested unions", async () => {
+  it("flattens nullable wrappers around nested unions", async () => {
     const { MaybeStatus } = await runner.compile(t.code`
       union Status { Ready: "ready" }
       union ${t.union("MaybeStatus")} {
@@ -234,8 +234,8 @@ describe("isUnionEnum", () => {
       }
     `);
 
-    expect(isUnionEnum(MaybeStatus)).toBe(false);
-    expect(getUnionEnumMembers(MaybeStatus)).toEqual([]);
+    expect(isUnionEnum(MaybeStatus)).toBe(true);
+    expect(getUnionEnumMembers(MaybeStatus).map((member) => member.value)).toEqual(["ready"]);
   });
 });
 
@@ -352,6 +352,18 @@ describe("union-as-enum rendering", () => {
           High
       }
     `);
+  });
+
+  it("renders named variants containing anonymous literal unions", async () => {
+    const { Choice } = await runner.compile(t.code`
+      union ${t.union("Choice")} {
+        Group: "a" | "b",
+        Other: "c",
+      }
+    `);
+
+    expect(isUnionEnum(Choice)).toBe(true);
+    expect(getUnionEnumMembers(Choice).map((member) => member.value)).toEqual(["a", "b", "c"]);
   });
 
   it("renders union with inline anonymous union of string literals and null", async () => {

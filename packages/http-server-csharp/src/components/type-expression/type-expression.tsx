@@ -9,7 +9,7 @@ import {
 } from "@typespec/emitter-framework/csharp";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
-import { isUnionEnum } from "../enums/enums.jsx";
+import { isNullableUnionEnum, isUnionEnum } from "../enums/enums.jsx";
 import { isValueType } from "../models/model-helpers.js";
 import { getAnonymousModelName } from "../models/models.jsx";
 
@@ -203,9 +203,10 @@ function isInStdLibNamespace(namespace: Namespace | undefined): boolean {
 }
 
 function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union): Children {
-  // Named unions that qualify as enums should reference the enum type
+  // Named unions that qualify as enums should reference the enum type.
+  // A direct null member still makes the generated enum type nullable.
   if (isUnionEnum(union)) {
-    return code`${efRefkey(union)}`;
+    return isNullableUnionEnum(union) ? <>{code`${efRefkey(union)}`}?</> : code`${efRefkey(union)}`;
   }
 
   // Use emitter-framework's nullable union detection
