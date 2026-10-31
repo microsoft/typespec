@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     WriteType(writer);
                 }
             }
-            return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
+            return new CodeFile(writer.ToString(), _provider.RelativeFilePath, writer.TypeReferences);
         }
 
         private bool IsPublicContext(TypeProvider provider)

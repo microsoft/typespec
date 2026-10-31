@@ -20,6 +20,8 @@ namespace Microsoft.TypeSpec.Generator
 
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
+        internal static GeneratedCodeWorkspacePostProcessingProfile? GenerationProfile { get; set; }
+
         /// <summary>
         /// Executes the generator task with the <see cref="CodeModelGenerator"/> instance.
         /// </summary>
@@ -33,104 +35,143 @@ namespace Microsoft.TypeSpec.Generator
 
             // Resolve PackageReference items from the .csproj so custom code referencing external
             // NuGet types compiles correctly.
-            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            using (GenerationProfile?.StartStep("Generation.AddPackageReferences"))
+            {
+                await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            }
 
             // Pre-walk the input library and resolve any external types that point at NuGet packages.
             // This populates ExternalTypeReferenceResolver's cache and registers each resolved assembly
             // as an additional metadata reference *before* the generated/custom code workspaces are
             // constructed, so their cached Roslyn projects pick the references up.
-            await ExternalTypeReferenceResolver.ResolveAllAsync();
+            using (GenerationProfile?.StartStep("Generation.ResolveExternalTypeReferences"))
+            {
+                await ExternalTypeReferenceResolver.ResolveAllAsync();
+            }
 
             // Initialize the workspace project AFTER all metadata references have been added so the
             // eagerly-cached project sees them.
-            GeneratedCodeWorkspace.Initialize();
-
-            GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
+            GeneratedCodeWorkspace customCodeWorkspace;
+            using (GenerationProfile?.StartStep("Generation.CreateCustomCodeWorkspace"))
+            {
+                GeneratedCodeWorkspace.Initialize();
+                customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
+            }
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
-            List<Task> generateAttributeTasks = new();
-            foreach (var attributeProvider in CodeModelGenerator.Instance.CustomCodeAttributeProviders)
+            using (GenerationProfile?.StartStep("Generation.AddCustomCodeAttributes"))
             {
-                generateAttributeTasks.Add(customCodeWorkspace.AddInMemoryFile(attributeProvider));
+                List<Task> generateAttributeTasks = new();
+                foreach (var attributeProvider in CodeModelGenerator.Instance.CustomCodeAttributeProviders)
+                {
+                    generateAttributeTasks.Add(customCodeWorkspace.AddInMemoryFile(attributeProvider));
+                }
+
+                await Task.WhenAll(generateAttributeTasks);
             }
 
-            await Task.WhenAll(generateAttributeTasks);
+            using (GenerationProfile?.StartStep("Generation.CreateSourceInputModel"))
+            {
+                CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
+                    await customCodeWorkspace.GetCompilationAsync(),
+                    await GeneratedCodeWorkspace.LoadBaselineContract(),
+                    GeneratedCodeWorkspace.LoadApiCompatBaseline());
+            }
 
-            CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
-                await customCodeWorkspace.GetCompilationAsync(),
-                await GeneratedCodeWorkspace.LoadBaselineContract(),
-                GeneratedCodeWorkspace.LoadApiCompatBaseline());
-
-            GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
+            GeneratedCodeWorkspace generatedCodeWorkspace;
+            using (GenerationProfile?.StartStep("Generation.CreateGeneratedCodeWorkspace"))
+            {
+                generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
+            }
 
             var output = CodeModelGenerator.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
             // Build all TypeProviders
-            foreach (var type in output.TypeProviders)
+            using (GenerationProfile?.StartStep("Generation.BuildTypeProviders"))
             {
-                type.EnsureBuilt();
+                foreach (var type in output.TypeProviders)
+                {
+                    type.EnsureBuilt();
+                }
             }
 
             LoggingHelpers.LogElapsedTime("All generated type providers built");
 
             // visit the entire library before generating files
-            foreach (var visitor in CodeModelGenerator.Instance.Visitors)
+            using (GenerationProfile?.StartStep("Generation.ApplyVisitors"))
             {
-                visitor.VisitLibrary(output);
-            }
+                foreach (var visitor in CodeModelGenerator.Instance.Visitors)
+                {
+                    visitor.VisitLibrary(output);
+                }
 
-            FilterAllCustomizedMembers(output);
+                FilterAllCustomizedMembers(output);
+            }
 
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
-            foreach (var outputType in output.TypeProviders)
+            using (GenerationProfile?.StartStep("Generation.ProcessBackCompatibility"))
             {
-                // Ensure back-compatibility processing is done after all visitors have run
-                outputType.ProcessTypeForBackCompatibility();
+                foreach (var outputType in output.TypeProviders)
+                {
+                    // Ensure back-compatibility processing is done after all visitors have run
+                    outputType.ProcessTypeForBackCompatibility();
+                }
             }
 
             try
             {
-                using var referenceMapSession = ProviderReferenceMapAnalyzer.PrepareForGeneration(output.TypeProviders);
-                foreach (var outputType in output.TypeProviders)
+                ProviderReferenceMapSession session;
+                using (GenerationProfile?.StartStep("Generation.PrepareReferenceMap"))
                 {
-                    if (!referenceMapSession.ShouldWriteProvider(outputType))
+                    session = ProviderReferenceMapAnalyzer.PrepareForGeneration(output.TypeProviders);
+                }
+                using var referenceMapSession = session;
+                using (GenerationProfile?.StartStep("Generation.WriteTypeProviders"))
+                {
+                    foreach (var outputType in output.TypeProviders)
                     {
-                        continue;
-                    }
-
-                    if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    var writer = CodeModelGenerator.Instance.GetWriter(outputType);
-                    generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
-
-                    foreach (var serialization in outputType.SerializationProviders)
-                    {
-                        if (!referenceMapSession.ShouldWriteProvider(serialization))
+                        if (!referenceMapSession.ShouldWriteProvider(outputType))
                         {
                             continue;
                         }
 
-                        writer = CodeModelGenerator.Instance.GetWriter(serialization);
+                        if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                         generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
+
+                        foreach (var serialization in outputType.SerializationProviders)
+                        {
+                            if (!referenceMapSession.ShouldWriteProvider(serialization))
+                            {
+                                continue;
+                            }
+
+                            writer = CodeModelGenerator.Instance.GetWriter(serialization);
+                            generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
+                        }
                     }
+
+                    // Add all the generated files to the workspace
+                    await Task.WhenAll(generateFilesTasks);
+
+                    referenceMapSession.RestorePreWriteModelFactoryMethods();
                 }
-
-                // Add all the generated files to the workspace
-                await Task.WhenAll(generateFilesTasks);
-
-                referenceMapSession.RestorePreWriteModelFactoryMethods();
 
                 LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
                 // Delete any old generated files
-                DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+                using (GenerationProfile?.StartStep("Generation.DeleteOldGeneratedFiles"))
+                {
+                    DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+                }
 
                 LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
             }
@@ -140,32 +181,44 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var generatedFiles = new List<(string Name, string Text)>();
-            await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
+            using (GenerationProfile?.StartStep("Generation.ProcessDocuments"))
             {
-                if (string.IsNullOrEmpty(file.Text))
+                await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
                 {
-                    continue;
-                }
+                    if (string.IsNullOrEmpty(file.Text))
+                    {
+                        continue;
+                    }
 
-                generatedFiles.Add((file.Name, file.Text));
+                    generatedFiles.Add((file.Name, file.Text));
+                }
             }
 
             // Write the generated files to the output directory
-            foreach (var file in generatedFiles)
+            using (GenerationProfile?.StartStep("Generation.WriteGeneratedFilesToDisk"))
             {
-                var filename = Path.Combine(outputPath, file.Name);
-                CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
-                Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
-                await File.WriteAllTextAsync(filename, file.Text);
+                foreach (var file in generatedFiles)
+                {
+                    var filename = Path.Combine(outputPath, file.Name);
+                    CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
+                    Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
+                    await File.WriteAllTextAsync(filename, file.Text);
+                }
             }
 
             // Write additional output files (e.g. configuration schemas, .targets files)
-            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+            using (GenerationProfile?.StartStep("Generation.WriteAdditionalFiles"))
+            {
+                await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+            }
 
             // Write project scaffolding files (after additional files so schema existence can be checked)
             if (CodeModelGenerator.Instance.IsNewProject)
             {
-                await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
+                using (GenerationProfile?.StartStep("Generation.WriteProjectScaffolding"))
+                {
+                    await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
+                }
             }
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
