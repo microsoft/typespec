@@ -153,6 +153,32 @@ describe("isUnionEnum", () => {
     expect(isUnionEnum(Priority)).toBe(true);
   });
 
+  it("flattens nested named string unions", async () => {
+    const { ProvisioningState } = await runner.compile(t.code`
+      union ResourceProvisioningState {
+        Succeeded: "Succeeded",
+        Failed: "Failed",
+        Cancelled: "Cancelled",
+      }
+
+      union ${t.union("ProvisioningState")} {
+        Accepted: "Accepted",
+        Creating: "Creating",
+        ResourceProvisioningState,
+        string,
+      }
+    `);
+
+    expect(isUnionEnum(ProvisioningState)).toBe(true);
+    expect(getUnionEnumMembers(ProvisioningState).map((member) => member.value)).toEqual([
+      "Accepted",
+      "Creating",
+      "Succeeded",
+      "Failed",
+      "Cancelled",
+    ]);
+  });
+
   it("returns false for union with non-string variant types", async () => {
     const { Mixed } = await runner.compile(t.code`
       model Foo { x: string; }
