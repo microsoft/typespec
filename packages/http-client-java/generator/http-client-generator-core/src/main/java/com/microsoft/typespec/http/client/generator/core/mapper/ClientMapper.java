@@ -51,6 +51,7 @@ import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -133,7 +134,11 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         builder.xmlSequenceWrappers(parseXmlSequenceWrappers(codeModel, settings));
 
         // class model
-        Stream<ObjectSchema> autoRestModelTypes = Stream.concat(codeModel.getSchemas().getObjects().stream(),
+        Stream<ObjectSchema> autoRestModelTypes = Stream.concat(
+            codeModel.getSchemas()
+                .getObjects()
+                .stream()
+                .filter(schema -> schema.getUsage() == null || !schema.getUsage().contains(SchemaContext.SSE)),
             codeModel.getOperationGroups()
                 .stream()
                 .flatMap(og -> og.getOperations().stream())
@@ -162,11 +167,10 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         // append some models not from CodeModel (currently, only for ##FileDetails models for multipart/form-data
         // request)
         // TODO (weidxu): we can remove this code block, if ##FileDetails moves to azure-core
-        final List<ClientModel> clientModels
+        List<ClientModel> clientModels
             = Stream.concat(clientModelsFromCodeModel.stream(), ClientModels.getInstance().getModels().stream())
                 .distinct()
                 .collect(Collectors.toList());
-        builder.models(clientModels);
 
         // union model (class)
         builder.unionModels(codeModel.getSchemas()
@@ -179,11 +183,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             .collect(Collectors.toList()));
 
         // response model (subclass of Response with headers)
+        final List<ClientModel> initialClientModels = clientModels;
         final List<ClientResponse> responseModels = codeModel.getOperationGroups()
             .stream()
             .flatMap(og -> og.getOperations().stream())
             .distinct()
-            .map(m -> parseResponse(m, clientModels, settings))
+            .map(m -> parseResponse(m, initialClientModels, settings))
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
@@ -222,6 +227,17 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 }
             }
         }
+
+        Set<ObjectSchema> sseSchemas
+            = SseUtil.getSseSchemas(serviceClientsMap.values(), enumTypes, responseModels, exceptions);
+        codeModel.getSchemas()
+            .getObjects()
+            .stream()
+            .filter(sseSchemas::contains)
+            .forEach(schema -> Mappers.getModelMapper().map(schema));
+
+        clientModels = ClientModels.getInstance().getModels();
+        builder.models(clientModels);
 
         // package info
         // client
@@ -386,8 +402,10 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         }
 
         builder.graalVmConfig(Mappers.getGraalVmConfigMapper()
-            .map(new GraalVmConfigMapper.ServiceAndModel(serviceClientsMap.keySet(), exceptions, clientModels,
-                enumTypes)));
+            .map(new GraalVmConfigMapper.ServiceAndModel(serviceClientsMap.keySet(), exceptions, clientModels.stream()
+                .filter(model -> !model.hasUsage(
+                    com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+                .collect(Collectors.toList()), enumTypes)));
 
         return builder.build();
     }
@@ -746,6 +764,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             packages.addAll(responseModels.stream().map(ClientResponse::getPackage).collect(Collectors.toSet()));
 
             ret = new ArrayList<>(packages);
+        } else {
+            ret = clientModels.stream()
+                .filter(model -> model.hasUsage(
+                    com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+                .map(ClientModel::getPackage)
+                .distinct()
+                .collect(Collectors.toList());
         }
 
         return ret;

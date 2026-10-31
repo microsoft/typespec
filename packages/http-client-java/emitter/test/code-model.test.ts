@@ -1,4 +1,11 @@
-import { NodeHost, compile, type Type } from "@typespec/compiler";
+import {
+  NodeHost,
+  compile,
+  createSourceFile,
+  resolvePath,
+  type CompilerHost,
+  type Type,
+} from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import "@typespec/http-client/typekit";
@@ -44,6 +51,31 @@ import {
 import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
+
+const sseFixturePath = resolvePath(fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)));
+
+async function compileSseScenario(namespace: string, warningAsError = false) {
+  const entrypoint = resolvePath(
+    sseFixturePath.replace(/sse\.tsp$/, `sse-${namespace.toLowerCase()}.tsp`),
+  );
+  const sourceFile = createSourceFile(
+    `import "./sse.tsp";\n@@service(${namespace});\n`,
+    entrypoint,
+  );
+  const isEntrypoint = (path: string) => resolvePath(path) === entrypoint;
+  const host: CompilerHost = {
+    ...NodeHost,
+    readFile: (path) =>
+      isEntrypoint(path) ? Promise.resolve(sourceFile) : NodeHost.readFile(path),
+    stat: (path) =>
+      isEntrypoint(path)
+        ? Promise.resolve({ isDirectory: () => false, isFile: () => true })
+        : NodeHost.stat(path),
+    realpath: (path) =>
+      isEntrypoint(path) ? Promise.resolve(entrypoint) : NodeHost.realpath(path),
+  };
+  return compile(host, entrypoint, { noEmit: true, warningAsError });
+}
 
 describe("experimental metadata", () => {
   it.each(["azure", "azurev2"])(
@@ -301,6 +333,815 @@ describe("experimental metadata", () => {
 });
 
 describe("code model characterization", () => {
+  it.each(["SseGeneric", "SseGenericEncoded", "SseGenericReused"])(
+    "checks effective generic union ownership: %s",
+    async (namespace) => {
+      const program = await compileSseScenario(namespace);
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      if (namespace === "SseGenericReused") {
+        const model = await builder.build();
+        const operations = model.clients
+          .flatMap((client) => client.operationGroups)
+          .flatMap((group) => group.operations ?? []);
+        expect(operations.map((operation) => operation.sseMetadata?.sseStreamId)).toEqual([
+          "SseGenericReused.GenericEvents",
+          "SseGenericReused.GenericEvents",
+        ]);
+        expect(operations[0].sseMetadata).not.toBe(operations[1].sseMetadata);
+        expect(operations[0].sseMetadata).toMatchObject(operations[1].sseMetadata!);
+        expect(Object.keys(operations[0].sseMetadata!).sort()).toEqual([
+          "baseSchema",
+          "events",
+          "sseStreamId",
+          "streamName",
+        ]);
+        expect(operations[0].sseMetadata).not.toHaveProperty("owner");
+        expect(operations[0].sseMetadata).not.toHaveProperty("schemas");
+        expect(operations[0].sseMetadata?.baseSchema).toBe(operations[1].sseMetadata?.baseSchema);
+        expect(operations[0].sseMetadata?.events).not.toBe(operations[1].sseMetadata?.events);
+        expect(operations[0].sseMetadata?.events[0]).not.toBe(operations[1].sseMetadata?.events[0]);
+        expect(operations[0].sseMetadata?.events[0].eventSchema).toBe(
+          operations[1].sseMetadata?.events[0].eventSchema,
+        );
+        expect(model).not.toHaveProperty("sseStreams");
+      } else {
+        await expect(builder.build()).rejects.toThrow(
+          "Distinct SSE unions claim cross-language definition ID",
+        );
+      }
+    },
+  );
+  it.each(["SseGenericSupportedFirst", "SseGenericUnsupportedFirst"])(
+    "falls back for unsupported generic SSE streams regardless of operation order: %s",
+    async (namespace) => {
+      const program = await compileSseScenario(namespace);
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      const model = await builder.build();
+      const operations = Object.fromEntries(
+        model.clients
+          .flatMap((client) => client.operationGroups)
+          .flatMap((group) => group.operations ?? [])
+          .map((operation) => [operation.language.default.name, operation]),
+      );
+
+      expect(operations.unsupported.sseMetadata).toBeUndefined();
+      expect(operations.unsupported.responses?.[0]).toMatchObject({ binary: true });
+      expect(operations.supported.responses?.[0]).toMatchObject({ binary: true });
+      expect(operations.supported.sseMetadata).toMatchObject({
+        sseStreamId: `${namespace}.GenericEvents`,
+        streamName: expect.stringMatching(/^GenericEvents\d*$/),
+      });
+      expect(
+        operations.supported.sseMetadata?.events.find((event) => event.name === "value"),
+      ).toMatchObject({
+        eventSchema: {
+          properties: [
+            {
+              serializedName: "value",
+              schema: { type: SchemaType.String },
+            },
+          ],
+        },
+      });
+      expectDiagnostics(
+        program.diagnostics.filter(
+          (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+        ),
+        [
+          {
+            code: "@typespec/http-client-java/sse-unsupported",
+            severity: "warning",
+          },
+        ],
+      );
+    },
+  );
+  it("creates registered wrappers only for explicitly named events with nonliteral JSON payloads", async () => {
+    const program = await compileSseScenario("SseVariants");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const operations = model.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? []);
+    const namedOperation = operations.find(
+      (operation) => operation.language.default.name === "named",
+    )!;
+    expect(namedOperation.sseMetadata).toMatchObject({
+      sseStreamId: "SseVariants.Named",
+      streamName: "Named",
+      baseSchema: {
+        type: SchemaType.Object,
+        language: {
+          default: { name: "NamedEvent" },
+          java: { namespace: "ssevariants" },
+        },
+        properties: [
+          {
+            language: { default: { name: "eventName" } },
+            serializedName: "eventName",
+            required: true,
+            readOnly: true,
+            schema: { type: SchemaType.String },
+          },
+        ],
+      },
+      events: [
+        {
+          name: "message",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.String } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "count",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Integer } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "enabled",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Boolean } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "collections",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [
+              {
+                schema: {
+                  type: SchemaType.Array,
+                  elementType: {
+                    type: SchemaType.Dictionary,
+                    elementType: { type: SchemaType.Array },
+                  },
+                },
+              },
+            ],
+          },
+          terminal: false,
+        },
+        {
+          name: "payloadModel",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Object } }],
+          },
+          terminal: false,
+        },
+        {
+          name: "done",
+          eventSchema: {
+            type: SchemaType.Object,
+            properties: [{ schema: { type: SchemaType.Object } }],
+          },
+          terminal: true,
+        },
+      ],
+    });
+
+    const unsupportedOperations = [
+      "unnamed",
+      "mixed",
+      "stringLiteral",
+      "namedStringLiteral",
+      "terminalLiteral",
+      "numberLiteral",
+      "namedNumberLiteral",
+      "booleanLiteral",
+      "namedBooleanLiteral",
+      "unsupportedPayloadEncoding",
+      "nullablePayload",
+    ];
+    for (const operationName of unsupportedOperations) {
+      const operation = operations.find(
+        (operation) => operation.language.default.name === operationName,
+      )!;
+      expect(operation.sseMetadata).toBeUndefined();
+      expect(operation.responses?.[0]).toMatchObject({ binary: true });
+    }
+    expect(model).not.toHaveProperty("sseStreams");
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+      unsupportedOperations.map(() => ({
+        code: "@typespec/http-client-java/sse-unsupported" as const,
+        severity: "warning" as const,
+      })),
+    );
+  });
+  it("allows an unsupported SSE operation to suppress its fallback warning", async () => {
+    const program = await compileSseScenario("SseSuppressedUnsupported", true);
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnosticEmpty(program.diagnostics);
+    const operation = model.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? [])
+      .find((operation) => operation.language.default.name === "read")!;
+    expect(operation.sseMetadata).toBeUndefined();
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+  it("generates SSE metadata for named scalar payloads", async () => {
+    const program = await compileSseScenario("SseTest");
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const codeModel = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: {
+        flavor: "azure",
+      } as any,
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
+    const operation = codeModel.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? [])
+      .find((operation) => operation.language.default.name === "scalarEvents")!;
+    expect(operation.sseMetadata?.events).toMatchObject([
+      {
+        name: "first",
+        eventSchema: { properties: [{ schema: { type: SchemaType.String } }] },
+      },
+      {
+        name: "second",
+        eventSchema: { properties: [{ schema: { type: SchemaType.String } }] },
+      },
+    ]);
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
+  it("generates SSE metadata for recursive dictionary payloads", async () => {
+    const program = await compileSseScenario("SseTest");
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const codeModel = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: {
+        flavor: "azure",
+      } as any,
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
+    const operation = codeModel.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? [])
+      .find((operation) => operation.language.default.name === "recursiveDictionaryEvents")!;
+    expect(operation.sseMetadata?.events).toMatchObject([
+      {
+        name: "direct",
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Dictionary,
+                elementType: { type: SchemaType.String },
+              },
+            },
+          ],
+        },
+      },
+      {
+        name: "array",
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Array,
+                elementType: {
+                  type: SchemaType.Dictionary,
+                  elementType: { type: SchemaType.String },
+                },
+              },
+            },
+          ],
+        },
+      },
+      {
+        name: "nested",
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Dictionary,
+                elementType: {
+                  type: SchemaType.Dictionary,
+                  elementType: {
+                    type: SchemaType.Array,
+                    elementType: { type: SchemaType.String },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+      {
+        name: "modelMap",
+        eventSchema: {
+          properties: [
+            {
+              schema: {
+                type: SchemaType.Dictionary,
+                elementType: { type: SchemaType.Object },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
+  it("generates supported Azure v1 SSE metadata without developer options", async () => {
+    const program = await compileSseScenario("SseTest");
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const build = async (flavor: string) =>
+      new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+        } as any,
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+
+    for (const flavor of ["standard", "azurev2"]) {
+      const operations = (await build(flavor)).clients[0].operationGroups[0].operations!;
+      for (const operation of operations) {
+        expect(operation.sseMetadata).toBeUndefined();
+        expect(operation.responses?.[0]).toMatchObject({ binary: true });
+      }
+    }
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
+
+    const enabledModel = await build("azure");
+    const enabledOperations = enabledModel.clients[0].operationGroups[0].operations!;
+    const enabledOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
+    expect(enabledOperation.generateProtocolApi).toBe(true);
+    expect(enabledOperation.sseMetadata).toMatchObject({
+      sseStreamId: "SseTest.RetrievalStreamEvents",
+      streamName: "RetrievalStreamEvents",
+      baseSchema: {
+        language: {
+          default: { name: "RetrievalStreamEvent" },
+          java: { namespace: "ssetest.retrieve" },
+        },
+      },
+      events: [
+        {
+          name: "retrieval.started",
+          terminal: false,
+          eventSchema: {
+            language: { default: { name: "RetrievalStartedStreamEvent" } },
+            properties: [
+              {
+                language: { default: { name: "value" } },
+                required: true,
+                readOnly: true,
+                schema: { language: { default: { name: "RetrievalStarted" } } },
+              },
+            ],
+          },
+        },
+        {
+          name: "response.completed",
+          terminal: true,
+          eventSchema: {
+            language: { default: { name: "RetrievalResponseCompletedStreamEvent" } },
+            properties: [
+              {
+                language: { default: { name: "value" } },
+                required: true,
+                readOnly: true,
+                schema: { language: { default: { name: "ResponseCompleted" } } },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    const protocolOnlyOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "retrieveProtocol",
+    )!;
+    expect(protocolOnlyOperation.sseMetadata?.sseStreamId).toBe(
+      enabledOperation.sseMetadata?.sseStreamId,
+    );
+    expect(protocolOnlyOperation.sseMetadata).not.toBe(enabledOperation.sseMetadata);
+    expect(protocolOnlyOperation.sseMetadata).toMatchObject(enabledOperation.sseMetadata!);
+    expect(protocolOnlyOperation.sseMetadata?.baseSchema).toBe(
+      enabledOperation.sseMetadata?.baseSchema,
+    );
+    expect(protocolOnlyOperation.sseMetadata?.events[0].eventSchema).toBe(
+      enabledOperation.sseMetadata?.events[0].eventSchema,
+    );
+    const serialized = parse(stringify(enabledModel));
+    const serializedOperations = serialized.clients[0].operationGroups[0].operations;
+    const serializedEnabledOperation = serializedOperations.find(
+      (operation: any) => operation.language.default.name === "retrieve",
+    );
+    expect(serialized).not.toHaveProperty("sseStreams");
+    expect(serializedEnabledOperation).not.toHaveProperty("sseStreamId");
+    expect(serializedEnabledOperation.sseMetadata).toMatchObject({
+      sseStreamId: "SseTest.RetrievalStreamEvents",
+      streamName: "RetrievalStreamEvents",
+    });
+    expect(serializedEnabledOperation.sseMetadata).not.toHaveProperty("modelNamespace");
+    expect(serializedEnabledOperation.sseMetadata.events[0]).not.toHaveProperty("payload");
+    expect(serializedEnabledOperation.sseMetadata.baseSchema.type).toBe(SchemaType.Object);
+    expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
+    expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
+    expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
+
+    const protocolOnlyPayloadOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "protocolOnlyPayload",
+    )!;
+    expect(protocolOnlyPayloadOperation.sseMetadata?.sseStreamId).toBe(
+      "SseTest.ProtocolOnlyStreamEvents",
+    );
+    expect(protocolOnlyPayloadOperation.convenienceApi).toBeUndefined();
+    expect(protocolOnlyPayloadOperation.sseMetadata?.baseSchema.usage).toEqual([SchemaContext.Sse]);
+    for (const event of protocolOnlyPayloadOperation.sseMetadata!.events) {
+      expect(event.eventSchema.usage).toEqual([SchemaContext.Sse]);
+    }
+    const protocolOnlyPayload = enabledModel.schemas.objects?.find(
+      (schema) => schema.language.default.name === "ProtocolOnlyPayload",
+    );
+    expect(protocolOnlyPayload).toBeDefined();
+    expect(protocolOnlyPayload?.usage).toBeUndefined();
+    expect(protocolOnlyPayload?.serializationFormats).toBeUndefined();
+    const sharedTypedPayload = enabledModel.schemas.objects?.find(
+      (schema) => schema.language.default.name === "RetrievalStarted",
+    );
+    expect(sharedTypedPayload?.usage).toContain(SchemaContext.Public);
+    expect(sharedTypedPayload?.usage).toContain(SchemaContext.Output);
+    expect(sharedTypedPayload?.serializationFormats).toContain(KnownMediaType.Json);
+
+    const jacksonOperations = (
+      await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor: "azure",
+          "stream-style-serialization": false,
+        } as any,
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build()
+    ).clients[0].operationGroups[0].operations!;
+    const jacksonOperation = jacksonOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
+    expect(jacksonOperation.sseMetadata).toBeUndefined();
+    expect(jacksonOperation.responses?.[0]).toMatchObject({ binary: true });
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+      jacksonOperations.map(() => ({
+        code: "@typespec/http-client-java/sse-unsupported",
+        severity: "warning",
+      })),
+    );
+  });
+
+  it("preserves SSE patterns while leaving Java names for the generator", async () => {
+    const program = await compileSseScenario("SseNaming");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const metadata = Object.fromEntries(
+      model.clients[0].operationGroups[0].operations!.map((operation) => [
+        operation.language.default.name,
+        operation.sseMetadata!,
+      ]),
+    );
+
+    expect(metadata.retrieval.baseSchema.language.default.name).toBe("RetrievalStreamEvent");
+    expect(
+      metadata.retrieval.events.map((event) => event.eventSchema.language.default.name),
+    ).toEqual(["RetrievalStartedStreamEvent", "RetrievalResponseCompletedStreamEvent"]);
+    expect(metadata.retrieval.baseSchema.language.java?.name).toBeUndefined();
+    expect(metadata.retrieval.events.map((event) => event.eventSchema.language.java?.name)).toEqual(
+      [undefined, undefined],
+    );
+    expect(metadata.knowledgeBase.baseSchema.language.default.name).toBe(
+      "KnowledgeBaseRetrievalStreamEvent",
+    );
+    expect(
+      metadata.knowledgeBase.events.map((event) => event.eventSchema.language.default.name),
+    ).toEqual([
+      "KnowledgeBaseRetrievalStartedStreamEvent",
+      "KnowledgeBaseRetrievalCompletedStreamEvent",
+      "KnowledgeBaseRetrievalActivityCompletedStreamEvent",
+      "KnowledgeBaseRetrievalResponseCompletedStreamEvent",
+    ]);
+    expect(metadata.digitEvent.events[0].eventSchema.language.default.name).toBe(
+      "123DoneStreamEvent",
+    );
+    expect(metadata.digitEvent.events[0].eventSchema.language.java?.name).toBeUndefined();
+    expect(metadata.digitStream.baseSchema.language.default.name).toBe("123Event");
+    expect(metadata.digitStream.baseSchema.language.java?.name).toBeUndefined();
+  });
+
+  it("keeps per-event names stable across additions and ordering", async () => {
+    const build = async (namespace: string) => {
+      const program = await compileSseScenario(namespace);
+      expectDiagnosticEmpty(program.diagnostics);
+      return new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+    };
+    const eventNames = (model: Awaited<ReturnType<typeof build>>) =>
+      new Map(
+        model.clients[0].operationGroups[0].operations![0].sseMetadata!.events.map((event) => [
+          event.name,
+          event.eventSchema.language.default.name,
+        ]),
+      );
+
+    const responseOnly = eventNames(await build("SseNamingResponseOnly"));
+    const withRetrieval = eventNames(await build("SseNamingWithRetrieval"));
+    expect(responseOnly.get("response.completed")).toBe(withRetrieval.get("response.completed"));
+    const retrievalFirst = eventNames(await build("SseNamingOrderFirst"));
+    const baseRetrievalFirst = eventNames(await build("SseNamingOrderSecond"));
+    expect(retrievalFirst).toEqual(baseRetrievalFirst);
+  });
+
+  it("rejects duplicate SSE wrapper schema patterns in the emitter", async () => {
+    const program = await compileSseScenario("SseNamingCollision");
+    expectDiagnosticEmpty(program.diagnostics);
+    await expect(
+      new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build(),
+    ).rejects.toThrow("resolve to duplicate schema name 'RetrievalStartedStreamEvent'");
+  });
+
+  it("registers synthetic SSE schemas without propagating SSE usage to payloads", async () => {
+    const program = await compileSseScenario("SseSchemaIsolation");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const operations = model.clients[0].operationGroups[0].operations!;
+    const metadata = operations
+      .filter((operation) => operation.sseMetadata)
+      .map((operation) => operation.sseMetadata!);
+
+    expect(new Set(metadata.map((value) => value.baseSchema)).size).toBe(4);
+    for (const stream of metadata) {
+      const hasTypedConsumer = operations.some(
+        (operation) =>
+          operation.convenienceApi && operation.sseMetadata?.baseSchema === stream.baseSchema,
+      );
+      expect(model.schemas.objects?.filter((schema) => schema === stream.baseSchema)).toHaveLength(
+        1,
+      );
+      const expectedUsage = hasTypedConsumer
+        ? [SchemaContext.Sse, SchemaContext.Output, SchemaContext.Public]
+        : [SchemaContext.Sse];
+      expect(new Set(stream.baseSchema.usage)).toEqual(new Set(expectedUsage));
+      expect(stream.baseSchema).toMatchObject({
+        sseMetadata: { streamName: stream.streamName },
+      });
+      expect(stream.baseSchema.children?.immediate).toEqual(
+        stream.events.map((event) => event.eventSchema),
+      );
+      expect(stream.baseSchema.children?.all).toEqual(
+        stream.events.map((event) => event.eventSchema),
+      );
+      for (const event of stream.events) {
+        expect(
+          model.schemas.objects?.filter((schema) => schema === event.eventSchema),
+        ).toHaveLength(1);
+        expect(new Set(event.eventSchema.usage)).toEqual(new Set(expectedUsage));
+        expect(event.eventSchema).toMatchObject({
+          sseMetadata: {
+            streamName: stream.streamName,
+            eventName: event.name,
+            terminal: event.terminal,
+          },
+        });
+        expect(event.eventSchema.parents?.immediate).toEqual([stream.baseSchema]);
+        expect(event.eventSchema.parents?.all).toEqual([stream.baseSchema]);
+        expect(
+          event.eventSchema.properties?.map((property) => property.language.default.name),
+        ).toEqual(["value"]);
+        expect(
+          (event.eventSchema.properties?.[0].schema as { usage?: SchemaContext[] }).usage ?? [],
+        ).not.toContain(SchemaContext.Sse);
+      }
+    }
+  });
+
+  it("deduplicates registered SSE schemas with the ordinary naming policy", async () => {
+    const program = await compileSseScenario("SseSchemaDeduplication");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const operations = Object.fromEntries(
+      model.clients[0].operationGroups[0].operations!.map((operation) => [
+        operation.language.default.name,
+        operation.sseMetadata!,
+      ]),
+    );
+
+    expect(operations.collision.baseSchema.language.default.name).toBe("CollisionEvent1");
+    expect(operations.collision.events[0].eventSchema.language.default.name).toBe(
+      "CollisionEventMessageStreamEvent",
+    );
+    expect(operations.exact.baseSchema.language.default.name).toBe("ExactCollisionEvent1");
+    expect(operations.azure.baseSchema.language.default.name).toBe("AzureCollisionEvent");
+    expect(operations.one.baseSchema.language.default.name).toBe("SharedEvent");
+    expect(operations.two.baseSchema.language.default.name).toBe("SharedEvent1");
+    expect(operations.one.events[0].eventSchema.language.default.name).toBe(
+      "SharedEventMessageStreamEvent1",
+    );
+    expect(operations.two.events[0].eventSchema.language.default.name).toBe(
+      "SharedEventMessageStreamEvent2",
+    );
+    expect(operations.again.baseSchema).toBe(operations.one.baseSchema);
+    expect(operations.again).not.toBe(operations.one);
+    expect(operations.again.events).not.toBe(operations.one.events);
+    expect(operations.again.events[0]).not.toBe(operations.one.events[0]);
+    expect(operations.again.events[0].eventSchema).toBe(operations.one.events[0].eventSchema);
+    expect(operations.again.events[0].eventSchema.parents?.immediate?.[0]).toBe(
+      operations.one.baseSchema,
+    );
+    expect(operations.again.events[0].eventSchema.parents?.all?.[0]).toBe(
+      operations.one.baseSchema,
+    );
+    expect(
+      model.schemas.objects?.find((schema) => schema.language.default.name === "CollisionEvent")
+        ?.language.default.name,
+    ).toBe("CollisionEvent");
+    expect(
+      model.schemas.objects?.find((schema) => schema.language.default.name === "CollisionEvent1")
+        ?.language.default.name,
+    ).toBe("CollisionEvent1");
+  });
+
+  it("preserves ordinary branded namespace exclusions for registered SSE schemas", async () => {
+    const program = await compileSseScenario("Azure.SseSchemaDeduplication");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const metadata = model.clients[0].operationGroups[0].operations!.find(
+      (operation) => operation.language.default.name === "stream",
+    )!.sseMetadata!;
+
+    expect(metadata.baseSchema.language.default.name).toBe("SkippedEvent");
+    expect(metadata.events[0].eventSchema.language.default.name).toBe(
+      "SkippedEventMessageStreamEvent",
+    );
+    expect(model.schemas.objects?.map((schema) => schema.language.default.name)).toEqual(
+      expect.arrayContaining(["SkippedEvent", "SkippedEventMessageStreamEvent"]),
+    );
+  });
+
   it.each(["azure", "standard"] as const)(
     "propagates %s usage to tagged descendants through an untagged intermediate",
     async (flavor) => {

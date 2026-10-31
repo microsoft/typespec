@@ -107,6 +107,99 @@ then falls back to `external_dependencies.txt`. Unlisted dependencies are unchan
 
 Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1`.
 
+## SSE generation checks
+
+Each supported operation transports complete `sseMetadata`, including the streamed
+union's cross-language definition ID and references to emitter-composed object schemas
+for the stream base and concrete event wrappers. The emitter registers each cached
+synthetic base and wrapper exactly once in `schemas.objects`, links them with ordinary
+parent/child relationships, and initially marks them with only the non-propagating
+`sse` schema usage. A final emitter-approved convenience consumer adds `output` and
+`public` to its complete shared base/wrapper set; protocol-only consumers do not.
+Registration is not emission: `sse` classifies envelopes, while ordinary visibility
+usage makes them eligible for generation. Their required, read-only `eventName` and
+`value` properties carry the base contract and typed payload reference. Explicit
+consumer-driven tracking gives ordinary payload models their public/output and JSON
+usage without propagating `sse`. Internal convenience consumers retain the existing
+public envelope placement.
+
+Each synthetic `ObjectSchema` also carries source rendering metadata: the stream name,
+event wire name (absent on the base), and terminal status. This descriptor does not
+classify the schema or duplicate payloads, inheritance, Java names, or visibility.
+The Java YAML loader distinguishes it from operation-level `sseMetadata`.
+
+The emitter's `sse-utils.ts` constructs schemas using raw stream/event-derived naming
+patterns. It owns SSE composition such as `Events` singularization, `StreamEvent`
+suffixes, and event-prefix overlap, but it does not sanitize those patterns as Java
+identifiers. The Java transformer and `CodeNamer` are the single owners of final Java
+validity, digit expansion, punctuation handling, and reserved-name escaping.
+`CodeModelBuilder` retains eligibility checks, payload processing, namespace resolution,
+usage tracking, and one cached schema bundle per effective union owner.
+
+The registered schemas pass through ordinary schema naming after ordinary objects,
+groups, enums, unions, and constants, using the same namespace exclusions and suffix
+rules without renaming ordinary models. There is no separate SSE name allocator.
+Different raw names can therefore converge after Java normalization and fail the strict
+SSE generated source-path checks instead of receiving compatibility suffixes. The
+generic ordinary-model duplicate-file policy remains warning-only and does not provide
+a new global uniqueness guarantee.
+
+`CodeModel` remains a data POJO. SSE admission checks the rendering facts consumed by
+generation: operation and schema metadata must agree on the stream, event name, terminal
+status, and event base type. It does not scan unused schemas or revalidate the emitter's
+property layout, registration counts, or complete inheritance graph.
+After mapping service clients, an early backend gate considers only their actual input
+operations. It preserves wrapper and sync-direction settings, effective paging/LRO
+precedence, and proxy/request readiness without inspecting rendered methods.
+`SseUtil` preflights eligible source paths and the common package required by the
+envelopes' package-private constructors, and returns only eligible schema identities.
+`ClientMapper` then maps each eligible registered `ObjectSchema` through the configured
+ordinary `ModelMapper.map(ObjectSchema)`. The mapper reads schema-local metadata,
+resolves the base type through normal inheritance, and derives its serializer type.
+There is no contextual mapper overload or installed mapping state.
+Normal inheritance recursion and genuine same-schema
+cache hits reuse canonical models; conflicting schema identities or rendering metadata
+remain errors. The model registry, packages, and module are finalized once after SSE
+model mapping and before constructing sync/async convenience clients, preserving the
+existing phase boundary.
+
+`ClientMethod` retains only the resolved event and serializer types plus terminal wire
+names. Normal model writing applies `ModelUtil.isGeneratingModel` and
+`JavaPackage.addModel`; the shared final `ModelTemplate.write` dispatches both bases
+and event wrappers to `SseEventModelTemplate` before ordinary JSON handling, including
+through `StreamSerializationModelTemplate`. Payload DTOs keep their ordinary template.
+Helper emission applies the same model-generation filter to SSE bases in `Client.models`
+and emits only their serializers and common runtime resources. SSE-only registrations
+do not create envelope/helper files or model package/module entries. Synthetic envelopes
+remain excluded from cross-language model definitions, model tests, GraalVM inputs, and
+Fluent/ARM preprocessing.
+
+Distinct effective union owners claiming one ID are errors only after both streams
+otherwise pass typed-SSE eligibility; unsupported literal, nullable, content-type, or
+namespace shapes warn and retain their ordinary binary response contract without
+claiming the ID. Typed SSE convenience methods are restricted to Azure-v1 data-plane
+generation. Fluent/ARM and other non-data-plane generation retain ordinary binary value
+and response methods. There is no schema fingerprinting or structural deduplication.
+Duplicate event factories, mapper cache aliases, and generated source paths fail before
+SSE files are written.
+
+For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`
+or the Spector `streaming/sse/main.tsp` into separate output directories using the
+default `tspconfig.yaml`. Do not run full `Generate.ps1`. Compare the named fixture's
+sources before copying affected generated sources and metadata, excluding
+`module-info.java`. The shared Spector streams contain unnamed or literal events and
+therefore verify unsupported-stream binary fallback rather than typed SSE generation.
+Compile `tsp/sse-name-collisions.tsp` and its generated Maven project to check ordinary
+SSE references and response-lambda names against request parameters and
+grouped-parameter locals. Special event, payload, runtime-helper, serializer, and Flux
+import collisions are currently outside the supported test scope.
+
+Run the emitter's schema/naming tests and the generator's metadata, path-preflight,
+template, and mapper tests. The retained
+`tsptest.sse.models.implementation.sse.ServerSentEventStreamTests` exercises the actual
+generated named serializer, merged `ServerSentEventStreamHelper`, client API shape,
+framing, terminal delivery, and lifecycle.
+
 ## Format Code
 
 Before creating pull request, the code is required to be well-formatted.

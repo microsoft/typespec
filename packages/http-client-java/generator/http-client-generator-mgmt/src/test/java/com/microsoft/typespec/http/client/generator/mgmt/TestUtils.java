@@ -43,10 +43,17 @@ public class TestUtils {
         }
 
         private Javagen javagen;
+        private final Map<String, Object> settings;
 
         public MockFluentGen() {
+            this("lite");
+        }
+
+        public MockFluentGen(String fluentMode) {
             super(new MockConnection(), "dummy", "dummy");
             instance = this;
+            settings = new HashMap<>(DEFAULT_SETTINGS);
+            settings.put("fluent", fluentMode);
 
             JavaSettingsAccessor.setHost(this);
 
@@ -58,13 +65,13 @@ public class TestUtils {
         @SuppressWarnings("unchecked")
         @Override
         public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
-            return (T) DEFAULT_SETTINGS.get(key);
+            return (T) (settings == null ? DEFAULT_SETTINGS : settings).get(key);
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
-            return (T) DEFAULT_SETTINGS.get(key);
+            return (T) (settings == null ? DEFAULT_SETTINGS : settings).get(key);
         }
 
         @Override

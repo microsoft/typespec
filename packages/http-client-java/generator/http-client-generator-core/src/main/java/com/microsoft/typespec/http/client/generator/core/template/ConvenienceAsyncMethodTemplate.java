@@ -13,6 +13,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -39,7 +41,12 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
             // async pageable
             imports.add(ClassType.PAGED_RESPONSE.getFullName());
             imports.add(ClassType.PAGED_RESPONSE_BASE.getFullName());
-            imports.add(ClassType.FLUX.getFullName());
+            if (convenienceMethods.stream()
+                .flatMap(method -> method.getConvenienceMethods().stream())
+                .anyMatch(method -> (method.getType() == ClientMethodType.PagingAsync
+                    || method.getType() == ClientMethodType.SseAsync) && isMethodIncluded(method))) {
+                imports.add(ClassType.FLUX.getFullName());
+            }
         }
     }
 
@@ -50,8 +57,13 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
-        return isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
-        // for LRO, we actually choose the protocol method of "WithModel"
+        boolean hasSseMethod = method.getConvenienceMethods()
+            .stream()
+            .anyMatch(clientMethod -> clientMethod.getType() == ClientMethodType.SseAsync);
+        return isMethodAsync(method.getProtocolMethod())
+            && isMethodVisible(method.getProtocolMethod())
+            && (!hasSseMethod || method.getProtocolMethod().getType() == ClientMethodType.SimpleAsyncRestResponse)
+            // for LRO, we actually choose the protocol method of "WithModel"
             && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginAsync
                 || (method.getProtocolMethod().getImplementationDetails() != null
                     && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()))
@@ -69,6 +81,18 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
+
+        if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
+            Set<String> usedNames = MethodUtil.getMethodVariableNames(convenienceMethod);
+            String responseName = MethodUtil.getAvailableVariableName("response", usedNames);
+            methodBlock.methodReturn(
+                String.format("%1$s(%2$s).flatMapMany(%5$s -> %6$s.toFlux(%5$s, %3$s::deserialize, %4$s))",
+                    getMethodName(protocolMethod), invocationExpression,
+                    convenienceMethod.getSseMetadata().getSerializerType().getName(),
+                    SseUtil.getClientTerminalPredicate(convenienceMethod), responseName,
+                    SseUtil.getRuntimeType().getName()));
+            return;
+        }
 
         if (convenienceMethod.getType() == ClientMethodType.SimpleAsync
             && responseBodyType.asNullable() == ClassType.VOID
@@ -167,7 +191,9 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     @Override
     protected void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock) {
-        if (methodType == ClientMethodType.PagingAsync) {
+        if (methodType == ClientMethodType.SseAsync) {
+            methodBlock.methodReturn(String.format("Flux.error(%s)", exceptionExpression));
+        } else if (methodType == ClientMethodType.PagingAsync) {
             methodBlock.methodReturn(
                 String.format("PagedFlux.create(() -> (ignoredContinuationToken, ignoredPageSize) -> Flux.error(%s))",
                     exceptionExpression));

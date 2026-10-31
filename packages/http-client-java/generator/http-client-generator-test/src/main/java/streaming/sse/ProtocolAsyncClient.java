@@ -15,9 +15,12 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.FluxUtil;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import streaming.sse.implementation.ProtocolEventSerializer;
 import streaming.sse.implementation.ProtocolsImpl;
+import streaming.sse.models.implementation.sse.ServerSentEventStreamHelper;
+import streaming.sse.protocol.models.ProtocolEvent;
 
 /**
  * Initializes a new instance of the asynchronous SseClient type.
@@ -155,90 +158,95 @@ public final class ProtocolAsyncClient {
     /**
      * The id operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * 
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     * 
+     * @return A stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> id() {
-        // Generated convenience method for idWithResponse
+    public Flux<ProtocolEvent> id() {
         RequestOptions requestOptions = new RequestOptions();
-        return idWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return idWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The invalidId operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * 
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     * 
+     * @return A stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> invalidId() {
-        // Generated convenience method for invalidIdWithResponse
+    public Flux<ProtocolEvent> invalidId() {
         RequestOptions requestOptions = new RequestOptions();
-        return invalidIdWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return invalidIdWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The retry operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * 
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     * 
+     * @return A stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> retry() {
-        // Generated convenience method for retryWithResponse
+    public Flux<ProtocolEvent> retry() {
         RequestOptions requestOptions = new RequestOptions();
-        return retryWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return retryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
+            ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The invalidRetry operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * 
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     * 
+     * @return A stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> invalidRetry() {
-        // Generated convenience method for invalidRetryWithResponse
+    public Flux<ProtocolEvent> invalidRetry() {
         RequestOptions requestOptions = new RequestOptions();
-        return invalidRetryWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return invalidRetryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 
     /**
      * The reconnect operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     * 
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     * 
+     * @return A stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> reconnect() {
-        // Generated convenience method for reconnectWithResponse
+    public Flux<ProtocolEvent> reconnect() {
         RequestOptions requestOptions = new RequestOptions();
-        return reconnectWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return reconnectWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, ProtocolEventSerializer::deserialize, ProtocolEvent::isTerminal));
     }
 }

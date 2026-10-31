@@ -1,0 +1,223 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package com.microsoft.typespec.http.client.generator.core.template;
+
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SseModelMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
+import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * Writes the serializer for a mapped named JSON server-sent event union.
+ */
+public final class SseEventSerializerTemplate implements IJavaTemplate<ClientModel, JavaFile> {
+    private static final SseEventSerializerTemplate INSTANCE = new SseEventSerializerTemplate();
+
+    private SseEventSerializerTemplate() {
+    }
+
+    public static SseEventSerializerTemplate getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public void write(ClientModel baseModel, JavaFile javaFile) {
+        SseModelMetadata baseMetadata = SseUtil.requireSseMetadata(baseModel);
+        if (!baseMetadata.isBaseModel()) {
+            throw new IllegalStateException(
+                "SSE serializer requires a base model, but received '" + baseModel.getFullName() + "'.");
+        }
+        ClassType baseEventType = (ClassType) baseModel.getType();
+        String baseEventTypeName = baseEventType.getName();
+        String streamDescription = SseUtil.getStreamDescription(baseModel);
+        Set<String> imports = new LinkedHashSet<>();
+        imports.add("com.azure.json.JsonProviders");
+        imports.add("com.azure.json.JsonReader");
+        imports.add("com.azure.json.ReadValueCallback");
+        imports.add(IOException.class.getName());
+        imports.add(UncheckedIOException.class.getName());
+        imports.add(Objects.class.getName());
+        ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
+        baseEventType.addImportsTo(imports, false);
+        for (ClientModel event : baseModel.getDerivedModels()) {
+            ((ClassType) event.getType()).addImportsTo(imports, false);
+            ClientModelProperty payload = getPayloadProperty(event);
+            addPayloadImports(payload.getWireType(), imports);
+            addPayloadImports(payload.getClientType(), imports);
+        }
+        javaFile.declareImport(imports);
+
+        String serializerName = baseMetadata.getSerializerType().getName();
+        javaFile.javadocComment(comment -> comment
+            .description("Deserializes " + streamDescription + " stream event payloads to typed event models."));
+        javaFile.publicFinalClass(serializerName, javaClass -> {
+            javaClass
+                .privateStaticFinalVariable("ClientLogger LOGGER = new ClientLogger(" + serializerName + ".class)");
+            javaClass.privateMemberVariable("static volatile ConstructorAccessor constructorAccessor");
+            javaClass.privateConstructor(serializerName + "()", ignored -> {
+            });
+            javaClass
+                .javadocComment(comment -> comment.description("Provides access to the SDK-only event constructors."));
+            javaClass.interfaceBlock(
+                com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility.Public,
+                "ConstructorAccessor", interfaceBlock -> {
+                    interfaceBlock.javadocComment(comment -> {
+                        comment.description("Creates a name-only event.");
+                        comment.param("eventName", "The event name.");
+                        comment.methodReturns("The event.");
+                    });
+                    interfaceBlock.publicMethod(baseEventTypeName + " unknownEvent(String eventName)");
+                    for (ClientModel event : baseModel.getDerivedModels()) {
+                        SseModelMetadata eventMetadata = SseUtil.requireSseMetadata(event);
+                        ClientModelProperty payload = getPayloadProperty(event);
+                        interfaceBlock.javadocComment(comment -> {
+                            String eventDescription = eventMetadata.getEventName().replace('.', '-');
+                            comment.description("Creates " + getIndefiniteArticle(eventDescription) + " "
+                                + eventDescription + " event.");
+                            comment.param("value", "The decoded payload.");
+                            comment.methodReturns("The event.");
+                        });
+                        interfaceBlock.publicMethod(
+                            event.getName() + " " + SseUtil.getEventFactoryMethodName(eventMetadata.getEventName())
+                                + "(" + payload.getClientType() + " value)");
+                    }
+                });
+            javaClass.javadocComment(comment -> {
+                comment.description("Registers the event constructors from the models package.");
+                comment.param("accessor", "The constructor accessor.");
+            });
+            javaClass.publicStaticMethod("void setConstructorAccessor(ConstructorAccessor accessor)", method -> method
+                .line("constructorAccessor = Objects.requireNonNull(accessor, \"'accessor' cannot be null.\");"));
+            javaClass.staticMethod(
+                com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility.Private,
+                "ConstructorAccessor getConstructorAccessor()", method -> {
+                    method.line("ConstructorAccessor accessor = constructorAccessor;");
+                    method.line("if (accessor == null) {");
+                    method.indent(() -> {
+                        method.line("try {");
+                        method.indent(() -> method.line("Class.forName(" + baseEventTypeName
+                            + ".class.getName(), true, " + baseEventTypeName + ".class.getClassLoader());"));
+                        method.line("} catch (ClassNotFoundException | LinkageError exception) {");
+                        method.indent(() -> method.line(
+                            "throw LOGGER.logExceptionAsError(new IllegalStateException(" + "\"Failed to initialize "
+                                + streamDescription + " stream event constructors.\", exception));"));
+                        method.line("}");
+                        method.line("accessor = constructorAccessor;");
+                        method.line("if (accessor == null) {");
+                        method.indent(() -> method.line("throw LOGGER.logExceptionAsError(new IllegalStateException(\""
+                            + capitalize(streamDescription) + " stream event constructors were not registered.\"));"));
+                        method.line("}");
+                    });
+                    method.line("}");
+                    method.methodReturn("accessor");
+                });
+            javaClass.javadocComment(comment -> {
+                comment.description("Deserializes a stream event payload.");
+                comment.param("eventName", "The stream event name.");
+                comment.param("data", "The stream event data.");
+                comment.methodReturns("The typed stream event.");
+            });
+            javaClass.publicStaticMethod(baseEventTypeName + " deserialize(String eventName, String data)", method -> {
+                if (baseModel.getDerivedModels()
+                    .stream()
+                    .map(SseUtil::requireSseMetadata)
+                    .anyMatch(event -> "message".equals(event.getEventName()))) {
+                    method.line("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;");
+                }
+                method.line("ConstructorAccessor accessor = getConstructorAccessor();");
+                method.line("switch (eventName) {");
+                method.indent(() -> {
+                    for (ClientModel event : baseModel.getDerivedModels()) {
+                        SseModelMetadata eventMetadata = SseUtil.requireSseMetadata(event);
+                        IType wirePayloadType = getPayloadProperty(event).getWireType();
+                        method.line("case \"" + TemplateUtil.escapeString(eventMetadata.getEventName()) + "\":");
+                        method.indent(() -> method
+                            .methodReturn("accessor." + SseUtil.getEventFactoryMethodName(eventMetadata.getEventName())
+                                + "(read(eventName, data, " + getJsonReadCallback(wirePayloadType) + "))"));
+                        method.line();
+                    }
+                    method.line("default:");
+                    method.indent(() -> method.methodReturn("accessor.unknownEvent(eventName)"));
+                });
+                method.line("}");
+            });
+            javaClass.staticMethod(
+                com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility.Private,
+                "<T> T read(String eventName, String data, ReadValueCallback<JsonReader, T> eventReader)", method -> {
+                    method.line("try (JsonReader reader = JsonProviders.createReader(data)) {");
+                    method.indent(() -> {
+                        method.line("reader.nextToken();");
+                        method.methodReturn("eventReader.read(reader)");
+                    });
+                    method.line("} catch (IOException exception) {");
+                    method.indent(() -> method.line("throw new UncheckedIOException(\"Failed to decode "
+                        + streamDescription + " stream event: \" + eventName, exception);"));
+                    method.line("}");
+                });
+        });
+    }
+
+    private static ClientModelProperty getPayloadProperty(ClientModel model) {
+        return model.getProperties()
+            .stream()
+            .filter(property -> "value".equals(property.getSerializedName()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException(
+                "SSE event model '" + model.getFullName() + "' has no 'value' property."));
+    }
+
+    private static void addPayloadImports(IType type, Set<String> imports) {
+        type.addImportsTo(imports, false);
+        if (type instanceof IterableType) {
+            addPayloadImports(((IterableType) type).getElementType(), imports);
+        } else if (type instanceof MapType) {
+            addPayloadImports(((MapType) type).getValueType(), imports);
+        } else if (ClassType.DATE_TIME.equals(type)) {
+            ClassType.CORE_UTILS.addImportsTo(imports, false);
+        }
+    }
+
+    private static String getJsonReadCallback(IType type) {
+        return getJsonReadCallback(type, 0);
+    }
+
+    private static String getJsonReadCallback(IType type, int depth) {
+        String readerName = depth == 0 ? "reader" : "reader" + depth;
+        if (type instanceof IterableType) {
+            return readerName + " -> " + readerName + ".readArray("
+                + getJsonReadCallback(((IterableType) type).getElementType(), depth + 1) + ")";
+        }
+        if (type instanceof MapType) {
+            return readerName + " -> " + readerName + ".readMap("
+                + getJsonReadCallback(((MapType) type).getValueType(), depth + 1) + ")";
+        }
+        if (type instanceof ClassType && ((ClassType) type).isSwaggerType()) {
+            return type + "::fromJson";
+        }
+        String deserialization = type.jsonDeserializationMethod(readerName);
+        if (deserialization == null) {
+            throw new IllegalStateException("SSE payload type " + type + " does not support JSON deserialization.");
+        }
+        return readerName + " -> " + type.convertToClientType(deserialization);
+    }
+
+    private static String getIndefiniteArticle(String value) {
+        return value.matches("(?i)^(a|e|i|o|u).*") ? "an" : "a";
+    }
+
+    private static String capitalize(String value) {
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+}

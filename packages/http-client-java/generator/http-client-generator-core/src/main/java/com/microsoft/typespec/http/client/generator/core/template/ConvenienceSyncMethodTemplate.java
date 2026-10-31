@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
@@ -46,8 +47,13 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
-        return !isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
-        // for LRO, we actually choose the protocol method of "WithModel"
+        boolean hasSseMethod = method.getConvenienceMethods()
+            .stream()
+            .anyMatch(clientMethod -> clientMethod.getType() == ClientMethodType.SseSync);
+        return !isMethodAsync(method.getProtocolMethod())
+            && isMethodVisible(method.getProtocolMethod())
+            && (!hasSseMethod || method.getProtocolMethod().getType() == ClientMethodType.SimpleSyncRestResponse)
+            // for LRO, we actually choose the protocol method of "WithModel"
             && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginSync
                 || (method.getProtocolMethod().getImplementationDetails() != null
                     && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()));
@@ -85,6 +91,14 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
+
+        if (convenienceMethod.getType() == ClientMethodType.SseSync) {
+            methodBlock.methodReturn(String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::deserialize, %4$s)",
+                getMethodName(protocolMethod), invocationExpression,
+                convenienceMethod.getSseMetadata().getSerializerType().getName(),
+                SseUtil.getClientTerminalPredicate(convenienceMethod), SseUtil.getRuntimeType().getName()));
+            return;
+        }
 
         if (convenienceMethod.getType() == ClientMethodType.SimpleSync
             && responseBodyType.asNullable() == ClassType.VOID

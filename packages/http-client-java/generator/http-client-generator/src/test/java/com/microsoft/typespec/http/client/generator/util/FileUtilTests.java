@@ -63,4 +63,5 @@ public final class FileUtilTests {
         assertTrue(Files.exists(nonGen), "NotGenerated.java should not be deleted");
         assertTrue(Files.exists(keep), "KeepMe.java should be kept");
     }
+
 }
