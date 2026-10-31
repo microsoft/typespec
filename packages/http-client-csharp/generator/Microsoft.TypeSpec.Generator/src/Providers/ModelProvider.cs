@@ -1336,14 +1336,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
+                var acceptsNull = previousParameter.Type.IsNullable
+                    || previousParameter.HasNullableReferenceTypeAnnotation
+                    || (!previousParameter.Type.IsValueType && property.InputProperty?.Type is InputNullableType);
                 var restoredParameter = new ParameterProvider(
                     previousParameter.Name,
                     property.AsParameter.Description,
-                    property.AsParameter.Type.WithNullable(previousParameter.Type.IsNullable ||
-                        previousParameter.HasNullableReferenceTypeAnnotation),
+                    property.AsParameter.Type.WithNullable(acceptsNull),
                     property: property,
                     validation: previousParameter.DefaultValue is null
-                        && !previousParameter.HasNullableReferenceTypeAnnotation
+                        && !acceptsNull
                         && previousParameter.Type is { IsValueType: false, IsNullable: false }
                         ? ParameterValidationType.AssertNotNull
                         : ParameterValidationType.None);

@@ -37,4 +37,12 @@ namespace Sample.Models
         {
         }
     }
+
+#nullable disable
+    public partial class NullableDisabledDataset : AIProjectDataset
+    {
+        public NullableDisabledDataset(Uri dataUri) : base(dataUri, "nullable")
+        {
+        }
+    }
 }
