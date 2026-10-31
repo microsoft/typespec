@@ -8,9 +8,15 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic } from "@typespec/compiler";
 import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type { CodeModel } from "../type/code-model.js";
-import type { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
+import type {
+  InputEnumType,
+  InputLiteralType,
+  InputModelType,
+  InputType,
+} from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
@@ -52,6 +58,34 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const rootClients = sdkPackage.clients;
   const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
   const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
+  // Serialization dispatches virtually even without a discriminator. Index all emitted descendants
+  // after client conversion so base-typed bodies retain context needed by their runtime model.
+  const derivedModels = new Map<InputModelType, InputModelType[]>();
+  for (const type of sdkContext.__typeCache.types.values()) {
+    if (type.kind === "model" && type.baseModel) {
+      const siblings = derivedModels.get(type.baseModel) ?? [];
+      siblings.push(type);
+      derivedModels.set(type.baseModel, siblings);
+    }
+  }
+  for (const operation of sdkContext.__typeCache.operations.values()) {
+    const body = operation.parameters.find((parameter) => parameter.kind === "body");
+    if (
+      !body ||
+      operation.requestVisibility === undefined ||
+      !prepareInputLifecycle(
+        body.type,
+        operation.requestVisibility,
+        new Set(),
+        requiresReadOnlyVisibility(operation.requestMediaTypes),
+        derivedModels,
+      )
+    ) {
+      // The backend uses this marker to allocate/forward lifecycle options. Leave ordinary request
+      // serialization unchanged when no reachable property needs operation-specific filtering.
+      delete operation.requestVisibility;
+    }
+  }
 
   const models: InputModelType[] = [];
   const enums: InputEnumType[] = [];
@@ -124,6 +158,112 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   };
 
   return diagnostics.wrap(clientModel);
+}
+
+function requiresReadOnlyVisibility(mediaTypes: readonly string[] | undefined): boolean {
+  // JSON wire serialization already omits read-only properties; XML and multipart need a guard.
+  return (
+    mediaTypes?.some((mediaType) => {
+      const type = mediaType.split(";")[0].trim().toLowerCase();
+      return (
+        type === "application/xml" ||
+        type === "text/xml" ||
+        type.endsWith("+xml") ||
+        type === "multipart/form-data"
+      );
+    }) ?? false
+  );
+}
+
+/**
+ * Relaxes shared-model requiredness for this input lifecycle and reports whether the request
+ * needs lifecycle-aware serialization. Property visibility masks remain unchanged so the same
+ * model can still be read, persisted, and sent by operations with different lifecycles.
+ */
+function prepareInputLifecycle(
+  type: InputType,
+  visibility: number,
+  visited: Set<InputType>,
+  includeReadOnly: boolean,
+  derivedModels: ReadonlyMap<InputModelType, readonly InputModelType[]>,
+): boolean {
+  // Model properties and inheritance can form cycles. Each operation has its own visited set
+  // because its visibility may relax a different subset of the shared model's required properties.
+  if (visited.has(type)) return false;
+  visited.add(type);
+  let hasLifecycleVisibility = false;
+  switch (type.kind) {
+    case "nullable":
+      return prepareInputLifecycle(type.type, visibility, visited, includeReadOnly, derivedModels);
+    case "array":
+    case "dict":
+    case "streaming":
+      return prepareInputLifecycle(
+        type.valueType,
+        visibility,
+        visited,
+        includeReadOnly,
+        derivedModels,
+      );
+    case "union":
+      for (const variant of type.variantTypes) {
+        hasLifecycleVisibility =
+          prepareInputLifecycle(variant, visibility, visited, includeReadOnly, derivedModels) ||
+          hasLifecycleVisibility;
+      }
+      break;
+    case "model": {
+      // Visit descendants of the declared input, but only properties when walking its ancestors.
+      // Recursing into an ancestor's descendants would incorrectly relax unrelated siblings.
+      for (const subtype of [
+        ...Object.values(type.discriminatedSubtypes ?? {}),
+        ...(derivedModels.get(type) ?? []),
+      ]) {
+        hasLifecycleVisibility =
+          prepareInputLifecycle(subtype, visibility, visited, includeReadOnly, derivedModels) ||
+          hasLifecycleVisibility;
+      }
+      // Include inherited properties without applying this operation's lifecycle to sibling subtypes.
+      for (let model: InputModelType | undefined = type; model; model = model.baseModel) {
+        if (model.additionalProperties) {
+          hasLifecycleVisibility =
+            prepareInputLifecycle(
+              model.additionalProperties,
+              visibility,
+              visited,
+              includeReadOnly,
+              derivedModels,
+            ) || hasLifecycleVisibility;
+        }
+        for (const property of model.properties) {
+          if (property.readOnly) {
+            // Read-only values never affect input requiredness or expose writable nested inputs.
+            hasLifecycleVisibility ||= includeReadOnly;
+            continue;
+          }
+          if (property.discriminator) continue;
+          hasLifecycleVisibility ||= property.lifecycleVisibility !== undefined;
+          if (((property.lifecycleVisibility ?? Visibility.All) & visibility) === 0) {
+            // A shared input must be constructible without properties excluded from this request.
+            property.optional = true;
+          } else {
+            // Do not short-circuit on hasLifecycleVisibility: every reachable input still needs
+            // its requiredness updated, even after another property has established the marker.
+            hasLifecycleVisibility =
+              prepareInputLifecycle(
+                property.type,
+                visibility,
+                visited,
+                includeReadOnly,
+                derivedModels,
+              ) || hasLifecycleVisibility;
+          }
+        }
+      }
+      break;
+    }
+  }
+  return hasLifecycleVisibility;
 }
 
 /**

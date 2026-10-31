@@ -585,6 +585,113 @@ namespace SampleTypeSpec
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
+        /// <summary> The LifecycleReadOnlyXmlTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleReadOnlyXmlTopic"/> instance for mocking. </returns>
+        public static LifecycleReadOnlyXmlTopic LifecycleReadOnlyXmlTopic(string title = default, string id = default)
+        {
+            return new LifecycleReadOnlyXmlTopic(title, id, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleXmlOnlyTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlOnlyTopic"/> instance for mocking. </returns>
+        public static LifecycleXmlOnlyTopic LifecycleXmlOnlyTopic(string title = default, string state = default)
+        {
+            return new LifecycleXmlOnlyTopic(title, state);
+        }
+
+        /// <summary> The ChatTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <param name="createOnly"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ChatTopic"/> instance for mocking. </returns>
+        public static ChatTopic ChatTopic(string title = default, ChatTopicState? state = default, string createOnly = default, string id = default)
+        {
+            return new ChatTopic(title, state, createOnly, id, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ChatTopicEnvelope. </summary>
+        /// <param name="topic"></param>
+        /// <param name="topics"></param>
+        /// <param name="lookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ChatTopicEnvelope"/> instance for mocking. </returns>
+        public static ChatTopicEnvelope ChatTopicEnvelope(ChatTopic topic = default, IEnumerable<ChatTopic> topics = default, IDictionary<string, ChatTopic> lookup = default)
+        {
+            topics ??= new ChangeTrackingList<ChatTopic>();
+            lookup ??= new ChangeTrackingDictionary<string, ChatTopic>();
+
+            return new ChatTopicEnvelope(topic, topics.ToList(), lookup, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleMultipart. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <param name="topic"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipart"/> instance for mocking. </returns>
+        public static LifecycleMultipart LifecycleMultipart(string title = default, string state = default, LifecycleMultipartTopic topic = default, string id = default)
+        {
+            return new LifecycleMultipart(title, state, topic, id);
+        }
+
+        /// <summary> The LifecycleMultipartTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="createOnly"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipartTopic"/> instance for mocking. </returns>
+        public static LifecycleMultipartTopic LifecycleMultipartTopic(string title = default, string createOnly = default)
+        {
+            return new LifecycleMultipartTopic(title, createOnly, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleReadOnlyMultipart. </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleReadOnlyMultipart"/> instance for mocking. </returns>
+        public static LifecycleReadOnlyMultipart LifecycleReadOnlyMultipart(string title = default, string id = default)
+        {
+            return new LifecycleReadOnlyMultipart(title, id);
+        }
+
+        /// <summary> The LifecycleXmlEnvelope. </summary>
+        /// <param name="child"></param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlEnvelope"/> instance for mocking. </returns>
+        public static LifecycleXmlEnvelope LifecycleXmlEnvelope(LifecycleXmlChild child = default, IEnumerable<LifecycleXmlChild> children = default)
+        {
+            children ??= new ChangeTrackingList<LifecycleXmlChild>();
+
+            return new LifecycleXmlEnvelope(child, children.ToList());
+        }
+
+        /// <summary> The LifecycleXmlChild. </summary>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlChild"/> instance for mocking. </returns>
+        public static LifecycleXmlChild LifecycleXmlChild(string state = default)
+        {
+            return new LifecycleXmlChild(state);
+        }
+
+        /// <summary> The LifecycleBase. </summary>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleBase"/> instance for mocking. </returns>
+        public static LifecycleBase LifecycleBase(string title = default)
+        {
+            return new LifecycleBase(title, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleDerived. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleDerived"/> instance for mocking. </returns>
+        public static LifecycleDerived LifecycleDerived(string title = default, string state = default)
+        {
+            return new LifecycleDerived(title, additionalBinaryDataProperties: null, state);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

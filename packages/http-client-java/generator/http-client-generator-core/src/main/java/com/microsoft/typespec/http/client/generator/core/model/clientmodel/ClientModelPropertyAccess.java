@@ -10,6 +10,8 @@ import java.util.Set;
  */
 public interface ClientModelPropertyAccess {
 
+    ApiMetadata getApiMetadata();
+
     String getName();
 
     String getDescription();

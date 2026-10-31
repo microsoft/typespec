@@ -44,7 +44,7 @@ The `SpectorTest` attribute will dynamically determine if the library is stubbed
 All of this is automated into a script called `./eng/scripts/Test-Spector.ps1`. This script will find all generated Spector projects and regenerate each of them without using the `StubLibraryGenerator`. It will then run dotnet test which will cause tests using the `SpectorTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
 
 <details>
-<Summary>Here is an example output for one library</Summary>
+<Summary>Historical example output for one library (older tool and framework versions)</Summary>
 
 ```
 C:\repos\typespec\packages\http-client-csharp\eng\scripts [spector-rename +0 ~1 -0 !]> .\Test-Spector.ps1 authentication/api-key

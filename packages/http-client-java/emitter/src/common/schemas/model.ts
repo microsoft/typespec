@@ -186,6 +186,7 @@ export interface HttpProtocol {
 
 /** common pattern for Metadata on aspects */
 export interface Metadata extends Extensions {
+  experimental?: { diagnosticId?: string };
   /** per-language information for this aspect */
   language: Languages;
   /** per-protocol information for this aspect  */
@@ -788,7 +789,7 @@ export function isSchemaResponse(response: Response): response is SchemaResponse
 }
 
 /** an individual choice in a ChoiceSchema */
-export interface ChoiceValue extends Extensions {
+export interface ChoiceValue extends Extensions, Pick<Metadata, "experimental"> {
   /** per-language information for this value */
   language: Languages;
   /** the actual value  */

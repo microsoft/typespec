@@ -45,6 +45,7 @@ import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemp
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -311,6 +312,7 @@ abstract class ConvenienceMethodTemplateBase {
             }
 
             addGeneratedAnnotation(classBlock);
+            ExperimentalAnnotationUtil.write(classBlock, convenienceMethod.getApiMetadata());
             if (convenienceMethod.getSseMetadata() == null) {
                 TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
             }

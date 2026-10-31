@@ -369,6 +369,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             builder.propertyReferences(propertyReferences);
             builder.apiMetadata(new ApiMetadata.Builder()
                 .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType))
+                .experimental(SchemaUtil.getExperimental(compositeType))
                 .build());
 
             result = builder.build();

@@ -10,6 +10,7 @@ public class ClientEnumValue {
     private final String name;
     private final String value;
     private final String description;
+    private final ApiMetadata apiMetadata;
 
     /**
      * Create a new EnumValue with the provided name and value.
@@ -29,9 +30,31 @@ public class ClientEnumValue {
      * @param description The description of this EnumValue.
      */
     public ClientEnumValue(String name, String value, String description) {
+        this(name, value, description, new ApiMetadata.Builder().build());
+    }
+
+    /**
+     * Creates an enum value with API metadata.
+     *
+     * @param name the name.
+     * @param value the value.
+     * @param description the description.
+     * @param apiMetadata the API metadata.
+     */
+    public ClientEnumValue(String name, String value, String description, ApiMetadata apiMetadata) {
         this.name = name;
         this.value = value;
         this.description = description;
+        this.apiMetadata = apiMetadata;
+    }
+
+    /**
+     * Gets the API metadata.
+     *
+     * @return the API metadata.
+     */
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**

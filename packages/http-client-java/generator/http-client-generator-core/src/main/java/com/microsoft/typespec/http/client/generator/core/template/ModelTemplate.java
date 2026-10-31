@@ -29,6 +29,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
@@ -124,6 +125,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             classNameWithBaseType = addSerializationImplementations(classNameWithBaseType, model, settings);
         }
 
+        ExperimentalAnnotationUtil.write(javaFile, model.getApiMetadata());
         javaFile.publicClass(classModifiers, classNameWithBaseType, classBlock -> {
             // If the model has any additional properties, needs to be flattened, and isn't being generated with
             // stream-style serialization add a constant Pattern that will be used to escape the additional property
@@ -187,6 +189,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     if (addOverrideAnnotationToGetter(methodVisibility, model, property, settings)) {
                         classBlock.annotation("Override");
                     }
+                    ExperimentalAnnotationUtil.write(classBlock, property.getApiMetadata());
                     classBlock.method(methodVisibility, null,
                         propertyClientType + " " + getGetterName(model, property) + "()",
                         methodBlock -> addGetterMethod(propertyWireType, propertyClientType, property, treatAsXml,
@@ -197,6 +200,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     generateSetterJavadoc(classBlock, model, property);
                     addGeneratedAnnotation(classBlock);
                     TemplateUtil.addJsonSetter(classBlock, settings, property.getSerializedName());
+                    ExperimentalAnnotationUtil.write(classBlock, property.getApiMetadata());
                     classBlock.method(JavaVisibility.Public, null,
                         model.getName() + " " + property.getSetterName() + "(" + propertyClientType + " "
                             + property.getName() + ")",
@@ -205,6 +209,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 } else if (ClientModelUtil.needsPackagePrivateSetter(model, property, settings, streamStyle)) {
                     generateSetterJavadoc(classBlock, model, property);
                     addGeneratedAnnotation(classBlock);
+                    ExperimentalAnnotationUtil.write(classBlock, property.getApiMetadata());
                     classBlock.method(JavaVisibility.PackagePrivate, null,
                         model.getName() + " " + property.getSetterName() + "(" + propertyClientType + " "
                             + property.getName() + ")",
@@ -240,6 +245,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     classBlock.javadocComment(JavaJavadocComment::inheritDoc);
                     addGeneratedAnnotation(classBlock);
                     classBlock.annotation("Override");
+                    ExperimentalAnnotationUtil.write(classBlock, parentProperty.getApiMetadata());
                     String methodSignature = model.getName() + " " + parentProperty.getSetterName() + "("
                         + parentProperty.getClientType() + " " + parentProperty.getName() + ")";
 
@@ -278,6 +284,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     // getter
                     generateGetterJavadoc(classBlock, property);
                     addGeneratedAnnotation(classBlock);
+                    ExperimentalAnnotationUtil.write(classBlock, propertyReference.getApiMetadata());
                     classBlock.publicMethod(propertyClientType + " " + propertyReference.getGetterName() + "()",
                         methodBlock -> {
                             // use ternary operator to avoid directly return null
@@ -293,6 +300,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     if (!propertyIsReadOnly && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
+                        ExperimentalAnnotationUtil.write(classBlock, propertyReference.getApiMetadata());
                         ClientModelPropertyReference propertyReferenceFinal = propertyReference;
                         classBlock.publicMethod(String.format("%s %s(%s %s)", model.getName(),
                             propertyReference.getSetterName(), propertyClientType, property.getName()), methodBlock -> {
@@ -461,6 +469,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         while (parentModel != null && !lastParentName.equals(parentModel.getName())) {
             // implementation code of stream-style serialization refs to the element type of the Map
             for (ClientModelProperty parentProperty : parentModel.getProperties()) {
+                ExperimentalAnnotationUtil.addImportsTo(imports, parentProperty.getApiMetadata());
                 if (parentProperty.isAdditionalProperties()) {
                     parentProperty.addImportsTo(imports, false);
                 }
@@ -1043,6 +1052,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     private static void addModelConstructorParameter(ClientModelProperty property,
         StringBuilder constructorSignatureBuilder, boolean addJsonPropertyAnnotation) {
 
+        String experimentalAnnotation = ExperimentalAnnotationUtil.getAnnotation(property.getApiMetadata());
+        if (experimentalAnnotation != null) {
+            constructorSignatureBuilder.append("@").append(experimentalAnnotation).append(" ");
+        }
         if (addJsonPropertyAnnotation) {
             constructorSignatureBuilder.append("@JsonProperty(").append(property.getAnnotationArguments()).append(") ");
         }
@@ -1060,6 +1073,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     private static void addModelConstructorParameterAsWireType(ClientModelProperty property,
         StringBuilder constructorSignatureBuilder) {
 
+        String experimentalAnnotation = ExperimentalAnnotationUtil.getAnnotation(property.getApiMetadata());
+        if (experimentalAnnotation != null) {
+            constructorSignatureBuilder.append("@").append(experimentalAnnotation).append(" ");
+        }
         constructorSignatureBuilder.append("@JsonProperty(")
             .append(property.getAnnotationArguments())
             .append(") ")

@@ -13,6 +13,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 public final class EmitterOptionsTests {
 
     @Test
+    public void testExperimentalAnnotation() throws IOException {
+        EmitterOptions options
+            = EmitterOptions.fromJson(JsonReader.fromString("{\"experimental-annotation\":\"com.example.Preview\"}"));
+        Assertions.assertEquals("com.example.Preview", options.getExperimentalAnnotation());
+    }
+
+    @Test
+    public void testExperimentalAnnotationIsOptIn() throws IOException {
+        EmitterOptions options = EmitterOptions.fromJson(JsonReader.fromString("{}"));
+        Assertions.assertNull(options.getExperimentalAnnotation());
+    }
+
+    @Test
     public void testMaxOverload() throws IOException {
         EmitterOptions options = EmitterOptions.fromJson(JsonReader.fromString("{\"max-overload\":\"model\"}"));
         Assertions.assertEquals("model", options.getMaxOverload());

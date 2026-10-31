@@ -120,6 +120,10 @@ public class TypeSpecPlugin extends Javagen {
             }
         }
 
+        if (settings.getExperimentalAnnotation() != null) {
+            javaPackage.addExperimentalAnnotation();
+        }
+
         // JsonMergePatchHelper
         List<ClientModel> jsonMergePatchModels = client.getModels()
             .stream()
@@ -232,6 +236,11 @@ public class TypeSpecPlugin extends Javagen {
         this.emitterOptions = options;
 
         SETTINGS_MAP.put("namespace", options.getNamespace());
+        if (options.getExperimentalAnnotation() == null) {
+            SETTINGS_MAP.remove("experimental-annotation");
+        } else {
+            SETTINGS_MAP.put("experimental-annotation", options.getExperimentalAnnotation());
+        }
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
         }

@@ -2640,6 +2640,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LifecycleCollectionBodiesUseCollectionHelpers(bool readOnlyMemory)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ =>
+                new CSharpType(readOnlyMemory ? typeof(ReadOnlyMemory<int>) : typeof(IEnumerable<int>)));
+            var inputType = InputFactory.Array(InputPrimitiveType.Int32);
+            var operation = InputFactory.Operation("TestOperation",
+                parameters: [InputFactory.BodyParameter("data", inputType, isRequired: true)]);
+            operation.Update(requestVisibility: InputVisibility.Create);
+            var serviceMethod = InputFactory.BasicServiceMethod("TestOperation", operation,
+                parameters: [InputFactory.MethodParameter("data", inputType, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var method = new ScmMethodProviderCollection(serviceMethod, client).Single(m =>
+                m.Signature.Name == "TestOperation" && m.Signature.Parameters.Any(p => p.Name == "cancellationToken"));
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile(readOnlyMemory.ToString()).TrimEnd(),
+                method.BodyStatements!.ToDisplayString());
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LifecycleCollectionsHonorFirstMediaType(bool xmlFirst)
+        {
+            var model = InputFactory.Model("Topic",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json | InputModelTypeUsage.Xml,
+                serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Topic")));
+            var inputType = InputFactory.Array(model);
+            var operation = InputFactory.Operation("TestOperation",
+                parameters: [InputFactory.BodyParameter("data", inputType, isRequired: true)],
+                requestMediaTypes: xmlFirst ? ["text/xml", "application/json"] : ["application/json", "text/xml"]);
+            operation.Update(requestVisibility: InputVisibility.Create);
+            var serviceMethod = InputFactory.BasicServiceMethod("TestOperation", operation,
+                parameters: [InputFactory.MethodParameter("data", inputType, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [model]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var method = new ScmMethodProviderCollection(serviceMethod, client).Single(m =>
+                m.Signature.Name == "TestOperation" && m.Signature.Parameters.Any(p => p.Name == "cancellationToken"));
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile(xmlFirst.ToString()).TrimEnd(),
+                method.BodyStatements!.ToDisplayString());
+        }
+
         [Test]
         public void CanRemoveParameterFromMethods()
         {
@@ -4542,8 +4587,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 
-        [Test]
-        public void ConvenienceMethod_DualFormatModel_XmlContentType_CallsToBinaryContentWithX()
+        [TestCase("application/xml")]
+        [TestCase("text/xml")]
+        [TestCase("application/vnd.typespec+xml")]
+        [TestCase("Application/Vnd.TypeSpec+Xml; charset=utf-8")]
+        public void ConvenienceMethod_DualFormatModel_XmlContentType_CallsToBinaryContentWithX(string mediaType)
         {
             // Create a dual-format model
             var dualFormatModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
@@ -4553,7 +4601,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var operation = InputFactory.Operation(
                 "UpdateModel",
                 parameters: [bodyParam],
-                requestMediaTypes: ["application/xml"],
+                requestMediaTypes: [mediaType],
                 responses: [InputFactory.OperationResponse([200])]);
 
             var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
@@ -4641,8 +4689,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(expectedMethodBody, methodBody);
         }
 
-        [Test]
-        public void ConvenienceMethod_XmlListBody_UsesXmlFromEnumerable()
+        [TestCase("application/xml")]
+        [TestCase("text/xml")]
+        [TestCase("application/vnd.typespec+xml")]
+        [TestCase("Application/Vnd.TypeSpec+Xml; charset=utf-8")]
+        public void ConvenienceMethod_XmlListBody_UsesXmlFromEnumerable(string mediaType)
         {
             // Create a model with XML serialization options
             var elementModel = InputFactory.Model(
@@ -4659,8 +4710,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 arrayType,
                 isRequired: true,
                 serializedName: "SignedIdentifiers",
-                contentTypes: ["application/xml"],
-                defaultContentType: "application/xml");
+                contentTypes: [mediaType],
+                defaultContentType: mediaType);
             var methodBodyParam = InputFactory.MethodParameter(
                 "body",
                 arrayType,
@@ -4671,7 +4722,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "Foo",
                 httpMethod: "POST",
                 parameters: [bodyParam],
-                requestMediaTypes: ["application/xml"],
+                requestMediaTypes: [mediaType],
                 responses: [InputFactory.OperationResponse([200])]);
 
             var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);

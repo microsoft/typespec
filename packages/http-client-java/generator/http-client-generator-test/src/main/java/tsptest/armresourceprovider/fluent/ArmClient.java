@@ -61,6 +61,20 @@ public interface ArmClient {
     TopLevelArmResourceInterfacesClient getTopLevelArmResourceInterfaces();
 
     /**
+     * Gets the AccountResourcesClient object to access its operations.
+     * 
+     * @return the AccountResourcesClient object.
+     */
+    AccountResourcesClient getAccountResources();
+
+    /**
+     * Gets the MachineResourcesClient object to access its operations.
+     * 
+     * @return the MachineResourcesClient object.
+     */
+    MachineResourcesClient getMachineResources();
+
+    /**
      * Gets the CustomTemplateResourceInterfacesClient object to access its operations.
      * 
      * @return the CustomTemplateResourceInterfacesClient object.

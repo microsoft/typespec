@@ -21,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCon
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -60,6 +61,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         ClientBuilder rootClientBuilder = getClientBuilder(asyncClient);
 
         Set<String> imports = new LinkedHashSet<>();
+        ExperimentalAnnotationUtil.addImportsTo(imports, asyncClient.getApiMetadata());
         if (wrapServiceClient) {
             serviceClient.addImportsTo(imports, true, false, settings);
             imports.add(serviceClient.getPackage() + "." + serviceClient.getClassName());
@@ -96,6 +98,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             javaFile.annotation(
                 String.format("ServiceClient(builder = %s.class, isAsync = true)", rootClientBuilder.getClassName()));
         }
+        ExperimentalAnnotationUtil.write(javaFile, asyncClient.getApiMetadata());
         javaFile.publicFinalClass(asyncClassName, classBlock -> {
             // Add service client member variable
             if (useXmlSerializer) {

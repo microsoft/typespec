@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.implementation.Operatio
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.ParameterizedType;
@@ -465,7 +466,7 @@ public class ClientMethod {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         Annotation.SERVICE_METHOD.addImportsTo(imports);
         Annotation.RETURN_TYPE.addImportsTo(imports);
 
