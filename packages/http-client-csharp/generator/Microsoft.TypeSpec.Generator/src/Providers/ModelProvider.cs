@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -1336,7 +1337,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true);
+                var acceptsNull = previousParameter.Type.IsNullable
+                    || previousParameter.NullableReferenceTypeAnnotation == NullableAnnotation.Annotated
+                    || (previousParameter.NullableReferenceTypeAnnotation == NullableAnnotation.None
+                        && !previousParameter.Type.IsValueType && property.InputProperty?.Type is InputNullableType);
+                var restoredParameter = new ParameterProvider(
+                    previousParameter.Name,
+                    property.AsParameter.Description,
+                    property.AsParameter.Type.WithNullable(acceptsNull),
+                    property: property,
+                    validation: previousParameter.DefaultValue is null
+                        && !acceptsNull
+                        && previousParameter.Type is { IsValueType: false, IsNullable: false }
+                        ? ParameterValidationType.AssertNotNull
+                        : ParameterValidationType.None);
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));
             }
@@ -1349,7 +1363,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
             foreach (var (property, parameter) in extraAssignments)
             {
-                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
+                ValueExpression assignee = property.BackingField is null ||
+                    (property.EnclosingType != this && property.EnclosingType != CustomCodeView)
+                    ? property
+                    : property.BackingField;
                 ValueExpression value = parameter;
                 if (CSharpType.RequiresToList(parameter.Type, property.Type))
                 {
@@ -1440,18 +1457,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
         {
             var lookup = new Dictionary<string, PropertyProvider>();
-            foreach (var property in CanonicalView.Properties)
+            var memberNames = new HashSet<string>();
+            foreach (var model in new[] { this }.Concat(EnumerateBaseModelProviders()))
             {
-                if (!MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                foreach (var property in model.CanonicalView.Properties)
                 {
-                    continue;
+                    if (!memberNames.Add(property.Name)
+                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                    {
+                        continue;
+                    }
+
+                    var setterModifiers = property.Body switch
+                    {
+                        AutoPropertyBody body => body.SetterModifiers,
+                        MethodPropertyBody body => body.SetterModifiers,
+                        _ => MethodSignatureModifiers.None,
+                    };
+                    if (model != this && setterModifiers == MethodSignatureModifiers.Private)
+                    {
+                        continue;
+                    }
+
+                    lookup.TryAdd(property.AsParameter.Name, property);
+
+                    if (property.OriginalName != null)
+                    {
+                        lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                    }
                 }
 
-                lookup.TryAdd(property.AsParameter.Name, property);
-
-                if (property.OriginalName != null)
+                memberNames.UnionWith(model.CanonicalView.Fields.Select(field => field.Name));
+                if (model.CustomCodeView is NamedTypeSymbolProvider customCode)
                 {
-                    lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                    memberNames.UnionWith(customCode.DeclaredMemberNames);
                 }
             }
 
