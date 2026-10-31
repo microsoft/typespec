@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.PropertyTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.PropertyTypeConversionTemplate;
@@ -55,6 +56,7 @@ public class FluentModelProperty {
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         this.fluentType.addImportsTo(imports, false);
+        ExperimentalAnnotationUtil.addImportsTo(imports, modelProperty.getApiMetadata());
 
         if (includeImplementationImports) {
             this.immutableMethod.getMethodTemplate().addImportsTo(imports);

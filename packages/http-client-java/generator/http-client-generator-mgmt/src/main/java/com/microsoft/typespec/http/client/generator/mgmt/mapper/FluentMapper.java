@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
@@ -142,14 +141,6 @@ public class FluentMapper {
     FluentClient basicMap(CodeModel codeModel, Client client) {
         FluentClient fluentClient = new FluentClient(client);
 
-        final String implementationModelsPackage = JavaSettings.getInstance().getImplementationSubpackage() + "."
-            + JavaSettings.getInstance().getModelsSubpackage();
-        final boolean hasImplementationModels = ClientModels.getInstance()
-            .getModels()
-            .stream()
-            .anyMatch(m -> m.getPackage().endsWith(implementationModelsPackage));
-        fluentClient.setModuleInfo(getModuleInfo(hasImplementationModels));
-
         FluentStatic.setFluentClient(fluentClient);
 
         // manager, service API
@@ -180,12 +171,28 @@ public class FluentMapper {
                 .map(FluentManagerProperty::new)
                 .collect(Collectors.toList()));
 
+        fluentClient.setModuleInfo(getModuleInfo(fluentClient));
+
         return fluentClient;
     }
 
-    private static ModuleInfo getModuleInfo(boolean hasImplementationModels) {
+    private ModuleInfo getModuleInfo(FluentClient fluentClient) {
         JavaSettings settings = JavaSettings.getInstance();
         ModuleInfo moduleInfo = new ModuleInfo(settings.getPackage());
+
+        Client client = fluentClient.getInnerClient();
+        Set<String> modelPackages = new LinkedHashSet<>();
+        client.getModels().forEach(model -> modelPackages.add(model.getPackage()));
+        client.getEnums()
+            .stream()
+            .filter(enumType -> !fluentJavaSettings.getJavaNamesForRemoveModel().contains(enumType.getName()))
+            .forEach(enumType -> modelPackages.add(enumType.getPackage()));
+        client.getResponseModels().forEach(response -> modelPackages.add(response.getPackage()));
+        client.getExceptions().forEach(exception -> modelPackages.add(exception.getPackage()));
+        client.getXmlSequenceWrappers().forEach(wrapper -> modelPackages.add(wrapper.getPackage()));
+        fluentClient.getResourceModels().forEach(model -> modelPackages.add(model.getInterfaceType().getPackage()));
+        fluentClient.getResourceCollections()
+            .forEach(collection -> modelPackages.add(collection.getInterfaceType().getPackage()));
 
         List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule("com.azure.core.management", true));
@@ -193,8 +200,13 @@ public class FluentMapper {
         List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage()));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentSubpackage())));
-        exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentModelsSubpackage())));
-        exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getModelsSubpackage())));
+        if (settings.getExperimentalAnnotation() != null) {
+            String annotationPackage = settings.getExperimentalAnnotation()
+                .substring(0, settings.getExperimentalAnnotation().lastIndexOf('.'));
+            if (exportModules.stream().noneMatch(module -> module.getModuleName().equals(annotationPackage))) {
+                exportModules.add(new ModuleInfo.ExportModule(annotationPackage));
+            }
+        }
 
         List<String> openToModules = new ArrayList<>();
         openToModules.add("com.azure.core");
@@ -202,13 +214,16 @@ public class FluentMapper {
             openToModules.add("com.fasterxml.jackson.databind");
         }
         List<ModuleInfo.OpenModule> openModules = moduleInfo.getOpenModules();
-        openModules
-            .add(new ModuleInfo.OpenModule(settings.getPackage(settings.getFluentModelsSubpackage()), openToModules));
-        openModules.add(new ModuleInfo.OpenModule(settings.getPackage(settings.getModelsSubpackage()), openToModules));
-        if (hasImplementationModels) {
-            openModules.add(new ModuleInfo.OpenModule(
-                settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage()),
-                openToModules));
+        String implementationModelsPackage
+            = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
+        for (String packageName : List.of(settings.getPackage(settings.getFluentModelsSubpackage()),
+            settings.getPackage(settings.getModelsSubpackage()), implementationModelsPackage)) {
+            if (modelPackages.contains(packageName)) {
+                if (!packageName.equals(implementationModelsPackage)) {
+                    exportModules.add(new ModuleInfo.ExportModule(packageName));
+                }
+                openModules.add(new ModuleInfo.OpenModule(packageName, openToModules));
+            }
         }
 
         return moduleInfo;

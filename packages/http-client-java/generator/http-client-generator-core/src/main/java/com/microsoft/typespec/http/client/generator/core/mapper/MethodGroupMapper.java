@@ -169,6 +169,7 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
 
         builder.apiMetadata(
             new ApiMetadata.Builder().crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(methodGroup))
+                .experimental(SchemaUtil.getExperimental(methodGroup))
                 .build());
 
         return builder.build();

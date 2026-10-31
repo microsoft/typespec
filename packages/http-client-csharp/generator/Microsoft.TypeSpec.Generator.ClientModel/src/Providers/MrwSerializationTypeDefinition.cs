@@ -2212,8 +2212,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writePropertySerializationStatements,
                 presence);
 
-            return wrapInIsDefinedStatement;
+            return WrapInVisibility(wireInfo, wrapInIsDefinedStatement);
         }
+
+        private MethodBodyStatement WrapInVisibility(PropertyWireInformation wireInfo, MethodBodyStatement statement, bool includeReadOnly = false)
+            => (wireInfo.Visibility != InputVisibility.All && !wireInfo.IsReadOnly) || (includeReadOnly && wireInfo.IsReadOnly)
+                ? new IfStatement(Static<LifecycleModelReaderWriterOptionsDefinition>().Invoke("IsVisible", _serializationOptionsParameter,
+                    LifecycleVisibilityDefinition.GetExpression(wireInfo.IsReadOnly ? InputVisibility.Read : wireInfo.Visibility)))
+                {
+                    statement
+                }
+                : statement;
 
         private MethodBodyStatement WrapInIsDefined(
             MemberExpression propertyExpression,

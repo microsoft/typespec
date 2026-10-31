@@ -35,6 +35,7 @@ public class FluentModelPropertyMethod extends FluentMethod {
 
         this.clientModel = clientModel;
         this.modelProperty = modelProperty;
+        this.apiMetadata = modelProperty.getApiMetadata();
         this.localVariable = localVariable;
 
         this.name = name;

@@ -43,9 +43,8 @@ public class FluentParentMethod extends FluentMethod {
 
     @Override
     public String getBaseMethodSignature() {
-        String parameterText = parameters.stream()
-            .map(p -> String.format("%1$s %2$s", p.getClientType().toString(), p.getName()))
-            .collect(Collectors.joining(", "));
+        String parameterText
+            = parameters.stream().map(ClientMethodParameter::getDeclaration).collect(Collectors.joining(", "));
         return String.format("%1$s(%2$s)", this.name, parameterText);
     }
 

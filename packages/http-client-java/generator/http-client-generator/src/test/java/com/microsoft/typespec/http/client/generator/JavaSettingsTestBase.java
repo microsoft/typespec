@@ -41,10 +41,10 @@ public abstract class JavaSettingsTestBase {
         Templates.setFactory(new DefaultTemplateFactory());
     }
 
-    private static final class TestPlugin extends Javagen {
+    protected static final class TestPlugin extends Javagen {
         private final Map<String, String> settings;
 
-        private TestPlugin(Map<String, String> settings) {
+        protected TestPlugin(Map<String, String> settings) {
             super(null, "test", "test");
             this.settings = Map.copyOf(settings);
         }

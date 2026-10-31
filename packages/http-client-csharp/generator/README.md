@@ -15,7 +15,7 @@ See the architecture documentation [here](docs/architecture.md).
 
 ## Prerequisites
 
-- [.NET Core SDK (8.0.x)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (use the SDK version pinned in [global.json](../global.json))
 
 ## Build
 

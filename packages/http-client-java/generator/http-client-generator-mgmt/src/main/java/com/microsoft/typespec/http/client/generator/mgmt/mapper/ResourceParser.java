@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
@@ -69,9 +70,57 @@ public class ResourceParser {
     }
 
     static void processAdditionalMethods(FluentClient fluentClient) {
+        resolveResourceIdPaths(fluentClient);
         fluentClient.getResourceModels().forEach(ResourceParser::processAdditionalProperties);
 
         fluentClient.getResourceCollections().forEach(ResourceParser::processAdditionalCollectionMethods);
+    }
+
+    static void resolveResourceIdPaths(FluentClient fluentClient) {
+        Map<String, FluentResourceModel> models = fluentClient.getResourceModels()
+            .stream()
+            .filter(model -> model.getResourceCreate() != null)
+            .collect(Collectors.toMap(model -> model.getInnerModel().getFullName(), Function.identity()));
+        models.values()
+            .forEach(model -> model.getResourceIdPaths().add(model.getResourceCreate().getUrlPathSegments()));
+        for (FluentResourceCollection collection : fluentClient.getResourceCollections()) {
+            for (FluentCollectionMethod method : collection.getMethods()) {
+                HttpMethod httpMethod = method.getInnerProxyMethod().getHttpMethod();
+                if (httpMethod != HttpMethod.GET && httpMethod != HttpMethod.PUT && httpMethod != HttpMethod.PATCH) {
+                    continue;
+                }
+                IType returnType = method.getInnerClientMethod().getReturnValue().getType();
+                if (FluentUtils.isResponseType(returnType)) {
+                    returnType = FluentUtils.getValueTypeFromResponseType(returnType);
+                }
+                // Collection routes do not necessarily describe the IDs of their returned resources.
+                FluentResourceModel model
+                    = returnType instanceof ClassType ? models.get(((ClassType) returnType).getFullName()) : null;
+                if (model == null) {
+                    continue;
+                }
+                List<UrlPathSegments.ParameterSegment> primaryParameters
+                    = model.getResourceCreate().getUrlPathSegments().getReverseParameterSegments();
+                if (primaryParameters.isEmpty()) {
+                    continue;
+                }
+                UrlPathSegments.ParameterSegment resourceSegment = primaryParameters.get(0);
+                String path = method.getInnerProxyMethod().getUrlPath();
+                UrlPathSegments segments = new UrlPathSegments(path);
+                if (path.endsWith("}")
+                    && !segments.getReverseParameterSegments().isEmpty()
+                    && resourceSegment.getSegmentName()
+                        .equalsIgnoreCase(segments.getReverseParameterSegments().get(0).getSegmentName())) {
+                    String shape = path.replaceAll("\\{[^/{}]+\\}", "{}");
+                    if (model.getResourceIdPaths()
+                        .stream()
+                        .noneMatch(
+                            existing -> existing.getPath().replaceAll("\\{[^/{}]+\\}", "{}").equalsIgnoreCase(shape))) {
+                        model.getResourceIdPaths().add(segments);
+                    }
+                }
+            }
+        }
     }
 
     private static void processAdditionalProperties(FluentResourceModel model) {

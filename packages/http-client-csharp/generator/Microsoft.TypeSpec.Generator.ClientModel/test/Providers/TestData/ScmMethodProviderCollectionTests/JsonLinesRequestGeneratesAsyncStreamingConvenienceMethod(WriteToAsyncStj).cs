@@ -9,7 +9,7 @@ public override async global::System.Threading.Tasks.Task WriteToAsync(global::S
         }
         using (global::System.Text.Json.Utf8JsonWriter writer = new global::System.Text.Json.Utf8JsonWriter(stream))
         {
-            writer.WriteObjectValue<T>(value, global::Sample.ModelSerializationExtensions.WireOptions);
+            writer.WriteObjectValue<T>(value, _options);
             await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
         first = false;
