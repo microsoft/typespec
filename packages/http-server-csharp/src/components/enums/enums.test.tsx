@@ -225,6 +225,18 @@ describe("isUnionEnum", () => {
     expect(isUnionEnum(Outer)).toBe(false);
   });
 
+  it("returns false for members that collide after C# name normalization", async () => {
+    const { Outer } = await runner.compile(t.code`
+      union Inner { ready: "inner" }
+      union ${t.union("Outer")} {
+        Ready: "outer",
+        Inner,
+      }
+    `);
+
+    expect(isUnionEnum(Outer)).toBe(false);
+  });
+
   it("flattens nullable wrappers around nested unions", async () => {
     const { MaybeStatus } = await runner.compile(t.code`
       union Status { Ready: "ready" }

@@ -172,6 +172,7 @@ function getFlattenedUnionEnumMembers(
   const members: UnionEnumMember[] = [];
   const memberNames = new Map<string, string>();
   const memberValues = new Map<string, string>();
+  const namePolicy = cs.createCSharpNamePolicy();
 
   for (const variant of union.variants.values()) {
     // Open-string and null variants are only valid at the union being emitted.
@@ -188,7 +189,8 @@ function getFlattenedUnionEnumMembers(
       // An unnamed string literal (e.g., `"none"`) derives its member name
       // from its value; named variants retain their explicit name.
       const name = typeof variant.name === "string" ? variant.name : variant.type.value;
-      const existingValue = memberNames.get(name);
+      const generatedName = namePolicy.getName(name, "enum-member");
+      const existingValue = memberNames.get(generatedName);
       const existingName = memberValues.get(variant.type.value);
 
       // Identical members can be reached through multiple nested unions, but
@@ -196,13 +198,13 @@ function getFlattenedUnionEnumMembers(
       // generated C# enum or its default-value references.
       if (
         (existingValue !== undefined && existingValue !== variant.type.value) ||
-        (existingName !== undefined && existingName !== name)
+        (existingName !== undefined && existingName !== generatedName)
       ) {
         return undefined;
       }
       if (existingValue === undefined && existingName === undefined) {
-        memberNames.set(name, variant.type.value);
-        memberValues.set(variant.type.value, name);
+        memberNames.set(generatedName, variant.type.value);
+        memberValues.set(variant.type.value, generatedName);
         members.push({ name, value: variant.type.value, variant });
       }
       continue;
@@ -219,17 +221,18 @@ function getFlattenedUnionEnumMembers(
       const nestedMembers = getFlattenedUnionEnumMembers(variant.type, nextActiveUnions);
       if (!nestedMembers) return undefined;
       for (const member of nestedMembers) {
-        const existingValue = memberNames.get(member.name);
+        const generatedName = namePolicy.getName(member.name, "enum-member");
+        const existingValue = memberNames.get(generatedName);
         const existingName = memberValues.get(member.value);
         if (
           (existingValue !== undefined && existingValue !== member.value) ||
-          (existingName !== undefined && existingName !== member.name)
+          (existingName !== undefined && existingName !== generatedName)
         ) {
           return undefined;
         }
         if (existingValue === undefined && existingName === undefined) {
-          memberNames.set(member.name, member.value);
-          memberValues.set(member.value, member.name);
+          memberNames.set(generatedName, member.value);
+          memberValues.set(member.value, generatedName);
           members.push(member);
         }
       }
@@ -251,14 +254,19 @@ export function isUnionEnum(union: Union): boolean {
   return Boolean(union.name && getFlattenedUnionEnumMembers(union)?.length);
 }
 
-/** Whether a union-as-enum has a direct `null` variant and needs a nullable C# reference. */
+/** Whether a union-as-enum has a null variant and needs a nullable C# reference. */
 export function isNullableUnionEnum(union: Union): boolean {
-  return (
-    isUnionEnum(union) &&
-    Array.from(union.variants.values()).some(
-      (variant) => variant.type.kind === "Intrinsic" && variant.type.name === "null",
-    )
-  );
+  const visited = new Set<Union>();
+  const containsNull = (current: Union): boolean => {
+    if (visited.has(current)) return false;
+    visited.add(current);
+    return Array.from(current.variants.values()).some((variant) => {
+      if (variant.type.kind === "Intrinsic" && variant.type.name === "null") return true;
+      return variant.type.kind === "Union" && !variant.type.name && containsNull(variant.type);
+    });
+  };
+
+  return isUnionEnum(union) && containsNull(union);
 }
 
 /** Gets the string members of a union-as-enum, flattening nested named unions. */

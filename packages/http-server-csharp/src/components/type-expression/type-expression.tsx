@@ -15,6 +15,8 @@ import { getAnonymousModelName } from "../models/models.jsx";
 
 export interface TypeExpressionProps {
   type: Type;
+  /** Whether this expression should render the type's own nullable suffix. */
+  nullable?: boolean;
 }
 
 // Re-export efRefkey for consumers that were using serverRefkey
@@ -43,11 +45,11 @@ export function getNullableValueTypeUnionInnerType($: Typekit, type: Type): Type
  */
 export function TypeExpression(props: TypeExpressionProps): Children {
   const { $ } = useTsp();
-  const type = props.type;
+  const { type, nullable = true } = props;
 
   switch (type.kind) {
     case "Union":
-      return resolveUnionType($, type);
+      return resolveUnionType($, type, nullable);
     case "UnionVariant":
       // If this variant belongs to a union-as-enum, resolve to the parent enum type
       if (type.union && isUnionEnum(type.union)) {
@@ -202,11 +204,19 @@ function isInStdLibNamespace(namespace: Namespace | undefined): boolean {
   return false;
 }
 
-function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union): Children {
+function resolveUnionType(
+  $: Typekit,
+  union: import("@typespec/compiler").Union,
+  nullable: boolean,
+): Children {
   // Named unions that qualify as enums should reference the enum type.
   // A direct null member still makes the generated enum type nullable.
   if (isUnionEnum(union)) {
-    return isNullableUnionEnum(union) ? <>{code`${efRefkey(union)}`}?</> : code`${efRefkey(union)}`;
+    return isNullableUnionEnum(union) && nullable ? (
+      <>{code`${efRefkey(union)}`}?</>
+    ) : (
+      code`${efRefkey(union)}`
+    );
   }
 
   // Use emitter-framework's nullable union detection

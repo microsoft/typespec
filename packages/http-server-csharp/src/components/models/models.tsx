@@ -252,7 +252,12 @@ function ServerProperty(props: ServerPropertyProps): Children {
       </>
     );
   } else {
-    typeExpr = <TypeExpression type={resolveToScalar ? getScalarForLiteral(propType) : propType} />;
+    typeExpr = (
+      <TypeExpression
+        type={resolveToScalar ? getScalarForLiteral(propType) : propType}
+        nullable={!needsNullable}
+      />
+    );
   }
 
   return (
