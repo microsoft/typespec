@@ -866,8 +866,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 isRef: parameterSymbol.RefKind == RefKind.Ref,
                 isParams: parameterSymbol.IsParams)
             {
-                HasNullableReferenceTypeAnnotation = parameterSymbol.Type.IsReferenceType &&
-                    parameterSymbol.NullableAnnotation == NullableAnnotation.Annotated,
+                NullableReferenceTypeAnnotation = parameterSymbol.Type.IsReferenceType
+                    ? parameterSymbol.NullableAnnotation : NullableAnnotation.None,
                 HasUnsupportedParameterModifiers = parameterSymbol.RefKind is not
                     (RefKind.None or RefKind.Ref or RefKind.In or RefKind.Out),
                 HasUnsupportedDefaultValue = parameterSymbol.IsOptional &&

@@ -4963,6 +4963,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("FileDataset", "file", true)]
         [TestCase("NullableDataset", "nullable", false)]
         [TestCase("NullableDisabledDataset", "nullable", false)]
+        [TestCase("NonNullableDataset", "nonnullable", false)]
         public async Task BackCompat_InheritedRequiredToOptionalConstructorIsRestored(string modelName, string discriminator, bool privateBackingField)
         {
             var baseModel = InputFactory.Model(
@@ -4970,7 +4971,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
                 properties:
                 [
-                    InputFactory.Property("dataUri", modelName == "NullableDisabledDataset"
+                    InputFactory.Property("dataUri", modelName is "NullableDisabledDataset" or "NonNullableDataset"
                         ? new InputNullableType(InputPrimitiveType.Url) : InputPrimitiveType.Url),
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 ]);
