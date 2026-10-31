@@ -366,14 +366,18 @@ function createMergePatchMutator(
                 model.indexer!.value,
               ).type,
             };
-          } else if ($(realm).record.is(model) && isMergePatchSubject(model.indexer!.value)) {
+          } else if ($(realm).record.is(model)) {
+            const value = isMergePatchSubject(model.indexer!.value)
+              ? mutateSubgraph(
+                  program,
+                  [_optionalInteriorMutator ?? self], // records are always CreateOrUpdate
+                  model.indexer!.value,
+                ).type
+              : model.indexer!.value;
             clone.indexer = {
               key: model.indexer!.key,
-              value: mutateSubgraph(
-                program,
-                [_optionalInteriorMutator ?? self], // records are always CreateOrUpdate
-                model.indexer!.value,
-              ).type,
+              // A null record value represents deletion of that key in a merge patch.
+              value: nullable(realm, value),
             };
           }
 
@@ -471,7 +475,24 @@ function createMergePatchMutator(
     return self;
   }
 
-  function nullable(realm: Realm, t: Type): Union {
+  function isNullableType(realm: Realm, type: Type): boolean {
+    if ($(realm).intrinsic.is(type) && type.name === "null") {
+      return true;
+    }
+    if ($(realm).union.is(type)) {
+      for (const variant of type.variants.values()) {
+        if (isNullableType(realm, variant.type)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function nullable(realm: Realm, t: Type): Type {
+    if (isNullableType(realm, t)) {
+      return t;
+    }
     return $(realm).union.create({
       variants: [
         $(realm).unionVariant.create({
