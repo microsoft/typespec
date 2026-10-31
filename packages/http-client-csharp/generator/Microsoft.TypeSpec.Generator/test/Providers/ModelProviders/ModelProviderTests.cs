@@ -4950,14 +4950,100 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[0].Validation);
             Assert.IsFalse(body.Contains("Argument.AssertNotNull(name"), $"Did not expect duplicated name validation in restored constructor, was: {body}");
             Assert.IsTrue(body.Contains("Resources = resources"), $"Expected the body to assign Resources, was: {body}");
-            // "resources" is now an optional property, so the restored back-compat overload does not null-check it.
-            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[1].Validation);
-            Assert.IsFalse(body.Contains("Argument.AssertNotNull(resources"), $"Did not expect null validation for the now-optional resources parameter, was: {body}");
+            Assert.AreEqual(ParameterValidationType.AssertNotNull, restoredCtor.Signature.Parameters[1].Validation);
 
             // Validate the full generated model, including the restored constructor, against the expected output.
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase("FileDataset", "file", false)]
+        [TestCase("FolderDataset", "folder", false)]
+        [TestCase("FileDataset", "file", true)]
+        public async Task BackCompat_InheritedRequiredToOptionalConstructorIsRestored(string modelName, string discriminator, bool privateBackingField)
+        {
+            var baseModel = InputFactory.Model(
+                "AIProjectDataset",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("dataUri", InputPrimitiveType.Url),
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ]);
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel, discriminatedKind: discriminator);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                lastContractCompilation: async () => (await Helpers.GetCompilationFromDirectoryAsync())
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            if (privateBackingField)
+            {
+                var baseProvider = modelProvider.BaseModelProvider!;
+                var property = baseProvider.CanonicalView.Properties.Single(p => p.Name == "DataUri");
+                property.BackingField = new FieldProvider(FieldModifiers.Private, property.Type, "_dataUri", baseProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Count(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 0), Is.EqualTo(1));
+            var restoredConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            var parameter = restoredConstructor.Signature.Parameters.Single();
+            Assert.That(parameter.Name, Is.EqualTo("dataUri"));
+            Assert.That(parameter.Type.AreNamesEqual(new CSharpType(typeof(Uri))), Is.True);
+            Assert.That(parameter.Type.IsNullable, Is.False);
+            Assert.That(parameter.Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
+            Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("DataUri = dataUri"));
+
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile(modelName)));
+        }
+
+        [TestCase("removed")]
+        [TestCase("readOnly")]
+        [TestCase("changedType")]
+        [TestCase("privateSetter")]
+        public async Task BackCompat_InheritedConstructorNotRestoredWhenPropertyCannotBeAssigned(string change)
+        {
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+            };
+            if (change != "removed")
+            {
+                properties.Add(InputFactory.Property("dataUri", InputPrimitiveType.Url, isReadOnly: change == "readOnly"));
+            }
+            var baseModel = InputFactory.Model("AIProjectDataset", properties: properties);
+            var inputModel = InputFactory.Model("FileDataset", properties: [], baseModel: baseModel, discriminatedKind: "file");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                lastContractCompilation: async () => (await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_InheritedRequiredToOptionalConstructorIsRestored)))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "FileDataset");
+            if (change == "changedType")
+            {
+                modelProvider.BaseModelProvider!.CanonicalView.Properties.Single(p => p.Name == "DataUri")
+                    .Update(type: new CSharpType(typeof(string)));
+            }
+            else if (change == "privateSetter")
+            {
+                modelProvider.BaseModelProvider!.CanonicalView.Properties.Single(p => p.Name == "DataUri")
+                    .Update(body: new AutoPropertyBody(true, MethodSignatureModifiers.Private));
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
         }
 
         [Test]
