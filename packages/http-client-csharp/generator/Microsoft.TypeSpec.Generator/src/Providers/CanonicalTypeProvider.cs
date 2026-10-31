@@ -26,11 +26,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly IReadOnlyList<InputModelProperty> _specProperties;
 
         public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
+            : this(generatedTypeProvider, inputType, null)
+        {
+        }
+
+        /// <summary>
+        /// Creates a view of a mapped CLR model using the input properties projected onto it.
+        /// These properties retain their original input owners and may come from a descendant or
+        /// multiple models in its hierarchy; they are not necessarily <paramref name="inputModel"/>'s properties.
+        /// The input model supplies model-level metadata, not the projected properties' provenance.
+        /// </summary>
+        internal static CanonicalTypeProvider CreateForPropertyProjection(TypeProvider generatedTypeProvider,
+            InputModelType inputModel, IReadOnlyList<InputModelProperty> projectedInputProperties)
+            => new(generatedTypeProvider, inputModel, projectedInputProperties);
+
+        private CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType,
+            IReadOnlyList<InputModelProperty>? projectedInputProperties)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             var externalReplacements = GetExternalPropertyReplacements(inputModel);
-            _specProperties = [.. inputModel?.Properties ?? [], .. externalReplacements.Select(replacement => replacement.Property)];
+            _specProperties = [.. projectedInputProperties ?? inputModel?.Properties ?? [], .. externalReplacements.Select(replacement => replacement.Property)];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)

@@ -43,7 +43,9 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
         private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
-        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+        // Internal consumers may read cached conversions; only TypeFactory populates the cache.
+        internal IReadOnlyDictionary<InputProperty, PropertyProvider?> PropertyCache => _propertyCache;
+        private readonly Dictionary<InputProperty, PropertyProvider?> _propertyCache = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
@@ -131,6 +133,17 @@ namespace Microsoft.TypeSpec.Generator
                 !lastContractProperty.IsInitOnly &&
                 lastContractProperty.Body.HasSetter == !currentProperty.IsReadOnly;
         }
+
+        /// <summary>
+        /// Determines whether a known framework property guarantees a non-null, stable collection
+        /// that supports Clear and Add from a derived constructor. A mutable interface alone is not
+        /// sufficient evidence. Opt in only for established contracts.
+        /// </summary>
+        /// <param name="mappedBase">The mapped framework base containing the property.</param>
+        /// <param name="property">The inherited property to populate during deserialization.</param>
+        /// <returns>True only when the framework contract guarantees safe collection population.</returns>
+        internal virtual bool IsLastContractModelBaseCollectionMutable(CSharpType mappedBase, PropertyProvider property)
+            => false;
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
@@ -491,10 +504,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
-            PropertyCache.Add(property, propertyProvider);
+            _propertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
 
+        // Dispatch through factory overrides and visitors for a specific owner without reading or
+        // populating the input-keyed cache. Projection and reentrant validation require this path.
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
 

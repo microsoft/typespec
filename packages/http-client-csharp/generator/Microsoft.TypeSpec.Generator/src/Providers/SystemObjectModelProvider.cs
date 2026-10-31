@@ -29,10 +29,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _skipDerivedConstructorParameters;
         private readonly TypeProvider? _lastContractType;
         private readonly IReadOnlyList<InputModelProperty>? _mappedInputProperties;
+        private readonly bool _isMappedBaseUpgrade;
 
-        // A flat model also owns properties that do not belong to its restored framework base.
-        // Keep this projection separate from InputModel so source properties retain their original owner.
-        internal bool HasFlatInputProjection => _mappedInputProperties is not null;
+        // Keep the projection model-local so source properties retain their original owner.
+        internal bool HasInputPropertyProjection => _mappedInputProperties is not null;
+        internal bool HasFlatInputProjection => HasInputPropertyProjection && !_isMappedBaseUpgrade;
+        // An upgrade projects optional child properties too; they need not all be constructor inputs.
+        private IReadOnlyList<InputModelProperty> ConstructorInputProperties =>
+            HasFlatInputProjection ? MappedInputProperties : InputModel.Properties;
         internal IReadOnlyList<InputModelProperty> MappedInputProperties => _mappedInputProperties ?? InputModel.Properties;
         internal InputType? MappedAdditionalProperties => _mappedInputProperties is null ? InputModel.AdditionalProperties : null;
 
@@ -58,8 +62,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType systemType,
             InputModelType inputModel,
             TypeProvider lastContractType,
-            IReadOnlyList<InputModelProperty>? mappedInputProperties = null)
-            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, mappedInputProperties)
+            IReadOnlyList<InputModelProperty>? mappedInputProperties = null,
+            bool isMappedBaseUpgrade = false)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, mappedInputProperties, isMappedBaseUpgrade)
         {
         }
 
@@ -68,13 +73,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputModelType inputModel,
             bool skipDerivedConstructorParameters,
             TypeProvider? lastContractType,
-            IReadOnlyList<InputModelProperty>? mappedInputProperties = null)
+            IReadOnlyList<InputModelProperty>? mappedInputProperties = null,
+            bool isMappedBaseUpgrade = false)
             : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             _lastContractType = lastContractType;
             _mappedInputProperties = mappedInputProperties;
+            _isMappedBaseUpgrade = isMappedBaseUpgrade;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -89,6 +96,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool UsesLastContractType => _lastContractType is not null;
 
+        private protected override CanonicalTypeProvider BuildCanonicalView()
+            => HasInputPropertyProjection
+                ? CanonicalTypeProvider.CreateForPropertyProjection(this, InputModel, MappedInputProperties)
+                : base.BuildCanonicalView();
+
+        internal IEnumerable<PropertyProvider> GetAdditionalSerializationProperties()
+        {
+            if (!_isMappedBaseUpgrade)
+            {
+                return [];
+            }
+
+            // The real framework constructor may not consume all projected hierarchy properties. Keep
+            // the remaining values in the generated child's serialization constructor and initialize them there.
+            var constructorNames = FullConstructor.Signature.Parameters.Select(parameter => parameter.Name).ToHashSet(StringComparer.Ordinal);
+            return CanonicalView.Properties.Where(property => property.InputProperty is not null &&
+                !constructorNames.Contains(property.AsParameter.Name));
+        }
+
+        internal bool CanPopulateInheritedCollection(PropertyProvider property)
+            => !property.IsInitOnly && !property.Type.IsNullable && property.WireInfo?.IsNullable != true &&
+                (property.Type.IsReadWriteDictionary || property.Type.IsReadWriteList) &&
+                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBaseCollectionMutable(SystemType, property);
+
         internal bool HasReconstructibleLastContractConstructor
         {
             get
@@ -102,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (_lastContractType.Constructors.Count == 0)
                 {
-                    return MappedInputProperties.Count == 0 &&
+                    return ConstructorInputProperties.Count == 0 &&
                         HasCallableInitializationConstructor() &&
                         HasCallableFrameworkConstructor([]);
                 }
@@ -160,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasCallableInitializationConstructor()
         {
-            var initializationProperties = HasFlatInputProjection ? CanonicalView.Properties : Properties;
+            var initializationProperties = HasInputPropertyProjection ? CanonicalView.Properties : Properties;
             var requiredProperties = initializationProperties.Where(IsRequiredInitializationProperty).ToArray();
             var constructors = _lastContractType!.Constructors;
             if (constructors.Count == 0)
@@ -213,6 +244,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <inheritdoc/>
         protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
+
+        // A projected last-contract provider already contains the effective historical hierarchy.
+        // Walking a cached mapped ancestor again would duplicate its properties and constructor inputs.
+        protected override ModelProvider? BuildBaseModelProvider()
+            => HasInputPropertyProjection ? null : base.BuildBaseModelProvider();
 
         /// <inheritdoc/>
         private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
@@ -291,7 +327,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         (!property.Type.IsValueType || property.Type.IsNullable == parameter.Type.IsNullable)))
                     .ToArray();
                 if (matches.All(property => property is not null) &&
-                    MappedInputProperties.All(inputProperty => matches.Any(property =>
+                    ConstructorInputProperties.All(inputProperty => matches.Any(property =>
                         property is not null &&
                         CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                             SystemType,
