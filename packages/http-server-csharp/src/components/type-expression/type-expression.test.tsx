@@ -152,6 +152,72 @@ describe("nullable union", () => {
       </Wrapper>,
     ).toRenderTo("string");
   });
+
+  it("preserves nullability for a nested union enum", async () => {
+    const { Test, Status } = await runner.compile(t.code`
+      union ${t.union("Status")} {
+        Ready: "ready",
+      }
+      union MaybeStatus {
+        Status,
+        null,
+      }
+      model ${t.model("Test")} {
+        value: MaybeStatus;
+      }
+    `);
+    const type = (Test.properties.get("value") as ModelProperty).type;
+
+    expect(
+      <Wrapper>
+        <cs.EnumDeclaration name="Status" refkey={efRefkey(Status)}>
+          Ready
+        </cs.EnumDeclaration>
+        <hbr />
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo(`
+      enum Status
+      {
+          Ready
+      }
+      Status?
+    `);
+  });
+
+  it("resolves a named nested union variant to its nested type", async () => {
+    const { Outer, Inner } = await runner.compile(t.code`
+      union ${t.union("Inner")} {
+        X: "x",
+        Y: "y",
+      }
+      union ${t.union("Outer")} {
+        Group: Inner,
+        string,
+      }
+      model Test {
+        value: Outer.Group;
+      }
+    `);
+    const variant = Array.from(Outer.variants.values()).find((item) => item.name === "Group")!;
+
+    expect(
+      <Wrapper>
+        <cs.EnumDeclaration name="Inner" refkey={efRefkey(Inner)}>
+          X{"\n"}Y
+        </cs.EnumDeclaration>
+        <hbr />
+        <TypeExpression type={variant.type as ModelProperty["type"]} />
+      </Wrapper>,
+    ).toRenderTo(`
+      enum Inner
+      {
+          X
+          Y
+      }
+      Inner
+    `);
+  });
 });
 
 describe("literal types", () => {

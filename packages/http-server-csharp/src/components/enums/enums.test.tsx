@@ -190,6 +190,53 @@ describe("isUnionEnum", () => {
 
     expect(isUnionEnum(Mixed)).toBe(false);
   });
+
+  it("returns false for conflicting flattened member names or values", async () => {
+    const { ConflictingName, ConflictingValue } = await runner.compile(t.code`
+      union InnerName { State: "inner" }
+      union ${t.union("ConflictingName")} {
+        State: "outer",
+        InnerName,
+      }
+
+      union InnerValue { First: "same" }
+      union ${t.union("ConflictingValue")} {
+        Second: "same",
+        InnerValue,
+      }
+    `);
+
+    expect(isUnionEnum(ConflictingName)).toBe(false);
+    expect(isUnionEnum(ConflictingValue)).toBe(false);
+  });
+
+  it("does not treat a named nested union variant as an enum member", async () => {
+    const { Outer } = await runner.compile(t.code`
+      union Inner {
+        X: "x",
+        Y: "y",
+      }
+      union ${t.union("Outer")} {
+        Group: Inner,
+        string,
+      }
+    `);
+
+    expect(isUnionEnum(Outer)).toBe(false);
+  });
+
+  it("preserves nullable wrappers around nested unions", async () => {
+    const { MaybeStatus } = await runner.compile(t.code`
+      union Status { Ready: "ready" }
+      union ${t.union("MaybeStatus")} {
+        Status,
+        null,
+      }
+    `);
+
+    expect(isUnionEnum(MaybeStatus)).toBe(false);
+    expect(getUnionEnumMembers(MaybeStatus)).toEqual([]);
+  });
 });
 
 describe("union-as-enum rendering", () => {

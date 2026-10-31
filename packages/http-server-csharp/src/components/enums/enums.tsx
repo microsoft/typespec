@@ -166,16 +166,26 @@ function getFlattenedUnionEnumMembers(
 ): UnionEnumMember[] | undefined {
   if (activeUnions.has(union)) return undefined;
 
+  const isRootUnion = activeUnions.size === 0;
   const nextActiveUnions = new Set(activeUnions);
   nextActiveUnions.add(union);
   const members: UnionEnumMember[] = [];
+  const memberNames = new Map<string, string>();
+  const memberValues = new Map<string, string>();
+  let hasNamedNestedUnion = false;
+  let hasNullVariant = false;
 
   for (const variant of union.variants.values()) {
-    // Allow the open string and null parts of extensible or nullable unions.
+    // Open-string and null variants are only valid at the union being emitted.
+    // Dropping either from a nested union would change the type's semantics.
     if (
       (variant.type.kind === "Scalar" && variant.type.name === "string") ||
       (variant.type.kind === "Intrinsic" && variant.type.name === "null")
     ) {
+      // Anonymous inline literal unions may include null as a member of the
+      // inline expression. Named nested unions retain their own nullability.
+      if (!isRootUnion && union.name) return undefined;
+      if (variant.type.kind === "Intrinsic") hasNullVariant = true;
       continue;
     }
 
@@ -183,20 +193,60 @@ function getFlattenedUnionEnumMembers(
       // An unnamed string literal (e.g., `"none"`) derives its member name
       // from its value; named variants retain their explicit name.
       const name = typeof variant.name === "string" ? variant.name : variant.type.value;
-      members.push({ name, value: variant.type.value, variant });
+      const existingValue = memberNames.get(name);
+      const existingName = memberValues.get(variant.type.value);
+
+      // Identical members can be reached through multiple nested unions, but
+      // conflicting names or values cannot be represented unambiguously in the
+      // generated C# enum or its default-value references.
+      if (
+        (existingValue !== undefined && existingValue !== variant.type.value) ||
+        (existingName !== undefined && existingName !== name)
+      ) {
+        return undefined;
+      }
+      if (existingValue === undefined && existingName === undefined) {
+        memberNames.set(name, variant.type.value);
+        memberValues.set(variant.type.value, name);
+        members.push({ name, value: variant.type.value, variant });
+      }
       continue;
     }
 
     if (variant.type.kind === "Union") {
+      // A named nested union variant (e.g. `Group: Inner`) is a reference to
+      // the nested type, not an enum member. Keep the existing type-resolution
+      // path instead of emitting an enum that has no `Group` member.
+      if (typeof variant.name === "string") return undefined;
+      hasNamedNestedUnion ||= Boolean(variant.type.name);
+
       const nestedMembers = getFlattenedUnionEnumMembers(variant.type, nextActiveUnions);
       if (!nestedMembers) return undefined;
-      members.push(...nestedMembers);
+      for (const member of nestedMembers) {
+        const existingValue = memberNames.get(member.name);
+        const existingName = memberValues.get(member.value);
+        if (
+          (existingValue !== undefined && existingValue !== member.value) ||
+          (existingName !== undefined && existingName !== member.name)
+        ) {
+          return undefined;
+        }
+        if (existingValue === undefined && existingName === undefined) {
+          memberNames.set(member.name, member.value);
+          memberValues.set(member.value, member.name);
+          members.push(member);
+        }
+      }
       continue;
     }
 
     return undefined;
   }
 
+  // A nullable wrapper around a named nested union must remain a union so type
+  // resolution can preserve `?`; anonymous inline literal unions are safe to
+  // flatten because their literal members are part of this union itself.
+  if (hasNamedNestedUnion && hasNullVariant) return undefined;
   return members;
 }
 
