@@ -55,7 +55,7 @@ export function TypeExpression(props: TypeExpressionProps): Children {
       if (type.union && isUnionEnum(type.union)) {
         return code`${efRefkey(type.union)}`;
       }
-      return <TypeExpression type={type.type} />;
+      return <TypeExpression type={type.type} nullable={nullable} />;
     case "Enum":
       try {
         return <EfTypeExpression type={type} />;
@@ -112,7 +112,7 @@ export function TypeExpression(props: TypeExpressionProps): Children {
     case "TemplateParameter":
       return code`${(type.node as any)?.id?.sv ?? "T"}`;
     case "ModelProperty":
-      return <TypeExpression type={type.type} />;
+      return <TypeExpression type={type.type} nullable={nullable} />;
     case "Model":
       // Handle Record<T> → IDictionary<string, T> or JsonObject for Record<unknown>
       if ($.record.is(type)) {
@@ -231,12 +231,12 @@ function resolveUnionType(
     if (nullableValueType) {
       return (
         <>
-          <TypeExpression type={nullableValueType} />?
+          <TypeExpression type={nullableValueType} nullable={false} />?
         </>
       );
     }
     // Nullable reference type or multi-variant nullable → resolve inner type
-    return <TypeExpression type={innerType} />;
+    return <TypeExpression type={innerType} nullable={nullable} />;
   }
 
   // Non-nullable union: check if all variants resolve to the same base kind
@@ -256,7 +256,7 @@ function resolveUnionType(
     return v.type === firstType;
   });
 
-  if (allSameKind) return <TypeExpression type={firstType} />;
+  if (allSameKind) return <TypeExpression type={firstType} nullable={nullable} />;
 
   // For mixed types, use object
   return code`object`;

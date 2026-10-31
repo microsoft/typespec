@@ -166,7 +166,6 @@ function getFlattenedUnionEnumMembers(
 ): UnionEnumMember[] | undefined {
   if (activeUnions.has(union)) return undefined;
 
-  const isRootUnion = activeUnions.size === 0;
   const nextActiveUnions = new Set(activeUnions);
   nextActiveUnions.add(union);
   const members: UnionEnumMember[] = [];
@@ -175,13 +174,12 @@ function getFlattenedUnionEnumMembers(
   const namePolicy = cs.createCSharpNamePolicy();
 
   for (const variant of union.variants.values()) {
-    // Open-string and null variants are only valid at the union being emitted.
-    // Dropping either from a nested union would change the type's semantics.
+    // Open-string and null variants do not produce enum members. They remain
+    // part of the containing union's value space.
     if (
       (variant.type.kind === "Scalar" && variant.type.name === "string") ||
       (variant.type.kind === "Intrinsic" && variant.type.name === "null")
     ) {
-      if (!isRootUnion && union.name) return undefined;
       continue;
     }
 
@@ -262,7 +260,7 @@ export function isNullableUnionEnum(union: Union): boolean {
     visited.add(current);
     return Array.from(current.variants.values()).some((variant) => {
       if (variant.type.kind === "Intrinsic" && variant.type.name === "null") return true;
-      return variant.type.kind === "Union" && !variant.type.name && containsNull(variant.type);
+      return variant.type.kind === "Union" && containsNull(variant.type);
     });
   };
 
