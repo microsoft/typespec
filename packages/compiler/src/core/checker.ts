@@ -7205,10 +7205,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       argNode: Expression,
       perParamType: MixedParameterConstraint,
     ): DecoratorArgument | undefined {
-      const arg = getTypeOrValueForNode(argNode, ctx, {
-        kind: "argument",
-        constraint: perParamType,
-      });
+      let hadArgDiagnostic = false;
+      const oldDiagnosticHook = onCheckerDiagnostic;
+      onCheckerDiagnostic = (x: Diagnostic) => {
+        if (x.severity === "error" || x.severity === undefined) {
+          hadArgDiagnostic = true;
+        }
+        oldDiagnosticHook(x);
+      };
+      let arg: Type | Value | null;
+      try {
+        arg = getTypeOrValueForNode(argNode, ctx, {
+          kind: "argument",
+          constraint: perParamType,
+        });
+      } finally {
+        onCheckerDiagnostic = oldDiagnosticHook;
+      }
+
+      if (hadArgDiagnostic) {
+        return undefined;
+      }
 
       if (
         arg !== null &&
