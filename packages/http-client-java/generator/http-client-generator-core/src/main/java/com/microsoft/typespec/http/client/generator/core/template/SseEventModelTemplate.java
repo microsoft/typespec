@@ -90,8 +90,8 @@ public final class SseEventModelTemplate {
             javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("false"));
             javaClass.staticBlock(staticBlock -> {
-                staticBlock.line(
-                    serializerName + ".setConstructorAccessor(new " + serializerName + ".ConstructorAccessor() {");
+                staticBlock.line(serializerName + ".setConstructorAccessor(new " + serializerName
+                    + ".SseEventConstructorAccessor() {");
                 staticBlock.indent(() -> {
                     staticBlock.line("@Override");
                     staticBlock.block("public " + baseEventName + " unknownEvent(String eventName)",

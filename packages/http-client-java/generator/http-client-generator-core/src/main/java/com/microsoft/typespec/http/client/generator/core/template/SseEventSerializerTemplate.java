@@ -65,14 +65,14 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<ClientMod
         javaFile.publicFinalClass(serializerName, javaClass -> {
             javaClass
                 .privateStaticFinalVariable("ClientLogger LOGGER = new ClientLogger(" + serializerName + ".class)");
-            javaClass.privateMemberVariable("static volatile ConstructorAccessor constructorAccessor");
+            javaClass.privateMemberVariable("static volatile SseEventConstructorAccessor constructorAccessor");
             javaClass.privateConstructor(serializerName + "()", ignored -> {
             });
             javaClass
                 .javadocComment(comment -> comment.description("Provides access to the SDK-only event constructors."));
             javaClass.interfaceBlock(
                 com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility.Public,
-                "ConstructorAccessor", interfaceBlock -> {
+                "SseEventConstructorAccessor", interfaceBlock -> {
                     interfaceBlock.javadocComment(comment -> {
                         comment.description("Creates a name-only event.");
                         comment.param("eventName", "The event name.");
@@ -98,12 +98,13 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<ClientMod
                 comment.description("Registers the event constructors from the models package.");
                 comment.param("accessor", "The constructor accessor.");
             });
-            javaClass.publicStaticMethod("void setConstructorAccessor(ConstructorAccessor accessor)", method -> method
-                .line("constructorAccessor = Objects.requireNonNull(accessor, \"'accessor' cannot be null.\");"));
+            javaClass.publicStaticMethod("void setConstructorAccessor(SseEventConstructorAccessor accessor)",
+                method -> method
+                    .line("constructorAccessor = Objects.requireNonNull(accessor, \"'accessor' cannot be null.\");"));
             javaClass.staticMethod(
                 com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility.Private,
-                "ConstructorAccessor getConstructorAccessor()", method -> {
-                    method.line("ConstructorAccessor accessor = constructorAccessor;");
+                "SseEventConstructorAccessor getConstructorAccessor()", method -> {
+                    method.line("SseEventConstructorAccessor accessor = constructorAccessor;");
                     method.line("if (accessor == null) {");
                     method.indent(() -> {
                         method.line("try {");
@@ -136,7 +137,7 @@ public final class SseEventSerializerTemplate implements IJavaTemplate<ClientMod
                     .anyMatch(event -> "message".equals(event.getEventName()))) {
                     method.line("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;");
                 }
-                method.line("ConstructorAccessor accessor = getConstructorAccessor();");
+                method.line("SseEventConstructorAccessor accessor = getConstructorAccessor();");
                 method.line("switch (eventName) {");
                 method.indent(() -> {
                     for (ClientModel event : baseModel.getDerivedModels()) {

@@ -28,6 +28,9 @@ import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,7 +145,7 @@ public class JavaPackageSseTests {
         Assertions.assertTrue(wrapperSource.contains("@Generated\n    private final String value;"));
         Assertions.assertTrue(
             baseEventSource.contains("KnowledgeBaseRetrievalStreamEventSerializer.setConstructorAccessor("));
-        Assertions.assertTrue(serializerSource.contains("public interface ConstructorAccessor"));
+        Assertions.assertTrue(serializerSource.contains("public interface SseEventConstructorAccessor"));
         Assertions.assertTrue(serializerSource
             .contains("public static KnowledgeBaseRetrievalStreamEvent deserialize(String eventName, String data)"));
         Assertions.assertTrue(serializerSource
@@ -266,6 +269,9 @@ public class JavaPackageSseTests {
         addMappedSseFamily(javaPackage, metadata);
 
         String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(serializerSource.contains("public interface SseEventConstructorAccessor"),
+            serializerSource);
+        Assertions.assertFalse(serializerSource.contains("public interface ConstructorAccessor"), serializerSource);
         Assertions.assertTrue(serializerSource.contains("import java.time.Duration;"));
         Assertions.assertTrue(serializerSource.contains(
             "accessor.createDuration(read(eventName, data, reader -> Duration.ofSeconds(reader.getLong())))"));
@@ -437,6 +443,120 @@ public class JavaPackageSseTests {
         Assertions.assertTrue(generatedSources.contains("Payload value"), generatedSources);
         Assertions.assertTrue(generatedSources.contains("List<NestedPayload>"), generatedSources);
         Assertions.assertFalse(generatedSources.contains("com.azure.payload.models.Payload value"), generatedSources);
+    }
+
+    @Test
+    public void compilesAndDeserializesConstructorAccessorPayload(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        ObjectSchema payload = objectSchema("ConstructorAccessor", "com.azure.mock");
+        payload.setUsage(Set.of(SchemaContext.INPUT, SchemaContext.OUTPUT, SchemaContext.PUBLIC));
+        payload.setProperties(List.of(property("value", stringSchema())));
+        ClientModel payloadModel = ModelMapper.getInstance().map(payload);
+        javaPackage.addModel(payloadModel.getPackage(), payloadModel.getName(), payloadModel);
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("message", payload)));
+        addMappedSseFamily(javaPackage, metadata);
+
+        String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(serializerSource.contains("ConstructorAccessor value"), serializerSource);
+        Assertions.assertTrue(serializerSource.contains("ConstructorAccessor::fromJson"), serializerSource);
+
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serializer = loader.loadClass("com.azure.mock.implementation.RetrievalStreamEventSerializer");
+            Method deserialize = serializer.getMethod("deserialize", String.class, String.class);
+            Object unknown = deserialize.invoke(null, "unrecognized", "{}");
+            Class<?> baseEvent = loader.loadClass("com.azure.mock.models.RetrievalStreamEvent");
+            Assertions.assertEquals(0, baseEvent.getDeclaredConstructor(String.class).getModifiers());
+            Assertions.assertEquals("unrecognized", baseEvent.getMethod("getEventName").invoke(unknown));
+            Assertions.assertEquals(false, baseEvent.getMethod("isTerminal").invoke(unknown));
+
+            Object envelope = deserialize.invoke(null, "message", "{\"value\":\"decoded\"}");
+            Assertions.assertEquals("com.azure.mock.models.RetrievalMessageStreamEvent", envelope.getClass().getName());
+            Object value = envelope.getClass().getMethod("getValue").invoke(envelope);
+            Assertions.assertEquals(loader.loadClass("com.azure.mock.models.ConstructorAccessor"), value.getClass());
+            Assertions.assertEquals("decoded", value.getClass().getMethod("getValue").invoke(value));
+        }
+    }
+
+    @Test
+    public void keepsConstructorAccessorsIndependentBetweenStreams(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        ObjectSchema payload = objectSchema("OtherPayload", "com.azure.mock");
+        payload.setUsage(Set.of(SchemaContext.INPUT, SchemaContext.OUTPUT, SchemaContext.PUBLIC));
+        payload.setProperties(List.of(property("value", stringSchema())));
+        ClientModel payloadModel = ModelMapper.getInstance().map(payload);
+        javaPackage.addModel(payloadModel.getPackage(), payloadModel.getName(), payloadModel);
+
+        SseMetadata first = metadata();
+        first.setStreamName("FirstEvents");
+        first.setEvents(List.of(event("message", stringSchema())));
+        configureSchemas(first, "FirstEvents", "com.azure.first");
+        addMappedSseFamily(javaPackage, first);
+        SseMetadata second = metadata();
+        second.setStreamName("SecondEvents");
+        SseEventMetadata terminal = event("completed", payload);
+        terminal.setTerminal(true);
+        second.setEvents(List.of(event("message", payload), terminal));
+        configureSchemas(second, "SecondEvents", "com.azure.second");
+        addMappedSseFamily(javaPackage, second);
+
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Method firstDeserialize = loader.loadClass("com.azure.mock.implementation.FirstEventSerializer")
+                .getMethod("deserialize", String.class, String.class);
+            Method secondDeserialize = loader.loadClass("com.azure.mock.implementation.SecondEventSerializer")
+                .getMethod("deserialize", String.class, String.class);
+            Object firstEnvelope = firstDeserialize.invoke(null, "message", "\"first\"");
+            Assertions.assertEquals("com.azure.first.models.FirstEventMessageStreamEvent",
+                firstEnvelope.getClass().getName());
+            Assertions.assertEquals("first", firstEnvelope.getClass().getMethod("getValue").invoke(firstEnvelope));
+
+            Object secondEnvelope = secondDeserialize.invoke(null, "message", "{\"value\":\"second\"}");
+            Assertions.assertEquals("com.azure.second.models.SecondEventMessageStreamEvent",
+                secondEnvelope.getClass().getName());
+            Object value = secondEnvelope.getClass().getMethod("getValue").invoke(secondEnvelope);
+            Assertions.assertEquals(loader.loadClass("com.azure.mock.models.OtherPayload"), value.getClass());
+            Assertions.assertEquals("second", value.getClass().getMethod("getValue").invoke(value));
+
+            Object completed = secondDeserialize.invoke(null, "completed", "{\"value\":\"finished\"}");
+            Assertions.assertEquals(true, completed.getClass().getMethod("isTerminal").invoke(completed));
+            Object unknown = secondDeserialize.invoke(null, "unrecognized", "{}");
+            Class<?> secondBase = loader.loadClass("com.azure.second.models.SecondEvent");
+            Assertions.assertEquals("unrecognized", secondBase.getMethod("getEventName").invoke(unknown));
+            Assertions.assertEquals(false, secondBase.getMethod("isTerminal").invoke(unknown));
+
+            firstEnvelope = firstDeserialize.invoke(null, "message", "\"first-again\"");
+            Assertions.assertEquals("first-again",
+                firstEnvelope.getClass().getMethod("getValue").invoke(firstEnvelope));
+        }
+    }
+
+    private static Path compileGeneratedSources(JavaPackage javaPackage, Path directory) throws IOException {
+        List<Path> sources = new ArrayList<>();
+        for (JavaFile javaFile : javaPackage.getJavaFiles()) {
+            Path source = directory.resolve(javaFile.getFilePath());
+            Files.createDirectories(source.getParent());
+            Files.writeString(source, javaFile.getContents().toString());
+            sources.add(source);
+        }
+        Path classes = directory.resolve("classes");
+        Files.createDirectories(classes);
+        List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+            classes.toString()));
+        arguments.addAll(sources.stream().map(Path::toString).collect(Collectors.toList()));
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int exitCode = ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, arguments.toArray(new String[0]));
+        Assertions.assertEquals(0, exitCode, diagnostics.toString(StandardCharsets.UTF_8));
+        return classes;
     }
 
     private static void addMappedSseFamily(JavaPackage javaPackage, SseMetadata metadata) {
