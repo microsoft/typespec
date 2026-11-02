@@ -1,6 +1,6 @@
 {
   "name": "@typespec/protobuf",
-  "version": "0.86.0",
+  "version": "0.87.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
   "homepage": "https://github.com/microsoft/typespec",
@@ -45,6 +45,9 @@
     "lint": "oxlint . --deny-warnings",
     "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/emitters/protobuf/reference"
+  },
+  "dependencies": {
+    "change-case": "catalog:"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^"

@@ -7,6 +7,7 @@ import type { Linter } from "../../src/core/linter.js";
 import { createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
   type Diagnostic,
+  type EnumMember,
   type Interface,
   type LibraryInstance,
   type LinterDefinition,
@@ -285,6 +286,45 @@ describe("diagnostic location", () => {
 });
 
 describe("when enabling a rule", () => {
+  it.each(["enumMember", "exitEnumMember"] as const)(
+    "reports diagnostics from %s listeners",
+    async (event) => {
+      const rule = createLinterRule({
+        name: "no-enum-member-foo",
+        description: "Prevents enum members named Foo",
+        severity: "warning",
+        messages: {
+          default: "Cannot call enum member 'Foo'",
+        },
+        create(context) {
+          return {
+            [event]: (target: EnumMember) => {
+              if (target.name === "Foo") {
+                context.reportDiagnostic({ target });
+              }
+            },
+          };
+        },
+      });
+      const linter = await createTestLinterAndEnableRules(
+        `
+          enum Test { Foo, Bar }
+          model References {
+            first: Test.Foo;
+            second: Test.Foo;
+          }
+        `,
+        { rules: [rule] },
+      );
+
+      expectDiagnostics((await linter.lint()).diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-enum-member-foo",
+        message: "Cannot call enum member 'Foo'",
+      });
+    },
+  );
+
   it("emit a diagnostic if rule report one", async () => {
     const linter = await createTestLinter(`model Foo {}`, {
       rules: [noModelFoo],

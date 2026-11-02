@@ -1,0 +1,10 @@
+/test/main.tsp:22:61 - error @typespec/protobuf/long-running-type: the response type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:23:70 - error @typespec/protobuf/long-running-type: the metadata type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:24:63 - error @typespec/protobuf/long-running-type: the response type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:24:67 - error @typespec/protobuf/long-running-type: the metadata type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:27:34 - error @typespec/protobuf/long-running-type: the response type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:28:34 - error @typespec/protobuf/long-running-type: the response type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:31:42 - error @typespec/protobuf/long-running-type: the metadata type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:32:74 - error @typespec/protobuf/long-running-type: the response type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:33:52 - error @typespec/protobuf/long-running-type: the response type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model
+/test/main.tsp:33:62 - error @typespec/protobuf/long-running-type: the metadata type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model

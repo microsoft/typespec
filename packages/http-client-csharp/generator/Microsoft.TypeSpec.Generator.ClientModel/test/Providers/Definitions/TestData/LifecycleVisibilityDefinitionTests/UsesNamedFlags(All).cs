@@ -1,0 +1,1 @@
+global::Sample.LifecycleVisibility.All

@@ -1,5 +1,9 @@
 import { createTypeSpecLibrary, paramMessage, type JSONSchemaType } from "@typespec/compiler";
 
+/**
+ * Controls the GraphQL SDL output location, line endings, and inclusion of
+ * types not referenced by operations. Omitted options use the emitter defaults.
+ */
 export interface GraphQLEmitterOptions {
   /**
    * Name of the output file.
@@ -207,6 +211,7 @@ export const libDef = {
   },
 } as const;
 
+/** TypeSpec library registration providing GraphQL diagnostics, state keys, and emitter options. */
 export const $lib = createTypeSpecLibrary(libDef);
 
 export const { reportDiagnostic, createDiagnostic, stateKeys: GraphQLKeys } = $lib;

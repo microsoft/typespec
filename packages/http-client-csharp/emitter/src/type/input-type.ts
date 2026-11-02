@@ -59,6 +59,12 @@ export interface InputNamespace extends DecoratedType {
 
 interface DecoratedType {
   decorators?: DecoratorInfo[];
+  experimental?: InputExperimentalDetails;
+}
+
+export interface InputExperimentalDetails {
+  diagnosticId?: string;
+  dependsOn: string[];
 }
 
 interface InputTypeBase extends DecoratedType {
@@ -193,6 +199,8 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  /** Bit mask of the property's HTTP lifecycle visibilities. */
+  lifecycleVisibility?: number;
   apiVersions: string[];
   discriminator: boolean;
   serializedName: string;

@@ -60,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
+            int visibility = (int)InputVisibility.All;
             bool isHttpMetadata = false;
             string? access = null;
             bool isDiscriminator = false;
@@ -68,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? encodeString = null;
             bool isExactName = false;
             IReadOnlyList<string>? apiVersions = null;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -81,9 +83,11 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
                     || reader.TryReadBoolean("optional", ref isOptional)
+                    || reader.TryReadInt32("lifecycleVisibility", ref visibility)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
@@ -102,6 +106,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.Doc = doc;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
+            property.Visibility = (InputVisibility)visibility;
             property.IsReadOnly = isReadOnly;
             property.IsHttpMetadata = isHttpMetadata;
             property.Access = access;
@@ -114,6 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
             property.IsExactName = isExactName;
             property.ApiVersions = apiVersions ?? [];
+            property.Experimental = experimental;
 
             return property;
         }

@@ -8,13 +8,19 @@ import { ClassBases } from "./class-bases.js";
 import { ClassBody } from "./class-body.js";
 import { MethodProvider } from "./class-method.js";
 
+/** TypeSpec-backed class options; generated members precede any supplied children. */
 export interface ClassDeclarationPropsWithType extends Omit<py.ClassDeclarationProps, "name"> {
+  /** Model for a dataclass/array subclass, or interface for an ABC with operation members. */
   type: Model | Interface;
+  /** Name override, passed through the active Python class naming policy. */
   name?: string;
+  /** Adds ABC and makes generated operations abstract; interfaces always take this path. */
   abstract?: boolean; // Global override for the abstract flag
+  /** Default method kind for generated operations and descendant {@link Method} components. */
   methodType?: "method" | "class" | "static"; // Global override for the method type
 }
 
+/** Selects a TypeSpec-derived class body or a manually composed Alloy class. */
 export type ClassDeclarationProps = ClassDeclarationPropsWithType | py.ClassDeclarationProps;
 
 function isTypedClassDeclarationProps(

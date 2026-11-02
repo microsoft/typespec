@@ -32,7 +32,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected EnumProvider(InputEnumType? input) : base(input)
         {
             _inputType = input;
-            _deprecated = input?.Deprecation;
             IsExtensible = input?.IsExtensible ?? false;
             InputNamespace = input?.Namespace;
         }
@@ -108,7 +107,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return generatedName;
             }
 
-            if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
+            if (lastContractNames.Contains(generatedName, StringComparer.Ordinal) ||
+                (lastContractNames.Contains(generatedName, StringComparer.OrdinalIgnoreCase) &&
+                 IsCustomizedValueName(generatedName)))
             {
                 return generatedName;
             }
@@ -142,7 +143,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return backCompatName;
         }
 
-        private protected static string GetGeneratedValueName(
+        private protected string[] GetGeneratedValueNames(
+            IReadOnlyList<InputEnumTypeValue> inputValues,
+            IReadOnlyList<string> lastContractNames)
+        {
+            var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
+            var normalizedNames = new string[previousNames.Length];
+            for (int i = 0; i < previousNames.Length; i++)
+            {
+                var name = previousNames[i];
+                if (inputValues[i].IsExactName || IsCustomizedValueName(name))
+                {
+                    normalizedNames[i] = name;
+                    continue;
+                }
+
+                var normalizedName = name.NormalizeCSharpAcronyms();
+                normalizedNames[i] = lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
+                    ? name
+                    : normalizedName;
+            }
+            return normalizedNames;
+        }
+
+        private protected virtual bool IsCustomizedValueName(string name) =>
+            GetMemberSuppressionAttributes().Any(a => a.ConstructorArguments.Length > 0 &&
+                a.ConstructorArguments[0].Value is string suppressedName && suppressedName == name);
+
+        private static string GetGeneratedValueName(
             InputEnumTypeValue inputValue,
             IReadOnlyList<string> lastContractNames)
         {

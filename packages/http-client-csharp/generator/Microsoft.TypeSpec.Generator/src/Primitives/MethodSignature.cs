@@ -27,6 +27,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public sealed class MethodSignature(string Name, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<AttributeStatement>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null)
         : MethodSignatureBase(Name, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>(), ReturnType)
     {
+        // Ref returns and variable argument lists are not represented by this signature model.
+        internal bool HasUnsupportedBaseContract { get; init; }
         public FormattableString? ReturnDescription { get; } = ReturnDescription;
         public IReadOnlyList<CSharpType>? GenericArguments { get; } = GenericArguments;
         public IReadOnlyList<WhereExpression>? GenericParameterConstraints { get; } = GenericParameterConstraints;

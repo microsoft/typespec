@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import type { Enum } from "@typespec/compiler";
+import { resolveEncodedEnumMemberValue } from "@typespec/compiler";
 import type { JsContext } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { emitDocumentation } from "./documentation.js";
@@ -21,7 +22,7 @@ export function* emitEnum(ctx: JsContext, enum_: Enum): Iterable<string> {
 
   for (const member of enum_.members.values()) {
     const nameCase = parseCase(member.name);
-    const value = member.value ?? member.name;
+    const value = resolveEncodedEnumMemberValue(ctx.program, member, "application/json");
     yield `  ${nameCase.pascalCase} = ${JSON.stringify(value)},`;
   }
 

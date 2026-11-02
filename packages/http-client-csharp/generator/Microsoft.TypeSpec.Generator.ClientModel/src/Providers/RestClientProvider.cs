@@ -52,6 +52,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider ClientProvider { get; }
 
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
         protected override string BuildName() => ClientProvider.Name;
@@ -189,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
-            var options = ScmKnownParameters.RequestOptions;
+            var options = ScmKnownParameters.CreateRequestOptions();
             var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, ClientProvider);
 
             if (isNextLinkRequest)
@@ -245,13 +248,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build message and all request modifications
             var messageStatements = BuildMessage(serviceMethod, signature, isNextLinkRequest);
 
-            return new ScmMethodProvider(
+            var method = new ScmMethodProvider(
                 signature,
                 messageStatements,
                 this,
                 ScmMethodKind.CreateRequest,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
+            ExperimentalApiHelpers.AddDependencySuppressions(method, serviceMethod.Operation);
+            return method;
         }
 
         private MethodBodyStatements BuildMessage(
@@ -261,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // Create required components
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
-            var options = ScmKnownParameters.RequestOptions;
+            var options = signature.Parameters[^1];
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
@@ -460,7 +465,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToIdentifierName(),
                         new ExpressionPropertyBody(
-                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)), nullCoalesce: true)),
+                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(statusCodes), nullCoalesce: true)),
                         this)
                     {
                         BackingField = classifierBackingField
@@ -1212,13 +1217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                foreach (var statusCode in response.StatusCodes)
-                {
-                    if (statusCode >= 200 && statusCode < 400)
-                    {
-                        statusCodes.Add(statusCode);
-                    }
-                }
+                statusCodes.UnionWith(response.StatusCodes);
             }
 
             return [.. statusCodes.OrderBy(i => i)];
@@ -1412,7 +1411,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 bool bodyIsRequired = methodType == ScmMethodKind.Protocol
                     && operation.Parameters.OfType<InputBodyParameter>().Any(p => p.IsRequired);
-                sortedParams.Add(contentType++, bodyIsRequired ? ScmKnownParameters.ContentType : ScmKnownParameters.OptionalContentType);
+                sortedParams.Add(contentType++, ScmKnownParameters.CreateContentType(bodyIsRequired));
             }
 
             if (methodType == ScmMethodKind.CreateRequest)

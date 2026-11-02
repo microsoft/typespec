@@ -91,6 +91,11 @@ export function getAllHttpServices(
   return diagnostics.wrap(services);
 }
 
+/**
+ * Resolves a namespace's HTTP operations and directly declared authentication, validating endpoint uniqueness.
+ * Does not recurse into nested namespaces when resolving the global namespace.
+ * Returns resolution and duplicate-route diagnostics alongside the service.
+ */
 export function getHttpService(
   program: Program,
   serviceNamespace: Namespace,
@@ -117,6 +122,11 @@ export function getHttpService(
   return diagnostics.wrap(service);
 }
 
+/**
+ * Reports `no-service-found` for project namespaces with operations when the program declares no service.
+ *
+ * @param routes Retained for compatibility; the current implementation does not inspect this array.
+ */
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   const services = listServices(program);
   // Only warn if there are no services defined anywhere in the program
@@ -191,7 +201,13 @@ export function validateRouteUnique(
   }
 }
 
-export function isOverloadSameEndpoint(overload: HttpOperation & { overloading: HttpOperation }) {
+/** Tests whether an overload has the same legacy route path and HTTP method as its base operation. */
+export function isOverloadSameEndpoint(
+  overload: HttpOperation & {
+    /** Resolved base operation whose endpoint is compared with the overload. */
+    overloading: HttpOperation;
+  },
+) {
   return overload.path === overload.overloading.path && overload.verb === overload.overloading.verb;
 }
 

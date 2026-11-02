@@ -533,4 +533,57 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     ]);
   });
+
+  it("deduplicates identical summaries and descriptions across shared routes", async () => {
+    const results = await openApiFor(
+      `
+      @service(#{title: "My Service"})
+      namespace Foo {
+        /** Creates a thing. */
+        @summary("Create")
+        @sharedRoute
+        @post
+        @route("/things")
+        op createJson(@header("Content-Type") contentType: "application/json", @body body: Record<string>): void;
+
+        /** Creates a thing. */
+        @summary("Create")
+        @sharedRoute
+        @post
+        @route("/things")
+        op createText(@header("Content-Type") contentType: "text/plain", @body body: string): void;
+      }
+      `,
+    );
+    deepStrictEqual(results.paths["/things"].post.summary, "Create");
+    deepStrictEqual(results.paths["/things"].post.description, "Creates a thing.");
+  });
+
+  it("joins distinct summaries and descriptions across shared routes", async () => {
+    const results = await openApiFor(
+      `
+      @service(#{title: "My Service"})
+      namespace Foo {
+        /** Creates a JSON thing. */
+        @summary("Create JSON")
+        @sharedRoute
+        @post
+        @route("/things")
+        op createJson(@header("Content-Type") contentType: "application/json", @body body: Record<string>): void;
+
+        /** Creates a text thing. */
+        @summary("Create text")
+        @sharedRoute
+        @post
+        @route("/things")
+        op createText(@header("Content-Type") contentType: "text/plain", @body body: string): void;
+      }
+      `,
+    );
+    deepStrictEqual(results.paths["/things"].post.summary, "Create JSON Create text");
+    deepStrictEqual(
+      results.paths["/things"].post.description,
+      "Creates a JSON thing. Creates a text thing.",
+    );
+  });
 });

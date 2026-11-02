@@ -134,6 +134,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .operationInstrumentationInfo(new OperationInstrumentationInfo(operation))
             .apiMetadata(new ApiMetadata.Builder()
                 .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation))
+                .experimental(SchemaUtil.getExperimental(operation))
                 .devMessage(
                     operation.getLanguage().getJava() == null ? null : operation.getLanguage().getJava().getComment())
                 .build());

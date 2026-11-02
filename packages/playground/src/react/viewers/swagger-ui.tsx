@@ -1,5 +1,6 @@
 import { Suspense, lazy, type FunctionComponent } from "react";
-import "swagger-ui-dist/swagger-ui.css";
+// Keep runtime styles out of the emitted declarations.
+import {} from "swagger-ui-dist/swagger-ui.css";
 import style from "./swagger-ui.module.css";
 
 export interface SwaggerUIProps {

@@ -46,6 +46,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FormattableString PublicCtorDescription => $"Initializes a new instance of {Name}.";
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+            => CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
+                ? []
+                : ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
+
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
         private readonly ParameterProvider _subClientEndpointParameter;
@@ -106,6 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
+            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
             CleanOperationNames(inputClient);
 
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
@@ -117,8 +126,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
-            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
-
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
             if (apiKey != null && keyCredentialType != null)
@@ -240,20 +247,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
-            {
-                operationName = "GetAll";
-            }
-            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                operationName = $"Get{operationName.Substring(4)}";
-            }
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            var operationName = TryNormalizeListOperationName(serviceMethod, originalName, out var listNormalizedName)
+                ? listNormalizedName
+                : originalName;
 
             if (!normalizePublicName)
+            {
+                return operationName;
+            }
+
+            return ProjectPublicName(serviceMethod, operationName);
+        }
+
+        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName)
+        {
+            if (serviceMethod.IsExactName)
             {
                 return operationName;
             }
@@ -277,6 +286,101 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
+
+        private bool TryNormalizeListOperationName(
+            InputServiceMethod serviceMethod,
+            string originalName,
+            out string normalizedName,
+            bool checkPublicCollisions = true)
+        {
+            normalizedName = NormalizeName(originalName);
+            if (normalizedName == originalName)
+            {
+                return false;
+            }
+
+            // Keep distinct input operations distinct before public names and request builders are projected.
+            foreach (var other in _inputClient.Methods)
+            {
+                if (ReferenceEquals(serviceMethod, other))
+                {
+                    continue;
+                }
+
+                var otherInputName = other.IsExactName
+                    ? other.Operation.Name
+                    : (other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
+                if (otherInputName == originalName)
+                {
+                    continue;
+                }
+
+                var candidateRestName = normalizedName.ToIdentifierName();
+                var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
+                var candidateBuilderNames = GetRestRequestBuilderNames(serviceMethod, candidateRestName);
+                var otherBuilderNames = GetRestRequestBuilderNames(other, otherRestName);
+                if (candidateBuilderNames.Intersect(otherBuilderNames, StringComparer.Ordinal).Any())
+                {
+                    return false;
+                }
+
+                if (!checkPublicCollisions)
+                {
+                    continue;
+                }
+
+                var otherName = other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName);
+                var candidatePublicNames = GetProtocolMethodNames(serviceMethod, ProjectPublicName(serviceMethod, normalizedName));
+                var otherPublicNames = GetProtocolMethodNames(other, ProjectPublicName(other, otherName));
+                var candidateNamesBeforeProjection = GetProtocolMethodNames(serviceMethod, normalizedName);
+                var otherNamesBeforeProjection = GetProtocolMethodNames(other, otherName);
+                if (candidatePublicNames.Intersect(otherPublicNames, StringComparer.Ordinal).Any() &&
+                    candidateNamesBeforeProjection.Intersect(otherNamesBeforeProjection, StringComparer.Ordinal).Any())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static string[] GetRestRequestBuilderNames(InputServiceMethod serviceMethod, string operationName)
+        {
+            var hasNextLink = serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null };
+            var names = new string[hasNextLink ? 2 : 1];
+            names[0] = $"Create{operationName}Request";
+            if (hasNextLink)
+            {
+                names[1] = $"CreateNext{operationName}Request";
+            }
+
+            return names;
+        }
+
+        private static string[] GetProtocolMethodNames(InputServiceMethod method, string operationName)
+        {
+            bool hasStreamingResponse = method.Operation.Responses
+                .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
+            return hasStreamingResponse
+                ? [$"{operationName}Async"]
+                : [operationName, $"{operationName}Async"];
+        }
+
+        private static string NormalizeName(string operationName)
+        {
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                return "GetAll";
+            }
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                return $"Get{operationName.Substring(4)}";
+            }
+
+            return operationName;
         }
 
         private bool HasExistingName(string name)
@@ -309,7 +413,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Request builders use the stable input operation identity rather than the mutable public method name.
             // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
             // and newer projections with normalized public names continue to reference the same request builder.
-            return GetOperationName(serviceMethod, normalizePublicName: false).ToIdentifierName();
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name.ToIdentifierName();
+            }
+
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            return TryNormalizeListOperationName(
+                serviceMethod,
+                originalName,
+                out var normalizedName,
+                checkPublicCollisions: false)
+                ? normalizedName.ToIdentifierName()
+                : originalName.ToIdentifierName();
         }
 
         private string? _namespace;
@@ -699,6 +815,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             "_" + p.Name.ToVariableName(),
                             this,
                             wireInfo: wireInfo);
+                        field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(p.Type));
                         fields.Add(field);
                     }
                 }
@@ -958,7 +1075,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     attributes: [experimentalAttr],
                     initializer: new ConstructorInitializer(false, args)),
                 MethodBodyStatement.Empty,
-                this);
+                this,
+                suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    ClientSettings.EndpointProperty.Suppressions,
+                    ClientSettings.OtherRequiredParams.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.InputParameter?.Type))));
 
             yield return settingsConstructor;
         }
@@ -1477,7 +1597,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var (method, originalSignature) in originalSignatures)
             {
                 if (method.Signature.Name.Equals(originalSignature.Name)
-                    && !MethodSignatureHelper.HaveSameParametersInSameOrder(method.Signature, originalSignature))
+                    && !method.Signature.Parameters.SequenceEqual(originalSignature.Parameters, ReferenceEqualityComparer.Instance))
                 {
                     updatedSignatureToOriginal.TryAdd(method.Signature, originalSignature);
                     methodsWithReorderedParams.Add(method);
@@ -1497,13 +1617,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!originalSignatures.ContainsKey(method) && PreviousSignatureEndsWithCancellationToken(method.Signature))
                 {
-                    method.Update(suppressions:
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                     [
                         new SuppressionStatement(
                             inner: null,
                             code: Literal("AZC0002"),
                             justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
-                    ]);
+                    ]));
                 }
             }
 
@@ -1848,7 +1968,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature updatedSignature)
         {
             var argumentCount = invocation.Arguments.Count;
-            if (argumentCount != originalSignature.Parameters.Count)
+            if (argumentCount > originalSignature.Parameters.Count)
             {
                 return;
             }
@@ -1856,15 +1976,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var argumentsByName = new Dictionary<string, ValueExpression>(argumentCount);
             for (int i = 0; i < argumentCount; i++)
             {
-                argumentsByName.TryAdd(originalSignature.Parameters[i].Name, invocation.Arguments[i]);
+                var argument = invocation.Arguments[i];
+                var parameterName = argument is PositionalParameterReferenceExpression named
+                    ? named.ParameterName
+                    : originalSignature.Parameters[i].Name;
+                argumentsByName.Add(parameterName, argument);
             }
 
             var reorderedArgs = new List<ValueExpression>(updatedSignature.Parameters.Count);
+            bool requireNamedArgs = false;
             foreach (var param in updatedSignature.Parameters)
             {
                 if (argumentsByName.TryGetValue(param.Name, out var arg))
                 {
-                    reorderedArgs.Add(arg);
+                    reorderedArgs.Add(requireNamedArgs && arg is not PositionalParameterReferenceExpression
+                        ? param.PositionalReference(arg)
+                        : arg);
+                }
+                else
+                {
+                    requireNamedArgs = true;
                 }
             }
 

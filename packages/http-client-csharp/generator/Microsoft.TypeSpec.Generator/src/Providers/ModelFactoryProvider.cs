@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -74,7 +75,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                     modelProvider.Type,
                     $"A new {modelProvider.Type:C} instance for mocking.",
-                    GetParameters(modelProvider, fullConstructor));
+                    GetParameters(modelProvider, fullConstructor),
+                    Attributes: ExperimentalApiHelpers.BuildAttributes(model.Experimental));
 
                 var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
                 foreach (var param in signature.Parameters)
@@ -89,7 +91,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
 
-                methods.Add(new MethodProvider(signature, statements, this, docs));
+                methods.Add(new MethodProvider(signature, statements, this, docs,
+                    suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                        ExperimentalApiHelpers.GetReferenceSuppressions(model),
+                        ExperimentalApiHelpers.GetReferenceSuppressions(model.AdditionalProperties),
+                        model.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)))));
             }
 
             return [.. methods];
@@ -115,60 +121,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
                .Concat(customFactoryMethods)
                .ToList();
 
+            var previousPublicSignatures = LastContractView.Methods
+                .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature))
+                .Select(method => method.Signature)
+                .ToList();
+            RestorePublishedParameterDefaults(factoryMethods, customFactoryMethods, previousPublicSignatures);
+
+            // Classify published methods after restoring their defaults.
             var compatiblePreviousMethods = new List<MethodProvider>();
-            List<MethodSignature> previousPublicSignatures = [];
             List<MethodSignature> preservedPreviousSignatures = [];
-            List<MethodProvider> nonConstrainingCustomMethods = [];
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature))
                 {
                     continue;
                 }
-
-                // Record every public previous signature, including the ones skipped below, because
-                // a current overload that still matches one of them must never be removed.
-                previousPublicSignatures.Add(previousMethod.Signature);
 
                 var matchingCurrentMethod = allFactoryMethods.FirstOrDefault(m =>
                     MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature));
                 if (matchingCurrentMethod is not null)
                 {
                     bool isGeneratedMethod = factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod));
-                    if (isGeneratedMethod)
+                    // Required hidden shims preserve binary signatures, not omitted-argument calls.
+                    if (isGeneratedMethod && IsRequiredHiddenCompatibilityMethod(matchingCurrentMethod.Signature))
                     {
-                        for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
-                        {
-                            var currentParameter = matchingCurrentMethod.Signature.Parameters[i];
-                            if (previousMethod.Signature.Parameters[i].DefaultValue is null)
-                            {
-                                currentParameter.DefaultValue = null;
-                            }
-                            else
-                            {
-                                currentParameter.DefaultValue ??= Default;
-                            }
-                        }
+                        continue;
                     }
 
-                    int previousMinimumArgumentCount = previousMethod.Signature.Parameters
-                        .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
-                        .Count();
-                    int currentMinimumArgumentCount = matchingCurrentMethod.Signature.Parameters
-                        .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
-                        .Count();
-                    if (currentMinimumArgumentCount == previousMinimumArgumentCount)
+                    if (GetMinimumArgumentCount(matchingCurrentMethod.Signature) == GetMinimumArgumentCount(previousMethod.Signature))
                     {
                         preservedPreviousSignatures.Add(previousMethod.Signature);
-                    }
-                    else if (!isGeneratedMethod && currentMinimumArgumentCount > previousMinimumArgumentCount)
-                    {
-                        // A custom method can take over the published CLR signature while requiring
-                        // more arguments. The published omitted-argument calls can then only be
-                        // served by a longer generated overload, so this custom method must not
-                        // constrain that overload's optionality.
-                        nonConstrainingCustomMethods.Add(matchingCurrentMethod);
                     }
 
                     continue;
@@ -194,9 +177,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 preservedPreviousSignatures.Add(previousMethod.Signature);
             }
 
-            // Preserve every published signature as-is and constrain only newly generated overloads.
-            // Unlike a compatibility signature, a new overload has no existing callers whose minimum
-            // argument count must be retained.
+            // Required custom methods do not need omitted arguments to be disambiguated. A custom
+            // method that increased its published minimum must also leave those calls to the factory.
+            var constrainingCustomSignatures = customFactoryMethods
+                .Select(method => method.Signature)
+                .Where(HasOptionalParameters)
+                .Where(current => !previousPublicSignatures.Any(previous =>
+                    MethodSignature.MethodSignatureComparer.Equals(previous, current)
+                    && GetMinimumArgumentCount(current) > GetMinimumArgumentCount(previous)))
+                .ToList();
+
+            // Constrain only new factories. Published custom signatures remain in the preserved
+            // set for visible reorder replacements, but use the current custom defaults here.
             foreach (var currentMethod in factoryMethods)
             {
                 if (previousPublicSignatures.Any(previous =>
@@ -205,28 +197,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Constrain the overload against every other method that will exist on the final
-                // type, not just the published ones. A custom method is immutable and can occupy a
-                // shape that no longer matches its published optionality, so the generated overload
-                // is the only side that can change to keep the pair unambiguous.
-                // A published signature that this method already serves is excluded: no separate
-                // compatibility overload is emitted for it, so there is nothing to disambiguate
-                // from and stripping defaults would break the published omitted-argument calls.
-                // The exclusion is name-based and therefore applies only to published signatures;
-                // a custom overload is always emitted and must always constrain.
-                // A published signature that is restored as a compatibility overload is excluded
-                // from this constraint set as well. It is still generated below: either as a hidden
-                // overload that requires every parameter or as a visible replacement for this
-                // overload.
+                // Exclude signatures served by this factory or restored below as compatibility
+                // methods: hidden shims require all arguments; reorder replacements take its place.
                 var competingSignatures = preservedPreviousSignatures
                     .Where(signature => !compatiblePreviousMethods.Any(method =>
                         ReferenceEquals(method.Signature, signature)))
                     .Where(signature => !MethodSignatureHelper.HaveSameParametersInSameOrder(
                         currentMethod.Signature,
                         signature))
-                    .Concat(customFactoryMethods
-                        .Where(method => !nonConstrainingCustomMethods.Any(m => ReferenceEquals(m, method)))
-                        .Select(method => method.Signature))
+                    .Where(signature => !customFactoryMethods.Any(method =>
+                        MethodSignature.MethodSignatureComparer.Equals(signature, method.Signature)))
+                    .Concat(constrainingCustomSignatures)
                     .Where(signature =>
                         signature.Name == currentMethod.Signature.Name
                         && !MethodSignature.MethodSignatureComparer.Equals(signature, currentMethod.Signature))
@@ -357,6 +338,109 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             return [.. factoryMethods];
+        }
+
+        private static void RestorePublishedParameterDefaults(
+            IReadOnlyList<MethodProvider> factoryMethods,
+            IReadOnlyList<MethodProvider> customMethods,
+            IReadOnlyList<MethodSignature> previousSignatures)
+        {
+            var matches = new List<(MethodProvider Current, MethodSignature Previous)>();
+            var optionalMethods = factoryMethods.Concat(customMethods)
+                .Where(method => HasOptionalParameters(method.Signature))
+                .ToHashSet();
+
+            foreach (var method in factoryMethods)
+            {
+                if (IsRequiredHiddenCompatibilityMethod(method.Signature))
+                {
+                    continue;
+                }
+
+                var previous = previousSignatures.FirstOrDefault(signature =>
+                    MethodSignature.MethodSignatureComparer.Equals(signature, method.Signature));
+                if (previous is null)
+                {
+                    continue;
+                }
+
+                matches.Add((method, previous));
+                if (HasOptionalParameters(previous))
+                {
+                    optionalMethods.Add(method);
+                }
+            }
+
+            // Visitors can share parameter objects with the previous contract. Plan every change
+            // before applying any, so neither shared objects nor declaration order affect decisions.
+            var defaults = new List<(ParameterProvider Parameter, ValueExpression? Value)>();
+            foreach (var (current, previous) in matches)
+            {
+                bool hasOptionalCompetitor = optionalMethods.Any(method =>
+                    !ReferenceEquals(method, current) && method.Signature.Name == current.Signature.Name);
+                for (int i = 0; i < previous.Parameters.Count; i++)
+                {
+                    var parameter = current.Signature.Parameters[i];
+                    var value = parameter.DefaultValue;
+                    if (previous.Parameters[i].DefaultValue is not null)
+                    {
+                        value ??= Default;
+                    }
+                    else if (hasOptionalCompetitor)
+                    {
+                        value = null;
+                    }
+                    defaults.Add((parameter, value));
+                }
+            }
+
+            foreach (var (parameter, value) in defaults)
+            {
+                parameter.DefaultValue = value;
+            }
+        }
+
+        private static int GetMinimumArgumentCount(MethodSignature signature)
+            => signature.Parameters.TakeWhile(parameter => parameter.DefaultValue is null && !parameter.IsParams).Count();
+
+        private static bool HasOptionalParameters(MethodSignature signature)
+            => signature.Parameters.Any(parameter => parameter.DefaultValue is not null || parameter.IsParams);
+
+        private static bool IsRequiredHiddenCompatibilityMethod(MethodSignature signature)
+        {
+            if (HasOptionalParameters(signature))
+            {
+                return false;
+            }
+
+            return signature.Attributes.Any(IsEditorBrowsableNeverAttribute);
+        }
+
+        private static bool IsEditorBrowsableNeverAttribute(AttributeStatement attribute)
+        {
+            if (!attribute.Type.Equals(typeof(EditorBrowsableAttribute)) || attribute.Arguments.Count != 1)
+            {
+                return false;
+            }
+
+            return IsEditorBrowsableNeverState(attribute.Arguments[0]);
+        }
+
+        private static bool IsEditorBrowsableNeverState(ValueExpression expression)
+        {
+            if (expression is ScopedApi scoped)
+            {
+                expression = scoped.Original;
+            }
+
+            return expression switch
+            {
+                MemberExpression { Inner: TypeReferenceExpression { Type: { } type }, MemberName: nameof(EditorBrowsableState.Never) }
+                    => type.Equals(typeof(EditorBrowsableState)),
+                LiteralExpression { Literal: int state } => state == (int)EditorBrowsableState.Never,
+                LiteralExpression { Literal: EditorBrowsableState state } => state == EditorBrowsableState.Never,
+                _ => false,
+            };
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
@@ -747,6 +831,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : null;
         }
 
+        /// <summary>
+        /// Selects the serialization constructor and its additional-data parameter for the model factory.
+        /// Handwritten constructor parameters lack generated property metadata, so matching discriminator
+        /// parameters recover that link by name, type, and passing modifiers. This lets known variants
+        /// keep their fixed discriminator while unknown variants expose the caller's value.
+        /// </summary>
         private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(
             ModelProvider modelProvider)
         {
@@ -764,6 +854,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
                         && customCtorParamCount >= fullCtorParamCount)
                     {
+                        foreach (var parameter in constructor.Signature.Parameters)
+                        {
+                            if (parameter.Property is null && parameter.Field is null)
+                            {
+                                var generatedParameter = fullConstructor.Signature.Parameters.FirstOrDefault(candidate =>
+                                    candidate.Name == parameter.Name &&
+                                    candidate.Type.Namespace == parameter.Type.Namespace &&
+                                    candidate.IsRef == parameter.IsRef &&
+                                    candidate.IsOut == parameter.IsOut &&
+                                    candidate.IsIn == parameter.IsIn &&
+                                    candidate.IsParams == parameter.IsParams &&
+                                    candidate.Type.AreNamesEqual(parameter.Type));
+                                if (generatedParameter?.Property is { IsDiscriminator: true } property)
+                                {
+                                    parameter.Update(property: property);
+                                }
+                            }
+                        }
+
                         binaryDataParam = constructor.Signature.Parameters
                             .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
 
@@ -809,7 +918,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
-                if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
+                if (param.Property?.IsDiscriminator == true &&
+                    modelProvider.DiscriminatorValue != null &&
+                    !modelProvider.IsUnknownDiscriminatorModel)
                 {
                     continue;
                 }
@@ -831,7 +942,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 parameter.Name,
                 parameter.Description,
                 // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
-                IsEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
+                // Resolve generated types referenced by custom constructors before converting to the input collection shape.
+                IsEnumDiscriminator(parameter)
+                    ? parameter.Type.UnderlyingEnumType
+                    : parameter.Type.ApplyInputSpecProperty(null).InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,

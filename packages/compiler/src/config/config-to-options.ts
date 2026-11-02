@@ -10,6 +10,7 @@ import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import type { EmitterOptions, TypeSpecConfig } from "./types.js";
 
+/** Entry point, optional explicit config, and interpolation inputs used to resolve compiler options. */
 export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
   /** Absolute entrypoint path */
   entrypoint: string;
@@ -18,6 +19,7 @@ export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
   configPath?: string;
 }
 
+/** Values and overrides applied while expanding a loaded TypeSpec configuration. */
 export interface ConfigToOptionsOptions {
   /**
    * Current working directory. This will be used to interpolate `{cwd}` in the config.

@@ -121,6 +121,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task ValidateAttributes()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization!;
+            var symbol = compilation.GetTypeByMetadataName("Sample.ExperimentalType");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var constructor = provider.Constructors.Single();
+
+            Assert.IsTrue(provider.IsExperimental);
+            Assert.AreEqual(
+                Literal("TYPE001").ToDisplayString(),
+                provider.Attributes.Single(attribute => attribute.Type.Equals(typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute)))
+                    .Arguments.Single().ToDisplayString());
+            Assert.AreEqual(
+                Literal("CTOR001").ToDisplayString(),
+                constructor.Signature.Attributes.Single(attribute => attribute.Type.Equals(typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute)))
+                    .Arguments.Single().ToDisplayString());
+
+            var stableSymbol = compilation.GetTypeByMetadataName("Sample.StableType");
+            Assert.IsNotNull(stableSymbol);
+            Assert.IsFalse(new NamedTypeSymbolProvider(stableSymbol!, compilation).IsExperimental);
+        }
+
+        [Test]
         public void ValidateNamespaceNestedType()
         {
             // Get all members, including nested types
@@ -163,6 +190,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
                 Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
             }
+        }
+
+        [Test]
+        public void ValidatePropertyCompatibilityMetadata()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample
+                    {
+                        public class PropertyMetadata
+                        {
+                            public virtual string VirtualValue { get; set; } = string.Empty;
+                            public string InitValue { get; init; } = string.Empty;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.PropertyMetadata");
+            Assert.IsNotNull(symbol);
+
+            var properties = new NamedTypeSymbolProvider(symbol!, compilation).Properties
+                .ToDictionary(property => property.Name);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(properties["VirtualValue"].Modifiers.HasFlag(MethodSignatureModifiers.Virtual), Is.True);
+                Assert.That(properties["InitValue"].IsInitOnly, Is.True);
+            });
         }
 
         [TestCase(typeof(int))]

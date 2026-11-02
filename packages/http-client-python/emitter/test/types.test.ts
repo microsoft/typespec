@@ -50,12 +50,29 @@ describe("typespec-python: built-in types", () => {
     },
   );
 
-  it.each(["base64", "base64url"] as const)("preserves bytes encoded as %s", (encode) => {
+  it.each(["bytes", "base64", "base64url"] as const)("preserves bytes encoded as %s", (encode) => {
     deepStrictEqual(
       emitBuiltInType(createBuiltInType("bytes", encode, createBuiltInType("string"))),
       {
         type: "bytes",
         encode,
+      },
+    );
+  });
+
+  it("preserves raw bytes without a wire type", () => {
+    deepStrictEqual(emitBuiltInType(createBuiltInType("bytes", "bytes")), {
+      type: "bytes",
+      encode: "bytes",
+    });
+  });
+
+  it("falls back to string for a custom bytes encoding", () => {
+    deepStrictEqual(
+      emitBuiltInType(createBuiltInType("bytes", "custom", createBuiltInType("string"))),
+      {
+        type: "string",
+        encode: "custom",
       },
     );
   });

@@ -45,6 +45,14 @@ interface ReferenceChainEntry {
   context: ContextState;
 }
 
+/**
+ * Create a traversal coordinator and instantiate the supplied TypeEmitter subclass.
+ * Emission starts only when an emit method is called; output is written separately
+ * through `writeOutput`. Each coordinator owns its result cache and source-file list.
+ * @param program - Compiler program to traverse.
+ * @param TypeEmitterClass - Subclass implementing the output representation and context hooks.
+ * @param emitContext - Output directory and emitter-specific options for this invocation.
+ */
 export function createAssetEmitter<T, TOptions extends object>(
   program: Program,
   TypeEmitterClass: typeof TypeEmitter<T, TOptions>,

@@ -1043,8 +1043,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
 
     def call_request_builder(self, builder: OperationType, is_paging: bool = False) -> list[str]:
         retval = self._call_request_builder_helper(builder, builder.request_builder, is_paging=is_paging)
-        if builder.has_structured_stream_response and any(
-            response.streaming_kind == "sse" for response in builder.responses
+        if (
+            self.code_model.options["enable-sse-reconnect"]
+            and builder.has_structured_stream_response
+            and any(response.streaming_kind == "sse" for response in builder.responses)
         ):
             retval.insert(0, '_last_event_id = kwargs.pop("last_event_id", None)')
             retval.extend(
@@ -1396,7 +1398,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             stream_kwargs.append(f"terminal_event={terminal_event!r}")
         if terminal_event_names:
             stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
-        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+        if response.streaming_kind == "sse" and self.code_model.options["enable-sse-reconnect"]:
             retval.append("")
             retval.append(
                 "async def _reconnect(_last_event_id, _reconnect_delay):"

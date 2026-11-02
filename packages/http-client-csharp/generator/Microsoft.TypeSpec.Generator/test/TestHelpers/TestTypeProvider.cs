@@ -13,6 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly TypeSignatureModifiers? _declarationModifiers;
         private readonly MethodProvider[] _methods;
         private readonly PropertyProvider[] _properties;
+        private readonly FieldProvider[] _fields;
         private readonly ConstructorProvider[] _constructors;
         private readonly string _name;
         private readonly string _namespace;
@@ -27,6 +28,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
         protected internal override PropertyProvider[] BuildProperties() => _properties;
 
         protected internal override MethodProvider[] BuildMethods() => _methods;
+
+        protected internal override FieldProvider[] BuildFields() => _fields;
 
         protected internal override ConstructorProvider[] BuildConstructors() => _constructors;
 
@@ -45,11 +48,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
             string? ns = null,
             IEnumerable<ConstructorProvider>? constructors = null,
             IEnumerable<CSharpType>? implements = null,
-            CSharpType? baseType = null)
+            CSharpType? baseType = null,
+            IEnumerable<FieldProvider>? fields = null)
         {
             _declarationModifiers = declarationModifiers;
             _methods = methods?.ToArray() ?? [];
             _properties = properties?.ToArray() ?? [];
+            _fields = fields?.ToArray() ?? [];
             _constructors = constructors?.ToArray() ?? [];
             _name = name ?? "TestName";
             _namespace = ns ?? "Test";

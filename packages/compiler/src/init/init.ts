@@ -157,8 +157,9 @@ export async function initTypeSpecProjectWorker(
   whiteline();
   success("Project initialized!");
 
+  const buildCommand = template.target === "library" ? "npm run build" : "tsp compile .";
   // eslint-disable-next-line no-console
-  console.log(`Run ${pc.cyan(`tsp compile .`)} to build the project.`);
+  console.log(`Run ${pc.cyan(buildCommand)} to build the project.`);
 
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console

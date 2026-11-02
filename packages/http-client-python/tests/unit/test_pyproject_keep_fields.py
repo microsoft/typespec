@@ -9,7 +9,7 @@ The emitter regenerates pyproject.toml on every emit. Manual edits to fields
 the emitter doesn't own (description, classifiers, project URLs) must be
 preserved so they are not clobbered (see GitHub issue #10311).
 """
-from pygen.codegen.serializers.general_serializer import GeneralSerializer
+from pygen.codegen.serializers.general_serializer import MAX_PYTHON_VERSION, GeneralSerializer
 
 
 _ALL_FIELDS = ("authors", "description", "classifiers", "urls")
@@ -192,7 +192,7 @@ def _render_pyproject(option_value, existing_content):
         client_name="X",
         VERSION_MAP={"isodate": "0.6.1", "azure-core": "1.37.0", "typing-extensions": "4.6.0"},
         MIN_PYTHON_VERSION="3.10",
-        MAX_PYTHON_VERSION="3.14",
+        MAX_PYTHON_VERSION=MAX_PYTHON_VERSION,
         ADDITIONAL_DEPENDENCIES=[],
     )
     return tomli.loads(rendered)
@@ -228,6 +228,7 @@ def test_render_keeps_nothing_by_default():
     assert parsed["authors"] == [{"name": "Microsoft Corporation", "email": "azpysdkhelp@microsoft.com"}]
     assert parsed["description"] != "Microsoft Azure AI Sample Client Library for Python"
     assert "Programming Language :: Python :: 3.99" not in parsed["classifiers"]
+    assert "Programming Language :: Python :: 3.15" in parsed["classifiers"]
     assert parsed["urls"]["repository"] == "https://github.com/Azure/azure-sdk-for-python"
 
 

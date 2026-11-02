@@ -54,6 +54,7 @@ import {
   isStringType,
   isType,
   joinPaths,
+  resolveEncodedEnumMemberValue,
   sanitizePathSegment,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -357,12 +358,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
+    const program = this.emitter.getProgram();
     const enumTypes = new Set<string>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
       // ???: why do we let emitters decide what the default type of an enum is
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     const enumTypesArray = [...enumTypes];
@@ -377,14 +380,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
     // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
-    switch (typeof member.value) {
-      case "undefined":
-        return { type: "string", const: member.name };
-      case "string":
-        return { type: "string", const: member.value };
-      case "number":
-        return { type: "number", const: member.value };
-    }
+    const value = resolveEncodedEnumMemberValue(
+      this.emitter.getProgram(),
+      member,
+      "application/json",
+    );
+    return typeof value === "number"
+      ? { type: "number", const: value }
+      : { type: "string", const: value };
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
@@ -903,8 +906,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return [...type.variants.values()].flatMap((v) => this.#getStringLiteralValues(v.type));
       case "UnionVariant":
         return this.#getStringLiteralValues(type.type);
-      case "EnumMember":
-        return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+      case "EnumMember": {
+        const value = resolveEncodedEnumMemberValue(
+          this.emitter.getProgram(),
+          type,
+          "application/json",
+        );
+        return typeof value === "string" ? [value] : [];
+      }
       default:
         return [];
     }

@@ -35,6 +35,7 @@ export {
   visitChildren,
   type NodeCallback,
 } from "../core/parser.js";
+export { skipTrivia } from "../core/scanner.js";
 export type {
   AliasStatementNode,
   AnyKeywordNode,

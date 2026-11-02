@@ -1,8 +1,11 @@
 import type { Document } from "yaml";
 import type { SourceFile } from "../core/types.js";
 
+/** Parsed YAML input with its original source file and resulting JavaScript value. */
 export interface YamlScript {
+  /** Discriminant identifying a parsed YAML script. */
   readonly kind: "yaml-script";
+  /** Original text and path used to locate diagnostics in the YAML input. */
   readonly file: SourceFile;
   /** Value of the yaml script. */
   readonly value: unknown;

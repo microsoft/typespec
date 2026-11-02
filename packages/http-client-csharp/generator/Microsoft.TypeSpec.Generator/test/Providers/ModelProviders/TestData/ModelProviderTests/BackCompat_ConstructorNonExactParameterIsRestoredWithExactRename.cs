@@ -20,10 +20,10 @@ namespace Sample.Models
             NewCount = oldCount;
         }
 
-        internal MockInputModel(string newName, int oldCount, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string newName, int newCount, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             new_name = newName;
-            NewCount = oldCount;
+            NewCount = newCount;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 

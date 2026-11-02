@@ -101,6 +101,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var invoke = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsDefined", invoke?.MethodName);
+            CollectionAssert.AreEqual(new ValueExpression[] { member }, invoke!.Arguments);
+        }
+
+        [Test]
+        public void OptionalSnippet_IsDefinedWithPresence()
+        {
+            var member = new MemberExpression(null, "mock").As<string>();
+            var presence = new MemberExpression(null, "_mockIsDefined").As<bool>();
+
+            var result = OptionalSnippets.IsDefined(member, presence);
+            var invoke = result.Original as InvokeMethodExpression;
+
+            Assert.IsNotNull(invoke);
+            Assert.AreEqual("IsDefined", invoke!.MethodName);
+            CollectionAssert.AreEqual(new ValueExpression[] { member, presence }, invoke.Arguments);
         }
     }
 }

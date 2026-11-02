@@ -4,6 +4,7 @@
 package authentication.util;
 
 import com.azure.core.credential.AccessToken;
+import com.azure.core.credential.AccessTokenCache;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.credential.TokenRequestContext;
 import com.azure.core.http.HttpHeaderName;
@@ -13,7 +14,6 @@ import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.core.http.HttpPipelineNextSyncPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
-import com.azure.core.implementation.AccessTokenCache;
 import com.azure.core.util.logging.ClientLogger;
 import java.util.Objects;
 import reactor.core.publisher.Mono;

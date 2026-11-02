@@ -53,6 +53,7 @@ export {
   explainStringTemplateNotSerializable,
   printIdentifier as formatIdentifier,
   getDiscriminatedUnion,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- exporting deprecated overloads for backward compatibility
   getDiscriminatedUnionFromInheritance,
   getEntityName,
   getLocationContext,
@@ -195,6 +196,7 @@ export {
   isService,
   isStringType,
   listServices,
+  resolveEncodedEnumMemberValue,
   resolveEncodedName,
   serializeValueAsJson,
   setMediaTypeHint,

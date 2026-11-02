@@ -5,7 +5,11 @@ import type { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import type { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
 import { AutoDecoratorAccessors } from "./auto-decorator-accessors.js";
-import { DecoratorSignatureType, ValueOfModelTsInterfaceBody } from "./decorator-signature-type.js";
+import {
+  DecoratorSignatureType,
+  getDocComment,
+  ValueOfModelTsInterfaceBody,
+} from "./decorator-signature-type.js";
 import { DollarDecoratorsType } from "./dollar-decorators-type.js";
 import { DollarFunctionsType } from "./dollar-functions-type.jsx";
 import { EntitySignatureTests } from "./entity-signature-tests.jsx";
@@ -80,7 +84,12 @@ export function LocalTypes() {
       <For each={localTypes} doubleHardline>
         {(type) => {
           return (
-            <ts.InterfaceDeclaration export name={type.name} refkey={refkey(type)}>
+            <ts.InterfaceDeclaration
+              export
+              name={type.name}
+              refkey={refkey(type)}
+              doc={getDocComment(type)}
+            >
               <ValueOfModelTsInterfaceBody model={type} />
             </ts.InterfaceDeclaration>
           );

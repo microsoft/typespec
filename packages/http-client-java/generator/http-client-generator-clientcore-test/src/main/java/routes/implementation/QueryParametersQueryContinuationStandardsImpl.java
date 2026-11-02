@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import routes.ExpandParameters;
 
 /**
  * An instance of this class provides access to all the operations defined in QueryParametersQueryContinuationStandards.
@@ -92,6 +93,14 @@ public final class QueryParametersQueryContinuationStandardsImpl {
         @UnexpectedResponseExceptionDetail
         Response<Void> record(@HostParam("endpoint") String endpoint, @QueryParam("param") Map<String, Integer> param,
             RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/routes/query/query-continuation/standard/model?fixed=true",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> model(@HostParam("endpoint") String endpoint, @QueryParam("param") ExpandParameters param,
+            RequestContext requestContext);
     }
 
     /**
@@ -148,6 +157,24 @@ public final class QueryParametersQueryContinuationStandardsImpl {
         return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryContinuation.Standard.record",
             requestContext, updatedContext -> {
                 return service.record(this.client.getEndpoint(), param, updatedContext);
+            });
+    }
+
+    /**
+     * The model operation.
+     * 
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> modelWithResponse(ExpandParameters param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryContinuation.Standard.model",
+            requestContext, updatedContext -> {
+                return service.model(this.client.getEndpoint(), param, updatedContext);
             });
     }
 }

@@ -7,14 +7,21 @@ import type {
 } from "./mutation-engine.js";
 import { Mutation, type MutationInfo } from "./mutation.js";
 
+/**
+ * Collects mutations of an enum's source members without creating node edges.
+ * Consumers needing output propagation must establish those connections separately.
+ */
 export class EnumMutation<
   TOptions extends MutationOptions,
   TCustomMutations extends CustomMutationClasses,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
 > extends Mutation<Enum, TCustomMutations, TOptions, TEngine> {
+  /** Strategy discriminator; replacing output nodes does not change this value. */
   readonly kind = "Enum";
+  /** Member strategies in source order, keyed by their original names. */
   members: Map<string, MutationFor<TCustomMutations, "EnumMember">> = new Map();
 
+  /** Initializes member traversal with the source enum and selected mutation metadata. */
   constructor(
     engine: TEngine,
     sourceType: Enum,
@@ -31,6 +38,7 @@ export class EnumMutation<
     }
   }
 
+  /** Resolves source member strategies with this strategy's options; does not connect nodes. */
   mutate() {
     this.mutateMembers();
   }

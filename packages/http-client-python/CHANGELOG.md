@@ -1,5 +1,32 @@
 # Change Log - @typespec/http-client-python
 
+## 0.39.0
+
+### Features
+
+- [#12150](https://github.com/microsoft/typespec/pull/12150) Make automatic SSE reconnection opt-in with the `enable-sse-reconnect` emitter option, which defaults to `false`. Without this option, SSE streams end at EOF without reconnect callbacks, retry delays, or `Last-Event-ID` request plumbing. SSE parsing, event ID and retry metadata (including metadata-only blocks), terminal events, and stream cleanup remain available.
+
+  Enable reconnection when generating the client:
+
+  ```yaml
+  emit:
+    - "@typespec/http-client-python"
+  options:
+    "@typespec/http-client-python":
+      enable-sse-reconnect: true
+  ```
+
+### Bug Fixes
+
+- [#11897](https://github.com/microsoft/typespec/pull/11897) Escape quotes in enum and enum member documentation so embedded Python string delimiters remain documentation in generated code.
+
+
+## 0.38.1
+
+### Bump dependencies
+
+- Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
 ## 0.38.0
 
 ### Features

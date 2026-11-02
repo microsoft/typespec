@@ -132,10 +132,18 @@ namespace SampleTypeSpec
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
+        /// <param name="fixedUnion"></param>
+        /// <param name="numericEnum"></param>
         /// <returns> A new <see cref="SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
-        public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
+        public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default, StringFixedUnion? fixedUnion = default, IntFixedEnum? numericEnum = default)
         {
-            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
+            return new ModelWithRequiredNullableProperties(
+                requiredNullablePrimitive,
+                requiredExtensibleEnum,
+                requiredFixedEnum,
+                fixedUnion,
+                numericEnum,
+                additionalBinaryDataProperties: null);
         }
 
         /// <summary> The Wrapper. </summary>
@@ -438,6 +446,30 @@ namespace SampleTypeSpec
             return new StreamingItem(message, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The PreviewDetails. </summary>
+        /// <param name="choice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.PreviewDetails"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0003")]
+        public static PreviewDetails PreviewDetails(PreviewChoice choice = default)
+        {
+            return new PreviewDetails(choice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
+
+        /// <summary> The LifecycleModel. </summary>
+        /// <param name="preview"></param>
+        /// <param name="choice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleModel"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
+        public static LifecycleModel LifecycleModel(PreviewDetails preview = default, PreviewExtensibleChoice choice = default)
+        {
+            return new LifecycleModel(preview, choice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
+
         /// <summary>
         /// Base animal with discriminator
         /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Dog"/> and <see cref="SampleTypeSpec.Pet"/>.
@@ -473,10 +505,21 @@ namespace SampleTypeSpec
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="age"> The age of the tree in years. </param>
+        /// <param name="nullableText"></param>
+        /// <param name="nullableLabels"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
-        public static Tree Tree(string id = default, int height = default, int age = default)
+        public static Tree Tree(string id = default, int height = default, int age = default, string nullableText = default, IDictionary<string, string> nullableLabels = default)
         {
-            return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
+            nullableLabels ??= new ChangeTrackingDictionary<string, string>();
+
+            return new Tree(
+                "tree",
+                id,
+                height,
+                additionalBinaryDataProperties: null,
+                age,
+                nullableText,
+                nullableLabels);
         }
 
         /// <summary>
@@ -510,6 +553,145 @@ namespace SampleTypeSpec
             return new GetNotebookResult(name, content, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The LegacyDetails. </summary>
+        /// <param name="choice"></param>
+        /// <param name="extensibleChoice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LegacyDetails"/> instance for mocking. </returns>
+#pragma warning disable CS0612 // This generated code references obsolete functionality.
+#pragma warning disable CS0618 // This generated code references obsolete functionality.
+        [Experimental("SAMPLE0011")]
+        public static LegacyDetails LegacyDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default)
+        {
+            return new LegacyDetails(choice, extensibleChoice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore CS0612 // This generated code references obsolete functionality.
+#pragma warning restore CS0618 // This generated code references obsolete functionality.
+
+        /// <summary> The CurrentDetails. </summary>
+        /// <param name="choice"></param>
+        /// <param name="extensibleChoice"></param>
+        /// <param name="previous"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CurrentDetails"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
+#pragma warning disable CS0612 // This generated code references obsolete functionality.
+#pragma warning disable CS0618 // This generated code references obsolete functionality.
+        public static CurrentDetails CurrentDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default, IEnumerable<LegacyDetails> previous = default)
+        {
+            previous ??= new ChangeTrackingList<LegacyDetails>();
+
+            return new CurrentDetails(choice, extensibleChoice, additionalBinaryDataProperties: null, previous.ToList());
+        }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
+#pragma warning restore CS0612 // This generated code references obsolete functionality.
+#pragma warning restore CS0618 // This generated code references obsolete functionality.
+
+        /// <summary> The LifecycleReadOnlyXmlTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleReadOnlyXmlTopic"/> instance for mocking. </returns>
+        public static LifecycleReadOnlyXmlTopic LifecycleReadOnlyXmlTopic(string title = default, string id = default)
+        {
+            return new LifecycleReadOnlyXmlTopic(title, id, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleXmlOnlyTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlOnlyTopic"/> instance for mocking. </returns>
+        public static LifecycleXmlOnlyTopic LifecycleXmlOnlyTopic(string title = default, string state = default)
+        {
+            return new LifecycleXmlOnlyTopic(title, state);
+        }
+
+        /// <summary> The ChatTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <param name="createOnly"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ChatTopic"/> instance for mocking. </returns>
+        public static ChatTopic ChatTopic(string title = default, ChatTopicState? state = default, string createOnly = default, string id = default)
+        {
+            return new ChatTopic(title, state, createOnly, id, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ChatTopicEnvelope. </summary>
+        /// <param name="topic"></param>
+        /// <param name="topics"></param>
+        /// <param name="lookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ChatTopicEnvelope"/> instance for mocking. </returns>
+        public static ChatTopicEnvelope ChatTopicEnvelope(ChatTopic topic = default, IEnumerable<ChatTopic> topics = default, IDictionary<string, ChatTopic> lookup = default)
+        {
+            topics ??= new ChangeTrackingList<ChatTopic>();
+            lookup ??= new ChangeTrackingDictionary<string, ChatTopic>();
+
+            return new ChatTopicEnvelope(topic, topics.ToList(), lookup, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleMultipart. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <param name="topic"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipart"/> instance for mocking. </returns>
+        public static LifecycleMultipart LifecycleMultipart(string title = default, string state = default, LifecycleMultipartTopic topic = default, string id = default)
+        {
+            return new LifecycleMultipart(title, state, topic, id);
+        }
+
+        /// <summary> The LifecycleMultipartTopic. </summary>
+        /// <param name="title"></param>
+        /// <param name="createOnly"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleMultipartTopic"/> instance for mocking. </returns>
+        public static LifecycleMultipartTopic LifecycleMultipartTopic(string title = default, string createOnly = default)
+        {
+            return new LifecycleMultipartTopic(title, createOnly, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleReadOnlyMultipart. </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleReadOnlyMultipart"/> instance for mocking. </returns>
+        public static LifecycleReadOnlyMultipart LifecycleReadOnlyMultipart(string title = default, string id = default)
+        {
+            return new LifecycleReadOnlyMultipart(title, id);
+        }
+
+        /// <summary> The LifecycleXmlEnvelope. </summary>
+        /// <param name="child"></param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlEnvelope"/> instance for mocking. </returns>
+        public static LifecycleXmlEnvelope LifecycleXmlEnvelope(LifecycleXmlChild child = default, IEnumerable<LifecycleXmlChild> children = default)
+        {
+            children ??= new ChangeTrackingList<LifecycleXmlChild>();
+
+            return new LifecycleXmlEnvelope(child, children.ToList());
+        }
+
+        /// <summary> The LifecycleXmlChild. </summary>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleXmlChild"/> instance for mocking. </returns>
+        public static LifecycleXmlChild LifecycleXmlChild(string state = default)
+        {
+            return new LifecycleXmlChild(state);
+        }
+
+        /// <summary> The LifecycleBase. </summary>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleBase"/> instance for mocking. </returns>
+        public static LifecycleBase LifecycleBase(string title = default)
+        {
+            return new LifecycleBase(title, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The LifecycleDerived. </summary>
+        /// <param name="title"></param>
+        /// <param name="state"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleDerived"/> instance for mocking. </returns>
+        public static LifecycleDerived LifecycleDerived(string title = default, string state = default)
+        {
+            return new LifecycleDerived(title, additionalBinaryDataProperties: null, state);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>
@@ -537,6 +719,103 @@ namespace SampleTypeSpec
                 dictionaryChildren,
                 listOfDictionaries.ToList(),
                 default);
+        }
+
+        /// <summary> The OptionalNullableDynamicProperties. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableDynamicProperties"/> instance for mocking. </returns>
+        public static OptionalNullableDynamicProperties OptionalNullableDynamicProperties(string inheritedNullable = default)
+        {
+            return new OptionalNullableDynamicProperties(inheritedNullable, default);
+        }
+
+        /// <summary> The OptionalNullableBase. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableBase"/> instance for mocking. </returns>
+        public static OptionalNullableBase OptionalNullableBase(string inheritedNullable = default)
+        {
+            return new OptionalNullableBase(inheritedNullable, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableChild. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableChild"/> instance for mocking. </returns>
+        public static OptionalNullableChild OptionalNullableChild(string value = default)
+        {
+            return new OptionalNullableChild(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableProperties. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <param name="nullableModel"></param>
+        /// <param name="nullableString"></param>
+        /// <param name="nullableInt"></param>
+        /// <param name="nullableBoolean"></param>
+        /// <param name="nullableEnum"></param>
+        /// <param name="nullableOn"></param>
+        /// <param name="nullableBytes"></param>
+        /// <param name="nullableList"></param>
+        /// <param name="nullableDictionary"></param>
+        /// <param name="readOnlyNullable"></param>
+        /// <param name="requiredNullable"></param>
+        /// <param name="optionalNonNullable"></param>
+        /// <param name="optionalNonNullableInt"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableProperties"/> instance for mocking. </returns>
+        public static OptionalNullableProperties OptionalNullableProperties(string inheritedNullable = default, OptionalNullableChild nullableModel = default, string nullableString = default, int? nullableInt = default, bool? nullableBoolean = default, StringFixedEnum? nullableEnum = default, DateTimeOffset? nullableOn = default, BinaryData nullableBytes = default, IEnumerable<string> nullableList = default, IDictionary<string, int?> nullableDictionary = default, string readOnlyNullable = default, string requiredNullable = default, string optionalNonNullable = default, int? optionalNonNullableInt = default)
+        {
+            nullableList ??= new ChangeTrackingList<string>();
+            nullableDictionary ??= new ChangeTrackingDictionary<string, int?>();
+
+            return new OptionalNullableProperties(
+                inheritedNullable,
+                additionalBinaryDataProperties: null,
+                nullableModel,
+                nullableString,
+                nullableInt,
+                nullableBoolean,
+                nullableEnum,
+                nullableOn,
+                nullableBytes,
+                nullableList.ToList(),
+                nullableDictionary,
+                readOnlyNullable,
+                requiredNullable,
+                optionalNonNullable,
+                optionalNonNullableInt);
+        }
+
+        /// <summary> The OptionalNullableContainer. </summary>
+        /// <param name="child"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableContainer"/> instance for mocking. </returns>
+        public static OptionalNullableContainer OptionalNullableContainer(OptionalNullableProperties child = default)
+        {
+            return new OptionalNullableContainer(child, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableFieldNames. </summary>
+        /// <param name="additionalStringProperties"></param>
+        /// <param name="additionalStringPropertiesIsDefined"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableFieldNames"/> instance for mocking. </returns>
+        public static OptionalNullableFieldNames OptionalNullableFieldNames(string additionalStringProperties = default, string additionalStringPropertiesIsDefined = default, IDictionary<string, string> additionalProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+
+            return new OptionalNullableFieldNames(additionalStringProperties, additionalStringPropertiesIsDefined, additionalProperties, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The UnionAdditionalProperties. </summary>
+        /// <param name="additionalProperties"></param>
+        /// <param name="additionalInt32Properties"></param>
+        /// <param name="additionalBooleanProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionAdditionalProperties"/> instance for mocking. </returns>
+        public static UnionAdditionalProperties UnionAdditionalProperties(IDictionary<string, string> additionalProperties = default, IDictionary<string, int> additionalInt32Properties = default, IDictionary<string, bool> additionalBooleanProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+            additionalInt32Properties ??= new ChangeTrackingDictionary<string, int>();
+            additionalBooleanProperties ??= new ChangeTrackingDictionary<string, bool>();
+
+            return new UnionAdditionalProperties(additionalProperties, additionalInt32Properties, additionalBooleanProperties, additionalBinaryDataProperties: null);
         }
     }
 }

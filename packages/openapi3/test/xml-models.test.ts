@@ -144,6 +144,19 @@ worksFor(supportedVersions, ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
       });
     });
 
+    it("does not change the value of an enum member", async () => {
+      const res = await oapiForModel(
+        "Status",
+        `
+        enum Status {
+          @name("on")
+          active,
+        };`,
+      );
+
+      deepStrictEqual(res.schemas.Status, { type: "string", enum: ["active"] });
+    });
+
     it("set the json name and no xml name", async () => {
       const res = await oapiForModel(
         "Book",

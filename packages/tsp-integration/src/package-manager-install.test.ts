@@ -9,7 +9,7 @@ import { validateGitClean } from "./git.js";
 import { getInstallCommand, type PackageManager } from "./package-manager.js";
 import { patchDependencies, restoreDependencies } from "./patch-dependencies.js";
 import { TaskRunner } from "./runner.js";
-import { ValidationFailedError } from "./utils.js";
+import { readOptionalFile, ValidationFailedError } from "./utils.js";
 import { TspRunner, validateSpecs } from "./validate.js";
 
 let root: string;
@@ -202,114 +202,127 @@ it("pnpm replaces a dependency referenced only through a workspace member", asyn
   await validateGitClean(target);
 }, 60_000);
 
-it("pnpm links source packages without resolving their workspace dependencies and executes entrypoints and reruns", async () => {
-  const source = await createPackage(
-    "integration-compiler",
-    {
-      bin: { tsp: "cli.js" },
-      dependencies: { "source-workspace-only": "workspace:^", "source-catalog-only": "catalog:" },
-    },
-    {
-      "index.js": 'module.exports = "original";',
-      "cli.js": `#!/usr/bin/env node
+it.each([false, true])(
+  "pnpm links source packages and preserves lockfiles across entrypoints and reruns (existing lockfile: %s)",
+  async (existingLockfile) => {
+    const source = await createPackage(
+      "integration-compiler",
+      {
+        bin: { tsp: "cli.js" },
+        dependencies: { "source-workspace-only": "workspace:^", "source-catalog-only": "catalog:" },
+      },
+      {
+        "index.js": 'module.exports = "original";',
+        "cli.js": `#!/usr/bin/env node
 const fs = require("node:fs");
+fs.writeFileSync("pnpm-lock.yaml", "# metadata written during pnpm exec\\n");
 console.log(JSON.stringify({ cwd: process.cwd(), args: process.argv.slice(2) }));
 if (fs.readFileSync(process.argv[3], "utf8") === "fail") process.exitCode = 1;
 `,
-    },
-  );
-  const consumer = await pack(
-    await createPackage(
-      "integration-consumer",
-      { peerDependencies: { "integration-compiler": "99.0.0" } },
-      { "index.js": 'module.exports = require("integration-compiler");' },
-    ),
-  );
-  await writeFile(
-    join(target, "package.json"),
-    JSON.stringify({
-      private: true,
-      dependencies: {
-        "integration-compiler": "99.0.0",
-        "integration-consumer": `file:${relative(target, consumer)}`,
       },
-    }),
-  );
-  const member = join(target, "members", "example");
-  await mkdir(member, { recursive: true });
-  await writeFile(
-    join(member, "package.json"),
-    JSON.stringify({
-      name: "integration-member",
-      dependencies: { "integration-consumer": `file:${relative(member, consumer)}` },
-    }),
-  );
-  await writeFile(
-    join(target, "pnpm-workspace.yaml"),
-    "packages:\n  - members/*\nverifyDepsBeforeRun: install\n",
-  );
-  await writeFile(join(target, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
-  await commitTarget();
-  const packages: Packages = {
-    "integration-compiler": { name: "integration-compiler", path: source },
-  };
-  await patchDependencies(target, packages, "pnpm");
-  await install("pnpm");
-  expect(await realpath(join(target, "node_modules", "integration-compiler"))).toBe(
-    await realpath(source),
-  );
-  await writeFile(join(source, "index.js"), 'module.exports = "updated";');
-  const { stdout } = await execa(process.execPath, ["-p", 'require("integration-compiler")'], {
-    cwd: target,
-  });
-  expect(stdout).toBe("updated");
-  for (const cwd of [target, member]) {
-    const { stdout } = await execa(process.execPath, ["-p", 'require("integration-consumer")'], {
-      cwd,
+    );
+    const consumer = await pack(
+      await createPackage(
+        "integration-consumer",
+        { peerDependencies: { "integration-compiler": "99.0.0" } },
+        { "index.js": 'module.exports = require("integration-compiler");' },
+      ),
+    );
+    await writeFile(
+      join(target, "package.json"),
+      JSON.stringify({
+        private: true,
+        dependencies: {
+          "integration-compiler": "99.0.0",
+          "integration-consumer": `file:${relative(target, consumer)}`,
+        },
+      }),
+    );
+    const member = join(target, "members", "example");
+    await mkdir(member, { recursive: true });
+    await writeFile(
+      join(member, "package.json"),
+      JSON.stringify({
+        name: "integration-member",
+        dependencies: { "integration-consumer": `file:${relative(member, consumer)}` },
+      }),
+    );
+    await writeFile(
+      join(target, "pnpm-workspace.yaml"),
+      "packages:\n  - members/*\nverifyDepsBeforeRun: install\n",
+    );
+    const lockfilePath = join(target, "pnpm-lock.yaml");
+    const originalLockfile = existingLockfile ? "lockfileVersion: '9.0'\n" : undefined;
+    if (originalLockfile !== undefined) await writeFile(lockfilePath, originalLockfile);
+    await commitTarget();
+    const packages: Packages = {
+      "integration-compiler": { name: "integration-compiler", path: source },
+    };
+    await patchDependencies(target, packages, "pnpm");
+    await install("pnpm");
+    expect(await realpath(join(target, "node_modules", "integration-compiler"))).toBe(
+      await realpath(source),
+    );
+    await writeFile(join(source, "index.js"), 'module.exports = "updated";');
+    const { stdout } = await execa(process.execPath, ["-p", 'require("integration-compiler")'], {
+      cwd: target,
     });
     expect(stdout).toBe("updated");
-  }
-  await restoreDependencies(target);
-  await validateGitClean(target);
+    for (const cwd of [target, member]) {
+      const { stdout } = await execa(process.execPath, ["-p", 'require("integration-consumer")'], {
+        cwd,
+      });
+      expect(stdout).toBe("updated");
+    }
+    await restoreDependencies(target);
+    await validateGitClean(target);
 
-  const project = join(target, "specification", "example");
-  await mkdir(project, { recursive: true });
-  await writeFile(join(project, "tspconfig.yaml"), "");
-  await writeFile(join(project, "main.tsp"), "");
-  await writeFile(join(project, "client.tsp"), "");
-  const suite = {
-    repo: "unused",
-    branch: "unused",
-    pattern: "specification/**/tspconfig.yaml",
-    entrypoints: [{ name: "main.tsp" }, { name: "client.tsp", options: ["--no-emit"] }],
-  };
-  const reports: string[] = [];
-  const runner = new TaskRunner();
-  runner.reportTaskWithDetails = (_status, _name, details) => {
-    reports.push(details);
-  };
-  await validateSpecs(runner, target, suite);
-  const expectedCwd = await realpath(target);
-  expect(reports[0]).toContain(
-    JSON.stringify({
-      cwd: expectedCwd,
-      args: ["compile", join(project, "main.tsp"), "--warn-as-error"],
-    }),
-  );
-  expect(reports[0]).toContain(
-    JSON.stringify({
-      cwd: expectedCwd,
-      args: ["compile", join(project, "client.tsp"), "--warn-as-error", "--no-emit"],
-    }),
-  );
+    const project = join(target, "specification", "example");
+    await mkdir(project, { recursive: true });
+    await writeFile(join(project, "tspconfig.yaml"), "");
+    await writeFile(join(project, "main.tsp"), "");
+    await writeFile(join(project, "client.tsp"), "");
+    await commitTarget();
+    const suite = {
+      repo: "unused",
+      branch: "unused",
+      pattern: "specification/**/tspconfig.yaml",
+      entrypoints: [{ name: "main.tsp" }, { name: "client.tsp", options: ["--no-emit"] }],
+    };
+    const reports: string[] = [];
+    const runner = new TaskRunner();
+    runner.reportTaskWithDetails = (_status, _name, details) => {
+      reports.push(details);
+    };
+    await validateSpecs(runner, target, suite);
+    expect(await readOptionalFile(lockfilePath)).toBe(originalLockfile);
+    await validateGitClean(target);
+    const expectedCwd = await realpath(target);
+    expect(reports[0]).toContain(
+      JSON.stringify({
+        cwd: expectedCwd,
+        args: ["compile", join(project, "main.tsp"), "--warn-as-error"],
+      }),
+    );
+    expect(reports[0]).toContain(
+      JSON.stringify({
+        cwd: expectedCwd,
+        args: ["compile", join(project, "client.tsp"), "--warn-as-error", "--no-emit"],
+      }),
+    );
 
-  const tspRunner = new TspRunner(runner, target, suite, [project]);
-  await tspRunner.run();
-  await writeFile(join(project, "main.tsp"), "fail");
-  await expect(tspRunner.run()).rejects.toBeInstanceOf(ValidationFailedError);
-  await writeFile(join(project, "main.tsp"), "");
-  vi.spyOn(process.stdin, "write").mockReturnValue(true);
-  await tspRunner.rerunFailed();
-  expect(reports.at(-1)).toContain("compiled successfully");
-  expect(await readFile(join(target, "pnpm-lock.yaml"), "utf8")).toBe("lockfileVersion: '9.0'\n");
-}, 60_000);
+    const tspRunner = new TspRunner(runner, target, suite, [project]);
+    await tspRunner.run();
+    expect(await readOptionalFile(lockfilePath)).toBe(originalLockfile);
+    await writeFile(join(project, "main.tsp"), "fail");
+    await expect(tspRunner.run()).rejects.toBeInstanceOf(ValidationFailedError);
+    expect(await readOptionalFile(lockfilePath)).toBe(originalLockfile);
+    await writeFile(join(project, "main.tsp"), "");
+    vi.spyOn(process.stdin, "write").mockReturnValue(true);
+    await tspRunner.rerunFailed();
+    expect(reports.at(-1)).toContain("compiled successfully");
+    expect(await readOptionalFile(lockfilePath)).toBe(originalLockfile);
+    await validateGitClean(target);
+  },
+  60_000,
+);

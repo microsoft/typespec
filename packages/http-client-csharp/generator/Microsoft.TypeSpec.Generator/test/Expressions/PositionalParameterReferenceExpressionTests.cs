@@ -3,12 +3,30 @@
 
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Expressions
 {
     public class PositionalParameterReferenceExpressionTests
     {
+        [TestCase("sourceIpAddress")]
+        [TestCase("iPv4Address")]
+        [TestCase("object")]
+        public void NamedArgumentTracksRestoredParameterName(string restoredName)
+        {
+            var parameter = new ParameterProvider("sourceIPAddress", $"", typeof(string));
+            var expression = parameter.PositionalReference(Snippet.Null);
+            parameter.Update(name: restoredName);
+            Assert.AreEqual(restoredName, ((PositionalParameterReferenceExpression)expression).ParameterName);
+
+            using CodeWriter writer = new CodeWriter();
+            expression.Write(writer);
+
+            Assert.AreEqual($"{(restoredName == "object" ? "@object" : restoredName)}: null", writer.ToString(false));
+        }
+
         [Test]
         public void NonKeywordParameterName()
         {

@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.DefinitionStage;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
@@ -49,6 +50,7 @@ public class FluentResourceModelInterfaceDefinitionTemplate implements IJavaTemp
                 block1.interfaceBlock(interfaceSignature, block2 -> {
                     for (FluentMethod method : stage.getMethods()) {
                         block2.javadocComment(method::writeJavadoc);
+                        ExperimentalAnnotationUtil.write(block2, method.getApiMetadata());
                         block2.publicMethod(method.getInterfaceMethodSignature());
                     }
                 });

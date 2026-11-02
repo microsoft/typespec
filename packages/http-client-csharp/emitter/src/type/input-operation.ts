@@ -3,14 +3,13 @@
 
 import type { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import type { InputHttpOperationExample } from "./input-examples.js";
-import type { InputHttpParameter } from "./input-type.js";
+import type { InputExperimentalDetails, InputHttpParameter } from "./input-type.js";
 import type { OperationResponse } from "./operation-response.js";
 import type { RequestMethod } from "./request-method.js";
 
 export interface InputOperation {
   name: string;
   isExactName?: boolean;
-  resourceName?: string;
   summary?: string;
   deprecated?: string;
   doc?: string;
@@ -18,6 +17,8 @@ export interface InputOperation {
   parameters: InputHttpParameter[];
   responses: OperationResponse[];
   httpMethod: RequestMethod;
+  requestVisibility?: number;
+  responseAsBool?: boolean;
   uri: string;
   path: string;
   externalDocsUrl?: string;
@@ -29,4 +30,5 @@ export interface InputOperation {
   crossLanguageDefinitionId: string;
   decorators?: DecoratorInfo[];
   namespace?: string;
+  experimental?: InputExperimentalDetails;
 }

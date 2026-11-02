@@ -2,7 +2,11 @@ import pc from "picocolors";
 import type { IntegrationTestSuite } from "./config/types.js";
 import { findPackages, printPackages } from "./find-packages.js";
 import { ensureRepoState, validateGitClean } from "./git.js";
-import { detectPackageManager, getInstallCommand } from "./package-manager.js";
+import {
+  detectPackageManager,
+  getInstallCommand,
+  withPreservedLockfile,
+} from "./package-manager.js";
 import {
   discardDependencyPatch,
   patchDependencies,
@@ -13,7 +17,7 @@ import { action, execWithSpinner, log, repoRoot } from "./utils.js";
 import { validateSpecs } from "./validate.js";
 
 export interface RunIntegrationTestSuiteOptions {
-  /** Only run specific stages. */
+  /** Only run specific stages. After a failed install, rerun patch before retrying install. */
   stages?: Stage[];
   /** Clean the temp directory. By default tries to reuse the repo by reseting and pulling latest changes. */
   clean?: boolean;
@@ -64,12 +68,16 @@ export async function runIntegrationTestSuite(
 
   await runner.stage("install", async () => {
     await action("Installing dependencies", async (spinner) => {
-      const { command, args } = getInstallCommand(await detectPackageManager(wd));
-      log(`Using ${command} in ${wd}`);
-      await execWithSpinner(spinner, command, args, {
-        cwd: wd,
-      });
-      await restoreDependencies(wd);
+      try {
+        const manager = await detectPackageManager(wd);
+        const { command, args } = getInstallCommand(manager);
+        log(`Using ${command} in ${wd}`);
+        await withPreservedLockfile(wd, manager, () =>
+          execWithSpinner(spinner, command, args, { cwd: wd }),
+        );
+      } finally {
+        await restoreDependencies(wd);
+      }
     });
   });
 

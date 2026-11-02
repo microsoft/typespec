@@ -680,6 +680,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         // export packages that contain Client, ClientBuilder, ServiceVersion
         List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage()));
+        if (settings.getExperimentalAnnotation() != null) {
+            String annotationPackage = settings.getExperimentalAnnotation()
+                .substring(0, settings.getExperimentalAnnotation().lastIndexOf('.'));
+            if (exportModules.stream().noneMatch(module -> module.getModuleName().equals(annotationPackage))) {
+                exportModules.add(new ModuleInfo.ExportModule(annotationPackage));
+            }
+        }
         for (ServiceClient client : clients) {
             String builderPackageName = client.getBuilderPackageName();
             if (builderPackageName != null

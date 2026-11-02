@@ -22,11 +22,14 @@ import {
 import { HttpCanonicalizationOptions, type HttpCanonicalizationOptionsInit } from "./options.js";
 
 /**
- * A predicate that tests canonicalizations in a subgraph and caches the result.
+ * Tests canonicalization nodes and owns cached subgraph results. Reuse an instance
+ * only while its test behavior and the canonicalization graph remain stable;
+ * cached results are not automatically invalidated.
  */
 export abstract class CanonicalizationPredicate {
   /**
-   * Unique identifier for the predicate, used for caching results.
+   * Identifies the predicate to consumers; cached results belong to the instance,
+   * not to a shared cache keyed by this string.
    */
   abstract readonly id: string;
 
@@ -43,14 +46,14 @@ export abstract class CanonicalizationPredicate {
   readonly #cache = new WeakMap<HttpCanonicalization, boolean>();
 
   /**
-   * Gets the cached result for a canonicalization, if available.
+   * Gets the cached aggregate subgraph result, or `undefined` before evaluation.
    */
   getCached(canonicalization: HttpCanonicalization): boolean | undefined {
     return this.#cache.get(canonicalization);
   }
 
   /**
-   * Sets the cached result for a canonicalization.
+   * Stores an aggregate subgraph result; callers are responsible for its validity.
    */
   setCached(canonicalization: HttpCanonicalization, result: boolean): void {
     this.#cache.set(canonicalization, result);
@@ -58,7 +61,9 @@ export abstract class CanonicalizationPredicate {
 }
 
 /**
- * A predicate that tests whether a canonicalization uses the identity codec (no transformation).
+ * Accepts nodes with no codec, an {@link IdentityCodec}, or a codec whose ID is
+ * `"identity"`. This does not compare type graphs: visibility and other non-codec
+ * mutations can still change a node's language or wire shape.
  */
 export class IdentityCodecPredicate extends CanonicalizationPredicate {
   readonly id = "identity";
@@ -74,14 +79,17 @@ export class IdentityCodecPredicate extends CanonicalizationPredicate {
  */
 export const identityCodecPredicate = new IdentityCodecPredicate();
 
+/** Shared access to the codec and the two projections derived from a source type. */
 export interface HttpCanonicalizationCommon {
   /**
-   * Codec responsible for transforming the scalar into language and wire types.
+   * Codec selected for this node, or `null` when it does not directly use a codec.
+   * Children can still select codecs of their own.
    */
   codec: Codec | null;
 
   /**
-   * Whether the source type for this type is declared in TypeSpec.
+   * Whether this node is treated as a declaration rather than an inline value.
+   * The decision is shape-specific, not simply a test of the source type's name.
    */
   isDeclaration: boolean;
 
@@ -96,24 +104,42 @@ export interface HttpCanonicalizationCommon {
   get wireMutationNode(): MutationNode<Type>;
 
   /**
-   * The possibly mutated language type for this literal.
+   * The type consumed by generated language code. It can be the original source
+   * object when no mutation is needed.
    */
   get languageType(): Type;
 
   /**
-   * The possibly mutated wire type for this literal.
+   * The projection describing serialized payload shapes, not an encoded runtime value.
+   * It can be the original object when no mutation is needed.
    */
   get wireType(): Type;
 }
 
+/**
+ * Derives HTTP metadata and language/wire type graphs while retaining source types.
+ * Canonicalizations and projection nodes are reused by source identity and mutation
+ * key within this engine; create another engine for independent mutable state.
+ */
 export class HttpCanonicalizer extends MutationEngine<HttpCanonicalizationMutations> {
+  /** Ordered codec selection registry; changing it does not invalidate existing canonicalizations. */
   codecs: CodecRegistry;
 
+  /**
+   * Creates an engine for the typekit's program. By default it uses the program's
+   * cached JSON codec registry, even when a different content-type context is supplied.
+   */
   constructor($: Typekit, codecs: CodecRegistry = getJsonCodecRegistry($)) {
     super($, CANONICALIZATION_CLASSES);
     this.codecs = codecs;
   }
 
+  /**
+   * Gets or computes a canonicalization and its connected projections. Plain options
+   * are resolved to all visibility, body location, and `"none"` content type by default.
+   * @param edge Optional connection to a parent mutation when traversing a graph.
+   * @throws Error when codec selection fails or union variants cannot be distinguished.
+   */
   canonicalize<T extends Type>(
     type: T,
     options?: HttpCanonicalizationOptionsInit | HttpCanonicalizationOptions,
@@ -129,8 +155,9 @@ export class HttpCanonicalizer extends MutationEngine<HttpCanonicalizationMutati
   }
 
   /**
-   * Tests whether the subgraph rooted at the given canonicalization satisfies
-   * the provided predicate. Results are cached on the predicate instance.
+   * Tests the subgraph enumerated by {@link httpCanonicalizationDependencyConnector},
+   * including cycles, against the predicate. Results are cached on the predicate
+   * instance and are not invalidated when nodes change.
    *
    * @param canonicalization The root canonicalization to test.
    * @param predicate The predicate to test against canonicalizations in the subgraph.
@@ -181,7 +208,8 @@ export class HttpCanonicalizer extends MutationEngine<HttpCanonicalizationMutati
 
   /**
    * Tests whether the subgraph rooted at the given canonicalization uses only
-   * the identity codec (no transformation).
+   * absent or identity codecs, following {@link httpCanonicalizationDependencyConnector}.
+   * This does not imply equality of source, language, and wire shapes.
    *
    * @param canonicalization The root canonicalization to test.
    * @returns True if all codecs in the subgraph are identity codecs.
@@ -249,7 +277,9 @@ export class HttpCanonicalizer extends MutationEngine<HttpCanonicalizationMutati
   }
 }
 
+/** Cache and construction metadata returned by HTTP canonicalization factory hooks. */
 export interface HttpCanonicalizationInfo extends MutationInfo {
+  /** Selected representations for codec-backed nodes; absent for nodes such as models and unions. */
   encodingInfo?: EncodingInfo;
 }
 

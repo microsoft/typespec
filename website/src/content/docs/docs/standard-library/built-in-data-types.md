@@ -110,8 +110,8 @@ model OperationExample
 #### Properties
 | Name | Type | Description |
 |------|------|-------------|
-| parameters? | `unknown` | Example request body. |
-| returnType? | `unknown` | Example response body. |
+| parameters? | `unknown` | Example argument values keyed by operation parameter name.<br />The object must match the operation's full parameter model. For HTTP operations,<br />this includes required path, query, and header parameters as well as body parameters. |
+| returnType? | `unknown` | Example value matching the operation's full return type.<br />This is not limited to an HTTP response body: required response metadata<br />properties must also be present. |
 
 ### `OptionalProperties` {#OptionalProperties}
 
@@ -209,9 +209,9 @@ model VisibilityFilter
 #### Properties
 | Name | Type | Description |
 |------|------|-------------|
-| any? | `EnumMember[]` |  |
-| all? | `EnumMember[]` |  |
-| none? | `EnumMember[]` |  |
+| any? | `EnumMember[]` | Require at least one of these visibility modifiers.<br />Omit to impose no such requirement; an empty array matches no properties. |
+| all? | `EnumMember[]` | Require every one of these visibility modifiers.<br />Omit or pass an empty array to impose no such requirement. |
+| none? | `EnumMember[]` | Exclude properties with any of these visibility modifiers.<br />Omit or pass an empty array to exclude no properties by this condition. |
 
 ### `ArrayEncoding` {#ArrayEncoding}
 

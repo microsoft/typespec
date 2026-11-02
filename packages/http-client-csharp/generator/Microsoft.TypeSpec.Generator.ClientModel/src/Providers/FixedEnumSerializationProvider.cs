@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -80,7 +81,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumProvider, serializationValueParameter)));
                 var serializationBody = new SwitchExpression(serializationValueParameter, [.. knownCases, defaultCase]);
-                methods.Add(new(serializationSignature, serializationBody, this));
+                methods.Add(new(serializationSignature, serializationBody, this,
+                    suppressions: ExperimentalApiHelpers.GetAttributeSuppressions(_enumProvider.CanonicalView.Fields.SelectMany(field => field.Attributes))));
             }
 
             // deserialization method (we always need a deserialization)
@@ -120,10 +122,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // when the values are not strings (it should be numbers), we just compare them using `==` operator, like `value == <the value>`
                     condition = value.Equal(Literal(enumValue.Value));
                 }
-                deserializationBody.Add(new IfStatement(condition)
+                deserializationBody.Add(ExperimentalApiHelpers.Suppress(new IfStatement(condition)
                     {
                         Return(new MemberExpression(_enumProvider.Type, enumValue.Name))
-                    });
+                    }, ExperimentalApiHelpers.GetMemberSuppressions(enumValue.Field)));
             }
 
             // add a fallback throw statement to ensure every path of this method returns a value

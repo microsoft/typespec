@@ -4,6 +4,12 @@ import type { PlaygroundSample } from "../types.js";
 import type { PlaygroundSampleConfig } from "./types.js";
 
 /**
+ * Read sample source files and write a TypeScript module exporting their contents and metadata.
+ * Creates the output's parent directory and overwrites an existing output file.
+ * Resolves after writing the module; file read or write failures reject the promise.
+ * @param rootDir Directory against which sample filenames are resolved.
+ * @param output Path of the generated TypeScript module.
+ * @param samples Gallery entries keyed by display label.
  * @experimental This API is experimental
  */
 export async function buildSamples_experimental(

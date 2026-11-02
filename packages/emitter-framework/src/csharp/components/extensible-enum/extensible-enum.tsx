@@ -11,6 +11,13 @@ import {
 import type { Union } from "@typespec/compiler";
 import { declarationRefkeys } from "../utils/refkey.js";
 
+/**
+ * Options for a value-backed struct representing an open enum.
+ * String or numeric literal variants become known values; other variants are ignored.
+ * Numeric values must be signed 32-bit integers (-2,147,483,648 through 2,147,483,647);
+ * fractional and out-of-range values are unsupported.
+ * Mixing string and numeric literals is rejected during rendering.
+ */
 export interface ExtensibleEnumDeclarationProps extends Omit<StructDeclarationProps, "name"> {
   /** Union that should be rendered as an extensible enum struct */
   type: Union;

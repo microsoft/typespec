@@ -23,7 +23,8 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Model } from "@typespec/compiler";
-import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { compilerAssert, createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type {
@@ -43,6 +44,7 @@ import type {
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import { isReadOnly } from "./utils.js";
 
@@ -189,6 +191,24 @@ export function fromSdkType<T extends SdkType>(
       break;
   }
 
+  // Enum values already carry metadata validated when their declaring enum was converted.
+  if (sdkType.kind !== "enumvalue") {
+    // External declarations are not emitted, but their known diagnostics apply at generated reference sites.
+    retVar.experimental = diagnostics.pipe(
+      getExperimentalDetails(
+        sdkContext,
+        sdkType.__raw,
+        retVar.external !== undefined ||
+          (retVar.kind === "model" && !retVar.isFileType) ||
+          retVar.kind === "enum",
+      ),
+    );
+  }
+  if (sdkType.__raw?.kind === "Union" && retVar.kind !== "enum") {
+    for (const variant of sdkType.__raw.variants.values()) {
+      diagnostics.pipe(getExperimentalDetails(sdkContext, variant, false));
+    }
+  }
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
   // we have to cast to any because TypeScript's type narrowing does not automatically infer the return type for conditional types
   return diagnostics.wrap(retVar as any);
@@ -279,6 +299,10 @@ function fromSdkModelProperty(
     sdkProperty.serializationOptions?.json?.name ??
     sdkProperty.serializationOptions?.xml?.name ??
     sdkProperty.serializationOptions?.multipart?.name;
+  const lifecycleVisibility = sdkProperty.visibility?.reduce(
+    (mask, visibility) => mask | visibility,
+    0,
+  );
   property = {
     kind: sdkProperty.kind,
     name: sdkProperty.name,
@@ -290,6 +314,10 @@ function fromSdkModelProperty(
       fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
     ),
     optional: sdkProperty.optional,
+    lifecycleVisibility:
+      lifecycleVisibility === Visibility.All || lifecycleVisibility === Visibility.Read
+        ? undefined
+        : lifecycleVisibility,
     readOnly: isReadOnly(sdkProperty),
     discriminator: sdkProperty.discriminator,
     flatten: sdkProperty.flatten,
@@ -300,6 +328,7 @@ function fromSdkModelProperty(
     isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
     encode: sdkProperty.encode,
     isExactName: sdkProperty.isExactName,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, sdkProperty.__raw)),
   } as InputModelProperty;
 
   if (sdkProperty.serializationOptions?.multipart?.isFilePart === true) {
@@ -491,9 +520,10 @@ function fromSdkEnumValueType(
   enumValueType: SdkEnumValueType,
 ): [InputEnumValueType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  return diagnostics.wrap(
-    diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumValueType.enumType)),
-  );
+  const enumType = diagnostics.pipe(fromSdkType(sdkContext, enumValueType.enumType));
+  const value = enumType.values.find((value) => value.name === enumValueType.name);
+  compilerAssert(value !== undefined, "Enum value must belong to its declaring enum.");
+  return diagnostics.wrap(value);
 }
 
 function createEnumValueType(
@@ -520,6 +550,7 @@ function createEnumValueType(
     doc: sdkType.doc,
     decorators: sdkType.decorators,
     isExactName: sdkType.isExactName,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, sdkType.__raw)),
   });
 }
 

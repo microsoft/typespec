@@ -28,6 +28,7 @@ export const DashboardFromAzureStorage = (props: DashboardFromAzureStorageProps)
           scenarioTierConfig={props.options.tiers}
           showOverview={props.options.showOverview}
           emitterDisplayNames={props.options.emitterDisplayNames}
+          groupEmitters={props.options.groupEmitters}
         ></Dashboard>
       ) : (
         "Loading"

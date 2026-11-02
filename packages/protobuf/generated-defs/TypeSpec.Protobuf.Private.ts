@@ -17,7 +17,15 @@ export type _mapDecorator = (
   target: Model,
 ) => DecoratorValidatorCallbacks | void;
 
+export type LongRunningDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  response: Model,
+  metadata: Model,
+) => DecoratorValidatorCallbacks | void;
+
 export type TypeSpecProtobufPrivateDecorators = {
   externRef: ExternRefDecorator;
   _map: _mapDecorator;
+  longRunning: LongRunningDecorator;
 };

@@ -26,7 +26,9 @@ import {
 
 // Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
 
+/** Starting location and package-entry selection rules for {@link resolveModule}. */
 export interface ResolveModuleOptions {
+  /** Directory from which relative specifiers and package lookup are resolved. */
   baseDir: string;
 
   /**
@@ -51,6 +53,7 @@ export interface ResolveModuleOptions {
   readonly fallbackOnMissingCondition?: boolean;
 }
 
+/** Distinguishes missing modules, invalid entry points, and invalid package import/export targets. */
 type ResolveModuleErrorCode =
   | "MODULE_NOT_FOUND"
   | "INVALID_MAIN"
@@ -60,10 +63,14 @@ type ResolveModuleErrorCode =
   /** When an exports points to an invalid file. */
   | "INVALID_MODULE_EXPORT_TARGET";
 
+/** Resolution failure with a machine-readable code and, when available, the offending package. */
 export class ResolveModuleError extends Error {
+  /** Create a resolution failure, retaining package source information for diagnostics. */
   public constructor(
+    /** Category of resolution failure; inspect this instead of parsing the message. */
     public code: ResolveModuleErrorCode,
     message: string,
+    /** Package whose manifest caused the failure, absent when no package was found. */
     public pkgJson?: NodePackage,
   ) {
     super(message);

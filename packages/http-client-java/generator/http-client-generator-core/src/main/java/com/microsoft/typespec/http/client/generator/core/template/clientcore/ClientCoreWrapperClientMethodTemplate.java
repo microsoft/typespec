@@ -20,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.WrapperClientMethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import io.clientcore.core.annotations.ReturnType;
 import java.util.List;
 import java.util.function.Consumer;
@@ -129,6 +130,7 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
         generateJavadoc(clientMethod, typeBlock, restAPIMethod);
         addGeneratedAnnotation(typeBlock);
+        ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
         addServiceMethodAnnotation(typeBlock, returnType);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
             addOptionalVariables(function, clientMethod);

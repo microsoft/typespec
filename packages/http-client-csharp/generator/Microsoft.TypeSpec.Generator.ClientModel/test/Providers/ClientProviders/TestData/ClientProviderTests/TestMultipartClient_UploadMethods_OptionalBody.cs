@@ -36,7 +36,7 @@ namespace Sample
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::Sample.Models.MultiPartRequest body = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
             using global::System.ClientModel.MultiPartFormContent content = body?.ToMultipartFormContent();
-            return await this.UploadAsync(content, content?.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return await this.UploadAsync(content?.MediaType, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
 }

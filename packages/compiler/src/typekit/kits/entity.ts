@@ -28,6 +28,9 @@ export interface EntityKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Resolve references to types or values and check assignability between entities.
+   */
   entity: EntityKit;
 }
 

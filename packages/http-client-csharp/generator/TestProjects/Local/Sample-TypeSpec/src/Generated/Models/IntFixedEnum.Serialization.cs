@@ -26,6 +26,26 @@ namespace SampleTypeSpec
             {
                 return IntFixedEnum.Four;
             }
+            if (value == 10)
+            {
+                return IntFixedEnum.IP;
+            }
+            if (value == 20)
+            {
+                return IntFixedEnum.DB;
+            }
+            if (value == 30)
+            {
+                return IntFixedEnum.OS;
+            }
+            if (value == 40)
+            {
+                return IntFixedEnum.IPv4;
+            }
+            if (value == 60)
+            {
+                return IntFixedEnum.IPv6;
+            }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.");
         }
     }

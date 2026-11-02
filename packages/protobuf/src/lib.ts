@@ -21,6 +21,14 @@ export interface ProtobufEmitterOptions {
    * in an interface decoarated with `@service` will be emitted.
    */
   "omit-unreachable-types"?: boolean;
+
+  /**
+   * Prefix enum values with the enum name in UPPER_SNAKE_CASE.
+   *
+   * By default, member names are emitted unchanged. This option only changes names;
+   * explicit integer values and a first member set to zero are still required.
+   */
+  "enum-value-prefix"?: "none" | "enum-name";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
@@ -39,12 +47,24 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
       description:
         "By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.",
     },
+    "enum-value-prefix": {
+      type: "string",
+      enum: ["none", "enum-name"],
+      nullable: true,
+      default: "none",
+      description:
+        "When set to `enum-name`, enum values are prefixed with the enum name in UPPER_SNAKE_CASE. Already-prefixed names are preserved. By default (`none`), member names are emitted unchanged. This option only changes names; explicit integer values and a first member set to zero are still required.",
+    },
   },
   required: [],
 };
 
 const PACKAGE_NAME = "@typespec/protobuf";
 
+/**
+ * Defines the Protobuf library's diagnostics, emitter option schema, and dry-run capability.
+ * Exposed to the compiler through the package's `$lib` export.
+ */
 export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
   name: PACKAGE_NAME,
   capabilities: {
@@ -61,12 +81,26 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         reserved: paramMessage`field index ${"index"} falls within the implementation-reserved range of 19000-19999 inclusive`,
         "user-reserved": paramMessage`field index ${"index"} was reserved by a call to @reserve on this model`,
         "user-reserved-range": paramMessage`field index ${"index"} falls within a range reserved by a call to @reserve on this model`,
+        duplicate: paramMessage`field '${"name"}' uses field index ${"index"}, which is already used by field '${"other"}' in this message`,
       },
     },
     "field-name": {
       severity: "error",
       messages: {
         "user-reserved": paramMessage`field name '${"name"}' was reserved by a call to @reserve on this model`,
+        duplicate: paramMessage`name '${"name"}' is already used by another field or oneof in this message`,
+      },
+    },
+    "invalid-oneof": {
+      severity: "error",
+      messages: {
+        required: paramMessage`property '${"name"}' must be optional to be emitted as a oneof, because a oneof may have no member set (add '?' to the property, or add '@field' to emit a wrapper message instead)`,
+        empty: paramMessage`union ${"name"} must have at least one variant to be emitted as a oneof`,
+        "unnamed-variant": "every variant of a union emitted as a oneof must be named",
+        "repeated-variant": paramMessage`oneof member '${"name"}' cannot be an array, because Protobuf does not allow repeated fields in a oneof`,
+        "map-variant": paramMessage`oneof member '${"name"}' cannot be a map, because Protobuf does not allow map fields in a oneof`,
+        "invalid-name": paramMessage`oneof name '${"name"}' is not a valid Protobuf identifier (it must start with a letter or '_' and contain only letters, digits, and '_')`,
+        "invalid-member-name": paramMessage`oneof member name '${"name"}' is not a valid Protobuf identifier (it must start with a letter or '_' and contain only letters, digits, and '_')`,
       },
     },
     "root-operation": {
@@ -104,7 +138,8 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "unknown-intrinsic": paramMessage`no known protobuf scalar for intrinsic type ${"name"}`,
         "unknown-scalar": paramMessage`no known protobuf scalar for TypeSpec scalar type ${"name"}`,
         "recursive-map": "a protobuf map's 'value' type may not refer to another map",
-        union: "a message field's type may not be a union",
+        union:
+          "a message field's type may not be an anonymous union (declare a named union with '@field' on each variant)",
       },
     },
     "optional-array-field": {
@@ -136,6 +171,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
           "the first variant of an enum must be set to zero to be used in a Protobuf message",
       },
     },
+    "enum-value-name-collision": {
+      severity: "error",
+      messages: {
+        default: paramMessage`enum value name '${"name"}' collides with ${"kind"} '${"owner"}' in this Protobuf package`,
+      },
+    },
     "nested-array": {
       severity: "error",
       messages: {
@@ -159,6 +200,7 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`model ${"name"} is not in a namespace that uses the '@Protobuf.package' decorator`,
+        union: paramMessage`union ${"name"} is not in a namespace that uses the '@Protobuf.package' decorator`,
       },
     },
     "anonymous-model": {
@@ -177,6 +219,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
       severity: "error",
       messages: {
         "disallowed-option-type": paramMessage`option '${"name"}' with type '${"type"}' is not allowed in a package declaration (only string, boolean, and numeric types are allowed)`,
+      },
+    },
+    "long-running-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`the ${"role"} type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model`,
       },
     },
   },
@@ -224,6 +272,7 @@ export const reportDiagnostic = Object.assign(TypeSpecProtobufLibrary.reportDiag
   },
 });
 
+/** Library type from which the compiler infers the options accepted by the Protobuf emitter. */
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 
 const keys = [
@@ -232,6 +281,7 @@ const keys = [
   "service",
   "externRef",
   "stream",
+  "longRunning",
   "reserve",
   "message",
   "_map",

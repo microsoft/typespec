@@ -158,6 +158,8 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             retval = add_to_pylint_disable(retval, "too-many-locals")
         elif not self.is_overload and len(method_params) > (LOCALS_LENGTH_LIMIT - OPERATION_BODY_VARIABLES_LENGTH):
             retval = add_to_pylint_disable(retval, "too-many-locals")
+        if not self.is_overload and self.has_structured_stream_response:
+            retval = add_to_pylint_disable(retval, "too-many-statements")
 
         return retval
 

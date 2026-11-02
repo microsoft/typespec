@@ -73,9 +73,7 @@ const authorsWithAvatars = await Promise.all(
 </style>
 <BaseLayout>
   <article class="content">
-    <div class="hero-image">
-      {image && <Image src={image} alt="" height={fixedHeight} />}
-    </div>
+    <div class="hero-image">{image && <Image src={image} alt="" height={fixedHeight} />}</div>
     <div class="prose">
       <div class="title">
         <h1>{title}</h1>
@@ -83,20 +81,18 @@ const authorsWithAvatars = await Promise.all(
       </div>
       <slot />
 
-      {
-        authorList.length > 0 && (
-          <div
-            class="author-section"
-            style="margin: 2rem 0; padding: 1rem 0; border-top: 1px solid var(--colorNeutralStroke3);"
-          >
-            {authorsWithAvatars.map((author) => (
-              <div style="margin-bottom: 1rem;">
-                <BlogAuthor name={author.name} title={author.title} avatar={author.avatar} />
-              </div>
-            ))}
-          </div>
-        )
-      }
+      {authorList.length > 0 && (
+        <div
+          class="author-section"
+          style="margin: 2rem 0; padding: 1rem 0; border-top: 1px solid var(--colorNeutralStroke3);"
+        >
+          {authorsWithAvatars.map((author) => (
+            <div style="margin-bottom: 1rem;">
+              <BlogAuthor name={author.name} title={author.title} avatar={author.avatar} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   </article>
 </BaseLayout>
