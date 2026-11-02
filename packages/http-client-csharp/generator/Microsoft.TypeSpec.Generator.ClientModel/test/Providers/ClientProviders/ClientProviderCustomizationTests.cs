@@ -333,9 +333,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase("GlobalStaticImport", true)]
         [TestCase("RelativeStaticImport", false)]
         [TestCase("RelativeStaticImport", true)]
+        [TestCase("CompilationStaticImport", false)]
+        [TestCase("CompilationStaticImport", true)]
+        [TestCase("OtherFileStaticImport", false)]
+        [TestCase("OtherFileStaticImport", true)]
         public async Task SuppressedPagingMethodsPruneUnreferencedHelpers(string reference, bool keepAll)
         {
-            var customReference = reference != "False";
+            var customReference = reference != "False" && reference != "OtherFileStaticImport";
             var item = InputFactory.Model("item", properties: [InputFactory.Property("color", InputPrimitiveType.String)]);
             var page = InputFactory.Model("page", access: "internal", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json, properties:
             [

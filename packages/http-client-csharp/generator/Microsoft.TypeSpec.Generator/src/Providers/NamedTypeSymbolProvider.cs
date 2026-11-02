@@ -704,9 +704,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var name = qualifiedName.Right.Identifier.ValueText;
             var arity = qualifiedName.Right is GenericNameSyntax genericName ? genericName.Arity : 0;
             var qualifier = qualifiedName.Left.ToString();
-            if (qualifier.StartsWith("global::", StringComparison.Ordinal))
+            const string globalAliasPrefix = "global::";
+            if (qualifier.StartsWith(globalAliasPrefix, StringComparison.Ordinal))
             {
-                dependencies.Add(CreateDependencyType(name, qualifier.Substring("global::".Length), arity));
+                dependencies.Add(CreateDependencyType(name, qualifier.Substring(globalAliasPrefix.Length), arity));
                 return;
             }
 
@@ -765,6 +766,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 foreach (var usingDirective in compilationUnit.Usings)
                 {
                     AddUsingNamespace(namespaces, usingDirective, semanticModel);
+                }
+            }
+
+            foreach (var syntaxTree in semanticModel.Compilation.SyntaxTrees)
+            {
+                if (syntaxTree == node.SyntaxTree || syntaxTree.GetRoot() is not CompilationUnitSyntax otherCompilationUnit)
+                {
+                    continue;
+                }
+
+                foreach (var usingDirective in otherCompilationUnit.Usings)
+                {
+                    if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
+                    {
+                        AddUsingNamespace(namespaces, usingDirective, semanticModel.Compilation.GetSemanticModel(syntaxTree));
+                    }
                 }
             }
 
