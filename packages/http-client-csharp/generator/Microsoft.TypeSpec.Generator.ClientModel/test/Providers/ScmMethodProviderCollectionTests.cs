@@ -1926,6 +1926,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public void NextLinkPagingOmitsOnlyContinuationToken(bool hasNextLink, bool isHeader)
+        {
+            InputParameter token = isHeader
+                ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
+                : InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url),
+                InputFactory.Property("nextToken", InputPrimitiveType.String)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters:
+            [
+                InputFactory.MethodParameter("token", InputPrimitiveType.String,
+                    location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query),
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, location: InputRequestLocation.Query)
+            ], pagingMetadata: new InputPagingServiceMetadata(
+                ["items"],
+                hasNextLink ? new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null) : null,
+                hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body),
+                continuationTokenParameter: token));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var generated in methods)
+            {
+                Assert.AreEqual(!hasNextLink, generated.Signature.Parameters.Any(p => p.Name == "token"));
+                Assert.IsTrue(generated.Signature.Parameters.Any(p => p.Name == "filter"));
+                var syntax = CSharpSyntaxTree.ParseText(generated.BodyStatements!.ToDisplayString()).GetRoot();
+                var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single();
+                Assert.AreEqual(hasNextLink ? "default" : "token", construction.ArgumentList!.Arguments[1].Expression.ToString());
+                Assert.AreEqual("filter", construction.ArgumentList.Arguments[2].Expression.ToString());
+            }
+            Assert.IsTrue(client.RestClient.GetCreateRequestMethod(operation).Signature.Parameters.Any(p => p.Name == "token"));
+        }
+
         [Test]
         public void ListMethodWithInheritedPageItems()
         {

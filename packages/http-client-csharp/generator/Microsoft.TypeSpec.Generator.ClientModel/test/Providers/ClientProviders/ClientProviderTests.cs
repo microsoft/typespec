@@ -4369,6 +4369,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompatibility_NextLinkContinuationToken(bool newOptionalParameter)
+        {
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.Boolean);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems",
+                parameters: newOptionalParameter ? [token, filter] : [token],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation,
+                parameters: newOptionalParameter
+                    ? [InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query),
+                       InputFactory.MethodParameter("filter", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)]
+                    : [InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query)],
+                response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
+                pagingMetadata: InputFactory.PagingMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
+                    new InputContinuationToken(token, [], InputResponseLocation.None)));
+            var inputClient = InputFactory.Client(TestClientName, methods: [method]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var methods = client.Methods.Where(m => m.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
+            var visible = methods.Where(m => !m.Signature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))).ToArray();
+            Assert.AreEqual(4, visible.Length);
+            Assert.IsTrue(visible.All(m => m.Signature.Parameters.All(p => p.Name != "token")));
+            var hidden = methods.Except(visible).ToArray();
+            Assert.AreEqual(newOptionalParameter ? 8 : 4, hidden.Length);
+            Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name == "token")));
+            Assert.IsTrue(hidden.All(m => m.Signature.Parameters.All(p => p.DefaultValue == null)));
+            Assert.IsTrue(hidden.All(m => m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));
+            Assert.IsTrue(visible.All(m => !m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));
+        }
+
         [Test]
         public async Task BackCompatibility_CurrentDocumentationSurvivesClientProcessing()
         {

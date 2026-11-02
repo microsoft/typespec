@@ -52,6 +52,41 @@ describe("Next link operations", () => {
     strictEqual(paging.nextLink?.responseSegments[0], "next");
   });
 
+  it.each(["query", "header"])(
+    "preserves the request continuation token with a next link and no response token (%s)",
+    async (location) => {
+      const program = await typeSpecCompile(
+        `
+          @list
+          op link(@continuationToken @${location} token?: string, @query filter?: string): {
+            @pageItems items: Foo[];
+            @nextLink next?: url;
+          };
+          model Foo {
+            id: string;
+          }
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const method = root.clients[0].methods[0];
+      strictEqual(method.kind, "paging");
+      ok(method.pagingMetadata.nextLink);
+      strictEqual(method.pagingMetadata.continuationToken, undefined);
+      const token = method.pagingMetadata.continuationTokenParameter;
+      ok(token);
+      strictEqual(token.kind, location);
+      ok(token.kind === "query" || token.kind === "header");
+      strictEqual(token.methodParameterSegments?.[0], method.parameters[0]);
+      strictEqual(
+        token,
+        method.operation.parameters.find((p) => p.name === "token"),
+      );
+    },
+  );
+
   it("preserves an explicit POST next-link verb", async () => {
     const program = await typeSpecCompile(
       `

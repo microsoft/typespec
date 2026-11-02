@@ -10,13 +10,15 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<string> ItemPropertySegments { get; internal set; }
         public InputNextLink? NextLink { get; internal set; }
         public InputContinuationToken? ContinuationToken { get; internal set; }
+        public InputParameter? ContinuationTokenParameter { get; internal set; }
         public IReadOnlyList<string> PageSizeParameterSegments { get; internal set; }
 
-        public InputPagingServiceMetadata(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken, IReadOnlyList<string>? pageSizeParameterSegments = null)
+        public InputPagingServiceMetadata(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken, IReadOnlyList<string>? pageSizeParameterSegments = null, InputParameter? continuationTokenParameter = null)
         {
             ItemPropertySegments = itemPropertySegments;
             NextLink = nextLink;
             ContinuationToken = continuationToken;
+            ContinuationTokenParameter = continuationTokenParameter ?? continuationToken?.Parameter;
             PageSizeParameterSegments = pageSizeParameterSegments ?? [];
         }
 

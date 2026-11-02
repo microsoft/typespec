@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -1588,7 +1589,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 originalSignatures.TryAdd(method, method.Signature);
             }
 
-            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods)];
+            // Tokenless entry points must not be matched to a published token-bearing signature just
+            // because removing the token and adding another parameter produced the same CLR types.
+            var tokenlessMethods = originalMethods.OfType<ScmMethodProvider>()
+                .Where(method => method.ServiceMethod is InputPagingServiceMethod
+                { PagingMetadata: { NextLink: not null, ContinuationTokenParameter: not null } }
+                    && !method.Signature.Parameters.Any(p => ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(method.ServiceMethod, p))
+                    && originalMethods.OfType<ScmMethodProvider>().Any(other =>
+                        other.ServiceMethod == method.ServiceMethod && other.Kind == method.Kind
+                        && other.Signature.Parameters.Any(p => ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(method.ServiceMethod, p))))
+                .ToArray();
+            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods.Except(tokenlessMethods))];
+            result.AddRange(tokenlessMethods.Where(method =>
+                !result.Any(other => MethodSignature.MethodSignatureComparer.Equals(other.Signature, method.Signature))));
+
+            foreach (var method in result.OfType<ScmMethodProvider>())
+            {
+                if (method.ServiceMethod is { } serviceMethod
+                    && method.Signature.Parameters.Any(p => ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(serviceMethod, p)))
+                {
+                    method.Signature.Update(attributes:
+                    [
+                        .. method.Signature.Attributes,
+                        new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))
+                    ]);
+                    foreach (var parameter in method.Signature.Parameters)
+                    {
+                        parameter.DefaultValue = null;
+                    }
+                }
+            }
 
             // Determine which existing methods had their parameters reordered by the base and fix up
             // convenience method bodies that call the reordered protocol methods.

@@ -83,9 +83,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
-            bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
+            var methods = BuildMethods(includeContinuationToken: false).ToList();
+            if (_pagingServiceMethod?.PagingMetadata is not { NextLink: not null, ContinuationTokenParameter: not null }
+                || Client.BackCompatProvider.LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return methods;
+            }
 
-            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
+            foreach (var method in BuildMethods(includeContinuationToken: true))
+            {
+                var token = method.Signature.Parameters.FirstOrDefault(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p));
+                if (token != null
+                    && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
+                        && previous.Signature.Name == method.Signature.Name
+                        && previous.Signature.ReturnType?.AreNamesEqual(method.Signature.ReturnType) == true
+                        && previous.Signature.Parameters.Any(p => p.Name == token.Name && p.Type.AreNamesEqual(token.Type))
+                        && ScmCodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
+                            Client.BackCompatProvider.Type.FullyQualifiedName,
+                            previous.Signature.Name,
+                            previous.Signature.Parameters.Select(p => p.Type).ToArray()) != true))
+                {
+                    // Keep the full implementation until the back-compat pass has restored any older overloads.
+                    methods.Add(method);
+                }
+            }
+
+            return methods;
+        }
+
+        internal static bool IsNextLinkContinuationTokenParameter(InputServiceMethod serviceMethod, ParameterProvider parameter)
+        {
+            if (serviceMethod is not InputPagingServiceMethod
+                {
+                    PagingMetadata: { NextLink: not null, ContinuationTokenParameter: { } token }
+                } || parameter.InputParameter is not { } inputParameter)
+            {
+                return false;
+            }
+
+            return ReferenceEquals(inputParameter, token)
+                || token.MethodParameterSegments?.Any(segment => ReferenceEquals(segment, inputParameter)) == true
+                || string.Equals(inputParameter.OriginalName, token.OriginalName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private IReadOnlyList<ScmMethodProvider> BuildMethods(bool includeContinuationToken)
+        {
+            bool shouldMakeParametersRequired = !includeContinuationToken && ShouldMakeProtocolMethodParametersRequired();
+
+            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired, includeContinuationToken);
             if (_streamingResponse.Value != null)
             {
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
@@ -101,7 +146,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [asyncProtocol];
             }
 
-            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
+            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired, includeContinuationToken);
 
             if (_generateConvenienceMethod)
             {
@@ -113,8 +158,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (_pagingServiceMethod != null)
                 {
-                    methods.Add(BuildConvenienceMethod(syncProtocol, false));
-                    methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                    methods.Add(BuildConvenienceMethod(syncProtocol, false, includeContinuationToken));
+                    methods.Add(BuildConvenienceMethod(asyncProtocol, true, includeContinuationToken));
                 }
                 else
                 {
@@ -158,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
+        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync, bool includeContinuationToken = false)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -167,6 +212,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
             var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
+            if (!includeContinuationToken)
+            {
+                convenienceParameters.RemoveAll(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p));
+            }
             ParameterProvider[] signatureParameters = [.. convenienceParameters, ScmKnownParameters.CreateCancellationToken()];
 
             // Detect a partial method declaration in the client's custom code matching this convenience method.
@@ -1305,6 +1354,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                if (IsNextLinkContinuationTokenParameter(ServiceMethod, protocolParam)
+                    && !convenienceMethodParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p)))
+                {
+                    AddArgument(protocolParam, Default);
+                    continue;
+                }
+
                 // Try to find the corresponding convenience parameter using MethodParameterSegments
                 if (protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 }
                     && nonBodyProperties?.ContainsKey(protocolParam.Name) != true)
@@ -1501,7 +1557,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
-        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired, bool includeContinuationToken = false)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -1523,6 +1579,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var optionalParameters = new List<ParameterProvider>();
             var convertedRequiredParameters = new List<ParameterProvider>();
             var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
+            if (!includeContinuationToken)
+            {
+                protocolParameters.RemoveAll(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p));
+            }
             var contentIndex = protocolParameters.FindIndex(parameter => parameter.IsContentParameter);
             var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
             var makeOptionalRequired = shouldMakeParametersRequired
@@ -1745,12 +1805,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (createRequestParameters.Count == bodyParameters.Count)
+            if (createRequestParameters.Count == bodyParameters.Count
+                || createRequestParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p)))
             {
                 var arguments = new ValueExpression[createRequestParameters.Count];
                 bool allMatched = true;
                 for (int i = 0; i < createRequestParameters.Count; i++)
                 {
+                    if (IsNextLinkContinuationTokenParameter(ServiceMethod, createRequestParameters[i])
+                        && !bodyParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p)))
+                    {
+                        arguments[i] = Default;
+                        continue;
+                    }
+
                     var match = FindUngroupedArgument(bodyParameters, createRequestParameters[i]);
                     if (match is null)
                     {

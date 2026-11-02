@@ -17314,6 +17314,9 @@
               ],
               "responseLocation": "Body"
             },
+            "continuationTokenParameter": {
+              "$ref": "1151"
+            },
             "pageSizeParameterSegments": []
           }
         },
@@ -17492,6 +17495,9 @@
                 "next-token"
               ],
               "responseLocation": "Header"
+            },
+            "continuationTokenParameter": {
+              "$ref": "1159"
             },
             "pageSizeParameterSegments": []
           }
