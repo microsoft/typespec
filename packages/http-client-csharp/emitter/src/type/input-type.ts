@@ -188,6 +188,8 @@ export interface InputPropertyTypeBase extends DecoratedType {
   doc?: string;
   summary?: string;
   isApiVersion: boolean;
+  /** Whether this parameter is marked as the request continuation token. */
+  isContinuationToken?: boolean;
   defaultValue?: InputConstant;
   optional: boolean;
   crossLanguageDefinitionId: string;
@@ -225,12 +227,7 @@ export interface InputMethodParameter extends InputPropertyTypeBase {
   paramAlias?: string;
 }
 
-export interface InputHttpParameterBase extends InputPropertyTypeBase {
-  /** Whether this parameter is marked as the request continuation token. */
-  isContinuationToken?: boolean;
-}
-
-export interface InputQueryParameter extends InputHttpParameterBase {
+export interface InputQueryParameter extends InputPropertyTypeBase {
   kind: "query";
   collectionFormat?: CollectionFormat;
   arraySerializationDelimiter?: string;
@@ -240,7 +237,7 @@ export interface InputQueryParameter extends InputHttpParameterBase {
   methodParameterSegments?: InputMethodParameter[];
 }
 
-export interface InputPathParameter extends InputHttpParameterBase {
+export interface InputPathParameter extends InputPropertyTypeBase {
   kind: "path";
   explode: boolean;
   style: "simple" | "label" | "matrix" | "fragment" | "path";
@@ -252,7 +249,7 @@ export interface InputPathParameter extends InputHttpParameterBase {
   methodParameterSegments?: InputMethodParameter[];
 }
 
-export interface InputHeaderParameter extends InputHttpParameterBase {
+export interface InputHeaderParameter extends InputPropertyTypeBase {
   kind: "header";
   collectionFormat?: CollectionFormat;
   arraySerializationDelimiter?: string;
@@ -263,7 +260,7 @@ export interface InputHeaderParameter extends InputHttpParameterBase {
   methodParameterSegments?: InputMethodParameter[];
 }
 
-export interface InputBodyParameter extends InputHttpParameterBase {
+export interface InputBodyParameter extends InputPropertyTypeBase {
   kind: "body";
   contentTypes: string[];
   defaultContentType: string;
