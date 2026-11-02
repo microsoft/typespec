@@ -1926,11 +1926,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
-        [TestCase(true, true)]
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        [TestCase(false, false)]
-        public void NextLinkPagingOmitsOnlyContinuationToken(bool hasNextLink, bool isHeader)
+        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
+        [TestCase(true, false, true)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, true)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, true)]
+        [TestCase(false, false, false)]
+        public void NextLinkPagingOmitsOnlyContinuationToken(bool supportsPageResumption, bool hasNextLink, bool isHeader)
         {
             InputParameter token = isHeader
                 ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
@@ -1956,18 +1960,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body),
                 continuationTokenParameter: token));
             var inputClient = InputFactory.Client("TestClient", methods: [method]);
-            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient],
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methods = new ScmMethodProviderCollection(method, client);
+            var omitToken = supportsPageResumption && hasNextLink;
 
             Assert.AreEqual(4, methods.Count);
             foreach (var generated in methods)
             {
-                Assert.AreEqual(!hasNextLink, generated.Signature.Parameters.Any(p => p.Name == "token"));
+                Assert.AreEqual(!omitToken, generated.Signature.Parameters.Any(p => p.Name == "token"));
                 Assert.IsTrue(generated.Signature.Parameters.Any(p => p.Name == "filter"));
                 var syntax = CSharpSyntaxTree.ParseText(generated.BodyStatements!.ToDisplayString()).GetRoot();
                 var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single();
-                Assert.AreEqual(hasNextLink ? "default" : "token", construction.ArgumentList!.Arguments[1].Expression.ToString());
+                Assert.AreEqual(omitToken ? "default" : "token", construction.ArgumentList!.Arguments[1].Expression.ToString());
                 Assert.AreEqual("filter", construction.ArgumentList.Arguments[2].Expression.ToString());
             }
             Assert.IsTrue(client.RestClient.GetCreateRequestMethod(operation).Signature.Parameters.Any(p => p.Name == "token"));

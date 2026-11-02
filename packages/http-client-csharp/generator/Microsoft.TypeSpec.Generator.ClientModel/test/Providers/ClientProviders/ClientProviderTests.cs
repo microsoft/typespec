@@ -4369,9 +4369,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task BackCompatibility_NextLinkContinuationToken(bool newOptionalParameter)
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task BackCompatibility_NextLinkContinuationToken(bool supportsPageResumption, bool newOptionalParameter)
         {
             var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
             var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
@@ -4400,7 +4402,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 inputModels: () => [item, page],
-                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(),
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
             var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
 
             client.ProcessTypeForBackCompatibility();
@@ -4408,8 +4411,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var methods = client.Methods.Where(m => m.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
             var visible = methods.Where(m => !m.Signature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))).ToArray();
             Assert.AreEqual(4, visible.Length);
-            Assert.IsTrue(visible.All(m => m.Signature.Parameters.All(p => p.Name != "token")));
+            Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name == "token") == !supportsPageResumption));
             var hidden = methods.Except(visible).ToArray();
+            Assert.IsTrue(methods.All(m => m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)
+                == m.Signature.Parameters.Any(p => p.Name == "token")));
+            Assert.AreEqual(methods.Length, methods.Select(m => m.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
+            if (!supportsPageResumption)
+            {
+                Assert.AreEqual(newOptionalParameter ? 2 : 0, hidden.Length);
+                Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name == "token")));
+                Assert.IsTrue(visible.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken)))
+                    .All(m => m.Signature.Parameters.All(p => p.DefaultValue != null)));
+                return;
+            }
+
             Assert.AreEqual(newOptionalParameter ? 8 : 4, hidden.Length);
             Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name == "token")));
             Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Take(2).All(p => p.DefaultValue == null)));
@@ -4422,9 +4437,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     m.Suppressions.Any(suppression => suppression.Code.ToDisplayString() == Literal("AZC0002").ToDisplayString())));
             Assert.IsTrue(hidden.All(m => m.Signature.Attributes.Single(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))
                 .Arguments.Single().ToDisplayString() == FrameworkEnumValue(System.ComponentModel.EditorBrowsableState.Never).ToDisplayString()));
-            Assert.IsTrue(hidden.All(m => m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));
-            Assert.IsTrue(visible.All(m => !m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));
-            Assert.AreEqual(methods.Length, methods.Select(m => m.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
         }
 
         [Test]

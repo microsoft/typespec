@@ -23,6 +23,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         CSharpType ClientCollectionAsyncResponseOfTType { get; }
 
+        /// <summary>
+        /// Gets whether paging collections support resuming enumeration from a continuation token.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, next-link paging methods omit the raw request continuation-token parameter
+        /// from new public signatures. Callers must be able to resume paging through the returned collection.
+        /// Defaults to false to preserve existing method signatures.
+        /// </remarks>
+        bool SupportsPageResumption => false;
+
         string ResponseParameterName { get; }
 
         TypeProvider CreateClientCollectionResultDefinition(

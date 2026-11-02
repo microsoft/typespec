@@ -84,7 +84,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             var methods = BuildMethods(includeContinuationToken: false).ToList();
-            if (_pagingServiceMethod?.PagingMetadata is not { NextLink: not null, ContinuationTokenParameter: not null }
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
+                || _pagingServiceMethod?.PagingMetadata is not { NextLink: not null, ContinuationTokenParameter: not null }
                 || Client.BackCompatProvider.LastContractView?.Methods is not { Count: > 0 } previousMethods)
             {
                 return methods;
@@ -113,7 +114,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal static bool IsNextLinkContinuationTokenParameter(InputServiceMethod serviceMethod, ParameterProvider parameter)
         {
-            if (serviceMethod is not InputPagingServiceMethod
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
+                || serviceMethod is not InputPagingServiceMethod
                 {
                     PagingMetadata: { NextLink: not null, ContinuationTokenParameter: { } token }
                 } || parameter.InputParameter is not { } inputParameter)
