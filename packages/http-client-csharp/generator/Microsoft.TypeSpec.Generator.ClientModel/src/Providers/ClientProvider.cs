@@ -1679,9 +1679,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var method in result)
             {
                 if ((!originalSignatures.ContainsKey(method)
-                        || method is ScmMethodProvider scmMethod && continuationTokenMethods.Contains(scmMethod))
-                    && PreviousSignatureEndsWithCancellationToken(method.Signature)
-                    && method.Signature.Parameters[^1].DefaultValue == null)
+                        || method is ScmMethodProvider scmMethod && continuationTokenMethods.Contains(scmMethod)
+                            && method.Signature.Parameters[^1].DefaultValue == null)
+                    && PreviousSignatureEndsWithCancellationToken(method.Signature))
                 {
                     method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                     [
