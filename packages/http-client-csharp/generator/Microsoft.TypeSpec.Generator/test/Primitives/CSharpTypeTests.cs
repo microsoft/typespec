@@ -404,6 +404,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.AreEqual(expected, actual);
         }
 
+        [TestCase(1)]
+        [TestCase(2)]
+        public void SymbolBackedArrayPreservesStructure(int rank)
+        {
+            var element = new CSharpType("ExternalValue", "Sample", false, false, null, [], true, false);
+            var array = element.MakeArrayType(rank);
+            Assert.That(array.IsArray, Is.True);
+            Assert.That(array.IsFrameworkType, Is.False);
+            Assert.That(array.ArrayRank, Is.EqualTo(rank));
+            Assert.That(array.ElementType, Is.SameAs(element));
+            Assert.That(array.Arguments, Is.Empty);
+            Assert.That(array.ToString(), Is.EqualTo("global::Sample.ExternalValue[" + new string(',', rank - 1) + "]"));
+
+            var nullable = array.WithNullable(true);
+            Assert.That(nullable.IsArray, Is.True);
+            Assert.That(nullable.ArrayRank, Is.EqualTo(rank));
+            Assert.That(nullable.ElementType, Is.SameAs(element));
+            Assert.That(nullable.WithNullable(false).Equals(array), Is.True);
+            Assert.That(nullable.WithNullable(false).GetHashCode(), Is.EqualTo(array.GetHashCode()));
+        }
+
+        [Test]
+        public void SymbolBackedGenericArrayIncludesElementArguments()
+        {
+            var valueType = new CSharpType("ExternalValue", "Sample", false, false, null, [], true, false);
+            var element = new CSharpType(typeof(List<>), valueType);
+            var array = element.MakeArrayType();
+            var same = element.MakeArrayType();
+            var different = new CSharpType(typeof(List<string>)).MakeArrayType();
+            Assert.That(array.Equals(same), Is.True);
+            Assert.That(array.GetHashCode(), Is.EqualTo(same.GetHashCode()));
+            Assert.That(array.Equals(different), Is.False);
+            Assert.That(array.AreNamesEqual(different), Is.False);
+            Assert.That(array.ToString(), Is.EqualTo("global::System.Collections.Generic.List<global::Sample.ExternalValue>[]"));
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(int[]))]
+        public void FrameworkArrayRetainsRuntimeType(Type elementType)
+        {
+            var array = new CSharpType(elementType).MakeArrayType();
+            Assert.That(array.IsFrameworkType, Is.True);
+            Assert.That(array.FrameworkType, Is.EqualTo(elementType.MakeArrayType()));
+            Assert.That(array.ElementType.Equals(new CSharpType(elementType)), Is.True);
+        }
+
+        [TestCase(typeof(List<int>[]), "global::System.Collections.Generic.List<int>[]")]
+        [TestCase(typeof(int?[]), "int?[]")]
+        [TestCase(typeof(int?[][]), "int?[][]")]
+        public void ArrayRendersConstructedElementType(Type type, string expected)
+        {
+            Assert.That(new CSharpType(type).ToString(), Is.EqualTo(expected));
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void ArrayRejectsInvalidRank(int rank)
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new CSharpType(typeof(int)).MakeArrayType(rank));
+        }
+
         [TestCase(typeof(int), false)]
         [TestCase(typeof(IDictionary<string, string>), false)]
         [TestCase(typeof(ReadOnlyMemory<>), false)]

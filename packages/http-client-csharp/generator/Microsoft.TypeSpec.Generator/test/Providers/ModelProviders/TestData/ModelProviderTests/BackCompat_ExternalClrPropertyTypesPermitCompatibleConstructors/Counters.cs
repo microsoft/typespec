@@ -139,4 +139,84 @@ namespace Sample.Models
             Value = Array.ConvertAll(value, item => (long?)item);
         }
     }
+
+    public partial class ExternalArrayCounter : GenericBase<ExternalValue[]>
+    {
+        public ExternalArrayCounter(ExternalValue[] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class ExternalJaggedArrayCounter : GenericBase<ExternalValue[][]>
+    {
+        public ExternalJaggedArrayCounter(ExternalValue[][] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class ExternalGenericArrayCounter : GenericBase<List<ExternalValue>[]>
+    {
+        public ExternalGenericArrayCounter(List<ExternalValue>[] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class ArrayGenericCounter : ArrayBase<int>
+    {
+        public ArrayGenericCounter(int[] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class NullableArrayGenericCounter : ArrayBase<int?>
+    {
+        public NullableArrayGenericCounter(int?[] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class ExternalArrayGenericCounter : ArrayBase<ExternalValue>
+    {
+        public ExternalArrayGenericCounter(ExternalValue[] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class JaggedArrayGenericCounter : JaggedArrayBase<int>
+    {
+        public JaggedArrayGenericCounter(int[][] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class MatrixArrayGenericCounter : MatrixArrayBase<int>
+    {
+        public MatrixArrayGenericCounter(int[,] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class MismatchedArrayRankCounter : ArrayBase<int>
+    {
+        public MismatchedArrayRankCounter(int[,] value)
+        {
+            Value = new int[value.Length];
+        }
+    }
+
+    public partial class MismatchedArrayGenericCounter : ArrayBase<int>
+    {
+        public MismatchedArrayGenericCounter(long[] value)
+        {
+            Value = Array.ConvertAll(value, item => (int)item);
+        }
+    }
 }

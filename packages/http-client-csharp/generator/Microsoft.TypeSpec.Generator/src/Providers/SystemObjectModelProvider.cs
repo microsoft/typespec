@@ -801,6 +801,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return CreateReflectedType(underlyingType, typeArguments).WithNullable(true);
             }
 
+            if (type.IsArray)
+            {
+                return CreateReflectedType(type.GetElementType()!, typeArguments).MakeArrayType(type.GetArrayRank());
+            }
+
             return type.IsGenericType
                 ? new CSharpType(
                     type.GetGenericTypeDefinition(),

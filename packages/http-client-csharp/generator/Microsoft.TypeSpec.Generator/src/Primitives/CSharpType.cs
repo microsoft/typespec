@@ -45,11 +45,13 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private string? _clrMetadataName;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
+        private int? _arrayRank;
         private CSharpType? _inputType;
         private CSharpType? _outputType;
         public bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
         public bool IsList => _isList ??= TypeIsList();
         public bool IsArray => _isArray ??= TypeIsArray();
+        internal int ArrayRank => _arrayRank ?? FrameworkType.GetArrayRank();
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
         public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
@@ -260,7 +262,27 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             => IsReadOnlyList || IsReadWriteList || IsReadOnlyMemory;
 
         private bool TypeIsArray()
-            => IsFrameworkType && FrameworkType.IsArray;
+            => _arrayRank.HasValue || IsFrameworkType && FrameworkType.IsArray;
+
+        internal CSharpType MakeArrayType(int rank = 1)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(rank, 1);
+            if (IsFrameworkType && Arguments.Count == 0)
+            {
+                var elementType = IsValueType && IsNullable
+                    ? typeof(Nullable<>).MakeGenericType(FrameworkType)
+                    : FrameworkType;
+                return new CSharpType(rank == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType(rank));
+            }
+
+            return new CSharpType(
+                Name + "[" + new string(',', rank - 1) + "]", Namespace, false, false,
+                null, [], IsPublic, false, typeof(Array))
+            {
+                _arrayRank = rank,
+                _elementType = this
+            };
+        }
 
         private bool TypeIsReadOnlyDictionary()
             => IsFrameworkType && _type == typeof(IReadOnlyDictionary<,>);
@@ -489,6 +511,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 IsPublic == other.IsPublic &&
                 _underlyingType == other._underlyingType &&
                 Equals(DeclaringType, other.DeclaringType) &&
+                IsArray == other.IsArray &&
+                (!IsArray || ArrayRank == other.ArrayRank && ElementType.Equals(other.ElementType)) &&
                 (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -553,6 +577,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 hashCode.Add(arg);
             }
+            if (IsArray)
+            {
+                hashCode.Add(ArrayRank);
+                hashCode.Add(ElementType);
+            }
             _hashCode = HashCode.Combine(Name, Namespace, IsValueType, _type, hashCode.ToHashCode(), IsNullable);
 
             return _hashCode.Value;
@@ -585,6 +614,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
             type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
+            type._arrayRank = _arrayRank;
+            if (IsArray)
+            {
+                type._elementType = ElementType;
+            }
 
             return type;
         }
@@ -646,6 +680,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (other is null)
             {
                 return false;
+            }
+
+            if (IsArray || other.IsArray)
+            {
+                return IsArray && other.IsArray && ArrayRank == other.ArrayRank &&
+                    ElementType.AreNamesEqual(other.ElementType);
             }
 
             if (!IsNameMatch(other))

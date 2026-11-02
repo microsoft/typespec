@@ -11,6 +11,21 @@ namespace Sample.External
     {
     }
 
+    public class ArrayBase<T>
+    {
+        public T[] Value { get; set; } = default!;
+    }
+
+    public class JaggedArrayBase<T>
+    {
+        public T[][] Value { get; set; } = default!;
+    }
+
+    public class MatrixArrayBase<T>
+    {
+        public T[,] Value { get; set; } = default!;
+    }
+
     public class NullableGenericBase<T> where T : struct
     {
         public T? Value { get; set; }

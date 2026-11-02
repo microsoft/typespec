@@ -623,6 +623,13 @@ namespace Microsoft.TypeSpec.Generator
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int genericDepth = 0)
         {
+            if (type is { IsArray: true, IsFrameworkType: false })
+            {
+                AppendType(type.ElementType, isDeclaration, writeTypeNameOnly, genericDepth);
+                AppendRaw("[" + new string(',', type.ArrayRank - 1) + "]");
+                return;
+            }
+
             if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
             {
                 AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, genericDepth);
@@ -709,7 +716,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
-            if (span.Length == 0 )
+            if (span.Length == 0)
             {
                 return this;
             }

@@ -5150,6 +5150,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("MismatchedJaggedNullableArrayCounter", false)]
         [TestCase("MismatchedNestedNullableArrayCounter", false)]
         [TestCase("MismatchedMappedNullableArrayCounter", false)]
+        [TestCase("ExternalArrayCounter", true)]
+        [TestCase("ExternalJaggedArrayCounter", true)]
+        [TestCase("ExternalGenericArrayCounter", true)]
+        [TestCase("ArrayGenericCounter", true)]
+        [TestCase("NullableArrayGenericCounter", true)]
+        [TestCase("ExternalArrayGenericCounter", true)]
+        [TestCase("JaggedArrayGenericCounter", true)]
+        [TestCase("MatrixArrayGenericCounter", true)]
+        [TestCase("MismatchedArrayRankCounter", false)]
+        [TestCase("MismatchedArrayGenericCounter", false)]
         public async Task BackCompat_ExternalClrPropertyTypesPermitCompatibleConstructors(string modelName, bool shouldRestore)
         {
             var enumType = new CSharpType(typeof(Sample.External.ExternalKind)).WithUnderlyingEnumType(typeof(string));
@@ -5184,6 +5194,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     new CSharpType(typeof(Sample.External.GenericBase<List<int?[]>>)), new CSharpType(typeof(List<int?[]>))),
                 "MismatchedMappedNullableArrayCounter" => (
                     new CSharpType(typeof(Sample.External.GenericBase<long?[]>)), new CSharpType(typeof(int?[]))),
+                "ExternalArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[]))),
+                "ExternalJaggedArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[][]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[][]))),
+                "ExternalGenericArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<List<Sample.External.ExternalValue>[]>)),
+                    new CSharpType(typeof(List<Sample.External.ExternalValue>[]))),
+                "ArrayGenericCounter" or "MismatchedArrayRankCounter" or "MismatchedArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.ArrayBase<int>)), new CSharpType(typeof(int[]))),
+                "NullableArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.ArrayBase<int?>)), new CSharpType(typeof(int?[]))),
+                "ExternalArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.ArrayBase<>), generatedType),
+                    new CSharpType(typeof(Sample.External.ExternalValue[]))),
+                "JaggedArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.JaggedArrayBase<int>)), new CSharpType(typeof(int[][]))),
+                "MatrixArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.MatrixArrayBase<int>)), new CSharpType(typeof(int[,]))),
                 _ => (new CSharpType(typeof(Sample.External.GenericBase<string>)), new CSharpType(typeof(string))),
             };
             var baseModel = InputFactory.Model("ExternalBase",
