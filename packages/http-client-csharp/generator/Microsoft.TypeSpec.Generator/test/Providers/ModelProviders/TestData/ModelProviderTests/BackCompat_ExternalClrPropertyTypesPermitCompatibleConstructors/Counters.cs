@@ -219,4 +219,28 @@ namespace Sample.Models
             Value = Array.ConvertAll(value, item => (int)item);
         }
     }
+
+    public partial class ExternalVectorOfMatricesCounter : GenericBase<ExternalValue[][,]>
+    {
+        public ExternalVectorOfMatricesCounter(ExternalValue[][,] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class ExternalMatrixOfVectorsCounter : GenericBase<ExternalValue[,][]>
+    {
+        public ExternalMatrixOfVectorsCounter(ExternalValue[,][] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class MismatchedMixedArrayRankCounter : GenericBase<int[][,]>
+    {
+        public MismatchedMixedArrayRankCounter(int[,][] value)
+        {
+            Value = new int[value.Length][,];
+        }
+    }
 }

@@ -12,5 +12,7 @@ namespace Sample
         public ExternalValue[,] Matrix { get; set; }
         public ExternalValue[][] Jagged { get; set; }
         public List<ExternalValue>[] Groups { get; set; }
+        public ExternalValue[][,] VectorOfMatrices { get; set; }
+        public ExternalValue[,][] MatrixOfVectors { get; set; }
     }
 }

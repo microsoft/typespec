@@ -5160,6 +5160,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("MatrixArrayGenericCounter", true)]
         [TestCase("MismatchedArrayRankCounter", false)]
         [TestCase("MismatchedArrayGenericCounter", false)]
+        [TestCase("ExternalVectorOfMatricesCounter", true)]
+        [TestCase("ExternalMatrixOfVectorsCounter", true)]
+        [TestCase("MismatchedMixedArrayRankCounter", false)]
         public async Task BackCompat_ExternalClrPropertyTypesPermitCompatibleConstructors(string modelName, bool shouldRestore)
         {
             var enumType = new CSharpType(typeof(Sample.External.ExternalKind)).WithUnderlyingEnumType(typeof(string));
@@ -5214,6 +5217,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     new CSharpType(typeof(Sample.External.JaggedArrayBase<int>)), new CSharpType(typeof(int[][]))),
                 "MatrixArrayGenericCounter" => (
                     new CSharpType(typeof(Sample.External.MatrixArrayBase<int>)), new CSharpType(typeof(int[,]))),
+                "ExternalVectorOfMatricesCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[][,]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[][,]))),
+                "ExternalMatrixOfVectorsCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[,][]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[,][]))),
+                "MismatchedMixedArrayRankCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<int[][,]>)), new CSharpType(typeof(int[][,]))),
                 _ => (new CSharpType(typeof(Sample.External.GenericBase<string>)), new CSharpType(typeof(string))),
             };
             var baseModel = InputFactory.Model("ExternalBase",
@@ -5243,6 +5254,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     Assert.That(restoredConstructor.Signature.Parameters.Single().Type.Equals(propertyType), Is.True);
                 }
                 Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("Value = value"));
+                if (modelName is "ExternalVectorOfMatricesCounter" or "ExternalMatrixOfVectorsCounter")
+                {
+                    using var writer = new CodeWriter();
+                    writer.WriteConstructor(restoredConstructor);
+                    Assert.That(writer.ToString(false), Is.EqualTo(Helpers.GetExpectedFromFile(modelName)));
+                }
             }
         }
 

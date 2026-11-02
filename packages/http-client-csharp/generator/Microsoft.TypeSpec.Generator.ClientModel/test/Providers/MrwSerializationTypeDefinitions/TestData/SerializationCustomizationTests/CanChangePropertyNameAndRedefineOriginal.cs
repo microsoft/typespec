@@ -110,7 +110,7 @@ namespace Sample.Models
             {
                 return null;
             }
-            global::System.String[] prop2 = default;
+            string[] prop2 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
