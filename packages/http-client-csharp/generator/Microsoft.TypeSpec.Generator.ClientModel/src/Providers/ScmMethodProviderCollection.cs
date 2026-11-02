@@ -354,17 +354,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var hasLifecycleVisibility = ServiceMethod.Operation.RequestVisibility.HasValue;
+            var requestMediaType = GetRequestMediaType();
+            var isXmlRequest = requestMediaType is not null && IsXmlMediaType(requestMediaType);
+            ScopedApi<ModelReaderWriterOptions> requestSerializationOptions = hasLifecycleVisibility
+                ? New.Instance<LifecycleModelReaderWriterOptionsDefinition>(
+                    LifecycleVisibilityDefinition.GetExpression(ServiceMethod.Operation.RequestVisibility!.Value),
+                    isXmlRequest ? ModelReaderWriterOptionsSnippets.XmlFormat : ModelReaderWriterOptionsSnippets.WireFormat).As<ModelReaderWriterOptions>()
+                : ModelSerializationExtensionsSnippets.Wire;
+
+            ValueExpression WithOptionalBody(ParameterProvider parameter, ValueExpression content)
+            {
+                return ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault() is { IsRequired: false }
+                    ? new TernaryConditionalExpression(parameter.Equal(Null), Null, content)
+                    : content;
+            }
+
+            MethodBodyStatement DeclareRequestContent(string name, CSharpType type, ValueExpression value, out VariableExpression content)
+            {
+                // Paging collections retain the content for deferred requests.
+                return _pagingServiceMethod is null
+                    ? UsingDeclare(name, type, value, out content)
+                    : Declare(name, type, value, out content);
+            }
 
             // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
             void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value)
             {
-                statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
-                statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                var optionalBody = hasLifecycleVisibility &&
+                    ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault() is { IsRequired: false };
+                ValueExpression initialization = optionalBody
+                    ? new TernaryConditionalExpression(value.Equal(Null), Null, New.Instance<Utf8JsonBinaryContentDefinition>())
+                    : New.Instance<Utf8JsonBinaryContentDefinition>();
+                var declaration = Declare("content", new Utf8JsonBinaryContentDefinition().Type, initialization, out var content);
+                statements.Add(hasLifecycleVisibility && _pagingServiceMethod is null ? UsingDeclare(content, initialization) : declaration);
+                var serialization = ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
                     serializationType,
                     value,
-                    content.JsonWriter(),
-                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                    SerializationFormat.Default));
+                    content.As<Utf8JsonBinaryContentDefinition>().JsonWriter(),
+                    requestSerializationOptions,
+                    SerializationFormat.Default);
+                statements.Add(optionalBody ? new IfStatement(content.NotEqual(Null)) { serialization } : serialization);
                 localDeclarations["content"] = content;
             }
 
@@ -375,11 +405,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (parameter.Location == ParameterLocation.Body)
+                if (parameter.Location == ParameterLocation.Body && !parameter.Type.Equals(typeof(BinaryData)))
                 {
                     if (parameter.Type.IsIAsyncEnumerableOfT)
                     {
                         var contentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([parameter.Type.Arguments[0]]);
+                        ValueExpression[] contentArguments = hasLifecycleVisibility ? [parameter, requestSerializationOptions] : [parameter];
                         var inputParameter = ServiceMethod.Parameters.FirstOrDefault(p =>
                             p.Location == InputRequestLocation.Body &&
                             string.Equals(p.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
@@ -387,33 +418,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             ? new TernaryConditionalExpression(
                                 parameter.Equal(Null),
                                 Null,
-                                New.Instance(contentType, parameter))
-                            : New.Instance(contentType, parameter);
-                        statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
+                                New.Instance(contentType, contentArguments))
+                            : New.Instance(contentType, contentArguments);
+                        statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
+                        declarations["content"] = content;
+                    }
+                    else if (hasLifecycleVisibility && parameter.Type.IsDictionary)
+                    {
+                        statements.Add(DeclareRequestContent("content", requestContentType,
+                            WithOptionalBody(parameter, BinaryContentHelperSnippets.FromDictionary(parameter, requestSerializationOptions)), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
+                        var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span"),
+                            hasLifecycleVisibility ? requestSerializationOptions : null);
+                        statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
                     {
                         if (TryGetXmlCollectionNames(parameter, out var rootName, out var childName))
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName)), out var content));
+                            var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName),
+                                hasLifecycleVisibility ? requestSerializationOptions : null);
+                            statements.Add(DeclareRequestContent("content", requestContentType,
+                                hasLifecycleVisibility ? WithOptionalBody(parameter, contentExpression) : contentExpression, out var content));
                             declarations["content"] = content;
                         }
                         else
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                            var contentExpression = BinaryContentHelperSnippets.FromEnumerable(parameter,
+                                hasLifecycleVisibility ? requestSerializationOptions : null);
+                            statements.Add(DeclareRequestContent("content", requestContentType,
+                                hasLifecycleVisibility ? WithOptionalBody(parameter, contentExpression) : contentExpression, out var content));
                             declarations["content"] = content;
                         }
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(DeclareRequestContent("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
                         declarations["content"] = content;
+                    }
+                    else if (hasLifecycleVisibility && !ServiceMethod.Operation.IsMultipartFormData && !isXmlRequest)
+                    {
+                        AddUtf8JsonContent(parameter.Type, parameter);
                     }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
@@ -423,7 +472,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter)), out var content));
+                            var contentExpression = RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter));
+                            statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                             declarations["content"] = content;
                         }
                     }
@@ -433,7 +483,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        statements.Add(DeclareRequestContent("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
@@ -460,7 +510,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             // Create using declaration for BinaryContent
                             var methodName = $"To{requestContentType.Name}";
-                            statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
+                            ValueExpression contentExpression = hasLifecycleVisibility
+                                ? WithOptionalBody(parameter, RequestContentApiSnippets.Create(parameter,
+                                    New.Instance<LifecycleModelReaderWriterOptionsDefinition>(
+                                        LifecycleVisibilityDefinition.GetExpression(ServiceMethod.Operation.RequestVisibility!.Value), format).As<ModelReaderWriterOptions>()))
+                                : parameter.Invoke(methodName, format);
+                            statements.Add(DeclareRequestContent("content", requestContentType, contentExpression, out var content));
                             declarations["content"] = content;
                         }
                         else if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
@@ -468,7 +523,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             var bodyExpression = inputParam is { IsRequired: false }
                                 ? parameter.NullConditional()
                                 : parameter;
-                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression), out var content));
+                            statements.Add(DeclareRequestContent("content", MultiPartFormContentSnippets.Type,
+                                MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression,
+                                    hasLifecycleVisibility ? requestSerializationOptions : null), out var content));
+                            declarations["content"] = content;
+                        }
+                        else if (hasLifecycleVisibility)
+                        {
+                            statements.Add(DeclareRequestContent("content", requestContentType,
+                                WithOptionalBody(parameter, RequestContentApiSnippets.Create(parameter, requestSerializationOptions)), out var content));
                             declarations["content"] = content;
                         }
                         // else rely on implicit operator to convert to BinaryContent
@@ -483,6 +546,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource, convenienceMethodParameters)]).As(spreadSource.Type), out var spread));
                 declarations["spread"] = spread;
+                if (hasLifecycleVisibility)
+                {
+                    if (ServiceMethod.Operation.IsMultipartFormData)
+                    {
+                        statements.Add(DeclareRequestContent("content", MultiPartFormContentSnippets.Type,
+                            MultiPartFormContentSnippets.ToMultipartFormContent(spread, requestSerializationOptions), out var content));
+                        declarations["content"] = content;
+                    }
+                    else if (isXmlRequest)
+                    {
+                        statements.Add(DeclareRequestContent("content", requestContentType,
+                            RequestContentApiSnippets.Create(spread, requestSerializationOptions), out var content));
+                        declarations["content"] = content;
+                    }
+                    else
+                    {
+                        AddUtf8JsonContent(spreadSource.Type, spread);
+                    }
+                    declarations["spread"] = declarations["content"];
+                }
             }
 
             return statements;
@@ -1255,13 +1338,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         typeProvider is ModelProvider paramModel)
                     {
                         var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments, out var leafProperty);
+                        var unwrapValue = leafProperty.Type is { IsValueType: true, IsNullable: true } &&
+                            protocolParam.Type is { IsValueType: true, IsNullable: false };
+                        if (unwrapValue)
+                        {
+                            propertyExpression = propertyExpression.Property("Value");
+                        }
 
                         // When the options property is an enum but the protocol method flattens it to its
                         // serialized (string/number) form, serialize it before forwarding, mirroring the
                         // conversion applied to non-grouped enum convenience parameters below.
                         if (leafProperty.Type.IsEnum && !protocolParam.Type.IsEnum)
                         {
-                            if (leafProperty.Type.IsNullable)
+                            if (leafProperty.Type.IsNullable && !unwrapValue)
                             {
                                 propertyExpression = propertyExpression.NullConditional();
                             }
@@ -1398,6 +1487,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     nonBodyProperties.TryGetValue(protocolParam.Name, out nonBodyProperty))
                 {
                     conversion = bodyParamProvider.Property(nonBodyProperty.Name);
+                    if (nonBodyProperty.Type is { IsValueType: true, IsNullable: true } &&
+                        protocolParam.Type is { IsValueType: true, IsNullable: false })
+                    {
+                        conversion = conversion.Property("Value");
+                    }
                     return true;
                 }
 
@@ -2166,6 +2260,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Equals(typeof(TimeSpan)) || type.Equals(typeof(BinaryData));
         }
 
+        private static bool IsXmlMediaType(string mediaType)
+        {
+            var type = mediaType.Split(';', 2)[0].Trim();
+            return type.Equals(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                type.Equals("text/xml", StringComparison.OrdinalIgnoreCase) ||
+                type.EndsWith("+xml", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string? GetRequestMediaType()
+            => ServiceMethod.Operation.RequestMediaTypes?
+                .FirstOrDefault(mediaType => IsXmlMediaType(mediaType) ||
+                    mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase));
+
         private bool TryGetFormatArgumentForDualFormatModel(
             ModelProvider? bodyModel,
             InputModelType? bodyInputModel,
@@ -2174,19 +2281,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             format = null;
 
             // Find the first JSON or XML media type
-            string? matchedMediaType = null;
-            if (ServiceMethod.Operation.RequestMediaTypes != null)
-            {
-                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
-                {
-                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
-                    {
-                        matchedMediaType = mediaType;
-                        break;
-                    }
-                }
-            }
+            var matchedMediaType = GetRequestMediaType();
 
             // Check if this is a dual-format model
             if (matchedMediaType != null &&
@@ -2196,7 +2291,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
             {
                 // Determine the format: XML or JSON
-                format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                format = IsXmlMediaType(matchedMediaType)
                     ? ModelReaderWriterOptionsSnippets.XmlFormat
                     : ModelReaderWriterOptionsSnippets.JsonFormat;
                 return true;
@@ -2218,8 +2313,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             childName = null;
 
             // Check if the request uses XML content type
-            if (ServiceMethod.Operation.RequestMediaTypes == null ||
-                !ServiceMethod.Operation.RequestMediaTypes.Any(m => m.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            var requestMediaType = GetRequestMediaType();
+            if (requestMediaType is null || !IsXmlMediaType(requestMediaType))
             {
                 return false;
             }

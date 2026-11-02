@@ -14,6 +14,54 @@ namespace TestProjects.Spector.Tests.Http._Type.Model.Visibility
 {
     public class TypeModelVisibilityTests : SpectorTestBase
     {
+        private static VisibilityModel CreateModel()
+        {
+            var model = new VisibilityModel { QueryProp = 123, DeleteProp = true };
+            model.CreateProp.Add("foo");
+            model.CreateProp.Add("bar");
+            model.UpdateProp.Add(1);
+            model.UpdateProp.Add(2);
+            return model;
+        }
+
+        [SpectorTest]
+        public Task Models_Get() => Test(async (host) =>
+        {
+            var response = await new VisibilityClient(host, null).GetModelAsync(CreateModel());
+            Assert.AreEqual("abc", response.Value.ReadProp);
+        });
+
+        [SpectorTest]
+        public Task Models_Head() => Test(async (host) =>
+        {
+            await new VisibilityClient(host, null).HeadModelAsync(CreateModel());
+        });
+
+        [SpectorTest]
+        public Task Models_Put() => Test(async (host) =>
+        {
+            await new VisibilityClient(host, null).PutModelAsync(CreateModel());
+        });
+
+        [SpectorTest]
+        public Task Models_Post() => Test(async (host) =>
+        {
+            await new VisibilityClient(host, null).PostModelAsync(CreateModel());
+        });
+
+        [SpectorTest]
+        public Task Models_Delete() => Test(async (host) =>
+        {
+            await new VisibilityClient(host, null).DeleteModelAsync(CreateModel());
+        });
+
+        [SpectorTest]
+        public Task Models_Patch() => Test(async (host) =>
+        {
+            using var content = System.ClientModel.BinaryContent.Create(BinaryData.FromString("{\"updateProp\":[1,2]}"));
+            await new VisibilityClient(host, null).PatchModelAsync(content);
+        });
+
         [SpectorTest]
         public Task Models_ReadOnlyRoundTrip() => Test(async (host) =>
         {

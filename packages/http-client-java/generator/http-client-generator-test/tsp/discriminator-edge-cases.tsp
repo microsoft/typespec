@@ -126,6 +126,29 @@ model ModelWithDiscriminatorNoSubtypes {
   name: string;
 }
 
+@usage(Usage.output)
+@access(Access.public)
+@discriminator("kind")
+model StructuralKeyDiscriminator {
+  kind: string;
+}
+
+model StructuralKeyAll extends StructuralKeyDiscriminator {
+  kind: "all";
+}
+
+model StructuralKeyImmediate extends StructuralKeyDiscriminator {
+  kind: "immediate";
+}
+
+model StructuralKeyResponses extends StructuralKeyDiscriminator {
+  kind: "responses";
+}
+
+model StructuralKeyExceptions extends StructuralKeyDiscriminator {
+  kind: "exceptions";
+}
+
 @client({
   service: TspTest.DiscriminatorEdgeCases,
   name: "DiscriminatorEdgeCasesClient",

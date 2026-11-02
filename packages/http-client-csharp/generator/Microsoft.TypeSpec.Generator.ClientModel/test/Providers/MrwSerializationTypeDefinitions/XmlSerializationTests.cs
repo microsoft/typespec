@@ -345,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var method = serialization.Methods.Single(m => m.Signature.Name == "XmlModelWriteCore");
 
             Assert.That(method.BodyStatements!.ToDisplayString(),
-                Is.EqualTo(Helpers.GetExpectedFromFile(unwrapped.ToString()).ReplaceLineEndings("\n")));
+                Is.EqualTo(Helpers.GetExpectedFromFile(isReadOnly ? $"{unwrapped},ReadOnly" : unwrapped.ToString()).ReplaceLineEndings("\n")));
         }
 
         [Test]

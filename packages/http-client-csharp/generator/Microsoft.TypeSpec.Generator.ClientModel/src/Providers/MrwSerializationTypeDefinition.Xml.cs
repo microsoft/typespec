@@ -49,6 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             IEnumerable<AttributeStatement> SerializationAttributes,
             bool IsRequired,
             bool IsReadOnly,
+            PropertyWireInformation WireInfo,
             IReadOnlyList<SuppressionStatement> Suppressions);
 
         private record XmlNamespaceInfo(string Namespace, string VariableName, string Prefix, VariableExpression VariableExpression);
@@ -146,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.AttributeProperties)
                 {
-                    statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces), prop.Suppressions));
+                    statements.Add(ExperimentalApiHelpers.Suppress(WrapInVisibility(prop.WireInfo, CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces), includeReadOnly: true), prop.Suppressions));
                 }
             }
 
@@ -155,14 +156,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.ElementProperties)
                 {
-                    statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces), prop.Suppressions));
+                    statements.Add(ExperimentalApiHelpers.Suppress(WrapInVisibility(prop.WireInfo, CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces), includeReadOnly: true), prop.Suppressions));
                 }
             }
 
             // Write unwrapped content
             if (categorizedProperties.TextContentProperty != null)
             {
-                statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty),
+                statements.Add(ExperimentalApiHelpers.Suppress(WrapInVisibility(categorizedProperties.TextContentProperty.WireInfo, CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty), includeReadOnly: true),
                     categorizedProperties.TextContentProperty.Suppressions));
             }
 
@@ -706,7 +707,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
                 var xmlWireInfo = (wireInfo?.SerializationOptions as ScmSerializationOptions)?.Xml;
-                if (xmlWireInfo == null || wireInfo?.IsHttpMetadata == true)
+                if (wireInfo == null || xmlWireInfo == null || wireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -731,9 +732,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     CollectNamespace(propertyName, xmlWireInfo.ItemsNamespace, namespaces);
                 }
 
-                var serializationFormat = wireInfo?.SerializationFormat ?? SerializationFormat.Default;
-                var isRequired = wireInfo?.IsRequired ?? false;
-                var isReadOnly = wireInfo?.IsReadOnly ?? false;
+                var serializationFormat = wireInfo.SerializationFormat;
+                var isRequired = wireInfo.IsRequired;
+                var isReadOnly = wireInfo.IsReadOnly;
                 MemberExpression SerializationExp;
                 if (parameter.Property != null)
                 {
@@ -751,7 +752,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var suppressions = parameter.Property is not null
                     ? ExperimentalApiHelpers.GetMemberSuppressions(parameter.Property)
                     : ExperimentalApiHelpers.GetMemberSuppressions(parameter.Field!);
-                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly, suppressions);
+                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly, wireInfo, suppressions);
 
                 // Categorize by XML serialization type
                 if (xmlWireInfo.Attribute == true)
