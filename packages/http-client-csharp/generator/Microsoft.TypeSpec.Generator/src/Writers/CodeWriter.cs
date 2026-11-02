@@ -470,7 +470,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
-                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type)));
+                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type, includeFrameworkTypes: true)));
             WriteXmlDocsNoScope(field.XmlDocs);
 
             if (field.Attributes.Count > 0)
