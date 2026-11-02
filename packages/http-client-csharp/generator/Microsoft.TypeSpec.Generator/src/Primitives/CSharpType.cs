@@ -671,6 +671,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <param name="other">The instance to compare to.</param>
         /// <returns><c>true</c> if the instance are equal. <c>false</c> otherwise.</returns>
         public bool AreNamesEqual(CSharpType? other)
+            => AreNamesEqual(other, compareValueTypeNullability: false);
+
+        private bool AreNamesEqual(CSharpType? other, bool compareValueTypeNullability)
         {
             if (ReferenceEquals(this, other))
             {
@@ -685,10 +688,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (IsArray || other.IsArray)
             {
                 return IsArray && other.IsArray && ArrayRank == other.ArrayRank &&
-                    ElementType.AreNamesEqual(other.ElementType);
+                    ElementType.AreNamesEqual(other.ElementType, compareValueTypeNullability: true);
             }
 
-            if (!IsNameMatch(other))
+            if (!IsNameMatch(other) ||
+                compareValueTypeNullability && (IsValueType || other.IsValueType) && IsNullable != other.IsNullable)
             {
                 return false;
             }
@@ -700,7 +704,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             for (int i = 0; i < Arguments.Count; i++)
             {
-                if (!Arguments[i].AreNamesEqual(other.Arguments[i]))
+                if (!Arguments[i].AreNamesEqual(other.Arguments[i], compareValueTypeNullability))
                 {
                     return false;
                 }

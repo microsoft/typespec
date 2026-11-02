@@ -459,6 +459,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.That(new CSharpType(type).ToString(), Is.EqualTo(expected));
         }
 
+        [TestCase(typeof(int[]), typeof(int?[]), false)]
+        [TestCase(typeof(int?[]), typeof(int[]), false)]
+        [TestCase(typeof(int[][]), typeof(int?[][]), false)]
+        [TestCase(typeof(List<int>[]), typeof(List<int?>[]), false)]
+        [TestCase(typeof(List<int[]>), typeof(List<int?[]>), false)]
+        [TestCase(typeof(int[][,]), typeof(int[,][]), false)]
+        [TestCase(typeof(int?[]), typeof(int?[]), true)]
+        [TestCase(typeof(List<int?>[]), typeof(List<int?>[]), true)]
+        public void ArrayNamesDistinguishNullableValueElements(Type left, Type right, bool expected)
+        {
+            Assert.That(new CSharpType(left).AreNamesEqual(new CSharpType(right)), Is.EqualTo(expected));
+        }
+
         [TestCase(0)]
         [TestCase(-1)]
         public void ArrayRejectsInvalidRank(int rank)
