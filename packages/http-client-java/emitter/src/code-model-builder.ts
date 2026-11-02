@@ -1323,7 +1323,7 @@ export class CodeModelBuilder {
     response: SdkMethodResponse,
     diagnosticTarget: DiagnosticTarget | undefined,
   ): SseMetadata | undefined {
-    if (!this.isAzureV1()) {
+    if (!this.isAzureV1() || this.sdkContext.arm) {
       return undefined;
     }
 

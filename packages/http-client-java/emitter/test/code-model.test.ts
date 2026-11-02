@@ -54,12 +54,16 @@ import { cloneOperationParameter } from "../src/operation-utils.js";
 
 const sseFixturePath = resolvePath(fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)));
 
-async function compileSseScenario(namespace: string, warningAsError = false) {
+async function compileSseScenario(
+  namespace: string,
+  warningAsError = false,
+  additionalSource = "",
+) {
   const entrypoint = resolvePath(
     sseFixturePath.replace(/sse\.tsp$/, `sse-${namespace.toLowerCase()}.tsp`),
   );
   const sourceFile = createSourceFile(
-    `import "./sse.tsp";\n@@service(${namespace});\n`,
+    `import "./sse.tsp";\n${additionalSource}\n@@service(${namespace});\n`,
     entrypoint,
   );
   const isEntrypoint = (path: string) => resolvePath(path) === entrypoint;
@@ -725,6 +729,68 @@ describe("code model characterization", () => {
       },
     ]);
     expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
+  it("does not create SSE metadata or envelope schemas for ARM services", async () => {
+    const program = await compileSseScenario(
+      "SseTest",
+      false,
+      `
+        import "@azure-tools/typespec-azure-resource-manager";
+        @@Azure.ResourceManager.armProviderNamespace(SseTest);
+        namespace SseTest {
+          @TypeSpec.Http.route("/payload")
+          @TypeSpec.Http.get
+          op getPayload(): RetrievalStarted;
+
+          @TypeSpec.Events.events
+          union UnsupportedArmEvents { string }
+
+          @TypeSpec.Http.route("/unsupported-events")
+          @TypeSpec.Http.get
+          op unsupportedEvents(): TypeSpec.SSE.SSEStream<UnsupportedArmEvents>;
+        }
+      `,
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expect(model.arm).toBe(true);
+    const operations = model.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? []);
+    expect(operations.length).toBeGreaterThan(1);
+    for (const operation of operations) {
+      expect(operation.sseMetadata).toBeUndefined();
+      if (operation.language.default.name !== "getPayload") {
+        expect(operation.responses?.[0]).toMatchObject({ binary: true });
+      }
+    }
+    const objectSchemas = model.schemas.objects;
+    assert.isDefined(objectSchemas);
+    for (const schema of objectSchemas) {
+      expect(schema.usage).not.toContain(SchemaContext.Sse);
+      expect(schema.sseMetadata).toBeUndefined();
+    }
+    expect(
+      objectSchemas.find((schema) => schema.language.default.name === "RetrievalStarted"),
+    ).toMatchObject({ type: SchemaType.Object });
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
   });
 
   it("generates supported Azure v1 SSE metadata without developer options", async () => {
