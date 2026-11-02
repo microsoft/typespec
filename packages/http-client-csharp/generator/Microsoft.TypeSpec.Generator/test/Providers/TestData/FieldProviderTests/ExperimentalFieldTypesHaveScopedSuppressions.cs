@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Polyfilled.External;
 
 namespace Sample
 {
@@ -39,5 +40,8 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("FIELD001")]
         private global::Sample.ExperimentalFieldType _experimentalMember;
         private string _stable;
+#pragma warning disable FIELD003 // This generated code depends on experimental functionality.
+        private global::Polyfilled.External.PolyfilledExperimentalFieldType _polyfilled;
+#pragma warning restore FIELD003 // This generated code depends on experimental functionality.
     }
 }
