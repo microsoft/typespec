@@ -81,38 +81,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
-        {
-            var methods = BuildMethods(includeContinuationToken: false).ToList();
-            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
-                || _pagingServiceMethod?.PagingMetadata.NextLink is null
-                || !ServiceMethod.Operation.Parameters.Any(p => p.IsContinuationToken)
-                || Client.BackCompatProvider.LastContractView?.Methods is not { Count: > 0 } previousMethods)
-            {
-                return methods;
-            }
-
-            foreach (var method in BuildMethods(includeContinuationToken: true))
-            {
-                var token = method.Signature.Parameters.FirstOrDefault(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p));
-                if (token != null
-                    && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
-                        && previous.Signature.Name == method.Signature.Name
-                        && previous.Signature.ReturnType?.AreNamesEqual(method.Signature.ReturnType) == true
-                        && previous.Signature.Parameters.Any(p => p.Name == token.Name && p.Type.AreNamesEqual(token.Type))
-                        && ScmCodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
-                            Client.BackCompatProvider.Type.FullyQualifiedName,
-                            previous.Signature.Name,
-                            previous.Signature.Parameters.Select(p => p.Type).ToArray()) != true))
-                {
-                    // Keep the full implementation until the back-compat pass has restored any older overloads.
-                    methods.Add(method);
-                }
-            }
-
-            return methods;
-        }
-
         internal static bool IsNextLinkContinuationTokenParameter(InputServiceMethod serviceMethod, ParameterProvider parameter)
         {
             if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
@@ -130,27 +98,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     && ReferenceEquals(segments[0], inputParameter));
         }
 
-        private IReadOnlyList<ScmMethodProvider> BuildMethods(bool includeContinuationToken)
+        protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
-            bool shouldMakeParametersRequired = !includeContinuationToken && ShouldMakeProtocolMethodParametersRequired();
+            bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
 
-            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired, includeContinuationToken);
+            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
             if (_streamingResponse.Value != null)
             {
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
                 {
                     var convenienceMethod = BuildConvenienceMethod(asyncProtocol, true);
-                    return
+                    return AddContinuationTokenOverloads(
                     [
                         asyncProtocol,
                         convenienceMethod
-                    ];
+                    ]);
                 }
 
-                return [asyncProtocol];
+                return AddContinuationTokenOverloads([asyncProtocol]);
             }
 
-            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired, includeContinuationToken);
+            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
 
             if (_generateConvenienceMethod)
             {
@@ -162,8 +130,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (_pagingServiceMethod != null)
                 {
-                    methods.Add(BuildConvenienceMethod(syncProtocol, false, includeContinuationToken));
-                    methods.Add(BuildConvenienceMethod(asyncProtocol, true, includeContinuationToken));
+                    methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                    methods.Add(BuildConvenienceMethod(asyncProtocol, true));
                 }
                 else
                 {
@@ -178,14 +146,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                return methods;
+                return AddContinuationTokenOverloads(methods);
             }
 
-            return
+            return AddContinuationTokenOverloads(
             [
                 syncProtocol,
                 asyncProtocol,
-            ];
+            ]);
+        }
+
+        private IReadOnlyList<ScmMethodProvider> AddContinuationTokenOverloads(List<ScmMethodProvider> methods)
+        {
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
+                || _pagingServiceMethod?.PagingMetadata.NextLink is null
+                || !ServiceMethod.Operation.Parameters.Any(parameter => parameter.IsContinuationToken)
+                || Client.BackCompatProvider.LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return methods;
+            }
+
+            var methodNames = methods.Select(method => method.Signature.Name).ToHashSet();
+            var previousMethodsByName = previousMethods
+                .Where(previous => methodNames.Contains(previous.Signature.Name)
+                    && MethodSignatureHelper.IsPublicApi(previous.Signature)
+                    && ScmCodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
+                        Client.BackCompatProvider.Type.FullyQualifiedName,
+                        previous.Signature.Name,
+                        previous.Signature.Parameters.Select(parameter => parameter.Type).ToArray()) != true)
+                .ToLookup(previous => previous.Signature.Name);
+            var legacyProtocols = new Dictionary<bool, ScmMethodProvider>();
+            foreach (var method in methods.ToArray())
+            {
+                var previousOverloads = previousMethodsByName[method.Signature.Name];
+                if (!previousOverloads.Any())
+                {
+                    continue;
+                }
+
+                bool isAsync = method.Signature.Name == ServiceMethod.Name + "Async";
+                if (!legacyProtocols.TryGetValue(isAsync, out var protocol))
+                {
+                    protocol = BuildProtocolMethod(_createRequestMethod, isAsync, shouldMakeParametersRequired: false, includeContinuationToken: true);
+                    legacyProtocols.Add(isAsync, protocol);
+                }
+
+                var legacyMethod = method.Kind == ScmMethodKind.Protocol
+                    ? protocol
+                    : BuildConvenienceMethod(protocol, isAsync, includeContinuationToken: true);
+                var token = legacyMethod.Signature.Parameters
+                    .FirstOrDefault(parameter => IsNextLinkContinuationTokenParameter(ServiceMethod, parameter));
+                // Match after applying partial customizations, which can rename the token parameter.
+                if (token != null && previousOverloads.Any(previous =>
+                    previous.Signature.ReturnType?.AreNamesEqual(legacyMethod.Signature.ReturnType) == true
+                    && previous.Signature.Parameters.Any(parameter => parameter.Name == token.Name && parameter.Type.AreNamesEqual(token.Type))))
+                {
+                    methods.Add(legacyMethod);
+                }
+            }
+            return methods;
         }
 
         private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)

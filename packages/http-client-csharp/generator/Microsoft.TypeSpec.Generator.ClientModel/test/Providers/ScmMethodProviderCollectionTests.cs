@@ -1975,6 +1975,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.AreEqual("filter", construction.ArgumentList.Arguments[2].Expression.ToString());
             }
             Assert.IsTrue(client.RestClient.GetCreateRequestMethod(operation).Signature.Parameters.Any(p => p.Name == "token"));
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(omitToken.ToString()), writer.ToString(false));
         }
 
         [TestCase(false)]
@@ -2023,6 +2030,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.AreEqual("options.Token", construction.ArgumentList!.Arguments[1].Expression.ToString());
                 Assert.AreEqual("options.Filter", construction.ArgumentList.Arguments[2].Expression.ToString());
             }
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]

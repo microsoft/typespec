@@ -188,7 +188,6 @@ export interface InputPropertyTypeBase extends DecoratedType {
   doc?: string;
   summary?: string;
   isApiVersion: boolean;
-  /** Whether this parameter is marked as the request continuation token. */
   isContinuationToken?: boolean;
   defaultValue?: InputConstant;
   optional: boolean;
