@@ -3,7 +3,7 @@
 1. Create a `mockapi.ts` file next to the `main.tsp` of the scenario
 2. Create and export a variable called `Scenarios` with a `Record<string, ScenarioMockApi>` type
 3. For each of the scenario assign a new property to the `Scenarios` variable. The value use one of the following:
-   - `passOnSuccess`: This will take one or multiple routes and will only pass teh scenario if all the routes gets called with a 2xx success code.
+   - `passOnSuccess`: This will take one or multiple routes and will only pass the scenario if all the routes gets called with a 2xx success code.
 
 ## Example
 
