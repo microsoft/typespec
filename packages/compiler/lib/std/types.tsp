@@ -1,6 +1,20 @@
 namespace TypeSpec;
 
 /**
+ * Creates an experimental opaque value referencing an existing type.
+ * The reference preserves the type's identity and can be stored in object and array values.
+ * The result has type `unknown`; JavaScript implementations receive a `TypeRefValue`.
+ * @param target The type to reference.
+ * @example
+ * ```tsp
+ * model Item { id: string; }
+ * const entry = #{ name: "item", type: typeref(Item) };
+ * ```
+ */
+#suppress "experimental-feature"
+extern fn typeref(target: unknown): valueof unknown;
+
+/**
  * Represent a 32-bit unix timestamp datetime with 1s of granularity.
  * It measures time by the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
  */

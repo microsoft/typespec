@@ -717,6 +717,11 @@ function createMutatorEngine(
         case "ModelProperty":
           mutateProperty(root, "type", mutating, newMutators);
           mutateProperty(root, "sourceProperty", mutating, newMutators);
+          if (root.defaultValue) {
+            const value = mutateValue(root.defaultValue, newMutators);
+            const target = clone ?? root;
+            if (mutating && target.kind === "ModelProperty") target.defaultValue = value;
+          }
           break;
         case "Tuple":
           mutateSubArray(root, "values", mutating, newMutators);
@@ -858,6 +863,12 @@ function createMutatorEngine(
           ...value,
           type: mutateDecoratorArgumentValue(value.type, newMutators),
           value: mutateDecoratorArgumentValue(value.value, newMutators),
+        } as T;
+      case "TypeRefValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          target: mutateDecoratorArgumentValue(value.target, newMutators),
         } as T;
       default:
         return value;

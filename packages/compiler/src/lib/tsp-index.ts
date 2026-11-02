@@ -1,4 +1,5 @@
 import type { TypeSpecDecorators, TypeSpecFunctions } from "../../generated-defs/TypeSpec.js";
+import { typeref } from "../experimental/typeref.js";
 import {
   $discriminator,
   $doc,
@@ -66,6 +67,7 @@ import {
 /** @internal */
 export const $functions = {
   TypeSpec: {
+    typeref,
     applyVisibilityFilter,
     applyLifecycleUpdate,
   } satisfies TypeSpecFunctions,

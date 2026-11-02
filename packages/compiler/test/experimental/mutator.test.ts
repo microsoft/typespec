@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import type { Mutator, MutatorWithNamespace } from "../../src/experimental/mutators.js";
 import {
@@ -168,6 +168,32 @@ it("propagate mutated model to model property", async () => {
   };
   const MutatedFoo = mutateSubgraph(program, [mutator], Foo).type as Model;
   expectTypeEquals(MutatedFoo.properties.get("a")!.model, MutatedFoo);
+});
+
+it("maps type references in property defaults to the mutated targets", async () => {
+  const { Foo, program } = await Tester.compile(t.code`
+    model Item {}
+    model ${t.model("Foo")} { itemType: unknown = typeref(Item); }
+  `);
+  const mutator: Mutator = {
+    name: "test",
+    Model: {
+      mutate: (_original, clone) => {
+        if (clone.name === "Item") clone.name = "MutatedItem";
+      },
+    },
+  };
+  const { type } = mutateSubgraph(program, [mutator], Foo);
+  ok(type.kind === "Model");
+  const original = Foo.properties.get("itemType")!.defaultValue;
+  const mutated = type.properties.get("itemType")!.defaultValue;
+  ok(original?.valueKind === "TypeRefValue");
+  ok(mutated?.valueKind === "TypeRefValue");
+  ok(original.target.kind === "Model");
+  strictEqual(original.target.name, "Item");
+  ok(mutated.target.kind === "Model");
+  strictEqual(mutated.target.name, "MutatedItem");
+  expect(mutated.target).not.toBe(original.target);
 });
 
 describe("handles circular references", () => {
@@ -515,6 +541,43 @@ describe("global graph mutation", () => {
 });
 
 describe("decorators", () => {
+  it("maps nested type references to the mutated targets", async () => {
+    const { Foo, program } = await Tester.files({
+      "dec.js": mockFile.js({ $myDec: () => {} }),
+    }).import("./dec.js").compile(t.code`
+      extern dec myDec(target, value: valueof unknown);
+      model Item {}
+      @myDec(#{ primary: typeref(Item), alternatives: #[typeref(Item)] })
+      model ${t.model("Foo")} {}
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        mutate: (_original, clone) => {
+          if (clone.name === "Item") clone.name = "MutatedItem";
+        },
+      },
+    };
+    const { type } = mutateSubgraph(program, [mutator], Foo);
+    ok(type.kind === "Model");
+    const original = Foo.decorators[0].args[0].value;
+    const mutated = type.decorators[0].args[0].value;
+    ok(original.entityKind === "Value" && original.valueKind === "ObjectValue");
+    ok(mutated.entityKind === "Value" && mutated.valueKind === "ObjectValue");
+    const originalRef = original.properties.get("primary")!.value;
+    const mutatedRef = mutated.properties.get("primary")!.value;
+    ok(originalRef.valueKind === "TypeRefValue");
+    ok(mutatedRef.valueKind === "TypeRefValue");
+    ok(mutatedRef.target.kind === "Model");
+    strictEqual(mutatedRef.target.name, "MutatedItem");
+    expect(mutatedRef.target).not.toBe(originalRef.target);
+    const alternatives = mutated.properties.get("alternatives")!.value;
+    ok(alternatives.valueKind === "ArrayValue");
+    const alternative = alternatives.values[0];
+    ok(alternative.valueKind === "TypeRefValue");
+    strictEqual(alternative.target, mutatedRef.target);
+  });
+
   it("mutates arguments values", async () => {
     const visited: string[] = [];
 

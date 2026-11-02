@@ -1286,6 +1286,20 @@ export type TypeSpecDecorators = {
   withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };
 
+/**
+ * Creates an experimental opaque value referencing an existing type.
+ * The reference preserves the type's identity and can be stored in object and array values.
+ * The result has type `unknown`; JavaScript implementations receive a `TypeRefValue`.
+ *
+ * @param target The type to reference.
+ * @example
+ * ```tsp
+ * model Item { id: string; }
+ * const entry = #{ name: "item", type: typeref(Item) };
+ * ```
+ */
+export type TyperefFunctionImplementation = (context: FunctionContext, target: Type) => unknown;
+
 export type ApplyVisibilityFilterFunctionImplementation = (
   context: FunctionContext,
   input: Model,
@@ -1300,6 +1314,7 @@ export type ApplyLifecycleUpdateFunctionImplementation = (
 ) => Model;
 
 export type TypeSpecFunctions = {
+  typeref: TyperefFunctionImplementation;
   applyVisibilityFilter: ApplyVisibilityFilterFunctionImplementation;
   applyLifecycleUpdate: ApplyLifecycleUpdateFunctionImplementation;
 };

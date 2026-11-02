@@ -7763,6 +7763,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case "EnumValue":
       case "NullValue":
       case "ScalarValue":
+      case "TypeRefValue":
       case "Function":
         return value;
     }

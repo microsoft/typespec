@@ -11,7 +11,7 @@ Values cannot be used as types, and types cannot be used as values, they are com
 
 ## Value kinds
 
-There are four kinds of values: objects, arrays, scalars, and null. These values can be created with object values, array values, scalar values and constructors, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
+Values can be objects, arrays, scalars, null, or type references. These values can be created with object values, array values, scalar values and constructors, the null literal, and `typeref` respectively. Additionally, values can result from referencing enum members and union variants.
 
 ### Object values
 
@@ -102,6 +102,33 @@ const value: string | null = null;
 ```
 
 The `null` value, like the `null` type, doesn't have any special behavior in the TypeSpec language. It is just the value `null` like that in JSON.
+
+### Type-reference values
+
+:::warning
+`typeref` is experimental, like [functions](./functions.md). Its API and behavior may change in future releases.
+:::
+
+A library may need metadata that combines ordinary values with references to TypeSpec types. For example, a model registration can contain a name and the model it describes. Use `typeref(Widget)` to include the `Widget` model in that value:
+
+```typespec
+model Widget {
+  id: string;
+}
+
+model ModelRegistration {
+  name: string;
+  type: unknown;
+}
+
+const registration: ModelRegistration = #{ name: "widget", type: typeref(Widget) };
+```
+
+Here, `name` is a string value and `type` contains an opaque reference to the actual `Widget` model, not its name or an instance of it. References have the TypeSpec storage type `unknown`, so the property annotation also accepts values that are not references.
+
+The argument to `typeref` must be a type, such as a model, namespace, instantiated template, union, or tuple, not a value. For example, `typeref("Widget")` references a string literal type; it does not look up the model named `Widget`.
+
+JavaScript implementations receive each reference as a `TypeRefValue` whose `target` is the referenced compiler `Type`. Libraries accepting `unknown` values must check `valueKind === "TypeRefValue"` before accessing `target`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.
 
 ## Const declarations
 

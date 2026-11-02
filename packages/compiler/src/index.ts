@@ -483,6 +483,7 @@ export type {
   TypeListeners,
   TypeMapper,
   TypeOfDiagnostics,
+  TypeRefValue,
   TypeSpecDiagnosticTarget,
   TypeSpecLibrary,
   TypeSpecLibraryDef,

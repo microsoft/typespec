@@ -444,6 +444,7 @@ export type Value =
   | ArrayValue
   | EnumValue
   | NullValue
+  | TypeRefValue
   | FunctionValue;
 
 /** @internal */
@@ -465,6 +466,16 @@ interface BaseValue {
    * ```
    */
   type: Type;
+}
+
+/**
+ * A value referencing an existing compiler type without copying it.
+ * Its storage type is `unknown`; the referenced type is available through `target`.
+ * @experimental
+ */
+export interface TypeRefValue extends BaseValue {
+  valueKind: "TypeRefValue";
+  target: Type;
 }
 
 /** An object value with checked named entries, rather than a model type's property declarations. */
