@@ -1,5 +1,6 @@
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
+import { readFile } from "fs/promises";
 import { describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { defaultOptions } from "../../src/options.js";
@@ -11,6 +12,16 @@ import {
 } from "./utils/test-util.js";
 
 describe("Test dynamicModel decorator", () => {
+  it("loads the emitter without a TypeSpec entrypoint", async () => {
+    const packageJson = JSON.parse(
+      await readFile(new URL("../../../package.json", import.meta.url), "utf-8"),
+    );
+    deepStrictEqual(packageJson.exports["."].typespec, undefined);
+    const emitter = await import("../../src/index.js");
+    deepStrictEqual(emitter.$lib.name, "@typespec/http-client-csharp");
+    deepStrictEqual(typeof emitter.$onEmit, "function");
+  });
+
   describe.each(["model", "namespace"])("on a %s", (target) => {
     it("consumes TCGC metadata scoped to csharp", async () => {
       const host = await createEmitterTestHost();

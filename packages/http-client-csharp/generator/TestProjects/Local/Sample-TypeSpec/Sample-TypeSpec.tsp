@@ -5,7 +5,6 @@ import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
 import "@typespec/http-client";
-import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 

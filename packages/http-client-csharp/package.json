@@ -21,7 +21,6 @@
   "exports": {
     ".": {
       "types": "./dist/emitter/src/index.d.ts",
-      "typespec": "./emitter/lib/main.tsp",
       "default": "./dist/emitter/src/index.js"
     }
   },
@@ -35,9 +34,7 @@
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "dev:playground": "npm run build:emitter && cd ../../website && npm run dev",
-    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "test:generator": "dotnet test ./generator",
     "test": "npm run test:emitter && npm run test:generator",
@@ -54,8 +51,7 @@
   "files": [
     "dist/emitter/src/**",
     "dist/generated-defs/**",
-    "dist/generator/**",
-    "emitter/lib/*.tsp"
+    "dist/generator/**"
   ],
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
