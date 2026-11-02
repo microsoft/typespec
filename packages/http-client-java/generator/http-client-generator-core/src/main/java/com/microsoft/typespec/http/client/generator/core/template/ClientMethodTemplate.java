@@ -179,17 +179,37 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod The client method.
      */
     protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
+        addOptionalVariables(function, clientMethod, false);
+    }
+
+    private static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod,
+        boolean includeNextPageParameters) {
         ClientMethod overloadedMethod = clientMethod.getOverloadedClientMethod();
         if (!clientMethod.getOnlyRequiredParameters() && overloadedMethod == null) {
             return;
+        }
+
+        Set<String> referencedParameters = clientMethod.getMethodParameters()
+            .stream()
+            .map(ClientMethodParameter::getName)
+            .collect(Collectors.toSet());
+        if (includeNextPageParameters) {
+            clientMethod.getMethodPageDetails()
+                .getNextMethod()
+                .getMethodParameters()
+                .stream()
+                .map(ClientMethodParameter::getName)
+                // The next-link argument is supplied by the paging lambda, not by an omitted parameter local.
+                .filter(name -> !"nextLink".equals(name))
+                .forEach(referencedParameters::add);
         }
 
         List<ClientMethodParameter> parameters
             = overloadedMethod == null ? clientMethod.getMethodParameters() : overloadedMethod.getMethodParameters();
         for (ClientMethodParameter parameter : parameters) {
             if (parameter.isRequired()
-                || (!clientMethod.getOnlyRequiredParameters()
-                    && clientMethod.getMethodParameters().contains(parameter))) {
+                || (!clientMethod.getOnlyRequiredParameters() && clientMethod.getMethodParameters().contains(parameter))
+                || !referencedParameters.contains(parameter.getName())) {
                 continue;
             }
             if (clientMethod.isPageStreamingType()
@@ -894,7 +914,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-                addOptionalVariables(function, clientMethod);
+                addOptionalVariables(function, clientMethod, true);
 
                 String nextOptions
                     = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
@@ -1120,7 +1140,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-                addOptionalVariables(function, clientMethod);
+                addOptionalVariables(function, clientMethod, true);
                 if (settings.isDataPlaneClient()) {
                     String nextOptions
                         = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
@@ -1167,7 +1187,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-                addOptionalVariables(function, clientMethod);
+                addOptionalVariables(function, clientMethod, true);
                 if (settings.isDataPlaneClient()) {
                     String nextOptions
                         = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));

@@ -441,8 +441,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
         Context context) {
-        final String nextLink = null;
-        final String newHeader = null;
         context = this.client.mergeContext(context);
         Mono<Response<Flux<ByteBuffer>>> mono
             = createOrUpdateWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context);
@@ -515,8 +513,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
         Context context) {
-        final String nextLink = null;
-        final String newHeader = null;
         return this.beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context)
             .getSyncPoller();
     }
@@ -603,8 +599,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, Context context) {
-        final String nextLink = null;
-        final String newHeader = null;
         return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
@@ -665,8 +659,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
         TopLevelArmResourceInner resource, Context context) {
-        final String nextLink = null;
-        final String newHeader = null;
         return createOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context).block();
     }
 
@@ -851,7 +843,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     private PagedFlux<TopLevelArmResourceInner> listAsync(Context context) {
-        final String nextLink = null;
         final String newHeader = null;
         return new PagedFlux<>(() -> listSinglePageAsync(context),
             nextLink1 -> listBySubscriptionNextSinglePageAsync(nextLink1, newHeader, context));
@@ -898,8 +889,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(Context context) {
-        final String nextLink = null;
-        final String newHeader = null;
         return new PagedIterable<>(listAsync(context));
     }
 
@@ -1118,7 +1107,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.COLLECTION)
     private PagedFlux<TopLevelArmResourceInner> listByResourceGroupAsync(String resourceGroupName, String parameter,
         Context context) {
-        final String newParameter = null;
         return new PagedFlux<>(() -> listByResourceGroupSinglePageAsync(resourceGroupName, parameter, context),
             nextLink -> listByResourceGroupNextSinglePageAsync(nextLink, context));
     }
@@ -1135,7 +1123,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<TopLevelArmResourceInner> listByResourceGroupAsync(String resourceGroupName, String parameter) {
-        final String newParameter = null;
         return new PagedFlux<>(() -> listByResourceGroupSinglePageAsync(resourceGroupName, parameter),
             nextLink -> listByResourceGroupNextSinglePageAsync(nextLink));
     }
@@ -1188,7 +1175,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> listByResourceGroup(String resourceGroupName, String parameter,
         Context context) {
-        final String newParameter = null;
         return new PagedIterable<>(listByResourceGroupAsync(resourceGroupName, parameter, context));
     }
 
@@ -1401,8 +1387,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
         String topLevelArmResourcePropertiesName, Context context) {
-        final String nextLink = null;
-        final String newHeader = null;
         return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, context)
             .block();
     }
@@ -1629,7 +1613,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, Context context) {
-        final String newParameter = null;
         return deleteWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context)
             .block();
     }
@@ -1853,7 +1836,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, Context context) {
-        final String newParameter = null;
         return actionWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context)
             .block();
     }
@@ -2021,7 +2003,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> getLimitsWithResponse(String location, Context context) {
-        final ActionRequest body = null;
         return getLimitsWithResponseAsync(location, context).block();
     }
 

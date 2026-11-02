@@ -16,13 +16,17 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.util.HashSet;
 import java.util.List;
@@ -105,7 +109,7 @@ public class ConvenienceMethodTemplateBaseTests {
     }
 
     @Test
-    public void initializesOnlyParametersOmittedByVersioning() {
+    public void doesNotInitializeUnusedVersionedParametersInDelegatingMethods() {
         ClientMethodParameter required = new ClientMethodParameter.Builder().name("name")
             .wireType(ClassType.STRING)
             .required(true)
@@ -122,14 +126,80 @@ public class ConvenienceMethodTemplateBaseTests {
         ClientMethod full = new ClientMethod.Builder().name("operation")
             .type(ClientMethodType.SimpleSync)
             .parameters(List.of(required, retained, added))
+            .returnValue(new ReturnValue("The result.", ClassType.STRING))
+            .methodVisibility(JavaVisibility.Public)
             .build();
         ClientMethod historical
             = full.newBuilder().parameters(List.of(required, retained)).overloadedClientMethod(full).build();
         JavaFileContents contents = new JavaFileContents();
 
-        ClientMethodTemplate.addOptionalVariables(new JavaBlock(contents), historical);
+        ClientMethodTemplate.getInstance()
+            .generateSyncMethod(historical, new JavaClass(contents), JavaSettings.getInstance());
 
-        Assertions.assertEquals("final String newHeader = null;", contents.toString().trim());
+        Assertions.assertFalse(contents.toString().contains("final String newHeader"), contents.toString());
+        Assertions.assertTrue(contents.toString().contains("operationAsync(name, existing)"), contents.toString());
+
+        JavaFileContents minimumOverload = new JavaFileContents();
+        ClientMethodTemplate.addOptionalVariables(new JavaBlock(minimumOverload),
+            full.newBuilder().onlyRequiredParameters(true).build());
+        Assertions.assertTrue(minimumOverload.toString().contains("final String existing = null;"));
+        Assertions.assertTrue(minimumOverload.toString().contains("final String newHeader = null;"));
+    }
+
+    @Test
+    public void initializesOnlyVersionedParametersReferencedByNextPage() {
+        ClientMethodParameter addedHeader = new ClientMethodParameter.Builder().name("newHeader")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter addedQuery = new ClientMethodParameter.Builder().name("nextLink")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter nextLink = new ClientMethodParameter.Builder().name("nextLink")
+            .wireType(ClassType.STRING)
+            .required(true)
+            .annotations(List.of())
+            .build();
+        for (boolean sync : List.of(false, true)) {
+            for (boolean forwardHeader : List.of(false, true)) {
+                ClientMethod next = new ClientMethod.Builder().name("listNext")
+                    .parameters(forwardHeader ? List.of(nextLink, addedHeader) : List.of(nextLink))
+                    .proxyMethod(new ProxyMethod.Builder().name("listNext").build())
+                    .build();
+                ClientMethod full = new ClientMethod.Builder().name("list")
+                    .type(sync ? ClientMethodType.PagingSync : ClientMethodType.PagingAsync)
+                    .parameters(List.of(addedHeader, addedQuery))
+                    .proxyMethod(
+                        new ProxyMethod.Builder().name("list").parameters(List.of()).allParameters(List.of()).build())
+                    .returnValue(new ReturnValue("The items.",
+                        sync ? GenericType.pagedIterable(ClassType.STRING) : GenericType.pagedFlux(ClassType.STRING)))
+                    .methodVisibility(JavaVisibility.Public)
+                    .methodPageDetails(new MethodPageDetails(List.of(),
+                        List.of(new ModelPropertySegment(null,
+                            new ClientModelProperty.Builder().name("nextLink")
+                                .serializedName("nextLink")
+                                .wireType(ClassType.STRING)
+                                .clientType(ClassType.STRING)
+                                .build())),
+                        next, null, null, null, null))
+                    .build();
+                ClientMethod historical = full.newBuilder().parameters(List.of()).overloadedClientMethod(full).build();
+                JavaFileContents contents = new JavaFileContents();
+                if (sync) {
+                    ClientMethodTemplate.getInstance()
+                        .generatePagingPlainSync(historical, new JavaClass(contents), JavaSettings.getInstance());
+                } else {
+                    ClientMethodTemplate.getInstance()
+                        .generatePagingAsync(historical, new JavaClass(contents), JavaSettings.getInstance());
+                }
+
+                String output = contents.toString();
+                Assertions.assertEquals(forwardHeader, output.contains("final String newHeader = null;"), output);
+                Assertions.assertFalse(output.contains("final String nextLink = null;"), output);
+                Assertions.assertTrue(output.contains("listNextSinglePage"), output);
+            }
+        }
     }
 
     @Test
