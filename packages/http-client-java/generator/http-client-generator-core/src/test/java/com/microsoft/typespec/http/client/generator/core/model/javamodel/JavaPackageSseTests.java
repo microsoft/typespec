@@ -3,6 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
+import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
+import com.azure.core.util.BinaryData;
+import com.azure.core.util.CloseableIterableStream;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
@@ -25,18 +31,24 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -44,6 +56,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
+import reactor.core.publisher.Flux;
 
 @Isolated
 public class JavaPackageSseTests {
@@ -72,6 +85,87 @@ public class JavaPackageSseTests {
             .contains("<p>HTTP 204 and response-body EOF complete normally without requiring a terminal event.</p>"));
         Assertions.assertTrue(helper.contains(
             "toIterableStream(Response<BinaryData> response,\n        BiFunction<String, String, T> converter)"));
+    }
+
+    @Test
+    public void validatesContentTypeWithQuotedParameters(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        javaPackage.addJavaFromResources("com.azure.mock.sseruntime", "ServerSentEventStreamHelper");
+        javaPackage.addJavaFromResources("com.azure.mock.sseruntime", "ServerSentEventStreamResponse");
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> helper = loader.loadClass("com.azure.mock.sseruntime.ServerSentEventStreamHelper");
+            Method toFlux = helper.getMethod("toFlux", Response.class, BiFunction.class);
+            Method toIterableStream = helper.getMethod("toIterableStream", Response.class, BiFunction.class);
+            BiFunction<String, String, String> converter = (name, data) -> name + ":" + data;
+            String content = "event: message\ndata: accepted\n\n";
+
+            for (String contentType : List.of("text/event-stream", " Text/Event-Stream ; charset=utf-8",
+                "text/event-stream; profile=\"a,b\"", "text/event-stream; profile=\"a\\\",b\"",
+                "text/event-stream; profile=\"a\\\\,b\"; charset=utf-8")) {
+                HttpHeaders headers = new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                Response<BinaryData> response
+                    = new SimpleResponse<>(null, 200, headers, BinaryData.fromString(content));
+                Flux<?> events = (Flux<?>) toFlux.invoke(null, response, converter);
+                Assertions.assertEquals(List.of("message:accepted"), events.collectList().block(Duration.ofSeconds(5)),
+                    contentType);
+
+                AtomicBoolean closed = new AtomicBoolean();
+                ByteArrayInputStream input = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)) {
+                    @Override
+                    public void close() throws IOException {
+                        closed.set(true);
+                        super.close();
+                    }
+                };
+                response = new SimpleResponse<>(null, 200, headers, BinaryData.fromStream(input));
+                try (CloseableIterableStream<?> iterable
+                    = (CloseableIterableStream<?>) toIterableStream.invoke(null, response, converter)) {
+                    Assertions.assertFalse(closed.get(), contentType);
+                    List<Object> values = new ArrayList<>();
+                    iterable.forEach(values::add);
+                    Assertions.assertEquals(List.of("message:accepted"), values, contentType);
+                }
+                Assertions.assertTrue(closed.get(), contentType);
+            }
+
+            for (String contentType : Arrays.asList(null, "application/json", "text/event-stream, application/json",
+                "text/event-stream, text/event-stream", "text/event-stream; profile=\"a,b\", application/json",
+                "text/event-stream; profile=\"a\\\",b\", text/event-stream",
+                "text/event-stream; profile=\"a\\\\\", text/event-stream", "text/event-stream; profile=\"a,b")) {
+                HttpHeaders headers = new HttpHeaders();
+                if (contentType != null) {
+                    headers.set(HttpHeaderName.CONTENT_TYPE, contentType);
+                }
+                AtomicBoolean cancelled = new AtomicBoolean();
+                BinaryData body = BinaryData
+                    .fromFlux(Flux.<java.nio.ByteBuffer>never().doOnCancel(() -> cancelled.set(true)), null, false)
+                    .block();
+                Response<BinaryData> response = new SimpleResponse<>(null, 200, headers, body);
+                Flux<?> events = (Flux<?>) toFlux.invoke(null, response, converter);
+                IllegalStateException validationFailure = Assertions.assertThrows(IllegalStateException.class,
+                    () -> events.collectList().block(Duration.ofSeconds(5)), contentType);
+                Assertions.assertTrue(validationFailure.getMessage().contains("Content-Type"), contentType);
+                Assertions.assertTrue(cancelled.get(), contentType);
+
+                AtomicBoolean closed = new AtomicBoolean();
+                ByteArrayInputStream input = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)) {
+                    @Override
+                    public void close() throws IOException {
+                        closed.set(true);
+                        super.close();
+                    }
+                };
+                Response<BinaryData> syncResponse
+                    = new SimpleResponse<>(null, 200, headers, BinaryData.fromStream(input));
+                InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
+                    () -> toIterableStream.invoke(null, syncResponse, converter), contentType);
+                Assertions.assertInstanceOf(IllegalStateException.class, exception.getCause(), contentType);
+                Assertions.assertTrue(closed.get(), contentType);
+            }
+        }
     }
 
     @Test

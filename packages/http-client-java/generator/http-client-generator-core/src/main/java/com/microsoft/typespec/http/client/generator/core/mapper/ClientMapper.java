@@ -228,6 +228,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             }
         }
 
+        // Defer SSE model registration until client mapping identifies which typed SSE APIs will be generated.
         Set<ObjectSchema> sseSchemas
             = SseUtil.getSseSchemas(serviceClientsMap.values(), enumTypes, responseModels, exceptions);
         codeModel.getSchemas()
