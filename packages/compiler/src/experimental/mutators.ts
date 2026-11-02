@@ -8,6 +8,7 @@ import type {
   Decorator,
   DecoratorArgument,
   FunctionParameter,
+  IndeterminateEntity,
   IntrinsicType,
   Model,
   Namespace,
@@ -669,7 +670,7 @@ function createMutatorEngine(
     }
 
     function prepareNamespace(root: Namespace) {
-      visitDecorators(root, true, newMutators);
+      visitDecorators(root);
       mutateNamespaceProperty(root);
     }
 
@@ -757,12 +758,32 @@ function createMutatorEngine(
       }
 
       if ("templateMapper" in root) {
-        mutateTemplateMapper(root, mutating, newMutators);
+        const mapper = mutateTemplateMapper(root, newMutators);
+        const target = clone ?? root;
+        if (mutating && "templateMapper" in target) target.templateMapper = mapper;
       }
       if ("decorators" in root) {
-        visitDecorators(root, mutating, newMutators);
+        visitDecorators(root);
       }
       mutateNamespaceProperty(root);
+    }
+
+    function visitDecorators(root: MutableTypeWithNamespace & DecoratedType) {
+      for (const [index, dec] of root.decorators.entries()) {
+        const args: DecoratorArgument[] = [];
+        for (const arg of dec.args) {
+          args.push({
+            ...arg,
+            value: mutateDecoratorArgumentValue(arg.value, newMutators),
+            jsValue: mutateDecoratorArgumentValue(arg.jsValue, newMutators),
+          });
+        }
+
+        const target = clone ?? root;
+        if (mutating && "decorators" in target) {
+          target.decorators[index] = { ...dec, args };
+        }
+      }
     }
 
     // Parents needs to be visited after the type is finished
@@ -788,29 +809,8 @@ function createMutatorEngine(
     }
   }
 
-  function visitDecorators(
-    type: MutableTypeWithNamespace & DecoratedType,
-    mutating: boolean,
-    newMutators: Set<MutatorAll>,
-  ) {
-    for (const [index, dec] of type.decorators.entries()) {
-      const args: DecoratorArgument[] = [];
-      for (const arg of dec.args) {
-        args.push({
-          ...arg,
-          value: mutateDecoratorArgumentValue(arg.value, newMutators),
-          jsValue: mutateDecoratorArgumentValue(arg.jsValue, newMutators),
-        });
-      }
-
-      if (mutating) {
-        type.decorators[index] = { ...dec, args };
-      }
-    }
-  }
-
   function mutateDecoratorArgumentValue<
-    T extends DecoratorArgument["jsValue"] | DecoratorArgument["value"],
+    T extends DecoratorArgument["jsValue"] | DecoratorArgument["value"] | IndeterminateEntity,
   >(value: T, newMutators: Set<MutatorAll>): T {
     if (typeof value === "object" && value !== null) {
       if (isType(value as any)) {
@@ -864,6 +864,16 @@ function createMutatorEngine(
           type: mutateDecoratorArgumentValue(value.type, newMutators),
           value: mutateDecoratorArgumentValue(value.value, newMutators),
         } as T;
+      case "ScalarValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          scalar: mutateDecoratorArgumentValue(value.scalar, newMutators),
+          value: {
+            ...value.value,
+            args: value.value.args.map((arg) => mutateValue(arg, newMutators)),
+          },
+        } as T;
       case "TypeRefValue":
         return {
           ...value,
@@ -877,9 +887,8 @@ function createMutatorEngine(
 
   function mutateTemplateMapper(
     type: TemplatedType,
-    mutating: boolean,
     newMutators: Set<MutatorAll>,
-  ) {
+  ): TypeMapper | undefined {
     if (type.templateMapper === undefined) {
       return;
     }
@@ -887,16 +896,15 @@ function createMutatorEngine(
       ...type.templateMapper,
       args: [],
       map: new Map(),
+      getMappedType: (parameter) => mutatedMapper.map.get(parameter) ?? parameter,
     };
     for (const arg of type.templateMapper.args) {
-      mutate(mutatedMapper.args).push(mutateSubgraphWorker(arg as any, newMutators));
+      mutate(mutatedMapper.args).push(mutateDecoratorArgumentValue(arg, newMutators));
     }
     for (const [param, paramType] of type.templateMapper.map) {
-      mutatedMapper.map.set(param, mutateSubgraphWorker(paramType as any, newMutators));
+      mutatedMapper.map.set(param, mutateDecoratorArgumentValue(paramType, newMutators));
     }
-    if (mutating) {
-      type.templateMapper = mutatedMapper;
-    }
+    return mutatedMapper;
   }
 
   function mutateSubMap<T extends MutableTypeWithNamespace, K extends keyof T>(
