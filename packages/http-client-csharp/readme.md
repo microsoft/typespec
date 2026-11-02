@@ -257,26 +257,3 @@ License information for the generated client code.
 **Type:** `object`
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
-
-## Dynamic models
-
-Use the `@dynamicModel` decorator from `@azure-tools/typespec-client-generator-core` with the `"csharp"` scope to mark a model or namespace as dynamic.
-
-```tsp
-import "@azure-tools/typespec-client-generator-core";
-
-using Azure.ClientGenerator.Core;
-
-@dynamicModel("csharp")
-model Pet {
-  name: string;
-  kind: string;
-}
-
-@dynamicModel("csharp")
-namespace PetStore {
-  model Dog extends Pet {
-    breed: string;
-  }
-}
-```
