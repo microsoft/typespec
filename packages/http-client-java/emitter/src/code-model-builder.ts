@@ -2281,7 +2281,9 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
-    this.applyParameterVersioning(sdkBody, parameter, clientContext);
+    if (!parameter.required) {
+      this.applyParameterVersioning(sdkBody, parameter, clientContext);
+    }
     this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
