@@ -18,7 +18,9 @@ export interface LoadedTemplateIndex {
  * {@link InMemoryTemplateSource} for a bundle addressed through the `internal:` scheme.
  */
 export interface TemplateSource {
+  /** Load the available template definitions together with their index source and base location. */
   loadIndex(): Promise<LoadedTemplateIndex>;
+  /** Read one template file relative to this source, preserving its path for diagnostics. */
   readFile(relativePath: string): Promise<SourceFile>;
 }
 

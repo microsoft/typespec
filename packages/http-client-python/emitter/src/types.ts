@@ -478,7 +478,7 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
 const supportedPythonEncodings = new Map<string, ReadonlySet<string>>([
   ["boolean", new Set(["string"])],
   ["integer", new Set(["string"])],
-  ["bytes", new Set(["base64", "base64url"])],
+  ["bytes", new Set(["bytes", "base64", "base64url"])],
 ]);
 
 function emitBuiltInType(
@@ -607,18 +607,21 @@ function getInlineUnionDiscriminator(
     while (base && base.__raw !== raw.baseType) base = base.baseModel;
     if (!base) return undefined;
     baseType = base;
-    const property = model.properties.find(
-      (p) => p.__raw?.name === options.discriminatorPropertyName,
-    );
+    let owner: SdkModelType | undefined = model;
+    let property: SdkModelPropertyType | undefined;
+    while (owner && !property) {
+      property = owner.properties.find((p) => p.__raw?.name === options.discriminatorPropertyName);
+      owner = owner.baseModel;
+    }
     if (
-      !property ||
-      property.optional ||
-      property.type.kind !== "constant" ||
-      property.type.value !== tag
+      property &&
+      (property.optional || property.type.kind !== "constant" || property.type.value !== tag)
     ) {
       return undefined;
     }
-    const wireName = property.serializationOptions.json?.name ?? property.name;
+    const wireName = property
+      ? (property.serializationOptions.json?.name ?? property.name)
+      : options.discriminatorPropertyName;
     if (propertyName !== undefined && wireName !== propertyName) return undefined;
     propertyName = wireName;
     variants.push([tag, model]);

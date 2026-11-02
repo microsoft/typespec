@@ -33,8 +33,15 @@ import {
   type PlaygroundState,
 } from "./playground.js";
 
+/**
+ * Configure a self-initializing playground using browser imports and URL-backed persistence.
+ * The standalone wrapper creates its own host and save/state-change handlers, replacing any
+ * inherited overrides for those props. Saved URL fields take precedence over supplied defaults.
+ */
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
+  /** Library import specifiers, resolvable through the page's import map. */
   readonly libraries: readonly string[];
+  /** Import-map strategy; omitted to use native imports rather than `importShim`. */
   readonly importConfig?: LibraryImportOptions;
   /**
    * Emitters from {@link libraries} that should only be imported once selected, rather than when
@@ -71,6 +78,11 @@ function useStandalonePlaygroundContext(
   return context;
 }
 
+/**
+ * Load a browser host and language services, then render a URL-persisted playground.
+ * Shows `fallback` while initializing. Save updates the URL, requests copying the link to the
+ * clipboard, and shows a toast; other state changes persist settings without saving edited text.
+ */
 export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (config) => {
   const context = useStandalonePlaygroundContext(config);
   const toasterId = useId();
@@ -163,10 +175,18 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
   );
 };
 
+/**
+ * Create the standalone playground element without mounting it.
+ * The promise resolves to the element, not to an initialized host; libraries load after mounting.
+ */
 export async function createReactPlayground(config: ReactPlaygroundConfig) {
   return <StandalonePlayground {...config} />;
 }
 
+/**
+ * Mount a standalone playground into the page's existing `#root` element with a Fluent light theme.
+ * Resolves after scheduling the React render, not after libraries or the first compilation finish.
+ */
 export async function renderReactPlayground(config: ReactPlaygroundConfig) {
   const app = await createReactPlayground(config);
 
@@ -178,6 +198,12 @@ export async function renderReactPlayground(config: ReactPlaygroundConfig) {
   );
 }
 
+/**
+ * Create the standalone playground's URL storage, including compressed source and raw configuration.
+ * Loading accepts legacy emitter/options parameters. Saving removes them in favor of `tspconfig`
+ * and omits source text when `sampleName` is set. `resolveSearchParams` serializes the supplied
+ * snapshot directly, without those save-only transformations or changes to browser history.
+ */
 export function createStandalonePlaygroundStateStorage(): UrlStateStorage<PlaygroundSaveData> {
   const stateStorage = createUrlStateStorage<PlaygroundSaveData>({
     content: {

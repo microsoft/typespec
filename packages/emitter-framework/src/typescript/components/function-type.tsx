@@ -4,11 +4,13 @@ import type { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 
+/** Alloy function-type options with optional operation-derived signature defaults. */
 export interface FunctionTypeProps extends ts.FunctionTypeProps {
+  /** Operation supplying parameters and return type; omit to use only the Alloy props. */
   type?: Operation;
   /**
-   * Where the parameters from passed to the `parameters` prop should be placed
-   * relative the ones created from the TypeSpec operation.
+   * Places explicit parameters before the operation parameters by default.
+   * `append` places them after; `replace` discards the operation parameters.
    */
   parametersMode?: "prepend" | "append" | "replace";
 }

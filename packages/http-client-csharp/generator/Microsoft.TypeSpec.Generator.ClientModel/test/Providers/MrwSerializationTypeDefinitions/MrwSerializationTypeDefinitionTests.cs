@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -62,6 +63,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var expectedJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
 
             Assert.That(interfaces.Any(i => i.Equals(expectedJsonModelTInterface)));
+        }
+
+        [Test]
+        public async Task SerializationReferencesHonorCustomObsoleteDiagnostic()
+        {
+            var legacy = InputFactory.Model("Legacy");
+            var envelope = InputFactory.Model("Envelope", properties:
+                [InputFactory.Property("legacy", legacy)]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [legacy, envelope],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(envelope)!;
+            var serialization = model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            var method = serialization.Methods.Single(method => method.Signature.Name == "DeserializeEnvelope");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [TestCase(false, false, false)]
@@ -950,13 +968,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             InputPrimitiveTypeKind.Integer,
             InputPrimitiveTypeKind.SafeInt,
             InputPrimitiveTypeKind.Int8,
-            // InputPrimitiveTypeKind.Int16, TODO: add them back when we decide the exact corresponding type
+            InputPrimitiveTypeKind.Int16,
             InputPrimitiveTypeKind.Int32,
             InputPrimitiveTypeKind.Int64,
-            InputPrimitiveTypeKind.UInt8
-            // InputPrimitiveTypeKind.UInt16,
-            // InputPrimitiveTypeKind.UInt32,
-            // InputPrimitiveTypeKind.UInt64
+            InputPrimitiveTypeKind.UInt8,
+            InputPrimitiveTypeKind.UInt16,
+            InputPrimitiveTypeKind.UInt32,
+            InputPrimitiveTypeKind.UInt64
             )] InputPrimitiveTypeKind kind,
             [Values("string", null)] string encode)
         {
@@ -1010,11 +1028,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
         [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
         [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]
+        [TestCase(typeof(ushort), SerializationFormat.Int_String, ExpectedResult = "ushort.Parse(foo.GetString())")]
+        [TestCase(typeof(uint), SerializationFormat.Int_String, ExpectedResult = "uint.Parse(foo.GetString())")]
+        [TestCase(typeof(ulong), SerializationFormat.Int_String, ExpectedResult = "ulong.Parse(foo.GetString())")]
         [TestCase(typeof(byte), SerializationFormat.Int_String, ExpectedResult = "byte.Parse(foo.GetString())")]
         [TestCase(typeof(sbyte), SerializationFormat.Int_String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
         [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "foo.GetInt64()")]
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "foo.GetInt32()")]
         [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "foo.GetInt16()")]
+        [TestCase(typeof(ushort), SerializationFormat.Default, ExpectedResult = "foo.GetUInt16()")]
+        [TestCase(typeof(uint), SerializationFormat.Default, ExpectedResult = "foo.GetUInt32()")]
+        [TestCase(typeof(ulong), SerializationFormat.Default, ExpectedResult = "foo.GetUInt64()")]
         [TestCase(typeof(byte), SerializationFormat.Default, ExpectedResult = "foo.GetByte()")]
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)

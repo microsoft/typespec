@@ -73,6 +73,45 @@ describe("inline discriminated unions", () => {
     expect(codeModel.types.find((type) => type.name === "Pet")).toHaveProperty("discriminator");
   });
 
+  it.each(["kind", "petType"])("supports union-local injected %s tags", async (propertyName) => {
+    const { codeModel, diagnostics } = await emitCodeModel(
+      petService(
+        `@discriminated(#{ envelope: "none", discriminatorPropertyName: "${propertyName}" })`,
+      ).replaceAll(/kind: (string|"cat"|"dog");/g, ""),
+    );
+    expectDiagnostics(diagnostics, []);
+    expect(codeModel.types.find((type) => type.name === "Pet")).toMatchObject({
+      discriminator: {
+        propertyName,
+        variants: { cat: { name: "Cat" }, dog: { name: "Dog" } },
+      },
+    });
+    for (const name of ["PetBase", "Cat", "Dog"]) {
+      const model = codeModel.types.find((type) => type.name === name);
+      expect(model).not.toHaveProperty("discriminatorValue");
+      expect(model).toHaveProperty("discriminatedSubtypes", {});
+      expect(model).not.toHaveProperty(
+        "properties",
+        expect.arrayContaining([expect.objectContaining({ wireName: propertyName })]),
+      );
+    }
+  });
+
+  it("rejects an inherited non-literal tag instead of treating it as injected", async () => {
+    const diagnostics = await EmitterTester.diagnose(
+      petService().replaceAll(/kind: ("cat"|"dog");/g, ""),
+      {
+        compilerOptions: {
+          options: { "@typespec/http-client-python": { "emit-yaml-only": true } },
+        },
+      },
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/http-client-python/unsupported-discriminated-union",
+      severity: "error",
+    });
+  });
+
   it("uses the JSON wire name for an encoded discriminator", async () => {
     const { codeModel, diagnostics } = await emitCodeModel(
       petService().replaceAll("kind:", '@encodedName("application/json", "pet-kind") kind:'),

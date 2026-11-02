@@ -5,15 +5,20 @@ import { buildParameterDescriptors, getReturnType } from "../utils/operation.js"
 import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
 
+/** Function options with an operation supplying default documentation, parameters, and return type. */
 export interface FunctionDeclarationPropsWithType extends Omit<
   ts.FunctionDeclarationProps,
   "name"
 > {
+  /** Operation represented by the function; also provides its reference identity. */
   type: Operation;
+  /** Name override; otherwise the operation name uses the TypeScript function naming policy. */
   name?: string;
+  /** Explicit parameters precede generated ones by default; append or replace them instead. */
   parametersMode?: "prepend" | "append" | "replace";
 }
 
+/** Props for either an operation-backed declaration or an ordinary Alloy function declaration. */
 export type FunctionDeclarationProps =
   FunctionDeclarationPropsWithType | ts.FunctionDeclarationProps;
 
@@ -62,13 +67,18 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
   );
 }
 
+/** Parameter-list options for {@link FunctionDeclaration.Parameters} backed by a TypeSpec model. */
 export interface TypedFunctionParametersProps extends Omit<ts.FunctionDeclarationProps, "name"> {
+  /** Model supplying parameters from its declared properties, excluding inherited base-model properties. */
   type: Model;
+  /** Accepted for declaration-props compatibility; does not affect the rendered parameter list. */
   name?: string;
 }
 
+/** Selects model-derived parameters or a manually supplied Alloy parameter list. */
 export type FunctionParametersProps = TypedFunctionParametersProps | ts.FunctionParametersProps;
 
+/** Renders only a function's parameter list, deriving descriptors from `type` when provided. */
 FunctionDeclaration.Parameters = function Parameters(props: FunctionParametersProps) {
   if (!isTypedFunctionParametersProps(props)) {
     return <ts.FunctionDeclaration.Parameters {...props} />;

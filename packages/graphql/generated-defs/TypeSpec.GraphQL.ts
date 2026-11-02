@@ -13,7 +13,14 @@ import {
   type Union,
 } from "@typespec/compiler";
 
+/**
+ * Options for configuring a GraphQL schema.
+ */
 export interface SchemaOptions {
+  /**
+   * The name of the GraphQL schema. Used in the output filename when emitting
+   * multiple schemas (e.g., `{name}.graphql`). Defaults to `"schema"`.
+   */
   readonly name?: string;
 }
 

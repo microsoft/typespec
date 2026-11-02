@@ -1080,6 +1080,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void LastContractMappingRejectsExperimentalHistoricalProperty()
+        {
+            var currentProperty = InputFactory.Property("value", InputPrimitiveType.String);
+            var historicalProperty = new PropertyProvider(
+                $"",
+                MethodSignatureModifiers.Public,
+                typeof(string),
+                "Value",
+                new AutoPropertyBody(true),
+                new TestTypeProvider(),
+                attributes: [new AttributeStatement(
+                    typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
+                    Snippet.Literal("TEST001"))]);
+
+            Assert.That(CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                new CSharpType(typeof(InitOnlyPropertyTarget)), currentProperty, historicalProperty), Is.False);
+        }
+
+        [Test]
         public void DownstreamLastContractMappingCanExplicitlyReconcileValueNullability()
         {
             MockHelpers.LoadMockGenerator(isLastContractModelBasePropertyCompatible: (_, _, _) => true);

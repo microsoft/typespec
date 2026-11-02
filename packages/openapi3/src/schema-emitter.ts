@@ -133,6 +133,10 @@ export class OpenAPI3SchemaEmitterBase<
     return this.reduceContext(model);
   }
 
+  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
+    return this.reduceContext(array);
+  }
+
   scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
     return this.reduceContext(scalar);
   }
@@ -576,11 +580,11 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   /**
-   * Mapping of cached envelope models for union variants.
+   * Envelope models are keyed by variant name, since variants can share a payload type.
    */
   #unionVariantEnvelopeVisibilityMap: WeakMap<
     Union,
-    WeakMap<Type, { default: Model; byVisibility: Map<Visibility, Model> }>
+    Map<string, { default: Model; byVisibility: Map<Visibility, Model> }>
   > = new WeakMap();
 
   /**
@@ -606,15 +610,15 @@ export class OpenAPI3SchemaEmitterBase<
     let map = this.#unionVariantEnvelopeVisibilityMap.get(union.type);
 
     if (!map) {
-      map = new WeakMap();
+      map = new Map();
       this.#unionVariantEnvelopeVisibilityMap.set(union.type, map);
     }
 
-    let entry = map.get(variant);
+    let entry = map.get(variantName);
     if (!entry) {
       // Initialize entry
       entry = { default: createEnvelopeModel(), byVisibility: new Map() };
-      map.set(variant, entry);
+      map.set(variantName, entry);
 
       // Manually track the model's usage according to the union's usage.
       if (usage) this._visibilityUsage.manuallyTrack(entry.default, usage);

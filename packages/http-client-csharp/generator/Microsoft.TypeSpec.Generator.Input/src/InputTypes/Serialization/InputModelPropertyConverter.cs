@@ -60,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
+            int visibility = (int)InputVisibility.All;
             bool isHttpMetadata = false;
             string? access = null;
             bool isDiscriminator = false;
@@ -82,6 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
                     || reader.TryReadBoolean("optional", ref isOptional)
+                    || reader.TryReadInt32("lifecycleVisibility", ref visibility)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
@@ -104,6 +106,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.Doc = doc;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
+            property.Visibility = (InputVisibility)visibility;
             property.IsReadOnly = isReadOnly;
             property.IsHttpMetadata = isHttpMetadata;
             property.Access = access;

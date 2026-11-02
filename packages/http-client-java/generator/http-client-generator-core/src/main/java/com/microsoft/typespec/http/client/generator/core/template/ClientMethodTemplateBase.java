@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import io.clientcore.core.utils.CoreUtils;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,6 +37,26 @@ import java.util.stream.Collectors;
 
 public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMethod, JavaType> {
 
+    protected static Set<String> pagingVariableNames(ClientMethod clientMethod) {
+        Set<String> names = clientMethod.getParameters()
+            .stream()
+            .map(parameter -> parameter.getName())
+            .collect(Collectors.toCollection(HashSet::new));
+        if (clientMethod.getParameterTransformations() != null) {
+            names.addAll(clientMethod.getParameterTransformations().getOutParameterNames());
+        }
+        return names;
+    }
+
+    protected static String availablePagingVariableName(String baseName, Set<String> usedNames) {
+        String name = baseName;
+        int suffix = 1;
+        while (!usedNames.add(name)) {
+            name = baseName + suffix++;
+        }
+        return name;
+    }
+
     protected static void generateProtocolMethodJavadoc(ClientMethod clientMethod, JavaJavadocComment commentBlock) {
         commentBlock.description(clientMethod.getDescription());
 
@@ -43,6 +64,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             List<ProxyMethodParameter> queryParameters = clientMethod.getProxyMethod()
                 .getAllParameters()
                 .stream()
+                .filter(p -> !isHiddenContinuationToken(clientMethod, p))
                 .filter(p -> RequestParameterLocation.QUERY.equals(p.getRequestParameterLocation())
                     // ignore if synthesized by modelerfour, i.e. api-version
                     && p.getOrigin() == ParameterSynthesizedOrigin.NONE)
@@ -55,6 +77,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             List<ProxyMethodParameter> headerParameters = clientMethod.getProxyMethod()
                 .getAllParameters()
                 .stream()
+                .filter(p -> !isHiddenContinuationToken(clientMethod, p))
                 .filter(p -> RequestParameterLocation.HEADER.equals(p.getRequestParameterLocation()))
                 // ignore if synthesized by modelerfour and is constant
                 // we would want user to provide a correct "content-type" if it is not a constant
@@ -125,6 +148,9 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         }
 
         clientMethod.getParameters()
+            .stream()
+            .filter(
+                p -> !clientMethod.isPageStreamingType() || !clientMethod.getMethodPageDetails().shouldHideParameter(p))
             .forEach(p -> commentBlock.param(p.getName(), MethodUtil.methodParameterDescriptionOrDefault(p)));
         if (clientMethod.getProxyMethod() != null) {
             generateJavadocExceptions(clientMethod, commentBlock, false);
@@ -136,6 +162,23 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             commentBlock.line("@see <a href=" + clientMethod.getMethodDocumentation().getUrl() + ">"
                 + clientMethod.getMethodDocumentation().getDescription() + "</a>");
         }
+    }
+
+    private static boolean isHiddenContinuationToken(ClientMethod clientMethod, ProxyMethodParameter parameter) {
+        return !JavaSettings.getInstance().isAzureV1() && isContinuationTokenParameter(clientMethod, parameter);
+    }
+
+    protected static boolean isContinuationTokenParameter(ClientMethod clientMethod, ProxyMethodParameter parameter) {
+        if (parameter == null
+            || !clientMethod.isPageStreamingType()
+            || clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+            return false;
+        }
+        ProxyMethodParameter token = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter();
+        return token.getRequestParameterLocation() == parameter.getRequestParameterLocation()
+            && (token.getRequestParameterLocation() == RequestParameterLocation.HEADER
+                ? token.getRequestParameterName().equalsIgnoreCase(parameter.getRequestParameterName())
+                : token.getRequestParameterName().equals(parameter.getRequestParameterName()));
     }
 
     protected static void generateJavadocExceptions(ClientMethod clientMethod, JavaJavadocComment commentBlock,

@@ -43,9 +43,16 @@ const decoratorArgContext = new Map<string, GraphQLTypeContext>([
 ]);
 
 /**
- * GraphQL-specific Model mutation.
+ * Transforms a model's name, visible properties, inheritance, and referenced
+ * types for a GraphQL structural context. Models without fields may be
+ * replaced by opaque scalars on the mutation node.
  */
 export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOptions> {
+  /**
+   * Initializes a model transformation with engine-provided references and cache
+   * identity. Prefer `GraphQLMutationEngine.mutateModel` to obtain a
+   * cached mutation with an explicit GraphQL context.
+   */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<SimpleMutationOptions>>,
     sourceType: Model,
@@ -57,13 +64,19 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
   }
 
   /**
-   * The input/output context this model was mutated with, if any.
-   * Undefined when the model was mutated directly (not through an operation).
+   * The GraphQL structural context this model was mutated with, if any.
+   * Undefined when its options are not GraphQLMutationOptions.
    */
   get typeContext(): GraphQLTypeContext | undefined {
     return this.options instanceof GraphQLMutationOptions ? this.options.typeContext : undefined;
   }
 
+  /**
+   * Applies context-sensitive naming and visibility, mutates referenced types,
+   * and flattens inherited fields into the result. Fieldless named models are
+   * replaced on the mutation node instead of producing an empty GraphQL object.
+   * Invoked by the mutation engine as part of processing this model.
+   */
   mutate() {
     const tk = this.engine.$;
     const program = tk.program;

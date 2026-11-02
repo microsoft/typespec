@@ -16,9 +16,22 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal class MethodSignatureHelper
     {
-        internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
+        internal static bool IsPublicApi(MethodSignatureBase signature)
+            => IsPublicApi(signature.Modifiers, signature.Attributes);
+
+        internal static bool IsPublicApi(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<AttributeStatement>? attributes = null)
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
+
+        internal static bool IsPublicApi(
+            FieldModifiers modifiers,
+            IReadOnlyList<AttributeStatement>? attributes = null)
+            => (modifiers.HasFlag(FieldModifiers.Public) || modifiers.HasFlag(FieldModifiers.Protected))
+                && !modifiers.HasFlag(FieldModifiers.Private)
+                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
 
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
             => TryMatchParameterOrder(method2.Parameters, method1.Parameters, out _);
@@ -209,9 +222,11 @@ namespace Microsoft.TypeSpec.Generator
         /// <c>int?</c> are different parameter types, while C# erases reference type nullability so
         /// <c>string</c> and <c>string?</c> are the same one.
         /// </summary>
-        private static bool AreEquivalentParameterTypes(CSharpType type, CSharpType otherType)
+        internal static bool AreEquivalentParameterTypes(CSharpType type, CSharpType otherType)
             => (!type.IsValueType || type.IsNullable == otherType.IsNullable)
-                && type.AreNamesEqual(otherType);
+                && type.AreNamesEqual(otherType)
+                && type.Arguments.Zip(otherType.Arguments).All(pair =>
+                    AreEquivalentParameterTypes(pair.First, pair.Second));
 
         /// <summary>
         /// Removes the default values from the leading parameters of <paramref name="signature"/> so it

@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -25,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly CSharpType _valuesType;
         private readonly FieldProvider _valuesField;
         private readonly FieldProvider _newLineField;
+        private readonly FieldProvider _optionsField;
         private readonly ParameterProvider _streamParameter = new("stream", FormattableStringHelpers.Empty, typeof(Stream));
 
         public JsonLinesBinaryContentDefinition()
@@ -42,6 +44,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "_newLine",
                 this,
                 initializationValue: New.Array(typeof(byte), false, false, [Literal(10)]));
+            _optionsField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(ModelReaderWriterOptions), "_options", this);
         }
 
         protected override CSharpType[] GetTypeArguments() => [_t];
@@ -59,16 +63,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override CSharpType BuildBaseType()
             => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
-        protected override FieldProvider[] BuildFields() => [_valuesField, _newLineField];
+        protected override FieldProvider[] BuildFields() => [_valuesField, _newLineField, _optionsField];
 
         protected override ConstructorProvider[] BuildConstructors()
         {
             var values = new ParameterProvider("values", FormattableStringHelpers.Empty, _valuesType);
+            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null);
             return
             [
                 new ConstructorProvider(
-                    new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [values]),
-                    new MethodBodyStatement[] { _valuesField.Assign(values).Terminate() },
+                    new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [values, options]),
+                    new MethodBodyStatement[]
+                    {
+                        _valuesField.Assign(values).Terminate(),
+                        _optionsField.Assign(options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate()
+                    },
                     this)
             ];
         }
@@ -94,8 +103,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 typeof(TaskAsyncEnumerableExtensions));
             var loop = new ForEachStatement(_t, "value", values, true, out var value);
             ValueExpression stream = _streamParameter;
-            var wireOptions = Static(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type)
-                .Property(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.Name);
             var firstDeclaration = Declare("first", typeof(bool), True, out var first);
             loop.Add(new IfStatement(Not(first))
             {
@@ -112,7 +119,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 out var writer);
             writerScope.AddRange(
             [
-                writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions),
+                writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), _optionsField),
                 writer.As<Utf8JsonWriter>().FlushAsync(cancellationToken).Terminate()
             ]);
             loop.Add(writerScope);

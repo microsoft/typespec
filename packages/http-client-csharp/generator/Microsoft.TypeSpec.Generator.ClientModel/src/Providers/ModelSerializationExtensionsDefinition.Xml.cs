@@ -211,32 +211,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 out var readerVar);
 
             var readerTyped = readerVar.As<XmlReader>();
-            var writeNodeLoop = new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
-            {
-                writer.WriteNode(readerVar, True)
-            };
-
-            var nameHintBranch = new IfElseStatement(
-                nameHint.NotEqual(Null),
-                new MethodBodyStatement[]
+            var hasNameHint = nameHint.NotEqual(Null);
+            innerUsing.AddRange(
+            [
+                readerTyped.MoveToContent(),
+                new IfStatement(hasNameHint) { writer.WriteStartElement(nameHint) },
+                writer.WriteAttributes(readerTyped, True),
+                new IfStatement(Not(readerTyped.Property(nameof(XmlReader.IsEmptyElement))))
                 {
-                    writer.WriteStartElement(nameHint),
-                    writer.WriteAttributes(readerTyped, True),
                     readerTyped.ReadStartElement(),
-                    writeNodeLoop,
-                    writer.WriteEndElement(),
-                },
-                new MethodBodyStatement[]
-                {
-                    writer.WriteAttributes(readerTyped, True),
-                    readerTyped.ReadStartElement(),
-                    new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
+                    new WhileStatement(Not(readerTyped.Property(nameof(XmlReader.EOF))).And(
+                        readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement)))))
                     {
                         writer.WriteNode(readerVar, True)
                     }
-                });
-
-            innerUsing.AddRange([readerTyped.MoveToContent(), nameHintBranch]);
+                },
+                new IfStatement(hasNameHint) { writer.WriteEndElement() }
+            ]);
             outerUsing.Add(innerUsing);
 
             var persistableModelCase = new SwitchCaseStatement(

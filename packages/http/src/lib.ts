@@ -1,5 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/** HTTP library definition providing diagnostic messages and program-state keys to the compiler. */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
   diagnostics: {

@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 """Union-local dispatch must not turn the declared base into a polymorphic model."""
+
 import json
 import importlib
 import sys
@@ -134,6 +135,103 @@ def test_legacy_discriminator_hierarchy_is_unchanged(runtime):
     assert type(runtime._deserialize(Animal, {"kind": "unknown"})) is Animal
 
 
+@pytest.mark.parametrize("property_name,tags", [("kind", ("cat", "dog")), ("petType", ("feline", "canine"))])
+def test_injected_tags_are_union_local(runtime, property_name, tags):
+    class PetBase(runtime.Model):
+        name: str = runtime.rest_field()
+
+    class Cat(PetBase):
+        meow: bool = runtime.rest_field()
+
+    class Dog(PetBase):
+        bark: bool = runtime.rest_field()
+
+    pet_type = Annotated[Union[Cat, Dog], runtime._DiscriminatedUnion(property_name, dict(zip(tags, (Cat, Dog))))]
+
+    class Holder(runtime.Model):
+        pet: pet_type = runtime.rest_field()
+        friends: list[pet_type] = runtime.rest_field()
+        lookup: dict[str, pet_type] = runtime.rest_field()
+        optional: Optional[pet_type] = runtime.rest_field()
+
+    cat = Cat(name="Whiskers", meow=True)
+    dog = Dog(name="Rex", bark=False)
+    cat_wire = {property_name: tags[0], "name": "Whiskers", "meow": True}
+    dog_wire = {property_name: tags[1], "name": "Rex", "bark": False}
+    assert json.loads(json.dumps(cat, cls=runtime.SdkJSONEncoder, serialization_type=pet_type)) == cat_wire
+    holder = Holder(pet=cat, friends=[dog], lookup={"best": dog}, optional=cat)
+    assert holder.pet is cat
+    assert holder.friends[0] is dog
+    assert holder.lookup["best"] is dog
+    assert holder.optional is cat
+    assert json.loads(json.dumps(holder, cls=runtime.SdkJSONEncoder)) == {
+        "pet": cat_wire,
+        "friends": [dog_wire],
+        "lookup": {"best": dog_wire},
+        "optional": cat_wire,
+    }
+    assert cat.as_dict() == {"name": "Whiskers", "meow": True}
+    assert dog.as_dict() == {"name": "Rex", "bark": False}
+    assert json.loads(json.dumps(cat, cls=runtime.SdkJSONEncoder)) == cat.as_dict()
+    assert type(runtime._deserialize(pet_type, cat_wire)) is Cat
+    assert type(runtime._deserialize(PetBase, cat_wire)) is PetBase
+    assert not hasattr(PetBase, "__mapping__")
+    with pytest.raises(runtime.DeserializationError):
+        runtime._deserialize(pet_type, {"name": "Whiskers", "meow": True})
+    with pytest.raises(ValueError, match="variant"):
+        json.dumps(PetBase(name="unknown"), cls=runtime.SdkJSONEncoder, serialization_type=pet_type)
+
+
+def test_same_named_unions_preserve_distinct_namespace_variants(tmp_path, monkeypatch):
+    types = []
+    for namespace in ("inline_names.first", "inline_names.second"):
+        cat = {
+            "type": "model",
+            "base": "dpg",
+            "name": "Cat",
+            "snakeCaseName": "cat",
+            "clientNamespace": namespace,
+            "properties": [],
+            "parents": [],
+            "usage": 6,
+        }
+        types.append(
+            {
+                "type": "combined",
+                "name": "Pet",
+                "clientNamespace": namespace,
+                "types": [cat],
+                "discriminator": {"propertyName": "kind", "variants": {"cat": cat}},
+            }
+        )
+    code_model = CodeModel(
+        {"namespace": "inline_names", "clients": [], "types": types},
+        options=OptionsDict(
+            {
+                "models-mode": "dpg",
+                "flavor": "unbranded",
+                "tsp_file": True,
+                "generate-packaging-files": False,
+                "package-name": "inline-names",
+            }
+        ),
+    )
+    JinjaSerializer(code_model, output_folder=tmp_path).serialize()
+    monkeypatch.syspath_prepend(str(tmp_path))
+    try:
+        unions = importlib.import_module("inline_names._unions")
+        runtime = importlib.import_module("inline_names._utils.model_base")
+        names = [union.name for union in code_model.named_unions]
+        assert len(set(names)) == 2
+        for union in code_model.named_unions:
+            models = importlib.import_module(union.client_namespace + ".models")
+            assert type(runtime._deserialize(getattr(unions, union.name), {"kind": "cat"})) is models.Cat
+    finally:
+        for name in list(sys.modules):
+            if name == "inline_names" or name.startswith("inline_names."):
+                sys.modules.pop(name)
+
+
 @pytest.fixture(params=["inline_pets", "inline_pets.nested"])
 def generated_sdk(tmp_path, monkeypatch, request):
     def prop(name, type_data):
@@ -244,7 +342,8 @@ def test_generated_alias_models_and_property_imports(generated_sdk):
 
 
 @pytest.mark.parametrize("async_mode", [False, True])
-def test_generated_operation_response_dispatch(generated_sdk, async_mode):
+@pytest.mark.parametrize("overloaded", [False, True])
+def test_generated_operation_response_dispatch(generated_sdk, async_mode, overloaded):
     sdk = generated_sdk
     union_type = next(t for t in sdk.code_model.named_unions if t.name == "Pet")
     serializer = OperationSerializer(sdk.code_model, async_mode=async_mode, client_namespace="inline_pets")
@@ -268,17 +367,32 @@ def test_generated_operation_response_dispatch(generated_sdk, async_mode):
         default_content_type="application/json",
         client_name="pet",
         optional=False,
+        in_method_signature=True,
+        entries=[],
     )
     request_builder = SimpleNamespace(
         parameters=SimpleNamespace(body_parameter=SimpleNamespace(client_name="content")),
     )
     builder = SimpleNamespace(
-        parameters=SimpleNamespace(body_parameter=body),
+        parameters=SimpleNamespace(has_body=True, body_parameter=body),
         request_builder=request_builder,
     )
-    lines = serializer._serialize_body_parameter(builder)
+    if overloaded:
+        builder.overloads = [
+            SimpleNamespace(
+                parameters=SimpleNamespace(body_parameter=SimpleNamespace(**{**body.__dict__, "type": model})),
+                request_builder=request_builder,
+            )
+            for model in union_type.types
+        ]
+        lines = serializer._initialize_overloads(builder)
+    else:
+        lines = serializer._serialize_body_parameter(builder)
+    assert any("serialization_type=_unions.Pet" in line for line in lines)
     namespace = {
         "json": json,
+        "_unions": sdk.unions,
+        "content_type": None,
         "SdkJSONEncoder": sdk.runtime.SdkJSONEncoder,
         "pet": sdk.models.Dog(name="Fido", barks=True),
     }

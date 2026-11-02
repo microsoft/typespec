@@ -121,7 +121,7 @@
     "@typespec/sse": "~0.87.0",
     "@typespec/streams": "~0.87.0",
     "@typespec/xml": "~0.87.0",
-    "@typespec/http-specs": "0.1.0-alpha.44",
+    "@typespec/http-specs": "0.1.0-alpha.45",
     "@types/js-yaml": "~4.0.5",
     "@types/node": "~25.0.2",
     "@types/semver": "7.5.8",

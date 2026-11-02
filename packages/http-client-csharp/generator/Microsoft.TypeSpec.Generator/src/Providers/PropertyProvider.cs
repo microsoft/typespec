@@ -113,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
-                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes))
                     .ToList();
 
                 // An exact input-identifier match is authoritative: it is the name this property would have had
@@ -401,6 +401,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
+
+        internal void SynchronizePropertyShape()
+        {
+            _asMember?.Update(memberName: Name);
+            AsParameter.SynchronizePropertyShape();
+        }
 
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);

@@ -165,6 +165,7 @@ afterAll(() => {
 
 it("should create a new project with the specified template", async () => {
   const { compilerHost, init } = await createTestFSWithCliCompilerHost();
+  consoleMock.mockClear();
 
   await init("/tmp/test-project", {
     template: "foo",
@@ -176,6 +177,24 @@ it("should create a new project with the specified template", async () => {
 
   expect(packageJson.name).toBe("test-project");
   expect(tspConfig.emit).toEqual(["@typespec/openapi3"]);
+  expect(consoleMock).toHaveBeenCalledWith(expect.stringContaining("tsp compile ."));
+});
+
+it("recommends the package build script for library and emitter templates", async () => {
+  const { fs, compilerHost, init } = await createTestFSWithCliCompilerHost();
+  fs.set(
+    resolvePath(compilerHost.getExecutionRoot(), "templates", "scaffolding.json"),
+    JSON.stringify({ library: { ...TEST_SCAFFOLDING.foo, target: "library" } }),
+  );
+  consoleMock.mockClear();
+
+  await init("/tmp/test-library", {
+    template: "library",
+    "no-prompt": true,
+  });
+
+  expect(consoleMock).toHaveBeenCalledWith(expect.stringContaining("npm run build"));
+  expect(consoleMock).not.toHaveBeenCalledWith(expect.stringContaining("tsp compile ."));
 });
 
 it("does not ask for permission if directory has files", async () => {

@@ -17,12 +17,17 @@ import { usePlaygroundContext } from "../context/playground-context.js";
 import { FooterItem } from "./footer-item.js";
 import style from "./footer-version-item.module.css";
 
+/** One selectable release of the application or library bundle hosting the playground. */
 export interface VersionSelectorVersion {
+  /** Unique value used for selection and for comparison with the latest release. */
   name: string;
+  /** Human-readable option text displayed in the selector. */
   label: string;
 }
 
+/** Controlled version selection; the owner performs any navigation or package reload. */
 export interface VersionSelectorProps {
+  /** Available releases in display order, each with a unique name. */
   versions: VersionSelectorVersion[];
 
   /** Currently selected version , must match one of the version name. */
@@ -31,15 +36,20 @@ export interface VersionSelectorProps {
   /** Latest released version, must match one of the version name. */
   latest?: string;
 
-  /** Callback when a new version has been selected */
+  /** Receives the matching release object; update `selected` to reflect the choice. */
   onChange: (version: VersionSelectorVersion) => void;
 }
 
+/** Options for the version footer item; omit the selector to display loaded versions only. */
 export interface FooterVersionItemProps {
   /** Provide a way to change the version of packages in the playground */
   versionSelector?: VersionSelectorProps;
 }
 
+/**
+ * Show the compiler version and a popover of library versions from the surrounding playground.
+ * An optional controlled selector lets the owner implement switching releases.
+ */
 export const FooterVersionItem = memo(({ versionSelector }: FooterVersionItemProps) => {
   const { host } = usePlaygroundContext();
   const latest = versionSelector?.latest;

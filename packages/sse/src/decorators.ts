@@ -3,6 +3,10 @@ import { useStateSet } from "@typespec/compiler/utils";
 import type { TerminalEventDecorator } from "../generated-defs/TypeSpec.SSE.js";
 import { SSEStateKeys } from "./lib.js";
 
+/**
+ * Tests whether the variant is marked with `@terminalEvent`, indicating that a
+ * client should disconnect when it receives that event.
+ */
 const [isTerminalEvent, setTerminalEvent] = useStateSet<UnionVariant>(SSEStateKeys.terminalEvent);
 
 export const $terminalEventDecorator: TerminalEventDecorator = (context, target) => {

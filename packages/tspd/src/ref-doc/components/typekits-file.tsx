@@ -10,7 +10,7 @@ export function createTypekitDocs(typekit: TypekitCollection) {
     <Output>
       <md.SourceFile path={`typekits.mdx`}>
         <>
-          <md.Frontmatter jsValue={{ title: "[API] Typekits" }} />
+          <md.Frontmatter jsValue={{ title: "[API] Typekits", jsApi: true }} />
           {code`
         import { Badge } from '@astrojs/starlight/components';
         `}

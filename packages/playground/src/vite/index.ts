@@ -3,6 +3,12 @@ import react from "@vitejs/plugin-react";
 import type { Plugin, ResolvedConfig, UserConfig } from "vite";
 import type { PlaygroundUserConfig } from "./types.js";
 
+/**
+ * Create a Vite configuration with React support, a generated playground manifest,
+ * and library bundling unless disabled by `skipBundleLibraries`.
+ * Sample files are imported as raw text relative to the resolved Vite root.
+ * The returned configuration uses relative asset URLs and an `esnext` build target.
+ */
 export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserConfig {
   return {
     base: "./",
@@ -22,7 +28,7 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
     },
     assetsInclude: [/\.tsp$/],
     optimizeDeps: {
-      exclude: ["swagger-ui"],
+      exclude: ["swagger-ui", "@typespec/playground/vite/workers"],
     },
     plugins: [
       react({}),

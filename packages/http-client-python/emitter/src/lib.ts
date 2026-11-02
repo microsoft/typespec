@@ -178,7 +178,7 @@ const libDef = {
       severity: "error",
       messages: {
         default:
-          'Python currently supports @discriminated only with envelope: "none", an explicit model constraint, and named model variants that nominally extend that constraint and declare matching required string-literal discriminator properties. Object envelopes and default variants are not supported.',
+          'Python currently supports @discriminated only with envelope: "none", an explicit model constraint, and named model variants that nominally extend that constraint. Discriminator properties must be absent or matching required string literals. Object envelopes and default variants are not supported.',
       },
     },
     "unknown-error": {

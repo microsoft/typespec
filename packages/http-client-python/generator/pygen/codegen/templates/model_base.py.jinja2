@@ -172,17 +172,26 @@ class SdkJSONEncoder(JSONEncoder):
     :paramtype format: typing.Optional[str]
     """
 
-    def __init__(self, *args, exclude_readonly: bool = False, format: typing.Optional[str] = None, **kwargs):
+    def __init__(
+        self, *args, exclude_readonly: bool = False, format: typing.Optional[str] = None,
+        serialization_type: typing.Any = None, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.exclude_readonly = exclude_readonly
         self.format = format
+        self._type = _get_deserialize_callable_from_annotation(serialization_type, None)
+
+    def iterencode(self, o, _one_shot=False):
+        return super().iterencode(_serialize_union_value(self._type, o), _one_shot)
 
     def default(self, o):  # pylint: disable=too-many-return-statements
         if _is_model(o):
-            if self.exclude_readonly:
-                readonly_props = [p._rest_name for p in o._attr_to_rest_field.values() if _is_readonly(p)]
-                return {k: v for k, v in o.items() if k not in readonly_props}
-            return dict(o.items())
+            fields = {rf._rest_name: rf for rf in o._attr_to_rest_field.values()}
+            return {
+                k: _serialize_union_value(fields[k]._type, v) if k in fields else v
+                for k, v in o.items()
+                if not (self.exclude_readonly and k in fields and _is_readonly(fields[k]))
+            }
         try:
             return super(SdkJSONEncoder, self).default(o)
         except TypeError:
@@ -1184,7 +1193,23 @@ class _DiscriminatedUnion:
         self.property_name = property_name
         self.variants = variants
 
+    def serialize(self, obj):
+        if not _is_model(obj):
+            return obj
+        tags = [tag for tag, model in self.variants.items() if type(obj) is model]
+        if len(tags) != 1:
+            raise ValueError("Expected an unambiguous model variant for a discriminated union.")
+        tag = tags[0]
+        if self.property_name in obj:
+            if obj[self.property_name] != tag:
+                raise ValueError(f"Discriminator {self.property_name!r} must be {tag!r}.")
+            return obj
+        # Copy rather than add a union-specific tag to a shared model instance.
+        return type(obj)({**obj, self.property_name: tag})
+
     def deserialize(self, obj):
+        if _is_model(obj) and type(obj) in self.variants.values():
+            return obj
         if not isinstance(obj, MutableMapping):
             raise DeserializationError("Expected an object for a discriminated union.")
         tag = obj.get(self.property_name)
@@ -1193,6 +1218,22 @@ class _DiscriminatedUnion:
                 f"Missing or unknown discriminator {self.property_name!r}: {tag!r}."
             )
         return _deserialize(self.variants[tag], obj)
+
+
+def _serialize_union_value(deserializer, obj):
+    if obj is None:
+        return obj
+    union = getattr(deserializer, "__self__", None)
+    if isinstance(union, _DiscriminatedUnion):
+        return union.serialize(obj)
+    if isinstance(deserializer, functools.partial):
+        if deserializer.func is _deserialize_with_optional:
+            return _serialize_union_value(deserializer.args[0], obj)
+        if deserializer.func is _deserialize_sequence and isinstance(obj, (list, tuple)):
+            return [_serialize_union_value(deserializer.args[0], item) for item in obj]
+        if deserializer.func is _deserialize_dict and isinstance(obj, dict):
+            return {key: _serialize_union_value(deserializer.args[0], value) for key, value in obj.items()}
+    return obj
 
 
 def _deserialize_with_union(deserializers, obj):

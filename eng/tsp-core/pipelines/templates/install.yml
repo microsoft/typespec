@@ -5,7 +5,7 @@ parameters:
     default: 24.16.0
 
   - name: useDotNet
-    type: string
+    type: boolean
     default: false
 
   - name: pnpmStorePath
@@ -37,6 +37,9 @@ steps:
     retryCountOnTaskFailure: 3
 
   - ${{ if parameters.useDotNet }}:
+      - task: NuGetAuthenticate@1
+        displayName: Authenticate NuGet feed
+
       - script: dotnet restore --configfile "$(Build.SourcesDirectory)/eng/nuget.config"
         displayName: Restore .NET Dependencies
         workingDirectory: packages/typespec-vs

@@ -59,8 +59,10 @@ import {
   isRecordModelType,
   listServices,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import type { Authentication, HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
 import { Visibility, getAuthentication } from "@typespec/http";
+import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
@@ -246,6 +248,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
+  "experimental-annotation"?: string;
   "use-default-http-status-code-to-exception-type-mapping"?: boolean;
 
   // configure
@@ -364,6 +367,11 @@ export class CodeModelBuilder {
   public async build(): Promise<CodeModel> {
     if (this.program.hasError()) {
       return this.codeModel;
+    }
+
+    // Metadata-only consumers may load a different version of Alloy.
+    if (this.isBranded() && this.options["experimental-annotation"] !== undefined) {
+      await import("@typespec/http-client/typekit");
     }
 
     // on filtering of preview version: TCGC only do this on "apiVersion" parameter in clientInitialization
@@ -556,6 +564,30 @@ export class CodeModelBuilder {
 
   private isAzureV2(): boolean {
     return this.options["flavor"]?.toLocaleLowerCase() === "azurev2";
+  }
+
+  private applyExperimental(
+    target: Type | undefined,
+    metadata: Pick<Metadata, "experimental">,
+  ): void {
+    if (
+      !this.isBranded() ||
+      this.options["experimental-annotation"] === undefined ||
+      target === undefined
+    ) {
+      return;
+    }
+
+    const [details, diagnostics] = $(
+      this.program,
+    ).client.getFeatureLifecycleDetails.withDiagnostics(target, {
+      emitterName: LIB_NAME,
+    });
+    this.program.reportDiagnostics(diagnostics);
+    if (details) {
+      metadata.experimental =
+        details.diagnosticId === undefined ? {} : { diagnosticId: details.diagnosticId };
+    }
   }
 
   private processModels() {
@@ -758,6 +790,7 @@ export class CodeModelBuilder {
       security: this.codeModel.security,
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    this.applyExperimental(client.__raw?.type, codeModelClient);
     if (client.isExactName) {
       codeModelClient.language.java = codeModelClient.language.java ?? {};
       codeModelClient.language.java.name = clientName;
@@ -893,6 +926,7 @@ export class CodeModelBuilder {
           }
           codeModelGroup.language.default.crossLanguageDefinitionId =
             subClient.crossLanguageDefinitionId;
+          this.applyExperimental(subClient.__raw?.type, codeModelGroup);
           for (const serviceMethod of serviceMethods) {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               addOperation(
@@ -1048,6 +1082,7 @@ export class CodeModelBuilder {
 
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
+    this.applyExperimental(httpOperation.__raw.operation, codeModelOperation);
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
@@ -1304,63 +1339,61 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isAzureV1()) {
-      // parameter would either be query or header parameter, so taking the last segment would be enough
-      const continuationTokenParameterSegment =
-        sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
-      // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
-      const continuationTokenResponseSegment =
-        sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
-      if (continuationTokenParameterSegment && op.parameters) {
-        // for now, continuationToken is either request query or header parameter
-        const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
-        if (parameter) {
-          for (const param of op.parameters) {
-            if (param.protocol.http?.in === parameter.kind) {
-              if (
-                parameter.kind === "header" &&
-                param.language.default.serializedName?.toLowerCase() ===
-                  parameter.serializedName.toLowerCase()
-              ) {
-                continuationTokenParameter = param;
-                break;
-              } else if (
-                parameter.kind === "query" &&
-                param.language.default.serializedName === parameter.serializedName
-              ) {
-                continuationTokenParameter = param;
-                break;
-              }
+    // parameter would either be query or header parameter, so taking the last segment would be enough
+    const continuationTokenParameterSegment =
+      sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
+    // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
+    const continuationTokenResponseSegment =
+      sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
+    if (continuationTokenParameterSegment && op.parameters) {
+      // for now, continuationToken is either request query or header parameter
+      const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
+      if (parameter) {
+        for (const param of op.parameters) {
+          if (param.protocol.http?.in === parameter.kind) {
+            if (
+              parameter.kind === "header" &&
+              param.language.default.serializedName?.toLowerCase() ===
+                parameter.serializedName.toLowerCase()
+            ) {
+              continuationTokenParameter = param;
+              break;
+            } else if (
+              parameter.kind === "query" &&
+              param.language.default.serializedName === parameter.serializedName
+            ) {
+              continuationTokenParameter = param;
+              break;
             }
           }
         }
       }
-      if (continuationTokenResponseSegment && op.responses) {
-        if (continuationTokenResponseSegment?.kind === "responseheader") {
-          // continuationToken is response header
-          for (const response of op.responses) {
-            if (isSchemaResponse(response) && response.protocol.http) {
-              for (const header of response.protocol.http.headers ?? []) {
-                if (
-                  header.header.toLowerCase() ===
-                  continuationTokenResponseSegment.serializedName.toLowerCase()
-                ) {
-                  continuationTokenResponseHeader = header;
-                  break;
-                }
+    }
+    if (continuationTokenResponseSegment && op.responses) {
+      if (continuationTokenResponseSegment?.kind === "responseheader") {
+        // continuationToken is response header
+        for (const response of op.responses) {
+          if (isSchemaResponse(response) && response.protocol.http) {
+            for (const header of response.protocol.http.headers ?? []) {
+              if (
+                header.header.toLowerCase() ===
+                continuationTokenResponseSegment.serializedName.toLowerCase()
+              ) {
+                continuationTokenResponseHeader = header;
+                break;
               }
             }
-            if (continuationTokenResponseHeader) {
-              break;
-            }
           }
-        } else if (continuationTokenResponseSegment?.kind === "property") {
-          // continuationToken is response body property
-          continuationTokenResponseProperty = findResponsePropertySegments(
-            op,
-            sdkMethod.pagingMetadata.continuationTokenResponseSegments,
-          );
+          if (continuationTokenResponseHeader) {
+            break;
+          }
         }
+      } else if (continuationTokenResponseSegment?.kind === "property") {
+        // continuationToken is response body property
+        continuationTokenResponseProperty = findResponsePropertySegments(
+          op,
+          sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+        );
       }
     }
 
@@ -1414,6 +1447,11 @@ export class CodeModelBuilder {
             continuationTokenParameter,
             continuationTokenResponseProperty,
             continuationTokenResponseHeader,
+            continuationTokenParameterSegment !== undefined &&
+              getClientOptions(
+                continuationTokenParameterSegment,
+                "includeContinuationTokenParameter",
+              ) === true,
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
@@ -1714,6 +1752,7 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      this.applyExperimental(param.__raw, parameter);
       if (param.isExactName) {
         parameter.language.java = parameter.language.java ?? {};
         parameter.language.java.name = param.name;
@@ -1832,6 +1871,7 @@ export class CodeModelBuilder {
             opParameter = clonedOpParameter;
           }
 
+          this.applyExperimental(sdkMethodParameter.__raw, opParameter);
           request.signatureParameters.push(opParameter);
           request.parameters.push(opParameter);
         }
@@ -1919,17 +1959,23 @@ export class CodeModelBuilder {
     parameters.forEach((it, index) => {
       // use required/optional from the group property, if available
       const optional = groupProperties?.at(index)?.optional ?? !it.required;
-      addProperty(
-        optionBagSchema,
-        createGroupProperty(it.language.default.name, it.language.default.description, it.schema, {
+      const property = createGroupProperty(
+        it.language.default.name,
+        it.language.default.description,
+        it.schema,
+        {
+          experimental: it.experimental,
+          language: { java: it.language.java },
           originalParameter: [it],
           summary: it.summary,
           required: !optional,
           nullable: it.nullable,
           readOnly: false,
           serializedName: it.language.default.serializedName,
-        }),
+        },
       );
+      this.applyExperimental(groupProperties?.at(index)?.__raw, property);
+      addProperty(optionBagSchema, property);
     });
 
     if (type) {
@@ -2227,6 +2273,7 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
+    this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
 
@@ -2386,6 +2433,7 @@ export class CodeModelBuilder {
           {
             originalParameter: originalParameter,
             targetProperty: existBodyProperty,
+            experimental: existBodyProperty.experimental,
             language: {
               default: {
                 serializedName: existBodyProperty.serializedName,
@@ -2397,7 +2445,7 @@ export class CodeModelBuilder {
             nullable: existBodyProperty.nullable,
           },
         );
-        if (existBodyProperty.language?.java?.name) {
+        if (existBodyProperty.language?.java) {
           virtualParameter.language.java = existBodyProperty.language.java;
         }
         request.parameters.push(virtualParameter);
@@ -2915,6 +2963,7 @@ export class CodeModelBuilder {
     const choices: ChoiceValue[] = [];
     type.values.forEach((it: SdkEnumValueType) => {
       const choice = createChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
+      this.applyExperimental(it.__raw, choice);
       if (it.isExactName) {
         choice.language.java = choice.language.java ?? {};
         choice.language.java.name = it.name;
@@ -2952,6 +3001,7 @@ export class CodeModelBuilder {
       });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    this.applyExperimental(type.__raw, schema);
     return addSchema(this.codeModel.schemas, schema);
   }
 
@@ -3068,6 +3118,7 @@ export class CodeModelBuilder {
       objectSchema.language.java.name = type.name;
     }
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    this.applyExperimental(rawModelType, objectSchema);
 
     if (type.external) {
       // java name
@@ -3091,10 +3142,12 @@ export class CodeModelBuilder {
         this.processModelProperty(type.discriminatorProperty),
       );
       if (type.discriminatedSubtypes) {
-        for (const discriminatorValue in type.discriminatedSubtypes) {
-          const subType = type.discriminatedSubtypes[discriminatorValue];
-          this.processSchema(subType, subType.name);
-        }
+        objectSchema.discriminator.all = Object.fromEntries(
+          Object.entries(type.discriminatedSubtypes).map(([value, subType]): [string, Schema] => [
+            value,
+            this.processSchema(subType, subType.name),
+          ]),
+        );
       }
     }
 
@@ -3229,6 +3282,7 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    this.applyExperimental(modelProperty.__raw, codeModelProperty);
     if (modelProperty.isExactName) {
       codeModelProperty.language.java = codeModelProperty.language.java ?? {};
       codeModelProperty.language.java.name = modelProperty.name;
@@ -3832,8 +3886,10 @@ export class CodeModelBuilder {
             if (schema.discriminator) {
               // propagate access/usage to immediate children, if the schema is a discriminated model
               // if the schema is not a discriminated model, its children likely not valid for the mode/API
-              // TODO: it does not handle the case that concrete model (kind: "type1") for the discriminated model have depth larger than 1 (e.g. kind: "type1" | "type2" in middle)
               schema.children?.immediate?.forEach((c) => innerApplySchemaUsage(c, schemaUsage));
+              Object.values(schema.discriminator.all).forEach((c) =>
+                innerApplySchemaUsage(c, schemaUsage),
+              );
             }
 
             if (schema.discriminator?.property?.schema) {

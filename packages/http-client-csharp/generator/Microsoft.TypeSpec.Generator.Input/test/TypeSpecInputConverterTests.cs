@@ -10,6 +10,117 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null)]
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestCase(6)]
+        public void LoadsRequestVisibility(int? visibility)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "send",
+                  {{(visibility.HasValue ? $"\"requestVisibility\": {visibility.Value}," : "")}}
+                  "httpMethod": "POST",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.send"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options)!;
+            Assert.AreEqual(visibility.HasValue ? (InputVisibility)visibility.Value : null, operation.RequestVisibility);
+            operation.Update(requestVisibility: InputVisibility.Update);
+            operation.Update();
+            Assert.AreEqual(InputVisibility.Update, operation.RequestVisibility);
+        }
+
+        [TestCase(null, InputVisibility.All)]
+        [TestCase(0, InputVisibility.None)]
+        [TestCase(5, InputVisibility.Read | InputVisibility.Update)]
+        public void LoadsPropertyLifecycleVisibility(int? visibility, InputVisibility expected)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Topic",
+                    "properties": [{
+                      "$id": "property", "name": "state",
+                      {{(visibility.HasValue ? $"\"lifecycleVisibility\": {visibility.Value}," : "")}}
+                      "type": {"kind": "string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+            Assert.AreEqual(expected, property.Visibility);
+        }
+
+        [TestCase(null, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void LoadsResponseAsBool(bool? responseAsBool, bool expected)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "exists",
+                  {{(responseAsBool.HasValue ? $"\"responseAsBool\": {responseAsBool.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "httpMethod": "HEAD",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.exists"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual(expected, operation!.ResponseAsBool);
+            operation.Update(responseAsBool: !expected);
+            Assert.AreEqual(!expected, operation.ResponseAsBool);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsOperationWithoutResourceName(bool includeLegacyResourceName)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "getWidget",
+                  {{(includeLegacyResourceName ? "\"resourceName\": \"Widget\"," : "")}}
+                  "summary": "Gets a widget",
+                  "httpMethod": "GET",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.getWidget"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual("getWidget", operation!.Name);
+            Assert.AreEqual("Gets a widget", operation.Summary);
+            Assert.AreEqual("GET", operation.HttpMethod);
+            Assert.AreEqual("https://example.com", operation.Uri);
+            Assert.AreEqual("/widgets", operation.Path);
+            Assert.AreEqual("Test.getWidget", operation.CrossLanguageDefinitionId);
+            Assert.IsNull(typeof(InputOperation).GetProperty("ResourceName"));
+        }
+
         [TestCase("model", "\"properties\": []")]
         [TestCase("enum", "\"values\": [], \"valueType\": {\"kind\":\"string\"}")]
         [TestCase("string", "\"crossLanguageDefinitionId\": \"External.Value\"")]

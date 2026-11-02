@@ -31,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _namedTypeSymbol = namedTypeSymbol;
             _compilation = compilation;
+            IsExperimental = HasExperimentalAttribute(namedTypeSymbol);
         }
 
         internal string MetadataName
@@ -50,6 +51,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         internal string MetadataSimpleName => _metadataSimpleName ??= _namedTypeSymbol.Name;
+
+        internal bool IsExperimental { get; }
+
+        internal IEnumerable<string> DeclaredMemberNames => _namedTypeSymbol.GetMembers().Select(member => member.Name);
+
+        private static bool HasExperimentalAttribute(ISymbol symbol)
+            => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName);
 
         // Nested declarations are not materialized as providers for this symbol-backed view.
         internal bool HasPublicApiNestedTypes => _namedTypeSymbol.GetTypeMembers().Any(type =>
@@ -329,6 +337,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
+                    attributes: [.. constructorSymbol.GetAttributes()
+                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Select(a => new AttributeStatement(a))],
                     initializer: initializer);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
@@ -390,7 +401,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
                     Attributes: [.. methodSymbol.GetAttributes()
-                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Where(a => a.AttributeClass?.ToDisplayString() is { } name
+                            && (name == typeof(ExperimentalAttribute).FullName || name == typeof(ObsoleteAttribute).FullName))
                         .Select(a => new AttributeStatement(a))],
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null

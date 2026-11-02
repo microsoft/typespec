@@ -9,6 +9,24 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class InputModelPropertyTests
     {
         [Test]
+        public void LifecycleVisibilityDefaultsToAll()
+        {
+            var property = InputFactory.Property("state", InputPrimitiveType.String);
+            Assert.AreEqual(InputVisibility.All, property.Visibility);
+        }
+
+        [TestCase(InputVisibility.Read | InputVisibility.Update)]
+        [TestCase(InputVisibility.Create)]
+        [TestCase(InputVisibility.None)]
+        public void CanUpdateLifecycleVisibility(InputVisibility visibility)
+        {
+            var property = InputFactory.Property("state", InputPrimitiveType.String);
+            property.Update(visibility: visibility);
+            property.Update();
+            Assert.AreEqual(visibility, property.Visibility);
+        }
+
+        [Test]
         public void CanUpdateModelPropertyName()
         {
             var property = InputFactory.Property("OriginalName", InputPrimitiveType.String);

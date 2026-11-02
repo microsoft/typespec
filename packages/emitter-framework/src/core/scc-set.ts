@@ -1,7 +1,9 @@
 import { shallowReactive } from "@alloy-js/core";
 
+/** A single graph item or recursively grouped items, used to preserve cycle groupings. */
 export type NestedArray<T> = T | NestedArray<T>[];
 
+/** Read-only view of a strongly connected group and its edges to other groups. */
 export interface SCCComponent<T> {
   /**
    * Nested array representation of the items that belong to this component.
@@ -14,8 +16,10 @@ export interface SCCComponent<T> {
   readonly referencedBy: ReadonlySet<SCCComponent<T>>;
 }
 
+/** Enumerates an item's outgoing dependencies when the SCC set first visits it. */
 type Connector<T> = (item: T) => Iterable<T>;
 
+/** Controls whether graph traversal also adds dependencies to the public ordered views. */
 export interface SCCSetOptions {
   /**
    * When true, every node reachable from an added node is automatically surfaced

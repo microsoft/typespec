@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -22,6 +24,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
     public class EnumProviderTests
     {
         internal const string NewLine = "\n";
+
+        [Test]
+        public async Task BackCompatibilityIgnoresExperimentalEnum(
+            [Values("Fixed", "Extensible")] string shape,
+            [Values] bool previouslyExperimental,
+            [Values] bool currentlyExperimental)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () =>
+            {
+                var compilation = await Helpers.GetCompilationFromDirectoryAsync(shape);
+                if (previouslyExperimental)
+                {
+                    return compilation;
+                }
+                var tree = compilation.SyntaxTrees.Single(t => t.FilePath.EndsWith("Choice.cs", StringComparison.Ordinal));
+                var root = tree.GetRoot();
+                var updatedRoot = root.ReplaceNodes(root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>(),
+                    (_, declaration) => declaration.WithAttributeLists(default));
+                return compilation.ReplaceSyntaxTree(tree, tree.WithRootAndOptions(updatedRoot, tree.Options));
+            });
+            var input = InputFactory.Int32Enum("Choice", [("Preview", 10)], isExtensible: shape == "Extensible");
+            if (currentlyExperimental)
+            {
+                InputFactory.Experimental(input, "CURRENT001");
+            }
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(previouslyExperimental ? 1 : 2, provider.EnumValues.Count);
+            Assert.AreEqual(previouslyExperimental || shape == "Extensible" ? 10 : 42,
+                provider.EnumValues.Single(v => v.Name == "Preview").Value);
+        }
 
         [Test]
         public async Task ExperimentalFixedEnumDependenciesSurviveBackCompatibility(

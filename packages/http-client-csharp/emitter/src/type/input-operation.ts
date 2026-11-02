@@ -10,7 +10,6 @@ import type { RequestMethod } from "./request-method.js";
 export interface InputOperation {
   name: string;
   isExactName?: boolean;
-  resourceName?: string;
   summary?: string;
   deprecated?: string;
   doc?: string;
@@ -18,6 +17,8 @@ export interface InputOperation {
   parameters: InputHttpParameter[];
   responses: OperationResponse[];
   httpMethod: RequestMethod;
+  requestVisibility?: number;
+  responseAsBool?: boolean;
   uri: string;
   path: string;
   externalDocsUrl?: string;

@@ -1,6 +1,6 @@
 import { ok } from "assert";
 import { describe, it } from "vitest";
-import type { Enum, Interface, Model, Namespace, Operation } from "../src/index.js";
+import type { Enum, Interface, Model, Namespace, Operation, Type } from "../src/index.js";
 import {
   isDeclaredInNamespace,
   isTemplateDeclaration,
@@ -64,6 +64,91 @@ describe("template utils", () => {
 
     ok(isTemplateInstance(expr), "Should BE a template instance");
     ok(!isTemplateDeclaration(expr), "Should NOT be a template declaration");
+  });
+
+  it("accepts generic Type for ordinary non-templated types", async () => {
+    const { program } = await Tester.compile(`
+      model Bar { x: string };
+      enum Color { Red, Blue };
+    `);
+    const globalNs = program.checker.getGlobalNamespaceType();
+    const Bar: Type = globalNs.models.get("Bar")!;
+    const Color: Type = globalNs.enums.get("Color")!;
+    const prop: Type = (Bar as Model).properties.get("x")!;
+    const stringType: Type = program.checker.getStdType("string");
+
+    ok(!isTemplateDeclaration(Bar), "Plain model should NOT be a template declaration");
+    ok(
+      !isTemplateDeclarationOrInstance(Bar),
+      "Plain model should NOT be a template declaration or instance",
+    );
+
+    ok(!isTemplateDeclaration(Color), "Enum should NOT be a template declaration");
+    ok(
+      !isTemplateDeclarationOrInstance(Color),
+      "Enum should NOT be a template declaration or instance",
+    );
+
+    ok(!isTemplateDeclaration(prop), "Property should NOT be a template declaration");
+    ok(
+      !isTemplateDeclarationOrInstance(prop),
+      "Property should NOT be a template declaration or instance",
+    );
+
+    ok(!isTemplateDeclaration(stringType), "Std type should NOT be a template declaration");
+    ok(
+      !isTemplateDeclarationOrInstance(stringType),
+      "Std type should NOT be a template declaration or instance",
+    );
+  });
+
+  it("accepts generic Type for template declarations of all templated kinds", async () => {
+    const { program } = await Tester.compile(`
+      model M<T> { t: T };
+      op O<T>(): T;
+      interface I<T> {};
+      union U<T> { a: T };
+      scalar S<T>;
+    `);
+    const globalNs = program.checker.getGlobalNamespaceType();
+    const M: Type = globalNs.models.get("M")!;
+    const O: Type = globalNs.operations.get("O")!;
+    const I: Type = globalNs.interfaces.get("I")!;
+    const U: Type = globalNs.unions.get("U")!;
+    const S: Type = globalNs.scalars.get("S")!;
+
+    for (const [name, type] of [
+      ["Model", M],
+      ["Operation", O],
+      ["Interface", I],
+      ["Union", U],
+      ["Scalar", S],
+    ] as const) {
+      ok(isTemplateDeclaration(type), `${name} should BE a template declaration`);
+      ok(
+        isTemplateDeclarationOrInstance(type),
+        `${name} should BE a template declaration or instance`,
+      );
+      ok(!isTemplateInstance(type), `${name} should NOT be a template instance`);
+    }
+  });
+
+  it("accepts generic Type for template instances", async () => {
+    const { Bar } = await Tester.compile(t.code`
+      model Foo<T> { t: T };
+
+      model ${t.model("Bar")} {
+        foo: Foo<string>
+      }
+    `);
+    const Foo: Type = Bar.properties.get("foo")!.type;
+
+    ok(!isTemplateDeclaration(Foo), "Template instance should NOT be a template declaration");
+    ok(
+      isTemplateDeclarationOrInstance(Foo),
+      "Template instance should BE a template declaration or instance",
+    );
+    ok(isTemplateInstance(Foo), "Template instance should BE a template instance");
   });
 });
 

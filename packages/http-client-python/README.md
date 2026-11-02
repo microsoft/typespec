@@ -65,14 +65,21 @@ discriminator. Models serialize through their existing literal discriminator
 properties, producing JSON such as
 `{"kind":"cat","name":"Whiskers","meows":true}` without an envelope.
 `discriminatorPropertyName` and JSON-encoded property names are honored.
+When a variant has no discriminator property, serialization through the union
+injects its variant name as the tag without changing the model instance or
+adding a property to the shared model class. For example, omitting `kind` from
+all three models above still produces the same inline JSON through `Pet`.
 Arrays, dictionaries, optional properties, and recursive references preserve this
 dispatch. Direct `PetBase` and variant uses retain their existing behavior.
+Same-named union aliases from different namespaces receive namespace prefixes
+when emitted into the shared `_unions.py` file.
 
 Initial support requires an explicit model constraint, nominally derived named
-model variants, and matching required string-literal discriminator properties.
+model variants, and either absent discriminator properties or matching required
+string-literal discriminator properties.
 Missing or unknown response tags raise `DeserializationError`; the constraint is
 not an implicit default variant. Object envelopes, unnamed default variants,
-structural variants, and variants without declared literal discriminator
+structural variants, and existing non-literal or optional discriminator
 properties are rejected with an `unsupported-discriminated-union` diagnostic.
 Ordinary untagged unions and `@discriminator` model hierarchies are unchanged.
 

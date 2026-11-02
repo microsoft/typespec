@@ -12,8 +12,12 @@ npm install @typespec/http-client-csharp
 
 ### Prerequisite
 
-- Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
-- Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
+- Install a supported [Node.js](https://nodejs.org/) LTS. (Verify by running `node --version`)
+- Install [**.NET 10.0 SDK**](https://dotnet.microsoft.com/download/dotnet/10.0) for your specific platform. (or a higher version)
+
+### Naming conventions
+
+For automatic C# naming conversions, examples, and override/compatibility exceptions, see the [Naming conventions guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/generator/docs/naming-conventions.md).
 
 ### Customizing Generated Code
 

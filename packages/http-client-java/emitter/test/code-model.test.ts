@@ -1,9 +1,12 @@
-import { NodeHost, compile } from "@typespec/compiler";
+import { NodeHost, compile, type Type } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
+import "@typespec/http-client/typekit";
 import { fileURLToPath } from "node:url";
 import { assert, describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
 import { CodeModelBuilder } from "../src/code-model-builder.js";
+import type { PageableContinuationToken } from "../src/common/client.js";
 import { addSubClient, createClient } from "../src/common/client.js";
 import { addGlobalParameter, createCodeModel } from "../src/common/code-model.js";
 import {
@@ -17,6 +20,7 @@ import { createChoiceSchema } from "../src/common/schemas/choice.js";
 import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
 import {
   ImplementationLocation,
+  KnownMediaType,
   ParameterLocation,
   SchemaType,
   createAnySchema,
@@ -24,6 +28,7 @@ import {
   createBinaryResponse,
   createByteArraySchema,
   createDateTimeSchema,
+  createDiscriminator,
   createGroupProperty,
   createKeySecurityScheme,
   createNumberSchema,
@@ -36,10 +41,374 @@ import {
   createVirtualParameter,
   isSchemaResponse,
 } from "../src/common/schemas/model.js";
+import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
+describe("experimental metadata", () => {
+  it.each(["azure", "azurev2"])(
+    "preserves experimental properties introduced by %s grouped overrides",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/experimental-override.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+          "experimental-annotation": "com.example.Preview",
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(
+        program.diagnostics.filter(
+          (diagnostic) =>
+            diagnostic.code !==
+            "@azure-tools/typespec-client-generator-core/unsupported-generic-decorator-arg-type",
+        ),
+      );
+      const group = model.schemas.groups!.find(
+        (schema) => schema.language.default.name === "OverrideOptions",
+      )!;
+      assert.isDefined(group);
+      expect(
+        group.properties!.find((property) => property.language.default.name === "preview")!
+          .experimental,
+      ).toEqual({ diagnosticId: "OVERRIDE_QUERY" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "original")!
+          .experimental,
+      ).toEqual({ diagnosticId: "ORIGINAL_QUERY" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "stable")!
+          .experimental,
+      ).toBeUndefined();
+    },
+  );
+
+  it.each([
+    { flavor: "azure", enabled: true, subclient: false },
+    { flavor: "azurev2", enabled: true, subclient: false },
+    { flavor: "generic", enabled: true, subclient: false },
+    { flavor: undefined, enabled: true, subclient: false },
+    { flavor: "azure", enabled: false, subclient: false },
+    { flavor: "azurev2", enabled: false, subclient: false },
+    { flavor: "generic", enabled: false, subclient: false },
+    { flavor: "azure", enabled: true, subclient: true },
+    { flavor: "azurev2", enabled: true, subclient: true },
+    { flavor: "generic", enabled: true, subclient: true },
+  ])(
+    "only emits experimental markers for $flavor with annotation enabled=$enabled and subclient=$subclient",
+    async ({ flavor, enabled, subclient }) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/experimental.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const namespace = program.getGlobalNamespaceType().namespaces.get("ExperimentalContract")!;
+      const warnings = new Map<Type, string>([
+        [namespace, "Client preview"],
+        [namespace.interfaces.get("Group")!, "Group preview"],
+        [namespace.operations.get("read")!, 'Operation "preview"\nwith a \\ path'],
+        [namespace.models.get("Preview")!.properties.get("value")!, "Property preview"],
+        [namespace.enums.get("Choice")!, "Enum preview"],
+        [namespace.enums.get("Choice")!.members.get("One")!, "Enum value preview"],
+        [namespace.models.get("EmptyWarning")!, ""],
+      ]);
+      // Ignore warning text even when supplied by a lifecycle metadata producer.
+      for (const [target, warningText] of warnings) {
+        const details = $(program).client.getFeatureLifecycleDetails(target, {
+          emitterName: "@typespec/http-client-java",
+        });
+        assert.isDefined(details);
+        Object.assign(details, { warningText });
+      }
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+          "experimental-annotation": enabled ? "com.example.Preview" : undefined,
+          "enable-subclient": subclient,
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+      const expectedExperimental =
+        enabled && ["azure", "azurev2"].includes(flavor ?? "") ? {} : undefined;
+
+      const client = model.clients.find(
+        (client) => client.language.default.name === "ExperimentalContractClient",
+      )!;
+      expect(client.experimental).toEqual(expectedExperimental);
+      expect(client.language.java ?? {}).not.toHaveProperty("experimental");
+      const group = client.operationGroups.find((group) => group.language.default.name === "Group");
+      const child = client.subClients.find((client) => client.language.default.name === "Group");
+      expect((child ?? group)!.experimental).toEqual(expectedExperimental);
+      const operations = client.operationGroups.flatMap((group) => group.operations ?? []);
+      const operation = operations.find((operation) => operation.operationId === "read")!;
+      const expectedOperationExperimental = expectedExperimental && { diagnosticId: "PREVIEW001" };
+      expect(operation.experimental).toEqual(expectedOperationExperimental);
+      expect(parse(stringify(operation)).experimental).toEqual(expectedOperationExperimental);
+      const parameterOperation = operations.find(
+        (operation) => operation.operationId === "parameters",
+      )!;
+      expect(parameterOperation.experimental).toBeUndefined();
+      const parameters = parameterOperation.parameters!;
+      const previewQuery = parameters.find(
+        (parameter) => parameter.language.default.name === "previewQuery",
+      )!;
+      const expectedQueryExperimental = expectedExperimental && { diagnosticId: "QUERY001" };
+      expect(previewQuery.experimental).toEqual(expectedQueryExperimental);
+      expect(parse(stringify(previewQuery)).experimental).toEqual(expectedQueryExperimental);
+      expect(
+        parameters.find((parameter) => parameter.language.default.name === "body")!.experimental,
+      ).toEqual(expectedExperimental);
+      expect(
+        parameters.find((parameter) => parameter.language.default.name === "stableQuery")!
+          .experimental,
+      ).toBeUndefined();
+      const groupOperations = child
+        ? child.operationGroups.flatMap((group) => group.operations ?? [])
+        : group!.operations;
+      expect(groupOperations?.[0].experimental).toEqual(expectedExperimental);
+
+      const preview = model.schemas.objects?.find(
+        (schema) => schema.language.default.name === "Preview",
+      )!;
+      expect(preview.experimental).toEqual(expectedExperimental);
+      assert.isDefined(preview.properties);
+      expect(preview.properties[0].experimental).toEqual(expectedExperimental);
+      const choice = model.schemas.sealedChoices?.find(
+        (schema) => schema.language.default.name === "Choice",
+      )!;
+      expect(choice.experimental).toEqual(expectedExperimental);
+      expect(choice.choices[0].experimental).toEqual(expectedExperimental);
+      expect(choice.choices[1].experimental).toBeUndefined();
+      const openChoice = model.schemas.choices?.find(
+        (schema) => schema.language.default.name === "OpenChoice",
+      )!;
+      expect(openChoice.experimental).toEqual(expectedExperimental);
+      expect(openChoice.choices[0].experimental).toEqual(expectedExperimental);
+      for (const name of ["Stable", "Excluded"]) {
+        const schema = model.schemas.objects?.find(
+          (schema) => schema.language.default.name === name,
+        )!;
+        expect(schema.experimental).toBeUndefined();
+      }
+      const emptyWarning = model.schemas.objects?.find(
+        (schema) => schema.language.default.name === "EmptyWarning",
+      )!;
+      expect(emptyWarning.experimental).toEqual(expectedExperimental);
+      expect(parse(stringify(client)).experimental).toEqual(expectedExperimental);
+    },
+  );
+
+  it("preserves experimental metadata and Java names when cloning parameters", () => {
+    const parameter = createParameter("query", "", createStringSchema("string", ""), {
+      experimental: { diagnosticId: "QUERY001" },
+      language: { java: { name: "exactQuery" } },
+    });
+    const clone = cloneOperationParameter(parameter);
+    expect(clone.experimental).toEqual({ diagnosticId: "QUERY001" });
+    expect(clone.language.java?.name).toBe("exactQuery");
+  });
+
+  it.each(["azure", "azurev2"])(
+    "preserves experimental metadata through %s parameter flattening and grouping",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/experimental-flattening.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+          "experimental-annotation": "com.example.Preview",
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      const flattened = operations.find((operation) => operation.operationId === "flattened")!;
+      const request = flattened.convenienceApi!.requests![0];
+      expect(request.signatureParameters).toHaveLength(5);
+      for (const [name, diagnosticId] of [
+        ["previewQuery", "FLAT_QUERY"],
+        ["previewHeader", "FLAT_HEADER"],
+        ["previewPath", "FLAT_PATH"],
+        ["previewBody", "FLAT_BODY"],
+      ]) {
+        const parameter = request.signatureParameters!.find(
+          (parameter) => parameter.language.default.name === name,
+        )!;
+        expect(parameter.experimental).toEqual({ diagnosticId });
+      }
+      const grouped = operations.find((operation) => operation.operationId === "grouped")!;
+      const groupedRequest = grouped.convenienceApi!.requests![0];
+      expect(groupedRequest.signatureParameters).toHaveLength(1);
+      const group = model.schemas.groups!.find(
+        (schema) => schema === groupedRequest.signatureParameters![0].schema,
+      )!;
+      assert.isDefined(group);
+      expect(
+        group.properties!.find((property) => property.language.default.name === "previewQuery")!
+          .experimental,
+      ).toEqual({ diagnosticId: "GROUP_QUERY" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "previewBody")!
+          .experimental,
+      ).toEqual({ diagnosticId: "GROUP_BODY" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "previewOptional")!
+          .experimental,
+      ).toEqual({ diagnosticId: "GROUP_OPTIONAL" });
+      expect(
+        group.properties!.find((property) => property.language.default.name === "stableOne")!
+          .experimental,
+      ).toBeUndefined();
+    },
+  );
+});
+
 describe("code model characterization", () => {
+  it.each(["azure", "standard"] as const)(
+    "propagates %s usage to tagged descendants through an untagged intermediate",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/code-model.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor, "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      const discriminator = createDiscriminator(
+        createProperty("kind", "", createStringSchema("string", "")),
+      );
+      const usage = [SchemaContext.Input, SchemaContext.Output, SchemaContext.Public];
+      const root = createObjectSchema("PetBase", "", {
+        discriminator,
+        usage,
+        serializationFormats: [KnownMediaType.Json],
+      });
+      const intermediate = createObjectSchema("Mammal", "", {
+        parents: { immediate: [root], all: [root] },
+      });
+      const cat = createObjectSchema("Cat", "", {
+        discriminatorValue: "cat",
+        parents: { immediate: [intermediate], all: [intermediate, root] },
+      });
+      const unused = createObjectSchema("Unused", "", {
+        parents: { immediate: [intermediate], all: [intermediate, root] },
+      });
+      root.children = { immediate: [intermediate], all: [intermediate, cat, unused] };
+      intermediate.children = { immediate: [cat, unused], all: [cat, unused] };
+      discriminator.all.cat = cat;
+
+      builder["propagateSchemaUsage"](root);
+
+      for (const schema of [intermediate, cat]) {
+        expect(schema.usage).toEqual(expect.arrayContaining(usage));
+        expect(schema.serializationFormats).toEqual([KnownMediaType.Json]);
+      }
+      expect(unused.usage).toBeUndefined();
+      expect(unused.serializationFormats).toBeUndefined();
+    },
+  );
+
+  it.each(["azure", "standard"] as const)(
+    "reads continuation-token visibility from the request parameter for %s",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/continuation-token.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor, "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      expect(operations).toHaveLength(4);
+      for (const operation of operations) {
+        const name = operation.language.default.name;
+        const pageable = operation.extensions?.["x-ms-pageable"] as
+          { continuationToken?: PageableContinuationToken; nextLinkName?: string } | undefined;
+        assert.isDefined(pageable?.continuationToken);
+        const token = pageable.continuationToken;
+        expect(token.includeContinuationTokenParameter).toBe(
+          name === "queryBody" || name === "headerHeader",
+        );
+        expect(token.parameter).toBe(
+          operation.parameters?.find((p) => p.language.default.serializedName === "token"),
+        );
+        expect(token.parameter.protocol.http?.in).toBe(
+          name.startsWith("query") ? "query" : "header",
+        );
+        expect(pageable.nextLinkName).toBeUndefined();
+        if (name.endsWith("Header")) {
+          expect(token.responseHeader?.header).toBe("next-token");
+          expect(token.responseProperty).toBeUndefined();
+        } else {
+          expect(token.responseProperty?.map((p) => p.serializedName)).toEqual(
+            name === "queryBody" ? ["next", "token"] : ["nextToken"],
+          );
+          expect(token.responseHeader).toBeUndefined();
+        }
+      }
+    },
+  );
+
   it("preserves metadata defaults and supplied schema references", () => {
     const schema = createStringSchema("string", "A string");
     const property = createProperty("value", "A value", schema, {
@@ -237,6 +606,11 @@ describe("code model characterization", () => {
       },
     }).build();
     expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+    const animal = model.schemas.objects!.find(
+      (schema) => schema.language.default.name === "Animal",
+    )!;
+    const cat = model.schemas.objects!.find((schema) => schema.language.default.name === "Cat")!;
+    expect(animal.discriminator!.all.cat).toBe(cat);
     assertPlainGraph(model);
     expect(stringify(sortGraph(model), { version: "1.1" })).toMatchSnapshot();
   });

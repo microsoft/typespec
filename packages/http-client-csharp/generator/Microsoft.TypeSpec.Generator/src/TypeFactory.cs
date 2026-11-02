@@ -52,6 +52,41 @@ namespace Microsoft.TypeSpec.Generator
         {
         }
 
+        internal void UpdateTypeIdentity(TypeProvider provider, InputType? inputType, string name, string @namespace)
+        {
+            var type = provider.Type;
+            if (type.Name == name && type.Namespace == @namespace)
+            {
+                return;
+            }
+            var mappedType = CSharpTypeMap.TryGetValue(type, out var mappedProvider) && ReferenceEquals(mappedProvider, provider);
+            var mappedName = TypeProvidersByName.TryGetValue(type.Name, out var namedProvider) && ReferenceEquals(namedProvider, provider);
+            // Remove mutable keys before changing their hash or lookup identity.
+            if (mappedType)
+            {
+                CSharpTypeMap.Remove(type);
+            }
+            if (mappedName)
+            {
+                TypeProvidersByName.Remove(type.Name);
+            }
+
+            type.Update(name: name, @namespace: @namespace);
+
+            if (mappedType)
+            {
+                CSharpTypeMap[type] = provider;
+            }
+            if (mappedName)
+            {
+                TypeProvidersByName[type.Name] = provider;
+            }
+            if (inputType is not null)
+            {
+                SerializationsCache.Remove(inputType);
+            }
+        }
+
         internal CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
             => CreateLastContractModelBaseCore(previousBase, currentModel);
 
@@ -69,7 +104,8 @@ namespace Microsoft.TypeSpec.Generator
             CSharpType mappedBase,
             InputModelProperty currentProperty,
             PropertyProvider lastContractProperty)
-            => !lastContractProperty.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+            => MethodSignatureHelper.IsPublicApi(lastContractProperty.Modifiers, lastContractProperty.Attributes) &&
+                !lastContractProperty.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
                 IsLastContractModelBasePropertyCompatibleCore(mappedBase, currentProperty, lastContractProperty);
 
         /// <summary>
@@ -203,8 +239,12 @@ namespace Microsoft.TypeSpec.Generator
                 InputPrimitiveTypeKind.Float64 => typeof(double),
                 InputPrimitiveTypeKind.Int8 => typeof(sbyte),
                 InputPrimitiveTypeKind.UInt8 => typeof(byte),
+                InputPrimitiveTypeKind.Int16 => typeof(short),
+                InputPrimitiveTypeKind.UInt16 => typeof(ushort),
                 InputPrimitiveTypeKind.Int32 => typeof(int),
+                InputPrimitiveTypeKind.UInt32 => typeof(uint),
                 InputPrimitiveTypeKind.Int64 => typeof(long),
+                InputPrimitiveTypeKind.UInt64 => typeof(ulong),
                 InputPrimitiveTypeKind.SafeInt => typeof(long),
                 InputPrimitiveTypeKind.Integer => typeof(long), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Float => typeof(double), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
@@ -457,6 +497,14 @@ namespace Microsoft.TypeSpec.Generator
 
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
+
+        internal bool IsPropertyRemoved(InputProperty property, TypeProvider enclosingType)
+        {
+            var provider = PropertyCache.TryGetValue(property, out var cachedProperty)
+                ? cachedProperty
+                : CreateUncachedProperty(property, enclosingType);
+            return provider is null || enclosingType.IsPropertySuppressed(provider);
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.

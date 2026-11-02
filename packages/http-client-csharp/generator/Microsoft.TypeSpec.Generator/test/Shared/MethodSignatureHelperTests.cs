@@ -23,6 +23,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
+        public void IsPublicApi_ExperimentalSignature_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature(
+                "Method",
+                attributes: [new AttributeStatement(
+                    typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
+                    Literal("001"))]);
+
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(signature));
+        }
+
+        [Test]
+        public void IsPublicApi_StableSignature_ReturnsTrue()
+        {
+            var signature = CreateMethodSignature("Method");
+
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(signature));
+        }
+
+        [Test]
         public void ContainsSameParameters_SameParametersInSameOrder_ReturnsTrue()
         {
             var signature1 = CreateMethodSignature("Method1",

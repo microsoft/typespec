@@ -44,15 +44,21 @@ function deconstruct(
     return [...identifier.flatMap((each) => deconstruct(each, maxUppercasePreserve))];
   }
 
-  return `${identifier}`
-    .replace(/([a-z]+)([A-Z])/g, "$1 $2") // Add a space in between camelCase words(e.g. fooBar => foo Bar)
-    .replace(/(\d+)/g, " $1 ") // Adds a space after numbers(e.g. foo123 => foo123 bar)
-    .replace(/\b([A-Z]+)([A-Z])s([^a-z])(.*)/g, "$1$2« $3$4") // Add a space after a plural upper cased word(e.g. MBsFoo => MBs Foo)
-    .replace(/\b([A-Z]+)([A-Z])([a-z]+)/g, "$1 $2$3") // Add a space between an upper case word(2 char+) and the last capital case.(e.g. SQLConnection -> SQL Connection)
-    .replace(/«/g, "s")
-    .trim()
-    .split(/[\W|_]+/)
-    .map((each) => (IsFullyUpperCase(each, maxUppercasePreserve) ? each : each.toLowerCase()));
+  return (
+    `${identifier}`
+      // Keep digits attached to the preceding word and preserve short acronyms like A2A.
+      .replace(
+        /(?<![A-Za-z0-9])[A-Z]\d[A-Za-z](?![A-Za-z0-9])|(\d+)/g,
+        (match: string, digits: string | undefined) => (digits ? `${digits} ` : match),
+      )
+      .replace(/([a-z]+)([A-Z])/g, "$1 $2") // Add a space in between camelCase words(e.g. fooBar => foo Bar)
+      .replace(/\b([A-Z]+)([A-Z])s(\d*)([^a-z])(.*)/g, "$1$2«$3 $4$5") // Add a space after a plural upper cased word(e.g. MBsFoo => MBs Foo)
+      .replace(/\b([A-Z]+)([A-Z])([a-z]+)/g, "$1 $2$3") // Add a space between an upper case word(2 char+) and the last capital case.(e.g. SQLConnection -> SQL Connection)
+      .replace(/«/g, "s")
+      .trim()
+      .split(/[\W|_]+/)
+      .map((each) => (IsFullyUpperCase(each, maxUppercasePreserve) ? each : each.toLowerCase()))
+  );
 }
 
 function isEqual(s1: string, s2: string): boolean {
@@ -103,9 +109,7 @@ function filterEmptyStrings(arr: string[]): string[] {
 export function camelToSnakeCase(name: string): string {
   if (!name) return name;
   const words = filterEmptyStrings(normalize(name, false, 6));
-  const result = words.join("_").toLowerCase();
-  const result_final = result.replace(/([^\d])_(\d+)/g, "$1$2");
-  return result_final;
+  return words.join("_").toLowerCase();
 }
 
 export function getClientName(named: { name: string; isExactName: boolean }): string {

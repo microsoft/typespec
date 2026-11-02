@@ -61,6 +61,7 @@ import { extractParamsFromPath } from "./utils.js";
 
 export const namespace = "TypeSpec.Http";
 
+/** {@inheritDoc HeaderDecorator} */
 export const $header: HeaderDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -86,14 +87,23 @@ export const $header: HeaderDecorator = (
   context.program.stateMap(HttpStateKeys.header).set(entity, options);
 };
 
+/**
+ * Reads the header's wire name and explicitly configured serialization options.
+ * Returns `undefined` at runtime for a type without `@header`.
+ */
 export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
   return program.stateMap(HttpStateKeys.header).get(entity);
 }
 
+/**
+ * Reads the explicit or kebab-case default header name.
+ * Returns `undefined` at runtime when the type is not marked `@header`.
+ */
 export function getHeaderFieldName(program: Program, entity: Type): string {
   return getHeaderFieldOptions(program, entity)?.name;
 }
 
+/** Tests whether the type has been marked as an HTTP header with `@header`. */
 export function isHeader(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.header).has(entity);
 }
@@ -143,6 +153,7 @@ const [getQueryOptions, setQueryOptions] = useStateMap<
   ModelProperty,
   QueryOptions & { name: string }
 >(HttpStateKeys.query);
+/** {@inheritDoc QueryDecorator} */
 export const $query: QueryDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -173,6 +184,10 @@ export function resolveQueryOptionsWithDefaults(
   };
 }
 
+/**
+ * Reads `@query` options, resolving the wire name and defaulting `explode` to false.
+ * Returns `undefined` when the type is not a query parameter.
+ */
 export function getQueryParamOptions(
   program: Program,
   entity: Type,
@@ -182,10 +197,12 @@ export function getQueryParamOptions(
   return { type: "query", ...resolveQueryOptionsWithDefaults(userOptions) };
 }
 
+/** Reads the query wire name, or `undefined` when `@query` has not been applied. */
 export function getQueryParamName(program: Program, entity: Type): string | undefined {
   return getQueryParamOptions(program, entity)?.name;
 }
 
+/** Tests for explicit `@query` metadata; does not infer parameters from a URI template. */
 export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.query).has(entity);
 }
@@ -194,6 +211,7 @@ const [getPathOptions, setPathOptions] = useStateMap<ModelProperty, PathOptions 
   HttpStateKeys.path,
 );
 
+/** {@inheritDoc PathDecorator} */
 export const $path: PathDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -228,6 +246,10 @@ export function resolvePathOptionsWithDefaults(
   };
 }
 
+/**
+ * Reads `@path` options with defaults: simple style, no explode, and no reserved characters.
+ * Returns `undefined` without `@path`; URI-template inference happens during operation resolution.
+ */
 export function getPathParamOptions(
   program: Program,
   entity: Type,
@@ -237,22 +259,27 @@ export function getPathParamOptions(
   return { type: "path", ...resolvePathOptionsWithDefaults(userOptions) };
 }
 
+/** Reads the path wire name, or `undefined` when `@path` has not been applied. */
 export function getPathParamName(program: Program, entity: Type): string | undefined {
   return getPathOptions(program, entity as any)?.name;
 }
 
+/** Tests for explicit `@path` metadata; does not infer parameters from a URI template. */
 export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.path).has(entity);
 }
 
+/** {@inheritDoc BodyDecorator} */
 export const $body: BodyDecorator = (context: DecoratorContext, entity: ModelProperty) => {
   context.program.stateSet(HttpStateKeys.body).add(entity);
 };
 
+/** {@inheritDoc BodyRootDecorator} */
 export const $bodyRoot: BodyRootDecorator = (context: DecoratorContext, entity: ModelProperty) => {
   context.program.stateSet(HttpStateKeys.bodyRoot).add(entity);
 };
 
+/** {@inheritDoc BodyIgnoreDecorator} */
 export const $bodyIgnore: BodyIgnoreDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -260,18 +287,22 @@ export const $bodyIgnore: BodyIgnoreDecorator = (
   context.program.stateSet(HttpStateKeys.bodyIgnore).add(entity);
 };
 
+/** Tests whether the property's type was selected as the complete body by `@body`. */
 export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(HttpStateKeys.body).has(entity);
 }
 
+/** Tests whether `@bodyRoot` selects this property for body and nested metadata resolution. */
 export function isBodyRoot(program: Program, entity: ModelProperty): boolean {
   return program.stateSet(HttpStateKeys.bodyRoot).has(entity);
 }
 
+/** Tests whether `@bodyIgnore` excludes this property from the HTTP body. */
 export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
   return program.stateSet(HttpStateKeys.bodyIgnore).has(entity);
 }
 
+/** {@inheritDoc MultipartBodyDecorator} */
 export const $multipartBody: MultipartBodyDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -279,10 +310,12 @@ export const $multipartBody: MultipartBodyDecorator = (
   context.program.stateSet(HttpStateKeys.multipartBody).add(entity);
 };
 
+/** Tests whether `@multipartBody` selects this property as a multipart payload. */
 export function isMultipartBodyProperty(program: Program, entity: Type): boolean {
   return program.stateSet(HttpStateKeys.multipartBody).has(entity);
 }
 
+/** {@inheritDoc StatusCodeDecorator} */
 export const $statusCode: StatusCodeDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -297,10 +330,15 @@ export function setStatusCode(program: Program, entity: Model | ModelProperty, c
   program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
 }
 
+/** Tests whether `@statusCode` marks the property as response status metadata. */
 export function isStatusCode(program: Program, entity: Type) {
   return program.stateSet(HttpStateKeys.statusCode).has(entity);
 }
 
+/**
+ * Extracts status codes or inclusive ranges from a property's type and constraints.
+ * Returns validation diagnostics alongside any successfully extracted entries.
+ */
 export function getStatusCodesWithDiagnostics(
   program: Program,
   type: ModelProperty,
@@ -308,10 +346,15 @@ export function getStatusCodesWithDiagnostics(
   return getStatusCodesFromType(program, type, type);
 }
 
+/** Extracts status entries from a property, discarding validation diagnostics. */
 export function getStatusCodes(program: Program, entity: ModelProperty): HttpStatusCodes {
   return ignoreDiagnostics(getStatusCodesWithDiagnostics(program, entity));
 }
 
+/**
+ * Gets a built-in description for a status code or its HTTP status class.
+ * Returns `undefined` for unrecognized values, including the `"*"` default response.
+ */
 // Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange | string) {
   if (typeof statusCode === "object") {
@@ -389,6 +432,10 @@ function validateVerbUniqueOnNode(context: DecoratorContext, type: Operation) {
   return true;
 }
 
+/**
+ * Reads the method assigned by an HTTP verb decorator, or `undefined` when none is set.
+ * Does not perform the body-based method inference used by operation resolution.
+ */
 export function getOperationVerb(program: Program, entity: Type): HttpVerb | undefined {
   return program.stateMap(HttpStateKeys.verbs).get(entity);
 }
@@ -399,10 +446,15 @@ function createVerbDecorator(verb: HttpVerb) {
   };
 }
 
+/** {@inheritDoc GetDecorator} */
 export const $get: GetDecorator = createVerbDecorator("get");
+/** {@inheritDoc PutDecorator} */
 export const $put: PutDecorator = createVerbDecorator("put");
+/** {@inheritDoc PostDecorator} */
 export const $post: PostDecorator = createVerbDecorator("post");
+/** {@inheritDoc DeleteDecorator} */
 export const $delete: DeleteDecorator = createVerbDecorator("delete");
+/** {@inheritDoc HeadDecorator} */
 export const $head: HeadDecorator = createVerbDecorator("head");
 
 const _patch = createVerbDecorator("patch");
@@ -448,6 +500,7 @@ function isOriginalDecoratorApplication(context: DecoratorContext, entity: Opera
   return true;
 }
 
+/** {@inheritDoc PatchDecorator} */
 export const $patch: PatchDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -484,9 +537,13 @@ export function getPatchOptions(program: Program, operation: Operation): PatchOp
 
 const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
+/** A server endpoint declared by `@server`, including its template parameter definitions. */
 export interface HttpServer {
+  /** Server URL template, with `{name}` placeholders for server parameters. */
   url: string;
+  /** Human-readable endpoint description, when supplied. */
   description?: string;
+  /** Declared parameter properties keyed by their template names. */
   parameters: Map<string, ModelProperty>;
 }
 
@@ -526,10 +583,18 @@ export const $server: ServerDecorator = (
   servers.push({ url, description, parameters: parameterMap });
 };
 
+/**
+ * Reads servers declared directly on a namespace, in decorator application order.
+ * Returns `undefined` when none are declared; does not search parent namespaces.
+ */
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
   return program.stateMap(HttpStateKeys.servers).get(type);
 }
 
+/**
+ * Applies `@useAuth`, interpreting unions as alternatives and tuples as combined schemes.
+ * Reports invalid authentication definitions before recording any extracted requirements.
+ */
 export function $useAuth(
   context: DecoratorContext,
   entity: Namespace | Interface | Operation,
@@ -543,6 +608,10 @@ export function $useAuth(
   }
 }
 
+/**
+ * Stores extracted authentication directly on the target, replacing any previous value.
+ * Inheritance from containing interfaces or namespaces is resolved when querying an operation.
+ */
 export function setAuthentication(
   program: Program,
   entity: Namespace | Interface | Operation,
@@ -704,6 +773,10 @@ function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
   };
 }
 
+/**
+ * Reads authentication stored directly on the target, or `undefined` when absent.
+ * Use {@link getAuthenticationForOperation} to include containing-interface and namespace defaults.
+ */
 export function getAuthentication(
   program: Program,
   entity: Namespace | Interface | Operation,

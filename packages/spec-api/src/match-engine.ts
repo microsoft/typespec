@@ -10,8 +10,18 @@
 /** Symbol used to identify matcher objects */
 export const MatcherSymbol: unique symbol = Symbol.for("SpectorMatcher");
 
-/** Result of a match operation */
-export type MatchResult = { pass: true } | { pass: false; message: string };
+/** Comparison outcome; narrow on `pass` before reading the failure message. */
+export type MatchResult =
+  | {
+      /** The actual value satisfies the expectation. */
+      pass: true;
+    }
+  | {
+      /** The actual value does not satisfy the expectation. */
+      pass: false;
+      /** Reason for failure, including a value path when returned by matchValues. */
+      message: string;
+    };
 
 const OK: MatchResult = Object.freeze({ pass: true });
 
@@ -43,14 +53,19 @@ export interface MockValueMatcher<T = unknown> {
 
 /** Configuration available to matchers at runtime */
 export interface MatcherConfig {
+  /** Server origin used by URL matchers; defaults to an empty string when no config is supplied. */
   baseUrl: string;
 }
 
 const emptyConfig: MatcherConfig = { baseUrl: "" };
 
+/** Behavior supplied to createMatcher, optionally created by a factory that captures runtime config. */
 interface MatcherImpl<T> {
+  /** Checks the incoming value and returns an outcome rather than throwing for a mismatch. */
   check(actual: unknown): MatchResult;
+  /** Provides the plain value emitted when the matcher is serialized. */
   serialize(): T;
+  /** Optional diagnostic description; falls back to String(serialize()) when omitted. */
   toString?: () => string;
 }
 
@@ -111,7 +126,14 @@ function pathErr(message: string, path: string): MatchResult {
 /**
  * Recursively compares actual vs expected values.
  * When a MockValueMatcher is encountered in the expected tree, delegates to matcher.check().
- * Otherwise uses strict equality semantics (same as deep-equal with strict: true).
+ * Compares primitive values without coercion, arrays by length and position, Buffers
+ * by bytes, and objects by enumerable string keys and their values. Extra object keys
+ * fail; an undefined expected property can be omitted from the actual object.
+ * This is intended for payload trees, not general-purpose class or Date equality.
+ *
+ * @param path Initial diagnostic path; defaults to `$`.
+ * @param config Context forwarded to expected matchers; defaults to an empty base URL.
+ * @returns The first mismatch with its path, or a passing result. Neither tree is modified.
  */
 export function matchValues(
   actual: unknown,

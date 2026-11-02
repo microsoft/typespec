@@ -8,6 +8,11 @@ import {
 import { getScenarioDoc, getScenarioName } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
 
+/**
+ * Compiler validation hook that warns when a non-template operation in a service lacks
+ * a scenario on itself or a containing declaration, or that scenario lacks directly attached guidance.
+ * Operations outside services and operations in template interfaces are skipped.
+ */
 export function $onValidate(program: Program) {
   const services = listServices(program);
   navigateProgram(program, {

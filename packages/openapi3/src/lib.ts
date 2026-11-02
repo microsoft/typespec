@@ -1,10 +1,15 @@
 import type { JSONSchemaType } from "@typespec/compiler";
 import { createTypeSpecLibrary, fileRef, paramMessage } from "@typespec/compiler";
 
+/** Serialization formats for emitted files; independent of the OpenAPI specification version. */
 export type FileType = "yaml" | "json";
+/** OpenAPI specification versions supported for emission, not service API versions. */
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
+/** Experimental choice between parameter example data and its location/style-specific serialized form. */
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
+/** Enum representation: a single `enum` schema or annotated `const` alternatives for OpenAPI 3.1 and later. */
 export type EnumStrategy = "default" | "annotated";
+/** User-supplied emitter configuration; omitted settings are normalized by `resolveOptions`. */
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple file types.
@@ -126,6 +131,10 @@ export interface OpenAPI3EmitterOptions {
   "enum-strategy"?: EnumStrategy;
 }
 
+/**
+ * Fallback for operations without `@operationId`: use the immediate container
+ * and operation name, the full path relative to the service, or no generated ID.
+ */
 export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
 
 const operationIdStrategySchema = {
@@ -301,6 +310,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   required: [],
 };
 
+/** Library registration exposing the emitter option schema, diagnostics and program state helpers. */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi3",
   capabilities: {

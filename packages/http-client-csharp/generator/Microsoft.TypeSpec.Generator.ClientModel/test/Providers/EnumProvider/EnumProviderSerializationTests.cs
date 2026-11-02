@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -19,6 +20,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         public void Setup()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RenamedDeprecatedFixedEnumKeepsSerializationSuppressions(bool buildBeforeRename)
+        {
+            var input = InputFactory.StringEnum("LegacyChoice", [("One", "one")], deprecation: "Use CurrentChoice instead.");
+            MockHelpers.LoadMockGenerator(inputEnums: () => [input]);
+            var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(input)!;
+            if (buildBeforeRename)
+            {
+                provider.EnsureBuilt();
+                _ = new TypeProviderWriter(provider.SerializationProviders.Single()).Write();
+            }
+
+            provider.Update(name: "RenamedChoice", @namespace: "Renamed.Models");
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider.SerializationProviders.Single()).Write().Content);
         }
 
         private static object[] ValidateTypes(bool isExtensible)

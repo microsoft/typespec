@@ -28,6 +28,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly CSharpType _systemType;
         private readonly bool _skipDerivedConstructorParameters;
         private readonly TypeProvider? _lastContractType;
+        private readonly IReadOnlyList<InputModelProperty>? _mappedInputProperties;
+
+        // A flat model also owns properties that do not belong to its restored framework base.
+        // Keep this projection separate from InputModel so source properties retain their original owner.
+        internal bool HasFlatInputProjection => _mappedInputProperties is not null;
+        internal IReadOnlyList<InputModelProperty> MappedInputProperties => _mappedInputProperties ?? InputModel.Properties;
+        internal InputType? MappedAdditionalProperties => _mappedInputProperties is null ? InputModel.AdditionalProperties : null;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
@@ -50,8 +57,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal SystemObjectModelProvider(
             CSharpType systemType,
             InputModelType inputModel,
-            TypeProvider lastContractType)
-            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType)
+            TypeProvider lastContractType,
+            IReadOnlyList<InputModelProperty>? mappedInputProperties = null)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, mappedInputProperties)
         {
         }
 
@@ -59,12 +67,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType systemType,
             InputModelType inputModel,
             bool skipDerivedConstructorParameters,
-            TypeProvider? lastContractType)
+            TypeProvider? lastContractType,
+            IReadOnlyList<InputModelProperty>? mappedInputProperties = null)
             : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             _lastContractType = lastContractType;
+            _mappedInputProperties = mappedInputProperties;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -92,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (_lastContractType.Constructors.Count == 0)
                 {
-                    return InputModel.Properties.Count == 0 &&
+                    return MappedInputProperties.Count == 0 &&
                         HasCallableInitializationConstructor() &&
                         HasCallableFrameworkConstructor([]);
                 }
@@ -150,7 +160,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasCallableInitializationConstructor()
         {
-            var requiredProperties = Properties.Where(IsRequiredInitializationProperty).ToArray();
+            var initializationProperties = HasFlatInputProjection ? CanonicalView.Properties : Properties;
+            var requiredProperties = initializationProperties.Where(IsRequiredInitializationProperty).ToArray();
             var constructors = _lastContractType!.Constructors;
             if (constructors.Count == 0)
             {
@@ -159,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             foreach (var constructor in constructors.Where(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
+                MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
                 HasSupportedConstructorParameters(constructor.Signature.Parameters)))
             {
                 var matches = constructor.Signature.Parameters
@@ -269,7 +280,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var properties = Properties;
             foreach (var candidate in _lastContractType!.Constructors
-                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
+                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
                     HasSupportedConstructorParameters(constructor.Signature.Parameters))
                 .OrderByDescending(constructor => constructor.Signature.Parameters.Count))
             {
@@ -280,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         (!property.Type.IsValueType || property.Type.IsNullable == parameter.Type.IsNullable)))
                     .ToArray();
                 if (matches.All(property => property is not null) &&
-                    InputModel.Properties.All(inputProperty => matches.Any(property =>
+                    MappedInputProperties.All(inputProperty => matches.Any(property =>
                         property is not null &&
                         CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                             SystemType,
@@ -316,7 +327,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 foreach (var property in provider.Properties.Where(property =>
-                    MethodSignatureHelper.IsPublicApi(property.Modifiers) && seenPropertyNames.Add(property.Name)))
+                    MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes) && seenPropertyNames.Add(property.Name)))
                 {
                     if (ApplyCurrentInputMetadata(property) is { } projectedProperty)
                     {
@@ -342,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 if (provider.Properties
-                    .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                    .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes))
                     .Any(property => FindEffectiveFrameworkProperty(property.Name) is not { } candidate ||
                         !IsCompatibleProperty(property, candidate)))
                 {
@@ -391,7 +402,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 foreach (var method in provider.Methods.Where(method =>
-                    MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
+                    MethodSignatureHelper.IsPublicApi(method.Signature)))
                 {
                     var signature = method.Signature;
                     if (overriddenMethods.Any(overrideSignature =>
@@ -407,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 overriddenMethods.AddRange(provider.Methods.Select(method => method.Signature)
                     .Where(signature => signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)));
                 if (provider.Fields
-                    .Where(field => IsPublicApiField(field.Modifiers))
+                    .Where(field => IsPublicApiField(field))
                     .Any(field => FindEffectiveFrameworkMember(field.Name) is not FieldInfo candidate ||
                         !IsCompatibleField(field, candidate)))
                 {
@@ -425,16 +436,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
                 {
                     foreach (var property in provider.Properties.Where(property =>
-                        MethodSignatureHelper.IsPublicApi(property.Modifiers)))
+                        MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes)))
                     {
                         yield return property.Name;
                     }
                     foreach (var method in provider.Methods.Where(method =>
-                        MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
+                        MethodSignatureHelper.IsPublicApi(method.Signature)))
                     {
                         yield return GetPublicApiMemberName(method.Signature.Name);
                     }
-                    foreach (var field in provider.Fields.Where(field => IsPublicApiField(field.Modifiers)))
+                    foreach (var field in provider.Fields.Where(IsPublicApiField))
                     {
                         yield return field.Name;
                     }
@@ -489,6 +500,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private PropertyInfo? FindEffectiveFrameworkProperty(string name)
             => FindEffectiveFrameworkMember(name) as PropertyInfo;
+
+        internal bool CanAssignProperty(PropertyProvider property, CSharpType parameterType)
+        {
+            if (!SystemType.IsFrameworkType ||
+                FindEffectiveFrameworkProperty(property.Name) is not { SetMethod: { } setter } frameworkProperty ||
+                setter.IsStatic || !IsPublicOrProtected(setter) || IsInitOnly(setter) ||
+                frameworkProperty.GetIndexParameters().Length > 0)
+            {
+                return false;
+            }
+
+            var frameworkPropertyType = CreateReflectedType(frameworkProperty.PropertyType, GetFrameworkTypeArguments());
+            return !(parameterType is { IsValueType: true, IsNullable: true } && !frameworkPropertyType.IsNullable) &&
+                ModelBaseMemberCompatibility.AreClrTypesEqual(
+                    property.Type.WithNullable(false), frameworkPropertyType.WithNullable(false));
+        }
 
         private MemberInfo? FindEffectiveFrameworkMember(string name)
         {
@@ -669,9 +696,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
                     modifiers.HasFlag(MethodSignatureModifiers.Override));
 
-        private static bool IsPublicApiField(FieldModifiers modifiers)
-            => modifiers.HasFlag(FieldModifiers.Public) ||
-                modifiers.HasFlag(FieldModifiers.Protected) && !modifiers.HasFlag(FieldModifiers.Private);
+        private static bool IsPublicApiField(FieldProvider field)
+            => MethodSignatureHelper.IsPublicApi(field.Modifiers, field.Attributes);
 
         private static bool IsCompatibleField(FieldProvider previous, FieldInfo current)
             // Historical constant expressions are not necessarily available (e.g. metadata symbols).
@@ -707,7 +733,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private PropertyProvider? ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
         {
-            var matchingInputProperties = InputModel.Properties.Where(property =>
+            var matchingInputProperties = MappedInputProperties.Where(property =>
                 CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                     SystemType,
                     property,
@@ -729,8 +755,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             property.Modifiers = lastContractProperty.Modifiers;
             property.Body = lastContractProperty.Body;
             property.IsInitOnly = lastContractProperty.IsInitOnly;
-            // A property visitor may have materialized AsParameter before the CLR shape was restored.
-            property.AsParameter.SynchronizePropertyShape();
+            // Visitors may have materialized parameter or member expressions before the CLR shape was restored.
+            property.SynchronizePropertyShape();
             return property;
         }
 
@@ -743,13 +769,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (SystemType.IsFrameworkType)
             {
                 var frameworkType = SystemType.FrameworkType;
-                var typeArguments = frameworkType.IsGenericTypeDefinition
-                    ? frameworkType.GetGenericArguments()
-                        .Zip(SystemType.Arguments)
-                        .ToDictionary(pair => pair.First, pair => pair.Second)
-                    : [];
+                var typeArguments = GetFrameworkTypeArguments();
 
-                return [.. frameworkType.GetInterfaces().Select(type => CreateInterfaceType(type, typeArguments))];
+                return [.. frameworkType.GetInterfaces().Select(type => CreateReflectedType(type, typeArguments))];
             }
 
             return [.. CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
@@ -759,7 +781,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     includeReferencedAssemblies: true)?.Implements ?? []];
         }
 
-        private static CSharpType CreateInterfaceType(
+        private IReadOnlyDictionary<Type, CSharpType> GetFrameworkTypeArguments()
+            => SystemType.FrameworkType.IsGenericTypeDefinition
+                ? SystemType.FrameworkType.GetGenericArguments().Zip(SystemType.Arguments)
+                    .ToDictionary(pair => pair.First, pair => pair.Second)
+                : new Dictionary<Type, CSharpType>();
+
+        private static CSharpType CreateReflectedType(
             Type type,
             IReadOnlyDictionary<Type, CSharpType> typeArguments)
         {
@@ -768,10 +796,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return typeArgument;
             }
 
+            if (Nullable.GetUnderlyingType(type) is { } underlyingType)
+            {
+                return CreateReflectedType(underlyingType, typeArguments).WithNullable(true);
+            }
+
+            if (type.IsArray)
+            {
+                return CreateReflectedType(type.GetElementType()!, typeArguments).MakeArrayType(type.GetArrayRank());
+            }
+
             return type.IsGenericType
                 ? new CSharpType(
                     type.GetGenericTypeDefinition(),
-                    [.. type.GetGenericArguments().Select(argument => CreateInterfaceType(argument, typeArguments))])
+                    [.. type.GetGenericArguments().Select(argument => CreateReflectedType(argument, typeArguments))])
                 : new CSharpType(type);
         }
 

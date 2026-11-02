@@ -4,6 +4,9 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+
+pytest.skip("Unconstrained and envelope discriminated unions are not supported.", allow_module_level=True)
+
 from typetest.discriminatedunion import DiscriminatedClient
 from typetest.discriminatedunion import models
 

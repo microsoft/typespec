@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.List;
 import java.util.Set;
 
@@ -288,6 +289,7 @@ public class ServiceClient {
     public final void addImportsTo(Set<String> imports, boolean includeImplementationImports,
         boolean includeBuilderImports, JavaSettings settings) {
         if (!includeBuilderImports) {
+            ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
             for (ClientMethod clientMethod : getClientMethods()) {
                 clientMethod.addImportsTo(imports, includeImplementationImports, settings);
             }

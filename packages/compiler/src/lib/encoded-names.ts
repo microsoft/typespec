@@ -10,6 +10,10 @@ const [getEncodedNamesMap, setEncodedNamesMap, getEncodedNamesStateMap] = useSta
   Map<string, string>
 >(createStateSymbol("encodedName"));
 
+/**
+ * Registers a serialization name for a type and MIME type, replacing an existing name for that pair.
+ * MIME types must not have structured syntax suffixes; resolution maps `application/merge-patch+json` to `application/json`.
+ */
 export function $encodedName(
   context: DecoratorContext,
   target: Type,
