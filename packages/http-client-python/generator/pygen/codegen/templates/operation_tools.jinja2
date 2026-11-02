@@ -32,13 +32,13 @@
 {{ normalized_string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
 
 {# Escape quotes after wrapping so wrapping cannot split an escape sequence. #}
-{% macro wrap_docstring(string, wrapstring, width=95, escape_all_quotes=true) -%}
-{%- set wrapped = wrap_string(string, wrapstring, width) -%}
-{%- if escape_all_quotes -%}
-{{ wrapped | replace('"', '\\"') }}
-{%- else -%}
-{{ wrapped | replace('"""', '\\"\\"\\"') }}
-{%- endif -%}
+{% macro wrap_docstring_content(string, wrapstring, width=95) -%}
+{{ wrap_string(string, wrapstring, width) | replace('"""', '\\"\\"\\"') }}
+{%- endmacro %}
+
+{# Inline content can end next to a closing delimiter, so escape every quote. #}
+{% macro wrap_inline_docstring_content(string, wrapstring, width=95) -%}
+{{ wrap_string(string, wrapstring, width) | replace('"', '\\"') }}
 {%- endmacro %}
 
 {% macro description(builder, serializer) %}
@@ -60,7 +60,7 @@
     {% endfor %}
     {% for description in param_description_and_response_docstring %}
         {% if description %}
-{% set description = wrap_docstring(description, wrapstring='\n ', escape_all_quotes=false) %}
+{% set description = wrap_docstring_content(description, wrapstring='\n ') %}
 {{ " " if description[0] != ":" and description[0] != " " else "" }}{{ description}}
         {% else %}
 
@@ -93,11 +93,7 @@ Example:
 {% macro serialize_with_wrap(lines, wrapstring) %}
 {% for line in lines %}
     {% if line %}
-        {% if line == '"""' %}
-{{ line }}
-        {% else %}
-{{ wrap_docstring(line, wrapstring=wrapstring, escape_all_quotes=false) }}
-        {% endif %}
+{{ wrap_docstring_content(line, wrapstring=wrapstring) }}
     {% else %}
 
     {% endif %}

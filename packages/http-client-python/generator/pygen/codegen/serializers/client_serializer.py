@@ -78,7 +78,6 @@ class ClientSerializer:
                 ":keyword int polling_interval: Default waiting time between two polls for LRO operations "
                 "if no Retry-After header is present."
             )
-        retval.append('"""')
         return retval
 
     def initialize_config(self) -> list[str]:
@@ -323,5 +322,4 @@ class ConfigSerializer:
                 f":{p.docstring_type_keyword} {escape_sphinx_field_name(p.client_name)}: "
                 f"{p.docstring_type(async_mode=async_mode)}"
             )
-        retval.append('"""')
         return retval

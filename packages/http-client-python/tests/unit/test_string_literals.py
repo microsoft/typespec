@@ -241,12 +241,44 @@ def test_python_string_literal_preserves_value(value, quote):
 )
 def test_docstring_wrapping_preserves_ordinary_quotes(env, description):
     macros = env.get_template("operation_tools.jinja2").module
-    assert macros.wrap_docstring(description, "\n ", escape_all_quotes=False) == macros.wrap_string(description, "\n ")
+    assert macros.wrap_docstring_content(description, "\n ") == macros.wrap_string(description, "\n ")
 
 
 def test_existing_docstrings_preserve_quote_escaping(env):
     macros = env.get_template("operation_tools.jinja2").module
-    assert macros.wrap_docstring('"Internal" refers to actions.', "\n ") == '\\"Internal\\" refers to actions.'
+    assert (
+        macros.wrap_inline_docstring_content('"Internal" refers to actions.', "\n ")
+        == '\\"Internal\\" refers to actions.'
+    )
+
+
+@pytest.mark.parametrize("description", ['"""', 'Ends with a quote"', 'Ends with two quotes""', r'C:\new\test """'])
+@pytest.mark.parametrize("inline", [False, True])
+def test_docstring_content_preserves_quotes_and_backslashes(env, description, inline):
+    macros = env.get_template("operation_tools.jinja2").module
+    if inline:
+        content = macros.wrap_inline_docstring_content(description, "\n ")
+        source = '"""' + content + '"""'
+        expected = description
+    else:
+        content = macros.serialize_with_wrap([description], "\n ")
+        source = '"""\n' + content + '"""'
+        expected = "\n" + description + "\n"
+    assert ast.literal_eval(source) == expected
+
+
+@pytest.mark.parametrize("async_mode", [False, True])
+@pytest.mark.parametrize("file_kind", ["client", "config"])
+def test_complete_client_without_parameters_closes_docstring(code_model, env, async_mode, file_kind):
+    code_model.clients[0].yaml_data["description"] = "Example client."
+    serializer = GeneralSerializer(code_model, env, async_mode=async_mode, client_namespace="sample")
+    if file_kind == "client":
+        source = serializer.serialize_service_client_file(code_model.clients)
+    else:
+        source = serializer.serialize_config_file(code_model.clients)
+    declaration = next(node for node in ast.parse(source).body if isinstance(node, ast.ClassDef))
+    assert ast.get_docstring(declaration)
+    assert any(isinstance(node, ast.FunctionDef) and node.name == "__init__" for node in declaration.body)
 
 
 def test_model_declarations_preserve_quote_style(code_model, env):
