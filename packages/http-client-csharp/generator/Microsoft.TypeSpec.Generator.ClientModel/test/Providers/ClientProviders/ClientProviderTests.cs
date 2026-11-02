@@ -4390,9 +4390,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                        InputFactory.MethodParameter("filter", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)]
                     : [InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query)],
                 response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
-                pagingMetadata: InputFactory.PagingMetadata(["items"],
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
                     new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
-                    new InputContinuationToken(token, [], InputResponseLocation.None)));
+                    null, continuationTokenParameter: token));
             var inputClient = InputFactory.Client(TestClientName, methods: [method]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
@@ -4410,8 +4410,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(newOptionalParameter ? 8 : 4, hidden.Length);
             Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name == "token")));
             Assert.IsTrue(hidden.All(m => m.Signature.Parameters.All(p => p.DefaultValue == null)));
+            Assert.IsTrue(hidden.All(m => m.Signature.Attributes.Single(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))
+                .Arguments.Single().ToDisplayString() == FrameworkEnumValue(System.ComponentModel.EditorBrowsableState.Never).ToDisplayString()));
             Assert.IsTrue(hidden.All(m => m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));
             Assert.IsTrue(visible.All(m => !m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));
+            Assert.AreEqual(methods.Length, methods.Select(m => m.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
         }
 
         [Test]
