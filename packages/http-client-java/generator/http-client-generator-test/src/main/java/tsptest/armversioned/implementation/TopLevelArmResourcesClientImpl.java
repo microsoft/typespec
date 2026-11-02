@@ -79,7 +79,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourcePropertiesName") String topLevelArmResourcePropertiesName,
-            @QueryParam("newParameter") String newParameter, @HeaderParam("new-header") String newHeader,
+            @QueryParam("newParameter") String nextLink, @HeaderParam("new-header") String newHeader,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") TopLevelArmResourceInner resource, Context context);
 
@@ -89,7 +89,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<TopLevelArmResourceListResult>> list(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
-            @QueryParam("newParameter") String newParameter, @HeaderParam("new-header") String newHeader,
+            @QueryParam("newParameter") String nextLink, @HeaderParam("new-header") String newHeader,
             @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Content-Type: application/json" })
@@ -109,7 +109,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourcePropertiesName") String topLevelArmResourcePropertiesName,
-            @QueryParam("newParameter") String newParameter, @HeaderParam("new-header") String newHeader,
+            @QueryParam("newParameter") String nextLink, @HeaderParam("new-header") String newHeader,
             @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
@@ -165,7 +165,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -175,13 +175,34 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String newParameter,
+        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink,
         String newHeader) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
+        if (resource == null) {
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
                 newHeader, contentType, accept, resource, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -192,7 +213,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -203,14 +224,35 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String newParameter,
-        String newHeader, Context context) {
+        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink, String newHeader,
+        Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
+        if (resource == null) {
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
         final String contentType = "application/json";
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
-            newHeader, contentType, accept, resource, context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            contentType, accept, resource, context);
     }
 
     /**
@@ -229,14 +271,35 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, Context context) {
-        final String newParameter = null;
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
+        if (resource == null) {
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
+        final String nextLink = null;
         final String newHeader = null;
         final String contentType = "application/json";
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
-            newHeader, contentType, accept, resource, context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            contentType, accept, resource, context);
     }
 
     /**
@@ -254,13 +317,34 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource) {
-        final String newParameter = null;
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
+        if (resource == null) {
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
+        final String nextLink = null;
         final String newHeader = null;
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
                 newHeader, contentType, accept, resource, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -271,7 +355,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -282,9 +366,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
-        String newParameter, String newHeader) {
+        String nextLink, String newHeader) {
         Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceGroupName,
-            topLevelArmResourcePropertiesName, resource, newParameter, newHeader);
+            topLevelArmResourcePropertiesName, resource, nextLink, newHeader);
         return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(mono,
             this.client.getHttpPipeline(), TopLevelArmResourceInner.class, TopLevelArmResourceInner.class,
             this.client.getContext());
@@ -305,10 +389,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceGroupName,
-            topLevelArmResourcePropertiesName, resource, newParameter, newHeader);
+            topLevelArmResourcePropertiesName, resource, nextLink, newHeader);
         return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(mono,
             this.client.getHttpPipeline(), TopLevelArmResourceInner.class, TopLevelArmResourceInner.class,
             this.client.getContext());
@@ -320,7 +404,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -332,10 +416,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     private PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
-        String newParameter, String newHeader, Context context) {
+        String nextLink, String newHeader, Context context) {
         context = this.client.mergeContext(context);
         Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceGroupName,
-            topLevelArmResourcePropertiesName, resource, newParameter, newHeader, context);
+            topLevelArmResourcePropertiesName, resource, nextLink, newHeader, context);
         return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(mono,
             this.client.getHttpPipeline(), TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, context);
     }
@@ -357,7 +441,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
         Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         context = this.client.mergeContext(context);
         Mono<Response<Flux<ByteBuffer>>> mono
@@ -381,10 +465,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return this
-            .beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
+            .beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink,
                 newHeader)
             .getSyncPoller();
     }
@@ -395,7 +479,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -407,9 +491,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
-        String newParameter, String newHeader, Context context) {
+        String nextLink, String newHeader, Context context) {
         return this
-            .beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
+            .beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink,
                 newHeader, context)
             .getSyncPoller();
     }
@@ -431,7 +515,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
         Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return this.beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context)
             .getSyncPoller();
@@ -443,7 +527,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -453,9 +537,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String newParameter,
+        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink,
         String newHeader) {
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
+        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink,
             newHeader).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
@@ -474,9 +558,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
+        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink,
             newHeader).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
@@ -486,7 +570,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -497,9 +581,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String newParameter,
-        String newHeader, Context context) {
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
+        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink, String newHeader,
+        Context context) {
+        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink,
             newHeader, context).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
@@ -519,7 +603,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -539,10 +623,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
         TopLevelArmResourceInner resource) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
-        return createOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
-            newHeader).block();
+        return createOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink, newHeader)
+            .block();
     }
 
     /**
@@ -551,7 +635,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -561,9 +645,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        TopLevelArmResourceInner resource, String newParameter, String newHeader, Context context) {
-        return createOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, newParameter,
-            newHeader, context).block();
+        TopLevelArmResourceInner resource, String nextLink, String newHeader, Context context) {
+        return createOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, nextLink, newHeader,
+            context).block();
     }
 
     /**
@@ -581,7 +665,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
         TopLevelArmResourceInner resource, Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return createOrUpdateAsync(resourceGroupName, topLevelArmResourcePropertiesName, resource, context).block();
     }
@@ -589,7 +673,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -598,11 +682,19 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(String newParameter, String newHeader) {
+    private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(String nextLink, String newHeader) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.list(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), newParameter, newHeader, accept, context))
+                this.client.getSubscriptionId(), nextLink, newHeader, accept, context))
             .<PagedResponse<TopLevelArmResourceInner>>map(res -> new PagedResponseBase<>(res.getRequest(),
                 res.getStatusCode(), res.getHeaders(), res.getValue().value(), res.getValue().nextLink(), null))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
@@ -611,7 +703,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -621,12 +713,20 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(String newParameter, String newHeader,
+    private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(String nextLink, String newHeader,
         Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service
-            .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), newParameter,
+            .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
                 newHeader, accept, context)
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 res.getValue().value(), res.getValue().nextLink(), null));
@@ -644,12 +744,20 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(Context context) {
-        final String newParameter = null;
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        final String nextLink = null;
         final String newHeader = null;
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service
-            .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), newParameter,
+            .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
                 newHeader, accept, context)
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 res.getValue().value(), res.getValue().nextLink(), null));
@@ -665,12 +773,20 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync() {
-        final String newParameter = null;
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        final String nextLink = null;
         final String newHeader = null;
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.list(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), newParameter, newHeader, accept, context))
+                this.client.getSubscriptionId(), nextLink, newHeader, accept, context))
             .<PagedResponse<TopLevelArmResourceInner>>map(res -> new PagedResponseBase<>(res.getRequest(),
                 res.getStatusCode(), res.getHeaders(), res.getValue().value(), res.getValue().nextLink(), null))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
@@ -679,7 +795,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -687,9 +803,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<TopLevelArmResourceInner> listAsync(String newParameter, String newHeader) {
-        return new PagedFlux<>(() -> listSinglePageAsync(newParameter, newHeader),
-            nextLink -> listBySubscriptionNextSinglePageAsync(nextLink, newHeader));
+    public PagedFlux<TopLevelArmResourceInner> listAsync(String nextLink, String newHeader) {
+        return new PagedFlux<>(() -> listSinglePageAsync(nextLink, newHeader),
+            nextLink1 -> listBySubscriptionNextSinglePageAsync(nextLink1, newHeader));
     }
 
     /**
@@ -701,16 +817,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<TopLevelArmResourceInner> listAsync() {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
-        return new PagedFlux<>(() -> listSinglePageAsync(newParameter, newHeader),
-            nextLink -> listBySubscriptionNextSinglePageAsync(nextLink, newHeader));
+        return new PagedFlux<>(() -> listSinglePageAsync(nextLink, newHeader),
+            nextLink1 -> listBySubscriptionNextSinglePageAsync(nextLink1, newHeader));
     }
 
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -719,9 +835,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    private PagedFlux<TopLevelArmResourceInner> listAsync(String newParameter, String newHeader, Context context) {
-        return new PagedFlux<>(() -> listSinglePageAsync(newParameter, newHeader, context),
-            nextLink -> listBySubscriptionNextSinglePageAsync(nextLink, newHeader, context));
+    private PagedFlux<TopLevelArmResourceInner> listAsync(String nextLink, String newHeader, Context context) {
+        return new PagedFlux<>(() -> listSinglePageAsync(nextLink, newHeader, context),
+            nextLink1 -> listBySubscriptionNextSinglePageAsync(nextLink1, newHeader, context));
     }
 
     /**
@@ -735,10 +851,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     private PagedFlux<TopLevelArmResourceInner> listAsync(Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return new PagedFlux<>(() -> listSinglePageAsync(context),
-            nextLink -> listBySubscriptionNextSinglePageAsync(nextLink, newHeader, context));
+            nextLink1 -> listBySubscriptionNextSinglePageAsync(nextLink1, newHeader, context));
     }
 
     /**
@@ -750,15 +866,15 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list() {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
-        return new PagedIterable<>(listAsync(newParameter, newHeader));
+        return new PagedIterable<>(listAsync(nextLink, newHeader));
     }
 
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -767,8 +883,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<TopLevelArmResourceInner> list(String newParameter, String newHeader, Context context) {
-        return new PagedIterable<>(listAsync(newParameter, newHeader, context));
+    public PagedIterable<TopLevelArmResourceInner> list(String nextLink, String newHeader, Context context) {
+        return new PagedIterable<>(listAsync(nextLink, newHeader, context));
     }
 
     /**
@@ -782,7 +898,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return new PagedIterable<>(listAsync(context));
     }
@@ -802,6 +918,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter, String newParameter) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -827,6 +955,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter, String newParameter, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service
@@ -851,6 +991,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
         final String newParameter = null;
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -875,6 +1027,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
         final String newParameter = null;
         final String accept = "application/json";
         return FluxUtil
@@ -1033,7 +1197,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1042,11 +1206,27 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String newParameter, String newHeader) {
+        String topLevelArmResourcePropertiesName, String nextLink, String newHeader) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
                 newHeader, accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -1056,7 +1236,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1066,12 +1246,28 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String newParameter, String newHeader, Context context) {
+        String topLevelArmResourcePropertiesName, String nextLink, String newHeader, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
-            newHeader, accept, context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            accept, context);
     }
 
     /**
@@ -1088,13 +1284,29 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, Context context) {
-        final String newParameter = null;
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
+        final String nextLink = null;
         final String newHeader = null;
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
-            newHeader, accept, context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            accept, context);
     }
 
     /**
@@ -1110,12 +1322,28 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName) {
-        final String newParameter = null;
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
+        final String nextLink = null;
         final String newHeader = null;
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
                 newHeader, accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -1133,9 +1361,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> getByResourceGroupAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
-        return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
+        return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
             newHeader).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
@@ -1144,7 +1372,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1154,8 +1382,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String newParameter, String newHeader, Context context) {
-        return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
+        String topLevelArmResourcePropertiesName, String nextLink, String newHeader, Context context) {
+        return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
             newHeader, context).block();
     }
 
@@ -1173,7 +1401,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
         String topLevelArmResourcePropertiesName, Context context) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
         return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, context)
             .block();
@@ -1192,10 +1420,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner getByResourceGroup(String resourceGroupName,
         String topLevelArmResourcePropertiesName) {
-        final String newParameter = null;
+        final String nextLink = null;
         final String newHeader = null;
-        return getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, newParameter,
-            newHeader, Context.NONE).getValue();
+        return getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            Context.NONE).getValue();
     }
 
     /**
@@ -1213,6 +1441,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
@@ -1236,6 +1480,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         context = this.client.mergeContext(context);
         return service.delete(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
             resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
@@ -1256,6 +1516,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         final String newParameter = null;
         context = this.client.mergeContext(context);
         return service.delete(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
@@ -1276,6 +1552,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         final String newParameter = null;
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -1373,6 +1665,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         return FluxUtil
             .withContext(context -> service.action(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
@@ -1396,6 +1704,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         context = this.client.mergeContext(context);
         return service.action(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
             resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
@@ -1416,6 +1740,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         final String newParameter = null;
         context = this.client.mergeContext(context);
         return service.action(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
@@ -1436,6 +1776,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourcePropertiesName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter topLevelArmResourcePropertiesName is required and cannot be null."));
+        }
         final String newParameter = null;
         return FluxUtil
             .withContext(context -> service.action(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -1530,6 +1886,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> getLimitsWithResponseAsync(String location, ActionRequest body) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (location == null) {
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
+        if (body != null) {
+            body.validate();
+        }
         return FluxUtil
             .withContext(context -> service.getLimits(this.client.getEndpoint(), location, this.client.getApiVersion(),
                 body, context))
@@ -1549,6 +1915,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> getLimitsWithResponseAsync(String location, ActionRequest body, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (location == null) {
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
+        if (body != null) {
+            body.validate();
+        }
         context = this.client.mergeContext(context);
         return service.getLimits(this.client.getEndpoint(), location, this.client.getApiVersion(), body, context);
     }
@@ -1565,6 +1941,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> getLimitsWithResponseAsync(String location, Context context) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (location == null) {
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
         final ActionRequest body = null;
         context = this.client.mergeContext(context);
         return service.getLimits(this.client.getEndpoint(), location, this.client.getApiVersion(), body, context);
@@ -1581,6 +1964,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> getLimitsWithResponseAsync(String location) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (location == null) {
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
         final ActionRequest body = null;
         return FluxUtil
             .withContext(context -> service.getLimits(this.client.getEndpoint(), location, this.client.getApiVersion(),
@@ -1663,6 +2053,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         String newHeader) {
+        if (nextLink == null) {
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        }
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil.withContext(
             context -> service.listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, accept, context))
@@ -1686,6 +2083,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         String newHeader, Context context) {
+        if (nextLink == null) {
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        }
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, accept, context)
@@ -1707,6 +2111,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         Context context) {
+        if (nextLink == null) {
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        }
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String newHeader = null;
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1727,6 +2138,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink) {
+        if (nextLink == null) {
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        }
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String newHeader = null;
         final String accept = "application/json";
         return FluxUtil.withContext(
@@ -1748,6 +2166,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupNextSinglePageAsync(String nextLink) {
+        if (nextLink == null) {
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        }
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(
@@ -1771,6 +2196,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupNextSinglePageAsync(String nextLink,
         Context context) {
+        if (nextLink == null) {
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        }
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.listByResourceGroupNext(nextLink, this.client.getEndpoint(), accept, context)

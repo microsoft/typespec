@@ -148,7 +148,7 @@ public interface TopLevelArmResource {
          * resource to be created, but also allows for any other optional properties to be specified.
          */
         interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithProperties,
-            DefinitionStages.WithNewParameter, DefinitionStages.WithNewHeader {
+            DefinitionStages.WithNextLink, DefinitionStages.WithNewHeader {
             /**
              * Executes the create request.
              * 
@@ -192,16 +192,16 @@ public interface TopLevelArmResource {
         }
 
         /**
-         * The stage of the TopLevelArmResource definition allowing to specify newParameter.
+         * The stage of the TopLevelArmResource definition allowing to specify nextLink.
          */
-        interface WithNewParameter {
+        interface WithNextLink {
             /**
-             * Specifies the newParameter property: The newParameter parameter.
+             * Specifies the nextLink property: The nextLink parameter.
              * 
-             * @param newParameter The newParameter parameter.
+             * @param nextLink The nextLink parameter.
              * @return the next definition stage.
              */
-            WithCreate withNewParameter(String newParameter);
+            WithCreate withNextLink(String nextLink);
         }
 
         /**
@@ -228,7 +228,7 @@ public interface TopLevelArmResource {
     /**
      * The template for TopLevelArmResource update.
      */
-    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithNewParameter,
+    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithNextLink,
         UpdateStages.WithNewHeader {
         /**
          * Executes the update request.
@@ -277,16 +277,16 @@ public interface TopLevelArmResource {
         }
 
         /**
-         * The stage of the TopLevelArmResource update allowing to specify newParameter.
+         * The stage of the TopLevelArmResource update allowing to specify nextLink.
          */
-        interface WithNewParameter {
+        interface WithNextLink {
             /**
-             * Specifies the newParameter property: The newParameter parameter.
+             * Specifies the nextLink property: The nextLink parameter.
              * 
-             * @param newParameter The newParameter parameter.
+             * @param nextLink The nextLink parameter.
              * @return the next definition stage.
              */
-            Update withNewParameter(String newParameter);
+            Update withNextLink(String nextLink);
         }
 
         /**

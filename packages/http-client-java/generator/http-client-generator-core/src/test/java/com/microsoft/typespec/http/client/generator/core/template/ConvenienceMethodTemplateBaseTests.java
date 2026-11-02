@@ -3,7 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -21,15 +23,86 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.api.parallel.ResourceLock;
 
+@Isolated
 @ResourceLock("ClientModels")
 public class ConvenienceMethodTemplateBaseTests {
+
+    @AfterEach
+    public void restoreSettings() {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+    }
+
+    @Test
+    public void validatesOnlyParametersPresentInHistoricalOverload() {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "client-side-validations".equals(key) ? (T) Boolean.TRUE : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        ClientMethodParameter retained = new ClientMethodParameter.Builder().name("existing")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("body")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethod full = new ClientMethod.Builder().name("operation")
+            .type(ClientMethodType.SimpleSyncRestResponse)
+            .parameters(List.of(retained, added))
+            .requiredNullableParameterExpressions(List.of())
+            .validateExpressions(Map.of("body", "body.validate()", "existing", "existing.validate()",
+                "this.client.getOptions()", "this.client.getOptions().validate()"))
+            .build();
+        for (boolean historical : List.of(false, true)) {
+            ClientMethod method = historical
+                ? full.newBuilder().parameters(List.of(retained)).overloadedClientMethod(full).build()
+                : full;
+            JavaFileContents contents = new JavaFileContents();
+
+            ClientMethodTemplate.addValidations(new JavaBlock(contents), method, JavaSettings.getInstance());
+
+            String output = contents.toString();
+            Assertions.assertEquals(!historical, output.contains("body.validate()"), output);
+            Assertions.assertTrue(output.contains("existing.validate()"), output);
+            Assertions.assertTrue(output.contains("this.client.getOptions().validate()"), output);
+        }
+    }
+
+    @Test
+    public void reservesParametersOmittedByVersioning() {
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("nextLink")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter retained = new ClientMethodParameter.Builder().name("nextLink1")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethod full = new ClientMethod.Builder().name("list")
+            .type(ClientMethodType.PagingAsync)
+            .parameters(List.of(added, retained))
+            .build();
+        ClientMethod historical = full.newBuilder().parameters(List.of(retained)).overloadedClientMethod(full).build();
+
+        Assertions.assertEquals("nextLink2", ClientMethodTemplateBase.availablePagingVariableName("nextLink",
+            ClientMethodTemplateBase.pagingVariableNames(historical)));
+    }
 
     @Test
     public void initializesOnlyParametersOmittedByVersioning() {

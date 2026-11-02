@@ -382,6 +382,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
                 // versioning of @added exists
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
+                // Collect historical overload candidates, including any Context parameter, before deduplicating.
                 final List<ClientMethod> overloadMethods = new ArrayList<>();
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
                     if (JavaSettings.getInstance().isDataPlaneClient()) {
@@ -408,6 +409,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
                 }
+                // A historical signature may match an existing required-only overload. Compare the constructed
+                // methods so that an existing overload without Context does not suppress one with Context.
                 for (ClientMethod overloadMethod : overloadMethods) {
                     if (methods.stream()
                         .noneMatch(method -> method.getMethodVisibility() != NOT_GENERATE

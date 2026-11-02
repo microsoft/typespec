@@ -46,6 +46,7 @@ model Response {}
 
 model FirstOptionalParameters {
   @added(Versions.v2024_10_01_preview)
+  @Azure.ClientGenerator.Core.clientName("nextLink", "java")
   @query
   newParameter?: string;
 

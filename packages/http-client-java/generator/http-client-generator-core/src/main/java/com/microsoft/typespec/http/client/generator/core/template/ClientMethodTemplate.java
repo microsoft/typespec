@@ -135,6 +135,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
         // Parameter expressions for custom validation (key is the expression, value is the validation).
         final Map<String, String> validateParamExpressions = new LinkedHashMap<>(clientMethod.getValidateExpressions());
+        if (clientMethod.getOverloadedClientMethod() != null) {
+            clientMethod.getOverloadedClientMethod()
+                .getMethodParameters()
+                .stream()
+                .filter(parameter -> !parameter.isRequired() && !clientMethod.getMethodParameters().contains(parameter))
+                .forEach(parameter -> validateParamExpressions.remove(parameter.getName()));
+        }
 
         for (String paramReferenceExpression : paramReferenceExpressions) {
             final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {

@@ -77,11 +77,11 @@ public final class TopLevelArmResourceImpl
 
     private String topLevelArmResourcePropertiesName;
 
-    private String createNewParameter;
+    private String createNextLink;
 
     private String createNewHeader;
 
-    private String updateNewParameter;
+    private String updateNextLink;
 
     private String updateNewHeader;
 
@@ -93,7 +93,7 @@ public final class TopLevelArmResourceImpl
     public TopLevelArmResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
-            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createNewParameter,
+            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createNextLink,
                 createNewHeader, Context.NONE);
         return this;
     }
@@ -101,7 +101,7 @@ public final class TopLevelArmResourceImpl
     public TopLevelArmResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
-            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createNewParameter,
+            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createNextLink,
                 createNewHeader, context);
         return this;
     }
@@ -110,12 +110,12 @@ public final class TopLevelArmResourceImpl
         this.innerObject = new TopLevelArmResourceInner();
         this.serviceManager = serviceManager;
         this.topLevelArmResourcePropertiesName = name;
-        this.createNewParameter = null;
+        this.createNextLink = null;
         this.createNewHeader = null;
     }
 
     public TopLevelArmResourceImpl update() {
-        this.updateNewParameter = null;
+        this.updateNextLink = null;
         this.updateNewHeader = null;
         return this;
     }
@@ -123,7 +123,7 @@ public final class TopLevelArmResourceImpl
     public TopLevelArmResource apply() {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
-            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateNewParameter,
+            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateNextLink,
                 updateNewHeader, Context.NONE);
         return this;
     }
@@ -131,7 +131,7 @@ public final class TopLevelArmResourceImpl
     public TopLevelArmResource apply(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
-            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateNewParameter,
+            .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateNextLink,
                 updateNewHeader, context);
         return this;
     }
@@ -149,22 +149,22 @@ public final class TopLevelArmResourceImpl
     }
 
     public TopLevelArmResource refresh() {
-        String localNewParameter = null;
+        String localNextLink = null;
         String localNewHeader = null;
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
-            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localNewParameter,
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localNextLink,
                 localNewHeader, Context.NONE)
             .getValue();
         return this;
     }
 
     public TopLevelArmResource refresh(Context context) {
-        String localNewParameter = null;
+        String localNextLink = null;
         String localNewHeader = null;
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
-            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localNewParameter,
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localNextLink,
                 localNewHeader, context)
             .getValue();
         return this;
@@ -204,12 +204,12 @@ public final class TopLevelArmResourceImpl
         return this;
     }
 
-    public TopLevelArmResourceImpl withNewParameter(String newParameter) {
+    public TopLevelArmResourceImpl withNextLink(String nextLink) {
         if (isInCreateMode()) {
-            this.createNewParameter = newParameter;
+            this.createNextLink = nextLink;
             return this;
         } else {
-            this.updateNewParameter = newParameter;
+            this.updateNextLink = nextLink;
             return this;
         }
     }

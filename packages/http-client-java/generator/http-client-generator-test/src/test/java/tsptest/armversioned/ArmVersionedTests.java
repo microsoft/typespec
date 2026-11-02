@@ -99,11 +99,11 @@ public class ArmVersionedTests {
             .define("resourceName")
             .withRegion(Region.US_WEST3)
             .withExistingResourceGroup("resourceGroup")
-            .withNewParameter("newParameter")
+            .withNextLink("newParameter")
             .withNewHeader("newHeader")
             .create();
 
-        resource.update().withNewParameter("newParameter").withNewHeader("newHeader").apply();
+        resource.update().withNextLink("newParameter").withNewHeader("newHeader").apply();
 
         manager.serviceClient()
             .getTopLevelArmResources()

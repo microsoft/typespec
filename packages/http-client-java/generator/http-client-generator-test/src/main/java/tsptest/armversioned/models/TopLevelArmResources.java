@@ -24,7 +24,7 @@ public interface TopLevelArmResources {
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -32,7 +32,7 @@ public interface TopLevelArmResources {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
      */
-    PagedIterable<TopLevelArmResource> list(String newParameter, String newHeader, Context context);
+    PagedIterable<TopLevelArmResource> list(String nextLink, String newHeader, Context context);
 
     /**
      * List TopLevelArmResource resources by subscription ID.
@@ -89,7 +89,7 @@ public interface TopLevelArmResources {
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -98,7 +98,7 @@ public interface TopLevelArmResources {
      * @return a TopLevelArmResource along with {@link Response}.
      */
     Response<TopLevelArmResource> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String newParameter, String newHeader, Context context);
+        String topLevelArmResourcePropertiesName, String nextLink, String newHeader, Context context);
 
     /**
      * Get a TopLevelArmResource.
@@ -260,7 +260,7 @@ public interface TopLevelArmResources {
      * Get a TopLevelArmResource.
      * 
      * @param id the resource ID.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -268,8 +268,7 @@ public interface TopLevelArmResources {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a TopLevelArmResource along with {@link Response}.
      */
-    Response<TopLevelArmResource> getByIdWithResponse(String id, String newParameter, String newHeader,
-        Context context);
+    Response<TopLevelArmResource> getByIdWithResponse(String id, String nextLink, String newHeader, Context context);
 
     /**
      * Delete a TopLevelArmResource.

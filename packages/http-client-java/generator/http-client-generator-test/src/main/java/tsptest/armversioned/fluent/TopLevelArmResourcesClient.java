@@ -29,7 +29,7 @@ public interface TopLevelArmResourcesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -39,8 +39,7 @@ public interface TopLevelArmResourcesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String newParameter,
-        String newHeader);
+        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink, String newHeader);
 
     /**
      * Create a TopLevelArmResource.
@@ -64,7 +63,7 @@ public interface TopLevelArmResourcesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -75,7 +74,7 @@ public interface TopLevelArmResourcesClient {
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
-        String newParameter, String newHeader);
+        String nextLink, String newHeader);
 
     /**
      * Create a TopLevelArmResource.
@@ -115,7 +114,7 @@ public interface TopLevelArmResourcesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -127,7 +126,7 @@ public interface TopLevelArmResourcesClient {
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
-        String newParameter, String newHeader, Context context);
+        String nextLink, String newHeader, Context context);
 
     /**
      * Create a TopLevelArmResource.
@@ -153,7 +152,7 @@ public interface TopLevelArmResourcesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -163,8 +162,7 @@ public interface TopLevelArmResourcesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String newParameter,
-        String newHeader);
+        String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink, String newHeader);
 
     /**
      * Create a TopLevelArmResource.
@@ -203,7 +201,7 @@ public interface TopLevelArmResourcesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -213,7 +211,7 @@ public interface TopLevelArmResourcesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        TopLevelArmResourceInner resource, String newParameter, String newHeader, Context context);
+        TopLevelArmResourceInner resource, String nextLink, String newHeader, Context context);
 
     /**
      * Create a TopLevelArmResource.
@@ -234,7 +232,7 @@ public interface TopLevelArmResourcesClient {
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -242,7 +240,7 @@ public interface TopLevelArmResourcesClient {
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedFlux<TopLevelArmResourceInner> listAsync(String newParameter, String newHeader);
+    PagedFlux<TopLevelArmResourceInner> listAsync(String nextLink, String newHeader);
 
     /**
      * List TopLevelArmResource resources by subscription ID.
@@ -267,7 +265,7 @@ public interface TopLevelArmResourcesClient {
     /**
      * List TopLevelArmResource resources by subscription ID.
      * 
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -276,7 +274,7 @@ public interface TopLevelArmResourcesClient {
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedIterable<TopLevelArmResourceInner> list(String newParameter, String newHeader, Context context);
+    PagedIterable<TopLevelArmResourceInner> list(String nextLink, String newHeader, Context context);
 
     /**
      * List TopLevelArmResource resources by subscription ID.
@@ -378,7 +376,7 @@ public interface TopLevelArmResourcesClient {
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -387,7 +385,7 @@ public interface TopLevelArmResourcesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String newParameter, String newHeader);
+        String topLevelArmResourcePropertiesName, String nextLink, String newHeader);
 
     /**
      * Get a TopLevelArmResource.
@@ -422,7 +420,7 @@ public interface TopLevelArmResourcesClient {
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param newParameter The newParameter parameter.
+     * @param nextLink The nextLink parameter.
      * @param newHeader The newHeader parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -432,7 +430,7 @@ public interface TopLevelArmResourcesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String newParameter, String newHeader, Context context);
+        String topLevelArmResourcePropertiesName, String nextLink, String newHeader, Context context);
 
     /**
      * Get a TopLevelArmResource.
