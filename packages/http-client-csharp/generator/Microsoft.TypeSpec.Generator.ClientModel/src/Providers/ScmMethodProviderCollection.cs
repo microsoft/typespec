@@ -85,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var methods = BuildMethods(includeContinuationToken: false).ToList();
             if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
-                || _pagingServiceMethod?.PagingMetadata is not { NextLink: not null, ContinuationTokenParameter: not null }
+                || _pagingServiceMethod?.PagingMetadata.NextLink is null
+                || !ServiceMethod.Operation.Parameters.Any(p => p.IsContinuationToken)
                 || Client.BackCompatProvider.LastContractView?.Methods is not { Count: > 0 } previousMethods)
             {
                 return methods;
@@ -117,15 +118,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
                 || serviceMethod is not InputPagingServiceMethod
                 {
-                    PagingMetadata: { NextLink: not null, ContinuationTokenParameter: { } token }
+                    PagingMetadata.NextLink: not null
                 } || parameter.InputParameter is not { } inputParameter)
             {
                 return false;
             }
 
-            return ReferenceEquals(inputParameter, token)
-                || token.MethodParameterSegments?.Any(segment => ReferenceEquals(segment, inputParameter)) == true
-                || string.Equals(inputParameter.OriginalName, token.OriginalName, StringComparison.OrdinalIgnoreCase);
+            return inputParameter.IsContinuationToken
+                || serviceMethod.Operation.Parameters.Any(token => token.IsContinuationToken
+                    && token.MethodParameterSegments is { Count: 1 } segments
+                    && ReferenceEquals(segments[0], inputParameter));
         }
 
         private IReadOnlyList<ScmMethodProvider> BuildMethods(bool includeContinuationToken)
@@ -1357,7 +1359,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 if (IsNextLinkContinuationTokenParameter(ServiceMethod, protocolParam)
-                    && !convenienceMethodParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p)))
+                    && !convenienceMethodParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p))
+                    && (protocolParam.InputParameter?.MethodParameterSegments is not { Count: > 1 } tokenSegments
+                        || !convenienceParamsMap.ContainsKey(tokenSegments[0].Name)))
                 {
                     AddArgument(protocolParam, Default);
                     continue;

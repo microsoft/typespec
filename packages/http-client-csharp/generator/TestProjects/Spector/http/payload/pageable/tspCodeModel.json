@@ -2428,7 +2428,8 @@
                             "isExactName": false
                           }
                         ],
-                        "isExactName": false
+                        "isExactName": false,
+                        "isContinuationToken": true
                       },
                       {
                         "$id": "149",
@@ -2627,9 +2628,6 @@
                       ],
                       "responseLocation": "Body"
                     },
-                    "continuationTokenParameter": {
-                      "$ref": "145"
-                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -2689,7 +2687,8 @@
                             "isExactName": false
                           }
                         ],
-                        "isExactName": false
+                        "isExactName": false,
+                        "isContinuationToken": true
                       },
                       {
                         "$id": "165",
@@ -2888,9 +2887,6 @@
                       ],
                       "responseLocation": "Body"
                     },
-                    "continuationTokenParameter": {
-                      "$ref": "161"
-                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -2950,7 +2946,8 @@
                             "isExactName": false
                           }
                         ],
-                        "isExactName": false
+                        "isExactName": false,
+                        "isContinuationToken": true
                       },
                       {
                         "$id": "181",
@@ -3161,9 +3158,6 @@
                       ],
                       "responseLocation": "Header"
                     },
-                    "continuationTokenParameter": {
-                      "$ref": "177"
-                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -3223,7 +3217,8 @@
                             "isExactName": false
                           }
                         ],
-                        "isExactName": false
+                        "isExactName": false,
+                        "isContinuationToken": true
                       },
                       {
                         "$id": "198",
@@ -3434,9 +3429,6 @@
                       ],
                       "responseLocation": "Header"
                     },
-                    "continuationTokenParameter": {
-                      "$ref": "194"
-                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -3496,7 +3488,8 @@
                             "isExactName": false
                           }
                         ],
-                        "isExactName": false
+                        "isExactName": false,
+                        "isContinuationToken": true
                       },
                       {
                         "$id": "215",
@@ -3698,9 +3691,6 @@
                       ],
                       "responseLocation": "Body"
                     },
-                    "continuationTokenParameter": {
-                      "$ref": "211"
-                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -3760,7 +3750,8 @@
                             "isExactName": false
                           }
                         ],
-                        "isExactName": false
+                        "isExactName": false,
+                        "isContinuationToken": true
                       },
                       {
                         "$id": "231",
@@ -3961,9 +3952,6 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
-                    },
-                    "continuationTokenParameter": {
-                      "$ref": "227"
                     },
                     "pageSizeParameterSegments": []
                   }
@@ -4387,7 +4375,8 @@
                         "isExactName": false
                       }
                     ],
-                    "isExactName": false
+                    "isExactName": false,
+                    "isContinuationToken": true
                   },
                   {
                     "$id": "267",
@@ -4497,9 +4486,6 @@
                     "NextMarker"
                   ],
                   "responseLocation": "Body"
-                },
-                "continuationTokenParameter": {
-                  "$ref": "263"
                 },
                 "pageSizeParameterSegments": []
               }

@@ -17211,7 +17211,8 @@
                     "isExactName": false
                   }
                 ],
-                "isExactName": false
+                "isExactName": false,
+                "isContinuationToken": true
               },
               {
                 "$id": "1155",
@@ -17314,9 +17315,6 @@
               ],
               "responseLocation": "Body"
             },
-            "continuationTokenParameter": {
-              "$ref": "1151"
-            },
             "pageSizeParameterSegments": []
           }
         },
@@ -17381,7 +17379,8 @@
                     "isExactName": false
                   }
                 ],
-                "isExactName": false
+                "isExactName": false,
+                "isContinuationToken": true
               },
               {
                 "$id": "1163",
@@ -17495,9 +17494,6 @@
                 "next-token"
               ],
               "responseLocation": "Header"
-            },
-            "continuationTokenParameter": {
-              "$ref": "1159"
             },
             "pageSizeParameterSegments": []
           }

@@ -4377,6 +4377,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
             var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
+            token.Update(isContinuationToken: true, methodParameterSegments: [methodToken]);
             var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.Boolean);
             var item = InputFactory.Model("Item");
             var page = InputFactory.Model("Page", properties:
@@ -4390,14 +4392,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var method = InputFactory.PagingServiceMethod("GetItems", operation,
                 parameters: newOptionalParameter
                     ? [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
-                       InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query),
+                       methodToken,
                        InputFactory.MethodParameter("filter", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)]
                     : [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
-                       InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query)],
+                       methodToken],
                 response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
                 pagingMetadata: new InputPagingServiceMetadata(["items"],
                     new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
-                    null, continuationTokenParameter: token));
+                    null));
             var inputClient = InputFactory.Client(TestClientName, methods: [method]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],

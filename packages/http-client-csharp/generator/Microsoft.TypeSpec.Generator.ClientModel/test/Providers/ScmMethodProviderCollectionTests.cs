@@ -1926,19 +1926,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
-        [TestCase(true, true, true)]
-        [TestCase(true, true, false)]
-        [TestCase(true, false, true)]
-        [TestCase(true, false, false)]
-        [TestCase(false, true, true)]
-        [TestCase(false, true, false)]
-        [TestCase(false, false, true)]
-        [TestCase(false, false, false)]
-        public void NextLinkPagingOmitsOnlyContinuationToken(bool supportsPageResumption, bool hasNextLink, bool isHeader)
+        [Test]
+        public void NextLinkPagingOmitsOnlyContinuationToken(
+            [Values] bool supportsPageResumption,
+            [Values] bool hasNextLink,
+            [Values] bool isHeader,
+            [Values] bool isContinuationToken)
         {
             InputParameter token = isHeader
                 ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
                 : InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String,
+                location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query);
+            token.Update(isContinuationToken: isContinuationToken, methodParameterSegments: [methodToken]);
             var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
             var item = InputFactory.Model("Item");
             var page = InputFactory.Model("Page", properties:
@@ -1951,20 +1951,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 responses: [InputFactory.OperationResponse([200], page)]);
             var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters:
             [
-                InputFactory.MethodParameter("token", InputPrimitiveType.String,
-                    location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query),
+                methodToken,
                 InputFactory.MethodParameter("filter", InputPrimitiveType.String, location: InputRequestLocation.Query)
             ], pagingMetadata: new InputPagingServiceMetadata(
                 ["items"],
                 hasNextLink ? new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null) : null,
-                hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body),
-                continuationTokenParameter: token));
+                hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body)));
             var inputClient = InputFactory.Client("TestClient", methods: [method]);
             MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient],
                 clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methods = new ScmMethodProviderCollection(method, client);
-            var omitToken = supportsPageResumption && hasNextLink;
+            var omitToken = supportsPageResumption && hasNextLink && isContinuationToken;
 
             Assert.AreEqual(4, methods.Count);
             foreach (var generated in methods)
@@ -1977,6 +1975,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.AreEqual("filter", construction.ArgumentList.Arguments[2].Expression.ToString());
             }
             Assert.IsTrue(client.RestClient.GetCreateRequestMethod(operation).Signature.Parameters.Any(p => p.Name == "token"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void NextLinkPagingPreservesContinuationTokenOptionsBag(bool supportsPageResumption)
+        {
+            var optionsModel = InputFactory.Model("GetItemsOptions", properties:
+            [
+                InputFactory.Property("token", InputPrimitiveType.String, isHttpMetadata: true),
+                InputFactory.Property("filter", InputPrimitiveType.String, isHttpMetadata: true)
+            ]);
+            var options = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            token.Update(isContinuationToken: true, methodParameterSegments:
+            [
+                options, InputFactory.MethodParameter("token", InputPrimitiveType.String)
+            ]);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            filter.Update(methodParameterSegments:
+            [
+                options, InputFactory.MethodParameter("filter", InputPrimitiveType.String)
+            ]);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters: [options],
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [optionsModel, item, page], clients: () => [inputClient],
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var generated in methods)
+            {
+                Assert.IsTrue(generated.Signature.Parameters.Any(p => ReferenceEquals(p.InputParameter, options)));
+                var syntax = CSharpSyntaxTree.ParseText(generated.BodyStatements!.ToDisplayString()).GetRoot();
+                var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single();
+                Assert.AreEqual("options.Token", construction.ArgumentList!.Arguments[1].Expression.ToString());
+                Assert.AreEqual("options.Filter", construction.ArgumentList.Arguments[2].Expression.ToString());
+            }
         }
 
         [Test]

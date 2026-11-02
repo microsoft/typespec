@@ -75,17 +75,68 @@ describe("Next link operations", () => {
       strictEqual(method.kind, "paging");
       ok(method.pagingMetadata.nextLink);
       strictEqual(method.pagingMetadata.continuationToken, undefined);
-      const token = method.pagingMetadata.continuationTokenParameter;
+      strictEqual("continuationTokenParameter" in method.pagingMetadata, false);
+      const token = method.operation.parameters.find((p) => p.name === "token");
       ok(token);
       strictEqual(token.kind, location);
       ok(token.kind === "query" || token.kind === "header");
+      strictEqual(token.isContinuationToken, true);
       strictEqual(token.methodParameterSegments?.[0], method.parameters[0]);
-      strictEqual(
-        token,
-        method.operation.parameters.find((p) => p.name === "token"),
-      );
+      const filter = method.operation.parameters.find((p) => p.name === "filter");
+      ok(filter?.kind === "query");
+      strictEqual(filter.isContinuationToken, undefined);
     },
   );
+
+  it("does not mark an ordinary parameter named token", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(@query token?: string): {
+          @pageItems items: string[];
+          @nextLink next?: url;
+        };
+      `,
+      runner,
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const token = root.clients[0].methods[0].operation.parameters[0];
+    ok(token.kind === "query");
+    strictEqual(token.isContinuationToken, undefined);
+  });
+
+  it("marks the HTTP token without marking its containing options bag", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Options {
+          @continuationToken @query token?: string;
+          @query filter?: string;
+        }
+        model Page {
+          @pageItems items: string[];
+          @nextLink next?: url;
+        }
+        @list
+        op link(@continuationToken @query token?: string, @query filter?: string): Page;
+        op customized(options: Options): Page;
+        @@override(Azure.Csharp.Testing.link, Azure.Csharp.Testing.customized);
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods.find((m) => m.name === "link");
+    ok(method);
+    strictEqual(method.kind, "paging");
+    const token = method.operation.parameters.find((p) => p.name === "token");
+    ok(token?.kind === "query");
+    strictEqual(token.isContinuationToken, true);
+    strictEqual(token.methodParameterSegments?.length, 2);
+    strictEqual(token.methodParameterSegments[0], method.parameters[0]);
+    strictEqual("isContinuationToken" in method.parameters[0], false);
+  });
 
   it("preserves an explicit POST next-link verb", async () => {
     const program = await typeSpecCompile(
@@ -558,6 +609,7 @@ describe("Continuation token operations", () => {
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
     strictEqual(continuationToken.parameter.kind, "header");
+    strictEqual(continuationToken.parameter.isContinuationToken, true);
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "next-token");

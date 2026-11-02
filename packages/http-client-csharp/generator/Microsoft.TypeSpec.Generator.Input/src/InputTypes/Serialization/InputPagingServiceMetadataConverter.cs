@@ -30,14 +30,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<string>? itemPropertySegments = null;
             InputNextLink? nextLink = null;
             InputContinuationToken? continuationToken = null;
-            InputParameter? continuationTokenParameter = null;
             IReadOnlyList<string>? pageSizeParameterSegments = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("itemPropertySegments", options, ref itemPropertySegments)
                     || reader.TryReadComplexType("nextLink", options, ref nextLink)
                     || reader.TryReadComplexType("continuationToken", options, ref continuationToken)
-                    || reader.TryReadComplexType("continuationTokenParameter", options, ref continuationTokenParameter)
                     || reader.TryReadComplexType("pageSizeParameterSegments", options, ref pageSizeParameterSegments);
                 if (!isKnownProperty)
                 {
@@ -45,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            return new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken, pageSizeParameterSegments ?? [], continuationTokenParameter);
+            return new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken, pageSizeParameterSegments ?? []);
         }
     }
 }

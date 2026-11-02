@@ -986,33 +986,35 @@ function loadPagingServiceMetadata(
   }
 
   let continuationToken: InputContinuationToken | undefined;
-  let continuationTokenParameter: InputHttpParameter | undefined;
   if (method.pagingMetadata.continuationTokenParameterSegments) {
     // The last segment of the service method parameter can be used to map back to the protocol parameter
     const lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
-    continuationTokenParameter = diagnostics.pipe(
+    const continuationTokenParameter = diagnostics.pipe(
       fromParameter(
         context,
         getHttpOperationParameter(method, lastParameterSegment)!,
         rootApiVersions,
       ),
     );
-    if (continuationTokenParameter && method.pagingMetadata.continuationTokenResponseSegments) {
-      continuationToken = {
-        parameter: continuationTokenParameter,
-        responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
-          getResponseSegmentName(segment),
-        ),
-        responseLocation: diagnostics.pipe(
-          getResponseLocation(
-            context,
-            method,
-            method.pagingMetadata.continuationTokenResponseSegments?.[0],
+    if (continuationTokenParameter) {
+      continuationTokenParameter.isContinuationToken = true;
+      if (method.pagingMetadata.continuationTokenResponseSegments) {
+        continuationToken = {
+          parameter: continuationTokenParameter,
+          responseSegments: method.pagingMetadata.continuationTokenResponseSegments.map((segment) =>
+            getResponseSegmentName(segment),
           ),
-        ),
-      };
+          responseLocation: diagnostics.pipe(
+            getResponseLocation(
+              context,
+              method,
+              method.pagingMetadata.continuationTokenResponseSegments[0],
+            ),
+          ),
+        };
+      }
     }
   }
 
@@ -1027,7 +1029,6 @@ function loadPagingServiceMetadata(
     itemPropertySegments: method.response.resultSegments!.map((s) => getResponseSegmentName(s)),
     nextLink: nextLink,
     continuationToken: continuationToken,
-    continuationTokenParameter,
     pageSizeParameterSegments: pageSizeParameterSegments,
   });
 }

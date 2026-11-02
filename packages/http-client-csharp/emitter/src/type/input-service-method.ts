@@ -48,7 +48,6 @@ export interface InputPagingServiceMethod extends InputServiceMethodBase {
 export interface InputPagingServiceMetadata {
   nextLink?: InputNextLink;
   continuationToken?: InputContinuationToken;
-  continuationTokenParameter?: InputParameter;
   itemPropertySegments: string[];
   pageSizeParameterSegments?: string[];
 }
