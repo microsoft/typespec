@@ -1216,6 +1216,7 @@ export class CodeModelBuilder {
         codeModelOperation,
         sdkMethod,
         httpOperation.bodyParam,
+        clientContext,
       );
     }
 
@@ -1651,18 +1652,6 @@ export class CodeModelBuilder {
         }
       }
 
-      if (this.supportsAdvancedVersioning() && param.__raw) {
-        // versioning
-        const addedOn = getAddedOnVersions(this.program, param.__raw);
-        if (addedOn) {
-          extensions = extensions ?? {};
-          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
-            param.__raw,
-            addedOn,
-          );
-        }
-      }
-
       // format if array
       let style = undefined;
       let explode = undefined;
@@ -1752,6 +1741,7 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      this.applyParameterVersioning(param, parameter, clientContext);
       this.applyExperimental(param.__raw, parameter);
       if (param.isExactName) {
         parameter.language.java = parameter.language.java ?? {};
@@ -2208,10 +2198,28 @@ export class CodeModelBuilder {
     }
   }
 
+  private applyParameterVersioning(
+    source: SdkHttpOperationParameterType | SdkBodyParameter,
+    parameter: Parameter,
+    clientContext: ClientContext,
+  ) {
+    if (this.supportsAdvancedVersioning() && source.__raw) {
+      const addedOn = getAddedOnVersions(this.program, source.__raw);
+      if (addedOn) {
+        parameter.extensions = parameter.extensions ?? {};
+        parameter.extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
+          source.__raw,
+          [...addedOn],
+        );
+      }
+    }
+  }
+
   private processParameterBody(
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkBody: SdkBodyParameter,
+    clientContext: ClientContext,
   ): boolean {
     let bodyParameterFlattened = false;
 
@@ -2273,6 +2281,7 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
+    this.applyParameterVersioning(sdkBody, parameter, clientContext);
     this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);

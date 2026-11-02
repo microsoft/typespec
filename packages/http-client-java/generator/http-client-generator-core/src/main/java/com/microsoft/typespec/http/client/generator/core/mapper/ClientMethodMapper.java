@@ -19,7 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
@@ -383,6 +382,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
                 // versioning of @added exists
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
+                final List<ClientMethod> overloadMethods = new ArrayList<>();
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
                     if (JavaSettings.getInstance().isDataPlaneClient()) {
                         // DPG
@@ -390,7 +390,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             .overloadedClientMethod(overloadedMethod)
                             .parameters(overloadedParameters)
                             .build();
-                        methods.add(overloadMethod);
+                        overloadMethods.add(overloadMethod);
                     } else {
                         // non-DPG
                         ClientMethod.Builder overloadedMethodBuilder = baseMethod.newBuilder()
@@ -401,10 +401,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                         final ClientMethod overloadMethod = overloadedMethodBuilder.build();
                         if (addContextParameter) {
-                            addClientMethodWithContext(methods, overloadMethod, methodVisibility, isProtocolMethod);
+                            addClientMethodWithContext(overloadMethods, overloadMethod, methodVisibility,
+                                isProtocolMethod);
                         } else {
-                            methods.add(overloadMethod);
+                            overloadMethods.add(overloadMethod);
                         }
+                    }
+                }
+                for (ClientMethod overloadMethod : overloadMethods) {
+                    if (methods.stream()
+                        .noneMatch(method -> method.getMethodVisibility() != NOT_GENERATE
+                            && method.getType() == overloadMethod.getType()
+                            && method.getName().equals(overloadMethod.getName())
+                            && method.getParametersDeclaration().equals(overloadMethod.getParametersDeclaration()))) {
+                        methods.add(overloadMethod);
                     }
                 }
             }
@@ -413,9 +423,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     static List<List<ClientMethodParameter>> findOverloadedSignatures(List<ClientMethodParameter> allParameters) {
         List<List<ClientMethodParameter>> signatures = new ArrayList<>();
-
-        List<ClientMethodParameter> requiredParameters
-            = allParameters.stream().filter(MethodParameter::isRequired).collect(Collectors.toList());
 
         List<String> versions = allParameters.stream().flatMap(p -> {
             if (p.getVersioning() != null && p.getVersioning().getAdded() != null) {
@@ -434,10 +441,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         && p.getVersioning().getAdded().contains(version)))
                 .collect(Collectors.toList());
 
-            if (!overloadedParameters.equals(allParameters)
-                && !overloadedParameters.equals(requiredParameters)
-                && !signatures.contains(overloadedParameters)) {
-                // take the signature not same as required-only, not same as full, not same as anything already there
+            if (!overloadedParameters.equals(allParameters) && !signatures.contains(overloadedParameters)) {
+                // Exclude the full signature and duplicate historical signatures.
                 signatures.add(overloadedParameters);
             }
         }

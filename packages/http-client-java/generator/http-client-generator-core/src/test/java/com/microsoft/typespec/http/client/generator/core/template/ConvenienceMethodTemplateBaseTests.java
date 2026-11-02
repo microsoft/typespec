@@ -32,6 +32,34 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 public class ConvenienceMethodTemplateBaseTests {
 
     @Test
+    public void initializesOnlyParametersOmittedByVersioning() {
+        ClientMethodParameter required = new ClientMethodParameter.Builder().name("name")
+            .wireType(ClassType.STRING)
+            .required(true)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter retained = new ClientMethodParameter.Builder().name("existing")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("newHeader")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethod full = new ClientMethod.Builder().name("operation")
+            .type(ClientMethodType.SimpleSync)
+            .parameters(List.of(required, retained, added))
+            .build();
+        ClientMethod historical
+            = full.newBuilder().parameters(List.of(required, retained)).overloadedClientMethod(full).build();
+        JavaFileContents contents = new JavaFileContents();
+
+        ClientMethodTemplate.addOptionalVariables(new JavaBlock(contents), historical);
+
+        Assertions.assertEquals("final String newHeader = null;", contents.toString().trim());
+    }
+
+    @Test
     public void unwrapsMonoResponse() {
         IType leaf = ClassType.STRING;
         IType returnType = GenericType.mono(GenericType.response(leaf));

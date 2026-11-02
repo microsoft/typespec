@@ -172,13 +172,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod The client method.
      */
     protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
-        if (!clientMethod.getOnlyRequiredParameters()) {
+        ClientMethod overloadedMethod = clientMethod.getOverloadedClientMethod();
+        if (!clientMethod.getOnlyRequiredParameters() && overloadedMethod == null) {
             return;
         }
 
-        for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            if (parameter.isRequired()) {
-                // Parameter is required and will be part of the method signature.
+        List<ClientMethodParameter> parameters
+            = overloadedMethod == null ? clientMethod.getMethodParameters() : overloadedMethod.getMethodParameters();
+        for (ClientMethodParameter parameter : parameters) {
+            if (parameter.isRequired()
+                || (!clientMethod.getOnlyRequiredParameters()
+                    && clientMethod.getMethodParameters().contains(parameter))) {
                 continue;
             }
             if (clientMethod.isPageStreamingType()
