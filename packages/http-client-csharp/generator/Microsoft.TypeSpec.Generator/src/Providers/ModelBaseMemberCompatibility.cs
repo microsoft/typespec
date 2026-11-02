@@ -32,6 +32,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public static bool AreClrTypesEqual(CSharpType left, CSharpType right)
             => left.AreNamesEqual(right) && left.IsValueType == right.IsValueType &&
                 (!left.IsValueType || left.IsNullable == right.IsNullable) &&
+                left.IsArray == right.IsArray &&
+                (!left.IsArray || AreClrTypesEqual(left.ElementType, right.ElementType)) &&
                 left.Arguments.Zip(right.Arguments).All(pair => AreClrTypesEqual(pair.First, pair.Second));
 
         public static bool ArePropertiesCompatible(PropertyProvider previous, PropertyProvider current)

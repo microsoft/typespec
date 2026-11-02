@@ -1374,6 +1374,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     assignmentType = backingField.Type;
                 }
                 if (parameter.Type is { IsValueType: true, IsNullable: true } && !assignmentType.IsNullable ||
+                    parameter.Type.IsArray && !ModelBaseMemberCompatibility.AreClrTypesEqual(parameter.Type, assignmentType) ||
                     parameter.Type.Arguments.Count != assignmentType.Arguments.Count ||
                     !parameter.Type.Arguments.Zip(assignmentType.Arguments).All(pair =>
                         ModelBaseMemberCompatibility.AreClrTypesEqual(pair.First, pair.Second)))

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sample.External;
 
@@ -80,6 +81,62 @@ namespace Sample.Models
         public NonNullableToNullableCollectionCounter(List<int> value)
         {
             Value = value.ConvertAll(item => (int?)item);
+        }
+    }
+
+    public partial class NullableArrayCounter : GenericBase<int?[]>
+    {
+        public NullableArrayCounter(int?[] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class NullableToDifferentNullableArrayCounter : GenericBase<int?[]>
+    {
+        public NullableToDifferentNullableArrayCounter(long?[] value)
+        {
+            Value = Array.ConvertAll(value, item => (int?)item);
+        }
+    }
+
+    public partial class DifferentNullableToNullableArrayCounter : GenericBase<long?[]>
+    {
+        public DifferentNullableToNullableArrayCounter(int?[] value)
+        {
+            Value = Array.ConvertAll(value, item => (long?)item);
+        }
+    }
+
+    public partial class JaggedNullableArrayCounter : GenericBase<int?[][]>
+    {
+        public JaggedNullableArrayCounter(int?[][] value)
+        {
+            Value = value;
+        }
+    }
+
+    public partial class MismatchedJaggedNullableArrayCounter : GenericBase<int?[][]>
+    {
+        public MismatchedJaggedNullableArrayCounter(long?[][] value)
+        {
+            Value = Array.ConvertAll(value, items => Array.ConvertAll(items, item => (int?)item));
+        }
+    }
+
+    public partial class MismatchedNestedNullableArrayCounter : GenericBase<List<int?[]>>
+    {
+        public MismatchedNestedNullableArrayCounter(List<long?[]> value)
+        {
+            Value = value.ConvertAll(items => Array.ConvertAll(items, item => (int?)item));
+        }
+    }
+
+    public partial class MismatchedMappedNullableArrayCounter : GenericBase<long?[]>
+    {
+        public MismatchedMappedNullableArrayCounter(int?[] value)
+        {
+            Value = Array.ConvertAll(value, item => (long?)item);
         }
     }
 }
