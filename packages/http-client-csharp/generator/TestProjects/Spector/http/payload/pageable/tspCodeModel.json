@@ -2627,6 +2627,9 @@
                       ],
                       "responseLocation": "Body"
                     },
+                    "continuationTokenParameter": {
+                      "$ref": "145"
+                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -2884,6 +2887,9 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
+                    },
+                    "continuationTokenParameter": {
+                      "$ref": "161"
                     },
                     "pageSizeParameterSegments": []
                   }
@@ -3155,6 +3161,9 @@
                       ],
                       "responseLocation": "Header"
                     },
+                    "continuationTokenParameter": {
+                      "$ref": "177"
+                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -3425,6 +3434,9 @@
                       ],
                       "responseLocation": "Header"
                     },
+                    "continuationTokenParameter": {
+                      "$ref": "194"
+                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -3686,6 +3698,9 @@
                       ],
                       "responseLocation": "Body"
                     },
+                    "continuationTokenParameter": {
+                      "$ref": "211"
+                    },
                     "pageSizeParameterSegments": []
                   }
                 },
@@ -3946,6 +3961,9 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
+                    },
+                    "continuationTokenParameter": {
+                      "$ref": "227"
                     },
                     "pageSizeParameterSegments": []
                   }
@@ -4479,6 +4497,9 @@
                     "NextMarker"
                   ],
                   "responseLocation": "Body"
+                },
+                "continuationTokenParameter": {
+                  "$ref": "263"
                 },
                 "pageSizeParameterSegments": []
               }

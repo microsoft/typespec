@@ -4373,6 +4373,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase(true)]
         public async Task BackCompatibility_NextLinkContinuationToken(bool newOptionalParameter)
         {
+            var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
             var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
             var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.Boolean);
             var item = InputFactory.Model("Item");
@@ -4382,13 +4383,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 InputFactory.Property("nextLink", InputPrimitiveType.Url)
             ]);
             var operation = InputFactory.Operation("GetItems",
-                parameters: newOptionalParameter ? [token, filter] : [token],
+                parameters: newOptionalParameter ? [pageSize, token, filter] : [pageSize, token],
                 responses: [InputFactory.OperationResponse([200], page)]);
             var method = InputFactory.PagingServiceMethod("GetItems", operation,
                 parameters: newOptionalParameter
-                    ? [InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query),
+                    ? [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
+                       InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query),
                        InputFactory.MethodParameter("filter", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)]
-                    : [InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query)],
+                    : [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
+                       InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query)],
                 response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
                 pagingMetadata: new InputPagingServiceMetadata(["items"],
                     new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
@@ -4409,7 +4412,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var hidden = methods.Except(visible).ToArray();
             Assert.AreEqual(newOptionalParameter ? 8 : 4, hidden.Length);
             Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name == "token")));
-            Assert.IsTrue(hidden.All(m => m.Signature.Parameters.All(p => p.DefaultValue == null)));
+            Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Take(2).All(p => p.DefaultValue == null)));
+            var publishedConvenienceOverloads = hidden.Where(m =>
+                m.Signature.Parameters.Count == 3 && m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken))).ToArray();
+            Assert.AreEqual(2, publishedConvenienceOverloads.Length);
+            Assert.IsTrue(publishedConvenienceOverloads.All(m => m.Signature.Parameters[^1].DefaultValue != null));
+            Assert.IsTrue(hidden.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken))
+                && m.Signature.Parameters[^1].DefaultValue == null).All(m =>
+                    m.Suppressions.Any(suppression => suppression.Code.ToDisplayString() == Literal("AZC0002").ToDisplayString())));
             Assert.IsTrue(hidden.All(m => m.Signature.Attributes.Single(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))
                 .Arguments.Single().ToDisplayString() == FrameworkEnumValue(System.ComponentModel.EditorBrowsableState.Never).ToDisplayString()));
             Assert.IsTrue(hidden.All(m => m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)));

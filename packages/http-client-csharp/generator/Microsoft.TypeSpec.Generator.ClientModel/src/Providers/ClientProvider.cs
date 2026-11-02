@@ -1588,16 +1588,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 originalSignatures.TryAdd(method, method.Signature);
             }
+            var continuationTokenMethods = originalMethods.OfType<ScmMethodProvider>()
+                .Where(method => method.ServiceMethod != null
+                    && method.Signature.Parameters.Any(parameter =>
+                        ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(method.ServiceMethod, parameter))).ToArray();
+            // The base pass can clear defaults on last-contract signatures when constructing hidden overloads.
+            var previousDefaults = LastContractView.Methods
+                .Where(previous => continuationTokenMethods.Any(method => method.Signature.Name == previous.Signature.Name))
+                .Select(method => (method.Signature, Defaults: method.Signature.Parameters.Select(parameter => parameter.DefaultValue).ToArray())).ToArray();
 
             // Tokenless entry points must not be matched to a published token-bearing signature just
             // because removing the token and adding another parameter produced the same CLR types.
             var tokenlessMethods = originalMethods.OfType<ScmMethodProvider>()
-                .Where(method => method.ServiceMethod is InputPagingServiceMethod
-                { PagingMetadata: { NextLink: not null, ContinuationTokenParameter: not null } }
-                    && !method.Signature.Parameters.Any(p => ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(method.ServiceMethod, p))
-                    && originalMethods.OfType<ScmMethodProvider>().Any(other =>
-                        other.ServiceMethod == method.ServiceMethod && other.Kind == method.Kind
-                        && other.Signature.Parameters.Any(p => ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(method.ServiceMethod, p))))
+                .Where(method => !continuationTokenMethods.Contains(method)
+                    && continuationTokenMethods.Any(other => other.ServiceMethod == method.ServiceMethod
+                        && other.Kind == method.Kind && other.Signature.Name == method.Signature.Name))
                 .ToArray();
             List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods.Except(tokenlessMethods))];
             result.AddRange(tokenlessMethods.Where(method =>
@@ -1610,13 +1615,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     method.Signature.Update(attributes:
                     [
-                        .. method.Signature.Attributes,
+                        .. method.Signature.Attributes.Where(attribute => !attribute.Type.Equals(typeof(EditorBrowsableAttribute))),
                         new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))
                     ]);
                     foreach (var parameter in method.Signature.Parameters)
                     {
                         parameter.DefaultValue = null;
                     }
+                }
+            }
+
+            foreach (var (signature, defaults) in previousDefaults)
+            {
+                var legacyMethod = result.FirstOrDefault(method =>
+                    MethodSignature.MethodSignatureComparer.Equals(method.Signature, signature)
+                    && method.Signature.Attributes.Any(attribute => attribute.Type.Equals(typeof(EditorBrowsableAttribute))));
+                if (legacyMethod == null)
+                {
+                    continue;
+                }
+
+                var token = continuationTokenMethods
+                    .Where(method => method.Signature.Name == signature.Name
+                        && method.Signature.ReturnType?.AreNamesEqual(signature.ReturnType) == true)
+                    .SelectMany(method => method.Signature.Parameters.Where(parameter =>
+                        ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(method.ServiceMethod!, parameter)))
+                    .FirstOrDefault(parameter => signature.Parameters.Any(previous => previous.Name == parameter.Name));
+                if (token == null)
+                {
+                    continue;
+                }
+
+                var tokenIndex = signature.Parameters.ToList().FindIndex(parameter => parameter.Name == token.Name);
+                for (int i = tokenIndex + 1; i < signature.Parameters.Count; i++)
+                {
+                    legacyMethod.Signature.Parameters[i].DefaultValue = defaults[i];
                 }
             }
 
@@ -1645,7 +1678,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // ambiguous call with the current method.
             foreach (var method in result)
             {
-                if (!originalSignatures.ContainsKey(method) && PreviousSignatureEndsWithCancellationToken(method.Signature))
+                if ((!originalSignatures.ContainsKey(method)
+                        || method is ScmMethodProvider scmMethod && continuationTokenMethods.Contains(scmMethod))
+                    && PreviousSignatureEndsWithCancellationToken(method.Signature)
+                    && method.Signature.Parameters[^1].DefaultValue == null)
                 {
                     method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                     [
