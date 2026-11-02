@@ -148,7 +148,7 @@ public interface TopLevelArmResource {
          * resource to be created, but also allows for any other optional properties to be specified.
          */
         interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithProperties,
-            DefinitionStages.WithParameter, DefinitionStages.WithNewParameter {
+            DefinitionStages.WithNewParameter, DefinitionStages.WithNewHeader {
             /**
              * Executes the create request.
              * 
@@ -192,19 +192,6 @@ public interface TopLevelArmResource {
         }
 
         /**
-         * The stage of the TopLevelArmResource definition allowing to specify parameter.
-         */
-        interface WithParameter {
-            /**
-             * Specifies the parameter property: The parameter parameter.
-             * 
-             * @param parameter The parameter parameter.
-             * @return the next definition stage.
-             */
-            WithCreate withParameter(String parameter);
-        }
-
-        /**
          * The stage of the TopLevelArmResource definition allowing to specify newParameter.
          */
         interface WithNewParameter {
@@ -215,6 +202,19 @@ public interface TopLevelArmResource {
              * @return the next definition stage.
              */
             WithCreate withNewParameter(String newParameter);
+        }
+
+        /**
+         * The stage of the TopLevelArmResource definition allowing to specify newHeader.
+         */
+        interface WithNewHeader {
+            /**
+             * Specifies the newHeader property: The newHeader parameter.
+             * 
+             * @param newHeader The newHeader parameter.
+             * @return the next definition stage.
+             */
+            WithCreate withNewHeader(String newHeader);
         }
     }
 
@@ -228,8 +228,8 @@ public interface TopLevelArmResource {
     /**
      * The template for TopLevelArmResource update.
      */
-    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithParameter,
-        UpdateStages.WithNewParameter {
+    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithNewParameter,
+        UpdateStages.WithNewHeader {
         /**
          * Executes the update request.
          * 
@@ -277,19 +277,6 @@ public interface TopLevelArmResource {
         }
 
         /**
-         * The stage of the TopLevelArmResource update allowing to specify parameter.
-         */
-        interface WithParameter {
-            /**
-             * Specifies the parameter property: The parameter parameter.
-             * 
-             * @param parameter The parameter parameter.
-             * @return the next definition stage.
-             */
-            Update withParameter(String parameter);
-        }
-
-        /**
          * The stage of the TopLevelArmResource update allowing to specify newParameter.
          */
         interface WithNewParameter {
@@ -300,6 +287,19 @@ public interface TopLevelArmResource {
              * @return the next definition stage.
              */
             Update withNewParameter(String newParameter);
+        }
+
+        /**
+         * The stage of the TopLevelArmResource update allowing to specify newHeader.
+         */
+        interface WithNewHeader {
+            /**
+             * Specifies the newHeader property: The newHeader parameter.
+             * 
+             * @param newHeader The newHeader parameter.
+             * @return the next definition stage.
+             */
+            Update withNewHeader(String newHeader);
         }
     }
 
