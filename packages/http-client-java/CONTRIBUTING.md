@@ -189,10 +189,6 @@ default `tspconfig.yaml`. Do not run full `Generate.ps1`. Compare the named fixt
 sources before copying affected generated sources and metadata, excluding
 `module-info.java`. The shared Spector streams contain unnamed or literal events and
 therefore verify unsupported-stream binary fallback rather than typed SSE generation.
-Compile `tsp/sse-name-collisions.tsp` and its generated Maven project to check ordinary
-SSE references and response-lambda names against request parameters and
-grouped-parameter locals. Special event, payload, runtime-helper, serializer, and Flux
-import collisions are currently outside the supported test scope.
 
 Run the emitter's schema/naming tests and the generator's metadata, path-preflight,
 template, and mapper tests. The retained
