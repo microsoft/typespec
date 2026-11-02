@@ -424,6 +424,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocProvider? xmlDocs = null,
             IEnumerable<AttributeStatement>? attributes = null)
         {
+            var owner = EnclosingType;
+            owner?.InvalidateFieldTypePreparation();
+            enclosingType?.InvalidateFieldTypePreparation();
             if (description != null)
             {
                 _customDescription = description;

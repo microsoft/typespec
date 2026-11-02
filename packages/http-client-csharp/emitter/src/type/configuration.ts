@@ -6,6 +6,7 @@ export interface Configuration {
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "disable-xml-docs"?: boolean;
   "disable-roslyn-reduce"?: boolean;
+  "enable-pre-emission-simplification"?: boolean;
   license?: {
     name: string;
     company?: string;

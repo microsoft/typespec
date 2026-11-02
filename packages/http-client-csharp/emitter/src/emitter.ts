@@ -91,9 +91,7 @@ export async function emitCodeModel(
         const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
         const configJson = JSON.stringify(configurations, null, 2) + "\n";
 
-        // Generate C# code via platform-specific implementation.
-        // In Node.js this runs the .NET generator locally.
-        // In the browser this sends the code model to a playground server.
+        // Generate C# code via the existing platform-specific implementation.
         await generate(sdkContext, codeModelJson, configJson, {
           outputFolder,
           packageName: configurations["package-name"] ?? "",
@@ -150,6 +148,8 @@ export function createConfiguration(
       options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
     "disable-roslyn-reduce":
       options["disable-roslyn-reduce"] === false ? undefined : options["disable-roslyn-reduce"],
+    "enable-pre-emission-simplification":
+      options["enable-pre-emission-simplification"] === true ? true : undefined,
     license: sdkContext.sdkPackage.licenseInfo,
   };
 }

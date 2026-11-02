@@ -2,6 +2,8 @@ vi.resetModules();
 
 import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext, Program } from "@typespec/compiler";
+import { createTypeSpecLibrary } from "@typespec/compiler";
+import { createTester, mockFile } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createConfiguration } from "../../src/emitter.js";
@@ -167,6 +169,11 @@ describe("Configuration tests", async () => {
     expect(config["generate-convenience-methods"]).toBeUndefined();
   });
 
+  it("exposes preparation without a separate compilation-validation action", () => {
+    expect(CSharpEmitterOptionsSchema.properties).toHaveProperty("enable-pre-emission-simplification");
+    expect(CSharpEmitterOptionsSchema.properties).not.toHaveProperty("validate-only-owned-compilation");
+  });
+
   it("should pass plugins option to configuration", async () => {
     const options: CSharpEmitterOptions = {
       "package-name": "test-package",
@@ -189,6 +196,47 @@ describe("Configuration tests", async () => {
 
     expect(config["plugins"]).toBeUndefined();
   });
+
+  it("declares the experimental pre-emission option as a boolean", () => {
+    const properties = CSharpEmitterOptionsSchema.properties as Record<string, unknown>;
+    expect(properties["enable-pre-emission-simplification"]).toMatchObject({ type: "boolean" });
+  });
+
+  it.each([
+    [true, false],
+    [false, false],
+    [null, false],
+    ["true", false],
+    ["not-bool", true],
+  ])("validates pre-emission option %s through the compiler schema", async (value, invalid) => {
+    const name = "pre-emission-schema-test";
+    const library = createTypeSpecLibrary({
+      name,
+      diagnostics: {},
+      emitter: { options: CSharpEmitterOptionsSchema },
+    });
+    const tester = createTester(process.cwd(), { libraries: [] }).files({
+      [`node_modules/${name}/package.json`]: JSON.stringify({ name, main: "index.js" }),
+      [`node_modules/${name}/index.js`]: mockFile.js({ $lib: library, $onEmit: () => {} }),
+    });
+    const diagnostics = await tester.diagnose("", {
+      compilerOptions: { emit: [name], options: { [name]: { "enable-pre-emission-simplification": value } } },
+    });
+
+    expect(diagnostics.map((diagnostic) => diagnostic.code)).toEqual(invalid ? ["invalid-schema"] : []);
+  });
+
+  it.each([true, false, null, undefined])(
+    "forwards only an enabled pre-emission option (%s)",
+    async (value) => {
+      const options = { "enable-pre-emission-simplification": value } as unknown as CSharpEmitterOptions;
+      const context = createEmitterContext(program, options);
+      const sdkContext = await createCSharpSdkContext(context);
+      const config = createConfiguration(options, "namespace", sdkContext);
+
+      expect(config["enable-pre-emission-simplification"]).toBe(value === true ? true : undefined);
+    },
+  );
 
   it("api-version schema accepts a string or namespace-to-version map", () => {
     const schema = CSharpEmitterOptionsSchema.properties["api-version"];

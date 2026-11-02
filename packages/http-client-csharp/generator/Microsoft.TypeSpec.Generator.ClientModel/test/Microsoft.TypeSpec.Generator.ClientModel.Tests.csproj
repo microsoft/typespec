@@ -11,6 +11,10 @@
     <None Update="TestHelpers\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\PreparedFieldTypes\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="../../TestProjects/Spector/http/client/structure/default/tspCodeModel.json" Link="TestData/PreparedFieldTypes/ClientStructureDefault.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

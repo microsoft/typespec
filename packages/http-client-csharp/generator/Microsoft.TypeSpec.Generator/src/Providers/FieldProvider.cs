@@ -17,8 +17,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; private set; }
-        public FieldModifiers Modifiers { get; set; }
-        public CSharpType Type { get; internal set; }
+        private FieldModifiers _modifiers;
+        private CSharpType _type = null!;
+
+        public FieldModifiers Modifiers
+        {
+            get => _modifiers;
+            set
+            {
+                if (_modifiers != value)
+                {
+                    EnclosingType?.InvalidateFieldTypePreparation();
+                    _modifiers = value;
+                }
+            }
+        }
+
+        public CSharpType Type
+        {
+            get => _type;
+            internal set
+            {
+                if (!ReferenceEquals(_type, value))
+                {
+                    EnclosingType?.InvalidateFieldTypePreparation();
+                    _type = value;
+                }
+            }
+        }
+
         public string Name { get; private set; }
         public ValueExpression? InitializationValue { get; private set; }
         public XmlDocProvider? XmlDocs { get; private set; }
@@ -87,6 +114,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<AttributeStatement>? attributes = null,
             IEnumerable<SuppressionStatement>? suppressions = null)
         {
+            var owner = EnclosingType;
+            owner?.InvalidateFieldTypePreparation();
+            enclosingType?.InvalidateFieldTypePreparation();
             if (modifiers != null)
             {
                 Modifiers = modifiers.Value;

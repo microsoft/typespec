@@ -15,6 +15,10 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public Compilation? Customization { get; }
         public Compilation? LastContract { get; }
 
+        // The customization workspace is not, on its own, a complete build input
+        // inventory. Only a cooperating trusted host may supply this proof.
+        internal CompleteSourceInputSnapshot? PreEmissionSourceInputs { get; set; }
+
         /// <summary>
         /// The set of intentional, already-accepted breaking changes recorded in the ApiCompat
         /// baseline file for this library. The backward-compatibility system consults this to avoid

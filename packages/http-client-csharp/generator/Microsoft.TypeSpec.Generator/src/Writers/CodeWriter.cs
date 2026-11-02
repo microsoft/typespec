@@ -30,6 +30,8 @@ namespace Microsoft.TypeSpec.Generator
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
+        private UnsafeBufferSequence? _qualifiedBuilder;
+        internal string? QualifiedContent { get; private set; }
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
@@ -466,7 +468,11 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        public CodeWriter WriteField(FieldProvider field)
+        internal void EnableQualifiedFallback() => _qualifiedBuilder = new UnsafeBufferSequence();
+
+        public CodeWriter WriteField(FieldProvider field) => WriteField(field, null, null);
+
+        internal CodeWriter WriteField(FieldProvider field, PreparedFieldTypes? preparedFields, TypeProvider? owner)
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
@@ -490,13 +496,31 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            if (field.Declaration.HasBeenDeclared(_scopes))
+            if (owner is not null && preparedFields?.CanWriteSimpleName(owner, field) == true)
             {
-                Append($"{field.Type} {field.Declaration:I}");
+                if (_qualifiedBuilder is not null && string.Equals(_currentNamespace, field.Type.Namespace, StringComparison.Ordinal))
+                {
+                    var qualifiedName = $"global::{field.Type.Namespace}.{field.Type.Name}";
+                    AppendRaw(field.Type.Name.AsSpan(), qualifiedName.AsSpan()).AppendRaw(" ");
+                }
+                else
+                {
+                    preparedFields.Invalidate();
+                    Append($"{field.Type} ");
+                }
             }
             else
             {
-                Append($"{field.Type} {field.Declaration:D}");
+                Append($"{field.Type} ");
+            }
+
+            if (field.Declaration.HasBeenDeclared(_scopes))
+            {
+                Append($"{field.Declaration:I}");
+            }
+            else
+            {
+                Append($"{field.Declaration:D}");
             }
 
             if (field.InitializationValue != null)
@@ -703,11 +727,19 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(1);
             destination[0] = c;
             _builder.Advance(1);
+            if (_qualifiedBuilder is not null)
+            {
+                var qualifiedDestination = _qualifiedBuilder.GetSpan(1);
+                qualifiedDestination[0] = c;
+                _qualifiedBuilder.Advance(1);
+            }
             _atBeginningOfLine = true;
             return this;
         }
 
-        private CodeWriter AppendRaw(ReadOnlySpan<char> span)
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span) => AppendRaw(span, span);
+
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span, ReadOnlySpan<char> qualifiedSpan)
         {
             if (span.Length == 0 )
             {
@@ -719,6 +751,12 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
             _builder.Advance(span.Length);
+            if (_qualifiedBuilder is not null)
+            {
+                var qualifiedDestination = _qualifiedBuilder.GetSpan(qualifiedSpan.Length);
+                qualifiedSpan.CopyTo(qualifiedDestination);
+                _qualifiedBuilder.Advance(qualifiedSpan.Length);
+            }
 
             _atBeginningOfLine = span[span.Length - 1] == _newLine;
             return this;
@@ -741,6 +779,12 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
             _builder.Advance(spaces);
+            if (_qualifiedBuilder is not null)
+            {
+                var qualifiedDestination = _qualifiedBuilder.GetSpan(spaces);
+                qualifiedDestination.Slice(0, spaces).Fill(_space);
+                _qualifiedBuilder.Advance(spaces);
+            }
         }
 
         internal CodeWriter WriteIdentifier(string identifier)
@@ -948,9 +992,11 @@ namespace Microsoft.TypeSpec.Generator
         public string ToString(bool header)
         {
             var reader = _builder.ExtractReader();
+            using var qualifiedReader = _qualifiedBuilder?.ExtractReader();
             var totalLength = reader.Length;
             if (totalLength == 0)
             {
+                QualifiedContent = qualifiedReader is null ? null : string.Empty;
                 return string.Empty;
             }
 
@@ -991,7 +1037,13 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
+            var qualifiedOutput = qualifiedReader is null ? null : new StringBuilder(builder.ToString());
             reader.CopyTo(builder, default);
+            if (qualifiedReader is not null)
+            {
+                qualifiedReader.CopyTo(qualifiedOutput!, default);
+                QualifiedContent = qualifiedOutput!.ToString();
+            }
             return builder.ToString();
         }
 
@@ -1102,6 +1154,7 @@ namespace Microsoft.TypeSpec.Generator
         public void Dispose()
         {
             _builder?.Dispose();
+            _qualifiedBuilder?.Dispose();
         }
     }
 }

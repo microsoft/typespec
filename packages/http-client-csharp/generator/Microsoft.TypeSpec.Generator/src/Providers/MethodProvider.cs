@@ -122,6 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocProvider? xmlDocProvider = null,
             IEnumerable<SuppressionStatement>? suppressions = default)
         {
+            var owner = EnclosingType;
+            owner?.InvalidateFieldTypePreparation();
             if (signature != null)
             {
                 Signature = signature;

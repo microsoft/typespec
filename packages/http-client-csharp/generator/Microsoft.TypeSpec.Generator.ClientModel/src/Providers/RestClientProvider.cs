@@ -47,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputClient = inputClient;
             ClientProvider = clientProvider;
+            RegisterPartialDeclarationOwner(clientProvider);
             _pipelineMessage20xClassifiers = BuildPipelineMessage20xClassifiers();
         }
 

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
@@ -167,12 +168,42 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _underlyingType = underlyingEnumType;
         }
 
-        public string Namespace { get; internal set; }
+        private string _namespace = string.Empty;
+        private string _name = string.Empty;
+        private long _identityVersion;
+
+        // The version is only an invalidation witness; it does not change the
+        // canonical type or establish input completeness.
+        internal long IdentityVersion => Volatile.Read(ref _identityVersion);
+
+        public string Namespace
+        {
+            get => _namespace;
+            internal set
+            {
+                if (!string.Equals(_namespace, value, StringComparison.Ordinal))
+                {
+                    _namespace = value;
+                    Interlocked.Increment(ref _identityVersion);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the name of the type.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name
+        {
+            get => _name;
+            private set
+            {
+                if (!string.Equals(_name, value, StringComparison.Ordinal))
+                {
+                    _name = value;
+                    Interlocked.Increment(ref _identityVersion);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the fully qualified name of the type, including namespace and any declaring types.

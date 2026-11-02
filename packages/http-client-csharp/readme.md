@@ -209,6 +209,12 @@ Set to `true` to disable XML documentation generation. The default value is `fal
 
 Set to `true` to skip the Roslyn reduce (simplification) post-processing step. This speeds up generation and is useful when iterating quickly. The default value is `false`.
 
+### `enable-pre-emission-simplification`
+
+**Type:** `boolean`
+
+Experimental. Set to `true` to enable supported pre-emission simplifications when a trusted build-host input snapshot is available. Standalone and hosted generation retain the existing path. The default value is `false`.
+
 ### `generator-name`
 
 **Type:** `string`
