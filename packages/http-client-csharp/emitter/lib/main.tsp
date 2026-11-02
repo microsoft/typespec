@@ -1,1 +1,1 @@
-import "./decorators.tsp";
+import "../../dist/emitter/src/tsp-index.js";

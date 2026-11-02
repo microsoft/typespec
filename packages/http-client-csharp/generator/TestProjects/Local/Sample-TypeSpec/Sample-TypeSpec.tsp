@@ -25,7 +25,6 @@ namespace SampleTypeSpec;
 using TypeSpec.Http;
 using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
-using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
 using TypeSpec.Events;
 using TypeSpec.SSE;
@@ -388,7 +387,7 @@ model RoundTripModel {
 }
 
 @doc("A sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model DynamicModel {
   name: string;
   optionalUnknown?: unknown;
@@ -408,12 +407,12 @@ model DynamicModel {
 }
 
 @doc("Another sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model AnotherDynamicModel {
   bar: string;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.json)
 @access(Access.public)
 model NullableDynamicModel {
@@ -432,7 +431,7 @@ model OptionalNullableBase {
   inheritedNullable?: string | null;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.output | Usage.json)
 @access(Access.public)
 model OptionalNullableDynamicProperties extends OptionalNullableBase {}

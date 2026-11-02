@@ -258,39 +258,22 @@ License information for the generated client code.
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
 
-## Decorators
+## Dynamic models
 
-### TypeSpec.HttpClient.CSharp
-
-- [`@dynamicModel`](#@dynamicmodel)
-
-#### `@dynamicModel`
-
-Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
-Can be applied to Model or Namespace types.
-
-```typespec
-@TypeSpec.HttpClient.CSharp.dynamicModel
-```
-
-##### Target
-
-`Model | Namespace`
-
-##### Parameters
-
-None
-
-##### Examples
+Use the `@dynamicModel` decorator from `@azure-tools/typespec-client-generator-core` with the `"csharp"` scope to mark a model or namespace as dynamic.
 
 ```tsp
-@dynamicModel
+import "@azure-tools/typespec-client-generator-core";
+
+using Azure.ClientGenerator.Core;
+
+@dynamicModel("csharp")
 model Pet {
   name: string;
   kind: string;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 namespace PetStore {
   model Dog extends Pet {
     breed: string;

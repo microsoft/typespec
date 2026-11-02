@@ -59,7 +59,7 @@
   ],
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.73.1 <0.74.0 || ~0.74.0-0",
     "@typespec/compiler": "^1.17.0",
     "@typespec/events": ">=0.87.0 <0.88.0 || ~0.88.0-0",
     "@typespec/http": "^1.17.0",
@@ -73,7 +73,7 @@
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.46",
     "@azure-tools/typespec-azure-core": "0.73.0",
-    "@azure-tools/typespec-client-generator-core": "0.73.0",
+    "@azure-tools/typespec-client-generator-core": "0.73.1",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.12.0",
     "@typespec/compiler": "1.17.0",

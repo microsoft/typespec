@@ -1,140 +1,55 @@
-import { ok, strictEqual } from "assert";
-import { describe, expect, it } from "vitest";
-import { $dynamicModel, isDynamicModel } from "../../src/lib/decorators.js";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { deepStrictEqual, ok } from "assert";
+import { describe, it } from "vitest";
+import { createModel } from "../../src/lib/client-model-builder.js";
+import { defaultOptions } from "../../src/options.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
+  typeSpecCompile,
 } from "./utils/test-util.js";
 
 describe("Test dynamicModel decorator", () => {
-  it("should expose dynamicModel decorator function", () => {
-    expect(typeof $dynamicModel).toBe("function");
-    expect(typeof isDynamicModel).toBe("function");
-  });
-
-  it("should mark a model as dynamic using decorator function directly", () => {
-    // Create a mock program with stateSet
-    const mockStateSet = new Set();
-    const mockProgram = {
-      stateSet: () => mockStateSet,
-    };
-
-    const mockContext = {
-      program: mockProgram,
-    };
-
-    const mockModel = {
-      kind: "Model",
-      name: "TestModel",
-    };
-
-    // Apply the decorator
-    $dynamicModel(mockContext as any, mockModel as any);
-
-    // Check that the model was added to the state set
-    expect(mockStateSet.has(mockModel)).toBe(true);
-
-    // Check using the helper function
-    expect(isDynamicModel(mockProgram as any, mockModel as any)).toBe(true);
-  });
-
-  it("should mark a namespace as dynamic", () => {
-    // Create a mock program with stateSet
-    const mockStateSet = new Set();
-    const mockProgram = {
-      stateSet: () => mockStateSet,
-    };
-
-    const mockContext = {
-      program: mockProgram,
-    };
-
-    const mockNamespace = {
-      kind: "Namespace",
-      name: "TestNamespace",
-    };
-
-    // Apply the decorator
-    $dynamicModel(mockContext as any, mockNamespace as any);
-
-    // Check that the namespace was added to the state set
-    expect(mockStateSet.has(mockNamespace)).toBe(true);
-
-    // Check using the helper function
-    expect(isDynamicModel(mockProgram as any, mockNamespace as any)).toBe(true);
-  });
-
-  it("should return false for models/namespaces not marked as dynamic", () => {
-    // Create a mock program with stateSet
-    const mockStateSet = new Set();
-    const mockProgram = {
-      stateSet: () => mockStateSet,
-    };
-
-    const mockModel = {
-      kind: "Model",
-      name: "NotDynamicModel",
-    };
-
-    // Check that the model is not marked as dynamic
-    expect(isDynamicModel(mockProgram as any, mockModel as any)).toBe(false);
-  });
-
-  it("should successfully apply decorator to models in TypeSpec code", async () => {
-    // Create a test host
-    const host = await createEmitterTestHost();
-
-    // Add the decorator implementation using our actual decorators
-    host.addJsFile("decorators.js", {
-      $dynamicModel: $dynamicModel as any,
-    });
-
-    // Add a simple TypeSpec file that declares and uses our decorator
-    host.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./decorators.js";
-      
-      using TypeSpec.Reflection;
-      using TypeSpec.HttpClient.CSharp;
-
-      @dynamicModel
-      model Pet {
-        id: int32;
-        name: string;
-      }
-
-      model Owner {
-        id: int32;
-        name: string;
-        pet?: Pet;
-      }
-    `,
+  describe.each(["model", "namespace"])("on a %s", (target) => {
+    it.each(["csharp", "csharp, python", "python"])(
+      "consumes TCGC metadata scoped to %s",
+      async (scope) => {
+        const host = await createEmitterTestHost();
+        const decorator = `${scope === "python" ? '#suppress "@azure-tools/typespec-client-generator-core/decorator-requires-scope" "Testing scope filtering"\n' : ""}@dynamicModel("${scope}")`;
+        const program = await typeSpecCompile(
+          `
+          ${target === "namespace" ? decorator : ""}
+          namespace Pets {
+            ${target === "model" ? decorator : ""}
+            model Pet { name: string; }
+          }
+          model Owner { pet: Pets.Pet; }
+          op read(): Owner;
+          `,
+          host,
+          { IsTCGCNeeded: true },
+        );
+        expectDiagnosticEmpty(program.diagnostics);
+        const sdkContext = await createCSharpSdkContext(
+          createEmitterContext(program),
+          defaultOptions["sdk-context-options"],
+        );
+        expectDiagnosticEmpty(sdkContext.diagnostics);
+        const [root, diagnostics] = createModel(sdkContext);
+        expectDiagnosticEmpty(diagnostics);
+        const pet = root.models.find((model) => model.name === "Pet");
+        const owner = root.models.find((model) => model.name === "Owner");
+        ok(pet);
+        ok(owner);
+        deepStrictEqual(
+          pet.decorators,
+          scope === "python"
+            ? []
+            : [{ name: "Azure.ClientGenerator.Core.@dynamicModel", arguments: { scope } }],
+        );
+        deepStrictEqual(owner.decorators, []);
+      },
     );
-
-    // Compile directly using the test host
-    await host.compile("main.tsp");
-    const program = host.program;
-
-    // Create emitter context and SDK context to test integration
-    const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context);
-
-    // Access models from the program's global namespace
-    const globalNamespace = program.getGlobalNamespaceType();
-    const petModelType = globalNamespace.models.get("Pet");
-    const ownerModelType = globalNamespace.models.get("Owner");
-
-    ok(petModelType);
-    ok(ownerModelType);
-
-    // Test that the decorator state is correctly stored and retrievable using our actual helper function
-    strictEqual(isDynamicModel(program, petModelType!), true);
-    strictEqual(isDynamicModel(program, ownerModelType!), false);
-
-    // Verify the decorator integrates properly with the emitter context
-    ok(sdkContext);
-    strictEqual(sdkContext.program, program);
   });
 });
