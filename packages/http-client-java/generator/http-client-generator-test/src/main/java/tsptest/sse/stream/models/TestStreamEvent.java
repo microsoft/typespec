@@ -64,7 +64,7 @@ public abstract class TestStreamEvent {
     }
 
     static {
-        TestStreamEventSerializer.setConstructorAccessor(new TestStreamEventSerializer.ConstructorAccessor() {
+        TestStreamEventSerializer.setConstructorAccessor(new TestStreamEventSerializer.SseEventConstructorAccessor() {
             @Override
             public TestStreamEvent unknownEvent(String eventName) {
                 return new TestStreamEvent(eventName) {

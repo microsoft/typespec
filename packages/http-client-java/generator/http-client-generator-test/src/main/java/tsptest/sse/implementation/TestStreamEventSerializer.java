@@ -33,7 +33,7 @@ import tsptest.sse.stream.models.TestTextStreamEvent;
 public final class TestStreamEventSerializer {
     private static final ClientLogger LOGGER = new ClientLogger(TestStreamEventSerializer.class);
 
-    private static volatile ConstructorAccessor constructorAccessor;
+    private static volatile SseEventConstructorAccessor constructorAccessor;
 
     private TestStreamEventSerializer() {
     }
@@ -41,7 +41,7 @@ public final class TestStreamEventSerializer {
     /**
      * Provides access to the SDK-only event constructors.
      */
-    public interface ConstructorAccessor {
+    public interface SseEventConstructorAccessor {
         /**
          * Creates a name-only event.
          * 
@@ -128,12 +128,12 @@ public final class TestStreamEventSerializer {
      * 
      * @param accessor The constructor accessor.
      */
-    public static void setConstructorAccessor(ConstructorAccessor accessor) {
+    public static void setConstructorAccessor(SseEventConstructorAccessor accessor) {
         constructorAccessor = Objects.requireNonNull(accessor, "'accessor' cannot be null.");
     }
 
-    private static ConstructorAccessor getConstructorAccessor() {
-        ConstructorAccessor accessor = constructorAccessor;
+    private static SseEventConstructorAccessor getConstructorAccessor() {
+        SseEventConstructorAccessor accessor = constructorAccessor;
         if (accessor == null) {
             try {
                 Class.forName(TestStreamEvent.class.getName(), true, TestStreamEvent.class.getClassLoader());
@@ -158,7 +158,7 @@ public final class TestStreamEventSerializer {
      * @return The typed stream event.
      */
     public static TestStreamEvent deserialize(String eventName, String data) {
-        ConstructorAccessor accessor = getConstructorAccessor();
+        SseEventConstructorAccessor accessor = getConstructorAccessor();
         switch (eventName) {
             case "started":
                 return accessor.createStarted(read(eventName, data, StartedPayload::fromJson));

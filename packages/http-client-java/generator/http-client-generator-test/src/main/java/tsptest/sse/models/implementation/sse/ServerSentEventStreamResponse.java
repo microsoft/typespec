@@ -90,7 +90,24 @@ final class ServerSentEventStreamResponse {
     }
 
     private static boolean isTextEventStream(String contentType) {
-        if (contentType == null || contentType.indexOf(',') >= 0) {
+        if (contentType == null) {
+            return false;
+        }
+        boolean quoted = false;
+        boolean escaped = false;
+        for (int i = 0; i < contentType.length(); i++) {
+            char character = contentType.charAt(i);
+            if (escaped) {
+                escaped = false;
+            } else if (quoted && character == '\\') {
+                escaped = true;
+            } else if (character == '"') {
+                quoted = !quoted;
+            } else if (!quoted && character == ',') {
+                return false;
+            }
+        }
+        if (quoted) {
             return false;
         }
         int parameterIndex = contentType.indexOf(';');

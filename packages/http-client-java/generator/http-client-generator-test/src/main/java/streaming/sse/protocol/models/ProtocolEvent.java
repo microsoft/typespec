@@ -51,7 +51,7 @@ public abstract class ProtocolEvent {
     }
 
     static {
-        ProtocolEventSerializer.setConstructorAccessor(new ProtocolEventSerializer.ConstructorAccessor() {
+        ProtocolEventSerializer.setConstructorAccessor(new ProtocolEventSerializer.SseEventConstructorAccessor() {
             @Override
             public ProtocolEvent unknownEvent(String eventName) {
                 return new ProtocolEvent(eventName) {

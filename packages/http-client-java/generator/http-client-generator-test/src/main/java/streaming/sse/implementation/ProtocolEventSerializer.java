@@ -21,7 +21,7 @@ import streaming.sse.protocol.models.ProtocolInfo;
 public final class ProtocolEventSerializer {
     private static final ClientLogger LOGGER = new ClientLogger(ProtocolEventSerializer.class);
 
-    private static volatile ConstructorAccessor constructorAccessor;
+    private static volatile SseEventConstructorAccessor constructorAccessor;
 
     private ProtocolEventSerializer() {
     }
@@ -29,7 +29,7 @@ public final class ProtocolEventSerializer {
     /**
      * Provides access to the SDK-only event constructors.
      */
-    public interface ConstructorAccessor {
+    public interface SseEventConstructorAccessor {
         /**
          * Creates a name-only event.
          * 
@@ -52,12 +52,12 @@ public final class ProtocolEventSerializer {
      * 
      * @param accessor The constructor accessor.
      */
-    public static void setConstructorAccessor(ConstructorAccessor accessor) {
+    public static void setConstructorAccessor(SseEventConstructorAccessor accessor) {
         constructorAccessor = Objects.requireNonNull(accessor, "'accessor' cannot be null.");
     }
 
-    private static ConstructorAccessor getConstructorAccessor() {
-        ConstructorAccessor accessor = constructorAccessor;
+    private static SseEventConstructorAccessor getConstructorAccessor() {
+        SseEventConstructorAccessor accessor = constructorAccessor;
         if (accessor == null) {
             try {
                 Class.forName(ProtocolEvent.class.getName(), true, ProtocolEvent.class.getClassLoader());
@@ -83,7 +83,7 @@ public final class ProtocolEventSerializer {
      */
     public static ProtocolEvent deserialize(String eventName, String data) {
         eventName = eventName == null || eventName.isEmpty() ? "message" : eventName;
-        ConstructorAccessor accessor = getConstructorAccessor();
+        SseEventConstructorAccessor accessor = getConstructorAccessor();
         switch (eventName) {
             case "message":
                 return accessor.createMessage(read(eventName, data, ProtocolInfo::fromJson));
