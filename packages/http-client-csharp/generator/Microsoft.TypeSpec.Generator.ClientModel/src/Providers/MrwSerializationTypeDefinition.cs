@@ -516,10 +516,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
                     method.Suppressions,
                     SerializationConstructor.Signature.Parameters
-                        .Where(parameter => parameter.Property?.Name != ScmModelProvider.JsonPatchPropertyName
-                            || !parameter.Type.IsFrameworkType
-                            || parameter.Type.Name != "JsonPatch")
-                        .SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type)),
+                        .SelectMany(parameter => ExperimentalApiHelpers.GetUnscopedReferenceSuppressions(parameter, method.BodyStatements)),
                     _inputModel.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)),
                     ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties),
                     _inputModel.DiscriminatedSubtypes.Values.SelectMany(type => ExperimentalApiHelpers.GetReferenceSuppressions(type))));
