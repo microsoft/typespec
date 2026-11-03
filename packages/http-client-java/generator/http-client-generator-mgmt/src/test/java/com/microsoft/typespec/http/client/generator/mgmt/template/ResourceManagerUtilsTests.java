@@ -3,15 +3,37 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentConstructorByInner;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodType;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -39,17 +61,26 @@ public class ResourceManagerUtilsTests {
         ResourceManagerUtilsTemplate.getInstance().write(file);
         Path source = compilationDirectory.resolve("ResourceManagerUtils.java");
         Files.writeString(source, file.getContents().toString());
-        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
-        int result = ToolProvider.getSystemJavaCompiler()
-            .run(null, diagnostics, diagnostics, "-classpath",
-                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
-                compilationDirectory.toString(), source.toString());
-        Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
+        compile(source);
         classLoader = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() },
             ResourceManagerUtilsTests.class.getClassLoader());
         parse = classLoader.loadClass("ResourceManagerUtils")
             .getDeclaredMethod("getValueFromIdByParameterName", String.class, String.class, String.class);
         parse.setAccessible(true);
+    }
+
+    private static void compile(Path... sources) {
+        List<String> arguments = new ArrayList<>(List.of("-classpath",
+            compilationDirectory + File.pathSeparator
+                + System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")),
+            "-d", compilationDirectory.toString()));
+        for (Path source : sources) {
+            arguments.add(source.toString());
+        }
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int result = ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, arguments.toArray(new String[0]));
+        Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
     }
 
     @AfterAll
@@ -61,6 +92,60 @@ public class ResourceManagerUtilsTests {
 
     private static String value(String id, String template, String parameter) throws Exception {
         return (String) parse.invoke(null, id, template, parameter);
+    }
+
+    @Test
+    public void generatedWrapperResolvesAlternateRouteBeforeEnumConversion() throws Exception {
+        EnumType enumType = new EnumType.Builder().packageName("")
+            .name("ResourceName")
+            .elementType(ClassType.STRING)
+            .values(List.of(new ClientEnumValue("FARM", "farm")))
+            .build();
+        JavaFile enumFile = new JavaFile("ResourceName.java");
+        EnumTemplate.getInstance().write(enumType, enumFile);
+        Path enumSource = compilationDirectory.resolve("ResourceName.java");
+        Files.writeString(enumSource, enumFile.getContents().toString());
+
+        UrlPathSegments primary = new UrlPathSegments(TEMPLATE);
+        UrlPathSegments alternate = new UrlPathSegments(
+            TEMPLATE.replace("/services/{serviceResourceName}", "/accounts/{accountName}/services/{name}"));
+        FluentResourceModel model = mock(FluentResourceModel.class);
+        when(model.getImplementationType())
+            .thenReturn(new ClassType.Builder().packageName("").name("SharedResourceImpl").build());
+        when(model.getInnerModel()).thenReturn(new ClientModel.Builder().name("Inner").build());
+        when(model.getResourceIdPaths()).thenReturn(Set.of(primary, alternate));
+        ClientMethodParameter parameter
+            = new ClientMethodParameter.Builder().name("resourceName").wireType(enumType).build();
+        ProxyMethodParameter proxyParameter
+            = new ProxyMethodParameter.Builder().requestParameterName("serviceResourceName").build();
+        ResourceLocalVariables variables = mock(ResourceLocalVariables.class);
+        when(variables.getLocalVariableByMethodParameter(parameter))
+            .thenReturn(new LocalVariable("resourceName", enumType, RequestParameterLocation.PATH, parameter));
+        FluentConstructorByInner constructor = new FluentConstructorByInner(model, FluentMethodType.CONSTRUCTOR,
+            List.of(new MethodParameter(proxyParameter, parameter)), variables, ClassType.OBJECT, primary);
+        JavaFile wrapperFile = new JavaFile("SharedResourceImpl.java");
+        wrapperFile.publicFinalClass("SharedResourceImpl", wrapper -> {
+            wrapper.privateMemberVariable("Inner", "innerObject");
+            wrapper.privateMemberVariable("Object", "serviceManager");
+            wrapper.privateMemberVariable("ResourceName", "resourceName");
+            constructor.getMethodTemplate().writeMethod(wrapper);
+            wrapper.publicStaticMethod("ResourceName parseResourceName(String id)",
+                block -> block.methodReturn("new SharedResourceImpl(new Inner(id), new Object()).resourceName"));
+            wrapper.privateStaticFinalClass("Inner", inner -> {
+                inner.privateMemberVariable("String", "id");
+                inner.privateConstructor("Inner(String id)", block -> block.line("this.id = id;"));
+                inner.publicMethod("String id()", block -> block.methodReturn("this.id"));
+            });
+        });
+        Path wrapperSource = compilationDirectory.resolve("SharedResourceImpl.java");
+        Files.writeString(wrapperSource, wrapperFile.getContents().toString());
+        compile(enumSource, wrapperSource);
+
+        Method parseName = classLoader.loadClass("SharedResourceImpl").getMethod("parseResourceName", String.class);
+        Object expected = classLoader.loadClass("ResourceName").getField("FARM").get(null);
+        Assertions.assertSame(expected, parseName.invoke(null, ID));
+        Assertions.assertSame(expected,
+            parseName.invoke(null, ID.replace("/services/farm", "/accounts/account/services/farm")));
     }
 
     @Test

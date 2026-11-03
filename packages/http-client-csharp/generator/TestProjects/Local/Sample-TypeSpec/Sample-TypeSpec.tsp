@@ -1168,3 +1168,230 @@ interface DeprecationSamples {
   @get
   read(): CurrentDetails;
 }
+
+enum ChatTopicState {
+  active,
+  archived,
+}
+
+model ChatTopic {
+  title: string;
+
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state: ChatTopicState;
+
+  @visibility(Lifecycle.Create)
+  createOnly?: string;
+
+  @visibility(Lifecycle.Read)
+  id: string;
+}
+
+model ChatTopicEnvelope {
+  topic: ChatTopic;
+  topics: ChatTopic[];
+  lookup: Record<ChatTopic>;
+}
+
+model LifecycleMultipart {
+  title: HttpPart<string>;
+
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state?: HttpPart<string>;
+
+  topic: HttpPart<ChatTopic>;
+
+  @visibility(Lifecycle.Read)
+  id?: HttpPart<string>;
+}
+
+model LifecycleReadOnlyMultipart {
+  title: HttpPart<string>;
+
+  @visibility(Lifecycle.Read)
+  id?: HttpPart<string>;
+}
+
+model LifecycleReadOnlyXmlTopic {
+  title: string;
+
+  @visibility(Lifecycle.Read)
+  id: string;
+}
+
+model LifecycleXmlOnlyTopic {
+  title: string;
+
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state?: string;
+}
+
+model LifecycleXmlChild {
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state?: string;
+}
+
+model LifecycleXmlEnvelope {
+  child: LifecycleXmlChild;
+  children: LifecycleXmlChild[];
+}
+
+model LifecycleBase {
+  title: string;
+}
+
+model LifecycleDerived extends LifecycleBase {
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state: string;
+}
+
+interface VisibilitySamples {
+  @route("/visibility/read-xml-topic")
+  @get
+  readXmlTopic(): LifecycleReadOnlyXmlTopic;
+
+  @route("/visibility/read-only-xml")
+  @post
+  readOnlyXml(@body topic: LifecycleReadOnlyXmlTopic, @header contentType: "application/xml"): void;
+
+  @route("/visibility/text-xml")
+  @post
+  textXml(@body topic: LifecycleXmlOnlyTopic, @header contentType: "text/xml"): void;
+
+  @route("/visibility/vendor-xml")
+  @post
+  vendorXml(
+    @body topic: LifecycleXmlOnlyTopic,
+    @header contentType: "application/vnd.typespec+xml",
+  ): void;
+
+  @route("/visibility/create")
+  @post
+  create(@body topic: ChatTopic): void;
+
+  @route("/visibility/update")
+  @put
+  @parameterVisibility(Lifecycle.Update)
+  update(@body topic: ChatTopic): void;
+
+  @route("/visibility/replace")
+  @put
+  @parameterVisibility(Lifecycle.Create)
+  replace(@body topic: ChatTopic): void;
+
+  @route("/visibility/patch")
+  @patch
+  patch(@body topic: ChatTopic): void;
+
+  @route("/visibility/nested")
+  @post
+  nested(@body envelope: ChatTopicEnvelope): void;
+
+  @route("/visibility/list")
+  @post
+  sendList(@body topics: ChatTopic[]): void;
+
+  @route("/visibility/dictionary")
+  @post
+  dictionary(@body topics: Record<ChatTopic>): void;
+
+  @route("/visibility/union-list")
+  @post
+  unionList(@body topics: (ChatTopic | string)[]): void;
+
+  @route("/visibility/union-dictionary")
+  @post
+  unionDictionary(@body topics: Record<ChatTopic | string>): void;
+
+  @route("/visibility/union")
+  @post
+  unionBody(@body topic: ChatTopic | string): void;
+
+  @route("/visibility/paged")
+  @post
+  @list
+  paged(@body topic: ChatTopic): {
+    @pageItems items: ChatTopic[];
+    @nextLink next?: url;
+  };
+
+  @route("/visibility/paged-list")
+  @post
+  @list
+  pagedList(@body topics: ChatTopic[]): Page<ChatTopic>;
+
+  @route("/visibility/paged-dictionary")
+  @post
+  @list
+  pagedDictionary(@body topics: Record<ChatTopic>): Page<ChatTopic>;
+
+  @route("/visibility/optional")
+  @post
+  optional(@body topic?: ChatTopic): void;
+
+  @route("/visibility/optional-dictionary")
+  @post
+  optionalDictionary(@body topics?: Record<ChatTopic>): void;
+
+  @route("/visibility/optional-list")
+  @post
+  optionalList(@body topics?: ChatTopic[]): void;
+
+  @route("/visibility/optional-xml")
+  @post
+  optionalXml(@body topic?: ChatTopic, @header contentType: "application/xml"): void;
+
+  @route("/visibility/optional-xml-list")
+  @post
+  optionalXmlList(@body topics?: ChatTopic[], @header contentType: "application/xml"): void;
+
+  @route("/visibility/spread")
+  @post
+  spread(...ChatTopicEnvelope): void;
+
+  @route("/visibility/spread-xml")
+  @post
+  spreadXml(...ChatTopicEnvelope, @header contentType: "application/xml"): void;
+
+  @route("/visibility/xml")
+  @post
+  xml(@body topic: ChatTopic, @header contentType: "application/xml"): void;
+
+  @route("/visibility/xml-list")
+  @post
+  xmlList(@body topics: ChatTopic[], @header contentType: "application/xml"): void;
+
+  @route("/visibility/jsonl")
+  @post
+  jsonLines(stream: JsonlStream<ChatTopic>): NoContentResponse;
+
+  @route("/visibility/multipart")
+  @post
+  multipart(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: LifecycleMultipart,
+  ): void;
+
+  @route("/visibility/read-only-multipart")
+  @post
+  readOnlyMultipart(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: LifecycleReadOnlyMultipart,
+  ): void;
+
+  @route("/visibility/empty-xml")
+  @post
+  emptyXml(@body envelope: LifecycleXmlEnvelope, @header contentType: "application/xml"): void;
+
+  @route("/visibility/empty-xml-list")
+  @post
+  emptyXmlList(@body children: LifecycleXmlChild[], @header contentType: "application/xml"): void;
+
+  @route("/visibility/base")
+  @post
+  createBase(@body topic: LifecycleBase): void;
+
+  @route("/visibility/derived")
+  @get
+  readDerived(): LifecycleDerived;
+}

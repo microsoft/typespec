@@ -16,6 +16,8 @@ namespace SampleTypeSpec
     /// </summary>
     [ModelReaderWriterBuildable(typeof(Animal))]
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(ChatTopic))]
+    [ModelReaderWriterBuildable(typeof(ChatTopicEnvelope))]
     [ModelReaderWriterBuildable(typeof(CurrentDetails))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
@@ -27,7 +29,14 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(LegacyDetails))]
 #pragma warning restore CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
 #pragma warning restore SAMPLE0011 // global::SampleTypeSpec.LegacyDetails is experimental and may change in future versions.
+    [ModelReaderWriterBuildable(typeof(LifecycleBase))]
+    [ModelReaderWriterBuildable(typeof(LifecycleDerived))]
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
+    [ModelReaderWriterBuildable(typeof(LifecycleMultipartTopic))]
+    [ModelReaderWriterBuildable(typeof(LifecycleReadOnlyXmlTopic))]
+    [ModelReaderWriterBuildable(typeof(LifecycleXmlChild))]
+    [ModelReaderWriterBuildable(typeof(LifecycleXmlEnvelope))]
+    [ModelReaderWriterBuildable(typeof(LifecycleXmlOnlyTopic))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]

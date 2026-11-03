@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Experimental;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,14 +21,18 @@ public class ApiMetadataTests {
 
     @Test
     public void newBuilderPreservesExistingValues() {
+        Experimental experimental = new Experimental();
+        experimental.setWarningText("Preview warning");
         ApiMetadata metadata = new ApiMetadata.Builder().crossLanguageDefinitionId("Example.Widget.get")
             .devMessage("Original message")
+            .experimental(experimental)
             .build();
 
         ApiMetadata updated = metadata.newBuilder().devMessage("Updated message").build();
 
         Assertions.assertEquals("Example.Widget.get", updated.getCrossLanguageDefinitionId());
         Assertions.assertEquals("Updated message", updated.getDevMessage());
+        Assertions.assertSame(experimental, updated.getExperimental());
     }
 
     @Test
@@ -43,5 +48,15 @@ public class ApiMetadataTests {
 
         Assertions.assertEquals("Example.Widget.get", method.getApiMetadata().getCrossLanguageDefinitionId());
         Assertions.assertEquals("Convenience API is not generated.", method.getApiMetadata().getDevMessage());
+    }
+
+    @Test
+    public void propertyBuilderPreservesExperimentalMetadata() {
+        Experimental experimental = new Experimental();
+        experimental.setWarningText("Property preview");
+        ClientModelProperty property = new ClientModelProperty.Builder().name("value")
+            .apiMetadata(new ApiMetadata.Builder().experimental(experimental).build())
+            .build();
+        Assertions.assertSame(experimental, property.newBuilder().build().getApiMetadata().getExperimental());
     }
 }

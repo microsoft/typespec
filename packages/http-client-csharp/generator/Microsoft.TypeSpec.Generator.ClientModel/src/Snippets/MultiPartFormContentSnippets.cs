@@ -42,9 +42,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static MethodBodyStatement AddWithMediaType(this ScopedApi<MultiPartFormContent> content, string name, ValueExpression value, string mediaType)
             => content.Invoke(AddMethodName, [Literal(name), value.Invoke(WithMediaTypeMethodName, [Literal(mediaType)])]).Terminate();
 
-        public static ValueExpression ToMultipartFormContent(ValueExpression model)
-            => model.Invoke(ToMultipartFormContentMethodName);
+        public static ValueExpression ToMultipartFormContent(ValueExpression model, ValueExpression? options = null)
+            => model.Invoke(ToMultipartFormContentMethodName, options is null ? [] : [options]);
     }
 }
 #pragma warning restore SCME0004
-
