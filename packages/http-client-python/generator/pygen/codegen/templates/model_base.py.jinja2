@@ -3,6 +3,7 @@
 {{ code_model.license_header }}
 {% endif %}
 # pylint: disable=protected-access, broad-except
+# cspell:ignore iterencode
 
 import copy
 import calendar
@@ -170,6 +171,8 @@ class SdkJSONEncoder(JSONEncoder):
     :paramtype exclude_readonly: bool
     :keyword format: The format to use for serialization. Defaults to None.
     :paramtype format: typing.Optional[str]
+    :keyword serialization_type: The declared type used for union-specific serialization. Defaults to None.
+    :paramtype serialization_type: typing.Any
     """
 
     def __init__(
@@ -1196,6 +1199,8 @@ class _DiscriminatedUnion:
     def serialize(self, obj):
         if not _is_model(obj):
             return obj
+        # Exact variant identity is required when a model participates in multiple unions.
+        # pylint: disable=unidiomatic-typecheck
         tags = [tag for tag, model in self.variants.items() if type(obj) is model]
         if len(tags) != 1:
             raise ValueError("Expected an unambiguous model variant for a discriminated union.")
@@ -1321,10 +1326,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     # is it a forward ref / in quotes?
     if isinstance(annotation, (str, typing.ForwardRef)):
-        try:
-            model_name = annotation.__forward_arg__  # type: ignore
-        except AttributeError:
-            model_name = annotation
+        model_name = annotation.__forward_arg__ if isinstance(annotation, typing.ForwardRef) else annotation
         if module is not None:
             annotation = _get_type_alias_type(module, model_name)
             if isinstance(annotation, str):

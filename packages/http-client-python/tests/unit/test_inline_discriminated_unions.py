@@ -7,9 +7,10 @@
 
 import json
 import importlib
+import inspect
 import sys
 from types import ModuleType, SimpleNamespace
-from typing import Annotated, Optional, Union
+from typing import Annotated, ForwardRef, Optional, Union
 
 import pytest
 from jinja2 import Environment, PackageLoader
@@ -89,6 +90,15 @@ def test_containers_and_nullable(runtime, pets):
     assert type(runtime._deserialize(dict[str, pets.union], {"pet": dog})["pet"]) is pets.dog
     assert type(runtime._deserialize(Optional[pets.union], dog)) is pets.dog
     assert runtime._deserialize(Optional[pets.union], None) is None
+
+
+@pytest.mark.parametrize("annotation", ["Cat", ForwardRef("Cat")])
+def test_forward_model_references(runtime, pets, monkeypatch, annotation):
+    module = ModuleType("inline_union_models")
+    module.Cat = pets.cat
+    monkeypatch.setitem(sys.modules, module.__name__, module)
+    wire = {"kind": "cat", "name": "Whiskers", "meows": True}
+    assert type(runtime._deserialize(annotation, wire, module.__name__)) is pets.cat
 
 
 def test_model_properties(runtime, pets):
@@ -314,6 +324,12 @@ def generated_sdk(tmp_path, monkeypatch, request):
     for name in list(sys.modules):
         if name == "inline_pets" or name.startswith("inline_pets."):
             sys.modules.pop(name)
+
+
+def test_inherited_literal_tags_have_targeted_type_overrides(generated_sdk):
+    for model in (generated_sdk.models.Cat, generated_sdk.models.Dog):
+        source = inspect.getsource(model)
+        assert source.count("pyright: ignore[reportIncompatibleVariableOverride]") == 2
 
 
 def test_generated_alias_models_and_property_imports(generated_sdk):
