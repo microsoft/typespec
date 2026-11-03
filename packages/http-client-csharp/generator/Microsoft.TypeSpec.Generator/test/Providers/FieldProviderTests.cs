@@ -151,6 +151,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
         }
 
+        [Test]
+        public void ExperimentalPropertyAndMethodTypesHaveScopedSuppressions()
+        {
+            MockHelpers.LoadMockGenerator();
+#pragma warning disable FIELD001, FIELD002 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var experimentalType = new CSharpType(typeof(Sample.ExperimentalFieldType));
+#pragma warning restore FIELD001, FIELD002 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var provider = new TestTypeProvider("MemberContainer", ns: "Sample");
+
+            var property = new PropertyProvider(
+                description: null,
+                modifiers: MethodSignatureModifiers.Private,
+                type: experimentalType,
+                name: "Value",
+                body: new AutoPropertyBody(HasSetter: false),
+                enclosingType: provider);
+            using var propertyWriter = new CodeWriter();
+            propertyWriter.WriteProperty(property);
+            StringAssert.Contains("#pragma warning disable FIELD001 // This generated code depends on experimental functionality.", propertyWriter.ToString(false));
+            StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", propertyWriter.ToString(false));
+
+            var method = new MethodProvider(
+                new MethodSignature("UseValue", null, MethodSignatureModifiers.Private, experimentalType, null,
+                    [new ParameterProvider("value", $"", experimentalType)]),
+                Snippet.Throw(Snippet.Null),
+                provider);
+            using var methodWriter = new CodeWriter();
+            methodWriter.WriteMethod(method);
+            StringAssert.Contains("#pragma warning disable FIELD001 // This generated code depends on experimental functionality.", methodWriter.ToString(false));
+            StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", methodWriter.ToString(false));
+        }
+
         private static Type EmitPolyfilledExperimentalFieldType()
         {
             var source = Helpers.GetExpectedFromFile("Input", nameof(ExperimentalFieldTypesHaveScopedSuppressions));
