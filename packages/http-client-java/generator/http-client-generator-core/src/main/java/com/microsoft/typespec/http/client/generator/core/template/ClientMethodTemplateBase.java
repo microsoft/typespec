@@ -42,6 +42,13 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             .stream()
             .map(parameter -> parameter.getName())
             .collect(Collectors.toCollection(HashSet::new));
+        if (clientMethod.getOverloadedClientMethod() != null) {
+            clientMethod.getOverloadedClientMethod()
+                .getMethodParameters()
+                .stream()
+                .map(parameter -> parameter.getName())
+                .forEach(names::add);
+        }
         if (clientMethod.getParameterTransformations() != null) {
             names.addAll(clientMethod.getParameterTransformations().getOutParameterNames());
         }

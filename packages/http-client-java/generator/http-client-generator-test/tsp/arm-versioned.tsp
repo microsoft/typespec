@@ -44,11 +44,32 @@ model OpParameters {
 
 model Response {}
 
+model FirstOptionalParameters {
+  @added(Versions.v2024_10_01_preview)
+  @Azure.ClientGenerator.Core.clientName("nextLink", "java")
+  @query
+  newParameter?: string;
+
+  @added(Versions.v2024_10_01_preview)
+  @header
+  newHeader?: string;
+}
+
+model ActionRequest {
+  value?: string;
+}
+
 interface TopLevelArmResources {
-  createOrUpdate is ArmResourceCreateOrUpdateAsync<TopLevelArmResource, Parameters = OpParameters>;
-  listBySubscription is ArmListBySubscription<TopLevelArmResource, Parameters = OpParameters>;
+  createOrUpdate is ArmResourceCreateOrUpdateAsync<
+    TopLevelArmResource,
+    Parameters = FirstOptionalParameters
+  >;
+  listBySubscription is ArmListBySubscription<
+    TopLevelArmResource,
+    Parameters = FirstOptionalParameters
+  >;
   listByResourceGroup is ArmResourceListByParent<TopLevelArmResource, Parameters = OpParameters>;
-  get is ArmResourceRead<TopLevelArmResource, Parameters = OpParameters>;
+  get is ArmResourceRead<TopLevelArmResource, Parameters = FirstOptionalParameters>;
   delete is ArmResourceDeleteSync<TopLevelArmResource, Parameters = OpParameters>;
   action is ArmResourceActionSync<
     TopLevelArmResource,
@@ -56,4 +77,12 @@ interface TopLevelArmResources {
     Response = Response,
     Parameters = OpParameters
   >;
+
+  @get
+  @route("/providers/TspTest.ArmVersioned/locations/{location}/limits")
+  getLimits(
+    @path location: string,
+    @query("api-version") apiVersion: string,
+    @added(Versions.v2024_10_01_preview) @body body?: ActionRequest,
+  ): Response;
 }
