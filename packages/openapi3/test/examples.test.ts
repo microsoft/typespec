@@ -1074,4 +1074,29 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       id: "123",
     });
   });
+
+  it("serialize header parameter examples with the encoding of their scalar", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      const n: SubId = 123;
+      @encode(string) scalar Id extends int64;
+      scalar SubId extends Id;
+
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar UnixDate extends utcDateTime;
+
+      @opExample(#{
+        parameters: #{ literal: 123, typed: n, date: UnixDate.fromISO("2021-01-01T00:00:00Z") },
+      })
+      op read(@header literal: Id, @header typed: Id, @header date: UnixDate): void;
+      `,
+      { "experimental-parameter-examples": "data" },
+    );
+    const parameters = res.paths["/"].get?.parameters as OpenAPI3Parameter[];
+    expect(parameters.map((x) => [x.name, x.example])).toEqual([
+      ["literal", "123"],
+      ["typed", "123"],
+      ["date", 1609459200],
+    ]);
+  });
 });

@@ -93,13 +93,11 @@ export function serializeValueAsJson(
     case "EnumValue":
       return value.value.value ?? value.value.name;
     case "ArrayValue":
-      return value.values.map((v) =>
+      return value.values.map((v, index) =>
         serializeValueAsJson(
           program,
           v,
-          type.kind === "Model" && isArrayModelType(type)
-            ? type.indexer.value
-            : program.checker.anyType,
+          getArrayItemType(program, type, index),
           /* encodeAs: */ undefined,
           handlers,
           diagnosticTarget,
@@ -112,6 +110,17 @@ export function serializeValueAsJson(
     case "Function":
       throw new UnserializableValueError("Cannot serialize a function value as JSON.");
   }
+}
+
+/** The type the item at `index` of an array value is serialized as. */
+function getArrayItemType(program: Program, type: Type, index: number): Type {
+  if (type.kind === "Model" && isArrayModelType(type)) {
+    return type.indexer.value;
+  }
+  if (type.kind === "Tuple") {
+    return type.values[index] ?? program.checker.anyType;
+  }
+  return program.checker.anyType;
 }
 
 /**

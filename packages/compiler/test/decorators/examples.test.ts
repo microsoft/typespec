@@ -670,6 +670,22 @@ describe("json serialization of examples", () => {
     });
   });
 
+  it("serialize tuple items with the encoding of their type", async () => {
+    const { test, program } = (await Tester.compile(`
+      const n: SubId = 123;
+      @encode(string) scalar Id extends int64;
+      scalar SubId extends Id;
+
+      model Test {
+        @example(#[123, n, true]) /*test*/test?: [Id, Id, boolean] = #[n, 123, false];
+      }
+    `)) as any;
+
+    expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual(["123", "123", false]);
+    const examples = getExamples(program, test);
+    expect(serializeValueAsJson(program, examples[0].value, test)).toEqual(["123", "123", true]);
+  });
+
   it("serialize models with parent", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: "one", b: "two" })
