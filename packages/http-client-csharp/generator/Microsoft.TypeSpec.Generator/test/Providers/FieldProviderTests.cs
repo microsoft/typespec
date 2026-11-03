@@ -169,8 +169,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 enclosingType: provider);
             using var propertyWriter = new CodeWriter();
             propertyWriter.WriteProperty(property);
-            StringAssert.Contains("#pragma warning disable FIELD001 // This generated code depends on experimental functionality.", propertyWriter.ToString(false));
-            StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", propertyWriter.ToString(false));
+            var propertyOutput = propertyWriter.ToString(false);
+            StringAssert.Contains("#pragma warning disable FIELD001 // This generated code depends on experimental functionality.", propertyOutput);
+            StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", propertyOutput);
 
             var method = new MethodProvider(
                 new MethodSignature("UseValue", null, MethodSignatureModifiers.Private, experimentalType, null,
@@ -179,8 +180,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 provider);
             using var methodWriter = new CodeWriter();
             methodWriter.WriteMethod(method);
-            StringAssert.Contains("#pragma warning disable FIELD001 // This generated code depends on experimental functionality.", methodWriter.ToString(false));
-            StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", methodWriter.ToString(false));
+            var methodOutput = methodWriter.ToString(false);
+            StringAssert.Contains("#pragma warning disable FIELD001 // This generated code depends on experimental functionality.", methodOutput);
+            StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", methodOutput);
         }
 
         private static Type EmitPolyfilledExperimentalFieldType()

@@ -61,23 +61,23 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return collector.GetSuppressions();
         }
 
-        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type, bool includeFrameworkTypes = false)
+        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type)
         {
             if (type is null)
             {
                 return [];
             }
             var suppressions = new List<SuppressionStatement>();
-            suppressions.AddRange(GetReferenceSuppressions(type.DeclaringType, includeFrameworkTypes));
+            suppressions.AddRange(GetReferenceSuppressions(type.DeclaringType));
             foreach (var argument in type.Arguments)
             {
-                suppressions.AddRange(GetReferenceSuppressions(argument, includeFrameworkTypes));
+                suppressions.AddRange(GetReferenceSuppressions(argument));
             }
             if (type.IsArray)
             {
-                suppressions.AddRange(GetReferenceSuppressions(type.ElementType, includeFrameworkTypes));
+                suppressions.AddRange(GetReferenceSuppressions(type.ElementType));
             }
-            if (includeFrameworkTypes && type.IsFrameworkType)
+            if (type.IsFrameworkType)
             {
                 var attribute = type.FrameworkType.GetCustomAttributesData()
                     .FirstOrDefault(a => a.AttributeType.FullName == typeof(ExperimentalAttribute).FullName);
