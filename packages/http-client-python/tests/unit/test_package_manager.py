@@ -37,7 +37,7 @@ class PackageManagerTests(unittest.TestCase):
             )
 
     def test_rejects_package_managers_below_security_minimum(self):
-        for name, version in [("uv", "0.13.3"), ("pip", "26.1.2")]:
+        for name, version in [("uv", "0.13.3"), ("pip", "24.0"), ("pip", "26.1.2")]:
             with self.subTest(name=name):
 
                 def run(command, **kwargs):

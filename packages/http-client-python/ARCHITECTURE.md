@@ -141,6 +141,8 @@ pip index-URL handling and uv compromised-CA advisories. Build environments
 bootstrap the CFS-available `pip==26.2.2` through the validated host installer,
 not an unchecked `ensurepip` seed. Keep these floors and the pip pin current
 as security advisories and approved feed versions change.
+CI must provision a patched package manager before `npm ci` runs emitter setup.
+The preview workflow explicitly sets up Python and upgrades pip first.
 
 Publish the browser manifest and wheels together with the emitter bundle under
 the same package version. Previously published bundles do not pick up this fix
