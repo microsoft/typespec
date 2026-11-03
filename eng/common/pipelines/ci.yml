@@ -28,7 +28,7 @@ extends:
               - task: NodeTool@0
                 displayName: Install Node.js
                 inputs:
-                  versionSpec: 22.x
+                  versionSpec: 26.x
 
               - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
