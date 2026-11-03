@@ -170,146 +170,6 @@ it("propagate mutated model to model property", async () => {
   expectTypeEquals(MutatedFoo.properties.get("a")!.model, MutatedFoo);
 });
 
-it.each([true, false])(
-  "maps typed property defaults when mutating the owner: %s",
-  async (mutateOwner) => {
-    const { Foo, program } = await Tester.compile(t.code`
-    model Item {}
-    model ${t.model("Foo")} { itemType: TypeRef<Item> = typeref(Item); }
-  `);
-    const mutator: Mutator = {
-      name: "test",
-      Model: {
-        filter: (model) => mutateOwner || model.name === "Item",
-        mutate: (_original, clone) => {
-          if (clone.name === "Item") clone.name = "MutatedItem";
-        },
-      },
-    };
-    const { type } = mutateSubgraph(program, [mutator], Foo);
-    assert(type.kind === "Model");
-    const original = Foo.properties.get("itemType")!.defaultValue;
-    const property = type.properties.get("itemType")!;
-    const mutated = property.defaultValue;
-    assert(original?.valueKind === "TypeRefValue");
-    assert(mutated?.valueKind === "TypeRefValue");
-    expect(original.target).toMatchObject({ kind: "Model", name: "Item" });
-    expect(mutated.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
-    expect(mutated.target).not.toBe(original.target);
-    expect(mutated.type).toBe(property.type);
-    assert(mutated.type.kind === "Scalar");
-    expect(mutated.type.templateMapper?.args[0]).toBe(mutated.target);
-    assert(original.type.kind === "Scalar");
-    expect(original.type.templateMapper?.args[0]).toBe(original.target);
-  },
-);
-
-it("maps type references in scalar constructor arguments to the mutated targets", async () => {
-  const { Foo, program } = await Tester.compile(t.code`
-    model Item {}
-    scalar Registration { init fromType(reference: TypeRef); }
-    model ${t.model("Foo")} {
-      registration: Registration = Registration.fromType(typeref(Item));
-    }
-  `);
-  const mutator: Mutator = {
-    name: "test",
-    Model: (_, clone) => {
-      if (clone.name === "Item") clone.name = "MutatedItem";
-    },
-    ModelProperty: () => {},
-    Scalar: (_, clone) => {
-      if (clone.name === "Registration") clone.name = "MutatedRegistration";
-    },
-  };
-  const { type } = mutateSubgraph(program, [mutator], Foo);
-  assert(type.kind === "Model");
-  const original = Foo.properties.get("registration")!.defaultValue;
-  const property = type.properties.get("registration")!;
-  const mutated = property.defaultValue;
-  assert(original?.valueKind === "ScalarValue");
-  assert(mutated?.valueKind === "ScalarValue");
-  const originalRef = original.value.args[0];
-  const mutatedRef = mutated.value.args[0];
-  assert(originalRef.valueKind === "TypeRefValue");
-  assert(mutatedRef.valueKind === "TypeRefValue");
-  expect(originalRef.target).toMatchObject({ kind: "Model", name: "Item" });
-  expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
-  expect(mutatedRef.target).not.toBe(originalRef.target);
-  expect(mutated.type).toBe(property.type);
-  expect(mutated.scalar).toBe(property.type);
-  expect(mutated.scalar.name).toEqual("MutatedRegistration");
-  expect(original.scalar.name).toEqual("Registration");
-});
-
-it("maps type references in template arguments to the mutated targets", async () => {
-  const { Foo, program } = await Tester.compile(t.code`
-    model Item {}
-    model Ref<T extends valueof TypeRef> { ref: TypeRef = T; }
-    model ${t.model("Foo")} { registration: Ref<typeref(Item)>; }
-  `);
-  const mutator: Mutator = {
-    name: "test",
-    Model: (_, clone) => {
-      if (clone.name === "Item") clone.name = "MutatedItem";
-    },
-    ModelProperty: () => {},
-  };
-  const { type } = mutateSubgraph(program, [mutator], Foo);
-  assert(type.kind === "Model");
-  const original = Foo.properties.get("registration")!.type;
-  const mutated = type.properties.get("registration")!.type;
-  assert(original.kind === "Model" && original.templateMapper);
-  assert(mutated.kind === "Model" && mutated.templateMapper);
-  const originalRef = original.templateMapper.args[0];
-  const mutatedRef = mutated.templateMapper.args[0];
-  assert(originalRef.entityKind === "Value" && originalRef.valueKind === "TypeRefValue");
-  assert(mutatedRef.entityKind === "Value" && mutatedRef.valueKind === "TypeRefValue");
-  expect(originalRef.target).toMatchObject({ kind: "Model", name: "Item" });
-  expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
-  expect(mutatedRef.target).not.toBe(originalRef.target);
-  const defaultValue = mutated.properties.get("ref")!.defaultValue;
-  assert(defaultValue?.valueKind === "TypeRefValue");
-  expect(mutatedRef.target).toBe(defaultValue.target);
-  const [parameter, mapped] = [...mutated.templateMapper.map][0];
-  assert(mapped.entityKind === "Value" && mapped.valueKind === "TypeRefValue");
-  expect(mapped.target).toBe(mutatedRef.target);
-  expect(mutated.templateMapper.getMappedType(parameter)).toBe(mapped);
-});
-
-it("maps type references in lazily cloned template arguments", async () => {
-  const { Foo, program } = await Tester.compile(t.code`
-    model Item {}
-    model Ref<T extends valueof TypeRef> {}
-    model ${t.model("Foo")} { registration: Ref<typeref(Item)>; }
-  `);
-  const original = Foo.properties.get("registration")!.type;
-  assert(original.kind === "Model" && original.templateMapper);
-  const mutator: Mutator = {
-    name: "test",
-    Model: {
-      filter: (model) => model.name === "Item",
-      mutate: (_, clone) => {
-        clone.name = "MutatedItem";
-      },
-    },
-  };
-  const { type } = mutateSubgraph(program, [mutator], original);
-  assert(type.kind === "Model" && type.templateMapper);
-  const originalRef = original.templateMapper.args[0];
-  const mutatedRef = type.templateMapper.args[0];
-  assert(originalRef.entityKind === "Value" && originalRef.valueKind === "TypeRefValue");
-  assert(mutatedRef.entityKind === "Value" && mutatedRef.valueKind === "TypeRefValue");
-  expect(originalRef.target).toMatchObject({ kind: "Model", name: "Item" });
-  expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
-  expect(type).not.toBe(original);
-  expect(mutatedRef.target).not.toBe(originalRef.target);
-  const [parameter, mapped] = [...type.templateMapper.map][0];
-  assert(mapped.entityKind === "Value" && mapped.valueKind === "TypeRefValue");
-  expect(mapped.target).toBe(mutatedRef.target);
-  expect(type.templateMapper.getMappedType(parameter)).toBe(mapped);
-});
-
 describe("handles circular references", () => {
   it("reference itself", async () => {
     const visited: string[] = [];
@@ -655,75 +515,6 @@ describe("global graph mutation", () => {
 });
 
 describe("decorators", () => {
-  it("maps nested type references to the mutated targets", async () => {
-    const { Foo, program } = await Tester.files({
-      "dec.js": mockFile.js({ $myDec: () => {} }),
-    }).import("./dec.js").compile(t.code`
-      extern dec myDec(target, value: valueof { primary: TypeRef; alternatives: TypeRef[]; });
-      model Item {}
-      @myDec(#{ primary: typeref(Item), alternatives: #[typeref(Item)] })
-      model ${t.model("Foo")} {}
-    `);
-    const mutator: Mutator = {
-      name: "test",
-      Model: {
-        mutate: (_original, clone) => {
-          if (clone.name === "Item") clone.name = "MutatedItem";
-        },
-      },
-    };
-    const { type } = mutateSubgraph(program, [mutator], Foo);
-    assert(type.kind === "Model");
-    const original = Foo.decorators[0].args[0].value;
-    const mutated = type.decorators[0].args[0].value;
-    assert(original.entityKind === "Value" && original.valueKind === "ObjectValue");
-    assert(mutated.entityKind === "Value" && mutated.valueKind === "ObjectValue");
-    const originalRef = original.properties.get("primary")!.value;
-    const mutatedRef = mutated.properties.get("primary")!.value;
-    assert(originalRef.valueKind === "TypeRefValue");
-    assert(mutatedRef.valueKind === "TypeRefValue");
-    expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
-    expect(mutatedRef.target).not.toBe(originalRef.target);
-    const alternatives = mutated.properties.get("alternatives")!.value;
-    assert(alternatives.valueKind === "ArrayValue");
-    const alternative = alternatives.values[0];
-    assert(alternative.valueKind === "TypeRefValue");
-    expect(alternative.target).toBe(mutatedRef.target);
-  });
-
-  it("maps type references in decorators on lazily cloned models", async () => {
-    const { Foo, program } = await Tester.files({
-      "dec.js": mockFile.js({ $myDec: () => {} }),
-    }).import("./dec.js").compile(t.code`
-      extern dec myDec(target, value: valueof TypeRef);
-      model Item {}
-      @myDec(typeref(Item))
-      model ${t.model("Foo")} {}
-    `);
-    const mutator: Mutator = {
-      name: "test",
-      Model: {
-        filter: (model) => model.name === "Item",
-        mutate: (_, clone) => {
-          clone.name = "MutatedItem";
-        },
-      },
-    };
-    const { type } = mutateSubgraph(program, [mutator], Foo);
-    assert(type.kind === "Model");
-    const original = Foo.decorators[0].args[0].value;
-    const mutated = type.decorators[0].args[0].value;
-    assert(original.entityKind === "Value" && original.valueKind === "TypeRefValue");
-    assert(mutated.entityKind === "Value" && mutated.valueKind === "TypeRefValue");
-    expect(original.target).toMatchObject({ kind: "Model", name: "Item" });
-    expect(mutated.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
-    expect(type).not.toBe(Foo);
-    expect(mutated.target).not.toBe(original.target);
-    const jsValue = type.decorators[0].args[0].jsValue;
-    assert(jsValue !== null && typeof jsValue === "object" && "target" in jsValue);
-    expect(jsValue.target).toBe(mutated.target);
-  });
-
   it("mutates arguments values", async () => {
     const visited: string[] = [];
 
@@ -796,5 +587,216 @@ describe("decorators", () => {
       },
     };
     expect(() => mutateSubgraph(program, [mutator], Foo)).not.toThrow();
+  });
+});
+
+describe("type references", () => {
+  it.each([true, false])(
+    "maps typed property defaults when mutating the owner: %s",
+    async (mutateOwner) => {
+      const { Foo, program } = await Tester.compile(t.code`
+        model Item {}
+        model ${t.model("Foo")} { itemType: TypeRef<Item> = typeref(Item); }
+      `);
+      const mutator: Mutator = {
+        name: "test",
+        Model: {
+          filter: (model) => mutateOwner || model.name === "Item",
+          mutate: (_original, clone) => {
+            if (clone.name === "Item") clone.name = "MutatedItem";
+          },
+        },
+      };
+      const { type } = mutateSubgraph(program, [mutator], Foo);
+      assert(type.kind === "Model");
+      const original = Foo.properties.get("itemType")!.defaultValue;
+      const property = type.properties.get("itemType")!;
+      const mutated = property.defaultValue;
+      assert(original?.valueKind === "TypeRefValue");
+      assert(mutated?.valueKind === "TypeRefValue");
+      expect(original.target).toMatchObject({ kind: "Model", name: "Item" });
+      expect(mutated.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
+      expect(mutated.target).not.toBe(original.target);
+      expect(mutated.type).toBe(property.type);
+      assert(mutated.type.kind === "Scalar");
+      expect(mutated.type.templateMapper?.args[0]).toBe(mutated.target);
+      assert(original.type.kind === "Scalar");
+      expect(original.type.templateMapper?.args[0]).toBe(original.target);
+    },
+  );
+
+  it("maps type references in scalar constructor arguments to the mutated targets", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      model Item {}
+      scalar Registration { init fromType(reference: TypeRef); }
+      model ${t.model("Foo")} {
+        registration: Registration = Registration.fromType(typeref(Item));
+      }
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      Model: (_, clone) => {
+        if (clone.name === "Item") clone.name = "MutatedItem";
+      },
+      ModelProperty: () => {},
+      Scalar: (_, clone) => {
+        if (clone.name === "Registration") clone.name = "MutatedRegistration";
+      },
+    };
+    const { type } = mutateSubgraph(program, [mutator], Foo);
+    assert(type.kind === "Model");
+    const original = Foo.properties.get("registration")!.defaultValue;
+    const property = type.properties.get("registration")!;
+    const mutated = property.defaultValue;
+    assert(original?.valueKind === "ScalarValue");
+    assert(mutated?.valueKind === "ScalarValue");
+    const originalRef = original.value.args[0];
+    const mutatedRef = mutated.value.args[0];
+    assert(originalRef.valueKind === "TypeRefValue");
+    assert(mutatedRef.valueKind === "TypeRefValue");
+    expect(originalRef.target).toMatchObject({ kind: "Model", name: "Item" });
+    expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
+    expect(mutatedRef.target).not.toBe(originalRef.target);
+    expect(mutated.type).toBe(property.type);
+    expect(mutated.scalar).toBe(property.type);
+    expect(mutated.scalar.name).toEqual("MutatedRegistration");
+    expect(original.scalar.name).toEqual("Registration");
+  });
+
+  it("maps type references in template arguments to the mutated targets", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      model Item {}
+      model Ref<T extends valueof TypeRef> { ref: TypeRef = T; }
+      model ${t.model("Foo")} { registration: Ref<typeref(Item)>; }
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      Model: (_, clone) => {
+        if (clone.name === "Item") clone.name = "MutatedItem";
+      },
+      ModelProperty: () => {},
+    };
+    const { type } = mutateSubgraph(program, [mutator], Foo);
+    assert(type.kind === "Model");
+    const original = Foo.properties.get("registration")!.type;
+    const mutated = type.properties.get("registration")!.type;
+    assert(original.kind === "Model" && original.templateMapper);
+    assert(mutated.kind === "Model" && mutated.templateMapper);
+    const originalRef = original.templateMapper.args[0];
+    const mutatedRef = mutated.templateMapper.args[0];
+    assert(originalRef.entityKind === "Value" && originalRef.valueKind === "TypeRefValue");
+    assert(mutatedRef.entityKind === "Value" && mutatedRef.valueKind === "TypeRefValue");
+    expect(originalRef.target).toMatchObject({ kind: "Model", name: "Item" });
+    expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
+    expect(mutatedRef.target).not.toBe(originalRef.target);
+    const defaultValue = mutated.properties.get("ref")!.defaultValue;
+    assert(defaultValue?.valueKind === "TypeRefValue");
+    expect(mutatedRef.target).toBe(defaultValue.target);
+    const [parameter, mapped] = [...mutated.templateMapper.map][0];
+    assert(mapped.entityKind === "Value" && mapped.valueKind === "TypeRefValue");
+    expect(mapped.target).toBe(mutatedRef.target);
+    expect(mutated.templateMapper.getMappedType(parameter)).toBe(mapped);
+  });
+
+  it("maps type references in lazily cloned template arguments", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      model Item {}
+      model Ref<T extends valueof TypeRef> {}
+      model ${t.model("Foo")} { registration: Ref<typeref(Item)>; }
+    `);
+    const original = Foo.properties.get("registration")!.type;
+    assert(original.kind === "Model" && original.templateMapper);
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        filter: (model) => model.name === "Item",
+        mutate: (_, clone) => {
+          clone.name = "MutatedItem";
+        },
+      },
+    };
+    const { type } = mutateSubgraph(program, [mutator], original);
+    assert(type.kind === "Model" && type.templateMapper);
+    const originalRef = original.templateMapper.args[0];
+    const mutatedRef = type.templateMapper.args[0];
+    assert(originalRef.entityKind === "Value" && originalRef.valueKind === "TypeRefValue");
+    assert(mutatedRef.entityKind === "Value" && mutatedRef.valueKind === "TypeRefValue");
+    expect(originalRef.target).toMatchObject({ kind: "Model", name: "Item" });
+    expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
+    expect(type).not.toBe(original);
+    expect(mutatedRef.target).not.toBe(originalRef.target);
+    const [parameter, mapped] = [...type.templateMapper.map][0];
+    assert(mapped.entityKind === "Value" && mapped.valueKind === "TypeRefValue");
+    expect(mapped.target).toBe(mutatedRef.target);
+    expect(type.templateMapper.getMappedType(parameter)).toBe(mapped);
+  });
+
+  it("maps nested type references to the mutated targets", async () => {
+    const { Foo, program } = await Tester.files({
+      "dec.js": mockFile.js({ $myDec: () => {} }),
+    }).import("./dec.js").compile(t.code`
+      extern dec myDec(target, value: valueof { primary: TypeRef; alternatives: TypeRef[]; });
+      model Item {}
+      @myDec(#{ primary: typeref(Item), alternatives: #[typeref(Item)] })
+      model ${t.model("Foo")} {}
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        mutate: (_original, clone) => {
+          if (clone.name === "Item") clone.name = "MutatedItem";
+        },
+      },
+    };
+    const { type } = mutateSubgraph(program, [mutator], Foo);
+    assert(type.kind === "Model");
+    const original = Foo.decorators[0].args[0].value;
+    const mutated = type.decorators[0].args[0].value;
+    assert(original.entityKind === "Value" && original.valueKind === "ObjectValue");
+    assert(mutated.entityKind === "Value" && mutated.valueKind === "ObjectValue");
+    const originalRef = original.properties.get("primary")!.value;
+    const mutatedRef = mutated.properties.get("primary")!.value;
+    assert(originalRef.valueKind === "TypeRefValue");
+    assert(mutatedRef.valueKind === "TypeRefValue");
+    expect(mutatedRef.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
+    expect(mutatedRef.target).not.toBe(originalRef.target);
+    const alternatives = mutated.properties.get("alternatives")!.value;
+    assert(alternatives.valueKind === "ArrayValue");
+    const alternative = alternatives.values[0];
+    assert(alternative.valueKind === "TypeRefValue");
+    expect(alternative.target).toBe(mutatedRef.target);
+  });
+
+  it("maps type references in decorators on lazily cloned models", async () => {
+    const { Foo, program } = await Tester.files({
+      "dec.js": mockFile.js({ $myDec: () => {} }),
+    }).import("./dec.js").compile(t.code`
+      extern dec myDec(target, value: valueof TypeRef);
+      model Item {}
+      @myDec(typeref(Item))
+      model ${t.model("Foo")} {}
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        filter: (model) => model.name === "Item",
+        mutate: (_, clone) => {
+          clone.name = "MutatedItem";
+        },
+      },
+    };
+    const { type } = mutateSubgraph(program, [mutator], Foo);
+    assert(type.kind === "Model");
+    const original = Foo.decorators[0].args[0].value;
+    const mutated = type.decorators[0].args[0].value;
+    assert(original.entityKind === "Value" && original.valueKind === "TypeRefValue");
+    assert(mutated.entityKind === "Value" && mutated.valueKind === "TypeRefValue");
+    expect(original.target).toMatchObject({ kind: "Model", name: "Item" });
+    expect(mutated.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
+    expect(type).not.toBe(Foo);
+    expect(mutated.target).not.toBe(original.target);
+    const jsValue = type.decorators[0].args[0].jsValue;
+    assert(jsValue !== null && typeof jsValue === "object" && "target" in jsValue);
+    expect(jsValue.target).toBe(mutated.target);
   });
 });

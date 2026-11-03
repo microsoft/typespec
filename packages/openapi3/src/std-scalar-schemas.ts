@@ -7,8 +7,6 @@ export function getSchemaForStdScalars(
   options: ResolvedOpenAPI3EmitterOptions,
 ): OpenAPI3Schema & OpenAPISchema3_1 {
   switch (scalar.name) {
-    case "TypeRef":
-      return { not: {} };
     case "bytes":
       return { type: "string", format: "byte" };
     case "numeric":
@@ -64,6 +62,8 @@ export function getSchemaForStdScalars(
       return { type: "string", format: "duration" };
     case "url":
       return { type: "string", format: "uri" };
+    case "TypeRef":
+      return { not: {} };
     default:
       const _assertNever: never = scalar.name;
       return {};

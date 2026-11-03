@@ -221,4 +221,22 @@ describe("typeref", () => {
     `);
     expectDiagnostics(diagnostics, { code: "unassignable" });
   });
+
+  it("compares mutually recursive reference targets", async () => {
+    await Tester.compile(`
+      model Item { next?: TypeRef<Link>; }
+      model Link { next?: TypeRef<Item>; id: string; }
+      model DetailedItem { next?: TypeRef<DetailedLink>; name: string; }
+      model DetailedLink { next?: TypeRef<DetailedItem>; id: string; }
+      const reference: TypeRef<Item> = typeref(DetailedItem);
+    `);
+    const diagnostics = await Tester.diagnose(`
+      model Item { next?: TypeRef<Link>; }
+      model Link { next?: TypeRef<Item>; id: string; }
+      model OtherItem { next?: TypeRef<OtherLink>; }
+      model OtherLink { next?: TypeRef<OtherItem>; count: int32; }
+      const reference: TypeRef<Item> = typeref(OtherItem);
+    `);
+    expectDiagnostics(diagnostics, { code: "unassignable" });
+  });
 });

@@ -481,7 +481,7 @@ scalar string
 
 ### `TypeRef` {#TypeRef}
 
-An experimental reference to a type assignable to `T`, created with `typeref`.
+A reference to a type assignable to `T`, created with `typeref`.
 ```typespec
 scalar TypeRef
 ```

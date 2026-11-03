@@ -59,6 +59,6 @@ export function isCompilerFeatureEnabled(
       return context.features?.includes(feature) ?? false;
     default:
       // compiler (standard library) and synthetic code are never gated.
-      return true;
+      return false;
   }
 }

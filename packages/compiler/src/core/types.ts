@@ -265,7 +265,6 @@ export interface NullType extends IntrinsicType {
 
 /** Names of the built-in scalars exposed through the compiler's standard-type lookup. */
 export type IntrinsicScalarName =
-  | "TypeRef"
   | "bytes"
   | "numeric"
   | "integer"
@@ -290,7 +289,8 @@ export type IntrinsicScalarName =
   | "offsetDateTime"
   | "duration"
   | "boolean"
-  | "url";
+  | "url"
+  | "TypeRef";
 
 /** An indexer shape that admits no keys and consequently has no value type. */
 export type NeverIndexer = {
@@ -445,8 +445,8 @@ export type Value =
   | ArrayValue
   | EnumValue
   | NullValue
-  | TypeRefValue
-  | FunctionValue;
+  | FunctionValue
+  | TypeRefValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -467,18 +467,6 @@ interface BaseValue {
    * ```
    */
   type: Type;
-}
-
-/**
- * A value referencing an existing compiler type without copying it.
- * Its storage type is `TypeRef<T>`; the referenced type is available through `target`.
- * @experimental
- */
-export interface TypeRefValue extends BaseValue {
-  /** Identifies this value as a reference to a compiler type. */
-  valueKind: "TypeRefValue";
-  /** The referenced compiler type, preserving its original identity. */
-  target: Type;
 }
 
 /** An object value with checked named entries, rather than a model type's property declarations. */
@@ -4134,4 +4122,16 @@ export interface Tracer {
    * separated by a dot. Child tracers share the parent's filtering and log destination.
    */
   sub(subarea: string): Tracer;
+}
+
+/**
+ * A value referencing an existing compiler type without copying it.
+ * Its storage type is `TypeRef<T>`; the referenced type is available through `target`.
+ * @experimental
+ */
+export interface TypeRefValue extends BaseValue {
+  /** Identifies this value as a reference to a compiler type. */
+  valueKind: "TypeRefValue";
+  /** The referenced compiler type, preserving its original identity. */
+  target: Type;
 }

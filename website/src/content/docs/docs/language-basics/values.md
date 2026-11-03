@@ -103,33 +103,6 @@ const value: string | null = null;
 
 The `null` value, like the `null` type, doesn't have any special behavior in the TypeSpec language. It is just the value `null` like that in JSON.
 
-### Type-reference values
-
-:::warning
-`typeref` is experimental, like [functions](./functions.md). Its API and behavior may change in future releases.
-:::
-
-A library may need metadata that combines ordinary values with references to TypeSpec types. For example, a model registration can contain a name and the model it describes. Use `typeref(Widget)` to include the `Widget` model in that value:
-
-```typespec
-model Widget {
-  id: string;
-}
-
-model ModelRegistration {
-  name: string;
-  type: TypeRef;
-}
-
-const registration: ModelRegistration = #{ name: "widget", type: typeref(Widget) };
-```
-
-Here, `name` is a string value and `type` contains an opaque reference to the actual `Widget` model, not its name or an instance of it. `typeref(Widget)` has type `TypeRef<Widget>`. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to require a reference to a type assignable to `T`. Ordinary values such as strings and numbers cannot be assigned to `TypeRef`.
-
-The argument to `typeref` must be a type, such as a model, namespace, instantiated template, union, or tuple, not a value. For example, `typeref("Widget")` references a string literal type; it does not look up the model named `Widget`.
-
-JavaScript implementations receive each reference as a `TypeRefValue` whose `target` is the referenced compiler `Type`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.
-
 ## Const declarations
 
 Const declarations allow storing values in a variable for later reference. Const declarations have an optional type annotation. When the type annotation is absent, the type is inferred from the value by constructing an exact type from the initializer.
@@ -215,3 +188,30 @@ union Color {
 @setColorType(Color.red) // passes the string literal type `"red"`
 model A {}
 ```
+
+## Type-reference values
+
+:::warning
+`typeref` is experimental, like [functions](./functions.md). Its API and behavior may change in future releases.
+:::
+
+A library may need metadata that combines ordinary values with references to TypeSpec types. For example, a model registration can contain a name and the model it describes. Use `typeref(Widget)` to include the `Widget` model in that value:
+
+```typespec
+model Widget {
+  id: string;
+}
+
+model ModelRegistration {
+  name: string;
+  type: TypeRef;
+}
+
+const registration: ModelRegistration = #{ name: "widget", type: typeref(Widget) };
+```
+
+Here, `name` is a string value and `type` contains an opaque reference to the actual `Widget` model, not its name or an instance of it. `typeref(Widget)` has type `TypeRef<Widget>`. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to require a reference to a type assignable to `T`. Ordinary values such as strings and numbers cannot be assigned to `TypeRef`.
+
+The argument to `typeref` must be a type, such as a model, namespace, instantiated template, union, or tuple, not a value. For example, `typeref("Widget")` references a string literal type; it does not look up the model named `Widget`.
+
+JavaScript implementations receive each reference as a `TypeRefValue` whose `target` is the referenced compiler `Type`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.

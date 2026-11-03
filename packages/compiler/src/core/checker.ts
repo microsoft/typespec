@@ -349,12 +349,6 @@ export interface Checker {
    */
   getTypeForNode(node: Node): Type;
 
-  /**
-   * Get or instantiate the standard `TypeRef<target>` scalar.
-   * @internal
-   */
-  getTypeRefType(target: Type): Scalar;
-
   /** @internal */
   checkProgram(): void;
   /** @internal */
@@ -502,6 +496,12 @@ export interface Checker {
 
   /** @internal */
   stats: CheckerStats;
+
+  /**
+   * Get or instantiate the standard `TypeRef<target>` scalar.
+   * @internal
+   */
+  getTypeRefType(target: Type): Scalar;
 }
 
 export interface CheckerStats {
@@ -589,7 +589,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   const checker: Checker = {
     getTypeForNode,
-    getTypeRefType,
     checkProgram,
     checkSourceFile,
     getLiteralType,
@@ -619,6 +618,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     isTypeAssignableTo: undefined!,
     isValueOfType: undefined!,
     stats,
+    getTypeRefType,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
@@ -701,23 +701,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       `TypeSpec std type "${name}" should have been initalized before using array syntax.`,
     );
     return loadedType as any;
-  }
-
-  function getTypeRefType(target: Type): Scalar {
-    const node = getStdType("TypeRef").node;
-    compilerAssert(node, "The standard TypeRef scalar must have a declaration.");
-    const parameter = getTypeForNode(node.templateParameters[0]);
-    compilerAssert(parameter.kind === "TemplateParameter", "TypeRef must have a type parameter.");
-    const type = getOrInstantiateTemplate(
-      CheckContext.DEFAULT,
-      node,
-      [parameter],
-      [target],
-      { node, mapper: undefined },
-      undefined,
-    );
-    compilerAssert(type.kind === "Scalar", "TypeRef must instantiate to a scalar.");
-    return type;
   }
 
   /**
@@ -2288,7 +2271,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
+    if (
+      getLocationContext(program, node).type !== "compiler" &&
+      !isCompilerFeatureEnabled(program, "function-declarations", node)
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "experimental-feature",
@@ -8793,6 +8779,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getValueExactType(value: Value): Type | undefined {
     return valueExactTypes.get(value);
+  }
+
+  function getTypeRefType(target: Type): Scalar {
+    const node = getStdType("TypeRef").node;
+    compilerAssert(node, "The standard TypeRef scalar must have a declaration.");
+    const parameter = getTypeForNode(node.templateParameters[0]);
+    compilerAssert(parameter.kind === "TemplateParameter", "TypeRef must have a type parameter.");
+    const type = getOrInstantiateTemplate(
+      CheckContext.DEFAULT,
+      node,
+      [parameter],
+      [target],
+      { node, mapper: undefined },
+      undefined,
+    );
+    compilerAssert(type.kind === "Scalar", "TypeRef must instantiate to a scalar.");
+    return type;
   }
 }
 

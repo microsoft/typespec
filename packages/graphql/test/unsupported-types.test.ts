@@ -1,3 +1,4 @@
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
@@ -36,5 +37,33 @@ describe("unsupported types", () => {
     );
     expect(warnings.length).toBe(1);
     expect(warnings[0].message).toContain("String");
+  });
+
+  it.each([
+    "@query op get(): TypeRef<string>;",
+    "@query op get(type: TypeRef<string>): string;",
+    "model Item { type: TypeRef<string>; } @query op get(): Item;",
+    "model Item { types: (TypeRef<string> | null)[]; } @query op get(): Item;",
+  ])("diagnoses compile-time references before rendering: %s", async (code) => {
+    const result = await emitSingleSchemaWithDiagnostics(`@schema namespace Test { ${code} }`);
+    expectDiagnostics(result.diagnostics, {
+      code: "@typespec/graphql/type-reference-not-supported",
+    });
+    expect(result.graphQLOutput).toBeUndefined();
+  });
+
+  it("allows type references in omitted metadata models", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(
+      `
+        @schema namespace Test {
+          model Registration { type: TypeRef = typeref(string); }
+          @query op get(): string;
+        }
+      `,
+      { "omit-unreachable-types": true },
+    );
+    expectDiagnosticEmpty(result.diagnostics);
+    expect(result.graphQLOutput).toContain("get: String!");
+    expect(result.graphQLOutput).not.toContain("Registration");
   });
 });

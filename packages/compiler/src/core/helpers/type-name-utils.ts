@@ -101,13 +101,13 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
       return getTypeName(value.value);
     case "NullValue":
       return "null";
-    case "TypeRefValue":
-      return `typeref(${getTypeName(value.target, options)})`;
     case "ScalarValue":
       return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
     case "Function": {
       return `fn ${value.name ?? "<anonymous>"}`;
     }
+    case "TypeRefValue":
+      return `typeref(${getTypeName(value.target, options)})`;
   }
 }
 

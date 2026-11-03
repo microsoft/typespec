@@ -5,12 +5,6 @@ import "./prototypes.tsp";
 namespace TypeSpec;
 
 /**
- * An experimental reference to a type assignable to `T`, created with `typeref`.
- * @template T The constraint on the referenced type.
- */
-scalar TypeRef<T = unknown>;
-
-/**
  * Represent a byte array
  */
 scalar bytes;
@@ -235,3 +229,9 @@ model Array<Element> {}
  */
 @indexer(string, Element)
 model Record<Element> {}
+
+/**
+ * A reference to a type assignable to `T`, created with `typeref`.
+ * @template T The constraint on the referenced type.
+ */
+scalar TypeRef<T = unknown>;

@@ -557,8 +557,6 @@ function createMutatorEngine(
     activeMutators: Set<MutatorAll>,
     mutateSubNamespace: boolean = true,
   ): MutableTypeWithNamespace {
-    let clone: MutableTypeWithNamespace | null = null;
-    let mutating = false;
     let existing = seen.get([type, activeMutators]);
     if (existing) {
       if (
@@ -567,7 +565,8 @@ function createMutatorEngine(
         !namespacesVisitedContent.has(existing as any)
       ) {
         namespacesVisitedContent.add(existing);
-        mutateSubMap(existing, "namespaces", true, activeMutators);
+        const namespace = existing;
+        mutateSubMap(namespace, "namespaces", () => namespace, activeMutators);
       }
       clearInterstitialFunctions();
       return existing as T;
@@ -581,8 +580,12 @@ function createMutatorEngine(
     ) {
       return type;
     }
+    let clone: MutableTypeWithNamespace | null = null;
+
     const { mutatorsWithOptions, newMutators } = resolveMutators(activeMutators, type);
     const mutatorsToApply = mutatorsWithOptions.map((v) => v.mutator);
+
+    let mutating = false;
 
     // if we have no mutators to apply, let's bail out.
     if (mutatorsWithOptions.length === 0) {
@@ -668,25 +671,25 @@ function createMutatorEngine(
     }
 
     function prepareNamespace(root: Namespace) {
-      visitDecorators(root);
+      visitDecorators(root, getClone, newMutators);
       mutateNamespaceProperty(root);
     }
 
     function visitSubNamespaces(type: Namespace) {
       namespacesVisitedContent.add(type);
-      mutateSubMap(type, "namespaces", true, newMutators);
+      mutateSubMap(type, "namespaces", getClone, newMutators);
     }
     function visitNamespaceContents(root: Namespace) {
-      mutateSubMap(root, "models", mutating, newMutators);
-      mutateSubMap(root, "operations", mutating, newMutators);
-      mutateSubMap(root, "interfaces", mutating, newMutators);
-      mutateSubMap(root, "enums", mutating, newMutators);
-      mutateSubMap(root, "unions", mutating, newMutators);
-      mutateSubMap(root, "scalars", mutating, newMutators);
+      mutateSubMap(root, "models", getClone, newMutators);
+      mutateSubMap(root, "operations", getClone, newMutators);
+      mutateSubMap(root, "interfaces", getClone, newMutators);
+      mutateSubMap(root, "enums", getClone, newMutators);
+      mutateSubMap(root, "unions", getClone, newMutators);
+      mutateSubMap(root, "scalars", getClone, newMutators);
     }
 
     function visitModel(root: Model) {
-      mutateSubMap(root, "properties", mutating, newMutators);
+      mutateSubMap(root, "properties", getClone, newMutators);
       if (root.indexer) {
         const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
         if (mutating) {
@@ -699,9 +702,9 @@ function createMutatorEngine(
           mutate(root.sourceModels[index]).model = newModel;
         }
       }
-      mutateProperty(root, "sourceModel", mutating, newMutators);
-      mutateProperty(root, "baseModel", mutating, newMutators);
-      mutateSubArray(root, "derivedModels", mutating, newMutators);
+      mutateProperty(root, "sourceModel", getClone, newMutators);
+      mutateProperty(root, "baseModel", getClone, newMutators);
+      mutateSubArray(root, "derivedModels", getClone, newMutators);
     }
 
     function visitSubgraph() {
@@ -714,8 +717,8 @@ function createMutatorEngine(
           visitModel(root);
           break;
         case "ModelProperty":
-          mutateProperty(root, "type", mutating, newMutators);
-          mutateProperty(root, "sourceProperty", mutating, newMutators);
+          mutateProperty(root, "type", getClone, newMutators);
+          mutateProperty(root, "sourceProperty", getClone, newMutators);
           if (root.defaultValue) {
             const value = mutateValue(root.defaultValue, newMutators);
             const target = clone ?? root;
@@ -723,65 +726,45 @@ function createMutatorEngine(
           }
           break;
         case "Tuple":
-          mutateSubArray(root, "values", mutating, newMutators);
+          mutateSubArray(root, "values", getClone, newMutators);
           break;
         case "Operation":
-          mutateProperty(root, "parameters", mutating, newMutators);
-          mutateProperty(root, "returnType", mutating, newMutators);
-          mutateProperty(root, "sourceOperation", mutating, newMutators);
+          mutateProperty(root, "parameters", getClone, newMutators);
+          mutateProperty(root, "returnType", getClone, newMutators);
+          mutateProperty(root, "sourceOperation", getClone, newMutators);
           break;
         case "Interface":
-          mutateSubMap(root, "operations", mutating, newMutators);
+          mutateSubMap(root, "operations", getClone, newMutators);
           break;
         case "Enum":
-          mutateSubMap(root, "members", mutating, newMutators);
+          mutateSubMap(root, "members", getClone, newMutators);
           break;
         case "EnumMember":
           break;
         case "Union":
-          mutateSubMap(root, "variants", mutating, newMutators);
-          mutateProperty(root, "baseType", mutating, newMutators);
+          mutateSubMap(root, "variants", getClone, newMutators);
+          mutateProperty(root, "baseType", getClone, newMutators);
           break;
         case "UnionVariant":
-          mutateProperty(root, "type", mutating, newMutators);
+          mutateProperty(root, "type", getClone, newMutators);
           break;
         case "Scalar":
-          mutateSubMap(root, "constructors", mutating, newMutators);
-          mutateProperty(root, "baseScalar", mutating, newMutators);
-          mutateSubArray(root, "derivedScalars", mutating, newMutators);
+          mutateSubMap(root, "constructors", getClone, newMutators);
+          mutateProperty(root, "baseScalar", getClone, newMutators);
+          mutateSubArray(root, "derivedScalars", getClone, newMutators);
           break;
         case "ScalarConstructor":
-          mutateProperty(root, "scalar", mutating, newMutators);
+          mutateProperty(root, "scalar", getClone, newMutators);
           break;
       }
 
       if ("templateMapper" in root) {
-        const mapper = mutateTemplateMapper(root, newMutators);
-        const target = clone ?? root;
-        if (mutating && "templateMapper" in target) target.templateMapper = mapper;
+        mutateTemplateMapper(root, getClone, newMutators);
       }
       if ("decorators" in root) {
-        visitDecorators(root);
+        visitDecorators(root, getClone, newMutators);
       }
       mutateNamespaceProperty(root);
-    }
-
-    function visitDecorators(root: MutableTypeWithNamespace & DecoratedType) {
-      for (const [index, dec] of root.decorators.entries()) {
-        const args: DecoratorArgument[] = [];
-        for (const arg of dec.args) {
-          args.push({
-            ...arg,
-            value: mutateDecoratorArgumentValue(arg.value, newMutators),
-            jsValue: mutateDecoratorArgumentValue(arg.jsValue, newMutators),
-          });
-        }
-
-        const target = clone ?? root;
-        if (mutating && "decorators" in target) {
-          target.decorators[index] = { ...dec, args };
-        }
-      }
     }
 
     // Parents needs to be visited after the type is finished
@@ -789,71 +772,46 @@ function createMutatorEngine(
       const root: MutableType | Namespace = clone ?? (type as MutableTypeWithNamespace);
       switch (root.kind) {
         case "ModelProperty":
-          mutateProperty(root, "model", mutating, newMutators);
+          mutateProperty(root, "model", getClone, newMutators);
           break;
         case "Operation":
-          mutateProperty(root, "interface", mutating, newMutators);
+          mutateProperty(root, "interface", getClone, newMutators);
           break;
         case "EnumMember":
-          mutateProperty(root, "enum", mutating, newMutators);
+          mutateProperty(root, "enum", getClone, newMutators);
           break;
         case "UnionVariant":
-          mutateProperty(root, "union", mutating, newMutators);
+          mutateProperty(root, "union", getClone, newMutators);
           break;
         case "ScalarConstructor":
-          mutateProperty(root, "scalar", mutating, newMutators);
+          mutateProperty(root, "scalar", getClone, newMutators);
           break;
       }
     }
 
-    function mutateSubMap<T extends MutableTypeWithNamespace, K extends keyof T>(
-      type: T,
-      prop: K,
-      mutate: boolean,
-      newMutators: Set<MutatorAll>,
-    ) {
-      for (const [key, value] of (type as any)[prop].entries()) {
-        const newValue: any = mutateSubgraphWorker(value, newMutators);
-        // Visiting a child can initialize this owner's clone.
-        const target = (clone ?? type) as T;
-        if (mutating || mutate) {
-          (target[prop] as any).set(key, newValue);
-
-          if (newValue.name !== value.name) {
-            (target[prop] as any).rekey(key, newValue.name);
-          }
-        }
-      }
+    function getClone() {
+      return clone;
     }
+  }
 
-    function mutateSubArray<T extends MutableType, K extends keyof T>(
-      type: T,
-      prop: K,
-      mutate: boolean,
-      newMutators: Set<MutatorAll>,
-    ) {
-      for (const [index, value] of (type as any)[prop].entries()) {
-        const newValue: any = mutateSubgraphWorker(value, newMutators);
-        const target = clone ?? type;
-        if (mutating || mutate) {
-          (target as any)[prop][index] = newValue;
-        }
+  function visitDecorators(
+    type: MutableTypeWithNamespace & DecoratedType,
+    getClone: () => MutableTypeWithNamespace | null,
+    newMutators: Set<MutatorAll>,
+  ) {
+    for (const [index, dec] of type.decorators.entries()) {
+      const args: DecoratorArgument[] = [];
+      for (const arg of dec.args) {
+        args.push({
+          ...arg,
+          value: mutateDecoratorArgumentValue(arg.value, newMutators),
+          jsValue: mutateDecoratorArgumentValue(arg.jsValue, newMutators),
+        });
       }
-    }
 
-    function mutateProperty<T extends MutableType, K extends keyof T>(
-      type: T,
-      prop: K,
-      mutate: boolean,
-      newMutators: Set<Mutator>,
-    ) {
-      if (type[prop] === undefined) {
-        return;
-      }
-      const newValue: any = mutateSubgraphWorker(type[prop] as any, newMutators);
-      const target = (clone ?? type) as T;
-      if (mutating || mutate) {
-        target[prop] = newValue;
+      const target = getClone();
+      if (target && "decorators" in target) {
+        target.decorators[index] = { ...dec, args };
       }
     }
   }
@@ -936,8 +894,9 @@ function createMutatorEngine(
 
   function mutateTemplateMapper(
     type: TemplatedType,
+    getClone: () => MutableTypeWithNamespace | null,
     newMutators: Set<MutatorAll>,
-  ): TypeMapper | undefined {
+  ) {
     if (type.templateMapper === undefined) {
       return;
     }
@@ -953,7 +912,61 @@ function createMutatorEngine(
     for (const [param, paramType] of type.templateMapper.map) {
       mutatedMapper.map.set(param, mutateDecoratorArgumentValue(paramType, newMutators));
     }
-    return mutatedMapper;
+    const target = getClone();
+    if (target && "templateMapper" in target) {
+      target.templateMapper = mutatedMapper;
+    }
+  }
+
+  function mutateSubMap<T extends MutableTypeWithNamespace, K extends keyof T>(
+    type: T,
+    prop: K,
+    getClone: () => MutableTypeWithNamespace | null,
+    newMutators: Set<MutatorAll>,
+  ) {
+    for (const [key, value] of (type as any)[prop].entries()) {
+      const newValue: any = mutateSubgraphWorker(value, newMutators);
+      // Visiting a child can initialize this owner's clone.
+      const target = getClone();
+      if (target) {
+        const map = (target as T)[prop] as any;
+        map.set(key, newValue);
+        if (newValue.name !== value.name) {
+          map.rekey(key, newValue.name);
+        }
+      }
+    }
+  }
+
+  function mutateSubArray<T extends MutableType, K extends keyof T>(
+    type: T,
+    prop: K,
+    getClone: () => MutableTypeWithNamespace | null,
+    newMutators: Set<MutatorAll>,
+  ) {
+    for (const [index, value] of (type as any)[prop].entries()) {
+      const newValue: any = mutateSubgraphWorker(value, newMutators);
+      const target = getClone();
+      if (target) {
+        ((target as T)[prop] as any)[index] = newValue;
+      }
+    }
+  }
+
+  function mutateProperty<T extends MutableType, K extends keyof T>(
+    type: T,
+    prop: K,
+    getClone: () => MutableTypeWithNamespace | null,
+    newMutators: Set<Mutator>,
+  ) {
+    if (type[prop] === undefined) {
+      return;
+    }
+    const newValue: any = mutateSubgraphWorker(type[prop] as any, newMutators);
+    const target = getClone();
+    if (target) {
+      (target as T)[prop] = newValue;
+    }
   }
 }
 

@@ -228,8 +228,6 @@ function ScalarTsType({ scalar }: { scalar: Scalar }) {
 
 function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }) {
   switch (scalar.name) {
-    case "TypeRef":
-      return typespecCompiler.TypeRefValue;
     case "numeric":
     case "decimal":
     case "decimal128":
@@ -260,6 +258,8 @@ function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }) {
     case "duration":
     case "bytes":
       return "unknown";
+    case "TypeRef":
+      return typespecCompiler.TypeRefValue;
     default:
       const _assertNever: never = scalar.name;
       return "unknown";

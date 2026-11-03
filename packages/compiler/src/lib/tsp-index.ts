@@ -67,9 +67,9 @@ import {
 /** @internal */
 export const $functions = {
   TypeSpec: {
-    typeref,
     applyVisibilityFilter,
     applyLifecycleUpdate,
+    typeref,
   } satisfies TypeSpecFunctions,
 };
 

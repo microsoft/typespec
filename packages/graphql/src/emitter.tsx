@@ -1,12 +1,18 @@
 import { renderSchema as alloyRenderSchema } from "@pinterest/alloy-graphql";
 import {
+  ListenerFlow,
   emitFile,
   interpolatePath,
+  isArrayModelType,
+  navigateType,
+  navigateTypesInNamespace,
   resolvePath,
   sanitizePathSegment,
+  type DiagnosticTarget,
   type EmitContext,
   type Namespace,
   type Program,
+  type Type,
 } from "@typespec/compiler";
 import { TspContext } from "@typespec/emitter-framework";
 import { printSchema } from "graphql";
@@ -83,6 +89,10 @@ function buildSchema(
     return undefined;
   }
 
+  if (!validateTypeReferences(program, typeGraph)) {
+    return undefined;
+  }
+
   return typeGraph;
 }
 
@@ -97,4 +107,29 @@ function renderSchema(program: Program, typeGraph: TypeGraph): string {
   );
 
   return printSchema(graphqlSchema as any);
+}
+
+function validateTypeReferences(program: Program, typeGraph: TypeGraph): boolean {
+  let valid = true;
+  navigateTypesInNamespace(typeGraph.globalNamespace, {
+    modelProperty: (property) => validate(property.type, property),
+    operation: (operation) => validate(operation.returnType, operation),
+  });
+  return valid;
+
+  function validate(type: Type, target: DiagnosticTarget) {
+    navigateType(
+      type,
+      {
+        model: (model) => (isArrayModelType(model) ? undefined : ListenerFlow.NoRecursion),
+        scalar: (scalar) => {
+          if (program.checker.isStdType(scalar, "TypeRef")) {
+            reportDiagnostic(program, { code: "type-reference-not-supported", target });
+            valid = false;
+          }
+        },
+      },
+      {},
+    );
+  }
 }

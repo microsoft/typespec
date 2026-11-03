@@ -29,17 +29,6 @@ async function getOpExamplesFor(code: string) {
 
 describe("@example", () => {
   describe("model", () => {
-    it("rejects serializing a type-reference value as JSON", async () => {
-      const { program, examples, target } = await getExamplesFor(`
-        model Item {}
-        @example(#{ itemType: typeref(Item) })
-        model /*test*/test { itemType: TypeRef; }
-      `);
-      expect(() => serializeValueAsJson(program, examples[0].value, target)).toThrow(
-        "Cannot serialize a type reference value as JSON.",
-      );
-    });
-
     it("valid", async () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(#{ a: 1, b: 2 })
@@ -643,4 +632,15 @@ describe("json serialization of examples", () => {
 
     expect(result).toEqual({ a: { name: "one", other: 123 } });
   });
+});
+
+it("rejects serializing a type-reference value as JSON", async () => {
+  const { program, examples, target } = await getExamplesFor(`
+    model Item {}
+    @example(#{ itemType: typeref(Item) })
+    model /*test*/test { itemType: TypeRef; }
+  `);
+  expect(() => serializeValueAsJson(program, examples[0].value, target)).toThrow(
+    "Cannot serialize a type reference value as JSON.",
+  );
 });

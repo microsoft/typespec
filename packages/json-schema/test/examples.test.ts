@@ -1,5 +1,6 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
-import { emitSchema } from "./utils.js";
+import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 it("apply example on model", async () => {
   const schemas = await emitSchema(
@@ -39,4 +40,13 @@ it("serialize the examples with their json encoding", async () => {
       `,
   );
   expect(schemas["Test.json"].examples).toEqual([{ dob: "2021-01-01" }]);
+});
+
+it("diagnoses examples containing type references instead of crashing", async () => {
+  const [, diagnostics] = await emitSchemaWithDiagnostics(`
+    model Item {}
+    @example(#{type: typeref(Item)})
+    model Registration { type: TypeRef; }
+  `);
+  expectDiagnostics(diagnostics, { code: "@typespec/json-schema/invalid-example" });
 });
