@@ -147,7 +147,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.AttributeProperties)
                 {
-                    statements.Add(ExperimentalApiHelpers.Suppress(WrapInVisibility(prop.WireInfo, CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces), includeReadOnly: true), prop.Suppressions));
+                    statements.Add(ExperimentalApiHelpers.Suppress(
+                        WrapInVisibility(prop.WireInfo, CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces), includeReadOnly: true),
+                        prop.Suppressions));
                 }
             }
 
@@ -156,15 +158,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.ElementProperties)
                 {
-                    statements.Add(ExperimentalApiHelpers.Suppress(WrapInVisibility(prop.WireInfo, CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces), includeReadOnly: true), prop.Suppressions));
+                    statements.Add(ExperimentalApiHelpers.Suppress(
+                        WrapInVisibility(prop.WireInfo, CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces), includeReadOnly: true),
+                        prop.Suppressions));
                 }
             }
 
             // Write unwrapped content
             if (categorizedProperties.TextContentProperty != null)
             {
-                statements.Add(ExperimentalApiHelpers.Suppress(WrapInVisibility(categorizedProperties.TextContentProperty.WireInfo, CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty), includeReadOnly: true),
-                    categorizedProperties.TextContentProperty.Suppressions));
+                var prop = categorizedProperties.TextContentProperty;
+                statements.Add(ExperimentalApiHelpers.Suppress(
+                    WrapInVisibility(prop.WireInfo, CreateXmlWriteTextContentStatement(prop), includeReadOnly: true),
+                    prop.Suppressions));
             }
 
             return [.. statements];
@@ -227,17 +233,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var serializationHook = GetXmlSerializationHookStatement(prop.PropertyName, prop.SerializationAttributes);
             if (serializationHook != null)
             {
-                return WrapInIsDefinedCheck(prop, serializationHook);
+                return WrapInIsDefinedCheck(prop, ExperimentalApiHelpers.Suppress(
+                    serializationHook,
+                    ExperimentalApiHelpers.GetReferenceSuppressions(prop.PropertyType)));
             }
 
             var xmlWireInfo = prop.XmlWireInfo;
             if (xmlWireInfo.Namespace != null && namespaces?.TryGetValue(xmlWireInfo.Namespace.Namespace, out var nsInfo) == true)
             {
-                var writeStatement = _xmlWriterSnippet.WriteAttributeString(
-                    nsInfo.Prefix,
-                    xmlWireInfo.Name,
-                    nsInfo.Namespace,
-                    prop.SerializationExp);
+                var writeStatement = ExperimentalApiHelpers.Suppress(
+                    _xmlWriterSnippet.WriteAttributeString(
+                        nsInfo.Prefix,
+                        xmlWireInfo.Name,
+                        nsInfo.Namespace,
+                        prop.SerializationExp),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(prop.PropertyType));
 
                 return WrapInIsDefinedCheck(prop, writeStatement);
             }
@@ -258,7 +268,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var serializationHook = GetXmlSerializationHookStatement(prop.PropertyName, prop.SerializationAttributes);
             if (serializationHook != null)
             {
-                return WrapInIsDefinedCheck(prop, serializationHook);
+                return WrapInIsDefinedCheck(prop, ExperimentalApiHelpers.Suppress(
+                    serializationHook,
+                    ExperimentalApiHelpers.GetReferenceSuppressions(prop.PropertyType)));
             }
 
             if (prop.PropertyType.IsList || prop.PropertyType.IsArray)
@@ -292,9 +304,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(_xmlWriterSnippet.WriteStartElement(prop.XmlWireInfo.Name));
             }
 
-            statements.AddRange(
-                CreateXmlWriteValueStatement(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat),
-                _xmlWriterSnippet.WriteEndElement());
+            statements.Add(CreateXmlWriteValueStatement(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat));
+            statements.Add(_xmlWriterSnippet.WriteEndElement());
 
             return WrapInIsDefinedCheck(prop, statements);
         }
@@ -317,10 +328,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!underlyingType.IsFrameworkType)
             {
-                return ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
+                return ExperimentalApiHelpers.Suppress(
+                    ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(valueType));
             }
 
-            return underlyingType.FrameworkType switch
+            var statement = underlyingType.FrameworkType switch
             {
                 Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
                     => _xmlWriterSnippet.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
@@ -333,6 +346,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     => _xmlWriterSnippet.WriteObjectValue(value.As<FileBinaryContent>(), _mrwOptionsParameterSnippet),
                 _ => ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat)
             };
+            return ExperimentalApiHelpers.Suppress(statement, ExperimentalApiHelpers.GetReferenceSuppressions(valueType));
         }
 
         private MethodBodyStatement CreateXmlWriteListStatement(
@@ -479,7 +493,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement CreateXmlWriteTextContentStatement(XmlPropertyInfo prop)
         {
-            var writeStatement = ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(prop.PropertyType, prop.SerializationExp, _xmlWriterSnippet, _mrwOptionsParameterSnippet, prop.SerializationFormat);
+            var writeStatement = ExperimentalApiHelpers.Suppress(
+                ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(prop.PropertyType, prop.SerializationExp, _xmlWriterSnippet, _mrwOptionsParameterSnippet, prop.SerializationFormat),
+                ExperimentalApiHelpers.GetReferenceSuppressions(prop.PropertyType));
             return WrapInIsDefinedCheck(prop, writeStatement);
         }
 
@@ -749,9 +765,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                var referenceSuppressions = parameter.Property is not null
+                    ? ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Property.Type)
+                    : ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Field!.Type);
                 var suppressions = parameter.Property is not null
-                    ? ExperimentalApiHelpers.GetMemberSuppressions(parameter.Property)
-                    : ExperimentalApiHelpers.GetMemberSuppressions(parameter.Field!);
+                    ? ExperimentalApiHelpers.MergeSuppressions(
+                        GetMemberSuppressionsExcludingReferenceTypes(ExperimentalApiHelpers.GetMemberSuppressions(parameter.Property), referenceSuppressions),
+                        ExperimentalApiHelpers.GetAttributeSuppressions(parameter.Property.Attributes))
+                    : ExperimentalApiHelpers.MergeSuppressions(
+                        GetMemberSuppressionsExcludingReferenceTypes(ExperimentalApiHelpers.GetMemberSuppressions(parameter.Field!), referenceSuppressions),
+                        ExperimentalApiHelpers.GetAttributeSuppressions(parameter.Field!.Attributes));
                 var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly, wireInfo, suppressions);
 
                 // Categorize by XML serialization type
