@@ -134,17 +134,6 @@ namespace Microsoft.TypeSpec.Generator
                 lastContractProperty.Body.HasSetter == !currentProperty.IsReadOnly;
         }
 
-        /// <summary>
-        /// Determines whether a known framework property guarantees a non-null, stable collection
-        /// that supports Clear and Add from a derived constructor. A mutable interface alone is not
-        /// sufficient evidence. Opt in only for established contracts.
-        /// </summary>
-        /// <param name="mappedBase">The mapped framework base containing the property.</param>
-        /// <param name="property">The inherited property to populate during deserialization.</param>
-        /// <returns>True only when the framework contract guarantees safe collection population.</returns>
-        internal virtual bool IsLastContractModelBaseCollectionMutable(CSharpType mappedBase, PropertyProvider property)
-            => false;
-
         public CSharpType? CreateCSharpType(InputType inputType)
         {
             if (TypeCache.TryGetValue(inputType, out var type))

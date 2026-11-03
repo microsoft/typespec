@@ -339,6 +339,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             => AssertMappedBaseUpgradeRoundTrip(nullableTags: true);
 
         [Test]
+        public void NullableWireCollectionPassedToBaseConstructorPreservesNullPayload()
+            => AssertMappedBaseUpgradeRoundTrip(nullableTags: true, constructorHandlesNullable: true);
+
+        [Test]
         public void MappedBaseUpgradeRejectsAncestorPropertyWithoutInitialization()
         {
             var ancestor = InputFactory.Model("Ancestor",
@@ -360,7 +364,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         private static void AssertMappedBaseUpgradeRoundTrip(
-            bool readOnly = false, bool ancestorValue = false, bool nullableTags = false)
+            bool readOnly = false, bool ancestorValue = false, bool nullableTags = false, bool constructorHandlesNullable = false)
         {
             // Keep the immediate mapped input empty: the missing value belongs to a deeper input ancestor,
             // not to the framework constructor's immediate input model or the generated child.
@@ -374,14 +378,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isReadOnly: true),
                     InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
-            var frameworkType = readOnly ? typeof(ReadOnlyUpgradedMrwBase) : typeof(UpgradedMrwBase);
+            var frameworkType = readOnly ? typeof(ReadOnlyUpgradedMrwBase)
+                : nullableTags && !constructorHandlesNullable ? typeof(UninitializedCollectionMrwBase) : typeof(UpgradedMrwBase);
             var generator = CreateGenerator(input, frameworkType: frameworkType);
-            // These exact fixture properties are known to return stable mutable collections.
-            Mock.Get(generator.Object.TypeFactory)
-                .Setup(factory => factory.IsLastContractModelBaseCollectionMutable(
-                    It.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(UpgradedMrwBase)),
-                    It.Is<PropertyProvider>(property => property.Name == "Tags" || property.Name == "Items")))
-                .Returns(true);
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
                 .Returns((InputModelType model) => ReferenceEquals(model, current)
@@ -400,7 +399,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
             Assert.That(generatedType.GetProperty("Location")!.GetValue(restored), Is.EqualTo("west"),
                 "Moving a child property into a framework base must not remove its deserialization parameter.");
-            Assert.That(model.BaseType?.Name, Is.EqualTo(readOnly || nullableTags ? nameof(FlatMrwBase) : nameof(UpgradedMrwBase)),
+            Assert.That(model.BaseType?.Name, Is.EqualTo(readOnly || nullableTags && !constructorHandlesNullable
+                ? nameof(FlatMrwBase) : nameof(UpgradedMrwBase)),
                 "Reject restoration when a projected property cannot be initialized safely.");
             if (ancestorValue)
             {
@@ -544,6 +544,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
     public class UpgradedMrwBase : FlatMrwBase
     {
+        public UpgradedMrwBase() { }
+        protected UpgradedMrwBase(IDictionary<string, string> tags, IList<string> items)
+        {
+            Tags = tags;
+            Items = items;
+        }
+
         public string? Location { get; set; }
         public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
         public IList<string> Items { get; } = new List<string>();
@@ -556,6 +563,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             writer.WritePropertyName("items");
             JsonSerializer.Serialize(writer, Items);
         }
+    }
+
+    // No constructor accepts these collections, so a nullable value cannot be assigned safely.
+    public class UninitializedCollectionMrwBase : FlatMrwBase
+    {
+        public string? Location { get; set; }
+        public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
+        public IList<string> Items { get; } = new List<string>();
     }
 
     public class ReadOnlyUpgradedMrwBase : FlatMrwBase

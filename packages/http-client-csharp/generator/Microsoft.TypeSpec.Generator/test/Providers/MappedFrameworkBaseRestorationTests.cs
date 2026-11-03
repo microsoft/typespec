@@ -344,13 +344,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         !previous.IsInitOnly && previous.Body.HasSetter == (input.Name == "location");
                 });
 
-            // The fixture's Tags getter is backed by a stable mutable Dictionary. Establish this
-            // contract separately from CLR/accessor compatibility.
-            Mock.Get(CodeModelGenerator.Instance.TypeFactory)
-                .Setup(factory => factory.IsLastContractModelBaseCollectionMutable(
-                    It.Is<CSharpType>(type => type.IsFrameworkType && type.FrameworkType == typeof(TrackedResourceData)),
-                    It.Is<PropertyProvider>(property => property.Name == "Tags")))
-                .Returns(true);
             Mock.Get(CodeModelGenerator.Instance.TypeFactory)
                 .Setup(factory => factory.CreateFrameworkType(typeof(ResourceLocation).FullName!))
                 .Returns(typeof(ResourceLocation));
@@ -416,8 +409,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework
     {
         protected TrackedResourceData() { }
         public TrackedResourceData(ResourceLocation location) => Location = location;
-        protected TrackedResourceData(string id, string name, string type, ResourceLocation location)
-            : base(id, name, type) => Location = location;
+        protected TrackedResourceData(string id, string name, string type, IDictionary<string, string> tags, ResourceLocation location)
+            : base(id, name, type)
+        {
+            Tags = tags;
+            Location = location;
+        }
 
         public ResourceLocation Location { get; set; }
         public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();

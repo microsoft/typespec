@@ -157,8 +157,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase) is not SystemObjectModelProvider current ||
                 !PreservesFrameworkMembers(current.SystemType.FrameworkType, candidate.SystemType.FrameworkType) ||
                 candidate.GetAdditionalSerializationProperties().Any(property =>
-                    property.IsInitOnly || !ModelProvider.HasAccessibleInheritedSetter(property) &&
-                        !candidate.CanPopulateInheritedCollection(property)))
+                    property.IsInitOnly || !ModelProvider.HasAccessibleInheritedSetter(property)))
             {
                 return false;
             }

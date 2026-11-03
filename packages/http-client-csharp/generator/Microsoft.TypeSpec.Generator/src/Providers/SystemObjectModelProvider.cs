@@ -115,11 +115,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 !constructorNames.Contains(property.AsParameter.Name));
         }
 
-        internal bool CanPopulateInheritedCollection(PropertyProvider property)
-            => !property.IsInitOnly && !property.Type.IsNullable && property.WireInfo?.IsNullable != true &&
-                (property.Type.IsReadWriteDictionary || property.Type.IsReadWriteList) &&
-                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBaseCollectionMutable(SystemType, property);
-
         internal bool HasReconstructibleLastContractConstructor
         {
             get
