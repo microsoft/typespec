@@ -13,7 +13,7 @@ parameters:
   # Node version
   - name: NodeVersion
     type: string
-    default: "22.x"
+    default: "26.x"
 
   # Arguments needed to run tests
   - name: TestArgs
@@ -66,11 +66,11 @@ steps:
     artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
 
-  - task: NodeTool@0
+  - task: UseNode@1
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
     inputs:
-      versionSpec: ${{ parameters.NodeVersion }}
+      version: ${{ parameters.NodeVersion }}
       checkLatest: true
 
   - ${{ if eq(parameters.LanguageShortName, 'python') }}:
