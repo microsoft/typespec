@@ -45,6 +45,20 @@ public class JsonMergePatchHelper {
         return innerModelAccessor;
     }
 
+    private static SharkAccessor sharkAccessor;
+
+    public interface SharkAccessor {
+        void setWeight(Shark shark, Integer weight);
+    }
+
+    public static void setSharkAccessor(SharkAccessor accessor) {
+        sharkAccessor = accessor;
+    }
+
+    public static SharkAccessor getSharkAccessor() {
+        return sharkAccessor;
+    }
+
     private static FishAccessor fishAccessor;
 
     public interface FishAccessor {
@@ -67,19 +81,5 @@ public class JsonMergePatchHelper {
 
     public static FishAccessor getFishAccessor() {
         return fishAccessor;
-    }
-
-    private static SharkAccessor sharkAccessor;
-
-    public interface SharkAccessor {
-        void setWeight(Shark shark, Integer weight);
-    }
-
-    public static void setSharkAccessor(SharkAccessor accessor) {
-        sharkAccessor = accessor;
-    }
-
-    public static SharkAccessor getSharkAccessor() {
-        return sharkAccessor;
     }
 }
