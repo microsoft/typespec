@@ -117,6 +117,35 @@ The emitter bridges TypeSpec and Python code generation.
 5. Generate intermediate YAML representation
 6. Invoke Python generator with YAML input
 
+#### Browser runtime
+
+The playground starts Pyodide lazily when the Python emitter is selected. It loads
+PyYAML and MarkupSafe from the pinned Pyodide distribution, then installs the
+generator and its pure-Python dependencies from the emitter's published
+`generator/dist/browser/manifest.json` and wheel assets. Browser installation uses
+`deps=False`; it does not query PyPI or an Azure Artifacts package index.
+
+`npm run build:playground` resolves these wheels for Pyodide's Python version and
+platform, not the build machine. The playground publication pipeline runs this
+command; ordinary `npm run build` skips browser-wheel preparation.
+Resolution honors `PIP_INDEX_URL` or `UV_DEFAULT_INDEX`,
+defaulting to the public `azure-sdk-for-python` CFS feed. The two native package
+versions are constrained to the Pyodide lockfile. A dependency that cannot be
+satisfied for this runtime fails the build rather than browser startup.
+The browser wheel set also pins `platformdirs` to a version that does not require
+`os.geteuid`, which is absent from the pinned Pyodide runtime.
+
+Package-manager detection rejects pip older than 26.2.0 and uv older than 0.13.4,
+as well as unverifiable or prerelease versions. These floors cover the published
+pip index-URL handling and uv compromised-CA advisories. Build environments
+bootstrap the CFS-available `pip==26.2.2` through the validated host installer,
+not an unchecked `ensurepip` seed. Keep these floors and the pip pin current
+as security advisories and approved feed versions change.
+
+Publish the browser manifest and wheels together with the emitter bundle under
+the same package version. Previously published bundles do not pick up this fix
+until a new version is uploaded and the playground's latest package index is updated.
+
 ### 2. Generator (Python)
 
 **Location**: `packages/http-client-python/generator/pygen/`
