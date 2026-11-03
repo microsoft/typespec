@@ -32,6 +32,8 @@ namespace Microsoft.TypeSpec.Generator
         private UnsafeBufferSequence _builder;
         private UnsafeBufferSequence? _qualifiedBuilder;
         internal string? QualifiedContent { get; private set; }
+        private PreparedFieldTypes? _preparedFieldTypes;
+        private TypeProvider? _preparedFileOwner;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
@@ -417,6 +419,10 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            if (_preparedFileOwner is not null)
+            {
+                _preparedFieldTypes?.ObserveImport(_preparedFileOwner, @namespace);
+            }
             _usingNamespaces.Add(@namespace);
         }
 
@@ -468,7 +474,12 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        internal void EnableQualifiedFallback() => _qualifiedBuilder = new UnsafeBufferSequence();
+        internal void EnableQualifiedFallback(PreparedFieldTypes? preparedFields = null, TypeProvider? fileOwner = null)
+        {
+            _qualifiedBuilder = new UnsafeBufferSequence();
+            _preparedFieldTypes = preparedFields;
+            _preparedFileOwner = fileOwner;
+        }
 
         public CodeWriter WriteField(FieldProvider field) => WriteField(field, null, null);
 
@@ -498,8 +509,9 @@ namespace Microsoft.TypeSpec.Generator
 
             if (owner is not null && preparedFields?.CanWriteSimpleName(owner, field) == true)
             {
-                if (_qualifiedBuilder is not null && string.Equals(_currentNamespace, field.Type.Namespace, StringComparison.Ordinal))
+                if (_qualifiedBuilder is not null)
                 {
+                    UseNamespace(field.Type.Namespace);
                     var qualifiedName = $"global::{field.Type.Namespace}.{field.Type.Name}";
                     AppendRaw(field.Type.Name.AsSpan(), qualifiedName.AsSpan()).AppendRaw(" ");
                 }

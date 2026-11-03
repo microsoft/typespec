@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private readonly Dictionary<TypeProvider, Dictionary<FieldProvider, Candidate>> _fields = new(ReferenceEqualityComparer.Instance);
         private readonly List<TypeProvider> _attached = [];
+        private readonly Dictionary<TypeProvider, HashSet<string>> _forbiddenImports = new(ReferenceEqualityComparer.Instance);
         private IReadOnlyList<TypeProvider>? _roots;
         private TypeProvider[] _rootSnapshot = [];
         private RootState[] _rootStates = [];
@@ -34,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private sealed record Candidate(CSharpType FieldType, CSharpType OwnerType, TypeProvider? Target,
             TypeProvider[] OwnerParts, TypeProvider[] TargetParts, INamedTypeSymbol? ReferencedTarget = null, long FieldTypeVersion = 0,
-            string[]? SourceScopeNames = null);
+            string[]? SourceScopeNames = null, bool CrossNamespace = false);
         private sealed record RootState(TypeProvider Provider, bool Written, TypeProvider[] Serializations, bool[] SerializationWritten);
         private sealed record ProviderState(TypeProvider Provider, CSharpType Type, string Name, string Namespace,
             int Arity, TypeProvider? Declaring, CSharpType? DeclaringType, TypeProvider[] Nested, string RelativeFilePath);
@@ -166,6 +167,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ns = lastDot < 0 ? string.Empty : ns[..lastDot];
                 }
             }
+            var importLookup = new PreparedFieldImportLookup(compilation, byName, namespacePrefixes);
             var safeTargets = new Dictionary<CSharpType, bool>(ReferenceEqualityComparer.Instance);
             var referencedTargets = new Dictionary<CSharpType, INamedTypeSymbol?>(ReferenceEqualityComparer.Instance);
             var sourceScopes = new Dictionary<(string Namespace, string Name), (bool Supported, bool Exists, string[] Names)>();
@@ -208,7 +210,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     var type = field.Type;
                     if (duplicateFields.Contains(field) || !ReferenceEquals(field.EnclosingType, owner) ||
-                        !HasSupportedFieldTypeShape(type) || type.Namespace != ownerType.Namespace ||
+                        !HasSupportedFieldTypeShape(type) ||
                         !IsSimpleIdentifier(type.Name) || scopeNames.Contains(type.Name))
                     {
                         continue;
@@ -256,6 +258,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         candidate = new Candidate(type, ownerType, null, ownerParts, [], referencedTarget, type.IdentityVersion, sourceScope.Names);
                     }
 
+                    if (type.Namespace != ownerType.Namespace)
+                    {
+                        if (!importLookup.TryPrepare(owner, type, candidate.ReferencedTarget, out var forbiddenImports))
+                        {
+                            continue;
+                        }
+                        candidate = candidate with { CrossNamespace = true };
+                        if (!result._forbiddenImports.TryGetValue(owner, out var fileImports))
+                        {
+                            fileImports = new HashSet<string>(StringComparer.Ordinal);
+                            result._forbiddenImports.Add(owner, fileImports);
+                        }
+                        fileImports.UnionWith(forbiddenImports);
+                    }
+
                     if (!result._fields.TryGetValue(owner, out var fields))
                     {
                         fields = new Dictionary<FieldProvider, Candidate>(ReferenceEqualityComparer.Instance);
@@ -295,6 +312,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         internal void Invalidate() => System.Threading.Interlocked.Exchange(ref _valid, 0);
+
+        // The symbol work is completed during preparation. Writing only validates
+        // that later namespace registration does not violate the captured scope.
+        internal void ObserveImport(TypeProvider fileOwner, string namespaceName)
+        {
+            if (_forbiddenImports.TryGetValue(fileOwner, out var forbidden) &&
+                (namespaceName.Split('.').Any(part => !IsSimpleIdentifier(part)) || forbidden.Contains(namespaceName)))
+            {
+                Invalidate();
+            }
+        }
 
         public void Dispose()
         {
@@ -398,7 +426,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // supported shape as initial preparation, before a name is emitted.
             : candidate.ReferencedTarget is not null && HasSupportedFieldTypeShape(candidate.FieldType) &&
                 candidate.FieldType.IdentityVersion == candidate.FieldTypeVersion &&
-                candidate.FieldType.Name == candidate.ReferencedTarget.Name && candidate.FieldType.Namespace == candidate.OwnerType.Namespace &&
+                candidate.FieldType.Name == candidate.ReferencedTarget.Name &&
+                (candidate.CrossNamespace || candidate.FieldType.Namespace == candidate.OwnerType.Namespace) &&
                 candidate.FieldType.Namespace == candidate.ReferencedTarget.ContainingNamespace.ToDisplayString();
 
         // The metadata namespace view already exists before the writer runs.

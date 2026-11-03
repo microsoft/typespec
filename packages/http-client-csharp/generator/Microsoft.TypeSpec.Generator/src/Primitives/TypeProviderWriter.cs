@@ -24,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             using var writer = new CodeWriter();
             if (PreparedFieldTypes is not null && GetType() == typeof(TypeProviderWriter))
             {
-                writer.EnableQualifiedFallback();
+                writer.EnableQualifiedFallback(PreparedFieldTypes, _provider);
             }
             PreparedFieldTypes?.ObserveSnapshot();
             using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);

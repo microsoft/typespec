@@ -267,14 +267,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
-        public void DifferentNamespaceFieldRetainsQualification()
+        public void NormalImportFieldPreservesCapturedQualification()
         {
             var target = Target("Other");
             var owner = new FieldOwner(target.Type);
+            var baseline = new TypeProviderWriter(owner).Write().Content;
+            using var prepared = PreparedFieldTypes.Create([owner, target], CurrentCompilation, _ => true);
+            var file = new TypeProviderWriter(owner) { PreparedFieldTypes = prepared }.Write();
 
-            var content = WriteWithPreparedContext(owner, target);
-
-            StringAssert.Contains("private global::Other.Widget _value;", content);
+            // Task 02 intentionally extends the original same-namespace boundary;
+            // retain its exact qualified representation as the fallback anchor.
+            StringAssert.Contains("private global::Other.Widget _value;", file.QualifiedContent);
+            Assert.That(file.QualifiedContent, Is.EqualTo(baseline));
+            StringAssert.Contains("private Widget _value;", file.Content);
+            var targetCode = new TypeProviderWriter(target).Write().Content;
+            Assert.That(CompileField(file.Content, targetCode), Is.EqualTo(CompileField(baseline, targetCode)));
         }
 
         [Test]
