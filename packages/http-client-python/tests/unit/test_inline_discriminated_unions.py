@@ -145,6 +145,38 @@ def test_legacy_discriminator_hierarchy_is_unchanged(runtime):
     assert type(runtime._deserialize(Animal, {"kind": "unknown"})) is Animal
 
 
+def test_legacy_transitive_discriminator_registration(runtime):
+    class PetBase(runtime.Model):
+        __mapping__ = {}
+        kind: str = runtime.rest_discriminator(name="kind")
+
+    class Mammal(PetBase):
+        __mapping__ = {}
+        kind: str = runtime.rest_discriminator(name="kind")
+
+    class Cat(Mammal, discriminator="cat"):
+        kind: str = runtime.rest_discriminator(name="kind")
+
+    assert type(runtime._deserialize(PetBase, {"kind": "cat"})) is Cat
+    assert type(runtime._deserialize(Mammal, {"kind": "cat"})) is Cat
+
+
+def test_legacy_nested_discriminator_registration_stays_separate(runtime):
+    class Animal(runtime.Model):
+        __mapping__ = {}
+        kind: str = runtime.rest_discriminator(name="kind")
+
+    class Fish(Animal, discriminator="fish"):
+        __mapping__ = {}
+        species: str = runtime.rest_discriminator(name="species")
+
+    class Salmon(Fish, discriminator="salmon"):
+        pass
+
+    assert "salmon" not in Animal.__mapping__
+    assert type(runtime._deserialize(Animal, {"kind": "fish", "species": "salmon"})) is Salmon
+
+
 @pytest.mark.parametrize("property_name,tags", [("kind", ("cat", "dog")), ("petType", ("feline", "canine"))])
 def test_injected_tags_are_union_local(runtime, property_name, tags):
     class PetBase(runtime.Model):

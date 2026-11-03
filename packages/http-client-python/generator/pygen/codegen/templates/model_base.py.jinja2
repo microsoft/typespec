@@ -1098,6 +1098,18 @@ class Model(_MyMutableMapping):
         for base in cls.__bases__:
             if hasattr(base, "__mapping__"):
                 base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore
+                if discriminator is not None:
+                    base_discriminator = base._get_discriminator([])
+                    for ancestor in base.__mro__[1:]:
+                        if "__mapping__" not in ancestor.__dict__:
+                            continue
+                        ancestor_discriminator = ancestor._get_discriminator([])
+                        if (
+                            base_discriminator is not None
+                            and ancestor_discriminator is not None
+                            and base_discriminator._rest_name == ancestor_discriminator._rest_name
+                        ):
+                            ancestor.__mapping__[discriminator] = cls  # type: ignore
 
     {% if code_model.has_padded_model_property %}
     @classmethod

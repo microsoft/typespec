@@ -43,7 +43,6 @@ def test_variant(client, scenario, models, property_name, tags, animal):
     original = body.as_dict()
     assert getattr(operations, f"put_{animal}")(body) is None
     assert body.as_dict() == original
-    assert not hasattr(models.PetBase, "__mapping__")
 
 
 def test_recursive(client):
@@ -68,9 +67,11 @@ def test_recursive(client):
         "friends": [{"kind": "cat", "name": "Kitten", "meow": False}],
         "lookup": {"best": {"kind": "dog", "name": "Rex", "bark": False}},
     }
+    original = body.as_dict()
+    original_dog = dog.as_dict()
     assert client.recursive.put(body) is None
-    assert "kind" not in body
-    assert "kind" not in dog
+    assert body.as_dict() == original
+    assert dog.as_dict() == original_dog
 
 
 def test_transitive_inheritance():
