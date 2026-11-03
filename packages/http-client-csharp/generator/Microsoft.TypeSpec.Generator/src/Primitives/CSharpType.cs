@@ -233,6 +233,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsEnum => _underlyingType is not null;
         public bool IsLiteral => _literal is not null;
         public bool IsUnion => _unionItemTypes?.Count > 0;
+        internal bool HasUnionMetadata => _unionItemTypes is not null;
         public bool IsPublic { get; private init; }
         public bool IsFrameworkType => _type != null;
         public bool IsNullable { get; private init; }

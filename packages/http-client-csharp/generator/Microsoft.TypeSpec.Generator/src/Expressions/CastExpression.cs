@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// <param name="Type">The type to cast to.</param>
     public sealed record CastExpression(ValueExpression Inner, CSharpType Type) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             // wrap the cast expression with parenthesis, so that it would not cause ambiguity for leading recursive calls
             // if the parenthesis are not needed, the roslyn reducer will remove it.

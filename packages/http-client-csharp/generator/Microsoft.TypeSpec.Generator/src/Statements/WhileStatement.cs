@@ -18,22 +18,27 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         private List<MethodBodyStatement> _body = new();
         public MethodBodyStatement Body => _body;
+        internal IReadOnlyList<MethodBodyStatement> SourceBody => _body;
 
-        public void Add(MethodBodyStatement statement) => _body.Add(statement);
+        public void Add(MethodBodyStatement statement) { TouchSource(); _body.Add(statement); }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw("while (");
             Condition.Write(writer);
             writer.WriteRawLine(")");
             using (writer.Scope())
             {
-                Body.Write(writer);
+                foreach (var statement in _body)
+                {
+                    statement.Write(writer);
+                }
             }
         }
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitWhileStatement(this, method);
 
             if (updated is not WhileStatement updatedWhile)
@@ -61,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public void Update(ValueExpression? condition = null, MethodBodyStatement? body = null)
         {
+            TouchSource();
             if (condition != null)
             {
                 Condition = condition;

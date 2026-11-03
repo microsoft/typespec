@@ -327,7 +327,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
 
         private sealed record InitializerCallback(Action Callback) : ValueExpression
         {
-            internal override void Write(CodeWriter writer)
+            internal override void WriteCore(CodeWriter writer)
             {
                 Callback();
                 writer.AppendRaw("default");

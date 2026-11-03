@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Value = value;
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw($"yield return ");
             Value.Write(writer);

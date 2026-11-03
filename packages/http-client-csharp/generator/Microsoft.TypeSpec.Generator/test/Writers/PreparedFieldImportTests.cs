@@ -387,7 +387,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         private sealed record ImportCallback(string Namespace, Action Callback) : ValueExpression
         {
-            internal override void Write(CodeWriter writer)
+            internal override void WriteCore(CodeWriter writer)
             {
                 Callback();
                 writer.UseNamespace(Namespace);

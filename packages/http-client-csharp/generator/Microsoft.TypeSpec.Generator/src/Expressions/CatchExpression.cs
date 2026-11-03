@@ -14,6 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         private List<MethodBodyStatement> _body = [];
         public ValueExpression? Exception { get; }
         public MethodBodyStatement Body => _body;
+        internal IReadOnlyList<MethodBodyStatement> SourceBody => _body;
         public CatchExpression(ValueExpression? exception, params MethodBodyStatement[] statements)
         {
             Exception = exception;
@@ -23,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw("catch");
             if (Exception != null)
@@ -44,6 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override CatchExpression Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitCatchExpression(this, method);
 
             var newBody = new List<MethodBodyStatement>(_body.Count);
@@ -62,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public void Update(MethodBodyStatement body)
         {
+            TouchSource();
             _body.Clear();
             _body.Add(body);
         }

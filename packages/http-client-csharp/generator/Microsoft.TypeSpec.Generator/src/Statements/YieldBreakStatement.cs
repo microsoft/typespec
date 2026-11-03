@@ -9,7 +9,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         {
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.WriteRawLine("yield break;");
         }

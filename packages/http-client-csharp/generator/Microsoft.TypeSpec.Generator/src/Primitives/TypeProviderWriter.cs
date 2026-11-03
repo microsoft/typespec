@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (PreparedFieldTypes is not null && GetType() == typeof(TypeProviderWriter))
             {
                 writer.EnableQualifiedFallback(PreparedFieldTypes, _provider);
+                writer.AttachSourceFile(PreparedFieldTypes, _provider);
             }
             PreparedFieldTypes?.ObserveSnapshot();
             using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
@@ -38,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
             }
             var content = writer.ToString();
-            return new CodeFile(content, _provider.RelativeFilePath, writer.QualifiedContent);
+            return new CodeFile(content, _provider.RelativeFilePath, writer.QualifiedContent, writer.CompleteSourceFile());
         }
 
         private bool IsPublicContext(TypeProvider provider)
@@ -50,12 +51,17 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private void WriteType(CodeWriter writer)
         {
             using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
-            if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
+            using (writer.BeginSourceRoot(_provider, "type-documentation", 0))
             {
-                writer.WriteXmlDocsNoScope(_provider.XmlDocs);
+                if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
+                {
+                    writer.WriteXmlDocsNoScope(_provider.XmlDocs);
+                }
             }
+            int attributeIndex = 0;
             foreach (var attribute in _provider.GetAttributesForWrite())
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "type-attribute", attributeIndex++);
                 attribute.Write(writer);
                 if (attribute is AttributeStatement)
                 {
@@ -81,6 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             if (_provider.WhereClause is not null)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "type-constraint", 0);
                 using (writer.ScopeRaw(string.Empty, string.Empty, false))
                 {
                     _provider.WhereClause.Write(writer);
@@ -158,6 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
+                    using var occurrence = writer.BeginSourceRoot(_provider, "field", i);
                     using var warnings = writer.SuppressWarnings(_provider.Fields[i].Suppressions);
                     writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
                     foreach (var attr in _provider.Fields[i].Attributes)
@@ -192,6 +200,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.Properties.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "property", i);
                 var property = _provider.Properties[i];
                 writer.WriteProperty(property);
                 if (i < _provider.Properties.Count - 1)
@@ -205,6 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.Fields.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "field", i);
                 var field = _provider.Fields[i];
                 writer.WriteField(field, GetType() == typeof(TypeProviderWriter) ? PreparedFieldTypes : null, _provider);
             }
@@ -214,6 +224,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.Constructors.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "constructor", i);
                 writer.WriteConstructor(_provider.Constructors[i]);
                 if (i < _provider.Constructors.Count - 1)
                 {
@@ -231,6 +242,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             for (int i = 0; i < _provider.Methods.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "method", i);
                 writer.WriteMethod(_provider.Methods[i]);
                 if (i < _provider.Methods.Count - 1)
                 {

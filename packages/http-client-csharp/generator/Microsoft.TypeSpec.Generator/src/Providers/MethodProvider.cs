@@ -13,6 +13,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     public class MethodProvider
     {
+        private long _declarationRevision;
+        internal long DeclarationRevision => System.Threading.Volatile.Read(ref _declarationRevision);
         public MethodSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set;}
         public ValueExpression? BodyExpression { get; private set;}
@@ -122,6 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocProvider? xmlDocProvider = null,
             IEnumerable<SuppressionStatement>? suppressions = default)
         {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
             var owner = EnclosingType;
             owner?.InvalidateFieldTypePreparation();
             if (signature != null)
@@ -152,6 +155,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal virtual MethodProvider? Accept(LibraryVisitor visitor)
         {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
             var updated = visitor.VisitMethod(this);
             if (updated == null)
             {

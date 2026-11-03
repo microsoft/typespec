@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public IfElseStatement(ValueExpression condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement, bool inline = false, bool addBraces = true)
             : this(new IfStatement(condition, inline, addBraces) { ifStatement }, elseStatement) { }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             If.Write(writer);
 
@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
+            TouchSource();
             var updated = visitor.VisitIfElseStatement(this, methodProvider);
             if (updated is not IfElseStatement updatedIfElseStatement)
             {
@@ -89,6 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             MethodBodyStatement? elseStatement = null,
             IEnumerable<IfStatement>? elseIfStatements = null)
         {
+            TouchSource();
             if (ifStatement != null)
             {
                 If = ifStatement;

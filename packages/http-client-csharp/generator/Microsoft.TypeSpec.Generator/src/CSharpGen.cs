@@ -148,6 +148,8 @@ namespace Microsoft.TypeSpec.Generator
             try
             {
                 using var referenceMapSession = ProviderReferenceMapAnalyzer.PrepareForGeneration(output.TypeProviders);
+                // This one finalized-provider lifetime owns both field spellings and non-emitting
+                // executable occurrence snapshots. The standard writer consumes them in its one pass.
                 using var preparedFields = PreparedFieldTypes.CreateForGeneration(
                     CodeModelGenerator.Instance, output.TypeProviders, referenceMapSession.ShouldWriteProvider);
 

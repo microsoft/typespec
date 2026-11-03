@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             variable = Variable;
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRawIf("using ", IsUsing);
             writer.AppendRawIf("out ", IsOut);
@@ -34,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var expr = visitor.VisitDeclarationExpression(this, method);
 
             if (expr is not DeclarationExpression declarationExpression)
@@ -49,6 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public void Update(VariableExpression? variable, bool? isOut = null, bool? isUsing = null)
         {
+            TouchSource();
             if (variable != null)
             {
                 Variable = variable;

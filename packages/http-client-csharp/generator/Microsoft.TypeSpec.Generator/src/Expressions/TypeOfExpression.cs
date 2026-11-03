@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public record TypeOfExpression(CSharpType Type) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.Append($"typeof({Type})");
         }

@@ -8,7 +8,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// </summary>
     public sealed record TernaryConditionalExpression(ValueExpression Condition, ValueExpression Consequent, ValueExpression Alternative) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Condition.Write(writer);
             writer.AppendRaw(" ? ");

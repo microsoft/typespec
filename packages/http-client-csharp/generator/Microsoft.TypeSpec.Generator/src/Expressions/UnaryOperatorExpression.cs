@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record UnaryOperatorExpression(string Operator, ValueExpression Operand, bool OperandOnTheLeft) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRawIf(Operator, !OperandOnTheLeft);
             Operand.Write(writer);

@@ -264,6 +264,7 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            using var occurrence = EnterSourceNode(docs);
             if (docs.Inherit is not null)
             {
                 docs.Inherit.Write(this);

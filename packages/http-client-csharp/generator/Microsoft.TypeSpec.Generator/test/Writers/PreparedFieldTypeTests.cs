@@ -21,7 +21,7 @@ using NUnit.Framework;
 namespace Microsoft.TypeSpec.Generator.Tests.Writers
 {
     [NonParallelizable]
-    internal class PreparedFieldTypeTests
+    internal partial class PreparedFieldTypeTests
     {
         [SetUp]
         public async Task SetUp() => await MockHelpers.LoadMockGeneratorAsync(
@@ -1732,7 +1732,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         private sealed record InitializerCallback(Action Callback) : ValueExpression
         {
-            internal override void Write(CodeWriter writer)
+            internal override void WriteCore(CodeWriter writer)
             {
                 Callback();
                 writer.AppendRaw("default");
@@ -1741,12 +1741,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         private sealed record CountingExpression(Func<int> Next) : ValueExpression
         {
-            internal override void Write(CodeWriter writer) => writer.AppendRaw("\"" + Next() + "\"");
+            internal override void WriteCore(CodeWriter writer) => writer.AppendRaw("\"" + Next() + "\"");
         }
 
         private sealed record MutatingExpression(Action Mutate) : ValueExpression
         {
-            internal override void Write(CodeWriter writer)
+            internal override void WriteCore(CodeWriter writer)
             {
                 Mutate();
                 writer.AppendRaw("\"reason\"");

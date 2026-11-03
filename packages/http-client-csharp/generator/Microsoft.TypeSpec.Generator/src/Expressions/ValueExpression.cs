@@ -22,7 +22,23 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         private protected ValueExpression() { }
 
-        internal virtual void Write(CodeWriter writer) { }
+        // Observation revisions are not part of record value identity.
+        public virtual bool Equals(ValueExpression? other) => other is not null && EqualityContract == other.EqualityContract;
+        public override int GetHashCode() => EqualityContract.GetHashCode();
+
+        private long _sourceRevision;
+        internal long SourceRevision => System.Threading.Volatile.Read(ref _sourceRevision);
+        protected void TouchSource() => System.Threading.Interlocked.Increment(ref _sourceRevision);
+
+        // A single boundary for the existing traversal, including opaque custom nodes. It does not
+        // discover children or replay writing; the prepared cursor validates the actual traversal.
+        internal void Write(CodeWriter writer)
+        {
+            using var occurrence = writer.EnterSourceNode(this);
+            WriteCore(writer);
+        }
+
+        internal virtual void WriteCore(CodeWriter writer) { }
 
         internal virtual ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
@@ -76,6 +92,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public InvokeMethodExpression Invoke(string methodName, ValueExpression arg1, ValueExpression arg2)
             => new InvokeMethodExpression(this, methodName, [arg1, arg2]);
+
+        public InvokeMethodExpression Invoke(string methodName, ValueExpression[] arguments)
+            => new InvokeMethodExpression(this, methodName, arguments);
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments)
             => new InvokeMethodExpression(this, methodName, arguments);

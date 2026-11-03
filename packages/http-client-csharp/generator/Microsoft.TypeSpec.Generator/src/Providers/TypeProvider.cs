@@ -178,9 +178,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         // Intentionally do not cache this value as the name might be changed in a visitor so we want to always
         // recalculate it.
-        public string RelativeFilePath => _relativeFilePath ?? BuildRelativeFilePath();
+        public string RelativeFilePath
+        {
+            get
+            {
+                var path = _relativeFilePath ?? BuildRelativeFilePath();
+                _observedRelativeFilePath = path;
+                return path;
+            }
+        }
 
         private string? _relativeFilePath;
+        private string? _observedRelativeFilePath;
 
         public string Name => Type.Name;
 
@@ -369,6 +378,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // The first pre-emission lookup slice only proves a simple, top-level class
         // scope. Custom partials and inherited scopes require additional facts.
         private PreparedFieldTypes? _preparedFieldTypes;
+        private long _declarationRevision;
+        internal long DeclarationRevision => System.Threading.Volatile.Read(ref _declarationRevision);
+        internal IReadOnlyList<MethodProvider>? CachedMethods => _methods;
+        internal IReadOnlyList<ConstructorProvider>? CachedConstructors => _constructors;
+        internal IReadOnlyList<FieldProvider>? CachedFields => _fields;
+        internal IReadOnlyList<PropertyProvider>? CachedProperties => _properties;
+        internal IReadOnlyList<TypeProvider>? CachedNestedTypes => _nestedTypes;
+        internal IReadOnlyList<MethodBodyStatement>? CachedWriteAttributes => _attributes;
+        internal WhereExpression? CachedWhereClause => _whereClause;
+        internal string? CachedRelativeFilePath => _relativeFilePath ?? _observedRelativeFilePath;
+        internal TypeSignatureModifiers? CachedDeclarationModifiers => _declarationModifiers;
         internal bool TryAttachFieldTypePreparation(PreparedFieldTypes preparation) =>
             System.Threading.Interlocked.CompareExchange(ref _preparedFieldTypes, preparation, null) is null;
 
@@ -377,6 +397,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void InvalidateFieldTypePreparation()
         {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
             _preparedFieldTypes?.Invalidate();
         }
 

@@ -22,10 +22,11 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         private List<MethodBodyStatement> _body = new();
         public MethodBodyStatement Body => _body;
+        internal IReadOnlyList<MethodBodyStatement> SourceBody => _body;
 
-        public void Add(MethodBodyStatement statement) => _body.Add(statement);
+        public void Add(MethodBodyStatement statement) { TouchSource(); _body.Add(statement); }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw("if (");
             Condition.Write(writer);
@@ -35,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 writer.AppendRaw(") ");
                 using (writer.AmbientScope())
                 {
-                    Body.Write(writer);
+                    WriteBody(writer);
                 }
             }
             else
@@ -43,13 +44,22 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 writer.WriteRawLine(")");
                 using (AddBraces ? writer.Scope() : writer.AmbientScope())
                 {
-                    Body.Write(writer);
+                    WriteBody(writer);
                 }
+            }
+        }
+
+        private void WriteBody(CodeWriter writer)
+        {
+            foreach (var statement in _body)
+            {
+                statement.Write(writer);
             }
         }
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var newStatement = visitor.VisitIfStatement(this, method);
             if (newStatement is not IfStatement newIfStatement)
             {
@@ -76,6 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             bool? addBraces = null,
             MethodBodyStatement? body = null)
         {
+            TouchSource();
             if (condition != null)
             {
                 Condition = condition;

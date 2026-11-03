@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public ValueExpression Expression { get; private set; }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Expression.Write(writer);
             writer.WriteRawLine(";");
@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
+            TouchSource();
             var statement = visitor.VisitExpressionStatement(this, methodProvider);
             if (statement is not ExpressionStatement expressionStatement)
             {
@@ -39,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public void Update(ValueExpression expression)
         {
+            TouchSource();
             Expression = expression;
         }
     }

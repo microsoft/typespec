@@ -8,11 +8,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record WhereExpression(CSharpType Type, IReadOnlyList<ValueExpression> Constraints) : ValueExpression
     {
+        public WhereExpression(CSharpType Type, ValueExpression[] Constraints) : this(Type, (IReadOnlyList<ValueExpression>)Constraints) { }
         public WhereExpression(CSharpType type, ValueExpression constraint) : this(type, new[] { constraint }) { }
 
         public WhereExpression And(ValueExpression constraint) => new(Type, new List<ValueExpression>(Constraints) { constraint });
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer
                 .AppendRaw("where ")

@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public record TupleExpression(params ValueExpression[] ValueExpressions) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw("(");
             for (int i = 0; i < ValueExpressions.Length; i++)

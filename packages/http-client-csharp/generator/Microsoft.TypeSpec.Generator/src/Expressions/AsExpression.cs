@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record AsExpression(ValueExpression Inner, CSharpType Type) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Inner.Write(writer);
             writer.Append($" as {Type}");

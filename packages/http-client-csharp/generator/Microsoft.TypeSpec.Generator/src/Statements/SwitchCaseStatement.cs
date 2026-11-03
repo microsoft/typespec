@@ -20,11 +20,13 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Statement = statement;
         }
 
+        public SwitchCaseStatement(ValueExpression[] matches, MethodBodyStatement statement) : this((IReadOnlyList<ValueExpression>)matches, statement) { }
+
         public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement) : this([match], statement) { }
 
         public static SwitchCaseStatement Default(MethodBodyStatement statement) => new(Array.Empty<ValueExpression>(), statement);
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             if (Matches.Any())
             {
@@ -50,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override SwitchCaseStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitSwitchCaseStatement(this, method);
             if (updated is null)
             {
@@ -75,6 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             IReadOnlyList<ValueExpression>? matches = null,
             MethodBodyStatement? statement = null)
         {
+            TouchSource();
             if (matches != null)
             {
                 Matches = matches;

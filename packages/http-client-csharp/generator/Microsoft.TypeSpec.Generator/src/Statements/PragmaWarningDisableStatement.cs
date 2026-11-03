@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Justification = justification;
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             var code = Code switch
             {

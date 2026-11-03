@@ -23,9 +23,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
         private List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public void Add(MethodBodyStatement statement) => _body.Add(statement);
+        public void Add(MethodBodyStatement statement) { TouchSource(); _body.Add(statement); }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -48,6 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitForStatement(this, method);
             if (updated is not ForStatement updatedForStatement)
             {
@@ -76,6 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             ValueExpression? condition = null,
             ValueExpression? incrementExpression = null)
         {
+            TouchSource();
             if (indexExpression != null)
             {
                 IndexExpression = indexExpression;

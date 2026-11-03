@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// A per-generation snapshot of the field occurrences whose simple type names
     /// are known to bind to their intended generated types. Absence means fallback.
     /// </summary>
-    internal sealed class PreparedFieldTypes : IDisposable
+    internal sealed partial class PreparedFieldTypes : IDisposable
     {
         private readonly Dictionary<TypeProvider, Dictionary<FieldProvider, Candidate>> _fields = new(ReferenceEqualityComparer.Instance);
         private readonly List<TypeProvider> _attached = [];
@@ -55,6 +55,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return writerFactories.Length == 1 && writerFactories[0].DeclaringType == typeof(CodeModelGenerator);
         }
 
+        internal static PreparedFieldTypes? CreateForGeneration(CodeModelGenerator generator, TypeProvider[] providers,
+            Func<TypeProvider, bool> shouldWrite) => CreateForGeneration(generator, (IEnumerable<TypeProvider>)providers, shouldWrite);
+
         internal static PreparedFieldTypes? CreateForGeneration(
             CodeModelGenerator generator,
             IEnumerable<TypeProvider> providers,
@@ -80,13 +83,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             result._sourceInputs = sourceInputs;
             result._sourceModel = sourceModel;
             result._sourceOutputDirectory = outputDirectory;
-            if (System.Threading.Volatile.Read(ref result._valid) == 0 || !sourceInputs.IsCurrentFor(outputDirectory))
+            if ((System.Threading.Volatile.Read(ref result._valid) == 0 && !result.HasSourceFiles) || !sourceInputs.IsCurrentFor(outputDirectory))
             {
                 result.Dispose();
                 return null;
             }
             return result;
         }
+
+        internal static PreparedFieldTypes Create(TypeProvider[] providers, Compilation? customization,
+            Func<TypeProvider, bool> shouldWrite, string? outputDirectory = null) =>
+            Create((IEnumerable<TypeProvider>)providers, customization, shouldWrite, outputDirectory);
 
         internal static PreparedFieldTypes Create(
             IEnumerable<TypeProvider> providers,
@@ -95,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string? outputDirectory = null)
         {
             var result = new PreparedFieldTypes();
-            if (providers is not IReadOnlyList<TypeProvider> roots ||
+            if (providers is not IReadOnlyList<TypeProvider> roots || !ContractCollections.TryCopy(roots, out var capturedRoots) ||
                 customization is not CSharpCompilation compilation || HasUnsupportedSource(compilation))
             {
                 return result;
@@ -104,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var all = new List<TypeProvider>();
             var visited = new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance);
             var rootStates = new List<RootState>();
-            var rootSnapshot = roots.ToArray();
+            var rootSnapshot = capturedRoots.ToArray();
             foreach (var provider in rootSnapshot)
             {
                 var written = ShouldWriteRoot(provider, shouldWrite);
@@ -282,6 +289,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
+            result.CaptureSourceFiles(topLevel, compilation, roots);
+
             if (result._fields.Count == 0)
             {
                 return result;
@@ -327,6 +336,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public void Dispose()
         {
             Invalidate();
+            InvalidateSourceFiles();
             foreach (var provider in _attached)
             {
                 provider.DetachFieldTypePreparation(this);
@@ -336,6 +346,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool CanCommit()
         {
+            ObserveSourceSnapshot();
             if (System.Threading.Volatile.Read(ref _valid) == 0 || !IsSnapshotCurrent())
             {
                 Invalidate();
@@ -361,6 +372,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void ObserveSnapshot()
         {
+            ObserveSourceSnapshot();
             if (System.Threading.Volatile.Read(ref _valid) != 0 &&
                 (!IsSnapshotCurrent() || !AreCandidateScopesCurrent()))
             {

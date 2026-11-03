@@ -9,6 +9,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public sealed class CodeWriterDeclaration
     {
         private Dictionary<CodeWriter.CodeScope, string> _actualNames = [];
+        private long _sourceRevision;
+        internal long SourceRevision => System.Threading.Volatile.Read(ref _sourceRevision);
 
         internal bool HasBeenDeclared(Stack<CodeWriter.CodeScope> scopes)
         {
@@ -54,6 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             if (name != null)
             {
+                System.Threading.Interlocked.Increment(ref _sourceRevision);
                 RequestedName = name;
             }
         }
