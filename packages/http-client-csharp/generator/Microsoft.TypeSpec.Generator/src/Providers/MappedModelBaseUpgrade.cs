@@ -112,12 +112,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 current.Modifiers == unvisited.Modifiers && current.IsInitOnly == unvisited.IsInitOnly &&
                 current.Body is AutoPropertyBody currentBody && unvisited.Body is AutoPropertyBody unvisitedBody &&
                 currentBody.HasSetter == unvisitedBody.HasSetter &&
-                currentBody.SetterModifiers == unvisitedBody.SetterModifiers;
+                currentBody.SetterModifiers == unvisitedBody.SetterModifiers &&
+                HasSameWireInformation(current.WireInfo, unvisited.WireInfo);
+        }
+
+        private static bool HasSameWireInformation(PropertyWireInformation? current, PropertyWireInformation? original)
+        {
+            if (current is null || original is null)
+            {
+                return current is null && original is null;
+            }
+
+            return current.SerializedName == original.SerializedName &&
+                current.SerializationFormat == original.SerializationFormat &&
+                current.IsRequired == original.IsRequired && current.IsReadOnly == original.IsReadOnly &&
+                current.IsNullable == original.IsNullable && current.IsDiscriminator == original.IsDiscriminator &&
+                current.IsHttpMetadata == original.IsHttpMetadata && current.IsApiVersion == original.IsApiVersion &&
+                current.Visibility == original.Visibility &&
+                Equals(current.SerializationOptions, original.SerializationOptions) &&
+                current.Description?.ToString() == original.Description?.ToString();
         }
 
         private static bool HasCustomAlias(ModelProvider owner, InputModelProperty input, string generatedName, string inheritedName)
         {
-            if (owner.CustomCodeView is not { } custom)
+            if (owner.CustomCodeView is not { } custom ||
+                custom.Properties.Count == 0 && custom.Fields.Count == 0)
             {
                 return false;
             }

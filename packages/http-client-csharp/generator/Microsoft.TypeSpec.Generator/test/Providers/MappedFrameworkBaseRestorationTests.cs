@@ -141,6 +141,82 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             });
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task SourceOwnerWireNameIsNotDiscardedByProjection(bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerWireNameChange();
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(visitor.VisitedSourceOwner, Is.True);
+                Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                    "Restoration must not discard a source-owner wire customization.");
+                Assert.That(model.CanonicalView.Properties.Single(property => property.Name == "Location").WireInfo?.SerializedName,
+                    Is.EqualTo("customLocation"));
+            });
+        }
+
+        private sealed class SourceOwnerWireNameChange : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "location" && property?.EnclosingType is ModelProvider owner &&
+                    ReferenceEquals(owner.InputModel, input.EnclosingType) && property.WireInfo is { } wireInfo)
+                {
+                    VisitedSourceOwner = true;
+                    wireInfo.SerializedName = "customLocation";
+                }
+                return property;
+            }
+        }
+
+        [TestCase("required", false)]
+        [TestCase("required", true)]
+        [TestCase("removed", false)]
+        [TestCase("removed", true)]
+        public async Task SourceOwnerWireMetadataIsNotDiscardedByProjection(string change, bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerWireMetadataChange(change);
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(visitor.VisitedSourceOwner, Is.True);
+                Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+                var wireInfo = model.Properties.Single(property => property.Name == "Location").WireInfo;
+                if (change == "required")
+                {
+                    Assert.That(wireInfo?.IsRequired, Is.True);
+                }
+                else
+                {
+                    Assert.That(wireInfo, Is.Null);
+                }
+            });
+        }
+
+        private sealed class SourceOwnerWireMetadataChange(string change) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "location" && property?.EnclosingType is ModelProvider owner &&
+                    ReferenceEquals(owner.InputModel, input.EnclosingType) && property.WireInfo is { } wireInfo)
+                {
+                    VisitedSourceOwner = true;
+                    property.WireInfo = change == "removed" ? null : new PropertyWireInformation(
+                        wireInfo.SerializationFormat, true, wireInfo.IsReadOnly, wireInfo.IsNullable,
+                        wireInfo.IsDiscriminator, wireInfo.SerializedName, wireInfo.IsHttpMetadata, wireInfo.IsApiVersion);
+                }
+                return property;
+            }
+        }
+
         private sealed class SourceOwnerShapeChange(string change) : LibraryVisitor
         {
             public bool VisitedSourceOwner { get; private set; }

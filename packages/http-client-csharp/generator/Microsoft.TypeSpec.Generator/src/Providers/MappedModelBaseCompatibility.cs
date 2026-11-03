@@ -221,13 +221,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var matches = historicalProperties.Where(previous =>
                 CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                     mappedType, input, previous)).ToArray();
-            if (matches.Length > 1 || historicalProperties.Any(previous =>
+            var matchCount = matches.Length;
+            if (matchCount > 1 || historicalProperties.Any(previous =>
                 HasKnownPropertyIdentity(input, previous) &&
-                (matches.Length == 0 || !ReferenceEquals(matches[0], previous))))
+                (matchCount == 0 || !ReferenceEquals(matches[0], previous))))
             {
                 return false;
             }
-            if (matches.Length == 0)
+            if (matchCount == 0)
             {
                 return true;
             }
