@@ -113,6 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 current.Body is AutoPropertyBody currentBody && unvisited.Body is AutoPropertyBody unvisitedBody &&
                 currentBody.HasSetter == unvisitedBody.HasSetter &&
                 currentBody.SetterModifiers == unvisitedBody.SetterModifiers &&
+                Equals(currentBody.InitializationExpression, unvisitedBody.InitializationExpression) &&
                 HasSameWireInformation(current.WireInfo, unvisited.WireInfo);
         }
 

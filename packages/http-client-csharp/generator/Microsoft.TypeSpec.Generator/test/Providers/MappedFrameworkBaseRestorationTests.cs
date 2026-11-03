@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework;
 using Moq;
@@ -139,6 +140,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         break;
                 }
             });
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task SourceOwnerInitializerIsNotDiscardedByProjection(bool cacheSourceProperty, bool changeInitializer)
+        {
+            var visitor = new SourceOwnerInitializerChange(changeInitializer);
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+            var location = model.Properties.SingleOrDefault(property => property.Name == "Location");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(visitor.VisitedSourceOwner, Is.True);
+                Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.EqualTo(changeInitializer),
+                    "Restoration must not discard a source-owner initializer, but should accept an unchanged body.");
+                Assert.That(location is not null, Is.EqualTo(changeInitializer));
+                if (changeInitializer && location is not null)
+                {
+                    Assert.That(location.Body, Is.InstanceOf<AutoPropertyBody>());
+                    if (location.Body is AutoPropertyBody body)
+                    {
+                        Assert.That(body.InitializationExpression?.ToDisplayString(), Does.Contain("42"));
+                        Assert.That(new TypeProviderWriter(model).Write().Content, Does.Contain("(42);"),
+                            "The customized initializer must survive in the emitted model.");
+                    }
+                }
+            });
+        }
+
+        private sealed class SourceOwnerInitializerChange(bool changeInitializer) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "location" && property?.EnclosingType is ModelProvider owner &&
+                    ReferenceEquals(owner.InputModel, input.EnclosingType) && property.Body is AutoPropertyBody body)
+                {
+                    VisitedSourceOwner = true;
+                    property.Body = body with
+                    {
+                        InitializationExpression = changeInitializer
+                            ? Snippet.New.Instance(new CSharpType(typeof(ResourceLocation)), Snippet.Literal(42))
+                            : body.InitializationExpression,
+                    };
+                }
+                return property;
+            }
         }
 
         [TestCase(false)]
@@ -388,7 +439,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework
 {
     // These stand-ins include a full framework constructor for the read-only ancestor properties.
     // Keep them separate from the constructor-shape fixtures below.
-    public readonly struct ResourceLocation { }
+    public readonly struct ResourceLocation
+    {
+        public ResourceLocation(int value) => Value = value;
+        public int Value { get; }
+    }
 
     public class ResourceData
     {
