@@ -49,18 +49,21 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:^"
+    "@fluentui/react-components": "^9.0.0",
+    "@fluentui/react-icons": "^2.0.0",
+    "@fluentui/react-list": "^9.0.0",
+    "@typespec/compiler": "workspace:^",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "dependencies": {
-    "@fluentui/react-components": "catalog:",
-    "@fluentui/react-icons": "catalog:",
-    "@fluentui/react-list": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
     "react-hotkeys-hook": "catalog:"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@fluentui/react-components": "catalog:",
+    "@fluentui/react-icons": "catalog:",
+    "@fluentui/react-list": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
@@ -73,6 +76,8 @@
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "concurrently": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

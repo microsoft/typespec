@@ -27,6 +27,23 @@ const exceptions: Record<string, Set<string>> = {
   "packages/typespec-vscode/package.json": new Set(["@types/vscode"]),
 };
 
+// Shared UI peers intentionally accept a wider range than the development catalog.
+const peerExceptions: Record<string, Set<string>> = {
+  "packages/playground/package.json": new Set([
+    "@fluentui/react-components",
+    "@fluentui/react-icons",
+    "react",
+    "react-dom",
+  ]),
+  "packages/html-program-viewer/package.json": new Set([
+    "@fluentui/react-components",
+    "@fluentui/react-icons",
+    "@fluentui/react-list",
+    "react",
+    "react-dom",
+  ]),
+};
+
 const depTypes = ["dependencies", "devDependencies", "peerDependencies"] as const;
 
 const errors: string[] = [];
@@ -53,6 +70,9 @@ for (const relPath of packageJsonPaths) {
 
     for (const [name, version] of Object.entries(deps)) {
       if (version === "catalog:" || version.startsWith("workspace:")) {
+        continue;
+      }
+      if (depType === "peerDependencies" && peerExceptions[relPath]?.has(name)) {
         continue;
       }
       if (fileExceptions.has(name)) {

@@ -992,6 +992,13 @@ importers:
 
   packages/html-program-viewer:
     dependencies:
+      react-hotkeys-hook:
+        specifier: 'catalog:'
+        version: 5.3.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+    devDependencies:
+      '@babel/core':
+        specifier: 'catalog:'
+        version: 8.0.7
       '@fluentui/react-components':
         specifier: 'catalog:'
         version: 9.74.9(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
@@ -1001,19 +1008,6 @@ importers:
       '@fluentui/react-list':
         specifier: 'catalog:'
         version: 9.6.19(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      react:
-        specifier: 'catalog:'
-        version: 19.3.1
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.3.1(react@19.3.1)
-      react-hotkeys-hook:
-        specifier: 'catalog:'
-        version: 5.3.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-    devDependencies:
-      '@babel/core':
-        specifier: 'catalog:'
-        version: 8.0.7
       '@testing-library/dom':
         specifier: 'catalog:'
         version: 10.4.2
@@ -1050,6 +1044,12 @@ importers:
       concurrently:
         specifier: 'catalog:'
         version: 10.0.5
+      react:
+        specifier: 'catalog:'
+        version: 19.3.1
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.1(react@19.3.1)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1813,12 +1813,6 @@ importers:
 
   packages/playground:
     dependencies:
-      '@fluentui/react-components':
-        specifier: 'catalog:'
-        version: 9.74.9(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons':
-        specifier: 'catalog:'
-        version: 2.0.344(react@19.3.1)
       '@typespec/bundler':
         specifier: workspace:^
         version: link:../bundler
@@ -1858,12 +1852,6 @@ importers:
       monaco-editor:
         specifier: 'catalog:'
         version: 0.57.0
-      react:
-        specifier: 'catalog:'
-        version: 19.3.1
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.3.1(react@19.3.1)
       react-error-boundary:
         specifier: 'catalog:'
         version: 6.1.6(@types/react@19.3.0)(react@19.3.1)
@@ -1883,6 +1871,12 @@ importers:
       '@babel/core':
         specifier: 'catalog:'
         version: 8.0.7
+      '@fluentui/react-components':
+        specifier: 'catalog:'
+        version: 9.74.9(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
+      '@fluentui/react-icons':
+        specifier: 'catalog:'
+        version: 2.0.344(react@19.3.1)
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.64.1
@@ -1925,6 +1919,12 @@ importers:
       es-module-shims:
         specifier: 'catalog:'
         version: 2.8.4
+      react:
+        specifier: 'catalog:'
+        version: 19.3.1
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.1(react@19.3.1)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
