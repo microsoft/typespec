@@ -54,12 +54,12 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static IEnumerable<SuppressionStatement> GetSignatureSuppressions(MethodSignatureBase signature)
+        private static IEnumerable<SuppressionStatement> GetSignatureSuppressions(MethodSignatureBase signature, bool includeFrameworkTypes)
         {
             return ExperimentalApiHelpers.MergeSuppressions(
-                ExperimentalApiHelpers.GetReferenceSuppressions(signature.ReturnType),
+                ExperimentalApiHelpers.GetReferenceSuppressions(signature.ReturnType, includeFrameworkTypes),
                 signature.Parameters.SelectMany(parameter => ExperimentalApiHelpers.MergeSuppressions(
-                    ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type, includeFrameworkTypes),
                     parameter.Field?.Suppressions ?? [],
                     parameter.Property is { IsAdditionalProperties: true } property ? property.Suppressions : [],
                     ExperimentalApiHelpers.GetReferenceSuppressions(parameter.InputParameter?.Type ?? parameter.Property?.InputProperty?.Type))));

@@ -186,7 +186,9 @@ namespace Microsoft.TypeSpec.Generator
             using (WriteXmlDocs(method.XmlDocs))
             {
                 using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(method.Signature.Attributes), emitDirectives: false);
-                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(method.Suppressions, GetSignatureSuppressions(method.Signature)));
+                var signatureSuppressions = GetSignatureSuppressions(
+                    method.Signature, includeFrameworkTypes: !MethodSignatureHelper.IsPublicApi(method.Signature));
+                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(method.Suppressions, signatureSuppressions));
                 if (method.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(method.Signature))
@@ -221,7 +223,9 @@ namespace Microsoft.TypeSpec.Generator
             using (WriteXmlDocs(ctor.XmlDocs))
             {
                 using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(ctor.Signature.Attributes), emitDirectives: false);
-                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(ctor.Suppressions, GetSignatureSuppressions(ctor.Signature)));
+                var signatureSuppressions = GetSignatureSuppressions(
+                    ctor.Signature, includeFrameworkTypes: !MethodSignatureHelper.IsPublicApi(ctor.Signature));
+                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(ctor.Suppressions, signatureSuppressions));
                 if (ctor.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(ctor.Signature))
@@ -290,9 +294,12 @@ namespace Microsoft.TypeSpec.Generator
         public void WriteProperty(PropertyProvider property)
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(property.Attributes), emitDirectives: false);
+            var includeFrameworkTypes = !MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes);
+            var referenceSuppressions = ExperimentalApiHelpers.MergeSuppressions(
+                ExperimentalApiHelpers.GetReferenceSuppressions(property.Type, includeFrameworkTypes),
+                ExperimentalApiHelpers.GetReferenceSuppressions(property.InputProperty?.Type));
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
-                property.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(property.Type),
-                ExperimentalApiHelpers.GetReferenceSuppressions(property.InputProperty?.Type)));
+                property.Suppressions, referenceSuppressions));
             WriteXmlDocsNoScope(property.XmlDocs);
 
             if (property.Attributes.Count > 0)
@@ -469,8 +476,10 @@ namespace Microsoft.TypeSpec.Generator
         public CodeWriter WriteField(FieldProvider field)
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
+            var includeFrameworkTypes = !MethodSignatureHelper.IsPublicApi(field.Modifiers, field.Attributes);
+            var referenceSuppressions = ExperimentalApiHelpers.GetReferenceSuppressions(field.Type, includeFrameworkTypes);
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
-                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type)));
+                field.Suppressions, referenceSuppressions));
             WriteXmlDocsNoScope(field.XmlDocs);
 
             if (field.Attributes.Count > 0)

@@ -232,6 +232,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             StringAssert.Contains("#pragma warning restore FIELD001 // This generated code depends on experimental functionality.", methodOutput);
         }
 
+        [Test]
+        public void ExperimentalTypesDoNotSuppressPublicMemberDeclarations()
+        {
+            MockHelpers.LoadMockGenerator();
+#pragma warning disable FIELD001, FIELD002 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var experimentalType = new CSharpType(typeof(Sample.ExperimentalFieldType));
+#pragma warning restore FIELD001, FIELD002 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var provider = new TestTypeProvider("MemberContainer", ns: "Sample");
+
+            var field = new FieldProvider(FieldModifiers.Public, experimentalType, "Value", provider);
+            using var fieldWriter = new CodeWriter();
+            fieldWriter.WriteField(field);
+            StringAssert.DoesNotContain("warning disable FIELD001", fieldWriter.ToString(false));
+
+            var property = new PropertyProvider(
+                description: null,
+                modifiers: MethodSignatureModifiers.Public,
+                type: experimentalType,
+                name: "Value",
+                body: new AutoPropertyBody(HasSetter: false),
+                enclosingType: provider);
+            using var propertyWriter = new CodeWriter();
+            propertyWriter.WriteProperty(property);
+            StringAssert.DoesNotContain("warning disable FIELD001", propertyWriter.ToString(false));
+
+            var method = new MethodProvider(
+                new MethodSignature("UseValue", null, MethodSignatureModifiers.Public, experimentalType, null,
+                    [new ParameterProvider("value", $"", experimentalType)]),
+                Snippet.Throw(Snippet.Null),
+                provider);
+            using var methodWriter = new CodeWriter();
+            methodWriter.WriteMethod(method);
+            StringAssert.DoesNotContain("warning disable FIELD001", methodWriter.ToString(false));
+
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(FieldProviderTests), null, MethodSignatureModifiers.Public,
+                    [new ParameterProvider("value", $"", experimentalType)]),
+                Snippet.Throw(Snippet.Null),
+                provider);
+            using var constructorWriter = new CodeWriter();
+            constructorWriter.WriteConstructor(constructor);
+            StringAssert.DoesNotContain("warning disable FIELD001", constructorWriter.ToString(false));
+        }
+
         private static Type EmitPolyfilledExperimentalFieldType()
         {
             var source = Helpers.GetExpectedFromFile("Input", nameof(ExperimentalFieldTypesHaveScopedSuppressions));

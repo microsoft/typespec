@@ -511,7 +511,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            foreach (var method in methods.Where(method => method.Signature.Name.StartsWith(DeserializationMethodNamePrefix, StringComparison.Ordinal)))
+            foreach (var method in methods.Where(method =>
+                method.Signature.Name.StartsWith(DeserializationMethodNamePrefix, StringComparison.Ordinal) &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)))
             {
                 method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
                     method.Suppressions,
