@@ -16,6 +16,7 @@ import type {
   InputLiteralType,
   InputModelType,
   InputType,
+  InputUnionType,
 } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
 import { createDiagnostic } from "./lib.js";
@@ -156,6 +157,10 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     clients: inputClients,
     auth: diagnostics.pipe(processServiceAuthentication(sdkContext, sdkPackage)),
   };
+  const unions = [...sdkContext.__typeCache.types.values()].filter(
+    (type): type is InputUnionType => type.kind === "union" && type.baseModel !== undefined,
+  );
+  if (unions.length > 0) clientModel.unions = unions;
 
   return diagnostics.wrap(clientModel);
 }

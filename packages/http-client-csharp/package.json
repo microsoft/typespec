@@ -58,8 +58,8 @@
     "emitter/lib/*.tsp"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
+    "@azure-tools/typespec-azure-core": ">=0.74.0-dev.4 <0.75.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.74.0-dev.9 <0.75.0",
     "@typespec/compiler": "^1.17.0",
     "@typespec/events": ">=0.87.0 <0.88.0 || ~0.88.0-0",
     "@typespec/http": "^1.17.0",
@@ -71,16 +71,16 @@
     "@typespec/versioning": ">=0.87.0 <0.88.0 || ~0.88.0-0"
   },
   "devDependencies": {
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.46",
-    "@azure-tools/typespec-azure-core": "0.73.0",
-    "@azure-tools/typespec-client-generator-core": "0.73.0",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.47-dev.1",
+    "@azure-tools/typespec-azure-core": "0.74.0-dev.4",
+    "@azure-tools/typespec-client-generator-core": "0.74.0-dev.9",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.12.0",
     "@typespec/compiler": "1.17.0",
     "@typespec/events": "0.87.0",
     "@typespec/http": "1.17.0",
     "@typespec/http-client": "0.17.0",
-    "@typespec/http-specs": "0.1.0-alpha.44",
+    "@typespec/http-specs": "0.1.0-alpha.45",
     "@typespec/json-schema": "1.17.0",
     "@typespec/library-linter": "0.87.0",
     "@typespec/openapi": "1.17.0",

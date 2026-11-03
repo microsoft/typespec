@@ -18,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public InputVisibility Visibility { get; } = InputVisibility.All;
         internal FormattableString? Description { get; }
         public SerializationOptions? SerializationOptions { get; }
+        public InputType? InputType { get; }
 
         public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, bool isHttpMetadata, bool isApiVersion)
             : base(serializationFormat, serializedName)
@@ -39,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;
+            InputType = inputProperty.Type;
             Visibility = modelProperty?.Visibility ?? InputVisibility.All;
             IsRequired = inputProperty.IsRequired;
             IsReadOnly = inputProperty.IsReadOnly;

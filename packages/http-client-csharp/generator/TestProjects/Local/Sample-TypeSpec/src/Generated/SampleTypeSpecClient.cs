@@ -43,6 +43,7 @@ namespace SampleTypeSpec
         private PlantOperations _cachedPlantOperations;
         private DeprecationSamples _cachedDeprecationSamples;
         private VisibilitySamples _cachedVisibilitySamples;
+        private UnionExtends _cachedUnionExtends;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -2320,6 +2321,12 @@ namespace SampleTypeSpec
         public virtual VisibilitySamples GetVisibilitySamplesClient()
         {
             return Volatile.Read(ref _cachedVisibilitySamples) ?? Interlocked.CompareExchange(ref _cachedVisibilitySamples, new VisibilitySamples(Pipeline, _endpoint), null) ?? _cachedVisibilitySamples;
+        }
+
+        /// <summary> Initializes a new instance of UnionExtends. </summary>
+        public virtual UnionExtends GetUnionExtendsClient()
+        {
+            return Volatile.Read(ref _cachedUnionExtends) ?? Interlocked.CompareExchange(ref _cachedUnionExtends, new UnionExtends(Pipeline, _endpoint), null) ?? _cachedUnionExtends;
         }
     }
 }

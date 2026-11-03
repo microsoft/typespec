@@ -1782,7 +1782,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement[] deserializationStatements;
-            if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
+            if (DiscriminatedUnionSerializationProvider.RequiresEnvelope(wireInfo.InputType))
+            {
+                deserializationStatements =
+                [
+                    DiscriminatedUnionSerializationProvider.DeserializeValue(
+                        wireInfo.InputType!, propertyType, jsonProperty.Value(), _mrwOptionsParameterSnippet, out var value),
+                    variableExpression.Assign(value).Terminate()
+                ];
+            }
+            else if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
             {
                 if (ArrayKnownEncodingExtensions.TryGetDelimiter(serializationFormat.Value, out var delimiter))
                 {
@@ -2157,7 +2166,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var propertyIsNullable = wireInfo.IsNullable;
 
             // Generate the serialization statements for the property
-            var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
+            var serializationStatement = DiscriminatedUnionSerializationProvider.RequiresEnvelope(wireInfo.InputType)
+                ? DiscriminatedUnionSerializationProvider.SerializeValue(
+                    wireInfo.InputType!, propertyType, propertyExpression, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet)
+                : CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
             // Check for encoded arrays and override the serialization statement
             if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))

@@ -22,6 +22,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
+        private readonly Dictionary<InputUnionType, DiscriminatedUnionSerializationProvider> _unionSerializations = [];
+
+        internal DiscriminatedUnionSerializationProvider CreateDiscriminatedUnionSerialization(InputUnionType union)
+        {
+            if (!_unionSerializations.TryGetValue(union, out var provider))
+            {
+                provider = new DiscriminatedUnionSerializationProvider(union);
+                _unionSerializations.Add(union, provider);
+            }
+            return provider;
+        }
+
         private Dictionary<InputClient, ClientProvider?>? _clientCache;
         private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 

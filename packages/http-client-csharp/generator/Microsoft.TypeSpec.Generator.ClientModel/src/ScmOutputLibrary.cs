@@ -93,6 +93,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return [
                 ..baseTypes,
                 ..BuildClientTypes(),
+                .. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                    .Where(DiscriminatedUnionSerializationProvider.RequiresEnvelope)
+                    .Select(ScmCodeModelGenerator.Instance.TypeFactory.CreateDiscriminatedUnionSerialization),
                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
                 ScmCodeModelGenerator.Instance.TypeFormattersDefinition,

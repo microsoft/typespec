@@ -178,6 +178,11 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
+                    if (unionType.BaseModel != null)
+                    {
+                        type = CreateCSharpType(unionType.BaseModel);
+                        break;
+                    }
                     var unionInputs = new List<CSharpType>();
                     foreach (var variant in unionType.VariantTypes)
                     {

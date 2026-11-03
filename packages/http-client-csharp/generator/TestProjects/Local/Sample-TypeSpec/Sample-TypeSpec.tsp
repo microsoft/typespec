@@ -1395,3 +1395,50 @@ interface VisibilitySamples {
   @get
   readDerived(): LifecycleDerived;
 }
+
+model UnionPet {
+  name: string;
+}
+
+model UnionCat extends UnionPet {
+  meow: boolean;
+}
+
+model UnionDog extends UnionPet {
+  bark: boolean;
+}
+
+@discriminated
+union UnionPets extends UnionPet {
+  cat: UnionCat,
+  dog: UnionDog,
+}
+
+model UnionPetContainer {
+  pet: UnionPets;
+  nullablePet: UnionPets | null;
+  pets?: UnionPets[];
+  lookup?: Record<UnionPets>;
+}
+
+@route("/union-extends")
+interface UnionExtends {
+  @post
+  echo(@body pet: UnionPets): UnionPets;
+
+  @route("/container")
+  @post
+  echoContainer(@body container: UnionPetContainer): UnionPetContainer;
+
+  @route("/pets")
+  @post
+  echoPets(@body pets: UnionPets[]): UnionPets[];
+
+  @route("/lookup")
+  @post
+  echoLookup(@body pets: Record<UnionPets>): Record<UnionPets>;
+
+  @route("/cat")
+  @get
+  getCat(): UnionCat;
+}

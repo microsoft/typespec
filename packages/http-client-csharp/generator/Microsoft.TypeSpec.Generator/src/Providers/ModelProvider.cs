@@ -1052,8 +1052,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var includeDiscriminatorParameter = _isDiscriminatedBaseType
-                && BaseModelProvider?._inputModel.DiscriminatorProperty is not null;
+            var includeDiscriminatorParameter = (_isDiscriminatedBaseType
+                    && BaseModelProvider?._inputModel.DiscriminatorProperty is not null)
+                || (_inputModel.DiscriminatorValue is null && _inputModel.DiscriminatorProperty is null
+                    && EnumerateBaseModels().TakeWhile(model => model.DiscriminatorValue is null)
+                        .Any(model => model.DiscriminatorProperty is not null));
             var (constructorParameters, constructorInitializer) = BuildConstructorParameters(
                 true,
                 includeDiscriminatorParameter);
@@ -1595,7 +1598,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)
         {
             var properties = new Stack<List<PropertyProvider>>();
-            bool isDirectBase = true;
+            bool includeInheritedDiscriminator = true;
             foreach (var modelProvider in EnumerateBaseModelProviders())
             {
                 properties.Push([]);
@@ -1604,7 +1607,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (property.IsDiscriminator)
                     {
                         // In the case of nested discriminators, include discriminator property based on the parameter
-                        if (isDirectBase || includeAllHierarchyDiscriminator)
+                        if (includeInheritedDiscriminator || includeAllHierarchyDiscriminator)
                         {
                             properties.Peek().Add(property);
                         }
@@ -1615,7 +1618,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                isDirectBase = false;
+                includeInheritedDiscriminator &= modelProvider._inputModel.DiscriminatorProperty is null
+                    && modelProvider.DiscriminatorValue is null;
             }
 
             // parameters need to be ordered from the base-most class to the derived class
@@ -1792,7 +1796,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
             {
-                var discriminator = BaseModelProvider?.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                var discriminator = GetInheritedDiscriminatorProperty();
                 if (discriminator != null)
                 {
                     var type = discriminator.Type;
@@ -1803,7 +1807,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (type is { IsFrameworkType: false, IsEnum: true })
                     {
-                        if (_inputModel.BaseModel.DiscriminatorProperty?.Type is InputEnumType inputEnumType)
+                        if (discriminator.InputProperty?.Type is InputEnumType inputEnumType)
                         {
                             var discriminatorProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
 
@@ -1840,6 +1844,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             return null;
         }
+
+        private PropertyProvider? GetInheritedDiscriminatorProperty()
+            => EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)
+                .FirstOrDefault(property => property.IsDiscriminator);
 
         private ValueExpression GetExpressionForCtor(
             ParameterProvider parameter,
@@ -1958,7 +1966,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // primary constructor body.
             if (isPrimaryConstructor && DiscriminatorValueExpression != null)
             {
-                var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
+                var baseDiscriminatorProperty = GetInheritedDiscriminatorProperty();
                 if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
                 {
                     methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(

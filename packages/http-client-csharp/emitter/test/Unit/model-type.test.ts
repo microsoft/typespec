@@ -6,6 +6,7 @@ import { Visibility } from "@typespec/http";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { fromSdkType } from "../../src/lib/type-converter.js";
 import type { InputModelType } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
@@ -226,6 +227,134 @@ describe("Lifecycle visibility", () => {
       [...context.__typeCache.operations.values()][0].requestVisibility,
       Visibility.Create,
     );
+  });
+});
+
+describe("Union extends", () => {
+  async function compileUnion(source: string) {
+    const host = await createEmitterTestHost();
+    const program = await typeSpecCompile(source, host, { Features: ["union-extends"] });
+    deepStrictEqual(
+      program.diagnostics.filter((d) => d.severity === "error"),
+      [],
+    );
+    const context = await createCSharpSdkContext(createEmitterContext(program));
+    deepStrictEqual(
+      context.diagnostics.filter((d) => d.severity === "error"),
+      [],
+    );
+    const [root, diagnostics] = createModel(context);
+    deepStrictEqual(diagnostics, []);
+    return { context, root };
+  }
+
+  it.each(["kind", "petType"])(
+    "uses the declared base and inline discriminator %s",
+    async (discriminatorPropertyName) => {
+      const { context, root } = await compileUnion(`
+        model Named { name: string; }
+        model Mammal extends Named {}
+        model Cat extends Mammal { meow: boolean; }
+        model Dog extends Named { bark: boolean; }
+        @discriminated(#{ envelope: "none", discriminatorPropertyName: "${discriminatorPropertyName}" })
+        union Pets extends Named { cat: Cat, dog: Dog }
+        @post op echo(@body pet: Pets): Pets;
+      `);
+      const base = root.models.find((m) => m.name === "Named");
+      ok(base);
+      strictEqual(base.discriminatorProperty?.serializedName, discriminatorPropertyName);
+      strictEqual(base.discriminatedSubtypes?.cat.name, "Cat");
+      strictEqual(base.discriminatedSubtypes?.dog.name, "Dog");
+      strictEqual(root.models.find((m) => m.name === "Cat")?.baseModel?.baseModel, base);
+      strictEqual(root.models.find((m) => m.name === "Cat")?.discriminatorValue, "cat");
+      const operation = [...context.__typeCache.operations.values()][0];
+      strictEqual(operation.parameters.find((p) => p.kind === "body")?.type, base);
+      strictEqual(operation.responses[0].bodyType, base);
+    },
+  );
+
+  it.each([
+    ["kind", "value"],
+    ["type", "data"],
+  ])("preserves the %s/%s envelope without reshaping payloads", async (tag, payload) => {
+    const { context, root } = await compileUnion(`
+      model Named { name: string; }
+      model Mammal extends Named {}
+      model Cat extends Mammal { meow: boolean; }
+      model Dog extends Named { bark: boolean; }
+      @discriminated(#{ discriminatorPropertyName: "${tag}", envelopePropertyName: "${payload}" })
+      union Pets extends Named { feline: Cat, canine: Dog }
+      @post op echo(@body pet: Pets): Pets;
+      @route("/cat") @get op getCat(): Cat;
+    `);
+    const sdkUnion = context.sdkPackage.unions.find((t) => t.kind === "union");
+    ok(sdkUnion?.kind === "union");
+    const [union] = fromSdkType(context, sdkUnion);
+    const base = root.models.find((m) => m.name === "Named");
+    ok(base);
+    strictEqual(union.baseModel, base);
+    strictEqual(union.discriminatorPropertyName, tag);
+    strictEqual(union.envelopePropertyName, payload);
+    strictEqual(
+      union.discriminatedSubtypes?.feline,
+      root.models.find((m) => m.name === "Cat"),
+    );
+    strictEqual(
+      union.discriminatedSubtypes?.canine,
+      root.models.find((m) => m.name === "Dog"),
+    );
+    strictEqual(base.discriminatorProperty, undefined);
+    strictEqual(root.models.find((m) => m.name === "Cat")?.discriminatorValue, undefined);
+  });
+
+  it("caches recursive enveloped unions before converting their payloads", async () => {
+    const { context, root } = await compileUnion(`
+      model Named { name: string; friend?: Pets; friends?: Pets[]; lookup?: Record<Pets>; }
+      model Cat extends Named { meow: boolean; }
+      @discriminated union Pets extends Named { cat: Cat }
+      @post op echo(@body pet: Pets): Pets;
+    `);
+    const union = [...context.__typeCache.types.values()].find((t) => t.kind === "union");
+    ok(union);
+    const base = root.models.find((m) => m.name === "Named");
+    strictEqual(base?.properties.find((p) => p.name === "friend")?.type, union);
+  });
+
+  it.each(["cat: Cat, Dog", "cat: Cat, other: Cat", "cat: Cat, base: Named"])(
+    "keeps unsupported envelope alternatives as raw data: %s",
+    async (variants) => {
+      const { context } = await compileUnion(`
+        model Named { name: string; }
+        model Cat extends Named { meow: boolean; }
+        model Dog extends Named { bark: boolean; }
+        @discriminated union Pets extends Named { ${variants} }
+        @post op echo(@body pet: Pets): Pets;
+      `);
+      const sdkUnion = context.sdkPackage.unions.find((t) => t.kind === "union");
+      ok(sdkUnion?.kind === "union");
+      const [union] = fromSdkType(context, sdkUnion);
+      strictEqual(union.baseModel, undefined);
+      strictEqual(union.discriminatedSubtypes, undefined);
+    },
+  );
+
+  it.each([
+    ["@discriminated", "", "extends Named"],
+    ["", "extends Named", "extends Named"],
+    ["@discriminated", "extends Named", ""],
+  ])("does not infer polymorphism for %s / %s / %s", async (decorator, constraint, inheritance) => {
+    const { context } = await compileUnion(`
+      model Named { name: string; }
+      model Cat ${inheritance} { ${inheritance ? "" : "name: string;"} meow: boolean; }
+      model Dog ${inheritance} { ${inheritance ? "" : "name: string;"} bark: boolean; }
+      ${decorator} union Pets ${constraint} { cat: Cat, dog: Dog }
+      @post op echo(@body pet: Pets): Pets;
+    `);
+    const sdkUnion = context.sdkPackage.unions.find((t) => t.kind === "union");
+    ok(sdkUnion?.kind === "union");
+    const [union] = fromSdkType(context, sdkUnion);
+    strictEqual(union.baseModel, undefined);
+    strictEqual(union.discriminatedSubtypes, undefined);
   });
 });
 

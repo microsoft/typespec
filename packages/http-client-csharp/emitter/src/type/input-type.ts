@@ -146,6 +146,10 @@ export interface InputUnionType extends InputTypeBase {
   name: string;
   variantTypes: InputType[];
   namespace: string;
+  baseModel?: InputModelType;
+  discriminatorPropertyName?: string;
+  envelopePropertyName?: string;
+  discriminatedSubtypes?: Record<string, InputModelType>;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
 }
