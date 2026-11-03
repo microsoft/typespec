@@ -63,6 +63,21 @@ public class FluentModuleInfoTests {
             List.of(implementationPackage));
     }
 
+    @Test
+    public void opensInternalEnumOnlyPackageWithoutExportingIt() {
+        String implementationPackage = JavaSettings.getInstance().getPackage("implementation.models");
+        EnumType enumType = new EnumType.Builder().packageName(implementationPackage).name("InternalState").build();
+        assertModelPackages(List.of(), List.of(enumType), List.of(), List.of(implementationPackage));
+    }
+
+    @Test
+    public void opensNamespacedInternalTypesWithoutExportingThem() {
+        String implementationPackage = JavaSettings.getInstance().getPackage("hidden.implementation.models");
+        EnumType enumType = new EnumType.Builder().packageName(implementationPackage).name("InternalState").build();
+        assertModelPackages(List.of(model(implementationPackage, "InternalModel")), List.of(enumType), List.of(),
+            List.of(implementationPackage));
+    }
+
     private static ClientModel model(String packageName, String name) {
         return new ClientModel.Builder().packageName(packageName).name(name).build();
     }
