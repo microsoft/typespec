@@ -5,7 +5,7 @@ export function typeref(context: FunctionContext, target: Type): TypeRefValue {
   return {
     entityKind: "Value",
     valueKind: "TypeRefValue",
-    type: context.program.checker.unknownType,
+    type: context.program.checker.getTypeRefType(target),
     target,
   };
 }

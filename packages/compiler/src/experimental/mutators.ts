@@ -557,6 +557,8 @@ function createMutatorEngine(
     activeMutators: Set<MutatorAll>,
     mutateSubNamespace: boolean = true,
   ): MutableTypeWithNamespace {
+    let clone: MutableTypeWithNamespace | null = null;
+    let mutating = false;
     let existing = seen.get([type, activeMutators]);
     if (existing) {
       if (
@@ -579,12 +581,8 @@ function createMutatorEngine(
     ) {
       return type;
     }
-    let clone: MutableTypeWithNamespace | null = null;
-
     const { mutatorsWithOptions, newMutators } = resolveMutators(activeMutators, type);
     const mutatorsToApply = mutatorsWithOptions.map((v) => v.mutator);
-
-    let mutating = false;
 
     // if we have no mutators to apply, let's bail out.
     if (mutatorsWithOptions.length === 0) {
@@ -807,6 +805,57 @@ function createMutatorEngine(
           break;
       }
     }
+
+    function mutateSubMap<T extends MutableTypeWithNamespace, K extends keyof T>(
+      type: T,
+      prop: K,
+      mutate: boolean,
+      newMutators: Set<MutatorAll>,
+    ) {
+      for (const [key, value] of (type as any)[prop].entries()) {
+        const newValue: any = mutateSubgraphWorker(value, newMutators);
+        // Visiting a child can initialize this owner's clone.
+        const target = (clone ?? type) as T;
+        if (mutating || mutate) {
+          (target[prop] as any).set(key, newValue);
+
+          if (newValue.name !== value.name) {
+            (target[prop] as any).rekey(key, newValue.name);
+          }
+        }
+      }
+    }
+
+    function mutateSubArray<T extends MutableType, K extends keyof T>(
+      type: T,
+      prop: K,
+      mutate: boolean,
+      newMutators: Set<MutatorAll>,
+    ) {
+      for (const [index, value] of (type as any)[prop].entries()) {
+        const newValue: any = mutateSubgraphWorker(value, newMutators);
+        const target = clone ?? type;
+        if (mutating || mutate) {
+          (target as any)[prop][index] = newValue;
+        }
+      }
+    }
+
+    function mutateProperty<T extends MutableType, K extends keyof T>(
+      type: T,
+      prop: K,
+      mutate: boolean,
+      newMutators: Set<Mutator>,
+    ) {
+      if (type[prop] === undefined) {
+        return;
+      }
+      const newValue: any = mutateSubgraphWorker(type[prop] as any, newMutators);
+      const target = (clone ?? type) as T;
+      if (mutating || mutate) {
+        target[prop] = newValue;
+      }
+    }
   }
 
   function mutateDecoratorArgumentValue<
@@ -905,53 +954,6 @@ function createMutatorEngine(
       mutatedMapper.map.set(param, mutateDecoratorArgumentValue(paramType, newMutators));
     }
     return mutatedMapper;
-  }
-
-  function mutateSubMap<T extends MutableTypeWithNamespace, K extends keyof T>(
-    type: T,
-    prop: K,
-    mutate: boolean,
-    newMutators: Set<MutatorAll>,
-  ) {
-    for (const [key, value] of (type as any)[prop].entries()) {
-      const newValue: any = mutateSubgraphWorker(value, newMutators);
-      if (mutate) {
-        (type[prop] as any).set(key, newValue);
-
-        if (newValue.name !== value.name) {
-          (type[prop] as any).rekey(key, newValue.name);
-        }
-      }
-    }
-  }
-  function mutateSubArray<T extends MutableType, K extends keyof T>(
-    type: T,
-    prop: K,
-    mutate: boolean,
-    newMutators: Set<MutatorAll>,
-  ) {
-    for (const [index, value] of (type as any)[prop].entries()) {
-      const newValue: any = mutateSubgraphWorker(value, newMutators);
-
-      if (mutate) {
-        (type as any)[prop][index] = newValue;
-      }
-    }
-  }
-
-  function mutateProperty<T extends MutableType, K extends keyof T>(
-    type: T,
-    prop: K,
-    mutating: boolean,
-    newMutators: Set<Mutator>,
-  ) {
-    if (type[prop] === undefined) {
-      return;
-    }
-    const newValue: any = mutateSubgraphWorker(type[prop] as any, newMutators);
-    if (mutating) {
-      type[prop] = newValue;
-    }
   }
 }
 

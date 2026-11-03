@@ -263,7 +263,7 @@ function ScalarTsType({ scalar }: { scalar: Scalar }) {
   const isStd = program.checker.isStdType(scalar);
   if (isStd) {
     return getStdScalarTSType(scalar);
-  } else if (scalar.baseScalar) {
+  } else if (scalar.baseScalar && !program.checker.isStdType(scalar.baseScalar, "TypeRef")) {
     return <ScalarTsType scalar={scalar.baseScalar} />;
   } else {
     return "unknown";
@@ -272,6 +272,8 @@ function ScalarTsType({ scalar }: { scalar: Scalar }) {
 
 function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }) {
   switch (scalar.name) {
+    case "TypeRef":
+      return typespecCompiler.TypeRefValue;
     case "numeric":
     case "decimal":
     case "decimal128":

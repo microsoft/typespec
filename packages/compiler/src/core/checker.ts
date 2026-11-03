@@ -349,6 +349,12 @@ export interface Checker {
    */
   getTypeForNode(node: Node): Type;
 
+  /**
+   * Get or instantiate the standard `TypeRef<target>` scalar.
+   * @internal
+   */
+  getTypeRefType(target: Type): Scalar;
+
   /** @internal */
   checkProgram(): void;
   /** @internal */
@@ -583,6 +589,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   const checker: Checker = {
     getTypeForNode,
+    getTypeRefType,
     checkProgram,
     checkSourceFile,
     getLiteralType,
@@ -694,6 +701,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       `TypeSpec std type "${name}" should have been initalized before using array syntax.`,
     );
     return loadedType as any;
+  }
+
+  function getTypeRefType(target: Type): Scalar {
+    const node = getStdType("TypeRef").node;
+    compilerAssert(node, "The standard TypeRef scalar must have a declaration.");
+    const parameter = getTypeForNode(node.templateParameters[0]);
+    compilerAssert(parameter.kind === "TemplateParameter", "TypeRef must have a type parameter.");
+    const type = getOrInstantiateTemplate(
+      CheckContext.DEFAULT,
+      node,
+      [parameter],
+      [target],
+      { node, mapper: undefined },
+      undefined,
+    );
+    compilerAssert(type.kind === "Scalar", "TypeRef must instantiate to a scalar.");
+    return type;
   }
 
   /**
@@ -7543,7 +7567,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type.namespace?.scalars.set(type.name, type);
     }
     linkMapper(type, ctx.mapper);
-    if (isInTypeSpecNamespace(type)) {
+    if (ctx.mapper === undefined && isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
 

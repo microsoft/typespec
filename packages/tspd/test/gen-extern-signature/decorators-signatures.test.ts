@@ -19,7 +19,7 @@ async function generateDecoratorSignatures(code: string) {
       configFile: {
         projectRoot: ".",
         kind: "project",
-        features: ["auto-decorators"],
+        features: ["auto-decorators", "function-declarations"],
         diagnostics: [],
         outputDir: "tsp-output",
       },
@@ -194,6 +194,61 @@ export type Decorators = {
   });
 
   describe("valueof", () => {
+    it("does not describe scalar subtypes as type-reference values", async () => {
+      await expectSignatures({
+        code: `
+        scalar CustomRef extends TypeRef<string> { init create(); }
+        extern dec capture(target, reference: valueof CustomRef);
+        extern fn pass(reference: valueof CustomRef): valueof CustomRef;
+`,
+        expected: `
+import type { DecoratorContext, DecoratorValidatorCallbacks, FunctionContext, Type } from "@typespec/compiler";
+
+export type CaptureDecorator = (context: DecoratorContext, target: Type, reference: unknown) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  capture: CaptureDecorator;
+};
+
+export type PassFunctionImplementation = (context: FunctionContext, reference: unknown) => unknown;
+
+export type Functions = {
+  pass: PassFunctionImplementation;
+};
+`,
+      });
+    });
+
+    it("maps generic type references in decorator parameters", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, reference: valueof TypeRef<string>);`,
+        expected: `
+${importLine(["Type", "TypeRefValue"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Type, reference: TypeRefValue) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+`,
+      });
+    });
+
+    it("maps type references in function parameters and return values", async () => {
+      await expectSignatures({
+        code: `extern fn simple(reference: valueof TypeRef<string>): valueof TypeRef;`,
+        expected: `
+import type { FunctionContext, TypeRefValue } from "@typespec/compiler";
+
+export type SimpleFunctionImplementation = (context: FunctionContext, reference: TypeRefValue) => TypeRefValue;
+
+export type Functions = {
+  simple: SimpleFunctionImplementation;
+};
+`,
+      });
+    });
+
     it.each([
       ["valueof string", "string"],
       ["valueof boolean", "boolean"],

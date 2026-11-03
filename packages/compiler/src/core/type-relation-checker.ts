@@ -314,6 +314,24 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
+    if (
+      source.kind === "Scalar" &&
+      target.kind === "Scalar" &&
+      checker.isStdType(source, "TypeRef") &&
+      checker.isStdType(target, "TypeRef")
+    ) {
+      relationCache.set([source, target], [Related.maybe, []]);
+      const [related] = isTypeAssignableToInternal(
+        source.templateMapper?.args[0] ?? checker.unknownType,
+        target.templateMapper?.args[0] ?? checker.unknownType,
+        diagnosticTarget,
+        relationCache,
+      );
+      return related
+        ? [related, []]
+        : [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+    }
+
     if (source.kind === "Union") {
       // Seed the relation before walking the variants: a union can reach itself
       // (`union Foo { self: Foo }`) and would otherwise recurse forever.
@@ -514,6 +532,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       case "Boolean":
         return areScalarsRelated(target, checker.getStdType("boolean"));
       case "Scalar":
+        if (checker.isStdType(target, "TypeRef")) {
+          return checker.isStdType(source, "TypeRef") ? undefined : false;
+        }
         return areScalarsRelated(source, target);
       case "Union":
         return undefined;

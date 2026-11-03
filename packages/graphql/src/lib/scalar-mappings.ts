@@ -16,15 +16,18 @@ export interface ScalarMapping {
 }
 
 /**
- * Mapping table for all TypeSpec standard library scalars to GraphQL.
+ * Mapping table for TypeSpec standard library runtime scalars to GraphQL.
  *
  * Each scalar has:
  * - A `default` entry with `graphqlType` for field type resolution
  * - Optional encoding-specific entries for custom scalar emission
  *
- * Every IntrinsicScalarName must have an entry here - the type system enforces this.
+ * Every IntrinsicScalarName except compile-time TypeRef must have an entry here.
  */
-const SCALAR_MAPPINGS: Record<IntrinsicScalarName | "ID", Record<string, ScalarMapping>> = {
+const SCALAR_MAPPINGS: Record<
+  Exclude<IntrinsicScalarName, "TypeRef"> | "ID",
+  Record<string, ScalarMapping>
+> = {
   // GraphQL built-in scalars (direct mapping, no custom scalar needed)
   string: {
     default: { graphqlType: "String" },

@@ -265,6 +265,7 @@ export interface NullType extends IntrinsicType {
 
 /** Names of the built-in scalars exposed through the compiler's standard-type lookup. */
 export type IntrinsicScalarName =
+  | "TypeRef"
   | "bytes"
   | "numeric"
   | "integer"
@@ -470,11 +471,13 @@ interface BaseValue {
 
 /**
  * A value referencing an existing compiler type without copying it.
- * Its storage type is `unknown`; the referenced type is available through `target`.
+ * Its storage type is `TypeRef<T>`; the referenced type is available through `target`.
  * @experimental
  */
 export interface TypeRefValue extends BaseValue {
+  /** Identifies this value as a reference to a compiler type. */
   valueKind: "TypeRefValue";
+  /** The referenced compiler type, preserving its original identity. */
   target: Type;
 }
 

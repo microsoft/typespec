@@ -7,6 +7,8 @@ export function getSchemaForStdScalars(
   options: ResolvedOpenAPI3EmitterOptions,
 ): OpenAPI3Schema & OpenAPISchema3_1 {
   switch (scalar.name) {
+    case "TypeRef":
+      return { not: {} };
     case "bytes":
       return { type: "string", format: "byte" };
     case "numeric":

@@ -118,17 +118,17 @@ model Widget {
 
 model ModelRegistration {
   name: string;
-  type: unknown;
+  type: TypeRef;
 }
 
 const registration: ModelRegistration = #{ name: "widget", type: typeref(Widget) };
 ```
 
-Here, `name` is a string value and `type` contains an opaque reference to the actual `Widget` model, not its name or an instance of it. References have the TypeSpec storage type `unknown`, so the property annotation also accepts values that are not references.
+Here, `name` is a string value and `type` contains an opaque reference to the actual `Widget` model, not its name or an instance of it. `typeref(Widget)` has type `TypeRef<Widget>`. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to require a reference to a type assignable to `T`. Ordinary values such as strings and numbers cannot be assigned to `TypeRef`.
 
 The argument to `typeref` must be a type, such as a model, namespace, instantiated template, union, or tuple, not a value. For example, `typeref("Widget")` references a string literal type; it does not look up the model named `Widget`.
 
-JavaScript implementations receive each reference as a `TypeRefValue` whose `target` is the referenced compiler `Type`. Libraries accepting `unknown` values must check `valueKind === "TypeRefValue"` before accessing `target`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.
+JavaScript implementations receive each reference as a `TypeRefValue` whose `target` is the referenced compiler `Type`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.
 
 ## Const declarations
 

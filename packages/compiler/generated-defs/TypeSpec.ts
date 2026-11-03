@@ -13,6 +13,7 @@ import type {
   Scalar,
   ScalarValue,
   Type,
+  TypeRefValue,
   Union,
   UnionVariant,
 } from "../src/index.js";
@@ -1289,7 +1290,7 @@ export type TypeSpecDecorators = {
 /**
  * Creates an experimental opaque value referencing an existing type.
  * The reference preserves the type's identity and can be stored in object and array values.
- * The result has type `unknown`; JavaScript implementations receive a `TypeRefValue`.
+ * The result has type `TypeRef<target>`; JavaScript implementations receive a `TypeRefValue`.
  *
  * @param target The type to reference.
  * @example
@@ -1298,7 +1299,10 @@ export type TypeSpecDecorators = {
  * const entry = #{ name: "item", type: typeref(Item) };
  * ```
  */
-export type TyperefFunctionImplementation = (context: FunctionContext, target: Type) => unknown;
+export type TyperefFunctionImplementation = (
+  context: FunctionContext,
+  target: Type,
+) => TypeRefValue;
 
 export type ApplyVisibilityFilterFunctionImplementation = (
   context: FunctionContext,

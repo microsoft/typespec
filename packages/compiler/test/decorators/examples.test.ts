@@ -33,7 +33,7 @@ describe("@example", () => {
       const { program, examples, target } = await getExamplesFor(`
         model Item {}
         @example(#{ itemType: typeref(Item) })
-        model /*test*/test { itemType: unknown; }
+        model /*test*/test { itemType: TypeRef; }
       `);
       expect(() => serializeValueAsJson(program, examples[0].value, target)).toThrow(
         "Cannot serialize a type reference value as JSON.",

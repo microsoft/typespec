@@ -534,7 +534,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
-    if (name === undefined) {
+    if (name === undefined || this.#isStdType(scalar)) {
       return {};
     } else {
       return this.#newFileScope(scalar);
@@ -580,6 +580,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #getSchemaForStdScalars(baseBuiltIn: Scalar) {
     switch (baseBuiltIn.name) {
+      case "TypeRef":
+        return { not: {} };
       case "uint8":
         return { type: "integer", minimum: 0, maximum: 255 };
       case "uint16":

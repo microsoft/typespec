@@ -1,5 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { assert, beforeEach, describe, expect, it } from "vitest";
 import type { Type, TypeRefValue } from "../../src/index.js";
 import {
   expectDiagnostics,
@@ -9,7 +8,7 @@ import {
 import { Tester } from "../tester.js";
 
 describe("typeref", () => {
-  const declaration = "extern dec capture(target, reference: valueof unknown);";
+  const declaration = "extern dec capture(target, reference: valueof TypeRef);";
   let references: TypeRefValue[];
   let referenceTester: TesterInstance;
 
@@ -37,13 +36,18 @@ describe("typeref", () => {
       model Storage { reference: typeof typeref(Item); }
     `);
     const models = program.getGlobalNamespaceType().models;
-    strictEqual(references[0].entityKind, "Value");
-    strictEqual(references[0].valueKind, "TypeRefValue");
-    strictEqual(references[0].type, program.checker.unknownType);
-    strictEqual(models.get("Storage")!.properties.get("reference")!.type, references[0].type);
-    strictEqual(references[0].target, models.get("Item"));
-    strictEqual(references[1].target, references[0].target);
-    strictEqual(references[2].target, models.get("OtherItem"));
+    expect(references[0]).toMatchObject({
+      entityKind: "Value",
+      valueKind: "TypeRefValue",
+      type: { kind: "Scalar", name: "TypeRef" },
+    });
+    const storage = references[0].type;
+    assert(storage.kind === "Scalar");
+    expect(storage.templateMapper?.args[0]).toBe(models.get("Item"));
+    expect(models.get("Storage")!.properties.get("reference")!.type).toBe(storage);
+    expect(references[0].target).toBe(models.get("Item"));
+    expect(references[1].target).toBe(references[0].target);
+    expect(references[2].target).toBe(models.get("OtherItem"));
     expect(references[2].target).not.toBe(references[0].target);
   });
 
@@ -58,7 +62,7 @@ describe("typeref", () => {
       ${setup}
       @capture(typeref(${target})) model Test {}
     `);
-    strictEqual(references[0].target.kind, kind);
+    expect(references[0].target.kind).toEqual(kind);
   });
 
   it("preserves an entire union and its tuple alternatives", async () => {
@@ -71,12 +75,13 @@ describe("typeref", () => {
       @capture(typeref(Alternatives)) model Test {}
     `);
     const target = references[0].target;
-    strictEqual(target.kind, "Union");
+    assert(target.kind === "Union");
     const [tuple, error] = [...target.variants.values()].map((variant) => variant.type);
-    strictEqual(tuple.kind, "Tuple");
+    assert(tuple.kind === "Tuple");
     const models = program.getGlobalNamespaceType().models;
-    deepStrictEqual(tuple.values, [models.get("Input"), models.get("Output")]);
-    strictEqual(error, models.get("ErrorResult"));
+    expect(tuple.values[0]).toBe(models.get("Input"));
+    expect(tuple.values[1]).toBe(models.get("Output"));
+    expect(error).toBe(models.get("ErrorResult"));
   });
 
   it("can reference the namespace being decorated", async () => {
@@ -85,7 +90,69 @@ describe("typeref", () => {
       @capture(typeref(Service))
       namespace Service {}
     `);
-    strictEqual(references[0].target, program.getGlobalNamespaceType().namespaces.get("Service"));
+    expect(references[0].target).toBe(program.getGlobalNamespaceType().namespaces.get("Service"));
+  });
+
+  it("accepts compatible referenced types and preserves the precise target", async () => {
+    const { program } = await referenceTester.compile(`
+      ${declaration}
+      model Item { id: string; }
+      model DetailedItem extends Item { count: int32; }
+      const exact: TypeRef<DetailedItem> = typeref(DetailedItem);
+      const compatible: TypeRef<Item> = exact;
+      @capture(compatible) model Test {}
+      const literal: TypeRef<"item"> = typeref("item");
+    `);
+    expect(references[0].target).toBe(program.getGlobalNamespaceType().models.get("DetailedItem"));
+  });
+
+  it.each(["123", '"item"', "#{}"])(
+    "rejects a non-reference value assigned to an inferred reference type: %s",
+    async (value) => {
+      const diagnostics = await Tester.diagnose(`
+        model Item {}
+        const reference = typeref(Item);
+        const notAReference: typeof reference = ${value};
+      `);
+      expectDiagnostics(diagnostics, { code: "unassignable" });
+    },
+  );
+
+  it("rejects a reference whose target does not satisfy the generic constraint", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Item { id: string; }
+      model OtherItem { count: int32; }
+      const reference: TypeRef<Item> = typeref(OtherItem);
+    `);
+    expectDiagnostics(diagnostics, { code: "unassignable" });
+  });
+
+  it("supports reflection-type constraints on the referenced type", async () => {
+    await Tester.compile(`
+      model Item {}
+      const reference: TypeRef<TypeSpec.Reflection.Model> = typeref(Item);
+    `);
+    const diagnostics = await Tester.diagnose(`
+      const reference: TypeRef<TypeSpec.Reflection.Model> = typeref(string);
+    `);
+    expectDiagnostics(diagnostics, { code: "unassignable" });
+  });
+
+  it("compares recursively constrained reference targets", async () => {
+    await Tester.compile(`
+      model Item { next?: TypeRef<Item>; }
+      model DetailedItem { next?: TypeRef<DetailedItem>; id: string; }
+      const reference: TypeRef<Item> = typeref(DetailedItem);
+    `);
+  });
+
+  it("rejects scalar constructor values masquerading as type references", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Item {}
+      scalar Fake extends TypeRef<Item> { init create(); }
+      const reference: TypeRef<Item> | string = Fake.create();
+    `);
+    expectDiagnostics(diagnostics, { code: "unassignable" });
   });
 
   it("preserves references in nested values, spreads, and function round trips", async () => {
@@ -102,24 +169,36 @@ describe("typeref", () => {
         $functions: { "": { pass: (_context: unknown, value: unknown) => value } },
       }),
     }).import("./nested.js");
-    const { program } = await nestedTester.compile(`
-      #suppress "experimental-feature"
+    const { program } = await nestedTester.compile(
+      `
       extern fn pass(value: valueof unknown): valueof unknown;
       model Registration {
-        primary: unknown;
-        alternatives: unknown[];
+        primary: TypeRef;
+        alternatives: TypeRef[];
       }
       extern dec nested(target, registration: valueof Registration);
       model Item {}
       const base = #{ primary: typeref(Item) };
       const registration = #{ ...base, alternatives: #[typeref(Item)] };
       @nested(pass(registration)) model Test {}
-    `);
-    ok(registration);
+    `,
+      {
+        compilerOptions: {
+          configFile: {
+            projectRoot: ".",
+            kind: "project",
+            features: ["function-declarations"],
+            diagnostics: [],
+            outputDir: "tsp-output",
+          },
+        },
+      },
+    );
+    assert(registration);
     const item = program.getGlobalNamespaceType().models.get("Item");
-    strictEqual(registration.primary.valueKind, "TypeRefValue");
-    strictEqual(registration.primary.target, item);
-    strictEqual(registration.alternatives[0].target, item);
+    expect(registration.primary.valueKind).toEqual("TypeRefValue");
+    expect(registration.primary.target).toBe(item);
+    expect(registration.alternatives[0].target).toBe(item);
   });
 
   it.each(["#{ }", '"Item"'])("rejects a value operand: %s", async (value) => {

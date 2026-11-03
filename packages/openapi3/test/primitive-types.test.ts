@@ -1,9 +1,19 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { OpenAPI3Schema } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
+  it("represents compile-time type references as having no JSON values", async () => {
+    const result = await oapiForModel(
+      "Registration",
+      `
+      model Registration { type: TypeRef<string>; }
+    `,
+    );
+    expect(result.schemas.Registration.properties.type).toEqual({ not: {} });
+  });
+
   describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
