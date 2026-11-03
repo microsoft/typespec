@@ -62,22 +62,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Sync Python helpers and shared tests from PR
-        run: |
-          pnpm sync
-          node --input-type=module -e '
-            import fs from "node:fs";
-            const path = "spector.config.yaml";
-            const config = fs.readFileSync(path, "utf8");
-            const updated = config.replace(
-              /^  "type\/union\/discriminated": true$/m,
-              "  \"type/union/discriminated\": false\n  \"type/union/discriminated/extends\": true"
-            );
-            if (updated === config) throw new Error("Discriminated union spec selection was not found.");
-            fs.writeFileSync(path, updated);
-          '
-        working-directory: packages/typespec-python
-
       - name: Build
         run: pnpm turbo run --filter "@azure-tools/typespec-python..." build
 
@@ -159,9 +143,7 @@ jobs:
         working-directory: packages/typespec-python
 
       - name: Test
-        run: |
-          pnpm sync
-          pnpm run test:python:e2e
+        run: pnpm run test:python:e2e
         working-directory: packages/typespec-python
 
   typecheck:
@@ -200,9 +182,7 @@ jobs:
         working-directory: packages/typespec-python
 
       - name: Mypy & Pyright
-        run: |
-          pnpm sync
-          pnpm run test:python:e2e --env mypy,pyright
+        run: pnpm run test:python:e2e --env mypy,pyright
         working-directory: packages/typespec-python
 
   lint:
@@ -241,9 +221,7 @@ jobs:
         working-directory: packages/typespec-python
 
       - name: Pylint
-        run: |
-          pnpm sync
-          pnpm run test:python:e2e --env lint
+        run: pnpm run test:python:e2e --env lint
         working-directory: packages/typespec-python
 
       - name: Lint (extra)
@@ -290,7 +268,5 @@ jobs:
         working-directory: packages/typespec-python
 
       - name: API View & Sphinx
-        run: |
-          pnpm sync
-          pnpm run test:python:e2e --env apiview,sphinx
+        run: pnpm run test:python:e2e --env apiview,sphinx
         working-directory: packages/typespec-python

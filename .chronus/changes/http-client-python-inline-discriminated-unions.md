@@ -12,6 +12,10 @@ through the union without changing shared model instances. Distinguish same-name
 aliases from different namespaces. Missing or unknown tags raise `DeserializationError`. Object
 envelopes and default variants are not supported.
 
+Handle transitive discriminator inheritance and narrowed literal discriminator
+fields in TypedDict views. Update `@typespec/http-specs` to `0.1.0-alpha.45` to
+cover the constrained union scenarios in synchronous and asynchronous clients.
+
 ```tsp
 model PetBase {
   kind: string;

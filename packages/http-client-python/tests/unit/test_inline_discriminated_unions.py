@@ -161,6 +161,22 @@ def test_legacy_transitive_discriminator_registration(runtime):
     assert type(runtime._deserialize(Mammal, {"kind": "cat"})) is Cat
 
 
+def test_legacy_discriminator_registration_with_mapping_mixin(runtime):
+    class MappingMixin:
+        __mapping__ = {}
+
+    class Animal(runtime.Model):
+        __mapping__ = {}
+        kind: str = runtime.rest_discriminator(name="kind")
+
+    class Cat(Animal, MappingMixin, discriminator="cat"):
+        pass
+
+    assert Animal.__mapping__["cat"] is Cat
+    assert MappingMixin.__mapping__["cat"] is Cat
+    assert type(runtime._deserialize(Animal, {"kind": "cat"})) is Cat
+
+
 def test_legacy_nested_discriminator_registration_stays_separate(runtime):
     class Animal(runtime.Model):
         __mapping__ = {}

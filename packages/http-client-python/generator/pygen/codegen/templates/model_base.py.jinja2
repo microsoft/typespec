@@ -1098,10 +1098,10 @@ class Model(_MyMutableMapping):
         for base in cls.__bases__:
             if hasattr(base, "__mapping__"):
                 base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore
-                if discriminator is not None:
+                if discriminator is not None and issubclass(base, Model):
                     base_discriminator = base._get_discriminator([])
                     for ancestor in base.__mro__[1:]:
-                        if "__mapping__" not in ancestor.__dict__:
+                        if not issubclass(ancestor, Model) or "__mapping__" not in ancestor.__dict__:
                             continue
                         ancestor_discriminator = ancestor._get_discriminator([])
                         if (
