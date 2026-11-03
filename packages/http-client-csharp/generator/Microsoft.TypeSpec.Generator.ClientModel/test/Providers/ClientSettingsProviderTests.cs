@@ -181,20 +181,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     // This no-operation fixture intentionally leaves optional client fields unused.
                     .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0169"] = ReportDiagnostic.Suppress }));
             var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
-            if (!annotated)
-            {
-                Assert.IsNotEmpty(errors);
-                Assert.IsTrue(errors.All(diagnostic => diagnostic.Id == "EXTERNAL001"),
-                    string.Join(Environment.NewLine, errors.Select(diagnostic => diagnostic.ToString())));
-                return;
-            }
             Assert.IsEmpty(errors.Select(diagnostic => diagnostic.ToString()));
             Assert.AreEqual(0, configuration.DisabledFileWarnings.Count);
             Assert.AreEqual(0, client.DisabledFileWarnings.Count);
             var property = configuration.Properties.Single(property => property.Name == "Value");
             Assert.AreEqual(0, property.Attributes.Count);
-            CollectionAssert.AreEqual(new[] { Snippet.Literal("EXTERNAL001").ToDisplayString() },
-                property.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            if (annotated)
+            {
+                CollectionAssert.AreEqual(new[] { Snippet.Literal("EXTERNAL001").ToDisplayString() },
+                    property.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            }
+            else
+            {
+                Assert.IsEmpty(property.Suppressions);
+            }
             var code = new TypeProviderWriter(configuration).Write().Content;
             var propertyIndex = code.IndexOf(" Value ", StringComparison.Ordinal);
             var disable = code.LastIndexOf("#pragma warning disable EXTERNAL001", propertyIndex, StringComparison.Ordinal);
@@ -204,9 +204,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.Less(restore, code.IndexOf(" Stable ", StringComparison.Ordinal));
             var binding = code.IndexOf("new global::External.ParameterValue(", StringComparison.Ordinal);
             Assert.Greater(binding, 0);
-            var bindingRestore = code.IndexOf("#pragma warning restore EXTERNAL001", binding, StringComparison.Ordinal);
-            Assert.Greater(bindingRestore, binding);
-            Assert.Less(bindingRestore, code.IndexOf("section[\"Stable\"]", binding, StringComparison.Ordinal));
+            if (annotated)
+            {
+                var bindingDisable = code.LastIndexOf("#pragma warning disable EXTERNAL001", binding, StringComparison.Ordinal);
+                Assert.Greater(bindingDisable, 0);
+                Assert.Less(bindingDisable, binding);
+                var bindingRestore = code.IndexOf("#pragma warning restore EXTERNAL001", binding, StringComparison.Ordinal);
+                Assert.Greater(bindingRestore, binding);
+            }
             foreach (var file in files)
             {
                 StringAssert.DoesNotContain("#pragma warning disable UNRELATED001", file.Content);

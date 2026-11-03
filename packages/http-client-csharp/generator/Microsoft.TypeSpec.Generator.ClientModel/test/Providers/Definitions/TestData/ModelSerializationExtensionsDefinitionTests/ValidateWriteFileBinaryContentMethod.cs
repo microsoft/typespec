@@ -10,6 +10,7 @@ namespace Sample
 {
     public partial class ModelSerializationExtensions
     {
+#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
         public static void WriteFileBinaryContent(this global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.FileBinaryContent value)
         {
             int capacity = (value.TryComputeLength(out long length) && (length <= int.MaxValue)) ? ((int)length) : 0;
@@ -17,5 +18,6 @@ namespace Sample
             value.WriteTo(stream);
             writer.WriteBase64StringValue(stream.GetBuffer().AsSpan(0, ((int)stream.Position)));
         }
+#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
     }
 }

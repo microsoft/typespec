@@ -13,6 +13,7 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
+#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
         internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element == null))
@@ -33,5 +34,6 @@ namespace Sample
             }
             return new global::Sample.Models.TestXmlModel(profileImage);
         }
+#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
     }
 }

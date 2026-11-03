@@ -20,9 +20,11 @@ namespace Sample
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{format}' format.");
             }
 
+#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
             writer.WriteStartElement("profileImage");
             writer.WriteObjectValue<global::System.ClientModel.FileBinaryContent>(ProfileImage, options);
             writer.WriteEndElement();
+#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
         }
     }
 }
