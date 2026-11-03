@@ -5,20 +5,23 @@ import {
   interpolatePath,
   isArrayModelType,
   navigateType,
-  navigateTypesInNamespace,
   resolvePath,
   sanitizePathSegment,
   type DiagnosticTarget,
   type EmitContext,
   type Namespace,
+  type Operation,
   type Program,
   type Type,
 } from "@typespec/compiler";
 import { TspContext } from "@typespec/emitter-framework";
 import { printSchema } from "graphql";
+import { isInputType } from "../generated-defs/TypeSpec.GraphQL.js";
 import { Schema } from "./components/schema.js";
 import { GraphQLSchemaContext } from "./context/index.js";
 import { reportDiagnostic, type GraphQLEmitterOptions } from "./lib.js";
+import { isInterface } from "./lib/interface.js";
+import { getOperationFields } from "./lib/operation-fields.js";
 import { getOperationKind } from "./lib/operation-kind.js";
 import { listSchemas } from "./lib/schema.js";
 import { createGraphQLMutationEngine } from "./mutation-engine/index.js";
@@ -111,10 +114,23 @@ function renderSchema(program: Program, typeGraph: TypeGraph): string {
 
 function validateTypeReferences(program: Program, typeGraph: TypeGraph): boolean {
   let valid = true;
-  navigateTypesInNamespace(typeGraph.globalNamespace, {
-    modelProperty: (property) => validate(property.type, property),
-    operation: (operation) => validate(operation.returnType, operation),
-  });
+  const operations = new Set<Operation>();
+  const namespace = typeGraph.globalNamespace;
+  for (const model of namespace.models.values()) {
+    for (const property of model.properties.values()) {
+      validate(property.type, property);
+    }
+    if (!isInputType(program, model) && !isInterface(program, model)) {
+      for (const operation of getOperationFields(program, model)) {
+        validateOperation(operation);
+      }
+    }
+  }
+  for (const operation of namespace.operations.values()) {
+    if (getOperationKind(program, operation) !== undefined) {
+      validateOperation(operation);
+    }
+  }
   return valid;
 
   function validate(type: Type, target: DiagnosticTarget) {
@@ -131,5 +147,14 @@ function validateTypeReferences(program: Program, typeGraph: TypeGraph): boolean
       },
       {},
     );
+  }
+
+  function validateOperation(operation: Operation) {
+    if (operations.has(operation)) return;
+    operations.add(operation);
+    for (const parameter of operation.parameters.properties.values()) {
+      validate(parameter.type, parameter);
+    }
+    validate(operation.returnType, operation);
   }
 }

@@ -66,4 +66,68 @@ describe("unsupported types", () => {
     expect(result.graphQLOutput).toContain("get: String!");
     expect(result.graphQLOutput).not.toContain("Registration");
   });
+
+  it.each(["reference(id: string): TypeRef<string>;", "reference(type: TypeRef<string>): string;"])(
+    "diagnoses external operation fields: %s",
+    async (operation) => {
+      const result = await emitSingleSchemaWithDiagnostics(`
+      namespace Resolvers { op ${operation} }
+      @schema namespace Test {
+        @operationFields(Resolvers.reference)
+        model Item { id: string; }
+        @query op get(): Item;
+      }
+    `);
+      expectDiagnostics(result.diagnostics, {
+        code: "@typespec/graphql/type-reference-not-supported",
+      });
+      expect(result.graphQLOutput).toBeUndefined();
+    },
+  );
+
+  it.each(["op getMetadata(): TypeRef<string>;", "op getMetadata(type: TypeRef<string>): string;"])(
+    "allows type references in unused operations: %s",
+    async (operation) => {
+      const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        ${operation}
+        @query op ping(): string;
+      }
+    `);
+      expectDiagnosticEmpty(result.diagnostics);
+      expect(result.graphQLOutput).toContain("ping: String!");
+      expect(result.graphQLOutput).not.toContain("getMetadata");
+    },
+  );
+
+  it("does not validate ignored operation fields on input models", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      namespace Resolvers { op reference(id: string): TypeRef<string>; }
+      @schema namespace Test {
+        @operationFields(Resolvers.reference)
+        model Item { id: string; }
+        @query op ping(input: Item): string;
+      }
+    `);
+    expectDiagnostics(result.diagnostics, {
+      code: "@typespec/graphql/operation-fields-ignored-on-input",
+    });
+    expect(result.graphQLOutput).toContain("input ItemInput");
+    expect(result.graphQLOutput).not.toContain("reference");
+  });
+
+  it("does not validate ignored operation fields on interface models", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      namespace Resolvers { op reference(id: string): TypeRef<string>; }
+      @schema namespace Test {
+        @graphqlInterface(#{ interfaceOnly: true })
+        @operationFields(Resolvers.reference)
+        model Item { id: string; }
+        @query op ping(): string;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+    expect(result.graphQLOutput).toContain("interface Item");
+    expect(result.graphQLOutput).not.toContain("reference");
+  });
 });
