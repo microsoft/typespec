@@ -71,6 +71,13 @@ public class MethodUtil {
             .stream()
             .map(ClientMethodParameter::getName)
             .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (clientMethod.getOverloadedClientMethod() != null) {
+            clientMethod.getOverloadedClientMethod()
+                .getMethodParameters()
+                .stream()
+                .map(ClientMethodParameter::getName)
+                .forEach(names::add);
+        }
         if (clientMethod.getParameterTransformations() != null) {
             names.addAll(clientMethod.getParameterTransformations().getOutParameterNames());
         }

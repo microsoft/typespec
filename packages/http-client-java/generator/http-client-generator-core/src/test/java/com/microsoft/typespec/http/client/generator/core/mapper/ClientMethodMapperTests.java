@@ -45,10 +45,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -272,6 +274,74 @@ public class ClientMethodMapperTests {
         } finally {
             resetJavaSettings();
         }
+    }
+
+    @AfterEach
+    public void restoreSettings() {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+    }
+
+    @Test
+    public void testFirstOptionalParameterSignatures() {
+        ClientMethodParameter required
+            = new ClientMethodParameter.Builder().name("name").wireType(ClassType.STRING).required(true).build();
+        ClientMethodParameter optional = new ClientMethodParameter.Builder().name("option")
+            .wireType(ClassType.STRING)
+            .versioning(new Versioning.Builder().added(Arrays.asList("v2", "v3")).build())
+            .build();
+
+        Assertions.assertEquals(List.of(List.of(required)),
+            ClientMethodMapper.findOverloadedSignatures(List.of(required, optional)));
+        Assertions.assertEquals(List.of(List.of()), ClientMethodMapper.findOverloadedSignatures(List.of(optional)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ClientMethodType.class, names = { "SimpleSyncRestResponse", "PagingSync", "LongRunningSync" })
+    public void testRequiredOnlyVersioningOverloadWithContext(ClientMethodType type) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("flavor".equals(key)) {
+                    return (T) "azure";
+                }
+                if ("data-plane".equals(key)) {
+                    return (T) Boolean.FALSE;
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        ClientMethodParameter required = new ClientMethodParameter.Builder().name("name")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .required(true)
+            .build();
+        ClientMethodParameter optional = new ClientMethodParameter.Builder().name("option")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .versioning(new Versioning.Builder().added(Arrays.asList("v2")).build())
+            .build();
+        ClientMethod baseMethod = new ClientMethod.Builder().name("operation")
+            .type(type)
+            .parameters(List.of(required, optional))
+            .methodVisibility(JavaVisibility.Public)
+            .build();
+        List<ClientMethod> methods = new ArrayList<>();
+        methods.add(baseMethod.newBuilder().onlyRequiredParameters(true).build());
+        ClientMethodMapper mapper = new ClientMethodMapper();
+        ClientMethod withContext = mapper.addClientMethodWithContext(methods, baseMethod, JavaVisibility.Public, false);
+
+        mapper.createOverloadForVersioning(methods, baseMethod, withContext, JavaVisibility.Public, null, false, true);
+        Assertions.assertEquals(3, methods.size());
+        ClientMethod historical = methods.get(2);
+        Assertions.assertEquals(List.of("name", "context"),
+            historical.getMethodInputParameters().stream().map(MethodParameter::getName).collect(Collectors.toList()));
+        Assertions.assertSame(withContext, historical.getOverloadedClientMethod());
+
+        mapper.createOverloadForVersioning(methods, baseMethod, baseMethod, JavaVisibility.Public, null, false, false);
+        Assertions.assertEquals(3, methods.size(), "Do not duplicate the existing required-only overload");
     }
 
     @Test
