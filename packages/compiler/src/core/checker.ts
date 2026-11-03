@@ -2271,10 +2271,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    if (
-      getLocationContext(program, node).type !== "compiler" &&
-      !isCompilerFeatureEnabled(program, "function-declarations", node)
-    ) {
+    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "experimental-feature",

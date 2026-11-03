@@ -571,6 +571,15 @@ function createMutatorEngine(
       clearInterstitialFunctions();
       return existing as T;
     }
+    if (
+      type.kind === "Scalar" &&
+      program.checker.isStdType(type, "TypeRef") &&
+      type.templateMapper
+    ) {
+      const target = type.templateMapper.args[0];
+      compilerAssert(isType(target), "TypeRef must have a type argument.");
+      return program.checker.getTypeRefType(mutateDecoratorArgumentValue(target, activeMutators));
+    }
     // Mutating compiler types breaks a lot of things in the type checker. It is better to keep any of those as they are.
     const alwaysMutate = getAlwaysMutate(program, type);
     if (

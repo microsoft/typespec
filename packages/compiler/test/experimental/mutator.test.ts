@@ -618,6 +618,7 @@ describe("type references", () => {
       expect(mutated.target).toMatchObject({ kind: "Model", name: "MutatedItem" });
       expect(mutated.target).not.toBe(original.target);
       expect(mutated.type).toBe(property.type);
+      expect(mutated.type).toBe(program.checker.getTypeRefType(mutated.target));
       assert(mutated.type.kind === "Scalar");
       expect(mutated.type.templateMapper?.args[0]).toBe(mutated.target);
       assert(original.type.kind === "Scalar");
@@ -798,5 +799,51 @@ describe("type references", () => {
     const jsValue = type.decorators[0].args[0].jsValue;
     assert(jsValue !== null && typeof jsValue === "object" && "target" in jsValue);
     expect(jsValue.target).toBe(mutated.target);
+  });
+
+  it("reuses reference storage when the referenced type is unchanged", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} { itemType: TypeRef<string> = typeref(string); }
+    `);
+    const original = Foo.properties.get("itemType")!;
+    const mutator: Mutator = {
+      name: "test",
+      Model: () => {},
+      Scalar: (_, clone) => {
+        clone.name = "MutatedScalar";
+      },
+    };
+    const { type } = mutateSubgraph(program, [mutator], Foo);
+    assert(type.kind === "Model");
+    const property = type.properties.get("itemType")!;
+    const reference = property.defaultValue;
+    assert(reference?.valueKind === "TypeRefValue");
+    expect(property.type).toBe(original.type);
+    expect(reference.type).toBe(original.type);
+    expect(reference.target).toBe(program.checker.getStdType("string"));
+  });
+
+  it("reuses canonical storage when mutating a reference to a recursive target", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      model Item { next?: TypeRef<Item>; }
+      model ${t.model("Foo")} { itemType: TypeRef<Item> = typeref(Item); }
+    `);
+    const original = Foo.properties.get("itemType")!.type;
+    assert(original.kind === "Scalar");
+    const mutator: Mutator = {
+      name: "test",
+      Model: (_, clone) => {
+        clone.name = "MutatedItem";
+      },
+    };
+    const first = mutateSubgraph(program, [mutator], original);
+    const second = mutateSubgraph(program, [mutator], original);
+    assert(first.type.kind === "Scalar");
+    const target = first.type.templateMapper?.args[0];
+    assert(target?.entityKind === "Type" && target.kind === "Model");
+    expect(first.type).toBe(program.checker.getTypeRefType(target));
+    expect(second.type).toBe(first.type);
+    expect(target.properties.get("next")!.type).toBe(first.type);
+    expect(original.templateMapper?.args[0]).not.toBe(target);
   });
 });

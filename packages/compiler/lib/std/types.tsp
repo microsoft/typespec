@@ -91,4 +91,5 @@ model DefaultKeyVisibility<Source, Visibility extends valueof Reflection.EnumMem
  * const entry = #{ name: "item", type: typeref(Item) };
  * ```
  */
+#suppress "experimental-feature"
 extern fn typeref(target: unknown): valueof TypeRef;
