@@ -119,7 +119,6 @@ namespace SampleTypeSpec
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal static OptionalNullableDynamicProperties DeserializeOptionalNullableDynamicProperties(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -128,7 +127,9 @@ namespace SampleTypeSpec
             }
             bool inheritedNullableIsDefined = false;
             string inheritedNullable = default;
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("inheritedNullable"u8))
@@ -149,6 +150,5 @@ namespace SampleTypeSpec
                 _inheritedNullableIsDefined = inheritedNullableIsDefined
             };
         }
-#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
     }
 }

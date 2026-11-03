@@ -12,7 +12,6 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -21,7 +20,9 @@ namespace Sample
             }
             global::Sample.Models.Cat cat = default;
             global::System.BinaryData anything = default;
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             global::System.ClientModel.Primitives.JsonPatch patch = new global::System.ClientModel.Primitives.JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("cat"u8))
@@ -42,6 +43,5 @@ namespace Sample
             }
             return new global::Sample.Models.DynamicModel(cat, anything, patch);
         }
-#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
     }
 }

@@ -478,7 +478,6 @@ namespace SampleTypeSpec
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal static NullableDynamicModel DeserializeNullableDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -493,7 +492,9 @@ namespace SampleTypeSpec
             IDictionary<string, IDictionary<string, AnotherDynamicModel>> nestedChildDictionary = new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
             IDictionary<string, IList<AnotherDynamicModel>> dictionaryChildren = new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
             IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaries = new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("modelValue"u8))
@@ -660,7 +661,6 @@ namespace SampleTypeSpec
                 _modelValueIsDefined = modelValueIsDefined
             };
         }
-#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary></summary>
         /// <param name="jsonPath"></param>
