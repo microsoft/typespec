@@ -45,6 +45,43 @@ import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
+describe("advanced versioning", () => {
+  it.each([true, false])("preserves parameter additions only when enabled=%s", async (enabled) => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/advanced-versioning.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure", "advanced-versioning": enabled, "dev-options": {} },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    expectDiagnosticEmpty(program.diagnostics);
+    const operations = model.clients.flatMap((client) =>
+      client.operationGroups.flatMap((group) => group.operations ?? []),
+    );
+    for (const name of ["query", "header", "body"]) {
+      const operation = operations.find((operation) => operation.operationId === name)!;
+      assert.isDefined(operation);
+      const parameter = operation.parameters!.find(
+        (parameter) => parameter.language.default.name === (name === "body" ? "body" : "option"),
+      )!;
+      assert.isDefined(parameter);
+      expect(parameter.extensions?.["x-ms-versioning-added"]).toEqual(
+        enabled ? ["2026-01-01", "2026-06-01"] : undefined,
+      );
+    }
+  });
+});
+
 describe("experimental metadata", () => {
   it.each(["azure", "azurev2"])(
     "preserves experimental properties introduced by %s grouped overrides",
