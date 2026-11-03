@@ -99,7 +99,6 @@ catalog:
   astro-rehype-relative-markdown-links: ^0.19.2
   c8: ^12.0.0
   change-case: ^5.4.4
-  chokidar: ^6.0.0
   clsx: ^2.1.1
   concurrently: ^10.0.6
   cross-env: ^10.1.0
