@@ -33,7 +33,10 @@ def _check_command_available(command: list[str], name: str) -> bool:
         result = subprocess.run(command + ["--version"], capture_output=True, check=True, text=True)
     except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         return False
-    match = re.match(rf"{name} (\d+)\.(\d+)(?:\.(\d+))?(?=\s|$)", result.stdout.strip())
+    match = re.match(
+        rf"{name} (\d+)\.(\d+)(?:\.(\d+))?(?:\.post\d+)?(?:\+[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*)?(?=\s|$)",
+        result.stdout.strip(),
+    )
     if match is None:
         raise RuntimeError(f"Cannot verify the installed {name} version. Install a stable, patched release.")
     version = tuple(int(value or 0) for value in match.groups())

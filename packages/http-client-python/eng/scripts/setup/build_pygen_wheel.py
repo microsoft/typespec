@@ -37,6 +37,10 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
 def build_browser_wheels(venv_context):
+    dist = _ROOT_DIR / "generator" / "dist"
+    wheel = next(dist.glob("pygen-*.whl"), None)
+    if wheel is None:
+        raise RuntimeError(f"Generator wheel not found in {dist}. Build the generator before preparing browser wheels.")
     package = json.loads((_ROOT_DIR / "package.json").read_text())
     pyodide_url = f"https://cdn.jsdelivr.net/pyodide/v{package['dependencies']['pyodide']}/full/"
     with urlopen(f"{pyodide_url}pyodide-lock.json") as response:
@@ -44,8 +48,6 @@ def build_browser_wheels(venv_context):
 
     # These native extensions must match the browser's WebAssembly runtime, not the build host.
     native_packages = [lock["packages"][name] for name in ("pyyaml", "markupsafe")]
-    dist = _ROOT_DIR / "generator" / "dist"
-    wheel = next(dist.glob("pygen-*.whl"))
     with tempfile.TemporaryDirectory(dir=dist) as directory:
         staging = Path(directory)
         constraints = staging / "constraints.txt"

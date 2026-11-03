@@ -74,6 +74,14 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     {
       ok: true,
       status: 200,
+      body: { wheels: "not-an-array" },
+      message: /Invalid Python browser wheel/,
+    },
+    { ok: true, status: 200, body: { wheels: [null] }, message: /Invalid Python browser wheel/ },
+    { ok: true, status: 200, body: { wheels: [42] }, message: /Invalid Python browser wheel/ },
+    {
+      ok: true,
+      status: 200,
       body: { wheels: ["../unexpected.whl"] },
       message: /Invalid Python browser wheel/,
     },

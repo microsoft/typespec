@@ -136,7 +136,8 @@ The browser wheel set also pins `platformdirs` to a version that does not requir
 `os.geteuid`, which is absent from the pinned Pyodide runtime.
 
 Package-manager detection rejects pip older than 26.2.0 and uv older than 0.13.4,
-as well as unverifiable or prerelease versions. These floors cover the published
+as well as unverifiable or prerelease versions. Stable post releases and local
+version metadata are accepted without relaxing the security floors. These floors cover the published
 pip index-URL handling and uv compromised-CA advisories. Build environments
 bootstrap the CFS-available `pip==26.2.2` through the validated host installer,
 not an unchecked `ensurepip` seed. Keep these floors and the pip pin current

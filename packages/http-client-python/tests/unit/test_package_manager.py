@@ -37,7 +37,7 @@ class PackageManagerTests(unittest.TestCase):
             )
 
     def test_rejects_package_managers_below_security_minimum(self):
-        for name, version in [("uv", "0.13.3"), ("pip", "24.0"), ("pip", "26.1.2")]:
+        for name, version in [("uv", "0.13.3"), ("pip", "24.0"), ("pip", "24.0.post1"), ("pip", "26.1.2")]:
             with self.subTest(name=name):
 
                 def run(command, **kwargs):
@@ -50,7 +50,14 @@ class PackageManagerTests(unittest.TestCase):
                         package_manager.detect_package_manager()
 
     def test_accepts_patched_versions(self):
-        for name, version in [("uv", "0.13.4"), ("uv", "0.13.6"), ("pip", "26.2.2")]:
+        for name, version in [
+            ("uv", "0.13.4"),
+            ("uv", "0.13.6"),
+            ("uv", "0.13.4+vendor.1"),
+            ("pip", "26.2.2"),
+            ("pip", "26.2.2.post1"),
+            ("pip", "26.2.2.post1+vendor.1"),
+        ]:
             with self.subTest(name=name, version=version):
 
                 def run(command, **kwargs):
@@ -62,7 +69,14 @@ class PackageManagerTests(unittest.TestCase):
                     self.assertEqual(package_manager.detect_package_manager(), name)
 
     def test_rejects_unverifiable_versions(self):
-        for version in ["uv unknown", "uv 0.13.4rc1"]:
+        for version in [
+            "uv unknown",
+            "uv 0.13.4rc1",
+            "uv 0.13.4a1",
+            "uv 0.13.4b1",
+            "uv 0.13.4.dev1",
+            "uv 0.13.4.post1.dev1",
+        ]:
             with self.subTest(version=version):
                 with patch.object(package_manager.subprocess, "run", return_value=SimpleNamespace(stdout=version)):
                     with self.assertRaisesRegex(RuntimeError, "verify"):

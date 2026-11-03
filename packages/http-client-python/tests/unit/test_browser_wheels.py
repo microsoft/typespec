@@ -17,6 +17,21 @@ sys.path.remove(str(SETUP))
 
 
 class BrowserWheelTests(unittest.TestCase):
+    def test_missing_generator_wheel_reports_build_prerequisite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dist = Path(directory) / "generator" / "dist"
+            (Path(directory) / "package.json").write_text(json.dumps({"dependencies": {"pyodide": "0.26.2"}}))
+            lock = {"packages": {"pyyaml": {}, "markupsafe": {}}}
+            with (
+                patch.object(builder, "_ROOT_DIR", Path(directory)),
+                patch.object(builder, "urlopen", return_value=io.BytesIO(json.dumps(lock).encode())) as fetch,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "Generator wheel not found") as error:
+                    builder.build_browser_wheels(SimpleNamespace(env_exe="python"))
+
+            self.assertIn(str(dist), str(error.exception))
+            fetch.assert_not_called()
+
     def test_regular_build_skips_browser_dependencies(self):
         context = SimpleNamespace(env_exe="python")
         with (

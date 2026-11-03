@@ -16,6 +16,19 @@ function getBrowserAssetUrl(filename: string): string {
   return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/browser/${filename}`;
 }
 
+function isBrowserWheelManifest(manifest: unknown): manifest is { wheels: string[] } {
+  return (
+    typeof manifest === "object" &&
+    manifest !== null &&
+    "wheels" in manifest &&
+    Array.isArray(manifest.wheels) &&
+    manifest.wheels.length > 0 &&
+    manifest.wheels.every(
+      (name: unknown) => typeof name === "string" && /^[\w.+-]+\.whl$/.test(name),
+    )
+  );
+}
+
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
     "package-version": "1.0.0b1",
@@ -307,16 +320,7 @@ async function setupPyodideCallBrowser() {
     throw new Error(`Failed to load Python browser wheel manifest: HTTP ${response.status}`);
   }
   const manifest: unknown = await response.json();
-  if (
-    typeof manifest !== "object" ||
-    manifest === null ||
-    !("wheels" in manifest) ||
-    !Array.isArray(manifest.wheels) ||
-    manifest.wheels.length === 0 ||
-    !manifest.wheels.every(
-      (name: unknown) => typeof name === "string" && /^[\w.+-]+\.whl$/.test(name),
-    )
-  ) {
+  if (!isBrowserWheelManifest(manifest)) {
     throw new Error("Invalid Python browser wheel manifest.");
   }
   const micropip = pyodide.pyimport("micropip");
