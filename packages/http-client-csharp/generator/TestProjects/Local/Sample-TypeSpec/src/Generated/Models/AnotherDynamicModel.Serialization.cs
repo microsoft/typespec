@@ -117,6 +117,7 @@ namespace SampleTypeSpec
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal static AnotherDynamicModel DeserializeAnotherDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -124,9 +125,7 @@ namespace SampleTypeSpec
                 return null;
             }
             string bar = default;
-#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
-#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("bar"u8))
@@ -138,5 +137,6 @@ namespace SampleTypeSpec
             }
             return new AnotherDynamicModel(bar, patch);
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
     }
 }

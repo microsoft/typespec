@@ -648,6 +648,7 @@ namespace SampleTypeSpec
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -669,9 +670,7 @@ namespace SampleTypeSpec
             IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default;
             IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default;
             IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default;
-#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
-#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -900,6 +899,7 @@ namespace SampleTypeSpec
                 listOfDictionaryFoo ?? new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>(),
                 patch);
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary></summary>
         /// <param name="jsonPath"></param>
