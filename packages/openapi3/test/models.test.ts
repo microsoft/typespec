@@ -338,6 +338,29 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor, ver
     expect(res.schemas.Id).toMatchObject({ type: "string" });
   });
 
+  it("serialize a typed const default with the encoding of the property's scalar", async () => {
+    const res = await oapiForModel(
+      "Test",
+      `
+        const big: SubId = 9007199254740993;
+        const id: Id = 123;
+
+        model Test {
+          scalarId: Id = big;
+          nullableId: Id | null = big;
+          plain: int64 = id;
+        }
+
+        @encode(string) scalar Id extends int64;
+        scalar SubId extends Id;
+      `,
+    );
+
+    expect(res.schemas.Test.properties.scalarId.default).toEqual("9007199254740993");
+    expect(res.schemas.Test.properties.nullableId.default).toEqual("9007199254740993");
+    expect(res.schemas.Test.properties.plain).toMatchObject({ type: "integer", default: 123 });
+  });
+
   it("throw warning for scalar constructor that don't have equivalent", async () => {
     const [res, diagnostics] = await emitOpenApiWithDiagnostics(
       `model Test { minDate: utcDateTime = utcDateTime.now(); }`,

@@ -309,6 +309,32 @@ describe("emitting models", () => {
       });
     });
 
+    it("specify default value as a string on numeric property with @encode(string)", async () => {
+      const res = await emitSchema(
+        `
+        const big: SubId = 9007199254740993;
+
+        model Foo {
+          @encode(string) id?: int64 = 9007199254740993;
+          @encode(string) amount?: decimal = 1050.25;
+          scalarId?: Id = 9007199254740993;
+          constId?: Id = big;
+          nullableConstId?: Id | null = big;
+        }
+
+        @encode(string) scalar Id extends int64;
+        scalar SubId extends Id;
+        `,
+      );
+
+      const properties = res["Foo.json"].properties;
+      deepStrictEqual(properties.id, { type: "string", default: "9007199254740993" });
+      deepStrictEqual(properties.amount, { type: "string", default: "1050.25" });
+      deepStrictEqual(properties.scalarId.default, "9007199254740993");
+      deepStrictEqual(properties.constId.default, "9007199254740993");
+      deepStrictEqual(properties.nullableConstId.default, "9007199254740993");
+    });
+
     it("specify default value on boolean property", async () => {
       const res = await emitSchema(
         `

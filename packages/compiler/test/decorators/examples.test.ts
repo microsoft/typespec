@@ -571,6 +571,105 @@ describe("json serialization of examples", () => {
     expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual("9007199254740993");
   });
 
+  describe("typed const values use the encoding of the scalar they are serialized as", () => {
+    it("example on a property", async () => {
+      const result = await getJsonValueOfExample(`
+        const n: int64 = 123;
+        @encode(string)
+        scalar Id extends int64;
+
+        model Test {
+          @example(n) /*test*/id: Id;
+        }
+      `);
+      expect(result).toEqual("123");
+    });
+
+    it("example on a nullable property", async () => {
+      const result = await getJsonValueOfExample(`
+        const n: int64 = 123;
+        @encode(string) scalar Id extends int64;
+
+        model Test {
+          @example(n) /*test*/id: Id | null;
+        }
+      `);
+      expect(result).toEqual("123");
+    });
+
+    it("example on the scalar", async () => {
+      const result = await getJsonValueOfExample(`
+        const n: int64 = 123;
+        @example(n) @encode(string) scalar /*test*/Id extends int64;
+      `);
+      expect(result).toEqual("123");
+    });
+
+    it("example on a model", async () => {
+      const result = await getJsonValueOfExample(`
+        const n: SubId = 123;
+        @encode(string) scalar Id extends int64;
+        scalar SubId extends Id;
+
+        @example(#{ id: n })
+        model /*test*/Test {
+          id: Id;
+        }
+      `);
+      expect(result).toEqual({ id: "123" });
+    });
+
+    it("example on an operation", async () => {
+      const { examples, program, target } = await getOpExamplesFor(`
+        const n: SubId = 123;
+        @encode(string) scalar Id extends int64;
+        scalar SubId extends Id;
+
+        @opExample(#{ parameters: #{ id: n }, returnType: #{ id: n } })
+        op /*test*/read(id: Id): { id: Id };
+      `);
+      expect(serializeValueAsJson(program, examples[0].parameters!, target.parameters)).toEqual({
+        id: "123",
+      });
+      expect(serializeValueAsJson(program, examples[0].returnType!, target.returnType)).toEqual({
+        id: "123",
+      });
+    });
+
+    it("default above 2^53", async () => {
+      const { test, nullable, program } = (await Tester.compile(`
+        const n: SubId = 9007199254740993;
+        @encode(string) scalar Id extends int64;
+        scalar SubId extends Id;
+
+        model Test {
+          /*test*/test: Id = n;
+          /*nullable*/nullable: Id | null = n;
+        }
+      `)) as any;
+
+      expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual("9007199254740993");
+      expect(serializeValueAsJson(program, nullable.defaultValue, nullable)).toEqual(
+        "9007199254740993",
+      );
+    });
+
+    it("stay numbers when only the const's scalar is encoded", async () => {
+      const { test, program } = (await Tester.compile(`
+        const n: Id = 123;
+        @encode(string) scalar Id extends int64;
+
+        model Test {
+          @example(n) /*test*/test: int64 = n;
+        }
+      `)) as any;
+
+      expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual(123);
+      const examples = getExamples(program, test);
+      expect(serializeValueAsJson(program, examples[0].value, test)).toEqual(123);
+    });
+  });
+
   it("serialize models with parent", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: "one", b: "two" })

@@ -6,6 +6,7 @@ import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
 import type {
   DiagnosticTarget,
   NoTarget,
+  NumericValue,
   ObjectValue,
   Scalar,
   ScalarValue,
@@ -85,9 +86,7 @@ export function serializeValueAsJson(
     case "StringValue":
       return value.value;
     case "NumericValue": {
-      // Like the date and duration scalars, fall back to the encoding on the value's scalar.
-      // A bare literal in an example has no scalar, so use the scalar it's serialized as.
-      const scalar = value.scalar ?? (type.kind === "Scalar" ? type : undefined);
+      const scalar = resolveNumericScalar(program, value, type);
       const encoding = encodeAs ?? (scalar && getEncode(program, scalar));
       return isEncodedAsString(program, encoding) ? value.value.toString() : value.value.asNumber();
     }
@@ -112,6 +111,34 @@ export function serializeValueAsJson(
       return serializeScalarValueAsJson(program, value, type, encodeAs, handlers);
     case "Function":
       throw new UnserializableValueError("Cannot serialize a function value as JSON.");
+  }
+}
+
+/**
+ * Resolve the scalar a numeric value is serialized as, so its encoding applies.
+ * The target type wins over `value.scalar`, which only records where the value came from:
+ * `const n: int64` used as the example of an `Id` property keeps `int64` as its scalar.
+ */
+function resolveNumericScalar(
+  program: Program,
+  value: NumericValue,
+  type: Type,
+): Scalar | undefined {
+  switch (type.kind) {
+    case "Scalar":
+      return type;
+    case "Union": {
+      // Default values don't keep their exact type, so fall back to the value's scalar.
+      const source = program.checker.getValueExactType(value) ?? value.scalar;
+      const variant =
+        source &&
+        [...type.variants.values()].find((x) =>
+          ignoreDiagnostics(program.checker.isTypeAssignableTo(source, x.type, value)),
+        );
+      return variant ? resolveNumericScalar(program, value, variant.type) : value.scalar;
+    }
+    default:
+      return value.scalar;
   }
 }
 
