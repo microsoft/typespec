@@ -44,7 +44,7 @@ catalog:
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
   "@expressive-code/core": ^0.44.3
-  "@fluentui/react-components": ^9.74.11
+  "@fluentui/react-components": ^9.75.0
   "@fluentui/react-icons": ^2.0.344
   "@fluentui/react-list": ^9.7.0
   "@inquirer/checkbox": ^5.2.8
@@ -64,7 +64,7 @@ catalog:
   "@scalar/openapi-parser": ^0.29.16
   "@scalar/openapi-types": ^0.9.8
   "@scalar/types": ^0.25.0
-  "@storybook/react-vite": ^10.6.4
+  "@storybook/react-vite": ^10.6.5
   "@testing-library/dom": ^10.4.1
   "@testing-library/jest-dom": ^7.0.1
   "@testing-library/react": ^16.3.2
@@ -150,7 +150,7 @@ catalog:
   semver: ^7.8.5
   sharp: ^0.35.5
   simple-git: ^4.0.2
-  storybook: ^10.6.4
+  storybook: ^10.6.5
   strip-json-comments: ^5.0.3
   swagger-ui-dist: ^5.34.0
   swagger-ui-express: ^5.0.1
