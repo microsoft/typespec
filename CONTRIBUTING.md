@@ -367,8 +367,6 @@ We welcome contributions developed with AI assistance. These tools do not replac
 
 Maintainers may pause review or close contributions that are unvalidated, cannot be explained by their author, or repeatedly fail to engage meaningfully with feedback. These expectations apply regardless of the tools used.
 
-These guidelines are inspired by the policies of [Astropy](https://github.com/astropy/astropy-project/blob/main/policies/ai-policy.md), [Home Assistant](https://contributors.home-assistant.io/start/ai-policy/), and [Apache Airflow](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#gen-ai-assisted-contributions).
-
 ## Trigger TypeSpec Playground Try It build
 
 For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
