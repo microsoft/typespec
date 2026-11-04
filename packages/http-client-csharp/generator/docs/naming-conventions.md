@@ -122,7 +122,15 @@ and acronym rules can still apply:
 The `From`/`To` exclusion checks a prefix, not a word boundary. The `StatusTimestamp` exclusion is
 an exact-name exclusion: `lastSyncTimestamp` still becomes `LastSyncOn` as a property.
 
-## Model names ending in Response
+## Model names ending in Content or Response
+
+A model whose generated name ends with the case-sensitive suffix `Content` uses `Request`
+instead. For example, `WidgetContent` becomes `WidgetRequest`, and `IpContent` becomes `IPRequest`.
+This rule applies regardless of whether the model is used as input, output, or an error. It changes
+only the final suffix, not property names or occurrences of `Content` elsewhere in the name.
+
+An exact name, an existing handwritten type, or a previous contract can retain the `Content`
+spelling.
 
 A non-error model whose generated name ends with the case-sensitive suffix `Response` uses `Result`
 instead. For example, `WidgetResponse` becomes `WidgetResult`. This rule is not limited to models
@@ -131,6 +139,14 @@ used only as operation outputs.
 The emitter keeps `Response` when the model is an error model, has an exact name, or an existing
 handwritten type or previous contract requires the `Response` spelling. Acronym normalization can
 combine with this rule: a new `IpResponse` model becomes `IPResult`.
+
+Before applying either suffix conversion, the generator checks the other models' generated names,
+including acronym normalization, exact names, custom names, and previous contract spellings.
+The comparison ignores case and namespace because model files share an output directory and must
+remain distinct on case-insensitive file systems. If the converted name is already in use, the model
+retains its name before suffix conversion. For example, a library containing both `WidgetContent` and `WidgetRequest`
+generates two distinct types with those names, rather than overwriting `WidgetRequest`. Likewise,
+`WidgetResponse` stays `WidgetResponse` if another model already uses `WidgetResult`.
 
 ## Operation names
 
@@ -346,7 +362,7 @@ for `[CodeGenType]`, `[CodeGenMember]`, and partial-method customization.
 When a prior published contract is available, the generator preserves compatible existing names
 rather than treating the tables above as a migration:
 
-- Matching type names can retain their previous acronym or `Response` spelling.
+- Matching type names can retain their previous acronym, `Content`, or `Response` spelling.
 - Matching public properties can retain their pre-normalization name. Date/time properties can
   also match a previous `<Stem>On` spelling when the type and semantic stem agree and no sibling or
   explicit customization owns the name.

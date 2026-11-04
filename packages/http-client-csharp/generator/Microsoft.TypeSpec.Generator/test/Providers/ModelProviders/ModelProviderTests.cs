@@ -197,6 +197,120 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("WidgetRequest", model.Name);
         }
 
+        [TestCase("WidgetContent", "WidgetRequest", false, false)]
+        [TestCase("WidgetContent", "WidgetRequest", false, true)]
+        [TestCase("WidgetContent", "WidgetRequest", true, false)]
+        [TestCase("WidgetContent", "WidgetRequest", true, true)]
+        [TestCase("WidgetResponse", "WidgetResult", false, false)]
+        [TestCase("WidgetResponse", "WidgetResult", false, true)]
+        [TestCase("IpContent", "IPRequest", false, false)]
+        [TestCase("IpContent", "IpRequest", false, true)]
+        [TestCase("IpResponse", "IPResult", false, true)]
+        public void TestBuildName_ModelSuffixCollision(
+            string inputName, string reservedName, bool exactReservedName, bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model(inputName);
+            var reservedModel = InputFactory.Model(reservedName, isExactName: exactReservedName);
+            var wrapper = InputFactory.Model("Wrapper", properties:
+            [
+                InputFactory.Property("content", inputModel),
+                InputFactory.Property("request", reservedModel)
+            ]);
+            InputModelType[] models = reverseOrder
+                ? [reservedModel, inputModel, wrapper]
+                : [inputModel, reservedModel, wrapper];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToList();
+            var model = factory.CreateModel(inputModel)!;
+            var reserved = factory.CreateModel(reservedModel)!;
+            var wrapperProvider = factory.CreateModel(wrapper)!;
+
+            Assert.AreEqual(inputName.ToIdentifierName().NormalizeCSharpAcronyms(), model.Name);
+            Assert.AreEqual(exactReservedName ? reservedName : reservedName.NormalizeCSharpAcronyms(), reserved.Name);
+            Assert.AreEqual(providers.Count, providers.Select(p => p.RelativeFilePath).Distinct().Count());
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(reserved, factory.CSharpTypeMap[reserved.Type]);
+            Assert.AreSame(model, factory.TypeProvidersByName[model.Name]);
+            Assert.AreSame(reserved, factory.TypeProvidersByName[reserved.Name]);
+            Assert.AreSame(model, factory.CSharpTypeMap[wrapperProvider.Properties[0].Type]);
+            Assert.AreSame(reserved, factory.CSharpTypeMap[wrapperProvider.Properties[1].Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixCollisionPreservesCustomName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetContent");
+            var customizedModel = InputFactory.Model("Gadget");
+            InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var customized = factory.CreateModel(customizedModel)!;
+
+            Assert.AreEqual("WidgetContent", model.Name);
+            Assert.AreEqual("WidgetRequest", customized.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(customized.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
+        }
+
+        [TestCase("WidgetContent", "WidgetRequest", "WidgetContent", false)]
+        [TestCase("WidgetContent", "WidgetRequest", "WidgetContent", true)]
+        [TestCase("IpContent", "IpRequest", "IPContent", false)]
+        [TestCase("IpContent", "IpRequest", "IPContent", true)]
+        public async Task TestBuildName_ModelSuffixCollisionPreservesContractName(
+            string inputName, string contractName, string expectedName, bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model(inputName);
+            var shippedModel = InputFactory.Model(contractName);
+            InputModelType[] models = reverseOrder ? [shippedModel, inputModel] : [inputModel, shippedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var shipped = factory.CreateModel(shippedModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(contractName, shipped.Name);
+            Assert.IsNotNull(shipped.LastContractView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(shipped, factory.CSharpTypeMap[shipped.Type]);
+        }
+
+        [Test]
+        public void TestBuildName_ModelSuffixDoesNotCollideWithDistinctExactName()
+        {
+            var inputModel = InputFactory.Model("IpContent");
+            var exactModel = InputFactory.Model("IpRequestModel", isExactName: true);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+
+            Assert.AreEqual("IPRequest", factory.CreateModel(inputModel)!.Name);
+            Assert.AreEqual("IpRequestModel", factory.CreateModel(exactModel)!.Name);
+        }
+
+        [TestCase("Sample.Models")]
+        [TestCase("Other.Models")]
+        public void TestBuildName_ModelSuffixAvoidsCaseInsensitiveFileCollision(string reservedNamespace)
+        {
+            var inputModel = InputFactory.Model("IpContent");
+            var exactModel = InputFactory.Model("IpRequest", @namespace: reservedNamespace, isExactName: true);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var exact = factory.CreateModel(exactModel)!;
+
+            Assert.AreEqual("IPContent", model.Name);
+            Assert.AreEqual("IpRequest", exact.Name);
+            Assert.IsFalse(string.Equals(model.RelativeFilePath, exact.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
+        }
+
         [TestCase("ErrorResponse", false, "ErrorResponse")]
         [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
         [TestCase("IpResponse", false, "IPResponse")]
