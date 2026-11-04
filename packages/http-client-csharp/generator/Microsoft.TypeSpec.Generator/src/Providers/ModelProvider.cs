@@ -1369,7 +1369,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            ConstructorInitializer initializer = new(false, initializerArguments);
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
+            if (preservesInheritedContract && extraAssignments.Any(assignment =>
+                assignment.Property.EnclosingType is SystemObjectModelProvider))
+            {
+                var inheritedParameters = restoredParameters.Where(parameter =>
+                    parameter.Property?.EnclosingType is SystemObjectModelProvider).ToArray();
+                if (BaseModelProvider is not SystemObjectModelProvider mappedBase ||
+                    !mappedBase.TryGetFrameworkConstructorParameters(inheritedParameters, out var baseParameters) ||
+                    targetConstructor.EnclosingType != this || targetConstructor.BodyStatements is null ||
+                    targetConstructor.Signature.Initializer is not { IsBase: true } targetInitializer ||
+                    targetInitializer.Arguments.Any(argument => argument is not VariableExpression variable ||
+                        !baseParameters.Any(parameter => parameter.Name == variable.Declaration.RequestedName &&
+                            ModelBaseMemberCompatibility.AreClrTypesEqual(parameter.Type, variable.Type))))
+                {
+                    return false;
+                }
+
+                // Assigning inherited properties after this() would bypass framework constructor
+                // side effects. Keep the child's initialization body, but call the framework overload.
+                foreach (var parameter in targetParameters)
+                {
+                    restoredParameters.Single(restored => restored.Name == parameter.Name).ShareVariableWith(parameter);
+                }
+                initializer = new ConstructorInitializer(true, baseParameters);
+                bodyStatements.Add(targetConstructor.BodyStatements);
+                extraAssignments.RemoveAll(assignment => assignment.Property.EnclosingType is SystemObjectModelProvider);
+            }
+
             foreach (var (property, parameter) in extraAssignments)
             {
                 if (property.EnclosingType is SystemObjectModelProvider mappedModel &&
@@ -1409,7 +1437,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 $"Initializes a new instance of {Type:C}",
                 previousConstructor.Signature.Modifiers,
                 restoredParameters,
-                initializer: new ConstructorInitializer(false, initializerArguments));
+                initializer: initializer);
 
             restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
             return true;

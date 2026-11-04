@@ -23,9 +23,9 @@ namespace Sample.Models
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        public BotData(global::Microsoft.TypeSpec.Generator.Tests.Providers.Framework.ResourceLocation location = default, int count = 7) : this(count)
+        public BotData(global::Microsoft.TypeSpec.Generator.Tests.Providers.Framework.ResourceLocation location = default, int count = 7) : base(location)
         {
-            Location = location;
+            Count = count;
         }
 
         public int Count { get; set; }

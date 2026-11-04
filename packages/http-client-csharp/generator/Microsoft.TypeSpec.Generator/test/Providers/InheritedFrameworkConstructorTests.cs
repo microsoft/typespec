@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(typeof(TrackedResourceData), "ref ResourceLocation location", "location", false)]
         [TestCase(typeof(PrivateSetterFrameworkBase), "ResourceLocation location", "location", false)]
         [TestCase(typeof(InitOnlyFrameworkBase), "ResourceLocation location", "location", false)]
+        [TestCase(typeof(AdditionalArgumentFrameworkBase), "ResourceLocation location", "location, 7", false)]
         public async Task InheritedAssignmentMustPreserveTheHistoricalParameterAndAccessibleSetter(
             Type frameworkType, string declaration, string argument, bool canRestore)
         {
@@ -84,16 +85,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.ProcessTypeForBackCompatibility();
             var restored = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
                 constructor.Signature.Parameters.Count == 2);
-            Assert.That(restored.Signature.Initializer!.IsBase, Is.False);
-            Assert.That(restored.Signature.Initializer.Arguments.Select(argument => argument.ToDisplayString()), Is.EqualTo(new[] { "count" }));
-            Assert.That(restored.BodyStatements!.ToDisplayString(), Does.Contain("Location = location;").And.Not.Contain("_inheritedLocation"));
+            Assert.That(restored.Signature.Initializer!.IsBase, Is.True);
+            Assert.That(restored.Signature.Initializer.Arguments.Select(argument => argument.ToDisplayString()), Is.EqualTo(new[] { "location" }));
+            Assert.That(restored.BodyStatements!.ToDisplayString(), Does.Contain("Count = count;")
+                .And.Not.Contain("Location = location;").And.Not.Contain("_inheritedLocation"));
             var file = new TypeProviderWriter(provider).Write();
             TestContext.WriteLine(file.Content);
             Assert.That(CreateCompilation(file.Content).GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
             Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile()));
         }
 
-        private static async Task<ModelProvider> CreateModelAsync(Type frameworkType, string declaration, string argument, bool includeCount = false)
+        [Test]
+        public async Task InheritedArgumentsFollowFrameworkConstructorOrder()
+        {
+            var provider = await CreateModelAsync(typeof(TwoLocationsFrameworkBase),
+                "ResourceLocation secondLocation, ResourceLocation location", "location, secondLocation", includeSecondLocation: true);
+            provider.ProcessTypeForBackCompatibility();
+            var restored = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                constructor.Signature.Parameters.Count == 2);
+            Assert.That(restored.Signature.Parameters.Select(parameter => parameter.Name),
+                Is.EqualTo(new[] { "secondLocation", "location" }));
+            Assert.That(restored.Signature.Initializer!.IsBase, Is.True);
+            Assert.That(restored.Signature.Initializer.Arguments.Select(argument => argument.ToDisplayString()),
+                Is.EqualTo(new[] { "location", "secondLocation" }));
+            Assert.That(CreateCompilation(new TypeProviderWriter(provider).Write().Content).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        private static async Task<ModelProvider> CreateModelAsync(Type frameworkType, string declaration, string argument,
+            bool includeCount = false, bool includeSecondLocation = false)
         {
             var countAssignment = includeCount ? "Count = " + (declaration.Contains("int?") ? "count.GetValueOrDefault()" : "count") + ";" : "";
             var source = $$"""
@@ -111,7 +131,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(baseline.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
             var locationType = new InputPrimitiveType(InputPrimitiveTypeKind.String, "azureLocation", "Azure.Core.azureLocation");
             var location = InputFactory.Property("location", locationType);
-            var input = InputFactory.Model("BotData", properties: [location,
+            InputModelProperty[] inheritedProperties = [location,
+                .. includeSecondLocation ? new[] { InputFactory.Property("secondLocation", locationType) } : []];
+            var input = InputFactory.Model("BotData", properties: [.. inheritedProperties,
                 .. includeCount ? new[] { InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true) } : []]);
             var mappedInput = InputFactory.Model("MappedBase", properties: []);
             var previousBase = new NamedTypeSymbolProvider(baseline.GetTypeByMetadataName(frameworkType.FullName!)!, baseline);
@@ -119,7 +141,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 inputModelTypes: [input],
                 lastContractCompilation: () => Task.FromResult<Compilation>(baseline),
                 createModelCore: model => new RestoredModel(model,
-                    new SystemObjectModelProvider(new CSharpType(frameworkType), mappedInput, previousBase, [location])));
+                    new SystemObjectModelProvider(new CSharpType(frameworkType), mappedInput, previousBase, inheritedProperties)));
             Mock.Get(CodeModelGenerator.Instance.TypeFactory)
                 .Setup(factory => factory.CreateFrameworkType(typeof(ResourceLocation).FullName!))
                 .Returns(typeof(ResourceLocation));
@@ -143,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             protected override CSharpType? BuildBaseType() => mappedBase.Type;
             protected override ModelProvider? BuildBaseModelProvider() => mappedBase;
             protected internal override PropertyProvider[] BuildProperties()
-                => base.BuildProperties().Where(property => property.Name != "Location").ToArray();
+                => base.BuildProperties().Where(property => !mappedBase.Properties.Any(inherited => inherited.Name == property.Name)).ToArray();
             protected override TypeProvider[] BuildSerializationProviders() => [];
         }
     }
@@ -163,5 +185,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.Framework
         protected InitOnlyFrameworkBase() { }
         public InitOnlyFrameworkBase(ResourceLocation location) => Location = location;
         public ResourceLocation Location { get; init; }
+    }
+
+    public class AdditionalArgumentFrameworkBase
+    {
+        protected AdditionalArgumentFrameworkBase() { }
+        public AdditionalArgumentFrameworkBase(ResourceLocation location, int count) => Location = location;
+        public ResourceLocation Location { get; set; }
+    }
+
+    public class TwoLocationsFrameworkBase
+    {
+        protected TwoLocationsFrameworkBase() { }
+        public TwoLocationsFrameworkBase(ResourceLocation location, ResourceLocation secondLocation)
+        {
+            Location = location;
+            SecondLocation = secondLocation;
+        }
+        public ResourceLocation Location { get; set; }
+        public ResourceLocation SecondLocation { get; set; }
     }
 }

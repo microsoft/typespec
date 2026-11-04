@@ -83,6 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
+            // This model-local projection must not replace the input-keyed TypeFactory provider:
+            // other children still use its current mapping and source-owned property cache.
             provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties ?? [], isMappedBaseUpgrade: true);
             return true;
         }
@@ -114,24 +116,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 currentBody.HasSetter == unvisitedBody.HasSetter &&
                 currentBody.SetterModifiers == unvisitedBody.SetterModifiers &&
                 Equals(currentBody.InitializationExpression, unvisitedBody.InitializationExpression) &&
-                HasSameWireInformation(current.WireInfo, unvisited.WireInfo);
-        }
-
-        private static bool HasSameWireInformation(PropertyWireInformation? current, PropertyWireInformation? original)
-        {
-            if (current is null || original is null)
-            {
-                return current is null && original is null;
-            }
-
-            return current.SerializedName == original.SerializedName &&
-                current.SerializationFormat == original.SerializationFormat &&
-                current.IsRequired == original.IsRequired && current.IsReadOnly == original.IsReadOnly &&
-                current.IsNullable == original.IsNullable && current.IsDiscriminator == original.IsDiscriminator &&
-                current.IsHttpMetadata == original.IsHttpMetadata && current.IsApiVersion == original.IsApiVersion &&
-                current.Visibility == original.Visibility &&
-                Equals(current.SerializationOptions, original.SerializationOptions) &&
-                current.Description?.ToString() == original.Description?.ToString();
+                (current.WireInfo is { } wireInfo
+                    ? wireInfo.IsEquivalentTo(unvisited.WireInfo)
+                    : unvisited.WireInfo is null);
         }
 
         private static bool HasCustomAlias(ModelProvider owner, InputModelProperty input, string generatedName, string inheritedName)
@@ -195,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (member is EventInfo currentEvent)
                     {
-                        if (!inherited.OfType<EventInfo>().Any(previous => OverridesEvent(currentEvent, previous)))
+                        if (!inherited.Any(previous => OverridesMember(currentEvent, previous)))
                         {
                             return false;
                         }
@@ -206,26 +193,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (member is FieldInfo { IsPrivate: true } field &&
                         field.IsDefined(typeof(CompilerGeneratedAttribute), inherit: false) &&
                         type.GetEvent(field.Name, flags | BindingFlags.DeclaredOnly) is { } declaredEvent &&
-                        inherited.OfType<EventInfo>().Any(previous => OverridesEvent(declaredEvent, previous)))
+                        inherited.Any(previous => OverridesMember(declaredEvent, previous)))
                     {
                         continue;
                     }
 
                     // Inheritance retains the ancestor's API unless a nearer declaration hides it.
                     // Permit real overrides, but not new overloads or same-name members that change binding.
-                    var method = member switch
-                    {
-                        MethodInfo value => value,
-                        PropertyInfo value => value.GetMethod,
-                        _ => null,
-                    };
-                    if (method is not { IsVirtual: true } || method.GetBaseDefinition() == method ||
-                        !inherited.Any(previous => previous switch
-                        {
-                            MethodInfo value => value.GetBaseDefinition() == method.GetBaseDefinition(),
-                            PropertyInfo value => value.GetMethod?.GetBaseDefinition() == method.GetBaseDefinition(),
-                            _ => false,
-                        }))
+                    if (!inherited.Any(previous => OverridesMember(member, previous)))
                     {
                         return false;
                     }
@@ -234,14 +209,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private static bool OverridesEvent(EventInfo current, EventInfo previous)
-            => OverridesAccessor(current.AddMethod, previous.AddMethod) &&
-                OverridesAccessor(current.RemoveMethod, previous.RemoveMethod);
-
-        private static bool OverridesAccessor(MethodInfo? current, MethodInfo? previous)
-            => current is { IsVirtual: true } && previous is not null &&
-                current.GetBaseDefinition() != current &&
-                current.GetBaseDefinition() == previous.GetBaseDefinition();
+        private static bool OverridesMember(MemberInfo? current, MemberInfo? previous)
+            => (current, previous) switch
+            {
+                (EventInfo value, EventInfo original) =>
+                    OverridesMember(value.AddMethod, original.AddMethod) &&
+                    OverridesMember(value.RemoveMethod, original.RemoveMethod),
+                (PropertyInfo value, PropertyInfo original) => OverridesMember(value.GetMethod, original.GetMethod),
+                (MethodInfo { IsVirtual: true } value, MethodInfo original) =>
+                    value.GetBaseDefinition() != value &&
+                    value.GetBaseDefinition() == original.GetBaseDefinition(),
+                _ => false,
+            };
 
         private static bool IsAccessible(MemberInfo member) => member switch
         {

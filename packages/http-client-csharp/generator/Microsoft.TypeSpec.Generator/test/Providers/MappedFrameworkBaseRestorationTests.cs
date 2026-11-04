@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -15,6 +17,7 @@ using Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using Assembly = System.Reflection.Assembly;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
@@ -44,6 +47,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             });
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task RestoredConstructorPreservesFrameworkInitialization(bool existingMappedCandidate)
+        {
+            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate);
+            model.ProcessTypeForBackCompatibility();
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(TrackedResourceData).Assembly.Location).Distinct(StringComparer.Ordinal)
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create($"RestoredBot_{Guid.NewGuid():N}",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(model).Write().Content)], references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            Assert.That(result.Success, Is.True, string.Join(Environment.NewLine,
+                result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
+            var generatedType = Assembly.Load(stream.ToArray()).GetType("Sample.Models.BotData")!;
+            var location = new ResourceLocation(42);
+            var instance = (TrackedResourceData)Activator.CreateInstance(generatedType, location)!;
+            Assert.That(instance.Location.Value, Is.EqualTo(42));
+            Assert.That(instance.Tags, Is.Not.Null,
+                "The location constructor initializes Tags; assigning Location after base() does not.");
+            Assert.DoesNotThrow(() => instance.Tags.Add("key", "value"));
+            Assert.That(instance.Tags["key"], Is.EqualTo("value"));
+        }
+
         [TestCase(true, false, false)]
         [TestCase(false, true, false)]
         [TestCase(false, false, true)]
@@ -55,13 +84,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "Incompatible child-owned properties must not be discarded to restore the historical base.");
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task ProjectionPreservesInputOwnershipAndExistingProviders(bool existingMappedCandidate)
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task ProjectionPreservesInputOwnershipAndExistingProviders(bool existingMappedCandidate, bool cacheSourceProperty)
         {
-            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate);
+            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate, cacheSourceProperty: cacheSourceProperty);
             var restored = (SystemObjectModelProvider)model.BaseModelProvider!;
             var originalBase = model.InputModel.BaseModel!;
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var currentBase = factory.CreateModel(originalBase)!;
+            var location = model.InputModel.Properties[0];
+            var hadCachedProperty = factory.PropertyCache.TryGetValue(location, out var sourceProperty);
+            _ = restored.CanonicalView.Properties;
+            Assert.That(factory.PropertyCache.TryGetValue(location, out var cached), Is.EqualTo(hadCachedProperty));
+            Assert.That(cached, Is.SameAs(sourceProperty));
+            if (cacheSourceProperty)
+            {
+                Assert.That(cached!.EnclosingType, Is.SameAs(model));
+            }
             Assert.Multiple(() =>
             {
                 Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))), Is.True);
@@ -73,7 +115,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     ReferenceEquals(property.EnclosingType, model.InputModel) && !property.IsRequired && !property.IsReadOnly));
                 Assert.That(restored.MappedInputProperties.Select(property => property.Name),
                     Is.EquivalentTo(new[] { "location", "tags", "id", "name", "type" }));
-                Assert.That(CodeModelGenerator.Instance.TypeFactory.CreateModel(originalBase)!.Type.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+                Assert.That(currentBase.Type.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+                Assert.That(factory.CreateModel(originalBase), Is.SameAs(currentBase));
+                Assert.That(factory.CSharpTypeMap[currentBase.Type], Is.SameAs(currentBase));
             });
             if (existingMappedCandidate)
             {
@@ -463,7 +507,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework
     public class TrackedResourceData : ResourceData
     {
         protected TrackedResourceData() { }
-        public TrackedResourceData(ResourceLocation location) => Location = location;
+        public TrackedResourceData(ResourceLocation location)
+        {
+            Location = location;
+            Tags = new Dictionary<string, string>();
+        }
         protected TrackedResourceData(string id, string name, string type, IDictionary<string, string> tags, ResourceLocation location)
             : base(id, name, type)
         {
@@ -472,7 +520,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework
         }
 
         public ResourceLocation Location { get; set; }
-        public IDictionary<string, string> Tags { get; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Tags { get; } = null!;
     }
 }
 

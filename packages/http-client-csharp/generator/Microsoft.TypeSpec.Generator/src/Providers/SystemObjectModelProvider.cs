@@ -141,6 +141,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool HasCallableParameterlessConstructor => HasCallableFrameworkConstructor([]);
 
+        internal bool TryGetFrameworkConstructorParameters(
+            IReadOnlyList<ParameterProvider> availableParameters,
+            [NotNullWhen(true)] out IReadOnlyList<ParameterProvider>? parameters)
+        {
+            parameters = null;
+            if (_lastContractType is null)
+            {
+                return false;
+            }
+
+            foreach (var constructor in _lastContractType.Constructors.Where(constructor =>
+                MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
+                constructor.Signature.Parameters.Count == availableParameters.Count &&
+                HasSupportedConstructorParameters(constructor.Signature.Parameters)))
+            {
+                var matches = constructor.Signature.Parameters.Select(previous =>
+                    availableParameters.FirstOrDefault(parameter => parameter.Name == previous.Name &&
+                        ModelBaseMemberCompatibility.AreClrTypesEqual(parameter.Type, previous.Type))).ToArray();
+                if (matches.All(parameter => parameter is not null) &&
+                    HasCallableFrameworkConstructor(matches.Select(parameter => parameter!).ToArray()))
+                {
+                    parameters = matches.Select(parameter => parameter!).ToArray();
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private bool HasCallableFrameworkConstructor(
             IReadOnlyList<ParameterProvider> generatedParameters,
             IReadOnlyList<ParameterProvider>? historicalParameters = null)
