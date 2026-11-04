@@ -5,7 +5,7 @@
     "resourceGroupName": "resource-group-name",
     "topLevelArmResourcePropertiesName": "resource-name",
     "api-version": "2024-12-01",
-    "parameter": "parameter-value",
+    "new-header": "new-header-value",
     "newParameter": "new-parameter-value"
   },
   "responses": {

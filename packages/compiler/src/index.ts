@@ -1,5 +1,6 @@
 export { resolveCompilerOptions } from "./config/index.js";
 export type { ResolveCompilerOptionsOptions } from "./config/index.js";
+export { collectLinterDisables, type LinterDisable } from "./config/linter-disables.js";
 export {
   getAutoDecoratorTargets,
   getAutoDecoratorValue,
