@@ -14,6 +14,7 @@ import {
   type Program,
   type Type,
 } from "@typespec/compiler";
+import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { TspContext } from "@typespec/emitter-framework";
 import { printSchema } from "graphql";
 import { isInputType } from "../generated-defs/TypeSpec.GraphQL.js";
@@ -139,7 +140,7 @@ function validateTypeReferences(program: Program, typeGraph: TypeGraph): boolean
       {
         model: (model) => (isArrayModelType(model) ? undefined : ListenerFlow.NoRecursion),
         scalar: (scalar) => {
-          if (program.checker.isStdType(scalar, "TypeRef")) {
+          if (isTypeRefType(program, scalar)) {
             reportDiagnostic(program, { code: "type-reference-not-supported", target });
             valid = false;
           }

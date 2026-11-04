@@ -1,4 +1,5 @@
 import { Realm } from "../experimental/realm.js";
+import { isTypeRefType, type TypeRefType } from "../experimental/typeref.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
@@ -501,7 +502,7 @@ export interface Checker {
    * Get or instantiate the standard `TypeRef<target>` scalar.
    * @internal
    */
-  getTypeRefType(target: Type): Scalar;
+  getTypeRefType(target: Type): TypeRefType;
 }
 
 export interface CheckerStats {
@@ -7550,7 +7551,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type.namespace?.scalars.set(type.name, type);
     }
     linkMapper(type, ctx.mapper);
-    if (ctx.mapper === undefined && isInTypeSpecNamespace(type)) {
+    if (isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
 
@@ -8767,7 +8768,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       !isTypeSpecNamespace(type.namespace)
     )
       return false;
-    if (type.kind === "Scalar") return stdType === undefined || stdType === type.name;
+    if (type.kind === "Scalar") {
+      return !isTypeRefType(program, type) && (stdType === undefined || stdType === type.name);
+    }
     if (stdType === "Array" && type === stdTypes["Array"]) return true;
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     if (type.kind === "Model") return stdType === undefined || stdType === type.name;
@@ -8778,9 +8781,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return valueExactTypes.get(value);
   }
 
-  function getTypeRefType(target: Type): Scalar {
-    const node = getStdType("TypeRef").node;
-    compilerAssert(node, "The standard TypeRef scalar must have a declaration.");
+  function getTypeRefType(target: Type): TypeRefType {
+    const node = typespecNamespaceBinding?.exports?.get("TypeRef")?.declarations[0];
+    compilerAssert(
+      node?.kind === SyntaxKind.ScalarStatement,
+      "The standard TypeRef scalar must have a declaration.",
+    );
     const parameter = getTypeForNode(node.templateParameters[0]);
     compilerAssert(parameter.kind === "TemplateParameter", "TypeRef must have a type parameter.");
     const type = getOrInstantiateTemplate(
@@ -8791,7 +8797,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       { node, mapper: undefined },
       undefined,
     );
-    compilerAssert(type.kind === "Scalar", "TypeRef must instantiate to a scalar.");
+    compilerAssert(isTypeRefType(program, type), "TypeRef must instantiate to a reference scalar.");
     return type;
   }
 }

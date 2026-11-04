@@ -1,4 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
+import type { TypeRefValue } from "../experimental/typeref.js";
 import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { FileRef } from "./file-ref.js";
@@ -289,8 +290,7 @@ export type IntrinsicScalarName =
   | "offsetDateTime"
   | "duration"
   | "boolean"
-  | "url"
-  | "TypeRef";
+  | "url";
 
 /** An indexer shape that admits no keys and consequently has no value type. */
 export type NeverIndexer = {
@@ -452,7 +452,7 @@ export type Value =
 export type ValueWithTemplate = Value | TemplateValue;
 
 /** Common identity and storage-type metadata inherited by checked values. */
-interface BaseValue {
+export interface BaseValue {
   /** Distinguishes a concrete value from a type or parameter constraint. */
   readonly entityKind: "Value";
   /** Discriminant identifying how the value's contents are represented. */
@@ -4122,16 +4122,4 @@ export interface Tracer {
    * separated by a dot. Child tracers share the parent's filtering and log destination.
    */
   sub(subarea: string): Tracer;
-}
-
-/**
- * A value referencing an existing compiler type without copying it.
- * Its storage type is `TypeRef<T>`; the referenced type is available through `target`.
- * @experimental
- */
-export interface TypeRefValue extends BaseValue {
-  /** Identifies this value as a reference to a compiler type. */
-  valueKind: "TypeRefValue";
-  /** The referenced compiler type, preserving its original identity. */
-  target: Type;
 }

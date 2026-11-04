@@ -8,6 +8,7 @@ import type {
   Decorator,
   DecoratorArgument,
   FunctionParameter,
+  IndeterminateEntity,
   IntrinsicType,
   Model,
   Namespace,
@@ -23,6 +24,7 @@ import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { mutate } from "../utils/misc.js";
 import { useStateMap } from "../utils/state-accessor.js";
 import { Realm } from "./realm.js";
+import { isTypeRefType } from "./typeref.js";
 
 // #region Types
 
@@ -447,6 +449,13 @@ function createMutatorEngine(
   // recursive type graphs are cloned once and terminate. Scoped to the program
   // so it is collected once the program is.
   const seen = getSeenCache(program);
+  const seenValues = new CustomKeyMap<
+    [Value | IndeterminateEntity, Set<MutatorAll>],
+    Value | IndeterminateEntity
+  >(
+    ([value, mutators]) =>
+      `${typeId.getKey(value)}-${[...mutators].map((mutator) => mutatorId.getKey(mutator)).join("-")}`,
+  );
 
   let preparingNamespace = false;
   const muts: Set<MutatorAll> = new Set(mutators);
@@ -569,6 +578,17 @@ function createMutatorEngine(
       }
       if (existing !== type) clearInterstitialFunctions();
       return existing as T;
+    }
+    if (isTypeRefType(program, type)) {
+      const argument = type.templateMapper?.args[0];
+      if (argument === undefined) return type;
+      const target = argument.entityKind === "Indeterminate" ? argument.type : argument;
+      compilerAssert(isType(target), "TypeRef must have a type argument.");
+      const mappedTarget = mutateDecoratorArgumentValue(target, activeMutators);
+      const result = mappedTarget === target ? type : program.checker.getTypeRefType(mappedTarget);
+      seen.set([type, activeMutators], result);
+      if (result !== type) clearInterstitialFunctions();
+      return result;
     }
     // Mutating compiler types breaks a lot of things in the type checker. It is better to keep any of those as they are.
     const alwaysMutate = getAlwaysMutate(program, type);
@@ -718,6 +738,10 @@ function createMutatorEngine(
           break;
         case "ModelProperty":
           mutateProperty(root, "type", getClone, newMutators);
+          if (root.defaultValue) {
+            const value = mutateValue(root.defaultValue, newMutators);
+            if (clone?.kind === "ModelProperty") clone.defaultValue = value;
+          }
           mutateProperty(root, "sourceProperty", getClone, newMutators);
           break;
         case "Tuple":
@@ -839,36 +863,73 @@ function createMutatorEngine(
     return value;
   }
 
-  function mutateValue<T extends Value>(value: T, newMutators: Set<MutatorAll>): T {
-    switch (value.valueKind) {
-      case "ObjectValue":
-        const newObjectValue: ObjectValue = {
-          ...value,
-          properties: new Map(),
-          type: mutateDecoratorArgumentValue(value.type, newMutators),
-        };
-        for (const [key, val] of value.properties.entries()) {
-          newObjectValue.properties.set(key, {
-            ...val,
-            value: mutateValue(val.value, newMutators),
-          });
-        }
-        return newObjectValue as T;
-      case "ArrayValue":
-        return {
-          ...value,
-          type: mutateDecoratorArgumentValue(value.type, newMutators),
-          values: value.values.map((val) => mutateValue(val, newMutators)),
-        } as T;
-      case "EnumValue":
-        return {
-          ...value,
-          type: mutateDecoratorArgumentValue(value.type, newMutators),
-          value: mutateDecoratorArgumentValue(value.value, newMutators),
-        } as T;
-      default:
-        return value;
+  function mutateValue<T extends Value | IndeterminateEntity>(
+    value: T,
+    newMutators: Set<MutatorAll>,
+  ): T {
+    const existing = seenValues.get([value, newMutators]);
+    if (existing) return existing as T;
+
+    let result: Value | IndeterminateEntity;
+    if (value.entityKind === "Indeterminate") {
+      const type = mutateDecoratorArgumentValue(value.type, newMutators);
+      result = type === value.type ? value : { ...value, type };
+    } else {
+      switch (value.valueKind) {
+        case "ObjectValue":
+          const newObjectValue: ObjectValue = {
+            ...value,
+            properties: new Map(),
+            type: mutateDecoratorArgumentValue(value.type, newMutators),
+          };
+          for (const [key, val] of value.properties.entries()) {
+            newObjectValue.properties.set(key, {
+              ...val,
+              value: mutateValue(val.value, newMutators),
+            });
+          }
+          result = newObjectValue;
+          break;
+        case "ArrayValue":
+          result = {
+            ...value,
+            type: mutateDecoratorArgumentValue(value.type, newMutators),
+            values: value.values.map((val) => mutateValue(val, newMutators)),
+          };
+          break;
+        case "EnumValue":
+          result = {
+            ...value,
+            type: mutateDecoratorArgumentValue(value.type, newMutators),
+            value: mutateDecoratorArgumentValue(value.value, newMutators),
+          };
+          break;
+        case "ScalarValue":
+          result = {
+            ...value,
+            type: mutateDecoratorArgumentValue(value.type, newMutators),
+            scalar: mutateDecoratorArgumentValue(value.scalar, newMutators),
+            value: {
+              ...value.value,
+              args: value.value.args.map((arg) => mutateValue(arg, newMutators)),
+            },
+          };
+          break;
+        case "TypeRefValue":
+          const type = mutateDecoratorArgumentValue(value.type, newMutators);
+          const target = mutateDecoratorArgumentValue(value.target, newMutators);
+          result =
+            type === value.type && target === value.target ? value : { ...value, type, target };
+          break;
+        default:
+          result = value;
+      }
     }
+
+    // A referenced type can recurse through this value while its graph is being mutated.
+    result = seenValues.get([value, newMutators]) ?? result;
+    seenValues.set([value, newMutators], result);
+    return result as T;
   }
 
   function mutateTemplateMapper(
@@ -883,16 +944,23 @@ function createMutatorEngine(
       ...type.templateMapper,
       args: [],
       map: new Map(),
+      getMappedType: (parameter) => mutatedMapper.map.get(parameter) ?? parameter,
     };
     for (const arg of type.templateMapper.args) {
-      mutate(mutatedMapper.args).push(mutateSubgraphWorker(arg as any, newMutators));
+      mutate(mutatedMapper.args).push(mutateArgument(arg));
     }
     for (const [param, paramType] of type.templateMapper.map) {
-      mutatedMapper.map.set(param, mutateSubgraphWorker(paramType as any, newMutators));
+      mutatedMapper.map.set(param, mutateArgument(paramType));
     }
     const target = getClone();
     if (target && "templateMapper" in target) {
       target.templateMapper = mutatedMapper;
+    }
+
+    function mutateArgument(argument: Type | Value | IndeterminateEntity) {
+      return argument.entityKind === "Type"
+        ? mutateDecoratorArgumentValue(argument, newMutators)
+        : mutateValue(argument, newMutators);
     }
   }
 

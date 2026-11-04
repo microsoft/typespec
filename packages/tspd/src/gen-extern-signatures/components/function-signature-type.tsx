@@ -11,6 +11,7 @@ import type {
 import { getSourceLocation, isArrayModelType, type Type } from "@typespec/compiler";
 import type { DocNode, DocTag } from "@typespec/compiler/ast";
 import { SyntaxKind } from "@typespec/compiler/ast";
+import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import type { FunctionSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
@@ -216,10 +217,13 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
 
 function ScalarTsType({ scalar }: { scalar: Scalar }) {
   const { program } = useTspd();
+  if (isTypeRefType(program, scalar)) {
+    return typespecCompiler["./experimental"].unsafe_TypeRefValue;
+  }
   const isStd = program.checker.isStdType(scalar);
   if (isStd) {
     return getStdScalarTSType(scalar);
-  } else if (scalar.baseScalar && !program.checker.isStdType(scalar.baseScalar, "TypeRef")) {
+  } else if (scalar.baseScalar && !isTypeRefType(program, scalar.baseScalar)) {
     return <ScalarTsType scalar={scalar.baseScalar} />;
   } else {
     return "unknown";
@@ -258,8 +262,6 @@ function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }) {
     case "duration":
     case "bytes":
       return "unknown";
-    case "TypeRef":
-      return typespecCompiler.TypeRefValue;
     default:
       const _assertNever: never = scalar.name;
       return "unknown";

@@ -1,3 +1,4 @@
+import { isTypeRefType } from "../experimental/typeref.js";
 import { MultiKeyMap } from "../utils/misc.js";
 import type { Checker } from "./checker.js";
 import { walkPropertiesInherited } from "./checker.js";
@@ -531,8 +532,8 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     target: Scalar,
     relationCache?: RelationCache,
   ): boolean {
-    if (checker.isStdType(target, "TypeRef")) {
-      if (!checker.isStdType(source, "TypeRef")) return false;
+    if (isTypeRefType(program, target)) {
+      if (!isTypeRefType(program, source)) return false;
       relationCache ??= createRelationCache();
       relationCache.set([source, target], [Related.maybe, []]);
       const [related] = isTypeAssignableToInternal(

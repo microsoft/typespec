@@ -16,3 +16,8 @@ export type {
   MutatorWithNamespace as unsafe_MutatorWithNamespace,
 } from "./mutators.js";
 export { Realm as unsafe_Realm } from "./realm.js";
+export {
+  isTypeRefType as unsafe_isTypeRefType,
+  type TypeRefType as unsafe_TypeRefType,
+  type TypeRefValue as unsafe_TypeRefValue,
+} from "./typeref.js";

@@ -60,6 +60,7 @@ import {
   sanitizePathSegment,
   serializeValueAsJson,
 } from "@typespec/compiler";
+import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
@@ -532,7 +533,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
-    if (name === undefined || this.#isStdType(scalar)) {
+    if (
+      name === undefined ||
+      this.#isStdType(scalar) ||
+      isTypeRefType(this.emitter.getProgram(), scalar)
+    ) {
       return {};
     } else {
       return this.#newFileScope(scalar);
@@ -540,10 +545,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
-    const isStd = this.#isStdType(scalar);
+    const shouldInline =
+      this.#isStdType(scalar) || isTypeRefType(this.emitter.getProgram(), scalar);
     const schema = this.#getSchemaForScalar(scalar);
-    // Don't create a declaration for std types
-    if (isStd) {
+    // Built-in and compile-time scalars do not need declarations.
+    if (shouldInline) {
       return schema;
     }
 
@@ -554,7 +560,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   #getSchemaForScalar(scalar: Scalar) {
     let result: any;
     const isStd = this.#isStdType(scalar);
-    if (isStd) {
+    const isTypeReference = isTypeRefType(this.emitter.getProgram(), scalar);
+    if (isTypeReference) {
+      result = { not: {} };
+    } else if (isStd) {
       result = this.#getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = this.#getSchemaForScalar(scalar.baseScalar);
@@ -569,8 +578,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const objectBuilder = new ObjectBuilder(result);
     this.#applyConstraints(scalar, objectBuilder);
-    if (isStd) {
-      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+    if (isStd || isTypeReference) {
+      // Inline scalars do not carry the declaration's description.
       delete objectBuilder.description;
     }
     return objectBuilder;
@@ -642,8 +651,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return { type: "string", format: "uri" };
       case "bytes":
         return { type: "string", contentEncoding: "base64" };
-      case "TypeRef":
-        return { not: {} };
       default:
         reportDiagnostic(this.emitter.getProgram(), {
           code: "unknown-scalar",

@@ -58,6 +58,7 @@ import {
   resolveEncodedName,
 } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
+import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import type { MetadataInfo } from "@typespec/http";
 import { Visibility, getVisibilitySuffix } from "@typespec/http";
@@ -831,12 +832,13 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<Schema> {
-    const isStd = isStdType(this.emitter.getProgram(), scalar);
+    const program = this.emitter.getProgram();
+    const shouldInline = isStdType(program, scalar) || isTypeRefType(program, scalar);
     const schema = this.#getSchemaForScalar(scalar);
     const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
 
-    // Don't create a declaration for std types
-    return isStd
+    // Built-in and compile-time scalars do not need declarations.
+    return shouldInline
       ? schema
       : (this.#createDeclaration(scalar, baseName, new ObjectBuilder(schema)) as any);
   }
@@ -854,15 +856,19 @@ export class OpenAPI3SchemaEmitterBase<
   }
   #getSchemaForScalar(scalar: Scalar): Schema {
     let result: Schema = {} as Schema;
-    const isStd = isStdType(this.emitter.getProgram(), scalar);
-    if (isStd) {
+    const program = this.emitter.getProgram();
+    const isStd = isStdType(program, scalar);
+    const isTypeReference = isTypeRefType(program, scalar);
+    if (isTypeReference) {
+      result.not = {};
+    } else if (isStd) {
       result = this.getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = this.#getSchemaForScalar(scalar.baseScalar);
     }
     const withDecorators = this.applyEncoding(scalar, this.applyConstraints(scalar, result) as any);
-    if (isStd) {
-      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+    if (isStd || isTypeReference) {
+      // Inline scalars do not carry the declaration's description.
       delete withDecorators.description;
     }
     return withDecorators;

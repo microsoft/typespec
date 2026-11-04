@@ -62,8 +62,6 @@ export function getSchemaForStdScalars(
       return { type: "string", format: "duration" };
     case "url":
       return { type: "string", format: "uri" };
-    case "TypeRef":
-      return { not: {} };
     default:
       const _assertNever: never = scalar.name;
       return {};

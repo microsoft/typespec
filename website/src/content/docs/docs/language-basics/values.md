@@ -214,4 +214,4 @@ Here, `name` is a string value and `type` contains an opaque reference to the ac
 
 The argument to `typeref` must be a type, such as a model, namespace, instantiated template, union, or tuple, not a value. For example, `typeref("Widget")` references a string literal type; it does not look up the model named `Widget`.
 
-JavaScript implementations receive each reference as a `TypeRefValue` whose `target` is the referenced compiler `Type`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.
+JavaScript implementations receive each reference as an `unsafe_TypeRefValue` from `@typespec/compiler/experimental`, whose `target` is the referenced compiler `Type`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.

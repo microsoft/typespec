@@ -41,10 +41,12 @@ for (const [namespace, diagnostics] of resolved) {
 
 const files = await generateExternDecorators(program, "@typespec/compiler", { namespaces });
 for (const [name, content] of Object.entries(files)) {
-  const updatedContent = content.replace(
-    /from "\@typespec\/compiler"/g,
-    name.endsWith(".ts-test.ts") ? `from "../src/index.js"` : `from "../src/index.js"`,
-  );
+  const updatedContent = content
+    .replace(
+      /from "\@typespec\/compiler"/g,
+      name.endsWith(".ts-test.ts") ? `from "../src/index.js"` : `from "../src/index.js"`,
+    )
+    .replaceAll('from "@typespec/compiler/experimental"', 'from "../src/experimental/index.js"');
   const prettierConfig = await resolveConfig(root);
 
   await NodeHost.writeFile(

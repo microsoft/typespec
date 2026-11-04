@@ -1,3 +1,4 @@
+import type { unsafe_TypeRefValue } from "../src/experimental/index.js";
 import type {
   DecoratorContext,
   DecoratorValidatorCallbacks,
@@ -13,7 +14,6 @@ import type {
   Scalar,
   ScalarValue,
   Type,
-  TypeRefValue,
   Union,
   UnionVariant,
 } from "../src/index.js";
@@ -1302,7 +1302,7 @@ export type TypeSpecDecorators = {
 export type TyperefFunctionImplementation = (
   context: FunctionContext,
   target: Type,
-) => TypeRefValue;
+) => unsafe_TypeRefValue;
 
 export type ApplyVisibilityFilterFunctionImplementation = (
   context: FunctionContext,
