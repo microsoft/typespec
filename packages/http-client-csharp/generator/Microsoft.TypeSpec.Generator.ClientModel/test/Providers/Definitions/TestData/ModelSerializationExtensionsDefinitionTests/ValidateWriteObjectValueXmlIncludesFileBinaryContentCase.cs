@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -24,7 +25,7 @@ namespace Sample
                 case global::System.ClientModel.Primitives.IJsonModel<T> jsonModel:
                     jsonModel.Write(writer, (options ?? global::Sample.ModelSerializationExtensions.WireOptions));
                     break;
-                case global::System.Byte[] bytes:
+                case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);
                     break;
                 case global::System.BinaryData bytes0:
@@ -91,7 +92,7 @@ namespace Sample
                     }
                     writer.WriteEndObject();
                     break;
-                case global::System.Collections.Generic.IEnumerable<object> objectEnumerable:
+                case global::System.Collections.IEnumerable objectEnumerable:
                     writer.WriteStartArray();
                     foreach (var item in objectEnumerable)
                     {
@@ -126,22 +127,19 @@ namespace Sample
                             if ((nameHint != null))
                             {
                                 writer.WriteStartElement(nameHint);
-                                writer.WriteAttributes(reader, true);
-                                reader.ReadStartElement();
-                                while ((reader.NodeType != global::System.Xml.XmlNodeType.EndElement))
-                                {
-                                    writer.WriteNode(reader, true);
-                                }
-                                writer.WriteEndElement();
                             }
-                            else
+                            writer.WriteAttributes(reader, true);
+                            if (!reader.IsEmptyElement)
                             {
-                                writer.WriteAttributes(reader, true);
                                 reader.ReadStartElement();
-                                while ((reader.NodeType != global::System.Xml.XmlNodeType.EndElement))
+                                while ((!reader.EOF && (reader.NodeType != global::System.Xml.XmlNodeType.EndElement)))
                                 {
                                     writer.WriteNode(reader, true);
                                 }
+                            }
+                            if ((nameHint != null))
+                            {
+                                writer.WriteEndElement();
                             }
                         }
                     }

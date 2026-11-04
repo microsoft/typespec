@@ -61,23 +61,22 @@ public class PageableTests {
     public void testContinuationToken() {
         ServerDrivenPaginationContinuationTokenClient client
             = builder.buildServerDrivenPaginationContinuationTokenClient();
-        assertPetIds(client.requestQueryResponseBody(null, "foo", "bar"));
-        assertPetIds(client.requestHeaderResponseBody(null, "foo", "bar"));
-        assertPetIds(client.requestQueryResponseHeader(null, "foo", "bar"));
-        assertPetIds(client.requestHeaderResponseHeader(null, "foo", "bar"));
-        assertPetIds(client.requestQueryNestedResponseBody(null, "foo", "bar"));
-        assertPetIds(client.requestHeaderNestedResponseBody(null, "foo", "bar"));
+        assertPetIds(client.requestQueryResponseBody("foo", "bar"));
+        assertPetIds(client.requestHeaderResponseBody("foo", "bar"));
+        assertPetIds(client.requestQueryResponseHeader("foo", "bar"));
+        assertPetIds(client.requestHeaderResponseHeader("foo", "bar"));
+        assertPetIds(client.requestQueryNestedResponseBody("foo", "bar"));
+        assertPetIds(client.requestHeaderNestedResponseBody("foo", "bar"));
     }
 
     @Test
     public void testContinuationTokenAsync() {
         ServerDrivenPaginationContinuationTokenAsyncClient client
             = builder.buildServerDrivenPaginationContinuationTokenAsyncClient();
-        List<Flux<Pet>> results = List.of(client.requestQueryResponseBody(null, "foo", "bar"),
-            client.requestHeaderResponseBody(null, "foo", "bar"), client.requestQueryResponseHeader(null, "foo", "bar"),
-            client.requestHeaderResponseHeader(null, "foo", "bar"),
-            client.requestQueryNestedResponseBody(null, "foo", "bar"),
-            client.requestHeaderNestedResponseBody(null, "foo", "bar"));
+        List<Flux<Pet>> results = List.of(client.requestQueryResponseBody("foo", "bar"),
+            client.requestHeaderResponseBody("foo", "bar"), client.requestQueryResponseHeader("foo", "bar"),
+            client.requestHeaderResponseHeader("foo", "bar"), client.requestQueryNestedResponseBody("foo", "bar"),
+            client.requestHeaderNestedResponseBody("foo", "bar"));
         for (Flux<Pet> result : results) {
             Assertions.assertEquals(List.of("1", "2", "3", "4"),
                 result.map(Pet::getId).collectList().block(Duration.ofSeconds(10)));
@@ -89,20 +88,20 @@ public class PageableTests {
         ServerDrivenPaginationContinuationTokenClient client
             = builder.buildServerDrivenPaginationContinuationTokenClient();
         Assertions.assertEquals(List.of("3", "4"),
-            client.requestQueryResponseBody("ignored", "foo", "bar")
+            client.requestQueryResponseBody("foo", "bar")
                 .streamByPage("page2")
                 .flatMap(page -> page.getValue().stream())
                 .map(Pet::getId)
                 .collect(Collectors.toList()));
         Assertions.assertEquals(List.of("3", "4"),
-            client.requestHeaderResponseHeader("ignored", "foo", "bar")
+            client.requestHeaderResponseHeader("foo", "bar")
                 .streamByPage("page2")
                 .flatMap(page -> page.getValue().stream())
                 .map(Pet::getId)
                 .collect(Collectors.toList()));
         Assertions.assertEquals(List.of("3", "4"),
             builder.buildServerDrivenPaginationContinuationTokenAsyncClient()
-                .requestQueryNestedResponseBody("ignored", "foo", "bar")
+                .requestQueryNestedResponseBody("foo", "bar")
                 .byPage("page2")
                 .flatMapIterable(page -> page.getValue())
                 .map(Pet::getId)
@@ -111,35 +110,35 @@ public class PageableTests {
     }
 
     @Test
-    public void testInitialContinuationToken() {
+    public void testRepeatedContinuationTokenEnumeration() {
         ServerDrivenPaginationContinuationTokenClient client
             = builder.buildServerDrivenPaginationContinuationTokenClient();
-        List<PagedIterable<Pet>> results = List.of(client.requestQueryResponseBody("page2", "foo", "bar"),
-            client.requestHeaderResponseBody("page2", "foo", "bar"),
-            client.requestQueryResponseHeader("page2", "foo", "bar"),
-            client.requestHeaderResponseHeader("page2", "foo", "bar"),
-            client.requestQueryNestedResponseBody("page2", "foo", "bar"),
-            client.requestHeaderNestedResponseBody("page2", "foo", "bar"));
+        List<PagedIterable<Pet>> results = List.of(client.requestQueryResponseBody("foo", "bar"),
+            client.requestHeaderResponseBody("foo", "bar"), client.requestQueryResponseHeader("foo", "bar"),
+            client.requestHeaderResponseHeader("foo", "bar"), client.requestQueryNestedResponseBody("foo", "bar"),
+            client.requestHeaderNestedResponseBody("foo", "bar"));
         for (PagedIterable<Pet> result : results) {
-            assertPetIds(result, "3", "4");
-            assertPetIds(result, "3", "4");
+            assertPetIds(result);
+            assertPetIds(result);
         }
         ServerDrivenPaginationContinuationTokenAsyncClient asyncClient
             = builder.buildServerDrivenPaginationContinuationTokenAsyncClient();
-        List<Flux<Pet>> asyncResults = List.of(asyncClient.requestQueryResponseBody("page2", "foo", "bar"),
-            asyncClient.requestHeaderResponseBody("page2", "foo", "bar"),
-            asyncClient.requestQueryResponseHeader("page2", "foo", "bar"),
-            asyncClient.requestHeaderResponseHeader("page2", "foo", "bar"),
-            asyncClient.requestQueryNestedResponseBody("page2", "foo", "bar"),
-            asyncClient.requestHeaderNestedResponseBody("page2", "foo", "bar"));
+        List<Flux<Pet>> asyncResults = List.of(asyncClient.requestQueryResponseBody("foo", "bar"),
+            asyncClient.requestHeaderResponseBody("foo", "bar"), asyncClient.requestQueryResponseHeader("foo", "bar"),
+            asyncClient.requestHeaderResponseHeader("foo", "bar"),
+            asyncClient.requestQueryNestedResponseBody("foo", "bar"),
+            asyncClient.requestHeaderNestedResponseBody("foo", "bar"));
         for (Flux<Pet> result : asyncResults) {
-            Assertions.assertEquals(List.of("3", "4"),
-                result.map(Pet::getId).collectList().block(Duration.ofSeconds(10)));
+            for (int i = 0; i < 2; i++) {
+                Assertions.assertEquals(List.of("1", "2", "3", "4"),
+                    result.map(Pet::getId).collectList().block(Duration.ofSeconds(10)));
+            }
         }
         Assertions.assertEquals(List.of("3", "4"),
             builder.buildXmlPaginationClient()
-                .listWithContinuation("page2")
-                .stream()
+                .listWithContinuation()
+                .streamByPage("page2")
+                .flatMap(page -> page.getValue().stream())
                 .map(XmlPet::getId)
                 .collect(Collectors.toList()));
     }

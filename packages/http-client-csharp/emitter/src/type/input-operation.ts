@@ -17,6 +17,8 @@ export interface InputOperation {
   parameters: InputHttpParameter[];
   responses: OperationResponse[];
   httpMethod: RequestMethod;
+  requestVisibility?: number;
+  responseAsBool?: boolean;
   uri: string;
   path: string;
   externalDocsUrl?: string;

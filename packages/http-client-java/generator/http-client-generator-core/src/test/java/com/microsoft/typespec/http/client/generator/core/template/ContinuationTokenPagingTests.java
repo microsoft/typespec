@@ -136,14 +136,26 @@ public class ContinuationTokenPagingTests {
     }
 
     @Test
-    public void passesTypedTokenDirectlyWithContext() throws IOException {
+    public void hidesTypedTokenAndStartsWithoutCursor() throws IOException {
         for (boolean sync : List.of(false, true)) {
             String output = renderPaging(RequestParameterLocation.QUERY, sync, false, "token", false);
             String singlePage = sync ? "listSinglePage" : "listSinglePageAsync";
+            Assertions.assertTrue(output.contains(singlePage + "(null, context)"), output);
+            Assertions.assertTrue(output.contains(singlePage + "(token1, context)"), output);
+            Assertions.assertTrue(output.contains("list(Context context)"), output);
+            Assertions.assertFalse(output.contains("requestOptions"), output);
+            assertCompiles(output, "String token, Context context");
+        }
+    }
+
+    @Test
+    public void preservesOptInTypedInitialToken() throws IOException {
+        for (boolean sync : List.of(false, true)) {
+            String output = renderPaging(RequestParameterLocation.QUERY, sync, false, "token", false, false, true);
+            String singlePage = sync ? "listSinglePage" : "listSinglePageAsync";
+            Assertions.assertTrue(output.contains("list(String token, Context context)"), output);
             Assertions.assertTrue(output.contains(singlePage + "(token, context)"), output);
             Assertions.assertTrue(output.contains(singlePage + "(token1, context)"), output);
-            Assertions.assertTrue(output.contains("list(String token, Context context)"), output);
-            Assertions.assertFalse(output.contains("requestOptions"), output);
             assertCompiles(output, "String token, Context context");
         }
     }
@@ -220,9 +232,9 @@ public class ContinuationTokenPagingTests {
         JavaFileContents contents = new JavaFileContents();
         ConvenienceMethodTemplateBase template
             = async ? ConvenienceAsyncMethodTemplate.getInstance() : ConvenienceSyncMethodTemplate.getInstance();
-        template.writeInvocationAndConversion(convenienceMethod, protocolMethod, tokenName + ", new RequestOptions()",
+        template.writeInvocationAndConversion(convenienceMethod, protocolMethod, "null, new RequestOptions()",
             new JavaBlock(contents), new HashSet<>());
-        Assertions.assertTrue(convenienceMethod.getParametersDeclaration().contains("String " + tokenName));
+        Assertions.assertFalse(convenienceMethod.getParametersDeclaration().contains("String " + tokenName + ","));
         String output = "public " + convenienceMethod.getDeclaration() + " {\n" + contents + "\n}\n"
             + "private final PagingCompilation serviceClient = this;\n" + "private "
             + protocolMethod.getReturnValue().getType()
@@ -331,6 +343,12 @@ public class ContinuationTokenPagingTests {
 
     private static String renderPaging(RequestParameterLocation location, boolean sync, boolean dataPlane,
         String tokenName, boolean pageSize, boolean nextLink, ClientMethodParameter... additionalParameters) {
+        return renderPaging(location, sync, dataPlane, tokenName, pageSize, nextLink, false, additionalParameters);
+    }
+
+    private static String renderPaging(RequestParameterLocation location, boolean sync, boolean dataPlane,
+        String tokenName, boolean pageSize, boolean nextLink, boolean includeToken,
+        ClientMethodParameter... additionalParameters) {
         new MockUnitJavagen() {
             @Override
             @SuppressWarnings("unchecked")
@@ -394,7 +412,8 @@ public class ContinuationTokenPagingTests {
                 nextLink ? nextMethod : null, null,
                 nextLink
                     ? null
-                    : new MethodPageDetails.ContinuationToken(token, dataPlane ? null : typedToken, "next-token", null),
+                    : new MethodPageDetails.ContinuationToken(token, dataPlane ? null : typedToken, "next-token", null,
+                        includeToken),
                 null, nextLink && dataPlane ? new MethodPageDetails.NextLinkReInjection(List.of("filter")) : null))
             .build();
         JavaFileContents contents = new JavaFileContents();
@@ -432,23 +451,38 @@ public class ContinuationTokenPagingTests {
     }
 
     @Test
-    public void preservesTokenInWrapperDelegation() {
+    public void hidesTokenInWrapperDelegationByDefault() {
         JavaFileContents contents = new JavaFileContents();
         WrapperClientMethodTemplate.getInstance().write(pagingMethod(), new JavaClass(contents));
         String output = contents.toString();
-        Assertions.assertTrue(output.contains("list(String filter, String token)"));
-        Assertions.assertTrue(output.contains("return this.serviceClient.list(filter, token);"));
-        Assertions.assertTrue(output.contains("@param token"));
+        Assertions.assertTrue(output.contains("list(String filter)"));
+        Assertions.assertTrue(output.contains("return this.serviceClient.list(filter);"));
+        Assertions.assertFalse(output.contains("@param token"));
     }
 
     @Test
-    public void preservesTokenInSyncOverAsyncDelegation() {
+    public void hidesTokenInSyncOverAsyncDelegationByDefault() {
         JavaFileContents contents = new JavaFileContents();
         ServiceSyncClientWrapAsyncClientTemplate.getInstance().writeMethod(pagingMethod(), new JavaClass(contents));
         String output = contents.toString();
-        Assertions.assertTrue(output.contains("list(String filter, String token)"));
-        Assertions.assertTrue(output.contains("return new PagedIterable<>(this.client.list(filter, token));"));
-        Assertions.assertTrue(output.contains("@param token"));
+        Assertions.assertTrue(output.contains("list(String filter)"));
+        Assertions.assertTrue(output.contains("return new PagedIterable<>(this.client.list(filter));"));
+        Assertions.assertFalse(output.contains("@param token"));
+    }
+
+    @Test
+    public void preservesOptInTokenInDelegation() {
+        JavaFileContents wrapper = new JavaFileContents();
+        WrapperClientMethodTemplate.getInstance().write(pagingMethod(true), new JavaClass(wrapper));
+        Assertions.assertTrue(wrapper.toString().contains("list(String filter, String token)"));
+        Assertions.assertTrue(wrapper.toString().contains("return this.serviceClient.list(filter, token);"));
+        Assertions.assertTrue(wrapper.toString().contains("@param token"));
+
+        JavaFileContents sync = new JavaFileContents();
+        ServiceSyncClientWrapAsyncClientTemplate.getInstance().writeMethod(pagingMethod(true), new JavaClass(sync));
+        Assertions.assertTrue(sync.toString().contains("list(String filter, String token)"));
+        Assertions.assertTrue(sync.toString().contains("return new PagedIterable<>(this.client.list(filter, token));"));
+        Assertions.assertTrue(sync.toString().contains("@param token"));
     }
 
     @Test
@@ -514,6 +548,10 @@ public class ContinuationTokenPagingTests {
     }
 
     private static ClientMethod pagingMethod() {
+        return pagingMethod(false);
+    }
+
+    private static ClientMethod pagingMethod(boolean includeToken) {
         ClientMethodParameter token = new ClientMethodParameter.Builder().name("token")
             .annotations(List.of())
             .description("The continuation token.")
@@ -526,7 +564,7 @@ public class ContinuationTokenPagingTests {
             .required(true)
             .build();
         MethodPageDetails details = new MethodPageDetails(List.of(), null, null, null,
-            new MethodPageDetails.ContinuationToken(null, token, "next-token", null), null, null);
+            new MethodPageDetails.ContinuationToken(null, token, "next-token", null, includeToken), null, null);
         return new ClientMethod.Builder().name("list")
             .description("List items.")
             .parameters(List.of(filter, token))

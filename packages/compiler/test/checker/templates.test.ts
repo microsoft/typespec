@@ -1,5 +1,5 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
 import type {
   DecoratorContext,
@@ -519,6 +519,42 @@ describe("compiler: templates", () => {
         end,
       });
     });
+  });
+
+  describe.each([
+    ["model", ": string;"],
+    ["union", ": string"],
+    ["enum", ""],
+  ] as const)("decorators on concrete %s references", (kind, memberType) => {
+    it.each(["Target", "Target.member"])(
+      "runs decorators when first referenced as %s in a template",
+      async (reference) => {
+        const $count = vi.fn();
+        const { Target, member, StringBox, NumberBox } = await Tester.files({
+          "decorators.js": mockFile.js({ $count }),
+        }).import("./decorators.js").compile(t.code`
+            namespace Example;
+
+            model Box<T> {
+              item: ${reference};
+              value: T;
+            }
+
+            @count
+            ${kind} ${t.type("Target")} {
+              ${t.type("member")}${memberType}
+            }
+
+            model ${t.model("StringBox")} is Box<string>;
+            model ${t.model("NumberBox")} is Box<int32>;
+          `);
+
+        const expectedType = reference === "Target" ? Target : member;
+        strictEqual(StringBox.properties.get("item")!.type, expectedType);
+        strictEqual(NumberBox.properties.get("item")!.type, expectedType);
+        expect($count).toHaveBeenCalledExactlyOnceWith(expect.anything(), Target);
+      },
+    );
   });
 
   describe("doesn't run decorators when checking template declarations", () => {

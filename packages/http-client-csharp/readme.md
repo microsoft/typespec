@@ -12,8 +12,12 @@ npm install @typespec/http-client-csharp
 
 ### Prerequisite
 
-- Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
-- Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
+- Install a supported [Node.js](https://nodejs.org/) LTS. (Verify by running `node --version`)
+- Install [**.NET 10.0 SDK**](https://dotnet.microsoft.com/download/dotnet/10.0) for your specific platform. (or a higher version)
+
+### Naming conventions
+
+For automatic C# naming conversions, examples, and override/compatibility exceptions, see the [Naming conventions guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/generator/docs/naming-conventions.md).
 
 ### Customizing Generated Code
 
@@ -99,6 +103,29 @@ declaration on which to place an attribute.
 Graduation is an explicit source change: dependencies becoming generally available, or
 removing entries from `dependsOn`, does not remove `[Experimental("C")]`. Remove the
 declaration's `@experimental` decorator when the public API is ready to graduate.
+
+### Dynamic models
+
+The C# emitter supports the `@dynamicModel` decorator from `@azure-tools/typespec-client-generator-core`. Use the `"csharp"` scope to mark a model or namespace as dynamic.
+
+```tsp
+import "@azure-tools/typespec-client-generator-core";
+
+using Azure.ClientGenerator.Core;
+
+@dynamicModel("csharp")
+model Pet {
+  name: string;
+  kind: string;
+}
+
+@dynamicModel("csharp")
+namespace PetStore {
+  model Dog extends Pet {
+    breed: string;
+  }
+}
+```
 
 ## Emitter usage
 
@@ -253,43 +280,3 @@ License information for the generated client code.
 **Type:** `object`
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
-
-## Decorators
-
-### TypeSpec.HttpClient.CSharp
-
-- [`@dynamicModel`](#@dynamicmodel)
-
-#### `@dynamicModel`
-
-Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
-Can be applied to Model or Namespace types.
-
-```typespec
-@TypeSpec.HttpClient.CSharp.dynamicModel
-```
-
-##### Target
-
-`Model | Namespace`
-
-##### Parameters
-
-None
-
-##### Examples
-
-```tsp
-@dynamicModel
-model Pet {
-  name: string;
-  kind: string;
-}
-
-@dynamicModel
-namespace PetStore {
-  model Dog extends Pet {
-    breed: string;
-  }
-}
-```

@@ -44,6 +44,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputOperationResponse>? responses = null;
             string? httpMethod = null;
+            int requestVisibility = -1;
+            bool responseAsBool = false;
             string? uri = null;
             string? path = null;
             string? externalDocsUrl = null;
@@ -69,6 +71,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("parameters", options, ref parameters)
                     || reader.TryReadComplexType("responses", options, ref responses)
                     || reader.TryReadString("httpMethod", ref httpMethod)
+                    || reader.TryReadInt32("requestVisibility", ref requestVisibility)
+                    || reader.TryReadBoolean("responseAsBool", ref responseAsBool)
                     || reader.TryReadString("uri", ref uri)
                     || reader.TryReadString("path", ref path)
                     || reader.TryReadString("externalDocsUrl", ref externalDocsUrl)
@@ -98,6 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();
             operation.Responses = responses ?? Array.Empty<InputOperationResponse>();
             operation.HttpMethod = httpMethod ?? throw new JsonException("InputOperation must have HttpMethod");
+            operation.RequestVisibility = requestVisibility < 0 ? null : (InputVisibility)requestVisibility;
+            operation.ResponseAsBool = responseAsBool;
             operation.Uri = uri ?? throw new JsonException("InputOperation must have Uri");
             operation.Path = path ?? throw new JsonException("InputOperation must have Path");
             operation.ExternalDocsUrl = externalDocsUrl;

@@ -286,7 +286,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestQueryResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -299,7 +298,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody(String token, String foo, String bar) {
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
         // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -308,7 +307,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryResponseBody(token, requestOptions)
+        return serviceClient.requestQueryResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -334,7 +333,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestHeaderResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -347,7 +345,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
+    public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
         // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -356,7 +354,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderResponseBody(token, requestOptions)
+        return serviceClient.requestHeaderResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -382,7 +380,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestQueryResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -395,7 +392,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
         // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -404,7 +401,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryResponseHeader(token, requestOptions)
+        return serviceClient.requestQueryResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -430,7 +427,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestHeaderResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -443,7 +439,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
+    public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
         // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -452,7 +448,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderResponseHeader(token, requestOptions)
+        return serviceClient.requestHeaderResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -478,7 +474,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestQueryNestedResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -491,7 +486,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryNestedResponseBody(String token, String foo, String bar) {
+    public PagedIterable<Pet> requestQueryNestedResponseBody(String foo, String bar) {
         // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -500,7 +495,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryNestedResponseBody(token, requestOptions)
+        return serviceClient.requestQueryNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -526,7 +521,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestHeaderNestedResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -539,7 +533,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderNestedResponseBody(String token, String foo, String bar) {
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
         // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -548,7 +542,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderNestedResponseBody(token, requestOptions)
+        return serviceClient.requestHeaderNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 

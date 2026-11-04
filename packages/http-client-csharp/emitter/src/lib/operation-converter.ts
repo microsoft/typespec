@@ -26,6 +26,7 @@ import {
   getClientOptions,
   getHttpOperationParameter,
   getParamAlias,
+  getResponseAsBool,
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
@@ -40,6 +41,7 @@ import {
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
+import { resolveRequestVisibility, Visibility } from "@typespec/http";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -230,6 +232,15 @@ export function fromSdkServiceMethodOperation(
       fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     ),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
+    requestVisibility:
+      resolveRequestVisibility(
+        sdkContext.program,
+        method.operation.__raw.operation,
+        method.operation.verb,
+      ) & Visibility.All,
+    responseAsBool: getResponseAsBool(sdkContext, method.operation.__raw.operation)
+      ? true
+      : undefined,
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
@@ -867,7 +878,7 @@ function fromSdkServiceResponseHeaders(
 function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   if (typeof range === "number") return [range];
 
-  const statusCodes: number[] = [range.end - range.start + 1];
+  const statusCodes: number[] = [];
   for (let i = range.start; i <= range.end; i++) {
     statusCodes.push(i);
   }

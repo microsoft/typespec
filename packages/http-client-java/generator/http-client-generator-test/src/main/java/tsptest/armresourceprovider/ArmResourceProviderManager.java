@@ -32,21 +32,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import tsptest.armresourceprovider.fluent.ArmClient;
+import tsptest.armresourceprovider.implementation.AccountResourcesImpl;
 import tsptest.armresourceprovider.implementation.ArmClientBuilder;
 import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ImmutableResourceModelsImpl;
 import tsptest.armresourceprovider.implementation.LroNoBodiesImpl;
+import tsptest.armresourceprovider.implementation.MachineResourcesImpl;
 import tsptest.armresourceprovider.implementation.ManagedMaintenanceWindowStatusOperationsImpl;
 import tsptest.armresourceprovider.implementation.ModelInterfaceSameNamesImpl;
 import tsptest.armresourceprovider.implementation.OperationsImpl;
 import tsptest.armresourceprovider.implementation.TopLevelArmResourceInterfacesImpl;
+import tsptest.armresourceprovider.models.AccountResources;
 import tsptest.armresourceprovider.models.ChildExtensionResourceInterfaces;
 import tsptest.armresourceprovider.models.ChildResourcesInterfaces;
 import tsptest.armresourceprovider.models.CustomTemplateResourceInterfaces;
 import tsptest.armresourceprovider.models.ImmutableResourceModels;
 import tsptest.armresourceprovider.models.LroNoBodies;
+import tsptest.armresourceprovider.models.MachineResources;
 import tsptest.armresourceprovider.models.ManagedMaintenanceWindowStatusOperations;
 import tsptest.armresourceprovider.models.ModelInterfaceSameNames;
 import tsptest.armresourceprovider.models.Operations;
@@ -60,6 +64,10 @@ public final class ArmResourceProviderManager {
     private ChildResourcesInterfaces childResourcesInterfaces;
 
     private TopLevelArmResourceInterfaces topLevelArmResourceInterfaces;
+
+    private AccountResources accountResources;
+
+    private MachineResources machineResources;
 
     private CustomTemplateResourceInterfaces customTemplateResourceInterfaces;
 
@@ -314,6 +322,30 @@ public final class ArmResourceProviderManager {
                 = new TopLevelArmResourceInterfacesImpl(clientObject.getTopLevelArmResourceInterfaces(), this);
         }
         return topLevelArmResourceInterfaces;
+    }
+
+    /**
+     * Gets the resource collection API of AccountResources.
+     * 
+     * @return Resource collection API of AccountResources.
+     */
+    public AccountResources accountResources() {
+        if (this.accountResources == null) {
+            this.accountResources = new AccountResourcesImpl(clientObject.getAccountResources(), this);
+        }
+        return accountResources;
+    }
+
+    /**
+     * Gets the resource collection API of MachineResources.
+     * 
+     * @return Resource collection API of MachineResources.
+     */
+    public MachineResources machineResources() {
+        if (this.machineResources == null) {
+            this.machineResources = new MachineResourcesImpl(clientObject.getMachineResources(), this);
+        }
+        return machineResources;
     }
 
     /**

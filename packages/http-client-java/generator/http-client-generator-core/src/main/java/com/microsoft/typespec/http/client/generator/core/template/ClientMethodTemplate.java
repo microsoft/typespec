@@ -32,6 +32,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaTyp
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -134,6 +135,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
         // Parameter expressions for custom validation (key is the expression, value is the validation).
         final Map<String, String> validateParamExpressions = new LinkedHashMap<>(clientMethod.getValidateExpressions());
+        if (clientMethod.getOverloadedClientMethod() != null) {
+            clientMethod.getOverloadedClientMethod()
+                .getMethodParameters()
+                .stream()
+                .filter(parameter -> !parameter.isRequired() && !clientMethod.getMethodParameters().contains(parameter))
+                .forEach(parameter -> validateParamExpressions.remove(parameter.getName()));
+        }
 
         for (String paramReferenceExpression : paramReferenceExpressions) {
             final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {
@@ -171,13 +179,37 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod The client method.
      */
     protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
-        if (!clientMethod.getOnlyRequiredParameters()) {
+        addOptionalVariables(function, clientMethod, false);
+    }
+
+    private static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod,
+        boolean includeNextPageParameters) {
+        ClientMethod overloadedMethod = clientMethod.getOverloadedClientMethod();
+        if (!clientMethod.getOnlyRequiredParameters() && overloadedMethod == null) {
             return;
         }
 
-        for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            if (parameter.isRequired()) {
-                // Parameter is required and will be part of the method signature.
+        Set<String> referencedParameters = clientMethod.getMethodParameters()
+            .stream()
+            .map(ClientMethodParameter::getName)
+            .collect(Collectors.toSet());
+        if (includeNextPageParameters) {
+            clientMethod.getMethodPageDetails()
+                .getNextMethod()
+                .getMethodParameters()
+                .stream()
+                .map(ClientMethodParameter::getName)
+                // The next-link argument is supplied by the paging lambda, not by an omitted parameter local.
+                .filter(name -> !"nextLink".equals(name))
+                .forEach(referencedParameters::add);
+        }
+
+        List<ClientMethodParameter> parameters
+            = overloadedMethod == null ? clientMethod.getMethodParameters() : overloadedMethod.getMethodParameters();
+        for (ClientMethodParameter parameter : parameters) {
+            if (parameter.isRequired()
+                || (!clientMethod.getOnlyRequiredParameters() && clientMethod.getMethodParameters().contains(parameter))
+                || !referencedParameters.contains(parameter.getName())) {
                 continue;
             }
             if (clientMethod.isPageStreamingType()
@@ -544,7 +576,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     /**
-     * Obtain the Java code that converts an enum iterable parameter to a string of delimiter seperated wire values.
+     * Obtain the Java code that converts an enum iterable parameter to a string of delimiter separated wire values.
      *
      * @param parameterName the name of the enum iterable parameter to convert.
      * @param shouldCheckNull whether to check if the parameter is null before converting it.
@@ -576,7 +608,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     /**
-     * Obtain the Java code that converts a primitive iterable parameter to a string of delimiter seperated string wire
+     * Obtain the Java code that converts a primitive iterable parameter to a string of delimiter separated string wire
      * values.
      * <p>
      * The primitive types are Boolean, Byte, Integer, Long, Float, Double, String.
@@ -756,6 +788,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
         generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
+        ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
 
         switch (clientMethod.getType()) {
             case PagingSync:
@@ -881,7 +914,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-                addOptionalVariables(function, clientMethod);
+                addOptionalVariables(function, clientMethod, true);
 
                 String nextOptions
                     = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
@@ -1107,7 +1140,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-                addOptionalVariables(function, clientMethod);
+                addOptionalVariables(function, clientMethod, true);
                 if (settings.isDataPlaneClient()) {
                     String nextOptions
                         = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
@@ -1154,7 +1187,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-                addOptionalVariables(function, clientMethod);
+                addOptionalVariables(function, clientMethod, true);
                 if (settings.isDataPlaneClient()) {
                     String nextOptions
                         = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
@@ -1231,7 +1264,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         ClientMethodParameter tokenParameter
             = clientMethod.getMethodPageDetails().getContinuationToken().getClientMethodParameter();
         ClientMethod pagingMethod = clientMethod;
-        String initialToken = tokenParameter == null ? null : tokenParameter.getName();
+        String initialToken
+            = tokenParameter == null || clientMethod.getMethodPageDetails().shouldHideParameter(tokenParameter)
+                ? null
+                : tokenParameter.getName();
         if (settings.isDataPlaneClient() && tokenParameter == null) {
             initialToken = availablePagingVariableName("initialContinuationToken", pagingVariableNames(clientMethod));
             List<ClientMethodParameter> parameters = new ArrayList<>();
@@ -1248,6 +1284,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.methodReturn(
                     String.format("%s(null, %s)", clientMethod.getName(), clientMethod.getArgumentList()));
             });
+            ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
         }
         ClientMethod implementationMethod = pagingMethod;
         String initialTokenExpression = initialToken;
@@ -1257,7 +1294,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 addOptionalVariables(function, clientMethod);
                 String firstArguments = clientMethod.getMethodParameters()
                     .stream()
-                    .map(ClientMethodParameter::getName)
+                    .map(p -> p == tokenParameter && clientMethod.getMethodPageDetails().shouldHideParameter(p)
+                        ? "null"
+                        : p.getName())
                     .collect(Collectors.joining(", "));
                 String methodName = sync
                     ? clientMethod.getProxyMethod().getPagingSinglePageMethodName()
