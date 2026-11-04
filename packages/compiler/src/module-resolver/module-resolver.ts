@@ -18,6 +18,7 @@ import type { NodeModuleSpecifier } from "./utils.js";
 import {
   fileURLToPath,
   isFile,
+  isPathSpecifier,
   listDirHierarchy,
   parseNodeModuleSpecifier,
   pathToFileURL,
@@ -97,7 +98,7 @@ export async function resolveModule(
   const absoluteStart = await realpath(resolvePath(baseDir));
 
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
-  if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(specifier)) {
+  if (isPathSpecifier(specifier)) {
     const res = resolvePath(absoluteStart, specifier);
     const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
     if (m) {
