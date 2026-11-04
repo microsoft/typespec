@@ -365,7 +365,7 @@ We welcome contributions developed with AI assistance. These tools do not replac
 - **Keep changes and communication focused.** Remove unrelated edits, unnecessary abstractions, and redundant tests. Keep descriptions and replies concise, technically accurate, and specific to the contribution.
 - **Disclose substantive AI assistance.** Briefly describe how AI tools were used when they produced substantial portions of the contribution. Routine completion, spelling, grammar, or translation assistance does not require disclosure.
 
-Maintainers may pause review or close contributions that are unvalidated, cannot be explained by their author, or repeatedly fail to engage meaningfully with feedback. These expectations apply regardless of the tools used.
+Maintainers may pause review or close contributions that have not been validated, cannot be explained by their author, or repeatedly fail to engage meaningfully with feedback. These expectations apply regardless of the tools used.
 
 ## Trigger TypeSpec Playground Try It build
 
