@@ -87,8 +87,8 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(PagePreviewDetails)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("items"u8);
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+            writer.WritePropertyName("items"u8);
             writer.WriteStartArray();
             foreach (PreviewDetails item in Items)
             {

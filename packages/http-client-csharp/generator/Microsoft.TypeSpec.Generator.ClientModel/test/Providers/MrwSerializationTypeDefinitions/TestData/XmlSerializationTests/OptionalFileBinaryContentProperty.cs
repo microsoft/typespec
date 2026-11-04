@@ -23,9 +23,7 @@ namespace Sample
             if (global::Sample.Optional.IsDefined(ProfileImage))
             {
                 writer.WriteStartElement("profileImage");
-#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
                 writer.WriteObjectValue<global::System.ClientModel.FileBinaryContent>(ProfileImage, options);
-#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
                 writer.WriteEndElement();
             }
         }

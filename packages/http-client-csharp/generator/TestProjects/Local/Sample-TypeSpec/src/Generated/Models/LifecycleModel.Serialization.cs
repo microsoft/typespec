@@ -87,17 +87,17 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(LifecycleModel)} does not support writing '{format}' format.");
             }
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning disable SAMPLE0008 // This generated code depends on experimental functionality.
             if (Optional.IsDefined(Preview))
             {
                 writer.WritePropertyName("preview"u8);
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
                 writer.WriteObjectValue(Preview, options);
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
             }
 #pragma warning restore SAMPLE0008 // This generated code depends on experimental functionality.
-            writer.WritePropertyName("choice"u8);
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
+            writer.WritePropertyName("choice"u8);
             writer.WriteStringValue(Choice.ToString());
 #pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
             if (options.Format != "W" && _additionalBinaryDataProperties != null)

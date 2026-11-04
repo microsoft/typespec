@@ -511,21 +511,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            foreach (var method in methods.Where(method =>
-                method.Signature.Name.StartsWith(DeserializationMethodNamePrefix, StringComparison.Ordinal)))
+            foreach (var method in methods.Where(method => method.Signature.Name.StartsWith(DeserializationMethodNamePrefix, StringComparison.Ordinal)))
             {
-                var methodReferenceSuppressions = method.Signature.Parameters.Any(parameter =>
-                    parameter.Type.IsFrameworkType && parameter.Type.FrameworkType == typeof(XElement))
-                    ? []
-                    : ExperimentalApiHelpers.MergeSuppressions(
-                        _inputModel.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)),
-                        ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties),
-                        _inputModel.DiscriminatedSubtypes.Values.SelectMany(type => ExperimentalApiHelpers.GetReferenceSuppressions(type)));
                 method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
                     method.Suppressions,
-                    SerializationConstructor.Signature.Parameters
-                        .SelectMany(parameter => ExperimentalApiHelpers.GetUnscopedReferenceSuppressions(parameter, method.BodyStatements)),
-                    methodReferenceSuppressions));
+                    SerializationConstructor.Signature.Parameters.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type)),
+                    _inputModel.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties),
+                    _inputModel.DiscriminatedSubtypes.Values.SelectMany(type => ExperimentalApiHelpers.GetReferenceSuppressions(type))));
             }
             return [.. methods];
         }
@@ -1130,17 +1123,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return values;
         }
 
-        private MethodBodyStatement GetPropertyVariableDeclarations(
-            bool preserveJsonPresence = true,
-            bool inlineReferenceSuppressions = false)
+        private MethodBodyStatement GetPropertyVariableDeclarations(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
-
-            MethodBodyStatement SuppressReferenceTypes(MethodBodyStatement statement, CSharpType type)
-                => inlineReferenceSuppressions
-                    ? ExperimentalApiHelpers.Suppress(statement, ExperimentalApiHelpers.GetReferenceSuppressions(type))
-                    : statement;
 
             for (var i = 0; i < parameters.Count; i++)
             {
@@ -1155,9 +1141,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             variableRef.Update(type: variableRef.Type.PropertyInitializationType);
                         }
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
-                        propertyDeclarationStatements.Add(SuppressReferenceTypes(
-                            Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))),
-                            property.Type));
+                        propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
                     else if (property.Name.Equals(ScmModelProvider.JsonPatchPropertyName) &&
                         _model is ScmModelProvider { IsDynamicModel: true })
@@ -1200,7 +1184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             defaultValue = Default;
                         }
-                        propertyDeclarationStatements.Add(SuppressReferenceTypes(Declare(variableRef, defaultValue), property.Type));
+                        propertyDeclarationStatements.Add(Declare(variableRef, defaultValue));
                     }
                 }
                 else
@@ -1213,13 +1197,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         // the raw data is kind of different because we assign it with an instance, not like others properties/fields
                         // IDictionary<string, BinaryData> additionalBinaryDataProperties = new Dictionary<string, BinaryData>();
-                        propertyDeclarationStatements.Add(SuppressReferenceTypes(
-                            Declare(fieldRef, new DictionaryExpression(field.Type, New.Instance(field.Type.PropertyInitializationType))),
-                            field.Type));
+                        propertyDeclarationStatements.Add(Declare(fieldRef, new DictionaryExpression(field.Type, New.Instance(field.Type.PropertyInitializationType))));
                     }
                     else
                     {
-                        propertyDeclarationStatements.Add(SuppressReferenceTypes(Declare(fieldRef, Default), field.Type));
+                        propertyDeclarationStatements.Add(Declare(fieldRef, Default));
                     }
                 }
             }
@@ -2110,15 +2092,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        var referenceSuppressions = ExperimentalApiHelpers.GetReferenceSuppressions(property.Type);
-                        var memberSuppressions = ExperimentalApiHelpers.MergeSuppressions(
-                            GetMemberSuppressionsExcludingReferenceTypes(property.Suppressions, referenceSuppressions) ?? [],
-                            ExperimentalApiHelpers.GetAttributeSuppressions(property.Attributes));
-                        propertyStatements.Add(CreateWritePropertyStatement(
-                            property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat,
-                            ScmModelProvider.GetNullablePropertyPresence(property),
-                            memberSuppressions,
-                            referenceSuppressions));
+                        propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                            CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat,
+                                ScmModelProvider.GetNullablePropertyPresence(property)),
+                            ExperimentalApiHelpers.GetMemberSuppressions(property)));
                     }
 
                     foreach (var field in baseModelProvider.CanonicalView.Fields)
@@ -2128,14 +2105,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        var referenceSuppressions = ExperimentalApiHelpers.GetReferenceSuppressions(field.Type);
-                        var memberSuppressions = ExperimentalApiHelpers.MergeSuppressions(
-                            GetMemberSuppressionsExcludingReferenceTypes(field.Suppressions, referenceSuppressions) ?? [],
-                            ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes));
-                        propertyStatements.Add(CreateWritePropertyStatement(
-                            field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat,
-                            memberSuppressions: memberSuppressions,
-                            referenceSuppressions: referenceSuppressions));
+                        propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                            CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat),
+                            ExperimentalApiHelpers.GetMemberSuppressions(field)));
                     }
                 }
             }
@@ -2149,15 +2121,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var referenceSuppressions = ExperimentalApiHelpers.GetReferenceSuppressions(property.Type);
-                var memberSuppressions = ExperimentalApiHelpers.MergeSuppressions(
-                    GetMemberSuppressionsExcludingReferenceTypes(property.Suppressions, referenceSuppressions) ?? [],
-                    ExperimentalApiHelpers.GetAttributeSuppressions(property.Attributes));
-                propertyStatements.Add(CreateWritePropertyStatement(
-                    property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat,
-                    ScmModelProvider.GetNullablePropertyPresence(property),
-                    memberSuppressions,
-                    referenceSuppressions));
+                propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                    CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat,
+                        ScmModelProvider.GetNullablePropertyPresence(property)),
+                    ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
             foreach (var field in _model.CanonicalView.Fields)
@@ -2167,14 +2134,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var referenceSuppressions = ExperimentalApiHelpers.GetReferenceSuppressions(field.Type);
-                var memberSuppressions = ExperimentalApiHelpers.MergeSuppressions(
-                    GetMemberSuppressionsExcludingReferenceTypes(field.Suppressions, referenceSuppressions) ?? [],
-                    ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes));
-                propertyStatements.Add(CreateWritePropertyStatement(
-                    field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat,
-                    memberSuppressions: memberSuppressions,
-                    referenceSuppressions: referenceSuppressions));
+                propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                    CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat),
+                    ExperimentalApiHelpers.GetMemberSuppressions(field)));
             }
 
             return [.. propertyStatements];
@@ -2186,9 +2148,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string propertyName,
             MemberExpression propertyExpression,
             SerializationFormat? serializationFormat,
-            FieldProvider? presence = null,
-            IEnumerable<SuppressionStatement>? memberSuppressions = null,
-            IEnumerable<SuppressionStatement>? referenceSuppressions = null)
+            FieldProvider? presence = null)
         {
             var propertySerializationName = GetJsonSerializedName(wireInfo);
             var propertySerializationFormat = wireInfo.SerializationFormat;
@@ -2235,8 +2195,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            serializationStatement = ExperimentalApiHelpers.Suppress(serializationStatement, referenceSuppressions ?? []);
-
             var writePropertySerializationStatements = new MethodBodyStatement[]
             {
                 _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
@@ -2254,26 +2212,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writePropertySerializationStatements,
                 presence);
 
-            return ExperimentalApiHelpers.Suppress(
-                WrapInVisibility(wireInfo, wrapInIsDefinedStatement),
-                memberSuppressions ?? []);
-        }
-
-        private static SuppressionStatement[]? GetMemberSuppressionsExcludingReferenceTypes(
-            IEnumerable<SuppressionStatement> memberSuppressions,
-            IEnumerable<SuppressionStatement> referenceSuppressions)
-        {
-            var memberSuppressionArray = memberSuppressions as SuppressionStatement[] ?? [.. memberSuppressions];
-            if (memberSuppressionArray.Length == 0)
-            {
-                return null;
-            }
-
-            var referenceCodes = new HashSet<string>(referenceSuppressions.Select(suppression => suppression.Code.ToDisplayString()), StringComparer.Ordinal);
-            var remainingSuppressions = memberSuppressionArray
-                .Where(suppression => !referenceCodes.Contains(suppression.Code.ToDisplayString()))
-                .ToArray();
-            return remainingSuppressions.Length > 0 ? remainingSuppressions : null;
+            return WrapInVisibility(wireInfo, wrapInIsDefinedStatement);
         }
 
         private MethodBodyStatement WrapInVisibility(PropertyWireInformation wireInfo, MethodBodyStatement statement, bool includeReadOnly = false)

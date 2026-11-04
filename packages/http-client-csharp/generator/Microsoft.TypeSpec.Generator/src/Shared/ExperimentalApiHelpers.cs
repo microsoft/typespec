@@ -61,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return collector.GetSuppressions();
         }
 
-        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type, bool includeFrameworkTypes = true)
+        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type, bool includeFrameworkTypes = false)
         {
             if (type is null)
             {
@@ -96,35 +96,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
             }
             return MergeSuppressions(suppressions);
-        }
-
-        public static SuppressionStatement[] GetUnscopedReferenceSuppressions(ParameterProvider parameter, MethodBodyStatement? body)
-        {
-            var suppressions = GetReferenceSuppressions(parameter.Type);
-            if (body is null || suppressions.Length == 0)
-            {
-                return suppressions;
-            }
-
-            var variable = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
-            var inlineCodes = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var statement in body.OfType<SuppressionStatement>())
-            {
-                if (statement.AsStatement<ExpressionStatement>()?.Expression is not AssignmentExpression
-                    {
-                        Variable: DeclarationExpression declaration
-                    } || !ReferenceEquals(declaration.Variable, variable))
-                {
-                    continue;
-                }
-
-                // Only exclude warnings covered for this constructor local, not other references sharing its diagnostic ID.
-                for (SuppressionStatement? suppression = statement; suppression is not null; suppression = suppression.Inner as SuppressionStatement)
-                {
-                    inlineCodes.Add(suppression.Code.ToDisplayString());
-                }
-            }
-            return [.. suppressions.Where(suppression => !inlineCodes.Contains(suppression.Code.ToDisplayString()))];
         }
 
         public static SuppressionStatement[] GetAttributeSuppressions(IEnumerable<AttributeStatement> attributes)

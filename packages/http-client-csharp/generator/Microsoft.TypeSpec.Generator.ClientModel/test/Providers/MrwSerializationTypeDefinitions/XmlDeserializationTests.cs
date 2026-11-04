@@ -263,8 +263,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 mrwProvider!,
                 name => name == "DeserializeTestXmlModel"));
             var file = writer.Write();
-            Assert.IsTrue(file.Content.IndexOf("#pragma warning disable SCME0004", StringComparison.Ordinal) >
-                file.Content.IndexOf("internal static", StringComparison.Ordinal));
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 

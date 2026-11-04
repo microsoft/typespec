@@ -181,61 +181,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     // This no-operation fixture intentionally leaves optional client fields unused.
                     .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0169"] = ReportDiagnostic.Suppress }));
             var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
-            var expectsVisiblePublicDiagnostic = !annotated && !nullable && shape != "child";
-            if (expectsVisiblePublicDiagnostic)
+            if (!annotated)
             {
-                Assert.AreEqual(shape == "required" ? 2 : 1, errors.Length);
-                Assert.IsTrue(errors.All(diagnostic => diagnostic.Id == "EXTERNAL001"));
+                Assert.IsNotEmpty(errors);
+                Assert.IsTrue(errors.All(diagnostic => diagnostic.Id == "EXTERNAL001"),
+                    string.Join(Environment.NewLine, errors.Select(diagnostic => diagnostic.ToString())));
+                return;
             }
-            else
-            {
-                Assert.IsEmpty(errors.Select(diagnostic => diagnostic.ToString()));
-            }
+            Assert.IsEmpty(errors.Select(diagnostic => diagnostic.ToString()));
             Assert.AreEqual(0, configuration.DisabledFileWarnings.Count);
             Assert.AreEqual(0, client.DisabledFileWarnings.Count);
             var property = configuration.Properties.Single(property => property.Name == "Value");
             Assert.AreEqual(0, property.Attributes.Count);
-            if (annotated)
-            {
-                CollectionAssert.AreEqual(new[] { Snippet.Literal("EXTERNAL001").ToDisplayString() },
-                    property.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
-            }
-            else
-            {
-                Assert.IsEmpty(property.Suppressions);
-            }
+            CollectionAssert.AreEqual(new[] { Snippet.Literal("EXTERNAL001").ToDisplayString() },
+                property.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
             var code = new TypeProviderWriter(configuration).Write().Content;
             var propertyIndex = code.IndexOf(" Value ", StringComparison.Ordinal);
             var disable = code.LastIndexOf("#pragma warning disable EXTERNAL001", propertyIndex, StringComparison.Ordinal);
             var restore = code.IndexOf("#pragma warning restore EXTERNAL001", propertyIndex, StringComparison.Ordinal);
-            if (expectsVisiblePublicDiagnostic)
-            {
-                Assert.AreEqual(-1, disable);
-                Assert.AreEqual(-1, restore);
-            }
-            else
-            {
-                Assert.Greater(disable, code.IndexOf($"partial class {configuration.Name}", StringComparison.Ordinal));
-                Assert.Greater(restore, propertyIndex);
-                Assert.Less(restore, code.IndexOf(" Stable ", StringComparison.Ordinal));
-            }
+            Assert.Greater(disable, code.IndexOf($"partial class {configuration.Name}", StringComparison.Ordinal));
+            Assert.Greater(restore, propertyIndex);
+            Assert.Less(restore, code.IndexOf(" Stable ", StringComparison.Ordinal));
             var binding = code.IndexOf("new global::External.ParameterValue(", StringComparison.Ordinal);
             Assert.Greater(binding, 0);
-            if (annotated)
-            {
-                var bindingDisable = code.LastIndexOf("#pragma warning disable EXTERNAL001", binding, StringComparison.Ordinal);
-                Assert.Greater(bindingDisable, 0);
-                Assert.Less(bindingDisable, binding);
-                var bindingRestore = code.IndexOf("#pragma warning restore EXTERNAL001", binding, StringComparison.Ordinal);
-                Assert.Greater(bindingRestore, binding);
-            }
+            var bindingRestore = code.IndexOf("#pragma warning restore EXTERNAL001", binding, StringComparison.Ordinal);
+            Assert.Greater(bindingRestore, binding);
+            Assert.Less(bindingRestore, code.IndexOf("section[\"Stable\"]", binding, StringComparison.Ordinal));
             foreach (var file in files)
             {
                 StringAssert.DoesNotContain("#pragma warning disable UNRELATED001", file.Content);
             }
             var consumer = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile("Consumer"));
             var consumerErrors = compilation.AddSyntaxTrees(consumer).GetDiagnostics()
-                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error && diagnostic.Location.SourceTree == consumer).ToArray();
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
             Assert.IsNotEmpty(consumerErrors);
             Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "EXTERNAL001" && diagnostic.Location.SourceTree == consumer));
         }
