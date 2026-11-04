@@ -37,6 +37,7 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventSerializerTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
@@ -44,6 +45,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -124,6 +126,17 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyword, name);
         Templates.getServiceClientTemplate().write(model, javaFile);
         addJavaFile(javaFile);
+    }
+
+    public final void addSseEventSerializer(ClientModel baseModel) {
+        JavaFile serializerFile = javaFileFactory.createSourceFile(SseUtil.getSerializerPackage(),
+            SseUtil.requireSseMetadata(baseModel).getSerializerType().getName());
+        if (filePaths.contains(serializerFile.getFilePath())) {
+            throw new IllegalStateException("SSE generated source file '" + serializerFile.getFilePath()
+                + "' conflicts with another generated source file.");
+        }
+        SseEventSerializerTemplate.getInstance().write(baseModel, serializerFile);
+        addJavaFile(serializerFile);
     }
 
     public final void addAsyncServiceClient(String packageKeyWord, AsyncSyncClient asyncClient) {

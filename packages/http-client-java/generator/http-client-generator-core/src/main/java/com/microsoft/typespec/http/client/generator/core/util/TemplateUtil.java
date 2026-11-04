@@ -358,6 +358,8 @@ public class TemplateUtil {
         switch (clientMethod.getType()) {
             case PagingSync:
             case PagingAsync:
+            case SseSync:
+            case SseAsync:
                 typeBlock.annotation("ServiceMethod(returns = ReturnType.COLLECTION)");
                 break;
 

@@ -21,11 +21,30 @@ public class ObjectSchema extends ComplexSchema {
     private boolean flattenedSchema;
     // internal use, not from modelerfour
     private boolean stronglyTypedHeader;
+    private SseSchemaMetadata sseMetadata;
 
     /**
      * Creates a new instance of the ObjectSchema class.
      */
     public ObjectSchema() {
+    }
+
+    /**
+     * Gets the source rendering metadata for a synthetic SSE envelope.
+     *
+     * @return The rendering metadata, or null for an ordinary schema.
+     */
+    public SseSchemaMetadata getSseMetadata() {
+        return sseMetadata;
+    }
+
+    /**
+     * Sets the source rendering metadata for a synthetic SSE envelope.
+     *
+     * @param sseMetadata The rendering metadata.
+     */
+    public void setSseMetadata(SseSchemaMetadata sseMetadata) {
+        this.sseMetadata = sseMetadata;
     }
 
     /**

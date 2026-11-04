@@ -4,6 +4,7 @@ import type {
   Aspect,
   Metadata,
   ModelOptions,
+  ObjectSchema,
   Parameter,
   Response,
 } from "./schemas/model.js";
@@ -64,6 +65,34 @@ export interface Operation extends Aspect {
 
   /** the long-running operation metadata */
   lroMetadata?: LongRunningMetadata;
+
+  /** Typed server-sent event metadata for this operation. */
+  sseMetadata?: SseMetadata;
+}
+
+export interface SseEventMetadata {
+  /** SSE event field value. */
+  name: string;
+
+  /** Synthetic schema for the generated typed event wrapper. */
+  eventSchema: ObjectSchema;
+
+  /** Whether this event inclusively terminates the stream. */
+  terminal: boolean;
+}
+
+export interface SseMetadata {
+  /** CID of the streamed union. */
+  sseStreamId: string;
+
+  /** Semantic name of the named event stream. */
+  streamName: string;
+
+  /** Synthetic schema for the generated stream event base type. */
+  baseSchema: ObjectSchema;
+
+  /** Supported named event variants. */
+  events: SseEventMetadata[];
 }
 
 export interface ConvenienceApi extends Metadata {

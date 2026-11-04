@@ -48,6 +48,10 @@ public class GenericType implements IType {
         return genericType(ClassType.FLUX, typeArgument);
     }
 
+    public static GenericType closeableIterableStream(IType typeArgument) {
+        return genericType(ClassType.CLOSEABLE_ITERABLE_STREAM, typeArgument);
+    }
+
     public static GenericType mono(IType typeArgument) {
         return genericType(ClassType.MONO, typeArgument);
     }

@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Array
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -37,6 +38,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
@@ -45,6 +47,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -295,31 +298,79 @@ abstract class ConvenienceMethodTemplateBase {
         }
 
         ClientMethod protocolMethod = convenienceMethodObj.getProtocolMethod();
-        convenienceMethodObj.getConvenienceMethods()
+        List<ClientMethod> convenienceMethods = convenienceMethodObj.getConvenienceMethods()
             .stream()
             .filter(this::isMethodIncluded)
-            .forEach(convenienceMethod -> {
-                // javadoc
+            .collect(Collectors.toList());
+        convenienceMethods.forEach(convenienceMethod -> {
+            // javadoc
+            if (convenienceMethod.getSseMetadata() == null) {
                 classBlock.javadocComment(comment -> ClientMethodTemplate.generateJavadoc(convenienceMethod, comment,
                     convenienceMethod.getProxyMethod(), false));
+            } else {
+                classBlock.javadocComment(comment -> writeSseJavadoc(convenienceMethod, comment));
+            }
 
-                addGeneratedAnnotation(classBlock);
-                ExperimentalAnnotationUtil.write(classBlock, convenienceMethod.getApiMetadata());
+            addGeneratedAnnotation(classBlock);
+            ExperimentalAnnotationUtil.write(classBlock, convenienceMethod.getApiMetadata());
+            if (convenienceMethod.getSseMetadata() == null) {
                 TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
+            }
 
-                JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
+            JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
-                // convenience method
-                String methodDeclaration
-                    = String.format("%1$s %2$s(%3$s)", convenienceMethod.getReturnValue().getType(),
-                        getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
-                classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
+            // convenience method
+            String methodDeclaration = String.format("%1$s %2$s(%3$s)", convenienceMethod.getReturnValue().getType(),
+                getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
+            classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
+                if (convenienceMethod.getSseMetadata() == null) {
                     methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
+                }
 
-                    writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock,
-                        typeReferenceStaticClasses);
-                });
+                writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
             });
+        });
+    }
+
+    private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
+        ClientMethodSseMetadata metadata = method.getSseMetadata();
+        String baseEventName = metadata.getEventType().getName();
+        comment.description(method.getDescription());
+
+        comment.paragraph("Events are polymorphic: see {@link " + baseEventName
+            + "} for the known subtypes. Use a known subtype's {@code getValue()} to access its typed payload"
+            + ". Unrecognized events expose only their names through {@link " + baseEventName
+            + "#getEventName()}; their payloads are not available.");
+
+        List<String> terminalEventNames = metadata.getTerminalEventNames();
+        String terminalEvents = terminalEventNames.stream()
+            .map(eventName -> "{@code " + eventName + "}")
+            .collect(Collectors.joining(" or "));
+        if (isMethodAsync(method)) {
+            comment.paragraph((terminalEventNames.isEmpty()
+                ? "The stream completes at end-of-stream. "
+                : "If received, the terminal " + terminalEvents + " event is emitted before the stream completes. ")
+                + "End-of-stream without a terminal event completes "
+                + "normally. Transport and decoding failures are propagated through the reactive error path. The "
+                + "client does not reconnect automatically.");
+        } else {
+            comment.paragraph("Events are decoded lazily by a single iterator. Use try-with-resources to close the "
+                + "stream when iteration ends early. The response is also closed on end-of-stream, a terminal event, "
+                + "or an iteration failure. Closing the stream is idempotent and may throw {@link java.io.IOException}.");
+            comment.paragraph((terminalEventNames.isEmpty()
+                ? "The stream completes at end-of-stream. "
+                : "If received, the terminal " + terminalEvents
+                    + " event is emitted before iteration ends. A failure while closing after a terminal event is "
+                    + "reported by the next iterator access or explicit close, after the terminal event is delivered. ")
+                + "End-of-stream without a terminal event completes normally. Transport and decoding failures are "
+                + "thrown during iteration. The client does not reconnect automatically.");
+        }
+
+        for (ClientMethodParameter parameter : method.getMethodInputParameters()) {
+            comment.param(parameter.getName(), parameter.getDescription());
+        }
+        comment.methodReturns((isMethodAsync(method) ? "A stream of typed " : "A closeable stream of typed ")
+            + SseUtil.getStreamDescription(method) + " events");
     }
 
     /**
@@ -331,7 +382,6 @@ abstract class ConvenienceMethodTemplateBase {
      */
     protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
         JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
-
         // matched parameters from convenience method to protocol method
         Map<MethodParameter, MethodParameter> parametersMap
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
@@ -658,6 +708,10 @@ abstract class ConvenienceMethodTemplateBase {
         convenienceMethods.stream().flatMap(m -> m.getConvenienceMethods().stream()).forEach(m -> {
             // we need classes many of its parameters and models, hence "includeImplementationImports=true"
             m.addImportsTo(imports, true, settings);
+            if (m.getSseMetadata() != null) {
+                m.getSseMetadata().getSerializerType().addImportsTo(imports, false);
+                SseUtil.getRuntimeType().addImportsTo(imports, false);
+            }
 
             // add imports from models, as some convenience API need to process model properties
             for (ClientMethodParameter p : m.getParameters()) {
@@ -1159,7 +1213,7 @@ abstract class ConvenienceMethodTemplateBase {
     /**
      * Writes the expression to convert a convenience parameter to a protocol parameter and wrap it in
      * JsonMergePatchHelper.
-     * 
+     *
      * @param javaBlock
      * @param convenientParameterTypeName
      * @param convenientParameterName
