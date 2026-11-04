@@ -46,7 +46,7 @@ describe("TypeScript deprecation documentation", () => {
     "preserves documentation and deprecation on $kind declarations",
     async ({ code, render, expected }) => {
       const program = await getProgram(`
-      @doc("An old type.")
+      /** An old type. */
       #deprecated "Use Replacement instead."
       ${code}
     `);
@@ -65,10 +65,10 @@ describe("TypeScript deprecation documentation", () => {
 
   it("preserves model and property deprecation, including an empty message", async () => {
     const program = await getProgram(`
-      @doc("An old widget.")
+      /** An old widget. */
       #deprecated "Use NewWidget instead."
       model Widget {
-        @doc("The old title.")
+        /** The old title. */
         #deprecated "Use name instead."
         title?: string;
         #deprecated ""
@@ -108,9 +108,12 @@ describe("TypeScript deprecation documentation", () => {
     const program = await getProgram(`
       #deprecated "Use NewApi instead."
       interface Api {
-        @doc("Gets the old title.")
+        /**
+         * Gets the old title.
+         * @param id The widget id.
+         */
         #deprecated "Use getName instead."
-        getTitle(@doc("The widget id.") id: string): string;
+        getTitle(id: string): string;
       }
     `);
     const [type] = program.resolveTypeReference("Api");
@@ -179,9 +182,12 @@ describe("TypeScript deprecation documentation", () => {
     "preserves deprecation and parameter docs on $kind declarations",
     async ({ render, expected }) => {
       const program = await getProgram(`
-      @doc("Gets the old title.")
+      /**
+       * Gets the old title.
+       * @param id The widget id.
+       */
       #deprecated "Use getName instead."
-      op getTitle(@doc("The widget id.") id: string): string;
+      op getTitle(id: string): string;
     `);
       const [operation] = program.resolveTypeReference("getTitle");
       expect(<TestFile program={program}>{render(operation as Operation)}</TestFile>).toRenderTo(
@@ -194,10 +200,10 @@ describe("TypeScript deprecation documentation", () => {
     "preserves deprecation when emitting %s types as enums",
     async (kind) => {
       const program = await getProgram(`
-      @doc("The old colors.")
+      /** The old colors. */
       #deprecated "Use NewColor instead."
       ${kind} Color {
-        @doc("The old color.")
+        /** The old color. */
         #deprecated "Use blue instead."
         red: "red",
         blue: "blue",
@@ -231,7 +237,7 @@ describe("TypeScript deprecation documentation", () => {
   it("preserves source documentation on a standalone enum member", async () => {
     const program = await getProgram(`
       enum Color {
-        @doc("The old color.")
+        /** The old color. */
         #deprecated "Use blue instead."
         red: "red",
       }
@@ -258,7 +264,7 @@ describe("TypeScript deprecation documentation", () => {
 
   it("keeps explicit documentation authoritative", async () => {
     const program = await getProgram(`
-      @doc("An old type.")
+      /** An old type. */
       #deprecated "Use Replacement instead."
       scalar Example extends string;
     `);
