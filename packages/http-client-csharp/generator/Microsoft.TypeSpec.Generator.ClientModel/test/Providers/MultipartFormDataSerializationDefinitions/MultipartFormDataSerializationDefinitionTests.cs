@@ -52,6 +52,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MultipartForm
         }
 
         [Test]
+        public async Task CustomizedGetterOnlyPropertyIncludesLifecycleHelpers()
+        {
+            var inputModel = MultipartModel("CustomRequest", [NonFilePartProperty("id", InputPrimitiveType.String)]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var types = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+
+            Assert.IsTrue(types.Any(t => t is LifecycleModelReaderWriterOptionsDefinition));
+            Assert.IsTrue(types.Any(t => t is LifecycleVisibilityDefinition));
+            var model = types.OfType<ScmModel>().Single();
+            var serialization = model.SerializationProviders.OfType<MultipartFormDataSerializationDefinition>().Single();
+            var actual = new TypeProviderWriter(serialization).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), actual);
+            foreach (var type in types)
+            {
+                type.EnsureBuilt();
+            }
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(types);
+            Assert.IsTrue(session.ShouldWriteProvider(types.OfType<LifecycleModelReaderWriterOptionsDefinition>().Single()));
+            Assert.IsTrue(session.ShouldWriteProvider(types.OfType<LifecycleVisibilityDefinition>().Single()));
+        }
+
+        [Test]
+        public async Task CustomizedWritablePropertyOmitsLifecycleHelpers()
+        {
+            var inputModel = MultipartModel("CustomRequest", [NonFilePartProperty("id", InputPrimitiveType.String)]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var types = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+
+            Assert.IsFalse(types.Any(t => t is LifecycleModelReaderWriterOptionsDefinition));
+            Assert.IsFalse(types.Any(t => t is LifecycleVisibilityDefinition));
+            var model = types.OfType<ScmModel>().Single();
+            var serialization = model.SerializationProviders.OfType<MultipartFormDataSerializationDefinition>().Single();
+            var actual = new TypeProviderWriter(serialization).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), actual);
+        }
+
+        [Test]
         public void TestSerialization_SingleRequiredFile()
         {
             var inputModel = MultipartModel(

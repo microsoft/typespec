@@ -99,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
-                .. GetLifecycleTypes(),
+                .. GetLifecycleTypes(baseTypes),
                 .. GetJsonLinesTypes(),
                 new BinaryContentHelperDefinition(),
                 ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
@@ -110,11 +110,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ];
         }
 
-        private static IEnumerable<TypeProvider> GetLifecycleTypes()
+        private static IEnumerable<TypeProvider> GetLifecycleTypes(IEnumerable<TypeProvider> modelTypes)
         {
             var inputNamespace = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace;
             var visited = new HashSet<InputType>();
             if (inputNamespace.Models.Any(model => LifecycleModelReaderWriterOptionsDefinition.HasLifecycleVisibility(model, visited)) ||
+                modelTypes.OfType<ModelProvider>().Any(model =>
+                    model.CanonicalView.Properties.Select(property => property.WireInfo)
+                        .Concat(model.CanonicalView.Fields.Select(field => field.WireInfo))
+                        .Any(wireInfo => wireInfo is not null && (wireInfo.IsReadOnly || wireInfo.Visibility != InputVisibility.All))) ||
                 inputNamespace.Clients.SelectMany(client => client.Methods).Any(method => method.Operation.RequestVisibility.HasValue))
             {
                 yield return new LifecycleModelReaderWriterOptionsDefinition();
