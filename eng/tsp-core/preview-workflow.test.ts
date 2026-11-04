@@ -77,7 +77,7 @@ it.each(Object.entries(loadWorkflow("python-integration").jobs))(
     expect(install).toBeGreaterThan(upgrade);
     expect(steps[upgrade].run?.trim().split("\n")).toEqual([
       `python -m pip install --upgrade pip==${pip} uv==${uv}`,
-      `echo "$(python -c 'import sysconfig; print(sysconfig.get_path("scripts"))')" >> "$GITHUB_PATH"`,
+      `python -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"`,
     ]);
   },
 );
