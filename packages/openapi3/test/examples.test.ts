@@ -1033,7 +1033,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
   });
 });
 
-worksFor(supportedVersions, ({ diagnoseOpenApiFor, emitOpenApiWithDiagnostics }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, emitOpenApiWithDiagnostics, version }) => {
   describe("unserializable examples", () => {
     it.each([
       "model Registration { @example(typeref(string)) type: TypeRef; }",
@@ -1078,6 +1078,25 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, emitOpenApiWithDiagnostics })
       expect(response.content!["application/json"].examples).toEqual({
         Valid: { summary: "Valid", value: { type: "item" } },
       });
+    });
+
+    it("preserves a later serializable schema example", async () => {
+      const [document, diagnostics] = await emitOpenApiWithDiagnostics(`
+        model Registration {
+          @example("item")
+          @example(typeref(string))
+          type: TypeRef | string;
+        }
+      `);
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/example-not-supported" });
+      const schema = document.components!.schemas!.Registration;
+      ok("properties" in schema);
+      const property = schema.properties!.type;
+      if (version === "3.0.0") {
+        expect(property).toHaveProperty("example", "item");
+      } else {
+        expect(property).toHaveProperty("examples", ["item"]);
+      }
     });
   });
 });

@@ -76,8 +76,12 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
   ) {
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
-    if (examples.length > 0) {
-      setProperty(target, "example", serializeExample(program, examples[0].value, type));
+    for (const example of examples) {
+      const value = serializeExample(program, example.value, type);
+      if (value !== undefined) {
+        setProperty(target, "example", value);
+        break;
+      }
     }
   }
 
