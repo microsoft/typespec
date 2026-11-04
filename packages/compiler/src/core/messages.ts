@@ -1222,6 +1222,13 @@ const diagnostics = {
     },
   },
   // #endregion CLI
+  "typeref-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "The typeref function requires the 'typeref' feature to be enabled. Add 'typeref' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

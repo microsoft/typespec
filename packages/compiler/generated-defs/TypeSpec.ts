@@ -1291,6 +1291,7 @@ export type TypeSpecDecorators = {
  * Creates an opaque value referencing an existing type.
  * The reference preserves the type's identity and can be stored in object and array values.
  * The result has type `TypeRef<target>`; JavaScript implementations receive a `TypeRefValue`.
+ * Requires the `typeref` compiler feature.
  *
  * @param target The type to reference.
  * @example

@@ -1,14 +1,5 @@
 import type { Program } from "../core/program.js";
-import type { BaseValue, FunctionContext, Scalar, Type } from "../core/types.js";
-
-export function typeref(context: FunctionContext, target: Type): TypeRefValue {
-  return {
-    entityKind: "Value",
-    valueKind: "TypeRefValue",
-    type: context.program.checker.getTypeRefType(target),
-    target,
-  };
-}
+import type { BaseValue, Scalar, Type } from "../core/types.js";
 
 /**
  * The native generic scalar used to store a compile-time type reference.

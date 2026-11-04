@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { assert, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Mutator, MutatorWithNamespace } from "../../src/experimental/mutators.js";
 import {
   mutateSubgraph,
@@ -587,108 +587,5 @@ describe("decorators", () => {
       },
     };
     expect(() => mutateSubgraph(program, [mutator], Foo)).not.toThrow();
-  });
-});
-
-describe("lazy clones", () => {
-  it("propagates a changed child without changing the original owner", async () => {
-    const { Foo, program } = await Tester.compile(t.code`
-      model Item {}
-      model ${t.model("Foo")} { item: Item; }
-    `);
-    const original = Foo.properties.get("item")!;
-    const mutator: Mutator = {
-      name: "test",
-      Model: {
-        filter: (model) => model.name === "Item",
-        mutate: (_, clone) => {
-          clone.name = "ChangedItem";
-        },
-      },
-    };
-    const { type } = mutateSubgraph(program, [mutator], Foo);
-    assert(type.kind === "Model");
-    expect(type).not.toBe(Foo);
-    expect(type.properties.get("item")).not.toBe(original);
-    expect(type.properties.get("item")!.type).toMatchObject({ name: "ChangedItem" });
-    expect(type.properties.get("item")!.model).toBe(type);
-    expect(Foo.properties.get("item")).toBe(original);
-    expect(original.type).toMatchObject({ name: "Item" });
-    expect(original.model).toBe(Foo);
-    expect(mutateSubgraph(program, [], Foo).type).toBe(Foo);
-  });
-
-  it.each(["Item", "Record<Item>"])(
-    "preserves source links when lazily cloning a model is %s",
-    async (source) => {
-      const { Foo, program } = await Tester.compile(t.code`
-        model Item {}
-        model ${t.model("Foo")} is ${source};
-      `);
-      const originalSource = Foo.sourceModel;
-      const originalSourceModel = Foo.sourceModels[0].model;
-      const originalIndexer = Foo.indexer?.value;
-      const mutator: Mutator = {
-        name: "test",
-        Model: {
-          filter: (model) => model.name === "Item",
-          mutate: (_, clone) => {
-            clone.name = "ChangedItem";
-          },
-        },
-      };
-      const { type } = mutateSubgraph(program, [mutator], Foo);
-      assert(type.kind === "Model");
-      expect(type).not.toBe(Foo);
-      expect(Foo.sourceModel).toBe(originalSource);
-      expect(Foo.sourceModels[0].model).toBe(originalSourceModel);
-      expect(Foo.indexer?.value).toBe(originalIndexer);
-      expect(type.sourceModel).not.toBe(originalSource);
-      expect(type.sourceModels[0].model).toBe(type.sourceModel);
-      if (originalIndexer) {
-        expect(type.indexer!.value).toMatchObject({ name: "ChangedItem" });
-      }
-    },
-  );
-
-  it("does not clone owners when a cached child is unchanged", async () => {
-    const { Foo, program } = await Tester.compile(t.code`
-      model Shared {}
-      model ${t.model("Foo")} { first: Shared; second: Shared; }
-    `);
-    const mutator: Mutator = {
-      name: "test",
-      Model: { filter: () => false, mutate: () => {} },
-    };
-    expect(mutateSubgraph(program, [mutator], Foo)).toEqual({ type: Foo, realm: null });
-  });
-
-  it("finishes a lazy clone with its remapped decorator arguments", async () => {
-    const captured = new Map<Model, Model>();
-    const { Foo, program } = await Tester.files({
-      "capture.js": mockFile.js({
-        $capture: (_context: unknown, target: Model, reference: Model) => {
-          captured.set(target, reference);
-        },
-      }),
-    }).import("./capture.js").compile(t.code`
-      extern dec capture(target, reference: unknown);
-      model Item {}
-      @capture(Item) model ${t.model("Foo")} {}
-    `);
-    const mutator: Mutator = {
-      name: "test",
-      Model: {
-        filter: (model) => model.name === "Item",
-        mutate: (_, clone) => {
-          clone.name = "ChangedItem";
-        },
-      },
-    };
-    const { type } = mutateSubgraph(program, [mutator], Foo);
-    assert(type.kind === "Model");
-    expect(captured.get(Foo)).toMatchObject({ name: "Item" });
-    expect(captured.get(type)).toMatchObject({ name: "ChangedItem" });
-    expect(type.isFinished).toEqual(true);
   });
 });

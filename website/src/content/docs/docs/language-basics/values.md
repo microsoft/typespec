@@ -192,7 +192,14 @@ model A {}
 ## Type-reference values
 
 :::warning
-`typeref` is experimental, like [functions](./functions.md). Its API and behavior may change in future releases.
+`typeref` is experimental and requires the `typeref` compiler feature. Its API and behavior may change in future releases. Enable it in the `tspconfig.yaml` of the project or library that calls the function:
+
+```yaml
+kind: project
+features:
+  - typeref
+```
+
 :::
 
 A library may need metadata that combines ordinary values with references to TypeSpec types. For example, a model registration can contain a name and the model it describes. Use `typeref(Widget)` to include the `Widget` model in that value:

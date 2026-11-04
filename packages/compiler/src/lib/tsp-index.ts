@@ -1,5 +1,4 @@
 import type { TypeSpecDecorators, TypeSpecFunctions } from "../../generated-defs/TypeSpec.js";
-import { typeref } from "../experimental/typeref.js";
 import {
   $discriminator,
   $doc,
@@ -48,6 +47,7 @@ import {
   pageSizeDecorator,
   prevLinkDecorator,
 } from "./paging.js";
+import { typeref } from "./typeref.js";
 import {
   $defaultVisibility,
   $invisible,

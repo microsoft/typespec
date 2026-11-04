@@ -533,11 +533,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
-    if (
-      name === undefined ||
-      this.#isStdType(scalar) ||
-      isTypeRefType(this.emitter.getProgram(), scalar)
-    ) {
+    if (name === undefined || isTypeRefType(this.emitter.getProgram(), scalar)) {
       return {};
     } else {
       return this.#newFileScope(scalar);
