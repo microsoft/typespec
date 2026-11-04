@@ -384,7 +384,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return WrapInIsDefinedCheck(prop, statements);
         }
 
-        private ForEachStatement CreateXmlWriteListForEachStatement(
+        private MethodBodyStatement CreateXmlWriteListForEachStatement(
             ValueExpression collection,
             CSharpType elementType,
             string? itemsName,
@@ -392,10 +392,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             Dictionary<string, XmlNamespaceInfo>? namespaces)
         {
-            return new ForEachStatement(elementType, "item", collection, false, out var itemVariable)
-            {
-                CreateXmlWriteItemStatement(itemVariable, elementType, itemsName, itemsNamespace, serializationFormat, namespaces)
-            };
+            return ExperimentalApiHelpers.Suppress(
+                new ForEachStatement(elementType, "item", collection, false, out var itemVariable)
+                {
+                    CreateXmlWriteItemStatement(itemVariable, elementType, itemsName, itemsNamespace, serializationFormat, namespaces)
+                },
+                ExperimentalApiHelpers.GetReferenceSuppressions(elementType));
         }
 
         private MethodBodyStatement CreateXmlWriteItemStatement(

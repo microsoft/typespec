@@ -316,6 +316,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void XmlSerializationSuppressesExperimentalModelListLoop()
+        {
+            var experimentalModel = InputFactory.Experimental(
+                InputFactory.Model(
+                    "ExperimentalModel",
+                    usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                    properties: [InputFactory.Property(
+                        "value",
+                        InputPrimitiveType.String,
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("value")))]),
+                "EXPERIMENTAL001");
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "items",
+                    InputFactory.Array(experimentalModel),
+                    isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("items")))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [experimentalModel, inputModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "XmlModelWriteCore"));
+            var lines = writer.Write().Content.Split(Environment.NewLine);
+            var foreachIndex = Array.FindIndex(lines, line => line.Contains("foreach (") && line.Contains("item in Items"));
+
+            Assert.That(foreachIndex, Is.GreaterThan(0));
+            Assert.That(lines[foreachIndex - 1], Does.Contain("#pragma warning disable EXPERIMENTAL001"));
+            var indentation = lines[foreachIndex].TakeWhile(char.IsWhiteSpace).Count();
+            var loopEndIndex = Array.FindIndex(lines, foreachIndex + 1, line => line == $"{new string(' ', indentation)}}}");
+            Assert.That(loopEndIndex, Is.GreaterThan(foreachIndex));
+            Assert.That(lines[loopEndIndex + 1], Does.Contain("#pragma warning restore EXPERIMENTAL001"));
+        }
+
+        [Test]
         public void XmlSerializationSkipsNullCollections(
             [Values(false, true)] bool supportsJson,
             [Values(false, true)] bool isRequired,
