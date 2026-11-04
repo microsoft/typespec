@@ -1665,38 +1665,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return base.BuildMethodsForBackCompatibility(originalMethods);
             }
 
-            // The base pass can clear defaults on last-contract signatures when constructing hidden overloads.
-            var previousDefaults = GetContinuationTokenDefaults(continuationTokenMethods);
             var tokenBearingSignatures = continuationTokenMethods.Keys
                 .Select(method => (method.ServiceMethod, method.Kind, method.Signature.Name)).ToHashSet();
 
-            // Tokenless entry points must not be matched to a published token-bearing signature just
-            // because removing the token and adding another parameter produced the same CLR types.
             var tokenlessMethods = originalMethods.OfType<ScmMethodProvider>()
                 .Where(method => !continuationTokenMethods.ContainsKey(method)
                     && tokenBearingSignatures.Contains((method.ServiceMethod, method.Kind, method.Signature.Name)))
                 .ToArray();
-            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods.Except(tokenlessMethods))];
-            var signaturesByName = result.GroupBy(method => method.Signature.Name)
-                .ToDictionary(group => group.Key, group => group.Select(method => method.Signature).ToList());
-            foreach (var method in tokenlessMethods)
-            {
-                if (!signaturesByName.TryGetValue(method.Signature.Name, out var signatures))
-                {
-                    signatures = [];
-                    signaturesByName.Add(method.Signature.Name, signatures);
-                }
-                if (!signatures.Any(signature => MethodSignature.MethodSignatureComparer.Equals(signature, method.Signature)))
-                {
-                    signatures.Add(method.Signature);
-                    result.Add(method);
-                }
-            }
+            var tokenlessSignatures = tokenlessMethods
+                .Select(method => (method.ServiceMethod, method.Kind, method.Signature.Name)).ToHashSet();
+            var hiddenTokenMethods = continuationTokenMethods
+                .Where(method => tokenlessSignatures.Contains((method.Key.ServiceMethod, method.Key.Kind, method.Key.Signature.Name)))
+                .ToDictionary(method => method.Key, method => method.Value);
+            // Snapshot defaults before the base pass builds shims, and keep published tokenless methods
+            // in the match set so regeneration does not replace them with required-parameter shims.
+            var previousDefaults = GetContinuationTokenDefaults(hiddenTokenMethods);
+            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods)];
+            result.RemoveAll(method => tokenlessMethods.Contains(method));
+            result.AddRange(tokenlessMethods);
 
             foreach (var method in result.OfType<ScmMethodProvider>())
             {
                 if (!continuationTokenMethods.ContainsKey(method))
                 {
+                    continue;
+                }
+
+                if (!hiddenTokenMethods.ContainsKey(method))
+                {
+                    // A signature collision retains the ordinary token-bearing API. Protocol parameters
+                    // become required only after the base pass has used their defaults to restore old overloads.
+                    if (method.Kind == ScmMethodKind.Protocol && !method.IsPartialMethod
+                        && method.ServiceMethod is { Operation.GenerateConvenienceMethod: true })
+                    {
+                        foreach (var parameter in method.Signature.Parameters)
+                        {
+                            parameter.DefaultValue = null;
+                        }
+                    }
                     continue;
                 }
 

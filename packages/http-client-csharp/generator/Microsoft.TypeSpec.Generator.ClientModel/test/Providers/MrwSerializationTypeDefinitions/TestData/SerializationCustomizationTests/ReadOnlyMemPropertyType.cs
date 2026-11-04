@@ -124,7 +124,7 @@ namespace Sample.Models
                         continue;
                     }
                     int index = 0;
-                    global::System.Byte[] array = new byte[prop.Value.GetArrayLength()];
+                    byte[] array = new byte[prop.Value.GetArrayLength()];
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array[index] = item.GetByte();
@@ -140,7 +140,7 @@ namespace Sample.Models
                         continue;
                     }
                     int index = 0;
-                    global::System.Byte[] array = new byte[prop.Value.GetArrayLength()];
+                    byte[] array = new byte[prop.Value.GetArrayLength()];
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array[index] = item.GetByte();
