@@ -222,6 +222,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return true;
         }
 
+        internal static bool HasPureFormattedTypes(IEnumerable<CSharpType> types)
+        {
+            var names = ImmutableHashSet.CreateBuilder<string>(StringComparer.Ordinal);
+            return types.All(t => CaptureTypeImports(t, names, 0));
+        }
+
         private static bool CaptureTypeImports(CSharpType type, ImmutableHashSet<string>.Builder names, int depth)
         {
             if (depth > 32 || type.GetType() != typeof(CSharpType) || !Namespace(type.Namespace) ||

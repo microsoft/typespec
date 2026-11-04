@@ -94,9 +94,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
                 else if (node.Producer is ForEachStatement or UsingScopeStatement)
                 {
-                    var role = node.Producer is ForEachStatement ? "/collection" : "/resource";
-                    foreach (var child in node.Children.Where(c => c.Id.EdgePath == node.Id.EdgePath + role))
-                    { ownBarriers.Add(new(node.Id, child.Id, PreparedCaptureBarrierKind.ImplicitOperation)); }
+                    if (node.SynchronousResourceTextAbsence is { IsCurrent: true } disposal)
+                    { dependencies.Add(() => disposal.IsCurrent); }
+                    else
+                    {
+                        var role = node.Producer is ForEachStatement ? "/collection" : "/resource";
+                        foreach (var child in node.Children.Where(c => c.Id.EdgePath == node.Id.EdgePath + role))
+                        { ownBarriers.Add(new(node.Id, child.Id, PreparedCaptureBarrierKind.ImplicitOperation)); }
+                    }
+                    // Resource-text absence does not establish disposal layout.
+                    unknownLines.Add(new(node.Id, null));
+                }
+                else if (node.Producer is AssignmentExpression && node.SynchronousResourceTextAbsence is { IsCurrent: true } declarationDisposal)
+                {
+                    // Only the audited using declaration. Its target subtree
+                    // remains independently conservative, without vetoing RHS text.
+                    dependencies.Add(() => declarationDisposal.IsCurrent);
                     unknownLines.Add(new(node.Id, null));
                 }
                 else if (node.Producer is IfStatement or WhileStatement or DoWhileStatement)

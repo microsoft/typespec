@@ -17,19 +17,24 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     internal sealed class PreparedGeneratedTypeHeader
     {
         internal TypeProvider Owner { get; }
-        internal IEnumerable<string> ImportNamespaces => _documentation.ImportNamespaces;
-        internal IEnumerable<CSharpType> ImportTypes => _documentation.ImportTypes;
+        internal IEnumerable<string> ImportNamespaces => _metadataBase is null ? _documentation.ImportNamespaces : _documentation.ImportNamespaces.Append(_metadataBase.Namespace);
+        internal IEnumerable<CSharpType> ImportTypes => _metadataBase is null ? _documentation.ImportTypes : _documentation.ImportTypes.Append(_metadataBase);
         private readonly PreparedSourceFile.OwnerSnapshot _ownerSnapshot;
         private readonly XmlDocProvider _docs;
         private readonly PreparedGeneratedDocumentationEnvelope _documentation;
+        private readonly CSharpType? _metadataBase;
+        private readonly DeclaredTypeSnapshot? _baseSnapshot;
         private int _stale;
 
-        private PreparedGeneratedTypeHeader(TypeProvider owner, XmlDocProvider docs, PreparedGeneratedDocumentationEnvelope documentation)
+        private PreparedGeneratedTypeHeader(TypeProvider owner, XmlDocProvider docs, PreparedGeneratedDocumentationEnvelope documentation,
+            CSharpType? metadataBase = null, DeclaredTypeSnapshot? baseSnapshot = null)
         {
             Owner = owner;
             _ownerSnapshot = new(owner);
             _docs = docs;
             _documentation = documentation;
+            _metadataBase = metadataBase;
+            _baseSnapshot = baseSnapshot;
         }
 
         internal static PreparedGeneratedTypeHeader? TryCapture(TypeProvider owner)
@@ -39,22 +44,34 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return new(owner, docs, documentation);
         }
 
+        // A separate constructor-owner profile; ordinary generated-group and
+        // import-envelope admission intentionally keep their no-base boundary.
+        internal static PreparedGeneratedTypeHeader? TryCaptureMetadataBase(TypeProvider owner)
+        {
+            if (owner.CachedType?.BaseType is not { } metadataBase || metadataBase.GetType() != typeof(CSharpType) ||
+                !metadataBase.IsFrameworkType || !PreparedCallImportScope.HasPureFormattedTypes(new[] { metadataBase }) ||
+                !DeclaredTypeSnapshot.TryCapture(metadataBase, out var snapshot) || snapshot is null ||
+                !HasKnownHeader(owner, metadataBase) || owner.CachedXmlDocs is not { } docs ||
+                PreparedGeneratedDocumentationEnvelope.TryCapture(docs) is not { } documentation) { return null; }
+            return new(owner, docs, documentation, metadataBase, snapshot);
+        }
+
         internal bool IsCurrent
         {
             get
             {
                 if (System.Threading.Volatile.Read(ref _stale) != 0) { return false; }
-                if (_ownerSnapshot.IsCurrent() && HasKnownHeader(Owner) && ReferenceEquals(Owner.CachedXmlDocs, _docs) &&
-                    _documentation.IsCurrent) { return true; }
+                if (_ownerSnapshot.IsCurrent() && HasKnownHeader(Owner, _metadataBase) && _baseSnapshot?.IsCurrent() != false &&
+                    ReferenceEquals(Owner.CachedXmlDocs, _docs) && _documentation.IsCurrent) { return true; }
                 System.Threading.Interlocked.Exchange(ref _stale, 1);
                 return false;
             }
         }
 
-        private static bool HasKnownHeader(TypeProvider owner)
+        private static bool HasKnownHeader(TypeProvider owner, CSharpType? permittedMetadataBase = null)
         {
             if (owner.CachedType is not { } type || type.GetType() != typeof(CSharpType) || type.IsFrameworkType ||
-                type.DeclaringType is not null || type.BaseType is not null || !Identifier(type.Name) ||
+                type.DeclaringType is not null || !ReferenceEquals(type.BaseType, permittedMetadataBase) || !Identifier(type.Name) ||
                 type.Namespace.Length == 0 || !type.Namespace.Split('.').All(part => Identifier(part) && SyntaxFacts.GetKeywordKind(part) == SyntaxKind.None) ||
                 !ContractCollections.TryCopy(type.Arguments, out var arguments) || !arguments.IsEmpty ||
                 owner.CachedDeclarationModifiers is not { } modifiers || !modifiers.HasFlag(TypeSignatureModifiers.Class)) { return false; }

@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private readonly Func<bool>? _callEnvironmentCurrent;
         private readonly Func<CSharpType, PreparedGeneratedMethodGroup?>? _resolveGeneratedGroup;
         private readonly Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? _resolveReducedGroup;
+        private readonly bool _allowBaseInitializer;
         private readonly List<PreparedSourceOccurrence> _roots = [];
         private readonly Dictionary<TypeProvider, Dictionary<(string Role, int Index), PreparedSourceOccurrence>> _byOwner = new(ReferenceEqualityComparer.Instance);
         private readonly List<OwnerSnapshot> _owners = [];
@@ -35,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal PreparedSourceFile(Guid generation, TypeProvider owner, string path, Compilation compilation, bool disableXmlDocs,
             Func<CSharpType, INamedTypeSymbol?>? resolveCallType = null, Func<bool>? callEnvironmentCurrent = null,
             Func<CSharpType, PreparedGeneratedMethodGroup?>? resolveGeneratedGroup = null,
-            Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? resolveReducedGroup = null)
+            Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? resolveReducedGroup = null, bool allowBaseInitializer = false)
         {
             Generation = generation;
             FileOwner = owner;
@@ -46,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _callEnvironmentCurrent = callEnvironmentCurrent;
             _resolveGeneratedGroup = resolveGeneratedGroup;
             _resolveReducedGroup = resolveReducedGroup;
+            _allowBaseInitializer = allowBaseInitializer;
             CaptureOwner(owner, "type", new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance));
         }
 
@@ -74,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             void Add(string role, int index, object node, bool boundary)
             {
                 var occurrence = PreparedSourceOccurrence.Capture(new(Generation, FilePath, path, role, index, "$"), node, boundary,
-                    _compilation, _disableXmlDocs, _resolveCallType, _callEnvironmentCurrent, _resolveGeneratedGroup, _resolveReducedGroup);
+                    _compilation, _disableXmlDocs, _resolveCallType, _callEnvironmentCurrent, _resolveGeneratedGroup, _resolveReducedGroup,
+                    _allowBaseInitializer && role == "constructor" && ReferenceEquals(owner, FileOwner));
                 roots.Add((role, index), occurrence);
                 _roots.Add(occurrence);
             }

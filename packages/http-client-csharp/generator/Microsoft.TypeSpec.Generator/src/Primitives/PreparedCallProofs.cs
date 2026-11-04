@@ -138,7 +138,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 result.UnavailableReason = "Anonymous or unowned null-type initializer emission.";
                 return result;
             }
-            if (!construction && delegateReceiver is null && instanceReceiver is null && emittedType is { IsFrameworkType: false } generatedType &&
+            if (!construction && !directParameterDelegate && delegateReceiver is null && (instanceReceiver is null or VariableExpression) &&
+                emittedType is { IsFrameworkType: false } generatedType &&
                 HasStableNamedIdentifier(name ?? string.Empty) && SyntaxFacts.IsValidIdentifier(name ?? string.Empty) &&
                 SyntaxFacts.GetKeywordKind(name ?? string.Empty) == SyntaxKind.None &&
                 resolveGeneratedGroup?.Invoke(generatedType) is { } generatedGroup)
@@ -146,7 +147,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 // This generated scalar family has no generic declaration proof.
                 if (!genericArguments.IsEmpty) { return result; }
                 var generatedCandidates = generatedGroup.Candidates.Where(c => c.Declaration.Contract.Name == name).ToImmutableArray();
-                if (generatedCandidates.IsEmpty || generatedCandidates.Any(c => !c.Declaration.Contract.IsStatic || c.Declaration.Contract.IsExtension)) { return result; }
+                if (generatedCandidates.IsEmpty || generatedCandidates.Any(c => !c.Selectable ||
+                    c.Declaration.Contract.IsStatic != (instanceReceiver is null) || c.Declaration.Contract.IsExtension)) { return result; }
                 var generatedWitness = generatedCandidates.FirstOrDefault(c => HasBoundedApplicability(c.Declaration.Contract, arguments,
                     csharp, resolveType, occurrence, children, c.FormalTypes));
                 if (generatedWitness is null) { return result; }
@@ -163,18 +165,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
                 return result;
             }
-            if (emittedType is not { } type || !type.IsFrameworkType && !loadedSourceReceiver ||
-                type.IsNullable || type.DeclaringType is not null ||
-                type.IsFrameworkType && (type.FrameworkType.IsNested || type.FrameworkType.IsGenericType || type.FrameworkType.IsArray ||
-                    type.Name != type.FrameworkType.Name || type.Namespace != type.FrameworkType.Namespace) ||
-                loadedSourceReceiver && (type.IsValueType || type.IsStruct) ||
-                !HasStableNamedIdentifier(type.Name) || !SyntaxFacts.IsValidIdentifier(type.Name) ||
-                !ContractCollections.TryCopy(type.Arguments, out var actualTypes) || actualTypes.Length != 0 ||
-                resolveType(type) is not { } target ||
-                target.TypeKind != TypeKind.Class && !(target.TypeKind == TypeKind.Delegate &&
-                    (directParameterDelegate || instanceReceiver is VariableExpression && name == "Invoke")) ||
-                construction && (target.IsAbstract || target.IsStatic) ||
-                loadedSourceReceiver && (!target.Locations.Any(l => l.IsInSource) || !SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly)))
+            var target = ResolveNamedTarget(emittedType, compilation, resolveType, loadedSourceReceiver, construction,
+                directParameterDelegate || instanceReceiver is VariableExpression && name == "Invoke");
+            if (target is null)
             {
                 result.UnavailableReason = "Emitted metadata-qualified receiver is not certified.";
                 return result;
@@ -210,43 +203,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             var parameterDelegate = directParameterDelegate || instanceReceiver is VariableExpression && target.TypeKind == TypeKind.Delegate;
             if (!genericArguments.IsEmpty && (construction || delegateFieldName is not null || parameterDelegate)) { return result; }
             var candidates = ImmutableArray.CreateBuilder<IMethodSymbol>();
-            var visited = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            for (var current = target; current is not null; current = current.BaseType)
+            var lookup = CollectNamedMethods(target, name, compilation, construction, instanceReceiver is not null, loadedSourceReceiver,
+                delegateFieldName is not null || parameterDelegate, genericArguments);
+            if (lookup is null)
             {
-                if (!visited.Add(current) || current.TypeKind == TypeKind.Error || current.HasUnsupportedMetadata || construction && HasErrorType(current))
-                {
-                    result.UnavailableReason = "Incomplete metadata hierarchy.";
-                    return result;
-                }
-                // Constructors are not inherited; delegate Invoke is resolved from
-                // the actual field type below, not from its containing class.
-                if (delegateFieldName is not null || parameterDelegate || construction && !SymbolEqualityComparer.Default.Equals(current, target)) { continue; }
-                System.Collections.Generic.IEnumerable<ISymbol> members = construction ? current.InstanceConstructors : current.GetMembers(name);
-                foreach (var member in members)
-                {
-                    if (member is not IMethodSymbol method || method.MethodKind != (construction ? MethodKind.Constructor : MethodKind.Ordinary) || method.HasUnsupportedMetadata)
-                    {
-                        result.UnavailableReason = "Unknown named-member declaration.";
-                        return result;
-                    }
-                    if (!genericArguments.IsEmpty)
-                    {
-                        // Explicit syntax excludes other arities. Do not infer
-                        // type arguments or choose among same-arity overloads.
-                        if (method.Arity != genericArguments.Length) { continue; }
-                        if (method.TypeParameters.Any(p => p.HasConstructorConstraint || p.HasReferenceTypeConstraint || p.HasValueTypeConstraint ||
-                            p.HasNotNullConstraint || p.HasUnmanagedTypeConstraint || !p.ConstraintTypes.IsEmpty)) { return result; }
-                        method = method.Construct(genericArguments.ToArray());
-                    }
-                    if (HasErrorType(method.ReturnType) || method.Parameters.Any(p => HasErrorType(p.Type)) || instanceReceiver is not null && method.IsStatic ||
-                        loadedSourceReceiver && ((!construction && instanceReceiver is null && !method.IsStatic) || !HasSourceObserverCorrespondence(method, compilation)))
-                    {
-                        result.UnavailableReason = "Unknown named-member candidate.";
-                        return result;
-                    }
-                    candidates.Add(method);
-                }
+                result.UnavailableReason = "Incomplete named-member lookup.";
+                return result;
             }
+            candidates.AddRange(lookup.Value);
             var callableOwner = target;
             if (delegateFieldName is not null)
             {
@@ -281,7 +245,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 result.UnavailableReason = "No bounded ordinary-member applicability witness.";
                 return result;
             }
-            bool Current() => environmentCurrent() && occurrenceCurrent();
+            // Newly admitted using-return lambda applicability depends on these
+            // exact occurrence facts, including their observed sticky failure.
+            var resourceDependencies = children.SelectMany(c => c.DescendantsAndSelf()).Select(c => c.SynchronousResourceTextAbsence)
+                .OfType<PreparedSynchronousResourceTextAbsence>().ToImmutableArray();
+            bool Current() => environmentCurrent() && occurrenceCurrent() && resourceDependencies.All(d => d.IsCurrent);
             if (group.Length == 1 && HasCanonicalObserverIdentities(witness, compilation))
             {
                 var contract = DeclaredCallableContract.FromSymbol(witness, compilation);
@@ -293,6 +261,113 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (group.All(HasNoDirectObservers)) { result._absence = new PreparedDirectObservationAbsence(occurrence, group, witness, Current); }
             if (result._selection is null && result._absence is null) { result.UnavailableReason = "Selection or direct-observation absence is not established."; }
             return result;
+        }
+
+        internal static PreparedCallProofs CaptureInitializer(SourceOccurrenceId occurrence, ConstructorInitializer initializer,
+            PreparedConstructorInitializerFrame frame, CSharpCompilation compilation, Func<CSharpType, INamedTypeSymbol?> resolveType,
+            Func<bool> environmentCurrent, Func<bool> occurrenceCurrent, ImmutableArray<PreparedSourceOccurrence> children)
+        {
+            var result = new PreparedCallProofs();
+            if (!initializer.IsBase || !frame.Matches(initializer) || !ContractCollections.TryCopy(initializer.Arguments, out var arguments) ||
+                CollectNamedMethods(frame.BaseTarget, ".ctor", compilation, true, true, false, false, []) is not { IsEmpty: false } group) { return result; }
+            var witness = group.FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(m.ContainingType, frame.BaseTarget) &&
+                HasBoundedApplicability(m, arguments, compilation, true, resolveType, occurrence, children));
+            if (witness is null) { return result; }
+            bool Current() => environmentCurrent() && occurrenceCurrent() && frame.IsCurrent;
+            if (group.Length == 1 && HasCanonicalObserverIdentities(witness, compilation))
+            {
+                var contract = DeclaredCallableContract.FromSymbol(witness, compilation);
+                var map = DeclaredArgumentMap.Create(contract, initializer.Arguments);
+                if (map.IsAvailable && map.IsCurrent()) { result._selection = new(occurrence, contract, map, Current); }
+            }
+            if (group.All(HasNoDirectObservers)) { result._absence = new(occurrence, group, witness, Current); }
+            return result;
+        }
+
+        private static INamedTypeSymbol? ResolveNamedTarget(CSharpType? emittedType, Compilation compilation,
+            Func<CSharpType, INamedTypeSymbol?> resolveType, bool loadedSourceReceiver, bool construction, bool allowDelegate)
+        {
+            if (emittedType is not { } type || !type.IsFrameworkType && !loadedSourceReceiver ||
+                type.IsNullable || type.DeclaringType is not null ||
+                type.IsFrameworkType && (type.FrameworkType.IsNested || type.FrameworkType.IsGenericType || type.FrameworkType.IsArray ||
+                    type.Name != type.FrameworkType.Name || type.Namespace != type.FrameworkType.Namespace) ||
+                loadedSourceReceiver && (type.IsValueType || type.IsStruct) ||
+                !HasStableNamedIdentifier(type.Name) || !SyntaxFacts.IsValidIdentifier(type.Name) ||
+                !ContractCollections.TryCopy(type.Arguments, out var actualTypes) || actualTypes.Length != 0 ||
+                resolveType(type) is not { } target ||
+                target.TypeKind != TypeKind.Class && !(target.TypeKind == TypeKind.Delegate &&
+                    allowDelegate) ||
+                construction && (target.IsAbstract || target.IsStatic) ||
+                loadedSourceReceiver && (!target.Locations.Any(l => l.IsInSource) || !SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly)))
+            { return null; }
+            return target;
+        }
+
+        private static ImmutableArray<IMethodSymbol>? CollectNamedMethods(INamedTypeSymbol target, string name, Compilation compilation,
+            bool construction, bool instanceCall, bool loadedSourceReceiver, bool skipMembers, ImmutableArray<ITypeSymbol> genericArguments)
+        {
+            var candidates = ImmutableArray.CreateBuilder<IMethodSymbol>();
+            var visited = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            for (var current = target; current is not null; current = current.BaseType)
+            {
+                if (!visited.Add(current) || current.TypeKind == TypeKind.Error || current.HasUnsupportedMetadata || construction && HasErrorType(current))
+                {
+                    return null;
+                }
+                // Constructors are not inherited; delegate Invoke is resolved from
+                // the actual field type below, not from its containing class.
+                if (skipMembers || construction && !SymbolEqualityComparer.Default.Equals(current, target)) { continue; }
+                System.Collections.Generic.IEnumerable<ISymbol> members = construction ? current.InstanceConstructors : current.GetMembers(name);
+                foreach (var member in members)
+                {
+                    if (member is not IMethodSymbol method || method.MethodKind != (construction ? MethodKind.Constructor : MethodKind.Ordinary) || method.HasUnsupportedMetadata)
+                    {
+                        return null;
+                    }
+                    if (!genericArguments.IsEmpty)
+                    {
+                        // Explicit syntax excludes other arities. Do not infer
+                        // type arguments or choose among same-arity overloads.
+                        if (method.Arity != genericArguments.Length) { continue; }
+                        if (method.TypeParameters.Any(p => p.HasConstructorConstraint || p.HasReferenceTypeConstraint || p.HasValueTypeConstraint ||
+                            p.HasNotNullConstraint || p.HasUnmanagedTypeConstraint || !p.ConstraintTypes.IsEmpty)) { return null; }
+                        method = method.Construct(genericArguments.ToArray());
+                    }
+                    if (HasErrorType(method.ReturnType) || method.Parameters.Any(p => HasErrorType(p.Type)) || instanceCall && method.IsStatic ||
+                        loadedSourceReceiver && ((!construction && !instanceCall && !method.IsStatic) || !HasSourceObserverCorrespondence(method, compilation)))
+                    {
+                        return null;
+                    }
+                    candidates.Add(method);
+                }
+            }
+            return candidates.ToImmutable();
+        }
+
+        // Context is declaration evidence only. No applicability/winner/absence
+        // fact is produced before the occurrence's children have been captured.
+        internal static DeclaredCallableContract? CaptureLambdaContextContract(InvokeMethodExpression invocation, Compilation compilation,
+            Func<CSharpType, INamedTypeSymbol?>? resolveType)
+        {
+            if (resolveType is null || invocation.IsReducedExtensionIntent || invocation.ExtensionType is not null ||
+                Unwrap(invocation.InstanceReference) is not TypeReferenceExpression { Type: { } type } ||
+                type.GetType() != typeof(CSharpType) || type.IsFrameworkType && type.FrameworkType.GetType() != typeof(object).GetType())
+            { return null; }
+            var explicitTypes = ImmutableArray<CSharpType>.Empty;
+            if (invocation.TypeArguments is { } arguments && !ContractCollections.TryCopy(arguments, out explicitTypes) ||
+                !TryResolveExplicitTypeArguments(explicitTypes, resolveType, out var genericArguments)) { return null; }
+            var name = invocation.MethodSignature?.Name ?? invocation.MethodName;
+            if (name is null || !HasStableNamedIdentifier(name) || !SyntaxFacts.IsValidIdentifier(name) || SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None ||
+                ResolveNamedTarget(type, compilation, resolveType, !type.IsFrameworkType, false, false) is not { } target ||
+                CollectNamedMethods(target, name, compilation, false, false, !type.IsFrameworkType, false, genericArguments) is not { Length: 1 } group)
+            { return null; }
+            var method = group[0];
+            if (!SymbolEqualityComparer.Default.Equals(method.ContainingType, target) || !method.IsStatic ||
+                method.DeclaredAccessibility != Accessibility.Public || method.Arity != genericArguments.Length || method.IsVararg || method.ReturnsByRef || method.ReturnsByRefReadonly ||
+                !method.Locations.Any(l => type.IsFrameworkType ? l.IsInMetadata : l.IsInSource) || method.Parameters.Any(p => p.IsParams || p.RefKind != RefKind.None))
+            { return null; }
+            var contract = DeclaredCallableContract.FromSymbol(method, compilation);
+            return contract.IsAvailable && contract.IsCurrent() ? contract : null;
         }
 
         private static PreparedCallProofs CaptureReduced(SourceOccurrenceId occurrence, InvokeMethodExpression call, CSharpCompilation compilation,
@@ -328,7 +403,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return result;
         }
 
-        private static IMethodSymbol? ResolveMetadataDelegateInvoke(INamedTypeSymbol type, Compilation compilation)
+        internal static IMethodSymbol? ResolveMetadataDelegateInvoke(INamedTypeSymbol type, Compilation compilation)
         {
             if (type is not { TypeKind: TypeKind.Delegate, DelegateInvokeMethod: { } invoke } ||
                 type.HasUnsupportedMetadata || type.IsUnboundGenericType || HasErrorType(type) ||
@@ -415,35 +490,104 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             Func<CSharpType, INamedTypeSymbol?> resolveType, PreparedSourceOccurrence? occurrence)
         {
             if (compilation.LanguageVersion < LanguageVersion.CSharp3 || occurrence is null || !occurrence.IsCurrent() ||
-                !ContractCollections.TryCopy(closure.Parameters, out var parameters) || parameters.Length != 0 ||
+                !ContractCollections.TryCopy(closure.Parameters, out var parameters) ||
                 target is not INamedTypeSymbol delegateType || ResolveMetadataDelegateInvoke(delegateType, compilation) is not { } invoke ||
-                invoke.Parameters.Length != 0 || invoke.ReturnsVoid || invoke.ReturnsByRef || invoke.ReturnsByRefReadonly) { return false; }
-            ValueExpression body;
-            PreparedSourceOccurrence? bodyOccurrence;
+                parameters.Length != invoke.Parameters.Length || invoke.ReturnsVoid || invoke.ReturnsByRef || invoke.ReturnsByRefReadonly ||
+                parameters.Length != 0 && !occurrence.HasLambdaParameterContext(closure, invoke)) { return false; }
             if (closure.BlockBody is { } block)
             {
-                bodyOccurrence = ExactChild(occurrence, "block-body", block);
-                if (block.GetType() == typeof(MethodBodyStatements) && block is MethodBodyStatements statements)
-                {
-                    if (!ContractCollections.TryCopy(statements.Statements, out var items) || items.Length != 1 || items[0] is null) { return false; }
-                    block = items[0];
-                    bodyOccurrence = ExactChild(bodyOccurrence, "statement[0]", block);
-                }
-                if (block.GetType() != typeof(ExpressionStatement) || block is not ExpressionStatement statement ||
-                    statement.Expression.GetType() != typeof(KeywordExpression) || statement.Expression is not KeywordExpression { Keyword: "return", Expression: { } returned }) { return false; }
-                body = returned;
-                bodyOccurrence = ExactChild(ExactChild(bodyOccurrence, "expression", statement.Expression), "value", body);
+                return HasBoundedLambdaBlock(block, ExactChild(occurrence, "block-body", block), invoke.ReturnType,
+                    compilation, resolveType, 0, out var returns) && returns;
             }
-            else
-            {
-                body = closure.Inner;
-                bodyOccurrence = ExactChild(occurrence, "expression-body", body);
-            }
-            if (bodyOccurrence is null) { return false; }
-            var source = ResolveBoundedValueType(body, compilation, resolveType, valueOccurrence: bodyOccurrence);
+            return HasBoundedLambdaReturn(closure.Inner, ExactChild(occurrence, "expression-body", closure.Inner), invoke.ReturnType, compilation, resolveType);
+        }
+
+        private static bool HasBoundedLambdaReturn(ValueExpression value, PreparedSourceOccurrence? occurrence, ITypeSymbol target,
+            CSharpCompilation compilation, Func<CSharpType, INamedTypeSymbol?> resolveType)
+        {
+            if (occurrence is null) { return false; }
+            var source = ResolveBoundedValueType(value, compilation, resolveType, valueOccurrence: occurrence);
             if (source is null) { return false; }
-            var conversion = compilation.ClassifyCommonConversion(source, invoke.ReturnType);
+            var conversion = compilation.ClassifyCommonConversion(source, target);
             return conversion.IsImplicit && !conversion.IsUserDefined;
+        }
+
+        // A finite return grammar for an actual metadata Func<> formal, not a
+        // generated-body binder or general control-flow/overload resolver.
+        private static bool HasBoundedLambdaBlock(MethodBodyStatement statement, PreparedSourceOccurrence? occurrence, ITypeSymbol target,
+            CSharpCompilation compilation, Func<CSharpType, INamedTypeSymbol?> resolveType, int depth, out bool returns)
+        {
+            returns = false;
+            if (depth > 32 || occurrence is null || occurrence.IsOpaque || !occurrence.IsCurrent()) { return false; }
+            switch (statement)
+            {
+                case MethodBodyStatements list when list.GetType() == typeof(MethodBodyStatements):
+                    return HasBoundedLambdaSequence(list.Statements, occurrence, "statement", target, compilation, resolveType, depth + 1, out returns);
+                case ExpressionStatement expression when expression.GetType() == typeof(ExpressionStatement):
+                    if (expression.Expression.GetType() != typeof(KeywordExpression) ||
+                        expression.Expression is not KeywordExpression { Keyword: "return", Expression: { } value }) { return false; }
+                    var valueOccurrence = ExactChild(ExactChild(occurrence, "expression", expression.Expression), "value", value);
+                    returns = HasBoundedLambdaReturn(value, valueOccurrence, target, compilation, resolveType);
+                    return returns;
+                case IfStatement conditional:
+                    return HasBoundedLambdaIf(conditional, occurrence, target, compilation, resolveType, depth + 1, out _);
+                case IfElseStatement conditional:
+                    if (!HasBoundedLambdaIf(conditional.If, ExactChild(occurrence, "if", conditional.If), target, compilation, resolveType, depth + 1, out var allReturn) ||
+                        !ContractCollections.TryCopy(conditional.ElseIfs, out var alternatives)) { return false; }
+                    for (var index = 0; index < alternatives.Length; index++)
+                    {
+                        if (!HasBoundedLambdaIf(alternatives[index], ExactChild(occurrence, $"else-if[{index}]", alternatives[index]), target,
+                            compilation, resolveType, depth + 1, out var alternativeReturns)) { return false; }
+                        allReturn &= alternativeReturns;
+                    }
+                    if (conditional.Else is not { } otherwise) { return true; }
+                    if (!HasBoundedLambdaBlock(otherwise, ExactChild(occurrence, "else", otherwise), target, compilation, resolveType, depth + 1, out var elseReturns)) { return false; }
+                    returns = allReturn && elseReturns;
+                    return true;
+                case WhileStatement loop when loop.GetType() == typeof(WhileStatement):
+                    return HasBoundedBooleanCondition(loop.Condition, occurrence, compilation, resolveType) &&
+                        HasBoundedLambdaSequence(loop.SourceBody, occurrence, "body", target, compilation, resolveType, depth + 1, out _);
+                case DoWhileStatement loop when loop.GetType() == typeof(DoWhileStatement):
+                    return HasBoundedBooleanCondition(loop.Condition, occurrence, compilation, resolveType) &&
+                        HasBoundedLambdaSequence(loop.SourceBody, occurrence, "body", target, compilation, resolveType, depth + 1, out returns);
+                case UsingScopeStatement scope when occurrence.SynchronousResourceTextAbsence is { IsCurrent: true }:
+                    return HasBoundedLambdaSequence(scope.Body, occurrence, "body", target, compilation, resolveType, depth + 1, out returns);
+                default:
+                    return false;
+            }
+        }
+
+        private static bool HasBoundedLambdaIf(IfStatement conditional, PreparedSourceOccurrence? occurrence, ITypeSymbol target,
+            CSharpCompilation compilation, Func<CSharpType, INamedTypeSymbol?> resolveType, int depth, out bool bodyReturns)
+        {
+            bodyReturns = false;
+            if (occurrence is null || !ContractCollections.TryCopy(conditional.SourceBody, out var body) ||
+                (conditional.Inline || !conditional.AddBraces) && body.Length != 1 ||
+                !HasBoundedBooleanCondition(conditional.Condition, occurrence, compilation, resolveType)) { return false; }
+            return HasBoundedLambdaSequence(body, occurrence, "body", target, compilation, resolveType, depth + 1, out bodyReturns);
+        }
+
+        private static bool HasBoundedLambdaSequence(IReadOnlyList<MethodBodyStatement> statements, PreparedSourceOccurrence occurrence, string role, ITypeSymbol target,
+            CSharpCompilation compilation, Func<CSharpType, INamedTypeSymbol?> resolveType, int depth, out bool returns)
+        {
+            returns = false;
+            if (depth > 32 || !ContractCollections.TryCopy(statements, out var items)) { return false; }
+            for (var index = 0; index < items.Length; index++)
+            {
+                if (items[index] is not { } item || !HasBoundedLambdaBlock(item, ExactChild(occurrence, $"{role}[{index}]", item), target,
+                    compilation, resolveType, depth + 1, out var itemReturns)) { return false; }
+                // Validate unreachable written statements as well; do not silently
+                // discard their source or their occurrence-specific observations.
+                returns |= itemReturns;
+            }
+            return true;
+        }
+
+        private static bool HasBoundedBooleanCondition(ValueExpression condition, PreparedSourceOccurrence occurrence,
+            CSharpCompilation compilation, Func<CSharpType, INamedTypeSymbol?> resolveType)
+        {
+            var child = ExactChild(occurrence, "condition", condition);
+            return child is not null && ResolveBoundedValueType(condition, compilation, resolveType, valueOccurrence: child)?.SpecialType == SpecialType.System_Boolean;
         }
 
         private static PreparedSourceOccurrence? ExactChild(PreparedSourceOccurrence? parent, string role, object producer) =>
@@ -454,6 +598,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             if (depth >= 32 || Unwrap(value) is not { } inner) { return null; }
             valueOccurrence = MatchValueOccurrence(valueOccurrence, inner);
+            if (inner is VariableExpression contextual && contextual.GetType() == typeof(VariableExpression) &&
+                valueOccurrence?.ResolveContextualParameterType(contextual) is { } contextualType)
+            {
+                return contextualType;
+            }
             if (inner is VariableExpression variable && variable.GetType() == typeof(VariableExpression) &&
                 valueOccurrence?.ResolveParameterType(variable) is { } parameterType)
             {

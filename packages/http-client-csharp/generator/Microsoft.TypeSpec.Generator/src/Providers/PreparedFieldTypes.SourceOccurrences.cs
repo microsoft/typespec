@@ -60,13 +60,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             // Prepare the actual written inventories before capturing any file's
             // occurrences: neither file order nor provider intent selects a call.
+            var signatureHeaders = new Dictionary<TypeProvider, PreparedGeneratedTypeHeader>(ReferenceEqualityComparer.Instance);
+            foreach (var owner in all)
+            {
+                if (PreparedGeneratedTypeHeader.TryCapture(owner) is { } header) { signatureHeaders.Add(owner, header); }
+            }
+            PreparedGeneratedTypeHeader? ResolveGeneratedSignatureHeader(CSharpType type)
+            {
+                if (!callLookupClosed || type.GetType() != typeof(CSharpType) || type.IsFrameworkType || type.IsNullable || type.IsValueType || type.IsStruct ||
+                    type.DeclaringType is not null || !ContractCollections.TryCopy(type.Arguments, out var arguments) || !arguments.IsEmpty ||
+                    !generated.TryGetValue((type.Namespace, type.Name), out var owners) || owners.Length != 1 ||
+                    !ReferenceEquals(owners[0].CachedType, type) || namespacePrefixes.Contains(type.Namespace + "." + type.Name) ||
+                    !GeneratedNameIsUncontested(compilation, type.Namespace, type.Name)) { return null; }
+                var prefix = string.Empty;
+                foreach (var part in type.Namespace.Split('.'))
+                {
+                    if (generated.ContainsKey((prefix, part))) { return null; }
+                    prefix = prefix.Length == 0 ? part : prefix + "." + part;
+                }
+                loadedSourceAdmissible ??= !compilation.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error);
+                return loadedSourceAdmissible == true && signatureHeaders.TryGetValue(owners[0], out var header) && header.IsCurrent ? header : null;
+            }
             var generatedGroups = new Dictionary<TypeProvider, PreparedGeneratedMethodGroup>(ReferenceEqualityComparer.Instance);
             bool generatedEnvelopeClosed = callLookupClosed && all.Count == files.Length;
             if (generatedEnvelopeClosed)
             {
                 foreach (var owner in all)
                 {
-                    var group = PreparedGeneratedMethodGroup.TryCapture(owner, compilation);
+                    var group = PreparedGeneratedMethodGroup.TryCapture(owner, compilation, ResolveGeneratedSignatureHeader);
                     if (group is null) { generatedEnvelopeClosed = false; break; }
                     generatedGroups.Add(owner, group);
                 }
@@ -92,6 +113,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Kept separate from generated-call admission: a declaration/import
             // envelope never grants selection authority for generated members.
             var importScope = callLookupClosed && all.Count == files.Length ? PreparedCallImportScope.TryCapture(all, compilation) : null;
+            // First metadata-base initializer profile owns the complete single
+            // physical type. Unknown other files/members cannot add competitors.
+            var allowBaseInitializer = callLookupClosed && all.Count == 1 && files.Length == 1 &&
+                ContractCollections.TryCopy(files[0].CachedConstructors, out var initializers) && initializers.Length == 1;
+            if (allowBaseInitializer)
+            {
+                loadedSourceAdmissible ??= !compilation.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error);
+                allowBaseInitializer = loadedSourceAdmissible == true;
+            }
             foreach (var owner in files)
             {
                 // The normal finalized provider path has already materialized the physical file path.
@@ -99,7 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (owner.CachedRelativeFilePath is not { } path) { continue; }
                 _sourceFiles.Add(owner, new PreparedSourceFile(_sourceGeneration, owner, path, compilation, _sourceDisableXmlDocs,
                     ResolveCallType, CallEnvironmentIsCurrent, ResolveGeneratedGroup,
-                    (receiver, name, hint) => importScope?.Lookup(receiver, name, hint, owner.CachedType!.Namespace)));
+                    (receiver, name, hint) => importScope?.Lookup(receiver, name, hint, owner.CachedType!.Namespace), allowBaseInitializer));
             }
             // Parent call proofs are captured after children. Analyze the frozen
             // graph only once every file and lookup-scope witness is available.

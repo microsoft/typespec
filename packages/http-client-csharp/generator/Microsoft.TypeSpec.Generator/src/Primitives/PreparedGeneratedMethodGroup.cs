@@ -34,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private readonly ImmutableArray<(ParameterProvider Parameter, long Revision)> _suppressionParameters;
         private readonly ImmutableArray<MethodProvider> _suppressionMethods;
         private readonly ImmutableArray<CSharpType> _signatureTypes;
+        private readonly ImmutableArray<PreparedGeneratedTypeHeader> _signatureHeaders;
         private readonly CodeModelGenerator _generator;
         private readonly TypeFactory _typeFactory;
         private int _stale;
@@ -41,10 +42,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private PreparedGeneratedMethodGroup(PreparedGeneratedTypeHeader header, ImmutableArray<Candidate> candidates,
             ImmutableArray<DeclaredCallableContract> contracts, ImmutableArray<PreparedGeneratedDocumentationEnvelope> docs,
             ImmutableArray<(ParameterProvider Parameter, long Revision)> suppressionParameters, ImmutableArray<MethodProvider> suppressionMethods,
-            ImmutableArray<CSharpType> signatureTypes, CodeModelGenerator generator, TypeFactory typeFactory)
+            ImmutableArray<CSharpType> signatureTypes, ImmutableArray<PreparedGeneratedTypeHeader> signatureHeaders, CodeModelGenerator generator, TypeFactory typeFactory)
         {
             _header = header; Candidates = candidates; _contracts = contracts; _docs = docs; _suppressionParameters = suppressionParameters;
-            _suppressionMethods = suppressionMethods; _signatureTypes = signatureTypes; _generator = generator; _typeFactory = typeFactory;
+            _suppressionMethods = suppressionMethods; _signatureTypes = signatureTypes; _signatureHeaders = signatureHeaders; _generator = generator; _typeFactory = typeFactory;
         }
 
         internal bool IsCurrent
@@ -54,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 if (System.Threading.Volatile.Read(ref _stale) != 0) { return false; }
                 if (ReferenceEquals(CodeModelGenerator.Instance, _generator) && PreparedSourceFile.HasCommentOnlyLicenseHeader(_generator.LicenseHeader) &&
                     ReferenceEquals(AuditedTypeFactory(_generator), _typeFactory) &&
-                    _signatureTypes.All(t => HasNoMappedSuppressionProvider(_typeFactory, t)) &&
+                    _signatureTypes.All(t => HasNoMappedSuppressionProvider(_typeFactory, t)) && _signatureHeaders.All(h => h.IsCurrent) &&
                     _suppressionMethods.All(m => ContractCollections.TryCopy(m.Suppressions, out var suppressions) && suppressions.IsEmpty) &&
                     _header.IsCurrent && _contracts.All(c => c.IsCurrent()) && _docs.All(d => d.IsCurrent) &&
                     Candidates.All(c => c.Declaration.IsCurrent) && _suppressionParameters.All(p =>
@@ -64,12 +65,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        internal static PreparedGeneratedMethodGroup? TryCapture(TypeProvider owner, CSharpCompilation compilation) => TryCaptureCore(owner, compilation, false);
+        internal static PreparedGeneratedMethodGroup? TryCapture(TypeProvider owner, CSharpCompilation compilation,
+            Func<CSharpType, PreparedGeneratedTypeHeader?>? resolveSignatureHeader = null) => TryCaptureCore(owner, compilation, false, resolveSignatureHeader);
 
         // Import-envelope facts are never published as generated call candidates.
         internal static PreparedGeneratedMethodGroup? TryCaptureImportEnvelope(TypeProvider owner, CSharpCompilation compilation) => TryCaptureCore(owner, compilation, true);
 
-        private static PreparedGeneratedMethodGroup? TryCaptureCore(TypeProvider owner, CSharpCompilation compilation, bool forImports)
+        private static PreparedGeneratedMethodGroup? TryCaptureCore(TypeProvider owner, CSharpCompilation compilation, bool forImports,
+            Func<CSharpType, PreparedGeneratedTypeHeader?>? resolveSignatureHeader = null)
         {
             var generator = CodeModelGenerator.Instance;
             if (!PreparedSourceFile.HasCommentOnlyLicenseHeader(generator.LicenseHeader)) { return null; }
@@ -88,6 +91,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             var docs = ImmutableArray.CreateBuilder<PreparedGeneratedDocumentationEnvelope>();
             var suppressionParameters = ImmutableArray.CreateBuilder<(ParameterProvider Parameter, long Revision)>();
             var signatureTypes = ImmutableArray.CreateBuilder<CSharpType>();
+            var signatureHeaders = ImmutableArray.CreateBuilder<PreparedGeneratedTypeHeader>();
             foreach (var method in methods)
             {
                 if (method is null || !ReferenceEquals(method.EnclosingType, owner) ||
@@ -98,7 +102,19 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 if (signature.NonDocumentComment is not null || !ContractCollections.TryCopy(signature.Attributes, out var methodAttributes) || !methodAttributes.IsEmpty ||
                     !ContractCollections.TryCopy(signature.Parameters, out var parameters) ||
                     signature.ReturnType is not null && ScalarType(signature.ReturnType, compilation) is null ||
-                    parameters.Any(p => p is null || !HasNoLinkedSuppressionInputs(p) || ScalarType(p.Type, compilation) is null)) { return null; }
+                    parameters.Any(p => p is null || !HasNoLinkedSuppressionInputs(p))) { return null; }
+                var selectable = true;
+                foreach (var parameter in parameters)
+                {
+                    if (ScalarType(parameter.Type, compilation) is not null) { continue; }
+                    // A canonical generated reference in a caller's written
+                    // signature is not a native scalar callee formal. Keep its
+                    // declaration in the inventory, but never silently drop it
+                    // from a named lookup or manufacture a symbol for it.
+                    if (resolveSignatureHeader?.Invoke(parameter.Type) is not { } signatureHeader || !signatureHeader.IsCurrent) { return null; }
+                    signatureHeaders.Add(signatureHeader);
+                    selectable = false;
+                }
                 // GetSignatureSuppressions consumes these inputs even when no
                 // declaration is written. Field is unversioned, so retain a live
                 // null-link witness as well as ordinary parameter revisions.
@@ -118,24 +134,37 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     signature.HasUnsupportedBaseContract || signature.GenericArguments is not null ||
                     signature.GenericParameterConstraints is not null && (!ContractCollections.TryCopy(signature.GenericParameterConstraints, out var constraints) || !constraints.IsEmpty) ||
                     !ContractCollections.TryCopy(signature.Attributes, out var attributes) || !attributes.IsEmpty ||
-                    ScalarType(signature.ReturnType, compilation) is not { } returns || !SafeMethodBody(method, forImports)) { return null; }
+                    ScalarType(signature.ReturnType, compilation) is not { } returns || !SafeMethodBody(method, forImports || !selectable)) { return null; }
                 var formalTypes = ImmutableArray.CreateBuilder<ITypeSymbol>();
                 foreach (var parameter in parameters)
                 {
                     if (parameter is null || !Identifier(parameter.Name) || parameter.IsRef || parameter.IsOut || parameter.IsIn || parameter.IsParams ||
                         parameter.HasUnsupportedParameterModifiers || parameter.HasUnsupportedDefaultValue ||
-                        ScalarType(parameter.Type, compilation) is not { } formalType || !SafeDefault(parameter.DefaultValue, formalType) ||
                         !ContractCollections.TryCopy(parameter.Attributes, out var parameterAttributes) ||
                         parameterAttributes.Any(a => !SafeObserverAttribute(a, compilation))) { return null; }
                     if (parameter.EmittedDeclarationState.Name != parameter.Name) { return null; }
-                    formalTypes.Add(formalType);
+                    if (ScalarType(parameter.Type, compilation) is { } formalType)
+                    {
+                        if (!SafeDefault(parameter.DefaultValue, formalType)) { return null; }
+                        formalTypes.Add(formalType);
+                    }
+                    else if (parameter.DefaultValue is not null || !parameterAttributes.IsEmpty) { return null; }
                 }
                 if (PreparedGeneratedMethodDeclaration.TryCapture(method, compilation) is not { } declaration) { return null; }
                 contracts.Add(declaration.Contract);
-                candidates.Add(new(declaration, formalTypes.ToImmutable(), returns));
+                candidates.Add(new(declaration, formalTypes.ToImmutable(), returns, selectable));
             }
             return new(header, candidates.ToImmutable(), contracts.ToImmutable(), docs.ToImmutable(), suppressionParameters.ToImmutable(),
-                methods, signatureTypes.ToImmutable(), generator, typeFactory);
+                methods, signatureTypes.ToImmutable(), signatureHeaders.ToImmutable(), generator, typeFactory);
+        }
+
+        internal static bool HasSafeContextSignature(MethodProvider method, CSharpCompilation compilation)
+        {
+            var generator = CodeModelGenerator.Instance;
+            return PreparedSourceFile.HasCommentOnlyLicenseHeader(generator.LicenseHeader) && AuditedTypeFactory(generator) is { } factory &&
+                ContractCollections.TryCopy(method.Signature.Parameters, out var parameters) && parameters.IsEmpty &&
+                ScalarType(method.Signature.ReturnType, compilation) is not null && method.Signature.ReturnType is { } returns &&
+                HasNoMappedSuppressionProvider(factory, returns) && ContractCollections.TryCopy(method.Suppressions, out var suppressions) && suppressions.IsEmpty;
         }
 
         private static TypeFactory? AuditedTypeFactory(CodeModelGenerator generator)
@@ -155,6 +184,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             // hashes nor compares keys and never invokes their collections.
             if (factory.CSharpTypeMap is not Dictionary<CSharpType, TypeProvider?> map ||
                 map.GetType() != typeof(Dictionary<CSharpType, TypeProvider>)) { return false; }
+            // First generated-reference signature family is explicitly no-map.
+            // Do not dispatch equality over newly admitted nonframework inputs
+            // or treat a mapped/custom provider as an audited scalar.
+            if (!type.IsFrameworkType) { return map.Count == 0; }
             foreach (var entry in map)
             {
                 var key = entry.Key;
@@ -275,6 +308,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                         parameters.Count(p => ReferenceEquals(p.CachedVariableExpression?.Declaration, variable.Declaration) && p.Name == variable.Declaration.RequestedName) == 1;
                 case PositionalParameterReferenceExpression named:
                     return Identifier(named.ParameterName) && SafeExpression(named.ParameterValue, method, depth + 1, forImports);
+                case FuncExpression closure when forImports:
+                    return ContractCollections.TryCopy(closure.Parameters, out var lambdaParameters) && lambdaParameters.IsEmpty &&
+                        (closure.BlockBody is { } block ? SafeImportStatement(block, method, depth + 1) : SafeExpression(closure.Inner, method, depth + 1, true));
                 case InvokeMethodExpression invocation when invocation.GetType() == typeof(InvokeMethodExpression):
                     return (invocation.ExtensionType is null || forImports && SafeTypeSpelling(invocation.ExtensionType)) &&
                         (!invocation.IsReducedExtensionIntent || forImports) && Identifier(invocation.MethodSignature?.Name ?? invocation.MethodName) &&
@@ -294,6 +330,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private static bool Identifier(string? value) => value is { Length: > 0 } && (value[0] == '_' || char.IsAsciiLetter(value[0])) &&
             value.All(c => c == '_' || char.IsAsciiLetterOrDigit(c));
 
-        internal sealed record Candidate(PreparedGeneratedMethodDeclaration Declaration, ImmutableArray<ITypeSymbol> FormalTypes, ITypeSymbol ReturnType);
+        internal sealed record Candidate(PreparedGeneratedMethodDeclaration Declaration, ImmutableArray<ITypeSymbol> FormalTypes, ITypeSymbol ReturnType, bool Selectable = true);
     }
 }
