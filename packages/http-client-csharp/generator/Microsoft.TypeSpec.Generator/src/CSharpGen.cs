@@ -40,13 +40,7 @@ namespace Microsoft.TypeSpec.Generator
             generator.CompilerBuildContext = generation;
             try
             {
-                var projectFile = Path.GetFullPath(Path.Combine(generator.Configuration.ProjectDirectory,
-                    $"{generator.Configuration.PackageName}.csproj"));
-                if (File.Exists(projectFile))
-                {
-                    generation.BootstrapAssets = CompilerBuildInputProof.TryCaptureBootstrapAssets(session, generator.Configuration.OutputDirectory, projectFile)
-                        ?? throw new InvalidOperationException("Compiler-host generation requires current captured project assets for this project.");
-                }
+                generation.Initialize(generator);
                 await ExecuteCoreAsync(generation);
                 return new CompilerBuildGenerationResult(generation.UsedCapturedResidualInputs);
             }
@@ -61,20 +55,8 @@ namespace Microsoft.TypeSpec.Generator
         private async Task ExecuteCoreAsync(CompilerBuildGenerationContext? compilerBuild)
         {
             var generator = CodeModelGenerator.Instance;
-            if (compilerBuild is not null && (generator.IsHosted || generator.IsNewProject))
-            {
-                throw new InvalidOperationException("Compiler-host generation does not support hosted or new-project mode.");
-            }
-            var originalOutputPath = generator.Configuration.OutputDirectory;
-            var outputPath = compilerBuild is null ? originalOutputPath : PrepareIsolatedOutput(compilerBuild.OutputDirectory, originalOutputPath);
-            var generatedSourceOutputPath = compilerBuild is null
-                ? generator.Configuration.ProjectGeneratedDirectory
-                : Path.Combine(outputPath, "src", "Generated");
-            if (compilerBuild is not null && PreparedFieldTypes.IsPolicyEnabled(generator))
-            {
-                compilerBuild.SourceProof = CompilerBuildInputProof.TryCreate(compilerBuild.Session, originalOutputPath);
-            }
-            var compilerProof = compilerBuild?.SourceProof;
+            var outputPath = compilerBuild?.OutputDirectory ?? generator.Configuration.OutputDirectory;
+            var generatedSourceOutputPath = compilerBuild?.GeneratedSourceDirectory ?? generator.Configuration.ProjectGeneratedDirectory;
 
             generator.Emitter.Info("Starting code generation");
             generator.Stopwatch.Start();
@@ -109,10 +91,7 @@ namespace Microsoft.TypeSpec.Generator
                 await customCodeWorkspace.GetCompilationAsync(),
                 await GeneratedCodeWorkspace.LoadBaselineContract(),
                 GeneratedCodeWorkspace.LoadApiCompatBaseline());
-            if (compilerBuild is not null)
-            {
-                sourceInputModel.PreEmissionSourceInputs = compilerProof;
-            }
+            compilerBuild?.ApplySourceProof(sourceInputModel);
             CodeModelGenerator.Instance.SourceInputModel = sourceInputModel;
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
@@ -156,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator
                 // Keep the existing streaming path when preparation is disabled.
                 // With prepared spellings, stage every file until the complete
                 // provider snapshot has survived all writer callbacks.
-                List<CodeFile>? stagedFiles = preparedFields is null && (compilerBuild is null || compilerProof is null)
+                List<CodeFile>? stagedFiles = preparedFields is null && compilerBuild?.SourceProof is null
                     ? null : new List<CodeFile>();
 
                 void WriteFiles(PreparedFieldTypes? fields)
@@ -193,14 +172,12 @@ namespace Microsoft.TypeSpec.Generator
                     var canCommit = preparedFields is not null && preparedFields.CanCommit() && PreparedFieldTypes.IsPolicyEnabled(generator);
                     if (compilerBuild is not null)
                     {
-                        var useCapturedResidual = compilerProof is not null && PreparedFieldTypes.IsPolicyEnabled(generator) &&
-                            compilerProof.IsCurrentFor(originalOutputPath);
-                        if (useCapturedResidual)
+                        var residualWorkspace = await compilerBuild.TryCreateResidualWorkspaceAsync(generator);
+                        if (residualWorkspace is not null)
                         {
-                            generatedCodeWorkspace = await GeneratedCodeWorkspace.CreateForCompilerProof(compilerProof!);
-                            compilerBuild.UsedCapturedResidualInputs = true;
+                            generatedCodeWorkspace = residualWorkspace;
                         }
-                        canCommit &= useCapturedResidual;
+                        canCommit &= residualWorkspace is not null;
                     }
                     foreach (var file in stagedFiles)
                     {
@@ -242,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator
             // Write the generated files to the output directory
             foreach (var file in generatedFiles)
             {
-                var filename = compilerBuild is null ? Path.Combine(outputPath, file.Name) : ResolveIsolatedFile(outputPath, file.Name);
+                var filename = compilerBuild?.ResolveOutputFile(file.Name) ?? Path.Combine(outputPath, file.Name);
                 CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
@@ -264,52 +241,7 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
 
-            if (compilerBuild?.UsedCapturedResidualInputs == true &&
-                (!PreparedFieldTypes.IsPolicyEnabled(generator) || compilerProof is null || !compilerProof.IsCurrentFor(originalOutputPath) ||
-                    generator.CompilerBuildAssets is not null && !generator.CompilerBuildAssets.IsCurrent()))
-            {
-                compilerBuild.UsedCapturedResidualInputs = false;
-            }
-        }
-
-        private static string PrepareIsolatedOutput(string isolatedOutputDirectory, string originalOutputDirectory)
-        {
-            if (!Path.IsPathFullyQualified(isolatedOutputDirectory))
-            {
-                throw new InvalidOperationException("Compiler-host output must be an absolute path.");
-            }
-            var isolated = Path.GetFullPath(isolatedOutputDirectory);
-            var original = Path.GetFullPath(originalOutputDirectory);
-            var projectDirectory = Path.Combine(original, "src");
-            if (IsWithin(original, isolated) || IsWithin(isolated, projectDirectory) || PreparedFieldTypes.HasUnstablePath(isolated) ||
-                Directory.Exists(isolated) && Directory.EnumerateFileSystemEntries(isolated).Any())
-            {
-                throw new InvalidOperationException("Compiler-host output must be a fresh, isolated directory outside the source tree.");
-            }
-            Directory.CreateDirectory(isolated);
-            return isolated;
-        }
-
-        private static string ResolveIsolatedFile(string isolatedOutputDirectory, string relativePath)
-        {
-            if (Path.IsPathFullyQualified(relativePath))
-            {
-                throw new InvalidOperationException("Compiler-host output paths must be relative.");
-            }
-            var path = Path.GetFullPath(relativePath, isolatedOutputDirectory);
-            if (!IsWithin(path, isolatedOutputDirectory) || PreparedFieldTypes.HasUnstablePath(path))
-            {
-                throw new InvalidOperationException("Compiler-host output escaped its isolated directory.");
-            }
-            return path;
-        }
-
-        private static bool IsWithin(string path, string directory)
-        {
-            var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-            var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
-            var candidate = Path.GetFullPath(path);
-            return candidate.Equals(root, comparison) || candidate.StartsWith(root + Path.DirectorySeparatorChar, comparison);
+            compilerBuild?.ValidateResult(generator);
         }
 
         private static IEnumerable<TypeProvider> GetWrittenProviders(OutputLibrary output, ProviderReferenceMapSession referenceMapSession)

@@ -861,6 +861,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.That(prepared.CanCommit(), Is.False);
         }
 
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        public void CommitObservesEachSnapshotBoundaryWithMultipleCandidates(int divergentCheck)
+        {
+            var target = Target();
+            var owner = new FieldOwner(target.Type);
+            owner.Update(fields: [owner.Fields[0], new FieldProvider(FieldModifiers.Private, target.Type, "_other", owner)]);
+            var nested = new List<TypeProvider>();
+            owner.Update(nestedTypes: nested);
+            var armed = false;
+            var snapshotChecks = 0;
+            using var prepared = PreparedFieldTypes.Create([owner, target], CurrentCompilation, provider =>
+            {
+                if (armed && ReferenceEquals(provider, target) && ++snapshotChecks == divergentCheck)
+                {
+                    nested.Add(new Shadow(owner));
+                }
+                return true;
+            });
+            Assert.That(prepared.CanCommit(), Is.True);
+
+            armed = true;
+            Assert.That(prepared.CanCommit(), Is.False);
+            Assert.That(snapshotChecks, Is.EqualTo(divergentCheck),
+                "Commit must observe the initial, each occurrence, and final snapshot boundaries.");
+            armed = false;
+            nested.Clear();
+
+            Assert.That(prepared.CanCommit(), Is.False, "Restoring a retained list must not resurrect the plan.");
+            Assert.That(prepared.CanWriteSimpleName(owner, owner.Fields[0]), Is.False);
+            Assert.That(prepared.CanWriteSimpleName(owner, owner.Fields[1]), Is.False);
+        }
+
         [Test]
         public void MutableNestedTypeListCannotChangeFieldBindingAfterPreparation()
         {
