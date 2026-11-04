@@ -45,6 +45,78 @@ import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
+describe("ARM internal access", () => {
+  it("preserves internal operations and types while public usage takes precedence", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(
+        new URL("../../generator/http-client-generator-test/tsp/arm-internal.tsp", import.meta.url),
+      ),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure", "advanced-versioning": true, "dev-options": {} },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    expectDiagnosticEmpty(program.diagnostics);
+    expect(model.arm).toBe(true);
+    const groups = model.clients.flatMap((client) => client.operationGroups);
+    const widgets = groups.find((group) => group.language.default.name === "Widgets")!;
+    const secrets = groups.find((group) => group.language.default.name === "Secrets")!;
+    expect(
+      widgets.operations?.map((operation) => [operation.operationId, operation.internalApi]),
+    ).toEqual([
+      ["Widgets_get", false],
+      ["Widgets_inspect", true],
+      ["Widgets_inspectShared", true],
+      ["Widgets_readShared", false],
+    ]);
+    expect(secrets.operations).toHaveLength(5);
+    expect(secrets.operations!.every((operation) => operation.internalApi)).toBe(true);
+    for (const name of [
+      "InternalRequest",
+      "InternalDetails",
+      "InternalBase",
+      "InternalResult",
+      "Secret",
+      "SecretProperties",
+    ]) {
+      const schema = model.schemas.objects!.find(
+        (schema) => schema.language.default.name === name,
+      )!;
+      assert.isDefined(schema, name);
+      expect(schema.usage).toContain(SchemaContext.Internal);
+      expect(schema.usage).not.toContain(SchemaContext.Public);
+    }
+    for (const schema of [
+      model.schemas.choices!.find((schema) => schema.language.default.name === "InternalState")!,
+      model.schemas.sealedChoices!.find(
+        (schema) => schema.language.default.name === "InternalKind",
+      )!,
+    ]) {
+      assert.isDefined(schema);
+      expect(schema.usage).toContain(SchemaContext.Internal);
+      expect(schema.usage).not.toContain(SchemaContext.Public);
+    }
+    for (const schema of [
+      model.schemas.objects!.find((schema) => schema.language.default.name === "SharedResult")!,
+      model.schemas.choices!.find((schema) => schema.language.default.name === "SharedState")!,
+    ]) {
+      assert.isDefined(schema);
+      expect(schema.usage).toContain(SchemaContext.Public);
+      expect(schema.usage).not.toContain(SchemaContext.Internal);
+    }
+  });
+});
+
 describe("advanced versioning", () => {
   it.each([true, false])("preserves parameter additions only when enabled=%s", async (enabled) => {
     const program = await compile(
