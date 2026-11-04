@@ -1,9 +1,11 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
+import { getSourceLocation } from "../../src/core/diagnostics.js";
 import type { Diagnostic, EmitContext } from "../../src/index.js";
 import { createTypeSpecLibrary } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { mockFile } from "../../src/testing/fs.js";
+import { parseYaml } from "../../src/yaml/parser.js";
 import { Tester } from "../tester.js";
 
 const fakeEmitter = createTypeSpecLibrary({
@@ -70,6 +72,131 @@ it("pass options", async () => {
   strictEqual(context.emitterOutputDir, "/out");
   strictEqual(context.options["asset-dir"], "/assets");
   strictEqual(context.options["max-files"], 10);
+});
+
+describe("subpath emitters", () => {
+  const typescriptEmitter = "fake-emitter/typescript";
+  const jsonSchemaEmitter = "fake-emitter/json-schema";
+
+  function createSubpathEmitters() {
+    const contexts: EmitContext[] = [];
+    const files: Record<string, string | ReturnType<typeof mockFile.js>> = {
+      "node_modules/fake-emitter/package.json": JSON.stringify({
+        name: "fake-emitter",
+        exports: {
+          "./ts": "./typescript/index.js",
+          "./json-schema": "./json-schema/index.js",
+        },
+      }),
+    };
+    for (const name of [typescriptEmitter, jsonSchemaEmitter]) {
+      files[`node_modules/${name}/index.js`] = mockFile.js({
+        $lib: createTypeSpecLibrary({
+          name,
+          diagnostics: {},
+          emitter: fakeEmitter.emitter,
+        }),
+        $onEmit: (context: EmitContext) => {
+          contexts.push(context);
+        },
+      });
+    }
+    return { tester: Tester.files(files), contexts };
+  }
+
+  it("uses each library's declared name for options, output directories, and statistics", async () => {
+    const { tester, contexts } = createSubpathEmitters();
+    const { program } = await tester.compile("", {
+      compilerOptions: {
+        emit: ["fake-emitter/ts", jsonSchemaEmitter],
+        outputDir: "/out",
+        options: {
+          "fake-emitter": { "max-files": 99, "emitter-output-dir": "/legacy" },
+          [typescriptEmitter]: { "max-files": 10 },
+          [jsonSchemaEmitter]: { "max-files": 20 },
+        },
+      },
+    });
+
+    deepStrictEqual(
+      contexts.map(({ options, emitterOutputDir }) => ({ options, emitterOutputDir })),
+      [
+        { options: { "max-files": 10 }, emitterOutputDir: `/out/${typescriptEmitter}` },
+        { options: { "max-files": 20 }, emitterOutputDir: `/out/${jsonSchemaEmitter}` },
+      ],
+    );
+    deepStrictEqual(Object.keys(program.stats.runtime.emit.emitters), [
+      typescriptEmitter,
+      jsonSchemaEmitter,
+    ]);
+  });
+
+  it("retains package-name options as a fallback", async () => {
+    const { tester, contexts } = createSubpathEmitters();
+    await tester.compile("", {
+      compilerOptions: {
+        emit: ["fake-emitter/ts"],
+        options: {
+          "fake-emitter": { "max-files": 10, "emitter-output-dir": "/legacy" },
+        },
+      },
+    });
+
+    strictEqual(contexts[0].options["max-files"], 10);
+    strictEqual(contexts[0].emitterOutputDir, "/legacy");
+  });
+
+  it.each([typescriptEmitter, "fake-emitter"])(
+    "targets schema diagnostics at options configured under %s",
+    async (optionsKey) => {
+      const { tester } = createSubpathEmitters();
+      const [configFile] = parseYaml(`options:\n  ${optionsKey}:\n    max-files: not-a-number\n`);
+      const diagnostics = await tester.diagnose("", {
+        compilerOptions: {
+          emit: ["fake-emitter/ts"],
+          options: { [optionsKey]: { "max-files": "not-a-number" } },
+          configFile: {
+            projectRoot: ".",
+            diagnostics: [],
+            outputDir: "tsp-output",
+            file: configFile,
+          },
+        },
+      });
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-schema",
+        message: "Schema violation: must be number (/max-files)",
+      });
+      const location = getSourceLocation(diagnostics[0].target);
+      ok(location);
+      strictEqual(location.file.text.slice(location.pos, location.end), "max-files");
+    },
+  );
+});
+
+it("uses the declared library name for filesystem package emitters", async () => {
+  let context: EmitContext | undefined;
+  await Tester.files({
+    "../local-emitter/package.json": JSON.stringify({
+      name: "fake-emitter",
+      main: "index.js",
+    }),
+    "../local-emitter/index.js": mockFile.js({
+      $lib: createTypeSpecLibrary({ name: "fake-emitter/typescript", diagnostics: {} }),
+      $onEmit: (emitContext: EmitContext) => {
+        context = emitContext;
+      },
+    }),
+  }).compile("", {
+    compilerOptions: {
+      emit: ["../local-emitter"],
+      outputDir: "/out",
+    },
+  });
+
+  ok(context);
+  strictEqual(context.emitterOutputDir, "/out/fake-emitter/typescript");
 });
 
 it("emit diagnostic if passing unknown option", async () => {
