@@ -20,29 +20,33 @@ raw-writer acceptance; that is tracked separately in section G.
 
 As of **2026-11-04**:
 
-- **Published code checkpoint:**
+- **Previous published code checkpoint:**
   [`ba019d2820651fb577b9f07df71d83bf2ef5aaa1`](https://github.com/live1206/typespec/commit/ba019d2820651fb577b9f07df71d83bf2ef5aaa1).
-  Its change-specific gate passed 831 affected core tests and 3 client tests,
-  plus the checkpoint's formatting/Cop checks. This is not a final unfiltered
-  Task03 result.
-- **Locally implemented and validated, not included in that published code
-  checkpoint:** additional block-lambda contexts, owning receivers, the original
-  private-instance generic producer, and independent field/body fallback
-  rendering. The generic/receiver/context gate passed 95/95; fallback mechanics
-  and existing writer/import/field-independence controls passed 116/116. A
-  separate five-case run passed real-writer transfer and generic access controls.
-- **Latest local unfiltered core run (before adding the host fixture):** 4,067
-  passed, 2 failed, 0 skipped. The two
-  failures are the known raw `typeof` shortening positives; no production body
-  editing permission is enabled yet. This is not an all-green result.
-- **Current work:** G1's occurrence-specific permission and body-only host
-  admission, building on G7's locally validated rendering mechanics. A genuine
-  complete-input host baseline passes five guard controls and fails its desired
-  positive at raw shortening, commit validity, root snapshot, and attachment.
-- This checklist is published separately from those local code changes. Checked
-  rows below describe only their stated bounded producer scope. Original PR
-  #12462 and its branch/thread remain unchanged; no default activation,
-  performance, SDK adoption, or Task03 completion is claimed.
+- **This continuation checkpoint:** additional block-lambda contexts, owning
+  receivers, the original private-instance generic producer, and independent
+  field/body fallback rendering, plus the selected original raw outcome below.
+- **Selected original raw outcome:** both original `typeof` host cases pass
+  through complete physical inputs and one standard writer. The ordinary
+  seed/operand shorten; the captured case shortens the seed while preserving
+  the operand and captured text. Shared-IR edge isolation, sticky used-permission
+  fallback, and physical-input/policy guards pass. Three unpublished helper-only
+  positives were superseded by these faithful outcomes, not used to waive
+  original anchors. The physical-input fallback control first proves a valid
+  shortened commit, then verifies rejection after input mutation.
+- **Fresh checkpoint validation:** unfiltered core **4,078/4,078** and client
+  **2,696/2,696**, with zero failures/skips. Formatting/Cop passed; all 41 C# file
+  hashes remained unchanged through validation. Remote CI is not established by
+  these local results; later adopted scope requires fresh gates.
+- **Independent review:** exhaustive medium read-only review of the continuation
+  delta found a documentation-formatter alias escape. Native binding/runtime
+  reproduced the defect before the minimal formatting-purity fix; the unchanged
+  negative/native-positive pair and original safeguards passed a 16-case gate.
+  Independent follow-up review found the fix adequate with no concrete remaining
+  in-scope defect; the fresh broad results above include that fix.
+- Checked rows below describe only their stated bounded producer scope. The 35
+  open items remain open. Original PR #12462 and its branch/thread remain
+  unchanged; no default activation, performance, SDK adoption, or Task03
+  completion is claimed.
 
 The scope remains the accepted issue/POC families. Preserve their original
 positive and retention anchors, including actual instance calls, local delegates,
@@ -178,7 +182,7 @@ second preparation lifecycle is permitted.
   actual loaded qualified source parents, reusing source lookup/correspondence.
   The 255-case gate includes original-tree/native partial and implementation-only
   caller-info controls. Broader parents and raw acceptance remain open.
-- [ ] **F4 — block-lambda slice validated locally; broader work open:** owning
+- [ ] **F4 — block-lambda slice validated; broader work open:** owning
   method parameters/outer captures, nonempty block lambdas, nesting, and required
   contextual parents. Base/candidate comparisons preserve missing positives;
   observer-specific assertions retain leaf captures independently of parent
@@ -201,13 +205,14 @@ second preparation lifecycle is permitted.
 
 ## G — Source policy and actual raw-writer acceptance (7)
 
-- [ ] **G1 — current main integration item:** connect facts to independently
-  justified occurrence-specific editing permission. Native lookup and finite
-  emission-shape ingredients are not permission. The complete-input, body-only
-  host baseline now isolates the missing raw shortening, valid commit, root
-  snapshot, and attachment; default-off/custom-writer/missing/stale-input controls
-  pass. Implement actual admitted lifetime/consumer/used-permission validation
-  without dummy fields, global type/IR permissions, or weakened input gates.
+- [ ] **G1 — selected original slice validated; broader item open:**
+  occurrence-owned permission now connects the original local declaration and
+  `typeof` sites to actual body-only admission, root snapshots, attachment,
+  standard-writer cursor consumption, and used-permission commit validation.
+  The unchanged ordinary/captured original host outcomes, shared-IR isolation,
+  sticky used-body fallback, and physical-input/policy guards pass. No dummy
+  fields, global type/IR permissions, or weakened input gates. Remaining accepted
+  families and final validation still need their own evidence.
 - [ ] **G2** Preserve original lexical/parser safeguards: value/type shadowing,
   lexical type parameters, nameof/dynamic, contextual identifiers/terminal
   tokens, and backing-field `field`. Retain or shorten exactly as accepted
@@ -227,27 +232,34 @@ second preparation lifecycle is permitted.
 - [ ] **G6** Complete caller-line/layout/newline fidelity. Verify original
   relevant layout, LF/CRLF, multiline lambda/interpolation capture, and caller
   line constants against actual one-write output and compiler/runtime.
-- [ ] **G7 — rendering mechanics validated locally; lifecycle scope open:**
+- [ ] **G7 — rendering mechanics validated; lifecycle scope open:**
   captured numeric spelling alternatives now support independent field/body
   choices from one writer traversal. Mechanics, actual field transfer, all four
   output choices, no replay, and existing field independence are validated.
   Default hidden unused-import diagnostics are explicitly controlled; configured
-  diagnostic policies are not broadened. Still require real used-permission
-  registration/commit fallback, owner/shared-node isolation, disposal/config/deep
-  invalidation, and sticky failure across all adopted permissions. Preserve
+  diagnostic policies are not broadened. The selected original slice additionally
+  passes actual used-permission registration, shared-node isolation, deep sticky
+  fallback, and changed physical-input rejection. Disposal/configuration and
+  freshness coverage across all further adopted permissions remain open. Preserve
   default-off/custom-writer/rewriter/independent field/literal behavior.
 
 ## V — Final gates (3)
 
 - [ ] **V1** Run fresh required broad/unfiltered suites and change-specific
   formatting/Cop checks at stable scope. Record actual results/hashes and
-  outstanding CI. The current two unfiltered-core failures are unresolved;
-  historical checkpoints and focused gates do not substitute for closure.
+  outstanding CI. This bounded checkpoint passes fresh unfiltered core/client
+  suites (4,078/2,696), formatting/Cop, and all 41 source-hash checks. This does
+  not close V1 for later adopted Task03 scope; remote CI remains unverified.
 - [ ] **V2** Obtain a frozen, exhaustive independent medium read-only review of
   the full relevant change set and behavior combinations. Verify actual route,
   thinking, and tools; independently reproduce/assess findings and batch fixes,
   revalidation, and review without weakening anchors. Focused producer/fallback
-  reviews found no proven introduced defect but do not close this gate.
+  reviews do not close this gate. The full continuation review found a verified
+  documentation-formatter binding escape; the bounded fix and its unchanged
+  negative/native-positive regressions pass focused validation. Independent
+  follow-up review found no concrete remaining in-scope defect; fresh broad gates
+  pass for this checkpoint. This does not substitute for review of later adopted
+  Task03 scope.
 - [ ] **V3** Reconcile each accepted row with producer **and raw-writer** evidence
   plus retained controls; disclose unresolved positives before assessing Task03
   completion/adoption. Publish validated WIP only to this continuation branch.

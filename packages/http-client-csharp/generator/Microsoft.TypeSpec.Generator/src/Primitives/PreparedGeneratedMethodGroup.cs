@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     _signatureTypes.All(t => HasNoMappedSuppressionProvider(_typeFactory, t)) && _signatureHeaders.All(h => h.IsCurrent) &&
                     _suppressionMethods.All(m => ContractCollections.TryCopy(m.Suppressions, out var suppressions) && suppressions.IsEmpty) &&
                     _header.IsCurrent && _contracts.All(c => c.IsCurrent()) && _docs.All(d => d.IsCurrent) &&
-                    Candidates.All(c => c.Declaration.IsCurrent) && _suppressionParameters.All(p =>
+                    Candidates.All(c => c.Declaration.IsCurrent && (c.GenericSignature?.IsCurrent ?? true)) && _suppressionParameters.All(p =>
                         p.Parameter.DeclarationRevision == p.Revision && HasNoLinkedSuppressionInputs(p.Parameter))) { return true; }
                 System.Threading.Interlocked.Exchange(ref _stale, 1);
                 return false;
@@ -99,14 +99,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     !ContractCollections.TryCopy(method.Suppressions, out var suppressions) || !suppressions.IsEmpty) { return null; }
                 docs.Add(documentation);
                 var signature = method.Signature;
+                var genericSignature = signature.GenericArguments is null ? null : PreparedGeneratedGenericSignature.TryCapture(method, compilation);
+                if (signature.GenericArguments is not null && (genericSignature is null || forImports)) { return null; }
                 if (signature.NonDocumentComment is not null || !ContractCollections.TryCopy(signature.Attributes, out var methodAttributes) || !methodAttributes.IsEmpty ||
                     !ContractCollections.TryCopy(signature.Parameters, out var parameters) ||
-                    signature.ReturnType is not null && ScalarType(signature.ReturnType, compilation) is null ||
+                    signature.ReturnType is not null && ScalarType(signature.ReturnType, compilation) is null && genericSignature?.Owns(signature.ReturnType) != true ||
                     parameters.Any(p => p is null || !HasNoLinkedSuppressionInputs(p))) { return null; }
                 var selectable = true;
                 foreach (var parameter in parameters)
                 {
-                    if (ScalarType(parameter.Type, compilation) is not null) { continue; }
+                    if (ScalarType(parameter.Type, compilation) is not null || genericSignature?.Owns(parameter.Type) == true) { continue; }
                     // A canonical generated reference in a caller's written
                     // signature is not a native scalar callee formal. Keep its
                     // declaration in the inventory, but never silently drop it
@@ -121,6 +123,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 suppressionParameters.AddRange(parameters.Select(p => (p, p.DeclarationRevision)));
                 if (signature.ReturnType is { } returnType) { signatureTypes.Add(returnType); }
                 signatureTypes.AddRange(parameters.Select(p => p.Type));
+                // The declaration writes its type parameter even when T is unused.
+                if (genericSignature is not null) { signatureTypes.Add(genericSignature.Parameter); }
                 // Scalar spelling does not imply suppression independence: the
                 // mutable factory map can route even string/int to an unwritten
                 // provider with deferred attribute/custom-view callbacks.
@@ -129,12 +133,25 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 // wrappers. Only the actual shared writer predicate adds candidates.
                 if (!CodeWriter.HasMethodDeclaration(method)) { continue; }
                 const MethodSignatureModifiers allowed = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
-                if ((signature.Modifiers & ~allowed) != 0 || !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                var privateOrdinary = signature.GenericArguments is null &&
+                    (signature.Modifiers == MethodSignatureModifiers.Private ||
+                        signature.Modifiers == (MethodSignatureModifiers.Private | MethodSignatureModifiers.Static)) &&
+                    method.BodyStatements is null && method.BodyExpression is VariableExpression variable &&
+                    variable.GetType() == typeof(VariableExpression) && ScalarType(signature.ReturnType, compilation) is not null &&
+                    parameters.All(parameter => ScalarType(parameter.Type, compilation) is not null) &&
+                    parameters.Any(parameter => ReferenceEquals(parameter.CachedVariableExpression?.Declaration, variable.Declaration) &&
+                        SymbolEqualityComparer.Default.Equals(ScalarType(parameter.Type, compilation), ScalarType(signature.ReturnType, compilation))) &&
+                    SafeExpression(variable, method, 0, false);
+                var owningAccessOnly = privateOrdinary ||
+                    signature.Modifiers == MethodSignatureModifiers.Private && genericSignature?.HasTypeOfParameterBody == true;
+                if (privateOrdinary && forImports || !owningAccessOnly && ((signature.Modifiers & ~allowed) != 0 || !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)) ||
                     !Identifier(signature.Name) || !SyntaxFacts.IsValidIdentifier(signature.Name) || SyntaxFacts.GetKeywordKind(signature.Name) != SyntaxKind.None || signature.NonDocumentComment is not null || signature.ExplicitInterface is not null ||
-                    signature.HasUnsupportedBaseContract || signature.GenericArguments is not null ||
+                    signature.HasUnsupportedBaseContract ||
                     signature.GenericParameterConstraints is not null && (!ContractCollections.TryCopy(signature.GenericParameterConstraints, out var constraints) || !constraints.IsEmpty) ||
                     !ContractCollections.TryCopy(signature.Attributes, out var attributes) || !attributes.IsEmpty ||
-                    ScalarType(signature.ReturnType, compilation) is not { } returns || !SafeMethodBody(method, forImports || !selectable)) { return null; }
+                    !SafeMethodBody(method, forImports || !selectable, genericSignature)) { return null; }
+                var returns = ScalarType(signature.ReturnType, compilation);
+                if (returns is null && (signature.ReturnType is null || genericSignature?.Owns(signature.ReturnType) != true)) { return null; }
                 var formalTypes = ImmutableArray.CreateBuilder<ITypeSymbol>();
                 foreach (var parameter in parameters)
                 {
@@ -150,9 +167,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     }
                     else if (parameter.DefaultValue is not null || !parameterAttributes.IsEmpty) { return null; }
                 }
-                if (PreparedGeneratedMethodDeclaration.TryCapture(method, compilation) is not { } declaration) { return null; }
+                if (PreparedGeneratedMethodDeclaration.TryCapture(method, compilation) is not { } declaration ||
+                    genericSignature is not null && (declaration.Contract.DeclarationSymbol is not null || declaration.Contract.Arity != 1)) { return null; }
                 contracts.Add(declaration.Contract);
-                candidates.Add(new(declaration, formalTypes.ToImmutable(), returns, selectable));
+                // Definition T has no native symbol here. Only a tagged call binding
+                // supplies actual native formal/return types after explicit syntax.
+                candidates.Add(new(declaration, genericSignature is null ? formalTypes.ToImmutable() : default, returns, selectable, genericSignature, owningAccessOnly));
             }
             return new(header, candidates.ToImmutable(), contracts.ToImmutable(), docs.ToImmutable(), suppressionParameters.ToImmutable(),
                 methods, signatureTypes.ToImmutable(), signatureHeaders.ToImmutable(), generator, typeFactory);
@@ -184,6 +204,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             // hashes nor compares keys and never invokes their collections.
             if (factory.CSharpTypeMap is not Dictionary<CSharpType, TypeProvider?> map ||
                 map.GetType() != typeof(Dictionary<CSharpType, TypeProvider>)) { return false; }
+            // The writer also asks GetReferenceSuppressions for an entire T
+            // formal/return. Its first family requires an EMPTY native map: do
+            // not introduce stored-key equality or a mapped provider callback.
+            if (PreparedGeneratedGenericSignature.IsPureParameterSpelling(type)) { return map.Count == 0; }
             // First generated-reference signature family is explicitly no-map.
             // Do not dispatch equality over newly admitted nonframework inputs
             // or treat a mapped/custom provider as an audited scalar.
@@ -239,7 +263,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return null;
         }
 
-        private static ITypeSymbol? ScalarType(CSharpType? type, CSharpCompilation compilation)
+        internal static ITypeSymbol? ScalarType(CSharpType? type, CSharpCompilation compilation)
         {
             if (type is null || type.GetType() != typeof(CSharpType) || !type.IsFrameworkType ||
                 type.FrameworkType.GetType() != RuntimeTypeImplementation || type.DeclaringType is not null ||
@@ -253,14 +277,38 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return result.TypeKind == TypeKind.Error ? null : result;
         }
 
-        private static bool SafeMethodBody(MethodProvider method, bool forImports)
+        private static bool SafeMethodBody(MethodProvider method, bool forImports, PreparedGeneratedGenericSignature? genericSignature)
         {
             // Mirror the actual writer's statement-body preference. The normal
             // generated-call family remains expression-only; this additional
             // grammar certifies imports, not generated method selection.
             if (method.BodyStatements is { } statements)
-            { return forImports && SafeImportStatement(statements, method, 0); }
-            return method.BodyExpression is { } expression && SafeExpression(expression, method, 0, forImports);
+            { return forImports ? SafeImportStatement(statements, method, 0) : PreparedOwnedGenericBlockScope.GetInvocation(method) is not null; }
+            return method.BodyExpression is { } expression &&
+                (SafeExpression(expression, method, 0, forImports) || HasOwningRootCallProfile(method) ||
+                    !forImports && genericSignature?.HasTypeOfParameterBody == true);
+        }
+
+        // Deliberately not a general addition of this/unqualified names to the
+        // recursive import grammar. Only one owned instance expression root,
+        // with no parameters/locals/closures and literal actuals, is admitted.
+        // The enclosing group's existing header/member audit excludes fields,
+        // properties, bases, custom views and nested/partial competitors.
+        internal static bool HasOwningRootCallProfile(MethodProvider method)
+        {
+            if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) ||
+                !ContractCollections.TryCopy(method.Signature.Parameters, out var parameters) || !parameters.IsEmpty ||
+                method.BodyStatements is not null || method.BodyExpression is not InvokeMethodExpression invocation ||
+                invocation.GetType() != typeof(InvokeMethodExpression) || invocation.CallAsAsync ||
+                invocation.ExtensionType is not null || invocation.IsReducedExtensionIntent || invocation.DelegateParameterIntent is not null ||
+                invocation.TypeArguments is not null && (!ContractCollections.TryCopy(invocation.TypeArguments, out var types) || !types.IsEmpty) ||
+                !(invocation.InstanceReference is null || invocation.InstanceReference is KeywordExpression keyword &&
+                    keyword.GetType() == typeof(KeywordExpression) && keyword.Keyword == "this" && keyword.Expression is null) ||
+                !ContractCollections.TryCopy(invocation.Arguments, out var arguments)) { return false; }
+            var name = invocation.MethodSignature?.Name ?? invocation.MethodName;
+            return Identifier(name) && SyntaxFacts.IsValidIdentifier(name!) && SyntaxFacts.GetKeywordKind(name!) == SyntaxKind.None &&
+                arguments.All(a => a is not null && LiteralPayload(a) is { } literal &&
+                    (literal.Literal is null or string or int or bool or char));
         }
 
         private static bool SafeImportStatement(MethodBodyStatement statement, MethodProvider method, int depth)
@@ -314,7 +362,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 case InvokeMethodExpression invocation when invocation.GetType() == typeof(InvokeMethodExpression):
                     return (invocation.ExtensionType is null || forImports && SafeTypeSpelling(invocation.ExtensionType)) &&
                         (!invocation.IsReducedExtensionIntent || forImports) && Identifier(invocation.MethodSignature?.Name ?? invocation.MethodName) &&
-                        (invocation.TypeArguments is null || ContractCollections.TryCopy(invocation.TypeArguments, out var types) && types.IsEmpty) &&
+                        (invocation.TypeArguments is null || ContractCollections.TryCopy(invocation.TypeArguments, out var types) &&
+                            (forImports ? types.IsEmpty : types.All(SafeExplicitTypeSpelling))) &&
                         (invocation.InstanceReference is TypeReferenceExpression receiver && receiver.GetType() == typeof(TypeReferenceExpression) && SafeTypeSpelling(receiver.Type) ||
                             forImports && invocation.InstanceReference is { } instance && SafeExpression(instance, method, depth + 1, true)) &&
                         ContractCollections.TryCopy(invocation.Arguments, out var arguments) && arguments.All(a => a is not null && SafeExpression(a, method, depth + 1, forImports));
@@ -323,6 +372,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
+        // Written type arguments affect formatting/import closure only here.
+        // Selection still resolves the actual syntax through the existing native
+        // explicit-argument resolver, never through this spelling predicate.
+        private static bool SafeExplicitTypeSpelling(CSharpType type) => type is not null && type.GetType() == typeof(CSharpType) &&
+            type.IsFrameworkType && type.FrameworkType.GetType() == RuntimeTypeImplementation &&
+            !type.FrameworkType.IsGenericParameter && !type.FrameworkType.IsNested && !type.FrameworkType.IsGenericType &&
+            !type.FrameworkType.HasElementType && !type.IsLiteral && !type.HasUnionMetadata &&
+            type.Name == type.FrameworkType.Name && type.Namespace == (type.FrameworkType.Namespace ?? string.Empty) && SafeTypeSpelling(type);
+
         private static bool SafeTypeSpelling(CSharpType? type) => type is not null && type.GetType() == typeof(CSharpType) && Identifier(type.Name) &&
             type.Namespace.Length != 0 && type.Namespace.Split('.').All(part => Identifier(part) && SyntaxFacts.GetKeywordKind(part) == SyntaxKind.None) &&
             type.DeclaringType is null && !type.IsNullable && ContractCollections.TryCopy(type.Arguments, out var arguments) && arguments.IsEmpty;
@@ -330,6 +388,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private static bool Identifier(string? value) => value is { Length: > 0 } && (value[0] == '_' || char.IsAsciiLetter(value[0])) &&
             value.All(c => c == '_' || char.IsAsciiLetterOrDigit(c));
 
-        internal sealed record Candidate(PreparedGeneratedMethodDeclaration Declaration, ImmutableArray<ITypeSymbol> FormalTypes, ITypeSymbol ReturnType, bool Selectable = true);
+        // Scalar definition types are unavailable (default/null) for an entire T;
+        // GenericSignature owns those slots without fabricating a method symbol.
+        internal sealed record Candidate(PreparedGeneratedMethodDeclaration Declaration, ImmutableArray<ITypeSymbol> FormalTypes, ITypeSymbol? ReturnType,
+            bool Selectable = true, PreparedGeneratedGenericSignature? GenericSignature = null, bool OwningAccessOnly = false);
     }
 }

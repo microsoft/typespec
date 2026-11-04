@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            var result = Create(providers, sourceInputs.Compilation, shouldWrite, outputDirectory);
+            var result = CreateCore(providers, sourceInputs.Compilation, shouldWrite, outputDirectory, sourceInputs, sourceModel);
             result._sourceInputs = sourceInputs;
             result._sourceModel = sourceModel;
             result._sourceOutputDirectory = outputDirectory;
@@ -100,8 +100,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Compilation? customization,
             Func<TypeProvider, bool> shouldWrite,
             string? outputDirectory = null)
+            => CreateCore(providers, customization, shouldWrite, outputDirectory, null, null);
+
+        private static PreparedFieldTypes CreateCore(IEnumerable<TypeProvider> providers, Compilation? customization,
+            Func<TypeProvider, bool> shouldWrite, string? outputDirectory, CompleteSourceInputSnapshot? sourceInputs, SourceInputModel? sourceModel)
         {
-            var result = new PreparedFieldTypes();
+            var result = new PreparedFieldTypes
+            {
+                _sourceInputs = sourceInputs,
+                _sourceModel = sourceModel,
+                _sourceOutputDirectory = sourceInputs is null ? null : outputDirectory
+            };
             if (providers is not IReadOnlyList<TypeProvider> roots || !ContractCollections.TryCopy(roots, out var capturedRoots) ||
                 customization is not CSharpCompilation compilation || HasUnsupportedSource(compilation))
             {
@@ -292,7 +301,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             result.CaptureSourceFiles(topLevel, compilation, roots, all, byName, namespacePrefixes,
                 rootStates.All(root => root.Written && root.SerializationWritten.All(written => written)));
 
-            if (result._fields.Count == 0)
+            result.CaptureBodyNames();
+            if (result._fields.Count == 0 && !result.HasBodyNameCandidates)
             {
                 return result;
             }
@@ -327,6 +337,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // that later namespace registration does not violate the captured scope.
         internal void ObserveImport(TypeProvider fileOwner, string namespaceName)
         {
+            ObserveBodyImport(fileOwner, namespaceName);
             if (_forbiddenImports.TryGetValue(fileOwner, out var forbidden) &&
                 (namespaceName.Split('.').Any(part => !IsSimpleIdentifier(part)) || forbidden.Contains(namespaceName)))
             {
@@ -336,6 +347,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public void Dispose()
         {
+            System.Threading.Interlocked.Exchange(ref _sharedSnapshotStale, 1);
             Invalidate();
             InvalidateSourceFiles();
             foreach (var provider in _attached)
@@ -530,7 +542,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return names;
         }
 
-        private bool IsSnapshotCurrent()
+        private bool CheckSnapshotCurrent()
         {
             if (!SourceInputsAreCurrent() || _roots is null || _outputRoot is null || _shouldWrite is null ||
                 !SameReferences(_roots, _rootSnapshot))

@@ -32,7 +32,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             CSharpType? targetContext = null, ImmutableArray<PreparedSourceOccurrence> children = default,
             Func<CSharpType, PreparedGeneratedMethodGroup?>? resolveGeneratedGroup = null,
             Func<ParameterProvider, string, CSharpType?>? resolveDirectParameter = null,
-            Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? resolveReducedGroup = null)
+            Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? resolveReducedGroup = null,
+            Func<InvokeMethodExpression, CSharpType?>? resolveOwningType = null)
         {
             var result = new PreparedCallProofs();
             if (call is InvokeMethodExpression reducedCall && resolveType is not null && environmentCurrent is not null &&
@@ -59,6 +60,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             ValueExpression? instanceReceiver = null;
             bool loadedSourceReceiver = false;
             bool directParameterDelegate = false;
+            bool owningReceiver = false;
+            bool implicitOwnerReceiver = false;
             var explicitTypes = ImmutableArray<CSharpType>.Empty;
             switch (call)
             {
@@ -75,6 +78,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     {
                         emittedType = parameterType;
                         directParameterDelegate = true;
+                    }
+                    else if (invocation.DelegateParameterIntent is null &&
+                        (receiver is null || receiver is KeywordExpression keyword && keyword.GetType() == typeof(KeywordExpression) &&
+                            keyword.Keyword == "this" && keyword.Expression is null))
+                    {
+                        emittedType = resolveOwningType?.Invoke(invocation);
+                        owningReceiver = true;
+                        implicitOwnerReceiver = receiver is null;
+                        if (!implicitOwnerReceiver) { instanceReceiver = receiver; }
                     }
                     else if (receiver is MemberExpression { Declaration: null } member)
                     {
@@ -138,33 +150,59 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 result.UnavailableReason = "Anonymous or unowned null-type initializer emission.";
                 return result;
             }
-            if (!construction && !directParameterDelegate && delegateReceiver is null && (instanceReceiver is null or VariableExpression) &&
+            if (!construction && !directParameterDelegate && delegateReceiver is null && (instanceReceiver is null or VariableExpression || owningReceiver) &&
                 emittedType is { IsFrameworkType: false } generatedType &&
                 HasStableNamedIdentifier(name ?? string.Empty) && SyntaxFacts.IsValidIdentifier(name ?? string.Empty) &&
                 SyntaxFacts.GetKeywordKind(name ?? string.Empty) == SyntaxKind.None &&
                 resolveGeneratedGroup?.Invoke(generatedType) is { } generatedGroup)
             {
-                // This generated scalar family has no generic declaration proof.
-                if (!genericArguments.IsEmpty) { return result; }
-                var generatedCandidates = generatedGroup.Candidates.Where(c => c.Declaration.Contract.Name == name).ToImmutableArray();
+                // Only actual written nonempty type-argument syntax filters
+                // arity. With no explicit syntax, retain generic competitors and
+                // fail closed: this producer does not perform method inference.
+                var generatedCandidates = generatedGroup.Candidates.Where(c => c.Declaration.Contract.Name == name &&
+                    (genericArguments.IsEmpty || c.Declaration.Contract.Arity == genericArguments.Length)).ToImmutableArray();
                 if (generatedCandidates.IsEmpty || generatedCandidates.Any(c => !c.Selectable ||
-                    c.Declaration.Contract.IsStatic != (instanceReceiver is null) || c.Declaration.Contract.IsExtension)) { return result; }
-                var generatedWitness = generatedCandidates.FirstOrDefault(c => HasBoundedApplicability(c.Declaration.Contract, arguments,
-                    csharp, resolveType, occurrence, children, c.FormalTypes));
-                if (generatedWitness is null) { return result; }
-                bool GeneratedCurrent() => environmentCurrent() && occurrenceCurrent() && ReferenceEquals(resolveGeneratedGroup(generatedType), generatedGroup);
+                    c.OwningAccessOnly && (!owningReceiver || !ReferenceEquals(c.Declaration.Owner.CachedType, generatedType)) ||
+                    c.Declaration.Contract.IsExtension ||
+                    genericArguments.IsEmpty && c.Declaration.Contract.Arity != 0)) { return result; }
+                // Preserve actual owning receiver form and frame freshness.
+                if (implicitOwnerReceiver ? generatedCandidates.Length != 1 :
+                    generatedCandidates.Any(c => c.Declaration.Contract.IsStatic != (instanceReceiver is null))) { return result; }
+                bool GeneratedCurrent() => environmentCurrent() && occurrenceCurrent() &&
+                    (!owningReceiver || call is InvokeMethodExpression owningCall && ReferenceEquals(resolveOwningType?.Invoke(owningCall), generatedType)) &&
+                    ReferenceEquals(resolveGeneratedGroup(generatedType), generatedGroup);
+                var bindings = generatedCandidates.Select(c => c.GenericSignature is null ? null :
+                    call is InvokeMethodExpression invocation ? PreparedGeneratedCallBinding.TryCapture(occurrence, invocation, c, generatedGroup,
+                        explicitTypes, genericArguments, GeneratedCurrent) : null).ToImmutableArray();
+                if (generatedCandidates.Where((c, i) => c.GenericSignature is not null && bindings[i] is null).Any()) { return result; }
+                bool BoundCurrent() => GeneratedCurrent() && bindings.All(b => b is null || b.IsCurrent);
+                var witnessIndex = -1;
+                for (var index = 0; index < generatedCandidates.Length; index++)
+                {
+                    var candidate = generatedCandidates[index];
+                    if (HasBoundedApplicability(candidate.Declaration.Contract, arguments, csharp, resolveType, occurrence, children,
+                        bindings[index]?.FormalTypes ?? candidate.FormalTypes)) { witnessIndex = index; break; }
+                }
+                if (witnessIndex < 0 || !BoundCurrent()) { return result; }
+                var generatedWitness = generatedCandidates[witnessIndex];
                 if (generatedCandidates.Length == 1)
                 {
                     var declaration = generatedWitness.Declaration;
                     var map = DeclaredArgumentMap.Create(declaration.Contract, supplied);
-                    if (map.IsAvailable && map.IsCurrent()) { result._selection = new(occurrence, declaration.Contract, map, GeneratedCurrent, declaration); }
+                    if (map.IsAvailable && map.IsCurrent())
+                    {
+                        result._selection = new(occurrence, declaration.Contract, map, BoundCurrent, declaration, bindings[witnessIndex])
+                        { ProvenGeneratedFormalTypes = bindings[witnessIndex]?.FormalTypes ?? (owningReceiver ? generatedWitness.FormalTypes : default) };
+                    }
                 }
                 if (generatedCandidates.All(c => c.Declaration.Contract.Parameters.All(p => p.Attributes.IsEmpty)))
                 {
-                    result._absence = new(occurrence, generatedCandidates.Select(c => c.Declaration).ToImmutableArray(), generatedWitness.Declaration, GeneratedCurrent);
-                }
-                return result;
+                    result._absence = new(occurrence, generatedCandidates.Select(c => c.Declaration).ToImmutableArray(), generatedWitness.Declaration, BoundCurrent);
+                }                return result;
             }
+            // Owning-instance evidence is generated-declaration-only. Missing
+            // closure must not fall through to a native/source target guess.
+            if (owningReceiver) { return result; }
             var target = ResolveNamedTarget(emittedType, compilation, resolveType, loadedSourceReceiver, construction,
                 directParameterDelegate || instanceReceiver is VariableExpression && name == "Invoke");
             if (target is null)
@@ -622,6 +660,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 method.MethodKind is MethodKind.Ordinary or MethodKind.DelegateInvoke && !HasErrorType(method.ReturnType))
             {
                 return method.ReturnType;
+            }
+            if (inner is InvokeMethodExpression { CallAsAsync: false } &&
+                valueOccurrence?.CallProofs?.Selection is { IsCurrent: true, GeneratedBinding: { } generatedBinding } generatedCall &&
+                generatedCall.Occurrence == valueOccurrence.Id && generatedBinding.Occurrence == valueOccurrence.Id &&
+                ReferenceEquals(generatedCall.GeneratedDeclaration, generatedBinding.Declaration) && !HasErrorType(generatedBinding.ReturnType))
+            {
+                // Actual explicit call substitution, not definition T, a body
+                // inference, an expression type hint, or a fabricated symbol.
+                return generatedBinding.ReturnType;
             }
             if (inner is NewArrayExpression array)
             {

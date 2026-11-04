@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -36,6 +37,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal bool TryPrepare(TypeProvider owner, CSharpType target, INamedTypeSymbol? referencedTarget,
             out HashSet<string> forbiddenImports)
         {
+            // Preserve the original non-dispatch early rejection before owner.Type.
+            if (_unsupported)
+            {
+                forbiddenImports = new HashSet<string>(StringComparer.Ordinal);
+                return false;
+            }
+            if (!TryPrepareNamespaceLookup(owner.Type.Namespace, target, referencedTarget, out forbiddenImports, out var needsImport))
+            {
+                return false;
+            }
+            if (!needsImport)
+            {
+                return true;
+            }
+            if (!_signatureImports.TryGetValue(owner, out var imports))
+            {
+                imports = CaptureSignatureImports(owner);
+                _signatureImports.Add(owner, imports);
+            }
+            return !imports.Overlaps(forbiddenImports);
+        }
+
+        // Namespace lookup ONLY. The containing type/method's type parameters,
+        // nested types, actual imports and emission policy require separate proof.
+        // In particular, do not call the field adapter to authorize a body edit:
+        // its signature-import collector can evaluate unaudited formatting inputs.
+        internal bool TryPrepareTypeOnlyNamespaceLookup(string ownerNamespace, CSharpType target, INamedTypeSymbol referencedTarget,
+            out ImmutableHashSet<string> forbiddenImports)
+        {
+            var supported = TryPrepareNamespaceLookup(ownerNamespace, target, referencedTarget, out var competitors, out _);
+            forbiddenImports = competitors.ToImmutableHashSet(StringComparer.Ordinal);
+            return supported;
+        }
+
+        private bool TryPrepareNamespaceLookup(string ownerNamespace, CSharpType target, INamedTypeSymbol? referencedTarget,
+            out HashSet<string> forbiddenImports, out bool needsImport)
+        {
+            needsImport = false;
             forbiddenImports = new HashSet<string>(StringComparer.Ordinal);
             if (_unsupported)
             {
@@ -44,7 +83,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Namespace members outrank normal imports. Include ancestor and
             // global namespaces, not only the declaration's immediate namespace.
-            var ownerNamespace = owner.Type.Namespace;
             while (true)
             {
                 var nestedNamespace = ownerNamespace.Length == 0 ? target.Name : ownerNamespace + "." + target.Name;
@@ -73,6 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ownerNamespace = dot < 0 ? string.Empty : ownerNamespace[..dot];
             }
 
+            needsImport = true;
             if (!_competitorNamespaces.TryGetValue(target.Name, out var namespaces))
             {
                 namespaces = new HashSet<string>(StringComparer.Ordinal);
@@ -99,12 +138,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             forbiddenImports.UnionWith(namespaces.Where(ns => ns != target.Namespace));
-            if (!_signatureImports.TryGetValue(owner, out var imports))
-            {
-                imports = CaptureSignatureImports(owner);
-                _signatureImports.Add(owner, imports);
-            }
-            return !imports.Overlaps(forbiddenImports);
+            return true;
         }
 
         private INamespaceSymbol? FindNamespace(string name)

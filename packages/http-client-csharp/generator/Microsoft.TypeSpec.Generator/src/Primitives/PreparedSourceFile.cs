@@ -15,6 +15,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     internal sealed class PreparedSourceFile
     {
         internal Guid Generation { get; }
+        internal Compilation Compilation => _compilation;
+        internal bool DisableXmlDocs => _disableXmlDocs;
         internal TypeProvider FileOwner { get; }
         internal string FilePath { get; }
         internal ImmutableArray<PreparedSourceOccurrence> Roots => _roots.ToImmutableArray();

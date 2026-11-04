@@ -23,10 +23,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private readonly IReadOnlyList<ParameterProvider> _parameters;
         private readonly ImmutableArray<ParameterState> _states;
         private readonly ImmutableArray<(object Producer, StructuredSourceShape Shape)> _region;
+        private readonly InvokeMethodExpression? _ownedBlockInvocation;
         private int _stale;
 
         private PreparedMethodParameterFrame(MethodProvider method, object body, ImmutableArray<ParameterState> states,
-            ImmutableArray<(object Producer, StructuredSourceShape Shape)> region)
+            ImmutableArray<(object Producer, StructuredSourceShape Shape)> region, InvokeMethodExpression? ownedBlockInvocation)
         {
             _method = method;
             _revision = method.DeclarationRevision;
@@ -36,26 +37,31 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _parameters = _signature.Parameters;
             _states = states;
             _region = region;
+            _ownedBlockInvocation = ownedBlockInvocation;
         }
 
         internal static PreparedMethodParameterFrame? TryCapture(MethodProvider method, object body)
         {
             if (!ReferenceEquals((object?)method.BodyStatements ?? method.BodyExpression, body) ||
                 !ContractCollections.TryCopy(method.Signature.Parameters, out var parameters)) { return null; }
+            var ownedBlockInvocation = PreparedOwnedGenericBlockScope.GetInvocation(method);
             var region = ImmutableArray.CreateBuilder<(object, StructuredSourceShape)>();
-            if (!CaptureRegion(body, region, new HashSet<object>(ReferenceEqualityComparer.Instance), 0)) { return null; }
+            if (!CaptureRegion(body, region, new HashSet<object>(ReferenceEqualityComparer.Instance), 0,
+                allowThis: PreparedGeneratedMethodGroup.HasOwningRootCallProfile(method),
+                allowDeclarations: ownedBlockInvocation is not null)) { return null; }
             var states = ImmutableArray.CreateBuilder<ParameterState>();
             foreach (var parameter in parameters)
             {
                 if (parameter is null || !DeclaredTypeSnapshot.TryCapture(parameter.Type, out var type)) { return null; }
                 states.Add(new(parameter, parameter.DeclarationRevision, parameter.Type, type!, parameter.EmittedDeclarationState, parameter.CachedVariableExpression));
             }
-            return new(method, body, states.ToImmutable(), region.ToImmutable());
+            return new(method, body, states.ToImmutable(), region.ToImmutable(), ownedBlockInvocation);
         }
 
+        // Block ownership never lends method-parameter types through locals.
         internal CSharpType? Resolve(VariableExpression variable)
         {
-            if (variable.GetType() != typeof(VariableExpression) || !IsCurrent()) { return null; }
+            if (_ownedBlockInvocation is not null || variable.GetType() != typeof(VariableExpression) || !IsCurrent()) { return null; }
             ParameterState? match = null;
             foreach (var state in _states)
             {
@@ -68,11 +74,25 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         internal CSharpType? Resolve(ParameterProvider parameter, string emittedName)
         {
-            if (!IsCurrent()) { return null; }
+            if (_ownedBlockInvocation is not null || !IsCurrent()) { return null; }
             var matches = _states.Where(s => ReferenceEquals(s.Parameter, parameter)).ToArray();
             if (matches.Length != 1 || parameter.IsRef || parameter.IsOut || parameter.IsIn ||
                 matches[0].EmittedState.Name != emittedName || _states.Count(s => s.EmittedState.Name == emittedName) != 1) { return null; }
             return matches[0].Type;
+        }
+
+        // An actual owned expression root, or the exact final call in the
+        // finite unused-local block profile, supplies its containing type.
+        // CachedType is nonforcing; no hint or retained callee symbol is evidence.
+        internal CSharpType? ResolveOwningType(InvokeMethodExpression invocation)
+        {
+            if (!IsCurrent() ||
+                !(_ownedBlockInvocation is null
+                    ? ReferenceEquals(_body, invocation) && PreparedGeneratedMethodGroup.HasOwningRootCallProfile(_method)
+                    : ReferenceEquals(_ownedBlockInvocation, invocation) && ReferenceEquals(PreparedOwnedGenericBlockScope.GetInvocation(_method), invocation)) ||
+                !ContractCollections.TryCopy(_method.EnclosingType.CachedMethods, out var methods) ||
+                methods.Count(m => ReferenceEquals(m, _method)) != 1 || !CodeWriter.HasMethodDeclaration(_method)) { return null; }
+            return _method.EnclosingType.CachedType;
         }
 
         internal bool IsCurrent()
@@ -83,33 +103,36 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 ReferenceEquals(_signature.Parameters, _parameters) && ContractCollections.TryCopy(_parameters, out var parameters) &&
                 parameters.Length == _states.Length && parameters.Where((p, i) => !ReferenceEquals(p, _states[i].Parameter)).Any() == false &&
                 _signatureShape.Matches(StructuredSourceShape.Capture(_signature, true)) && _states.All(s => s.IsCurrent()) &&
-                _region.All(r => r.Shape.Matches(StructuredSourceShape.Capture(r.Producer, true)));
+                _region.All(r => r.Shape.Matches(StructuredSourceShape.Capture(r.Producer, true))) &&
+                (_ownedBlockInvocation is null || ReferenceEquals(PreparedOwnedGenericBlockScope.GetInvocation(_method), _ownedBlockInvocation));
             if (!current) { System.Threading.Interlocked.Exchange(ref _stale, 1); }
             return current;
         }
 
-        private static bool CaptureRegion(object producer, ImmutableArray<(object, StructuredSourceShape)>.Builder region, HashSet<object> ancestors, int depth, bool returnPosition = false)
+        private static bool CaptureRegion(object producer, ImmutableArray<(object, StructuredSourceShape)>.Builder region, HashSet<object> ancestors, int depth, bool returnPosition = false, bool allowThis = false, bool allowDeclarations = false)
         {
-            if (depth >= 32 || !ancestors.Add(producer) || !Allowed(producer, returnPosition)) { return false; }
+            if (depth >= 32 || !ancestors.Add(producer) || !Allowed(producer, returnPosition, allowThis, allowDeclarations)) { return false; }
             var shape = StructuredSourceShape.Capture(producer, true);
             if (shape.Opaque) { return false; }
             region.Add((producer, shape));
             foreach (var child in shape.Children)
             {
-                if (!CaptureRegion(child.Producer, region, ancestors, depth + 1, producer.GetType() == typeof(ExpressionStatement))) { return false; }
+                if (!CaptureRegion(child.Producer, region, ancestors, depth + 1, producer.GetType() == typeof(ExpressionStatement), allowThis, allowDeclarations)) { return false; }
             }
             ancestors.Remove(producer);
             return true;
         }
 
-        private static bool Allowed(object producer, bool returnPosition) => producer switch
+        private static bool Allowed(object producer, bool returnPosition, bool allowThis, bool allowDeclarations) => producer switch
         {
             ScopedApi wrapper => PreparedCallProofs.IsTransparentWrapper(wrapper),
             FuncExpression closure => ContractCollections.TryCopy(closure.Parameters, out var parameters) && parameters.Length == 0,
             KeywordExpression keyword => keyword.GetType() == typeof(KeywordExpression) &&
-                (keyword.Expression is null && keyword.Keyword is "null" or "default" || returnPosition && keyword.Keyword == "return" && keyword.Expression is not null),
+                (keyword.Expression is null && (keyword.Keyword is "null" or "default" || allowThis && keyword.Keyword == "this") ||
+                    returnPosition && keyword.Keyword == "return" && keyword.Expression is not null),
             MemberExpression member => member.GetType() == typeof(MemberExpression) && member.Declaration is null,
-            _ => producer.GetType() == typeof(MethodBodyStatements) || producer.GetType() == typeof(ExpressionStatement) ||
+            _ => allowDeclarations && (producer.GetType() == typeof(DeclarationExpression) || producer.GetType() == typeof(AssignmentExpression)) ||
+                producer.GetType() == typeof(MethodBodyStatements) || producer.GetType() == typeof(ExpressionStatement) ||
                 producer.GetType() == typeof(IfStatement) || producer.GetType() == typeof(IfElseStatement) ||
                 producer.GetType() == typeof(WhileStatement) || producer.GetType() == typeof(DoWhileStatement) ||
                 producer.GetType() == typeof(VariableExpression) || producer.GetType() == typeof(TypeOfExpression) ||

@@ -190,7 +190,15 @@ namespace Microsoft.TypeSpec.Generator
                     // A writer callback may register a rewriter after preparation
                     // started. Recheck after the proof itself, then use the already
                     // captured qualified variants if the opt-out became active.
-                    var canCommit = preparedFields is not null && preparedFields.CanCommit() && PreparedFieldTypes.IsPolicyEnabled(generator);
+                    var fieldsCanCommit = preparedFields is not null && preparedFields.CanCommit() && PreparedFieldTypes.IsPolicyEnabled(generator);
+                    var hasBodyNames = stagedFiles.Any(file => file.PreparedBodyNameCount != 0);
+                    var bodyChoices = stagedFiles.Select(file => (File: file,
+                        BodyAllowed: hasBodyNames && preparedFields?.CanCommitBodyNames(file) == true)).ToArray();
+                    // Preserve the established field-only path when no body name
+                    // was actually emitted; unused new facts add no veto/callbacks.
+                    var sharedCanCommit = hasBodyNames
+                        ? preparedFields is not null && preparedFields.CanCommitSharedSnapshot() && PreparedFieldTypes.IsPolicyEnabled(generator)
+                        : fieldsCanCommit;
                     if (compilerBuild is not null)
                     {
                         var useCapturedResidual = compilerProof is not null && PreparedFieldTypes.IsPolicyEnabled(generator) &&
@@ -200,14 +208,18 @@ namespace Microsoft.TypeSpec.Generator
                             generatedCodeWorkspace = await GeneratedCodeWorkspace.CreateForCompilerProof(compilerProof!);
                             compilerBuild.UsedCapturedResidualInputs = true;
                         }
-                        canCommit &= useCapturedResidual;
+                        sharedCanCommit &= useCapturedResidual;
                     }
-                    foreach (var file in stagedFiles)
+                    if (hasBodyNames)
+                    {
+                        sharedCanCommit &= preparedFields is not null && preparedFields.CanCommitSharedSnapshot() && PreparedFieldTypes.IsPolicyEnabled(generator);
+                    }
+                    foreach (var (file, bodyAllowed) in bodyChoices)
                     {
                         // Both variants were emitted during the same writer pass;
                         // never rerun callbacks if the prepared proof changed.
                         generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(
-                            canCommit ? file : file.WithoutPreparedNames()));
+                            file.SelectPreparedNames(sharedCanCommit && fieldsCanCommit, sharedCanCommit && (!hasBodyNames || bodyAllowed))));
                     }
                 }
 

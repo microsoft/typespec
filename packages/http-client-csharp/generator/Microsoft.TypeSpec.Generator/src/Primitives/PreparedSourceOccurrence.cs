@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (producer is ValueExpression call && (call is InvokeMethodExpression or NewInstanceExpression))
             {
                 CallProofs = PreparedCallProofs.Capture(Id, call, compilation, IsOpaque ? null : resolveCallType, callEnvironmentCurrent, IsCurrent, _targetType, Children, IsOpaque ? null : resolveGeneratedGroup,
-                    IsOpaque ? null : ResolveDirectParameterType, IsOpaque ? null : resolveReducedGroup);
+                    IsOpaque ? null : ResolveDirectParameterType, IsOpaque ? null : resolveReducedGroup, IsOpaque ? null : ResolveOwningType);
             }
             if (!IsOpaque && producer is ConstructorInitializer initializerCall && _constructorFrame?.Matches(initializerCall) == true &&
                 resolveCallType is not null && callEnvironmentCurrent is not null && compilation is Microsoft.CodeAnalysis.CSharp.CSharpCompilation csharp)
@@ -135,6 +135,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _lambdaParameterPlan?.GetFrame(Id) is { } frame && frame.Occurrence == Id && frame.Matches(lambda, invoke);
 
         private CSharpType? ResolveDirectParameterType(ParameterProvider parameter, string emittedName) => _parameterFrame?.Resolve(parameter, emittedName);
+
+        private CSharpType? ResolveOwningType(InvokeMethodExpression invocation) => _parameterFrame?.ResolveOwningType(invocation);
 
         internal bool IsCurrent()
         {

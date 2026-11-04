@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
@@ -100,13 +101,13 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             f.Occurrence.MemberPath == occurrence.MemberPath && f.Occurrence.RootRole == occurrence.RootRole && f.Occurrence.RootIndex == occurrence.RootIndex &&
             (f.Occurrence.EdgePath == occurrence.EdgePath || occurrence.EdgePath.StartsWith(f.Occurrence.EdgePath + "/", StringComparison.Ordinal)));
 
-        private bool Audit(object node, FuncExpression? lambda, HashSet<object> ancestors, int depth)
+        private bool Audit(object node, FuncExpression? lambda, HashSet<object> ancestors, int depth, bool returnPosition = false)
         {
             if (depth > 32 || !ancestors.Add(node)) { return false; }
             switch (node)
             {
                 case FuncExpression closure:
-                    if (lambda is not null || closure.BlockBody is not null || !ContractCollections.TryCopy(closure.Parameters, out var parameters) || parameters.IsEmpty ||
+                    if (lambda is not null || !ContractCollections.TryCopy(closure.Parameters, out var parameters) || parameters.IsEmpty ||
                         parameters.Any(p => p is null || !Identifier(p.RequestedName) || p.RequestedName == "global") ||
                         parameters.Distinct(ReferenceEqualityComparer.Instance).Count() != parameters.Length ||
                         parameters.Select(p => p!.RequestedName).Distinct(StringComparer.Ordinal).Count() != parameters.Length) { return false; }
@@ -132,8 +133,17 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 case LiteralExpression literal:
                     if (literal.Literal is not (null or string or int or bool or char)) { return false; }
                     break;
+                case MethodBodyStatements statements when lambda is not null && statements.GetType() == typeof(MethodBodyStatements):
+                    break;
+                case ExpressionStatement statement when lambda is not null && statement.GetType() == typeof(ExpressionStatement) &&
+                    statement.Expression.GetType() == typeof(KeywordExpression) && statement.Expression is KeywordExpression { Keyword: "return", Expression: not null }:
+                    break;
                 case KeywordExpression keyword when keyword.GetType() == typeof(KeywordExpression):
-                    if (keyword.Expression is not null || keyword.Keyword is not ("null" or "default")) { return false; }
+                    if (keyword.Expression is not null)
+                    {
+                        if (!returnPosition || keyword.Keyword != "return") { return false; }
+                    }
+                    else if (keyword.Keyword is not ("null" or "default")) { return false; }
                     break;
                 case ArgumentExpression argument:
                     if (argument.IsRef || argument.IsOut || argument.IsIn) { return false; }
@@ -150,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (shape.Opaque) { return false; }
             _nodes.Add((node, shape));
             foreach (var child in shape.Children)
-            { if (!Audit(child.Producer, lambda, ancestors, depth + 1)) { return false; } }
+            { if (!Audit(child.Producer, lambda, ancestors, depth + 1, node is ExpressionStatement)) { return false; } }
             ancestors.Remove(node);
             return true;
         }

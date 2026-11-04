@@ -72,7 +72,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                                 { lines.Add(new(node.Id, parameter.Formal.Ordinal)); }
                             }
                         }
-                        if (selected.Contract.Parameters.Any(p => p.IsInterpolatedStringHandler != false || p.HandlerForwarding.Length != 0))
+                        if (!selected.HasProvenNonHandlerGeneratedFormals &&
+                            selected.Contract.Parameters.Any(p => p.IsInterpolatedStringHandler != false || p.HandlerForwarding.Length != 0))
                         { AddChildBarriers(PreparedCaptureBarrierKind.ImplicitOperation); unknownLines.Add(new(node.Id, null)); }
                     }
                     else if (absence is not null)
@@ -87,6 +88,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                         unknownLines.Add(new(node.Id, null));
                     }
                 }
+                // Exact native typeof has no own call, implicit conversion,
+                // handler or source-text observer. Inherited facts stay intact.
+                // This is knowledge, NOT an edit or emission-policy permission.
+                // No virtual Type predicates are invoked.
+                if (!node.IsOpaque && node.Children.IsEmpty && node.Producer.GetType() == typeof(TypeOfExpression) &&
+                    ((TypeOfExpression)node.Producer).Type is { } operand && operand.GetType() == typeof(CSharpType) &&
+                    operand.IsFrameworkType && (ReferenceEquals(operand.FrameworkType, typeof(Exception)) ||
+                        ReferenceEquals(operand.FrameworkType, typeof(Uri))) &&
+                    operand.Name == operand.FrameworkType.Name && operand.Namespace == operand.FrameworkType.Namespace &&
+                    !operand.IsNullable && !operand.IsLiteral && !operand.HasUnionMetadata && operand.DeclaringType is null &&
+                    ContractCollections.TryCopy(operand.Arguments, out var nativeArguments) && nativeArguments.IsEmpty)
+                { knowledge = PreparedDirectCaptureKnowledge.Known; }
                 if (node.IsOpaque)
                 {
                     ownBarriers.Add(new(node.Id, node.Id, PreparedCaptureBarrierKind.Opaque));
