@@ -1,7 +1,6 @@
-import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
+import { emitSchema } from "./utils.js";
 
 describe("emitting models", () => {
   it("works", async () => {
@@ -506,12 +505,4 @@ describe("unspeakable template should be emitted inline", () => {
     });
     assert(schemas["Bar.json"]);
   });
-});
-
-it("diagnoses type-reference defaults instead of crashing", async () => {
-  const [, diagnostics] = await emitSchemaWithDiagnostics(`
-    model Item {}
-    model Registration { type: TypeRef = typeref(Item); }
-  `);
-  expectDiagnostics(diagnostics, { code: "@typespec/json-schema/invalid-default" });
 });

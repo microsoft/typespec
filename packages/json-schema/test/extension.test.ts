@@ -1,9 +1,9 @@
 import type { DecoratorContext, Type } from "@typespec/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import assert from "assert";
 import { describe, expect, it } from "vitest";
 import { setExtension } from "../src/index.js";
-import { ApiTester, emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
+import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 it("handles types", async () => {
   const [schemas, diagnostics] = await emitSchemaWithDiagnostics(`
@@ -216,17 +216,3 @@ describe("setExtension", () => {
     assert.deepStrictEqual(Foo.properties.x["x-null"], null);
   });
 });
-
-it.each(["typeref(string)", "#{ value: typeref(string) }", "#[typeref(string)]"])(
-  "diagnoses an unserializable extension value: %s",
-  async (value) => {
-    const diagnostics = await ApiTester.diagnose(
-      `@extension("x-reference", ${value}) model Item {}`,
-    );
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/json-schema/invalid-extension-value",
-      message:
-        "Cannot serialize extension value as JSON: Cannot serialize a type reference value as JSON.",
-    });
-  },
-);

@@ -179,18 +179,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Scalar '${"name"}' is not a known scalar type and doesn't extend a known scalar type.`,
       },
     },
-    "invalid-example": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Invalid type '${"type"}' for an example value`,
-      },
-    },
-    "invalid-extension-value": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Cannot serialize extension value as JSON: ${"reason"}`,
-      },
-    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,

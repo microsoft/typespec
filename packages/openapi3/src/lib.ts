@@ -480,12 +480,6 @@ export const $lib = createTypeSpecLibrary({
           "`enum-strategy: annotated` is only supported for OpenAPI 3.1.0 and above. The default enum strategy will be used for OpenAPI 3.0.0.",
       },
     },
-    "example-not-supported": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Example value is not supported in OpenAPI. ${"message"}`,
-      },
-    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

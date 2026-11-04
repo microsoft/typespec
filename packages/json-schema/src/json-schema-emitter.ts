@@ -30,7 +30,6 @@ import {
   type Type,
   type Union,
   type UnionVariant,
-  UnserializableValueError,
   type Value,
   compilerAssert,
   emitFile,
@@ -52,7 +51,6 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
-  getTypeName,
   isStringType,
   isType,
   isTypeRefType,
@@ -320,7 +318,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const result = new ObjectBuilder(propertyType.value);
 
     if (property.defaultValue) {
-      result.default = this.#serializeValue(property.defaultValue, property, "invalid-default");
+      result.default = this.#getDefaultValue(property, property.defaultValue);
     }
 
     if (result.anyOf && isOneOf(this.emitter.getProgram(), property)) {
@@ -331,6 +329,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     this.#applyConstraints(property, result);
 
     return result;
+  }
+
+  #getDefaultValue(modelProperty: ModelProperty, defaultType: Value): any {
+    return serializeValueAsJson(this.emitter.getProgram(), defaultType, modelProperty);
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
@@ -667,9 +669,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       setProperty(
         target,
         "examples",
-        examples
-          .map((x) => this.#serializeValue(x.value, type, "invalid-example"))
-          .filter((x) => x !== undefined),
+        examples.map((x) => serializeValueAsJson(program, x.value, type)),
       );
     }
   }
@@ -1197,18 +1197,4 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   // #endregion
-
-  #serializeValue(value: Value, target: Type, code: "invalid-default" | "invalid-example") {
-    try {
-      return serializeValueAsJson(this.emitter.getProgram(), value, target);
-    } catch (error) {
-      if (!(error instanceof UnserializableValueError)) throw error;
-      reportDiagnostic(this.emitter.getProgram(), {
-        code,
-        format: { type: getTypeName(value.type) },
-        target,
-      });
-      return undefined;
-    }
-  }
 }

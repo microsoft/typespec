@@ -11,7 +11,6 @@ import type {
   Value,
 } from "@typespec/compiler";
 import {
-  UnserializableValueError,
   getEncode,
   getOpExamples,
   ignoreDiagnostics,
@@ -26,7 +25,7 @@ import {
   type HttpProperty,
   type HttpStatusCodeRange,
 } from "@typespec/http";
-import { reportDiagnostic, type ExperimentalParameterExamplesStrategy } from "./lib.js";
+import type { ExperimentalParameterExamplesStrategy } from "./lib.js";
 import { getParameterStyle } from "./parameters.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import type { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
@@ -289,21 +288,18 @@ export function getExampleOrExamples(
   ) {
     const [example, type] = examples[0];
     const encodeAs = getEncodeAs(program, type);
-    const value = serializeExampleValue(program, example.value, type, encodeAs);
-    return value === undefined ? {} : { example: value };
+    return { example: serializeValueAsJson(program, example.value, type, encodeAs) };
   } else {
     const exampleObj: Record<string, OpenAPI3Example> = {};
     for (const [index, [example, type]] of examples.entries()) {
       const encodeAs = getEncodeAs(program, type);
-      const value = serializeExampleValue(program, example.value, type, encodeAs);
-      if (value === undefined) continue;
       exampleObj[example.title ?? `example${index}`] = {
         summary: example.title,
         description: example.description,
-        value,
+        value: serializeValueAsJson(program, example.value, type, encodeAs),
       };
     }
-    return Object.keys(exampleObj).length > 0 ? { examples: exampleObj } : {};
+    return { examples: exampleObj };
   }
 }
 
@@ -719,7 +715,7 @@ function getValueByPath(value: Value, path: (string | number)[]): Value | undefi
 }
 
 export function serializeExample(program: Program, value: Value, type: Type): unknown | undefined {
-  return serializeExampleValue(program, value, type, undefined, {
+  return serializeValueAsJson(program, value, type, undefined, {
     serializeScalarValue: (value, type, encodeAs, originalFn) => {
       const scalar = value.scalar;
       if (scalar.name === "utcDateTime" && value.value.name === "now") {
@@ -736,26 +732,4 @@ export function serializeExample(program: Program, value: Value, type: Type): un
       return originalFn(value, type, encodeAs);
     },
   });
-}
-
-function serializeExampleValue(
-  program: Program,
-  value: Value,
-  type: Type,
-  encodeAs?: EncodeData,
-  handlers?: Parameters<typeof serializeValueAsJson>[4],
-): unknown {
-  try {
-    return serializeValueAsJson(program, value, type, encodeAs, handlers);
-  } catch (error) {
-    if (error instanceof UnserializableValueError) {
-      reportDiagnostic(program, {
-        code: "example-not-supported",
-        format: { message: error.message },
-        target: "node" in value ? (value.node ?? type) : type,
-      });
-      return undefined;
-    }
-    throw error;
-  }
 }

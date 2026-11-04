@@ -1,4 +1,3 @@
-import { expectDiagnostics } from "@typespec/compiler/testing";
 import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
 import type { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
@@ -1030,73 +1029,5 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     expect((res.components.parameters["Test.encodedHeader"] as OpenAPI3Parameter).example).toEqual(
       "2021-01-01T00:00:00Z",
     );
-  });
-});
-
-worksFor(supportedVersions, ({ diagnoseOpenApiFor, emitOpenApiWithDiagnostics, version }) => {
-  describe("unserializable examples", () => {
-    it.each([
-      "model Registration { @example(typeref(string)) type: TypeRef; }",
-      "@example(#{ type: typeref(string) }) model Registration { type: TypeRef; }",
-      `@opExample(#{ parameters: #{ type: typeref(string) } })
-       op register(type: TypeRef): void;`,
-      `@opExample(#{ returnType: #{ type: typeref(string) } }, #{ title: "Registration" })
-       op read(): { type: TypeRef; };`,
-    ])("diagnoses type references instead of throwing: %s", async (code) => {
-      const diagnostics = await diagnoseOpenApiFor(code);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi3/example-not-supported",
-        message:
-          "Example value is not supported in OpenAPI. Cannot serialize a type reference value as JSON.",
-      });
-    });
-
-    it("omits an unserializable schema example", async () => {
-      const [document, diagnostics] = await emitOpenApiWithDiagnostics(
-        "model Registration { @example(typeref(string)) type: TypeRef; }",
-      );
-      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/example-not-supported" });
-      const schema = document.components!.schemas!.Registration;
-      ok("properties" in schema);
-      const property = schema.properties!.type;
-      expect(property).not.toHaveProperty("example");
-      expect(property).not.toHaveProperty("examples");
-    });
-
-    it("preserves valid named operation examples and omits invalid ones", async () => {
-      const [document, diagnostics] = await emitOpenApiWithDiagnostics(`
-        @opExample(#{ returnType: #{ type: typeref(string) } }, #{ title: "Invalid" })
-        @opExample(#{ returnType: #{ type: "item" } }, #{ title: "Valid" })
-        op read(): { type: TypeRef | string; };
-      `);
-      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/example-not-supported" });
-      const operation = document.paths["/"].get;
-      ok(operation?.responses);
-      ok("200" in operation.responses);
-      const response = operation.responses["200"];
-      ok("content" in response);
-      expect(response.content!["application/json"].examples).toEqual({
-        Valid: { summary: "Valid", value: { type: "item" } },
-      });
-    });
-
-    it("preserves a later serializable schema example", async () => {
-      const [document, diagnostics] = await emitOpenApiWithDiagnostics(`
-        model Registration {
-          @example("item")
-          @example(typeref(string))
-          type: TypeRef | string;
-        }
-      `);
-      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/example-not-supported" });
-      const schema = document.components!.schemas!.Registration;
-      ok("properties" in schema);
-      const property = schema.properties!.type;
-      if (version === "3.0.0") {
-        expect(property).toHaveProperty("example", "item");
-      } else {
-        expect(property).toHaveProperty("examples", ["item"]);
-      }
-    });
   });
 });

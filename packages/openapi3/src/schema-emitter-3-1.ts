@@ -85,12 +85,11 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   ) {
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      const serialized = examples
-        .map((example) => serializeExample(program, example.value, type))
-        .filter((value) => value !== undefined);
-      if (serialized.length > 0) {
-        setProperty(target, "examples", serialized);
-      }
+      setProperty(
+        target,
+        "examples",
+        examples.map((example) => serializeExample(program, example.value, type)),
+      );
     }
   }
 

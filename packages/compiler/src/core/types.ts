@@ -451,7 +451,7 @@ export type Value =
 export type ValueWithTemplate = Value | TemplateValue;
 
 /** Common identity and storage-type metadata inherited by checked values. */
-export interface BaseValue {
+interface BaseValue {
   /** Distinguishes a concrete value from a type or parameter constraint. */
   readonly entityKind: "Value";
   /** Discriminant identifying how the value's contents are represented. */
