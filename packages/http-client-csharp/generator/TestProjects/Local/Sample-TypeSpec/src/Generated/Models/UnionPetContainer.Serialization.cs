@@ -98,11 +98,11 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(UnionPetContainer)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("pet"u8);
-            UnionPetsUnionSerialization.Serialize(writer, Pet, options);
+            UnionPet.SerializeUnionPetsUnion(writer, Pet, options);
             if (Optional.IsDefined(NullablePet))
             {
                 writer.WritePropertyName("nullablePet"u8);
-                UnionPetsUnionSerialization.Serialize(writer, NullablePet, options);
+                UnionPet.SerializeUnionPetsUnion(writer, NullablePet, options);
             }
             else
             {
@@ -120,7 +120,7 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     foreach (var item in Pets)
                     {
-                        UnionPetsUnionSerialization.Serialize(writer, item, options);
+                        UnionPet.SerializeUnionPetsUnion(writer, item, options);
                     }
                     writer.WriteEndArray();
                 }
@@ -138,10 +138,15 @@ namespace SampleTypeSpec
                     foreach (var item in Lookup)
                     {
                         writer.WritePropertyName(item.Key);
-                        UnionPetsUnionSerialization.Serialize(writer, item.Value, options);
+                        UnionPet.SerializeUnionPetsUnion(writer, item.Value, options);
                     }
                     writer.WriteEndObject();
                 }
+            }
+            if (Optional.IsDefined(AlternatePet))
+            {
+                writer.WritePropertyName("alternatePet"u8);
+                UnionPet.SerializeAlternateUnionPetsUnion(writer, AlternatePet, options);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -189,12 +194,13 @@ namespace SampleTypeSpec
             UnionPet nullablePet = default;
             IList<UnionPet> pets = default;
             IDictionary<string, UnionPet> lookup = default;
+            UnionPet alternatePet = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("pet"u8))
                 {
-                    pet = UnionPetsUnionSerialization.Deserialize(prop.Value, options);
+                    pet = UnionPet.DeserializeUnionPetsUnion(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("nullablePet"u8))
@@ -204,7 +210,7 @@ namespace SampleTypeSpec
                         nullablePet = null;
                         continue;
                     }
-                    nullablePet = UnionPetsUnionSerialization.Deserialize(prop.Value, options);
+                    nullablePet = UnionPet.DeserializeUnionPetsUnion(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("pets"u8))
@@ -219,7 +225,7 @@ namespace SampleTypeSpec
                         List<UnionPet> array = new List<UnionPet>();
                         foreach (var item in prop.Value.EnumerateArray())
                         {
-                            array.Add(UnionPetsUnionSerialization.Deserialize(item, options));
+                            array.Add(UnionPet.DeserializeUnionPetsUnion(item, options));
                         }
                         unionValue = array;
                     }
@@ -238,11 +244,20 @@ namespace SampleTypeSpec
                         Dictionary<string, UnionPet> dictionary = new Dictionary<string, UnionPet>();
                         foreach (var @property in prop.Value.EnumerateObject())
                         {
-                            dictionary.Add(@property.Name, UnionPetsUnionSerialization.Deserialize(@property.Value, options));
+                            dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, options));
                         }
                         unionValue = dictionary;
                     }
                     lookup = unionValue;
+                    continue;
+                }
+                if (prop.NameEquals("alternatePet"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    alternatePet = UnionPet.DeserializeAlternateUnionPetsUnion(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")
@@ -250,7 +265,13 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new UnionPetContainer(pet, nullablePet, pets ?? new ChangeTrackingList<UnionPet>(), lookup ?? new ChangeTrackingDictionary<string, UnionPet>(), additionalBinaryDataProperties);
+            return new UnionPetContainer(
+                pet,
+                nullablePet,
+                pets ?? new ChangeTrackingList<UnionPet>(),
+                lookup ?? new ChangeTrackingDictionary<string, UnionPet>(),
+                alternatePet,
+                additionalBinaryDataProperties);
         }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -19,23 +18,15 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal sealed class DiscriminatedUnionSerializationProvider(InputUnionType union) : InternalHelperProvider(union)
+    internal static class DiscriminatedUnionSerialization
     {
-        protected override string BuildName() => $"{(union.IsExactName ? union.Name : union.Name.ToIdentifierName())}UnionSerialization";
-
-        protected override string BuildNamespace() => string.IsNullOrEmpty(union.Namespace)
-            ? base.BuildNamespace()
-            : ScmCodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(union.Namespace);
-
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", BuildNamespace(), $"{Name}.cs");
-
-        protected override MethodProvider[] BuildMethods()
+        internal static MethodProvider[] BuildMethods(InputUnionType union, TypeProvider serialization)
         {
-            var writer = new ParameterProvider("writer", FormattableStringHelpers.Empty, typeof(Utf8JsonWriter));
-            var value = new ParameterProvider("value", FormattableStringHelpers.Empty,
+            var writer = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
+            var value = new ParameterProvider("value", $"The union variant to serialize.",
                 ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!);
-            var element = new ParameterProvider("element", FormattableStringHelpers.Empty, typeof(JsonElement));
-            var options = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
+            var element = new ParameterProvider("element", $"The JSON envelope to deserialize.", typeof(JsonElement));
+            var options = new ParameterProvider("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
             var jsonWriter = writer.As<Utf8JsonWriter>();
             var jsonElement = element.As<JsonElement>();
 
@@ -79,11 +70,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             [
                 new MethodProvider(
-                    new MethodSignature("Serialize", null, MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static,
+                    new MethodSignature(GetSerializeMethodName(union), null, MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static,
                         null, null, [writer, value, options]),
-                    serialize, this),
+                    serialize, serialization),
                 new MethodProvider(
-                    new MethodSignature("Deserialize", null, MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static,
+                    new MethodSignature(GetDeserializeMethodName(union), null, MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static,
                         value.Type, null, [element, options]),
                     new MethodBodyStatement[]
                     {
@@ -93,8 +84,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             Throw(New.Instance<JsonException>(Literal($"Invalid object envelope for union '{union.Name}'.")))
                         },
                         new SwitchStatement(discriminator.GetString(), [.. cases])
-                    }, this)
+                    }, serialization)
             ];
+        }
+
+        private static string GetSerializeMethodName(InputUnionType union) => $"Serialize{GetMethodSuffix(union)}";
+
+        private static string GetDeserializeMethodName(InputUnionType union) => $"Deserialize{GetMethodSuffix(union)}";
+
+        private static string GetMethodSuffix(InputUnionType union)
+        {
+            var name = union.IsExactName ? union.Name : union.Name.ToIdentifierName();
+            var index = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                .Where(candidate => candidate.BaseModel == union.BaseModel
+                    && (candidate.IsExactName ? candidate.Name : candidate.Name.ToIdentifierName()) == name)
+                .TakeWhile(candidate => candidate != union).Count();
+            return index == 0 ? $"{name}Union" : $"{name}Union{index}";
         }
 
         internal static bool RequiresEnvelope(InputType? type) => type switch
@@ -119,8 +124,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (inputType is InputUnionType union)
             {
-                return Static(ScmCodeModelGenerator.Instance.TypeFactory.CreateDiscriminatedUnionSerialization(union).Type)
-                    .Invoke("Serialize", [writer, value, options]).Terminate();
+                return Static(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!)
+                    .Invoke(GetSerializeMethodName(union), [writer, value, options]).Terminate();
             }
 
             MethodBodyStatement serialize;
@@ -169,8 +174,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (inputType is InputUnionType union)
             {
-                value = Static(ScmCodeModelGenerator.Instance.TypeFactory.CreateDiscriminatedUnionSerialization(union).Type)
-                    .Invoke("Deserialize", [element, options]);
+                value = Static(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!)
+                    .Invoke(GetDeserializeMethodName(union), [element, options]);
                 return MethodBodyStatement.Empty;
             }
 

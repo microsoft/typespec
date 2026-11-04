@@ -484,6 +484,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methods.Add(BuildJsonModelCreateMethod());
                 methods.Add(BuildJsonModelCreateCoreMethod());
                 methods.Add(BuildDeserializationMethod());
+                foreach (var union in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                    .Where(union => union.BaseModel == _inputModel && DiscriminatedUnionSerialization.RequiresEnvelope(union)))
+                {
+                    methods.AddRange(DiscriminatedUnionSerialization.BuildMethods(union, this));
+                }
 
                 if (_isStruct)
                 {
@@ -1091,6 +1096,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildDeserializationMethodBody()
         {
+            if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return
+                [
+                    new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
+                    Throw(New.Instance<JsonException>(Literal($"Cannot deserialize abstract model '{_model.Name}' without a discriminator.")))
+                ];
+            }
+
             // Build the deserialization statements for each property
             ForEachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
             {
@@ -1782,11 +1796,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement[] deserializationStatements;
-            if (DiscriminatedUnionSerializationProvider.RequiresEnvelope(wireInfo.InputType))
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType))
             {
                 deserializationStatements =
                 [
-                    DiscriminatedUnionSerializationProvider.DeserializeValue(
+                    DiscriminatedUnionSerialization.DeserializeValue(
                         wireInfo.InputType!, propertyType, jsonProperty.Value(), _mrwOptionsParameterSnippet, out var value),
                     variableExpression.Assign(value).Terminate()
                 ];
@@ -2166,8 +2180,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var propertyIsNullable = wireInfo.IsNullable;
 
             // Generate the serialization statements for the property
-            var serializationStatement = DiscriminatedUnionSerializationProvider.RequiresEnvelope(wireInfo.InputType)
-                ? DiscriminatedUnionSerializationProvider.SerializeValue(
+            var serializationStatement = DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType)
+                ? DiscriminatedUnionSerialization.SerializeValue(
                     wireInfo.InputType!, propertyType, propertyExpression, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet)
                 : CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 

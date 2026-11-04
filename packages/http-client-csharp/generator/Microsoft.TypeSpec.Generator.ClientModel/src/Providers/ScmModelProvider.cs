@@ -83,6 +83,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty);
         }
 
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+        {
+            var modifiers = base.BuildDeclarationModifiers();
+            return ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions.Any(union => union.BaseModel == _inputModel)
+                ? modifiers | TypeSignatureModifiers.Abstract
+                : modifiers;
+        }
+
         protected override FieldProvider[] BuildFields()
         {
             var fields = base.BuildFields().ToList();

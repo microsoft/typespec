@@ -7,13 +7,12 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace SampleTypeSpec
 {
     /// <summary> The UnionPet. </summary>
-    public partial class UnionPet : IJsonModel<UnionPet>
+    public abstract partial class UnionPet : IJsonModel<UnionPet>
     {
         /// <summary> Initializes a new instance of <see cref="UnionPet"/> for deserialization. </summary>
         internal UnionPet()
@@ -122,21 +121,119 @@ namespace SampleTypeSpec
             {
                 return null;
             }
-            string name = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
+            throw new JsonException("Cannot deserialize abstract model 'UnionPet' without a discriminator.");
+        }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="value"> The union variant to serialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static void SerializeUnionPetsUnion(Utf8JsonWriter writer, UnionPet value, ModelReaderWriterOptions options)
+        {
+            if (value == null)
             {
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
-                }
+                writer.WriteNullValue();
+                return;
             }
-            return new UnionPet(name, additionalBinaryDataProperties);
+            if (value is UnionCat variant)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("kind"u8);
+                writer.WriteStringValue("cat");
+                writer.WritePropertyName("value"u8);
+                writer.WriteObjectValue(variant, options);
+                writer.WriteEndObject();
+                return;
+            }
+            if (value is UnionDog variant0)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("kind"u8);
+                writer.WriteStringValue("dog");
+                writer.WritePropertyName("value"u8);
+                writer.WriteObjectValue(variant0, options);
+                writer.WriteEndObject();
+                return;
+            }
+            throw new ArgumentException("The value is not a variant of union 'UnionPets'.", nameof(value));
+        }
+
+        /// <param name="element"> The JSON envelope to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static UnionPet DeserializeUnionPetsUnion(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty("kind"u8, out JsonElement discriminator) || !(discriminator.ValueKind == JsonValueKind.String) || !element.TryGetProperty("value"u8, out JsonElement discriminator0) || discriminator0.ValueKind != JsonValueKind.Object)
+            {
+                throw new JsonException("Invalid object envelope for union 'UnionPets'.");
+            }
+            switch (discriminator.GetString())
+            {
+                case "cat":
+                    return UnionCat.DeserializeUnionCat(discriminator0, options);
+                case "dog":
+                    return UnionDog.DeserializeUnionDog(discriminator0, options);
+                default:
+                    throw new JsonException("Unknown discriminator value for union 'UnionPets'.");
+            }
+        }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="value"> The union variant to serialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static void SerializeAlternateUnionPetsUnion(Utf8JsonWriter writer, UnionPet value, ModelReaderWriterOptions options)
+        {
+            if (value == null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+            if (value is UnionCat variant)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("type"u8);
+                writer.WriteStringValue("feline");
+                writer.WritePropertyName("data"u8);
+                writer.WriteObjectValue(variant, options);
+                writer.WriteEndObject();
+                return;
+            }
+            if (value is UnionDog variant0)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("type"u8);
+                writer.WriteStringValue("canine");
+                writer.WritePropertyName("data"u8);
+                writer.WriteObjectValue(variant0, options);
+                writer.WriteEndObject();
+                return;
+            }
+            throw new ArgumentException("The value is not a variant of union 'AlternateUnionPets'.", nameof(value));
+        }
+
+        /// <param name="element"> The JSON envelope to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static UnionPet DeserializeAlternateUnionPetsUnion(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty("type"u8, out JsonElement discriminator) || !(discriminator.ValueKind == JsonValueKind.String) || !element.TryGetProperty("data"u8, out JsonElement discriminator0) || discriminator0.ValueKind != JsonValueKind.Object)
+            {
+                throw new JsonException("Invalid object envelope for union 'AlternateUnionPets'.");
+            }
+            switch (discriminator.GetString())
+            {
+                case "feline":
+                    return UnionCat.DeserializeUnionCat(discriminator0, options);
+                case "canine":
+                    return UnionDog.DeserializeUnionDog(discriminator0, options);
+                default:
+                    throw new JsonException("Unknown discriminator value for union 'AlternateUnionPets'.");
+            }
         }
     }
 }

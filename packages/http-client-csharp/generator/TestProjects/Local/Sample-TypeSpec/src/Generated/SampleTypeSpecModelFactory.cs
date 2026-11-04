@@ -701,26 +701,25 @@ namespace SampleTypeSpec
             return new UnionCat(name, additionalBinaryDataProperties: null, meow);
         }
 
-        /// <summary> The UnionPet. </summary>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.UnionPet"/> instance for mocking. </returns>
-        public static UnionPet UnionPet(string name = default)
-        {
-            return new UnionPet(name, additionalBinaryDataProperties: null);
-        }
-
         /// <summary> The UnionPetContainer. </summary>
         /// <param name="pet"></param>
         /// <param name="nullablePet"></param>
         /// <param name="pets"></param>
         /// <param name="lookup"></param>
+        /// <param name="alternatePet"></param>
         /// <returns> A new <see cref="SampleTypeSpec.UnionPetContainer"/> instance for mocking. </returns>
-        public static UnionPetContainer UnionPetContainer(UnionPet pet = default, UnionPet nullablePet = default, IEnumerable<UnionPet> pets = default, IDictionary<string, UnionPet> lookup = default)
+        public static UnionPetContainer UnionPetContainer(UnionPet pet = default, UnionPet nullablePet = default, IEnumerable<UnionPet> pets = default, IDictionary<string, UnionPet> lookup = default, UnionPet alternatePet = default)
         {
             pets ??= new ChangeTrackingList<UnionPet>();
             lookup ??= new ChangeTrackingDictionary<string, UnionPet>();
 
-            return new UnionPetContainer(pet, nullablePet, pets.ToList(), lookup, additionalBinaryDataProperties: null);
+            return new UnionPetContainer(
+                pet,
+                nullablePet,
+                pets.ToList(),
+                lookup,
+                alternatePet,
+                additionalBinaryDataProperties: null);
         }
 
         /// <summary> The NullableDynamicModel. </summary>

@@ -35,13 +35,15 @@ namespace SampleTypeSpec
         /// <param name="nullablePet"></param>
         /// <param name="pets"></param>
         /// <param name="lookup"></param>
+        /// <param name="alternatePet"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnionPetContainer(UnionPet pet, UnionPet nullablePet, IList<UnionPet> pets, IDictionary<string, UnionPet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal UnionPetContainer(UnionPet pet, UnionPet nullablePet, IList<UnionPet> pets, IDictionary<string, UnionPet> lookup, UnionPet alternatePet, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Pet = pet;
             NullablePet = nullablePet;
             Pets = pets;
             Lookup = lookup;
+            AlternatePet = alternatePet;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
@@ -56,5 +58,8 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the Lookup. </summary>
         public IDictionary<string, UnionPet> Lookup { get; }
+
+        /// <summary> Gets or sets the AlternatePet. </summary>
+        public UnionPet AlternatePet { get; set; }
     }
 }

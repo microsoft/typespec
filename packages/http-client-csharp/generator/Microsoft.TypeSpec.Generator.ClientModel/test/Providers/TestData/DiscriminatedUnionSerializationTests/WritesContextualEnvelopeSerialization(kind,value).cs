@@ -5,13 +5,12 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
-using Sample.Models;
 
-namespace Sample
+namespace Sample.Models
 {
-    internal static partial class PetsUnionSerialization
+    public abstract partial class Pet
     {
-        internal static void Serialize(global::System.Text.Json.Utf8JsonWriter writer, global::Sample.Models.Pet value, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static void SerializePetsUnion(global::System.Text.Json.Utf8JsonWriter writer, global::Sample.Models.Pet value, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((value == null))
             {
@@ -21,9 +20,9 @@ namespace Sample
             if ((value is global::Sample.Models.Cat variant))
             {
                 writer.WriteStartObject();
-                writer.WritePropertyName("type"u8);
+                writer.WritePropertyName("kind"u8);
                 writer.WriteStringValue("feline");
-                writer.WritePropertyName("data"u8);
+                writer.WritePropertyName("value"u8);
                 writer.WriteObjectValue<global::Sample.Models.Cat>(variant, options);
                 writer.WriteEndObject();
                 return;
@@ -31,9 +30,9 @@ namespace Sample
             if ((value is global::Sample.Models.Dog variant0))
             {
                 writer.WriteStartObject();
-                writer.WritePropertyName("type"u8);
+                writer.WritePropertyName("kind"u8);
                 writer.WriteStringValue("canine");
-                writer.WritePropertyName("data"u8);
+                writer.WritePropertyName("value"u8);
                 writer.WriteObjectValue<global::Sample.Models.Dog>(variant0, options);
                 writer.WriteEndObject();
                 return;
@@ -41,13 +40,13 @@ namespace Sample
             throw new global::System.ArgumentException("The value is not a variant of union 'pets'.", nameof(value));
         }
 
-        internal static global::Sample.Models.Pet Deserialize(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static global::Sample.Models.Pet DeserializePetsUnion(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
-            if ((((((element.ValueKind != global::System.Text.Json.JsonValueKind.Object) || !element.TryGetProperty("type"u8, out global::System.Text.Json.JsonElement discriminator)) || !(discriminator.ValueKind == global::System.Text.Json.JsonValueKind.String)) || !element.TryGetProperty("data"u8, out global::System.Text.Json.JsonElement discriminator0)) || (discriminator0.ValueKind != global::System.Text.Json.JsonValueKind.Object)))
+            if ((((((element.ValueKind != global::System.Text.Json.JsonValueKind.Object) || !element.TryGetProperty("kind"u8, out global::System.Text.Json.JsonElement discriminator)) || !(discriminator.ValueKind == global::System.Text.Json.JsonValueKind.String)) || !element.TryGetProperty("value"u8, out global::System.Text.Json.JsonElement discriminator0)) || (discriminator0.ValueKind != global::System.Text.Json.JsonValueKind.Object)))
             {
                 throw new global::System.Text.Json.JsonException("Invalid object envelope for union 'pets'.");
             }

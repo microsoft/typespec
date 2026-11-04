@@ -89,11 +89,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            UnionPetsUnionSerialization.Serialize(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            UnionPet.SerializeUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
             ClientResult result = Echo(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(UnionPetsUnionSerialization.Deserialize(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(UnionPet.DeserializeUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
         }
 
         /// <summary> Echo. </summary>
@@ -106,11 +106,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            UnionPetsUnionSerialization.Serialize(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            UnionPet.SerializeUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
             ClientResult result = await EchoAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(UnionPetsUnionSerialization.Deserialize(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(UnionPet.DeserializeUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace SampleTypeSpec
                 content.JsonWriter.WriteStartArray();
                 foreach (var item in pets)
                 {
-                    UnionPetsUnionSerialization.Serialize(content.JsonWriter, item, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item, ModelSerializationExtensions.WireOptions);
                 }
                 content.JsonWriter.WriteEndArray();
             }
@@ -255,7 +255,7 @@ namespace SampleTypeSpec
                 List<UnionPet> array = new List<UnionPet>();
                 foreach (var item in document.RootElement.EnumerateArray())
                 {
-                    array.Add(UnionPetsUnionSerialization.Deserialize(item, ModelSerializationExtensions.WireOptions));
+                    array.Add(UnionPet.DeserializeUnionPetsUnion(item, ModelSerializationExtensions.WireOptions));
                 }
                 unionValue = array;
             }
@@ -281,7 +281,7 @@ namespace SampleTypeSpec
                 content.JsonWriter.WriteStartArray();
                 foreach (var item in pets)
                 {
-                    UnionPetsUnionSerialization.Serialize(content.JsonWriter, item, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item, ModelSerializationExtensions.WireOptions);
                 }
                 content.JsonWriter.WriteEndArray();
             }
@@ -294,7 +294,7 @@ namespace SampleTypeSpec
                 List<UnionPet> array = new List<UnionPet>();
                 foreach (var item in document.RootElement.EnumerateArray())
                 {
-                    array.Add(UnionPetsUnionSerialization.Deserialize(item, ModelSerializationExtensions.WireOptions));
+                    array.Add(UnionPet.DeserializeUnionPetsUnion(item, ModelSerializationExtensions.WireOptions));
                 }
                 unionValue = array;
             }
@@ -363,7 +363,7 @@ namespace SampleTypeSpec
                 foreach (var item in pets)
                 {
                     content.JsonWriter.WritePropertyName(item.Key);
-                    UnionPetsUnionSerialization.Serialize(content.JsonWriter, item.Value, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item.Value, ModelSerializationExtensions.WireOptions);
                 }
                 content.JsonWriter.WriteEndObject();
             }
@@ -376,7 +376,7 @@ namespace SampleTypeSpec
                 Dictionary<string, UnionPet> dictionary = new Dictionary<string, UnionPet>();
                 foreach (var @property in document.RootElement.EnumerateObject())
                 {
-                    dictionary.Add(@property.Name, UnionPetsUnionSerialization.Deserialize(@property.Value, ModelSerializationExtensions.WireOptions));
+                    dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, ModelSerializationExtensions.WireOptions));
                 }
                 unionValue = dictionary;
             }
@@ -403,7 +403,7 @@ namespace SampleTypeSpec
                 foreach (var item in pets)
                 {
                     content.JsonWriter.WritePropertyName(item.Key);
-                    UnionPetsUnionSerialization.Serialize(content.JsonWriter, item.Value, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item.Value, ModelSerializationExtensions.WireOptions);
                 }
                 content.JsonWriter.WriteEndObject();
             }
@@ -416,7 +416,7 @@ namespace SampleTypeSpec
                 Dictionary<string, UnionPet> dictionary = new Dictionary<string, UnionPet>();
                 foreach (var @property in document.RootElement.EnumerateObject())
                 {
-                    dictionary.Add(@property.Name, UnionPetsUnionSerialization.Deserialize(@property.Value, ModelSerializationExtensions.WireOptions));
+                    dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, ModelSerializationExtensions.WireOptions));
                 }
                 unionValue = dictionary;
             }

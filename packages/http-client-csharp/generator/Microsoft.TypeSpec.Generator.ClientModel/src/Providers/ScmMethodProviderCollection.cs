@@ -270,7 +270,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
                 ];
             }
-            else if (DiscriminatedUnionSerializationProvider.RequiresEnvelope(ServiceMethod.Response.Type))
+            else if (DiscriminatedUnionSerialization.RequiresEnvelope(ServiceMethod.Response.Type))
             {
                 methodBody =
                 [
@@ -280,7 +280,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     Declare("data", result.GetRawResponse().Content(), out var data),
                     UsingDeclare("document", data.Parse(), out var document),
-                    DiscriminatedUnionSerializationProvider.DeserializeValue(
+                    DiscriminatedUnionSerialization.DeserializeValue(
                         ServiceMethod.Response.Type!, responseBodyType.OutputType, document.RootElement(),
                         ModelSerializationExtensionsSnippets.Wire, out var value),
                     Return(result.FromValue(value, result.GetRawResponse()))
@@ -405,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var declaration = Declare("content", new Utf8JsonBinaryContentDefinition().Type, initialization, out var content);
                 statements.Add((hasLifecycleVisibility || inputType != null) && _pagingServiceMethod is null ? UsingDeclare(content, initialization) : declaration);
                 var serialization = inputType != null
-                    ? DiscriminatedUnionSerializationProvider.SerializeValue(
+                    ? DiscriminatedUnionSerialization.SerializeValue(
                         inputType, serializationType, value, content.As<Utf8JsonBinaryContentDefinition>().JsonWriter(), requestSerializationOptions)
                     : ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
                         serializationType,
@@ -427,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (parameter.Location == ParameterLocation.Body && !parameter.Type.Equals(typeof(BinaryData)))
                 {
                     var inputBodyType = ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault()?.Type;
-                    if (DiscriminatedUnionSerializationProvider.RequiresEnvelope(inputBodyType) && !isXmlRequest)
+                    if (DiscriminatedUnionSerialization.RequiresEnvelope(inputBodyType) && !isXmlRequest)
                     {
                         AddUtf8JsonContent(parameter.Type, parameter, inputBodyType);
                     }

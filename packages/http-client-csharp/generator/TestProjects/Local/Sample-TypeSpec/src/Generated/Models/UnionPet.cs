@@ -11,18 +11,15 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> The UnionPet. </summary>
-    public partial class UnionPet
+    public abstract partial class UnionPet
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="UnionPet"/>. </summary>
         /// <param name="name"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public UnionPet(string name)
+        private protected UnionPet(string name)
         {
-            Argument.AssertNotNull(name, nameof(name));
-
             Name = name;
         }
 

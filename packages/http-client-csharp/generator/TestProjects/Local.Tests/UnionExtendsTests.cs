@@ -28,7 +28,7 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(cat ? "cat" : "dog", envelope.GetProperty("kind").GetString());
             Assert.AreEqual(value.Name, envelope.GetProperty("value").GetProperty("name").GetString());
             Assert.IsFalse(envelope.GetProperty("value").TryGetProperty("kind", out _));
-            var result = UnionPetsUnionSerialization.Deserialize(envelope, ModelSerializationExtensions.WireOptions);
+            var result = UnionPet.DeserializeUnionPetsUnion(envelope, ModelSerializationExtensions.WireOptions);
             Assert.AreEqual(value.GetType(), result.GetType());
             Assert.AreEqual(value.Name, result.Name);
             if (result is UnionCat resultCat)
@@ -57,7 +57,7 @@ namespace TestProjects.Local.Tests
         {
             var cat = new UnionCat("Whiskers", true);
             var dog = new UnionDog("Rex", false);
-            var container = new UnionPetContainer(cat, null);
+            var container = new UnionPetContainer(cat, null) { AlternatePet = cat };
             container.Pets.Add(dog);
             container.Lookup.Add("best", cat);
 
@@ -67,12 +67,31 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(JsonValueKind.Null, document.RootElement.GetProperty("nullablePet").ValueKind);
             Assert.AreEqual("dog", document.RootElement.GetProperty("pets")[0].GetProperty("kind").GetString());
             Assert.AreEqual("cat", document.RootElement.GetProperty("lookup").GetProperty("best").GetProperty("kind").GetString());
+            Assert.AreEqual("feline", document.RootElement.GetProperty("alternatePet").GetProperty("type").GetString());
+            Assert.IsTrue(document.RootElement.GetProperty("alternatePet").GetProperty("data").GetProperty("meow").GetBoolean());
 
             var result = ModelReaderWriter.Read<UnionPetContainer>(data)!;
             Assert.IsInstanceOf<UnionCat>(result.Pet);
             Assert.IsNull(result.NullablePet);
             Assert.IsInstanceOf<UnionDog>(result.Pets[0]);
             Assert.IsInstanceOf<UnionCat>(result.Lookup["best"]);
+            Assert.IsInstanceOf<UnionCat>(result.AlternatePet);
+        }
+
+        [Test]
+        public void UnionBaseIsAbstract()
+        {
+            Assert.IsTrue(typeof(UnionPet).IsAbstract);
+            Assert.IsFalse(typeof(UnionCat).IsAbstract);
+            Assert.IsFalse(typeof(UnionDog).IsAbstract);
+        }
+
+        [Test]
+        public void AbstractBaseCannotBeDeserializedWithoutUnionContext()
+        {
+            using var document = JsonDocument.Parse("{\"name\":\"Other\"}");
+            Assert.Throws<JsonException>(() => UnionPet.DeserializeUnionPet(
+                document.RootElement, ModelSerializationExtensions.WireOptions));
         }
 
         [TestCase(false)]
@@ -118,7 +137,7 @@ namespace TestProjects.Local.Tests
         public void InvalidEnvelopeIsRejected(string json)
         {
             using var document = JsonDocument.Parse(json);
-            Assert.Throws<JsonException>(() => UnionPetsUnionSerialization.Deserialize(
+            Assert.Throws<JsonException>(() => UnionPet.DeserializeUnionPetsUnion(
                 document.RootElement, ModelSerializationExtensions.WireOptions));
         }
 
@@ -166,7 +185,7 @@ namespace TestProjects.Local.Tests
         [Test]
         public void ModelOutsideTheUnionIsRejected()
         {
-            var exception = Assert.Throws<ArgumentException>(() => Serialize(new UnionPet("Other")));
+            var exception = Assert.Throws<ArgumentException>(() => Serialize(new OtherPet()));
             Assert.AreEqual("value", exception!.ParamName);
         }
 
@@ -175,7 +194,7 @@ namespace TestProjects.Local.Tests
         {
             using var document = JsonDocument.Parse(Serialize(null!));
             Assert.AreEqual(JsonValueKind.Null, document.RootElement.ValueKind);
-            Assert.IsNull(UnionPetsUnionSerialization.Deserialize(
+            Assert.IsNull(UnionPet.DeserializeUnionPetsUnion(
                 document.RootElement, ModelSerializationExtensions.WireOptions));
         }
 
@@ -184,9 +203,11 @@ namespace TestProjects.Local.Tests
             using var stream = new MemoryStream();
             using (var writer = new Utf8JsonWriter(stream))
             {
-                UnionPetsUnionSerialization.Serialize(writer, value, ModelSerializationExtensions.WireOptions);
+                UnionPet.SerializeUnionPetsUnion(writer, value, ModelSerializationExtensions.WireOptions);
             }
             return BinaryData.FromBytes(stream.ToArray());
         }
+
+        private sealed class OtherPet() : UnionPet("Other");
     }
 }

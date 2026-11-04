@@ -1414,11 +1414,18 @@ union UnionPets extends UnionPet {
   dog: UnionDog,
 }
 
+@discriminated(#{ discriminatorPropertyName: "type", envelopePropertyName: "data" })
+union AlternateUnionPets extends UnionPet {
+  feline: UnionCat,
+  canine: UnionDog,
+}
+
 model UnionPetContainer {
   pet: UnionPets;
   nullablePet: UnionPets | null;
   pets?: UnionPets[];
   lookup?: Record<UnionPets>;
+  alternatePet?: AlternateUnionPets;
 }
 
 @route("/union-extends")
