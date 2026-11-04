@@ -25,6 +25,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        [TestCase(InputModelTypeUsage.Input, "WidgetRequest")]
+        [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
+        public void ContentSuffixUsageIsReflectedInGeneratedCode(InputModelTypeUsage usage, string expectedName)
+        {
+            var input = InputFactory.Model("WidgetContent",
+                usage: usage | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [input]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(input)!;
+            var code = new TypeProviderWriter(model).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(usage.ToString()).ReplaceLineEndings("\n"), code);
+            Assert.AreEqual($"{expectedName}.cs", System.IO.Path.GetFileName(model.RelativeFilePath));
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+        }
+
         [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", false)]
         [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", true)]
         [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", false)]
@@ -34,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         public void ModelSuffixDoesNotCollideWithClient(
             string clientName, string clientNamespace, bool exactName, string expectedName, bool clientFirst)
         {
-            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpContent" : "WidgetContent");
+            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpContent" : "WidgetContent",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var inputClient = InputFactory.Client(clientName, clientNamespace: clientNamespace, isExactName: exactName);
             MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () => [inputClient]);
             var factory = ScmCodeModelGenerator.Instance.TypeFactory;
@@ -53,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         public async Task ModelSuffixDoesNotCollideWithCustomizedClient(
             string clientName, string modelName, string expectedName, string expectedClientName)
         {
-            var input = InputFactory.Model(modelName);
+            var input = InputFactory.Model(modelName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var inputClient = InputFactory.Client(clientName, clientNamespace: "Sample.Models", isExactName: true);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [input],
@@ -73,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         [Test]
         public void ModelSuffixFallbackDoesNotCollideWithClient()
         {
-            var input = InputFactory.Model("WidgetContent");
+            var input = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () =>
             [
                 InputFactory.Client("WidgetRequest", clientNamespace: "Sample.Models", isExactName: true),

@@ -175,6 +175,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputModel = InputFactory.Model(
                 inputName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
                 isExactName: isExactName,
                 properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
             var model = new ModelProvider(inputModel);
@@ -185,16 +186,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ServiceContent", model.Properties[0].Name);
         }
 
-        [TestCase(InputModelTypeUsage.Input)]
-        [TestCase(InputModelTypeUsage.Output)]
-        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output)]
-        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Output)]
-        public void TestBuildName_ContentSuffixDoesNotDependOnUsage(InputModelTypeUsage usage)
+        [TestCase(InputModelTypeUsage.Input, "WidgetRequest")]
+        [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.None, "WidgetContent")]
+        public void TestBuildName_ContentSuffixRequiresInputOnlyUsage(InputModelTypeUsage usage, string expectedName)
         {
             var inputModel = InputFactory.Model("WidgetContent", usage: usage | InputModelTypeUsage.Json);
             var model = new ModelProvider(inputModel);
 
-            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual(expectedName, model.Name);
+        }
+
+        [TestCase(InputModelTypeUsage.Input, "IPRequest")]
+        [TestCase(InputModelTypeUsage.Output, "IPContent")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "IPContent")]
+        public void TestBuildName_ContentSuffixUsagePreservesAcronymsAndProperties(InputModelTypeUsage usage, string expectedName)
+        {
+            var inputModel = InputFactory.Model("IpContent",
+                usage: usage | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Type.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceContent", model.Properties[0].Name);
         }
 
         [TestCase("WidgetContent", "WidgetRequest", false, false)]
@@ -209,7 +228,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void TestBuildName_ModelSuffixCollision(
             string inputName, string reservedName, bool exactReservedName, bool reverseOrder)
         {
-            var inputModel = InputFactory.Model(inputName);
+            var inputModel = InputFactory.Model(inputName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var reservedModel = InputFactory.Model(reservedName, isExactName: exactReservedName);
             var wrapper = InputFactory.Model("Wrapper", properties:
             [
@@ -241,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesCustomName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent");
+            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var customizedModel = InputFactory.Model("Gadget");
             InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -266,7 +285,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public async Task TestBuildName_ModelSuffixCollisionPreservesContractName(
             string inputName, string contractName, string expectedName, bool reverseOrder)
         {
-            var inputModel = InputFactory.Model(inputName);
+            var inputModel = InputFactory.Model(inputName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var shippedModel = InputFactory.Model(contractName);
             InputModelType[] models = reverseOrder ? [shippedModel, inputModel] : [inputModel, shippedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -286,7 +305,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixDoesNotCollideWithDistinctExactName()
         {
-            var inputModel = InputFactory.Model("IpContent");
+            var inputModel = InputFactory.Model("IpContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var exactModel = InputFactory.Model("IpRequestModel", isExactName: true);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
@@ -299,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("Other.Models")]
         public void TestBuildName_ModelSuffixAvoidsCaseInsensitiveFileCollision(string reservedNamespace)
         {
-            var inputModel = InputFactory.Model("IpContent");
+            var inputModel = InputFactory.Model("IpContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var exactModel = InputFactory.Model("IpRequest", @namespace: reservedNamespace, isExactName: true);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
@@ -317,7 +336,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("IpContent", "IpRequest", true)]
         public void TestBuildName_ModelSuffixReservesEnumNames(string modelName, string enumName, bool extensible)
         {
-            var inputModel = InputFactory.Model(modelName);
+            var inputModel = InputFactory.Model(modelName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var inputEnum = InputFactory.StringEnum(enumName, [("One", "one")], isExtensible: extensible);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel], inputEnumTypes: [inputEnum]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
@@ -335,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public void TestBuildName_ModelSuffixReservesUnknownDiscriminatorName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("UnknownPetContent");
+            var inputModel = InputFactory.Model("UnknownPetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
             var baseModel = InputFactory.Model("PetRequest", properties: [discriminator]);
             InputModelType[] models = reverseOrder ? [baseModel, inputModel] : [inputModel, baseModel];
@@ -357,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesMappedSuffixName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent");
+            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var customizedModel = InputFactory.Model("GadgetResponse");
             InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -379,7 +398,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixMappingBelongsToOriginalInput(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent");
+            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var mappedModel = InputFactory.Model("WidgetRequest");
             InputModelType[] models = reverseOrder ? [mappedModel, inputModel] : [inputModel, mappedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -401,7 +420,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixNamesAreCachedForLibrary()
         {
-            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Content")).ToArray();
+            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Content", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json)).ToArray();
             MockHelpers.LoadMockGenerator(inputModelTypes: models);
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var names = factory.ModelNames;
@@ -420,7 +439,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixFallbackAvoidsReservedOriginalName()
         {
-            var inputModel = InputFactory.Model("WidgetContent");
+            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
             var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, reserved], inputEnumTypes: [inputEnum]);
@@ -433,7 +452,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixFallbackAvoidsMappedInputName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent");
+            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
             var mappedModel = InputFactory.Model("WidgetContent1");
             var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
@@ -499,7 +518,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             string inputName, string expectedName, bool lastContract, bool updateNamespace)
         {
             var inputModel = InputFactory.Model(
-                inputName, @namespace: updateNamespace ? "Sample" : "Sample.Models");
+                inputName, @namespace: updateNamespace ? "Sample" : "Sample.Models",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -531,8 +551,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             string inputName, string expectedName, bool isError)
         {
             var inputModel = InputFactory.Model(inputName,
-                usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json |
-                    (isError ? InputModelTypeUsage.Error : InputModelTypeUsage.None));
+                usage: InputModelTypeUsage.Json |
+                    (isError ? InputModelTypeUsage.Error | InputModelTypeUsage.Output : InputModelTypeUsage.Input));
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

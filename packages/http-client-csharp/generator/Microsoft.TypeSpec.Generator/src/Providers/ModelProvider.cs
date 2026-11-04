@@ -479,7 +479,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private string RenameModelSuffix(string name)
         {
-            if (name.EndsWith(ContentSuffix, StringComparison.Ordinal))
+            if ((_inputModel.Usage & (InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Error)) == InputModelTypeUsage.Input &&
+                name.EndsWith(ContentSuffix, StringComparison.Ordinal))
             {
                 return $"{name[..^ContentSuffix.Length]}Request";
             }

@@ -124,9 +124,9 @@ an exact-name exclusion: `lastSyncTimestamp` still becomes `LastSyncOn` as a pro
 
 ## Model names ending in Content or Response
 
-A model whose generated name ends with the case-sensitive suffix `Content` uses `Request`
+A non-error, input-only model whose generated name ends with the case-sensitive suffix `Content` uses `Request`
 instead. For example, `WidgetContent` becomes `WidgetRequest`, and `IpContent` becomes `IPRequest`.
-This rule applies regardless of whether the model is used as input, output, or an error. It changes
+Output-only models, models used as both input and output, and error models retain `Content`. This changes
 only the final suffix, not property names or occurrences of `Content` elsewhere in the name.
 
 An exact name, an existing handwritten type, or a previous contract can retain the `Content`
