@@ -1,5 +1,9 @@
 import { assert, beforeEach, describe, expect, it } from "vitest";
 import {
+  unsafe_mutateSubgraph as mutateSubgraph,
+  type unsafe_Mutator as Mutator,
+} from "../../src/experimental/index.js";
+import {
   getSourceLocation,
   isTypeRefType,
   resolvePath,
@@ -315,5 +319,106 @@ describe("typeref", () => {
       .import("my-lib")
       .diagnose("const reference = typeref(MyLib.Item);");
     expectDiagnostics(diagnostics, { code: "typeref-disabled" });
+  });
+
+  describe("mutation", () => {
+    const mutator: Mutator = {
+      name: "rename models",
+      Model: (_source, clone) => {
+        clone.name = `Changed${clone.name}`;
+      },
+      ModelProperty: () => {},
+      Scalar: () => {},
+    };
+
+    it("maps native storage constraints without cloning the reference scalar", async () => {
+      const { program, Item } = await Tester.compile("@test model Item {}");
+      assert(Item.entityKind === "Type" && Item.kind === "Model");
+      const original = program.checker.getTypeRefType(Item);
+      const target = mutateSubgraph(program, [mutator], Item).type;
+      const storage = mutateSubgraph(program, [mutator], original).type;
+      expect(storage).toBe(program.checker.getTypeRefType(target));
+      expect(original.templateMapper?.args[0]).toBe(Item);
+    });
+
+    it("maps nested decorator references and widened storage independently", async () => {
+      const captures = new Map<Type, { primary: TypeRefValue; alternatives: TypeRefValue[] }>();
+      const { program, Holder, Derived, Base } = await Tester.files({
+        "capture.js": mockFile.js({
+          $capture: (
+            _context: unknown,
+            target: Type,
+            value: { primary: TypeRefValue; alternatives: TypeRefValue[] },
+          ) => captures.set(target, value),
+        }),
+      }).import("./capture.js").compile(`
+        extern dec capture(target, value: valueof {
+          primary: TypeRef; alternatives: TypeRef[];
+        });
+        @test model Base {}
+        @test model Derived extends Base {}
+        const reference: TypeRef<Base> = typeref(Derived);
+        @capture(#{ primary: reference, alternatives: #[reference] })
+        @test model Holder {}
+      `);
+      assert(Holder.entityKind === "Type" && Holder.kind === "Model");
+      assert(Derived.entityKind === "Type" && Derived.kind === "Model");
+      assert(Base.entityKind === "Type" && Base.kind === "Model");
+      const clone = mutateSubgraph(program, [mutator], Holder).type;
+      const target = mutateSubgraph(program, [mutator], Derived).type;
+      const constraint = mutateSubgraph(program, [mutator], Base).type;
+      const capture = captures.get(clone)!;
+      for (const reference of [capture.primary, capture.alternatives[0]]) {
+        expect(reference.target).toBe(target);
+        expect(reference.type).toBe(program.checker.getTypeRefType(constraint));
+      }
+      expect(captures.get(Holder)!.primary.target).toBe(Derived);
+    });
+
+    it("maps reference defaults and scalar constructor arguments", async () => {
+      const { program, Holder, Item } = await Tester.compile(`
+        @test model Item {}
+        scalar Registration { init create(reference: TypeRef<Item>); }
+        @test model Holder {
+          reference: TypeRef<Item> = typeref(Item);
+          registration: Registration = Registration.create(typeref(Item));
+        }
+      `);
+      assert(Holder.entityKind === "Type" && Holder.kind === "Model");
+      assert(Item.entityKind === "Type" && Item.kind === "Model");
+      const clone = mutateSubgraph(program, [mutator], Holder).type;
+      assert(clone.kind === "Model");
+      const target = mutateSubgraph(program, [mutator], Item).type;
+      const direct = clone.properties.get("reference")!.defaultValue;
+      const registration = clone.properties.get("registration")!.defaultValue;
+      assert(direct?.valueKind === "TypeRefValue" && registration?.valueKind === "ScalarValue");
+      expect(direct.target).toBe(target);
+      expect(direct.type).toBe(program.checker.getTypeRefType(target));
+      expect(registration.value.args[0]).toMatchObject({ valueKind: "TypeRefValue", target });
+      expect(Holder.properties.get("reference")!.defaultValue).toMatchObject({ target: Item });
+    });
+
+    it("maps reference template arguments and substitutions consistently", async () => {
+      const { program, Holder, Item } = await Tester.compile(`
+        @test model Item {}
+        model Entry<R extends valueof TypeRef<Item>> { reference: TypeRef<Item> = R; }
+        @test model Holder { entry: Entry<typeref(Item)>; }
+      `);
+      assert(Holder.entityKind === "Type" && Holder.kind === "Model");
+      assert(Item.entityKind === "Type" && Item.kind === "Model");
+      const clone = mutateSubgraph(program, [mutator], Holder).type;
+      assert(clone.kind === "Model");
+      const entry = clone.properties.get("entry")!.type;
+      assert(entry.kind === "Model");
+      const mapper = entry.templateMapper!;
+      const argument = mapper.args[0];
+      assert(argument.entityKind === "Value" && argument.valueKind === "TypeRefValue");
+      const target = mutateSubgraph(program, [mutator], Item).type;
+      expect(argument.target).toBe(target);
+      const parameter = mapper.map.keys().next().value!;
+      expect(mapper.map.get(parameter)).toBe(argument);
+      expect(mapper.getMappedType(parameter)).toBe(argument);
+      expect(entry.properties.get("reference")!.defaultValue).toMatchObject({ target });
+    });
   });
 });

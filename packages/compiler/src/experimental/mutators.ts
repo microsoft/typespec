@@ -2,7 +2,7 @@ import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
 import { isNumeric } from "../core/numeric.js";
 import type { Program } from "../core/program.js";
-import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
+import { isTemplateInstance, isType, isTypeRefType, isValue } from "../core/type-utils.js";
 import type {
   DecoratedType,
   Decorator,
@@ -583,6 +583,20 @@ function createMutatorEngine(
     const { mutatorsWithOptions, newMutators } = resolveMutators(activeMutators, type);
     const mutatorsToApply = mutatorsWithOptions.map((v) => v.mutator);
 
+    if (isTypeRefType(program, type)) {
+      const argument = type.templateMapper?.args[0];
+      compilerAssert(argument !== undefined, "TypeRef must have a type argument.");
+      const target = argument.entityKind === "Indeterminate" ? argument.type : argument;
+      compilerAssert(isType(target), "TypeRef must reference a type.");
+      const mapped =
+        newMutators.size > 0 && isMutableTypeWithNamespace(target)
+          ? mutateSubgraphWorker(target, newMutators)
+          : target;
+      const reference = program.checker.getTypeRefType(mapped);
+      seen.set([type, activeMutators], reference);
+      return reference;
+    }
+
     let mutating = false;
 
     // if we have no mutators to apply, let's bail out.
@@ -717,6 +731,12 @@ function createMutatorEngine(
         case "ModelProperty":
           mutateProperty(root, "type", mutating, newMutators);
           mutateProperty(root, "sourceProperty", mutating, newMutators);
+          if (root.defaultValue && containsTypeRefValue(root.defaultValue)) {
+            const value = mutateValue(root.defaultValue, newMutators);
+            if (clone?.kind === "ModelProperty") {
+              clone.defaultValue = value;
+            }
+          }
           break;
         case "Tuple":
           mutateSubArray(root, "values", mutating, newMutators);
@@ -859,6 +879,25 @@ function createMutatorEngine(
           type: mutateDecoratorArgumentValue(value.type, newMutators),
           value: mutateDecoratorArgumentValue(value.value, newMutators),
         } as T;
+      case "TypeRefValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          target: mutateDecoratorArgumentValue(value.target, newMutators),
+        };
+      case "ScalarValue":
+        if (!containsTypeRefValue(value)) {
+          return value;
+        }
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          scalar: mutateDecoratorArgumentValue(value.scalar, newMutators),
+          value: {
+            ...value.value,
+            args: value.value.args.map((arg) => mutateValue(arg, newMutators)),
+          },
+        };
       default:
         return value;
     }
@@ -872,18 +911,35 @@ function createMutatorEngine(
     if (type.templateMapper === undefined) {
       return;
     }
+    const originalMapper = type.templateMapper;
+    const references = new Map<Value, Value>();
+    function mutateArgument(argument: TypeMapper["args"][number]) {
+      if (isValue(argument) && containsTypeRefValue(argument)) {
+        let mapped = references.get(argument);
+        if (mapped === undefined) {
+          mapped = mutateValue(argument, newMutators);
+          references.set(argument, mapped);
+        }
+        return mapped;
+      }
+      return mutateSubgraphWorker(argument as any, newMutators);
+    }
     const mutatedMapper: TypeMapper = {
-      ...type.templateMapper,
+      ...originalMapper,
       args: [],
       map: new Map(),
     };
     for (const arg of type.templateMapper.args) {
-      mutate(mutatedMapper.args).push(mutateSubgraphWorker(arg as any, newMutators));
+      mutate(mutatedMapper.args).push(mutateArgument(arg));
     }
     for (const [param, paramType] of type.templateMapper.map) {
-      mutatedMapper.map.set(param, mutateSubgraphWorker(paramType as any, newMutators));
+      mutatedMapper.map.set(param, mutateArgument(paramType));
     }
     if (mutating) {
+      mutatedMapper.getMappedType = (parameter) => {
+        const original = originalMapper.getMappedType(parameter);
+        return isValue(original) ? (references.get(original) ?? original) : original;
+      };
       type.templateMapper = mutatedMapper;
     }
   }
@@ -933,6 +989,21 @@ function createMutatorEngine(
     if (mutating) {
       type[prop] = newValue;
     }
+  }
+}
+
+function containsTypeRefValue(value: Value): boolean {
+  switch (value.valueKind) {
+    case "TypeRefValue":
+      return true;
+    case "ObjectValue":
+      return [...value.properties.values()].some((property) => containsTypeRefValue(property.value));
+    case "ArrayValue":
+      return value.values.some(containsTypeRefValue);
+    case "ScalarValue":
+      return value.value.args.some(containsTypeRefValue);
+    default:
+      return false;
   }
 }
 
