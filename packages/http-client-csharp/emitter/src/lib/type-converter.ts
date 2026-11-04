@@ -25,7 +25,6 @@ import {
 import type { Diagnostic, Model } from "@typespec/compiler";
 import { compilerAssert, createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import { isEvents } from "@typespec/events";
-import { Visibility } from "@typespec/http";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type {
@@ -300,10 +299,6 @@ function fromSdkModelProperty(
     sdkProperty.serializationOptions?.json?.name ??
     sdkProperty.serializationOptions?.xml?.name ??
     sdkProperty.serializationOptions?.multipart?.name;
-  const lifecycleVisibility = sdkProperty.visibility?.reduce(
-    (mask, visibility) => mask | visibility,
-    0,
-  );
   property = {
     kind: sdkProperty.kind,
     name: sdkProperty.name,
@@ -315,10 +310,6 @@ function fromSdkModelProperty(
       fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
     ),
     optional: sdkProperty.optional,
-    lifecycleVisibility:
-      lifecycleVisibility === Visibility.All || lifecycleVisibility === Visibility.Read
-        ? undefined
-        : lifecycleVisibility,
     readOnly: isReadOnly(sdkProperty),
     discriminator: sdkProperty.discriminator,
     flatten: sdkProperty.flatten,

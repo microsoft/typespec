@@ -15,7 +15,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsDiscriminator { get; }
         public bool IsHttpMetadata { get; }
         public bool IsApiVersion { get; }
-        public InputVisibility Visibility { get; } = InputVisibility.All;
         internal FormattableString? Description { get; }
         public SerializationOptions? SerializationOptions { get; }
         public InputType? InputType { get; }
@@ -41,7 +40,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;
             InputType = inputProperty.Type;
-            Visibility = modelProperty?.Visibility ?? InputVisibility.All;
             IsRequired = inputProperty.IsRequired;
             IsReadOnly = inputProperty.IsReadOnly;
             IsHttpMetadata = modelProperty != null && modelProperty.IsHttpMetadata;

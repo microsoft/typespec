@@ -21,7 +21,6 @@
   "exports": {
     ".": {
       "types": "./dist/emitter/src/index.d.ts",
-      "typespec": "./emitter/lib/main.tsp",
       "default": "./dist/emitter/src/index.js"
     }
   },
@@ -35,9 +34,7 @@
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "dev:playground": "npm run build:emitter && cd ../../website && npm run dev",
-    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "test:generator": "dotnet test ./generator",
     "test": "npm run test:emitter && npm run test:generator",
@@ -54,13 +51,12 @@
   "files": [
     "dist/emitter/src/**",
     "dist/generated-defs/**",
-    "dist/generator/**",
-    "emitter/lib/*.tsp"
+    "dist/generator/**"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.74.0-dev.4 <0.75.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.74.0-dev.9 <0.75.0",
-    "@typespec/compiler": "^1.17.0",
+    "@azure-tools/typespec-azure-core": ">=0.74.0-dev.5 <0.75.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.74.0-dev.16 <0.75.0",
+    "@typespec/compiler": ">=1.18.0-dev.14 <1.19.0",
     "@typespec/events": ">=0.87.0 <0.88.0 || ~0.88.0-0",
     "@typespec/http": "^1.17.0",
     "@typespec/http-client": ">=0.17.0 <0.18.0 || ~0.18.0-0",
@@ -72,11 +68,11 @@
   },
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.47-dev.1",
-    "@azure-tools/typespec-azure-core": "0.74.0-dev.4",
-    "@azure-tools/typespec-client-generator-core": "0.74.0-dev.9",
+    "@azure-tools/typespec-azure-core": "0.74.0-dev.5",
+    "@azure-tools/typespec-client-generator-core": "0.74.0-dev.16",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.12.0",
-    "@typespec/compiler": "1.17.0",
+    "@typespec/compiler": "1.18.0-dev.14",
     "@typespec/events": "0.87.0",
     "@typespec/http": "1.17.0",
     "@typespec/http-client": "0.17.0",
@@ -103,6 +99,9 @@
     "bundlePeerDependencies": [
       "@typespec/http-client"
     ]
+  },
+  "overrides": {
+    "@typespec/compiler": "$@typespec/compiler"
   },
   "dependencies": {
     "@azure/identity": "^4.13.0"
