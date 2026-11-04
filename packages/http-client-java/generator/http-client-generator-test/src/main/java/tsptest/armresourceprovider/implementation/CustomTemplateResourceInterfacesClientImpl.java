@@ -247,7 +247,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdate(
+    public SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource,
         String ifMatch, String ifNoneMatch) {
         Response<BinaryData> response

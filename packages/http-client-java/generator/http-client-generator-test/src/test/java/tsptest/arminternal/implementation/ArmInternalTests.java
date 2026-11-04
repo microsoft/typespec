@@ -8,6 +8,7 @@ import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.test.http.MockHttpResponse;
 import com.azure.core.util.Context;
+import com.azure.core.util.polling.SyncPoller;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
@@ -60,7 +61,9 @@ public class ArmInternalTests {
                 name);
         }
         for (Method method : SecretsClientImpl.class.getDeclaredMethods()) {
-            Assertions.assertFalse(Modifier.isPublic(method.getModifiers()), method.toString());
+            if (!method.getName().equals("beginCreateOrUpdate") || method.getReturnType() != SyncPoller.class) {
+                Assertions.assertFalse(Modifier.isPublic(method.getModifiers()), method.toString());
+            }
             Assertions.assertFalse(Modifier.isProtected(method.getModifiers()), method.toString());
         }
         for (String name : List.of("getByResourceGroup", "createOrUpdate", "createOrUpdateAsync", "beginCreateOrUpdate",

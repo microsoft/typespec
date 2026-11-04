@@ -301,7 +301,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link SyncPoller} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
+    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
         Response<BinaryData> response
             = deleteWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);

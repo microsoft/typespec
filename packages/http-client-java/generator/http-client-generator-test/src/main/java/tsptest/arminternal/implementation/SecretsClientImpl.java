@@ -347,7 +347,7 @@ public final class SecretsClientImpl implements SecretsClient {
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    SyncPoller<PollResult<Secret>, Secret> beginCreateOrUpdate(String resourceGroupName, String secretName,
+    public SyncPoller<PollResult<Secret>, Secret> beginCreateOrUpdate(String resourceGroupName, String secretName,
         Secret resource) {
         Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, secretName, resource);
         return this.client.<Secret, Secret>getLroResult(response, Secret.class, Secret.class, Context.NONE);
@@ -367,7 +367,7 @@ public final class SecretsClientImpl implements SecretsClient {
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    SyncPoller<PollResult<Secret>, Secret> beginCreateOrUpdate(String resourceGroupName, String secretName,
+    public SyncPoller<PollResult<Secret>, Secret> beginCreateOrUpdate(String resourceGroupName, String secretName,
         Secret resource, Context context) {
         Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, secretName, resource, context);
         return this.client.<Secret, Secret>getLroResult(response, Secret.class, Secret.class, context);

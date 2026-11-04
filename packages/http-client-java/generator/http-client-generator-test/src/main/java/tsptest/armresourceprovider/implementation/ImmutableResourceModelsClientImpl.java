@@ -206,7 +206,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
+    public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName, NginxConfigurationRequest properties) {
         Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, configurationName, properties);
         return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
