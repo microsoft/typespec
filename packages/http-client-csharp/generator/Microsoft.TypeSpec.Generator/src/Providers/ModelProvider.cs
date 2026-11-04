@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
+        private const string ContentSuffix = "Content";
         private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
         internal InputModelType InputModel => _inputModel;
@@ -440,8 +441,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected override string NormalizeTypeName(string name)
         {
             var normalizedName = base.NormalizeTypeName(name);
-            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) ||
-                !normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            var renamedName = RenameModelSuffix(normalizedName);
+            if (renamedName == normalizedName)
             {
                 return normalizedName;
             }
@@ -454,7 +455,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return normalizedName;
             }
 
-            return $"{normalizedName[..^ResponseSuffix.Length]}Result";
+            return renamedName;
+        }
+
+        private string RenameModelSuffix(string name)
+        {
+            if (name.EndsWith(ContentSuffix, StringComparison.Ordinal))
+            {
+                return $"{name[..^ContentSuffix.Length]}Request";
+            }
+
+            if (!_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) &&
+                name.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            {
+                return $"{name[..^ResponseSuffix.Length]}Result";
+            }
+
+            return name;
         }
 
         private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
@@ -462,7 +479,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
             var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
-            return customCodeView ?? BuildResponseSuffixFallbackView(
+            return customCodeView ?? BuildModelSuffixFallbackView(
                 typeName,
                 typeNamespace,
                 (name, ns) => base.BuildCustomCodeView(name, ns));
@@ -473,13 +490,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
             var lastContractView = base.BuildLastContractView(typeName, typeNamespace);
-            return lastContractView ?? BuildResponseSuffixFallbackView(
+            return lastContractView ?? BuildModelSuffixFallbackView(
                 typeName,
                 typeNamespace,
                 (name, ns) => base.BuildLastContractView(name, ns));
         }
 
-        private TypeProvider? BuildResponseSuffixFallbackView(
+        private TypeProvider? BuildModelSuffixFallbackView(
             string typeName,
             string typeNamespace,
             Func<string, string, TypeProvider?> buildView)
@@ -491,9 +508,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var originalName = _inputModel.Name.ToIdentifierName();
             var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
-            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+            var renamedName = RenameModelSuffix(normalizedOriginalName);
+            if (renamedName == normalizedOriginalName ||
                 originalName == typeName ||
-                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
+                typeName != renamedName)
             {
                 return null;
             }

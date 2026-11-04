@@ -16,4 +16,19 @@ namespace Sample.Models
     public partial class CustomizedGadget
     {
     }
+
+    [CodeGenType("WidgetContent")]
+    public partial class CustomizedContent
+    {
+    }
+
+    [CodeGenType("IPContent")]
+    public partial class CustomizedIPContent
+    {
+    }
+
+    [CodeGenType("GadgetRequest")]
+    public partial class CustomizedGadgetContent
+    {
+    }
 }

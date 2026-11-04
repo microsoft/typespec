@@ -158,6 +158,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
         }
 
+        [TestCase("WidgetContent", false, "WidgetRequest")]
+        [TestCase("Content", false, "Request")]
+        [TestCase("widget_content", false, "WidgetRequest")]
+        [TestCase("IpContent", false, "IPRequest")]
+        [TestCase("WidgetContentContent", false, "WidgetContentRequest")]
+        [TestCase("WidgetResponseContent", false, "WidgetResponseRequest")]
+        [TestCase("WidgetContentResponse", false, "WidgetContentResult")]
+        [TestCase("WidgetContent", true, "WidgetContent")]
+        [TestCase("IpContent", true, "IpContent")]
+        [TestCase("WidgetRequest", false, "WidgetRequest")]
+        [TestCase("ContentWidget", false, "ContentWidget")]
+        [TestCase("WidgetContents", false, "WidgetContents")]
+        [TestCase("Widgetcontent", false, "Widgetcontent")]
+        public void TestBuildName_ContentSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                isExactName: isExactName,
+                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(expectedName, model.Type.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceContent", model.Properties[0].Name);
+        }
+
+        [TestCase(InputModelTypeUsage.Input)]
+        [TestCase(InputModelTypeUsage.Output)]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output)]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Output)]
+        public void TestBuildName_ContentSuffixDoesNotDependOnUsage(InputModelTypeUsage usage)
+        {
+            var inputModel = InputFactory.Model("WidgetContent", usage: usage | InputModelTypeUsage.Json);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual("WidgetRequest", model.Name);
+        }
+
         [TestCase("ErrorResponse", false, "ErrorResponse")]
         [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
         [TestCase("IpResponse", false, "IPResponse")]
@@ -186,7 +225,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("DbResponse", "DbResponse", true, false)]
         [TestCase("DbResponse", "DbResponse", false, true)]
         [TestCase("DbResponse", "DbResponse", true, true)]
-        public async Task TestBuildName_ResponseSuffixPreservesExistingName(
+        [TestCase("WidgetContent", "WidgetContent", false, false)]
+        [TestCase("WidgetContent", "WidgetContent", true, false)]
+        [TestCase("WidgetContent", "WidgetContent", false, true)]
+        [TestCase("WidgetContent", "WidgetContent", true, true)]
+        [TestCase("IpContent", "IPContent", false, false)]
+        [TestCase("IpContent", "IPContent", true, false)]
+        [TestCase("IpContent", "IPContent", false, true)]
+        [TestCase("IpContent", "IPContent", true, true)]
+        [TestCase("DbContent", "DbContent", false, false)]
+        [TestCase("DbContent", "DbContent", true, false)]
+        [TestCase("DbContent", "DbContent", false, true)]
+        [TestCase("DbContent", "DbContent", true, true)]
+        public async Task TestBuildName_ModelSuffixPreservesExistingName(
             string inputName, string expectedName, bool lastContract, bool updateNamespace)
         {
             var inputModel = InputFactory.Model(
@@ -200,7 +251,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             if (updateNamespace)
             {
-                Assert.That(model.Name, Does.EndWith("Result"));
+                Assert.That(model.Name, Does.EndWith(inputName.EndsWith("Content", StringComparison.Ordinal) ? "Request" : "Result"));
                 model.Update(@namespace: "Sample.Models");
             }
 
@@ -213,7 +264,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("IpResponse", "CustomizedIP", false)]
         [TestCase("IpResponse", "CustomizedIP", true)]
         [TestCase("GadgetResponse", "CustomizedGadget", false)]
-        public async Task TestBuildName_ResponseSuffixPreservesCustomName(
+        [TestCase("WidgetContent", "CustomizedContent", false)]
+        [TestCase("WidgetContent", "CustomizedContent", true)]
+        [TestCase("IpContent", "CustomizedIPContent", false)]
+        [TestCase("IpContent", "CustomizedIPContent", true)]
+        [TestCase("GadgetContent", "CustomizedGadgetContent", false)]
+        public async Task TestBuildName_ModelSuffixPreservesCustomName(
             string inputName, string expectedName, bool isError)
         {
             var inputModel = InputFactory.Model(inputName,
