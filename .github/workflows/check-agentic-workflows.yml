@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install gh-aw
-        uses: github/gh-aw/actions/setup-cli@8df88b66116c3ead88419803ef9ced0c1a253510 # v0.93.0
+        uses: github/gh-aw/actions/setup-cli@0627fdbe4beb5f3b71aa569f8d97150b87f2111a # v1.0.1
         with:
           version: v0.88.7
 
