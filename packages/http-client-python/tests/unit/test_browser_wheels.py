@@ -77,28 +77,40 @@ class BrowserWheelTests(unittest.TestCase):
             dist = root / "generator" / "dist"
             dist.mkdir(parents=True)
             (dist / pure[0]).touch()
+            browser = dist / "browser"
+            browser.mkdir()
+            (browser / "stale.whl").touch()
+            unexpected_native = None
 
             def download(command, *, env, check):
                 self.assertTrue(check)
-                self.assertEqual(command[command.index("--python-version") + 1], "3.12.1")
-                self.assertEqual(command[command.index("--platform") + 1], "pyodide_2024_0_wasm32")
-                self.assertEqual(command[command.index("--abi") + 1], "cp312")
+                self.assertIn("--python-version=3.12.1", command)
+                self.assertIn("--platform=pyodide_2024_0_wasm32", command)
+                self.assertIn("--abi=cp312", command)
                 self.assertEqual(env["PIP_INDEX_URL"], "https://example.com/authenticated-feed/")
-                self.assertEqual(
-                    Path(command[command.index("--constraint") + 1]).read_text(),
-                    "PyYAML==6.0.1\nMarkupSafe==2.1.5\nplatformdirs==4.3.8\n",
-                )
-                staging = Path(command[command.index("--dest") + 1])
+                self.assertIn("platformdirs==4.3.8", command)
+                for package in native:
+                    self.assertIn(f"https://cdn.jsdelivr.net/pyodide/v0.26.2/full/{package['file_name']}", command)
+                staging = Path(next(arg.removeprefix("--dest=") for arg in command if arg.startswith("--dest=")))
                 for filename in pure + [p["file_name"] for p in native]:
                     (staging / filename).touch()
+                if unexpected_native:
+                    (staging / unexpected_native).touch()
 
             with (
                 patch.object(builder, "_ROOT_DIR", root),
-                patch.object(builder, "urlopen", return_value=io.BytesIO(json.dumps(lock).encode())),
+                patch.object(builder, "urlopen", side_effect=lambda _url: io.BytesIO(json.dumps(lock).encode())),
                 patch.object(builder.subprocess, "run", side_effect=download),
                 patch.dict(builder.os.environ, {"PIP_INDEX_URL": "https://example.com/authenticated-feed/"}),
             ):
                 builder.build_browser_wheels(SimpleNamespace(env_exe="python"))
+                manifest_before_failure = (browser / "manifest.json").read_text()
+                unexpected_native = "unsupported-1.0-cp312-cp312-pyodide_2024_0_wasm32.whl"
+                with self.assertRaisesRegex(
+                    RuntimeError, f"Unsupported native browser dependencies: {unexpected_native}"
+                ):
+                    builder.build_browser_wheels(SimpleNamespace(env_exe="python"))
+                self.assertEqual((browser / "manifest.json").read_text(), manifest_before_failure)
 
             manifest = json.loads((dist / "browser" / "manifest.json").read_text())
             self.assertEqual(manifest["wheels"], sorted(pure))

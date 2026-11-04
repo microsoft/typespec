@@ -47,40 +47,26 @@ def build_browser_wheels(venv_context):
         lock = json.load(response)
 
     # These native extensions must match the browser's WebAssembly runtime, not the build host.
-    native_packages = [lock["packages"][name] for name in ("pyyaml", "markupsafe")]
+    native_wheels = [lock["packages"][name]["file_name"] for name in ("pyyaml", "markupsafe")]
+    _, abi, platform = native_wheels[0].removesuffix(".whl").rsplit("-", 2)
     with tempfile.TemporaryDirectory(dir=dist) as directory:
         staging = Path(directory)
-        constraints = staging / "constraints.txt"
-        constraints.write_text(
-            "".join(f"{p['name']}=={p['version']}\n" for p in native_packages)
-            # Later platformdirs releases import os.geteuid, which Pyodide does not provide.
-            + "platformdirs==4.3.8\n"
-        )
-        platform = native_packages[0]["file_name"].removesuffix(".whl").rsplit("-", 1)[1]
         command = [
             venv_context.env_exe,
             "-m",
             "pip",
             "download",
             str(wheel),
-            "--dest",
-            str(staging),
+            # Later platformdirs releases import os.geteuid, which Pyodide does not provide.
+            "platformdirs==4.3.8",
+            *[pyodide_url + filename for filename in native_wheels],
+            f"--dest={staging}",
             "--only-binary=:all:",
-            "--python-version",
-            lock["info"]["python"],
-            "--platform",
-            platform,
-            "--platform",
-            "any",
-            "--implementation",
-            "cp",
-            "--abi",
-            native_packages[0]["file_name"].rsplit("-", 3)[2],
-            "--constraint",
-            str(constraints),
+            f"--python-version={lock['info']['python']}",
+            f"--platform={platform}",
+            "--implementation=cp",
+            f"--abi={abi}",
         ]
-        for package in native_packages:
-            command.extend(["--find-links", pyodide_url + package["file_name"]])
         env = os.environ.copy()
         env["PIP_INDEX_URL"] = (
             env.get("PIP_INDEX_URL")
@@ -92,7 +78,7 @@ def build_browser_wheels(venv_context):
         unexpected = [
             p.name
             for p in staging.glob("*.whl")
-            if not p.name.endswith("-none-any.whl") and p.name not in {p["file_name"] for p in native_packages}
+            if not p.name.endswith("-none-any.whl") and p.name not in native_wheels
         ]
         if unexpected:
             raise RuntimeError(f"Unsupported native browser dependencies: {', '.join(unexpected)}")
