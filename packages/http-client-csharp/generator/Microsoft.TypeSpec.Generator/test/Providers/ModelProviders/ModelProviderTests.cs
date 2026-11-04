@@ -429,6 +429,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("WidgetContent1", model.Name);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixFallbackAvoidsMappedInputName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetContent");
+            var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
+            var mappedModel = InputFactory.Model("WidgetContent1");
+            var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
+            InputModelType[] models = reverseOrder ? [mappedModel, reserved, inputModel] : [inputModel, reserved, mappedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var mapped = factory.CreateModel(mappedModel)!;
+
+            Assert.AreEqual("WidgetContent2", model.Name);
+            Assert.AreEqual("CustomizedContent", mapped.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(mapped.CustomCodeView);
+            Assert.AreNotEqual(model.RelativeFilePath, mapped.RelativeFilePath);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(mapped, factory.CSharpTypeMap[mapped.Type]);
+        }
+
         [TestCase("ErrorResponse", false, "ErrorResponse")]
         [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
         [TestCase("IpResponse", false, "IPResponse")]

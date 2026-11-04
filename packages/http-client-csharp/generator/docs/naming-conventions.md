@@ -151,7 +151,8 @@ retains its name before suffix conversion. For example, a library containing bot
 generates two distinct types with those names, rather than overwriting `WidgetRequest`. Likewise,
 `WidgetResponse` stays `WidgetResponse` if another model already uses `WidgetResult`. If the name before
 suffix conversion is also occupied, the generator appends `1`, `2`, and subsequent numeric suffixes
-until the filename is available. Resolved client names are also reserved within their namespaces to
+until the filename is available and the name does not claim another input's customization lookup
+name. Resolved client names are also reserved within their namespaces to
 prevent a model's suffix conversion from merging unrelated client and model declarations. A client
 with the same name in another namespace does not block the conversion.
 

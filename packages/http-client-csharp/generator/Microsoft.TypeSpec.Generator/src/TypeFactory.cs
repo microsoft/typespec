@@ -101,7 +101,9 @@ namespace Microsoft.TypeSpec.Generator
 
                 // Models and enums share an output directory, including across namespaces.
                 var name = candidate.OriginalName;
-                for (var suffix = 1; nameCounts.ContainsKey(name) || reservedTypes.Contains((name, candidate.Namespace)); suffix++)
+                for (var suffix = 1; nameCounts.ContainsKey(name) ||
+                    reservedTypes.Contains((name, candidate.Namespace)) ||
+                    (name != candidate.OriginalName && originalNames.Contains(name)); suffix++)
                 {
                     name = $"{candidate.OriginalName}{suffix}";
                 }
