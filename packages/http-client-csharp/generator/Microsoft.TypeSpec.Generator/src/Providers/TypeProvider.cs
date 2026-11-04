@@ -385,10 +385,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal IReadOnlyList<FieldProvider>? CachedFields => _fields;
         internal IReadOnlyList<PropertyProvider>? CachedProperties => _properties;
         internal IReadOnlyList<TypeProvider>? CachedNestedTypes => _nestedTypes;
+        internal IReadOnlyList<TypeProvider>? CachedSerializationProviders => _serializationProviders;
         internal IReadOnlyList<MethodBodyStatement>? CachedWriteAttributes => _attributes;
         internal WhereExpression? CachedWhereClause => _whereClause;
         internal string? CachedRelativeFilePath => _relativeFilePath ?? _observedRelativeFilePath;
         internal TypeSignatureModifiers? CachedDeclarationModifiers => _declarationModifiers;
+        internal XmlDocProvider? CachedXmlDocs => _xmlDocs;
+        internal IReadOnlyList<SuppressionStatement>? CachedDisabledFileWarnings => _disabledFileWarnings;
+        internal bool HasFileWarningInput => _inputType is not null || SerializationProviderOwner?._inputType is not null;
+        internal IReadOnlyList<CSharpType>? CachedImplements => _implements;
+        internal string? PinnedRelativeFilePath => _relativeFilePath;
+        internal bool IsCustomCodeViewMaterialized => _customCodeView.IsValueCreated;
+        internal TypeProvider? CachedCustomCodeView => _customCodeView.IsValueCreated ? _customCodeView.Value : null;
         internal bool TryAttachFieldTypePreparation(PreparedFieldTypes preparation) =>
             System.Threading.Interlocked.CompareExchange(ref _preparedFieldTypes, preparation, null) is null;
 

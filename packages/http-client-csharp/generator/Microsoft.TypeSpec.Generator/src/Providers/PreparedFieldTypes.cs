@@ -289,7 +289,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            result.CaptureSourceFiles(topLevel, compilation, roots);
+            result.CaptureSourceFiles(topLevel, compilation, roots, all, byName, namespacePrefixes,
+                rootStates.All(root => root.Written && root.SerializationWritten.All(written => written)));
 
             if (result._fields.Count == 0)
             {
@@ -446,7 +447,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Resolve only the bounded top-level same-namespace case; never construct
         // generated syntax or speculate on a generated expression to make this decision.
         private static INamedTypeSymbol? ResolveReferencedTarget(CSharpCompilation compilation, CSharpType type,
-            IReadOnlyDictionary<(string Namespace, string Name), TypeProvider[]> generated)
+            IReadOnlyDictionary<(string Namespace, string Name), TypeProvider[]> generated, bool forStaticCall = false, bool forLoadedSourceCall = false)
         {
             var current = compilation.GlobalNamespace;
             var prefix = string.Empty;
@@ -467,12 +468,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var targets = current.GetMembers(type.Name).Take(2).ToArray();
             if (targets.Length != 1 || targets[0] is not INamedTypeSymbol target || target.Arity != 0 || target.ContainingType is not null ||
                 target.TypeKind is not (TypeKind.Class or TypeKind.Struct or TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate) ||
-                target.SpecialType != SpecialType.None || target.IsStatic ||
-                target.Locations.Any(location => location.IsInSource) ||
-                SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly) ||
+                !forStaticCall && (target.SpecialType != SpecialType.None || target.IsStatic) ||
                 !compilation.IsSymbolAccessibleWithin(target, compilation.Assembly))
             {
                 return null;
+            }
+
+            if (target.Locations.Any(location => location.IsInSource) || SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly))
+            {
+                // Call-only admission for an already loaded declaration. Field
+                // spelling and metadata value-type lookup keep their old veto.
+                return forStaticCall && forLoadedSourceCall && !target.IsFileLocal && target.TypeKind == TypeKind.Class &&
+                    target.BaseType?.SpecialType == SpecialType.System_Object && target.DeclaringSyntaxReferences.Length != 0 &&
+                    SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly) &&
+                    target.DeclaringSyntaxReferences.All(r => compilation.ContainsSyntaxTree(r.SyntaxTree)) ? target : null;
             }
 
             // Extern-alias-only metadata is not visible to the writer's unaliased

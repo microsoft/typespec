@@ -183,6 +183,11 @@ namespace Microsoft.TypeSpec.Generator
             return this;
         }
 
+        // Shared with preparation: a cached method is not necessarily a written
+        // declaration. Ordinary bodyless methods emit documentation only.
+        internal static bool HasMethodDeclaration(MethodProvider method) => method.BodyStatements is not null || method.BodyExpression is not null ||
+            method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial) || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract);
+
         public void WriteMethod(MethodProvider method)
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
@@ -207,8 +212,7 @@ namespace Microsoft.TypeSpec.Generator
                         WriteRawLine(";");
                     }
                 }
-                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
-                    || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                else if (HasMethodDeclaration(method))
                 {
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {

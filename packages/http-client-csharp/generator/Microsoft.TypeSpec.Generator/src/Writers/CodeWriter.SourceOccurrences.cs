@@ -13,6 +13,8 @@ namespace Microsoft.TypeSpec.Generator
         private PreparedSourceFile? _sourceFile;
         private PreparedSourceFile.Cursor? _sourceCursor;
         internal PreparedSourceOccurrence? CurrentSourceOccurrence => _sourceCursor?.Current;
+        internal PreparedSourceObservations.PreparedOccurrenceObservations? CurrentSourceObservations => _sourceCursor?.Current is { } occurrence
+            ? _sourceFile?.Observations?.GetCurrent(occurrence) : null;
 
         internal void AttachSourceFile(PreparedFieldTypes preparation, TypeProvider owner)
         {

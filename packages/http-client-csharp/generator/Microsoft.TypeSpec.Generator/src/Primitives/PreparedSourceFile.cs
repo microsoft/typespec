@@ -19,22 +19,50 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal string FilePath { get; }
         internal ImmutableArray<PreparedSourceOccurrence> Roots => _roots.ToImmutableArray();
         internal bool IsInvalid => System.Threading.Volatile.Read(ref _invalid) != 0;
+        internal PreparedSourceObservations? Observations { get; private set; }
         private readonly Compilation _compilation;
         private readonly bool _disableXmlDocs;
+        private readonly Func<CSharpType, INamedTypeSymbol?>? _resolveCallType;
+        private readonly Func<bool>? _callEnvironmentCurrent;
+        private readonly Func<CSharpType, PreparedGeneratedMethodGroup?>? _resolveGeneratedGroup;
+        private readonly Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? _resolveReducedGroup;
         private readonly List<PreparedSourceOccurrence> _roots = [];
         private readonly Dictionary<TypeProvider, Dictionary<(string Role, int Index), PreparedSourceOccurrence>> _byOwner = new(ReferenceEqualityComparer.Instance);
         private readonly List<OwnerSnapshot> _owners = [];
         private int _invalid;
         private bool _started;
 
-        internal PreparedSourceFile(Guid generation, TypeProvider owner, string path, Compilation compilation, bool disableXmlDocs)
+        internal PreparedSourceFile(Guid generation, TypeProvider owner, string path, Compilation compilation, bool disableXmlDocs,
+            Func<CSharpType, INamedTypeSymbol?>? resolveCallType = null, Func<bool>? callEnvironmentCurrent = null,
+            Func<CSharpType, PreparedGeneratedMethodGroup?>? resolveGeneratedGroup = null,
+            Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? resolveReducedGroup = null)
         {
             Generation = generation;
             FileOwner = owner;
             FilePath = path;
             _compilation = compilation;
             _disableXmlDocs = disableXmlDocs;
+            _resolveCallType = resolveCallType;
+            _callEnvironmentCurrent = callEnvironmentCurrent;
+            _resolveGeneratedGroup = resolveGeneratedGroup;
+            _resolveReducedGroup = resolveReducedGroup;
             CaptureOwner(owner, "type", new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance));
+        }
+
+        internal static bool HasCommentOnlyLicenseHeader(string header)
+        {
+            // File headers split/prefix LF and CRLF, not every C# line end.
+            // Unconsumed terminators can escape the prefixed line comments.
+            for (var index = 0; index < header.Length; index++)
+            {
+                if (header[index] is '\u0085' or '\u2028' or '\u2029') { return false; }
+                if (header[index] == '\r')
+                {
+                    if (index + 1 >= header.Length || header[index + 1] != '\n') { return false; }
+                    index++;
+                }
+            }
+            return true;
         }
 
         private void CaptureOwner(TypeProvider owner, string path, HashSet<TypeProvider> ancestors)
@@ -46,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             void Add(string role, int index, object node, bool boundary)
             {
                 var occurrence = PreparedSourceOccurrence.Capture(new(Generation, FilePath, path, role, index, "$"), node, boundary,
-                    _compilation, _disableXmlDocs);
+                    _compilation, _disableXmlDocs, _resolveCallType, _callEnvironmentCurrent, _resolveGeneratedGroup, _resolveReducedGroup);
                 roots.Add((role, index), occurrence);
                 _roots.Add(occurrence);
             }
@@ -69,6 +97,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (writesMembers && !writesOnlyFields && ContractCollections.TryCopy(owner.CachedNestedTypes, out var nested))
             { for (int i = 0; i < nested.Length; i++) { CaptureOwner(nested[i], $"{path}/nested[{i}]", ancestors); } }
             ancestors.Remove(owner);
+        }
+
+        internal void FinalizeObservations()
+        {
+            if (_started || Observations is not null) { Invalidate(); return; }
+            Observations = new PreparedSourceObservations(Roots, () => IsCurrent() && _callEnvironmentCurrent?.Invoke() == true);
         }
 
         internal bool IsCurrent()
@@ -176,7 +210,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             public void Dispose() { var action = _dispose; _dispose = null; action?.Invoke(); }
         }
 
-        private sealed class OwnerSnapshot
+        internal sealed class OwnerSnapshot
         {
             private readonly TypeProvider _owner;
             private readonly long _revision;
@@ -188,6 +222,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             private readonly ImmutableArray<MethodProvider> _methods;
             private readonly ImmutableArray<ConstructorProvider> _constructors;
             private readonly ImmutableArray<TypeProvider> _nested;
+            private readonly ImmutableArray<TypeProvider> _serializations;
+            private readonly bool _hasSerializations;
             private readonly ImmutableArray<MethodBodyStatement> _attributes;
             private readonly object? _where;
             private readonly TypeSignatureModifiers? _modifiers;
@@ -202,6 +238,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 _hasMethods = ContractCollections.TryCopy(owner.CachedMethods, out _methods);
                 _hasConstructors = ContractCollections.TryCopy(owner.CachedConstructors, out _constructors);
                 _hasNested = ContractCollections.TryCopy(owner.CachedNestedTypes, out _nested);
+                _hasSerializations = ContractCollections.TryCopy(owner.CachedSerializationProviders, out _serializations);
                 _hasAttributes = ContractCollections.TryCopy(owner.CachedWriteAttributes, out _attributes);
                 _where = owner.CachedWhereClause;
                 _modifiers = owner.CachedDeclarationModifiers;
@@ -213,6 +250,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 (!_hasMethods || ContractCollections.SameReferences(_owner.CachedMethods, _methods)) &&
                 (!_hasConstructors || ContractCollections.SameReferences(_owner.CachedConstructors, _constructors)) &&
                 (!_hasNested || ContractCollections.SameReferences(_owner.CachedNestedTypes, _nested)) &&
+                (!_hasSerializations || ContractCollections.SameReferences(_owner.CachedSerializationProviders, _serializations)) &&
                 (!_hasAttributes || ContractCollections.SameReferences(_owner.CachedWriteAttributes, _attributes)) &&
                 ReferenceEquals(_where, _owner.CachedWhereClause) && _modifiers == _owner.CachedDeclarationModifiers && _path == _owner.CachedRelativeFilePath;
         }

@@ -194,7 +194,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 case MethodProvider n:
                     s.Value(n.DeclarationRevision); s.Ref(n.EnclosingType); s.Docs(n.XmlDocs, disableXmlDocs);
                     s.Child("signature", n.Signature, false);
-                    s.Child("block-body", n.BodyStatements); if (n.BodyStatements is null) { s.Child("expression-body", n.BodyExpression); }
+                    // Explicit conversions spell their target with Name, not ReturnType.
+                    var methodReturnType = n.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async) ||
+                        n.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) ? null : n.Signature.ReturnType;
+                    s.Child("block-body", n.BodyStatements, methodReturnType: methodReturnType, parameterOwner: n);
+                    if (n.BodyStatements is null)
+                    {
+                        s.Child("expression-body", n.BodyExpression, targetType: methodReturnType, parameterOwner: n);
+                    }
                     s.IntrinsicLineBreaks = true; break;
                 case ConstructorProvider n:
                     s.Value(n.DeclarationRevision); s.Ref(n.EnclosingType); s.Docs(n.XmlDocs, disableXmlDocs);
@@ -220,7 +227,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     s.Nodes("attribute", n.Attributes); s.Child("default", n.DefaultValue); break;
                 case FieldProvider n:
                     s.Ref(n.EnclosingType); s.Value(n.Name); s.Name(n.Name); s.Value(n.Modifiers); s.Type(n.Type);
-                    s.Docs(n.XmlDocs, disableXmlDocs); s.Nodes("attribute", n.Attributes); s.Child("initializer", n.InitializationValue); s.IntrinsicLineBreaks = true; break;
+                    s.Docs(n.XmlDocs, disableXmlDocs); s.Nodes("attribute", n.Attributes); s.Child("initializer", n.InitializationValue, targetType: n.Type); s.IntrinsicLineBreaks = true; break;
                 case PropertyProvider n:
                     s.Ref(n.EnclosingType); s.Value(n.Name); s.Name(n.Name); s.Value(n.Modifiers); s.Value(n.IsRef); s.Type(n.Type); s.Type(n.ExplicitInterface);
                     s.Docs(n.XmlDocs, disableXmlDocs); s.Nodes("attribute", n.Attributes); s.Child("accessors", n.Body, false);
@@ -259,7 +266,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             for (int i = 0; i < Children.Length; i++)
             {
                 if (Children[i].Role != current.Children[i].Role || Children[i].EmissionBoundary != current.Children[i].EmissionBoundary ||
-                    !ReferenceEquals(Children[i].Producer, current.Children[i].Producer)) { return false; }
+                    !ReferenceEquals(Children[i].Producer, current.Children[i].Producer) ||
+                    !ReferenceEquals(Children[i].TargetType, current.Children[i].TargetType) ||
+                    !ReferenceEquals(Children[i].MethodReturnType, current.Children[i].MethodReturnType) ||
+                    !ReferenceEquals(Children[i].ParameterOwner, current.Children[i].ParameterOwner)) { return false; }
             }
             for (int i = 0; i < _types.Count; i++) { if (!ReferenceEquals(_types[i], current._types[i])) { return false; } }
             return _typeSnapshots.All(t => t.IsCurrent()) && _metadataAttributes.All(a => a.IsCurrent()) && _declarationSnapshots.All(d =>
@@ -301,7 +311,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 if (!SimpleIdentifier(declaration.RequestedName)) { IntrinsicTokens = false; IntrinsicLayoutKnown = false; }
             }
         }
-        private void Child(string role, object? child, bool boundary = true) { Ref(child); if (child is not null) { _children.Add(new(role, child, boundary)); } }
+        private void Child(string role, object? child, bool boundary = true, CSharpType? targetType = null, CSharpType? methodReturnType = null, MethodProvider? parameterOwner = null)
+        {
+            Ref(child);
+            if (child is not null)
+            {
+                if (targetType is not null) { Type(targetType); }
+                if (methodReturnType is not null) { Type(methodReturnType); }
+                _children.Add(new(role, child, boundary, targetType, methodReturnType, parameterOwner));
+            }
+        }
         private void Nodes<T>(string role, IReadOnlyList<T>? nodes, bool boundary = true) where T : class
         {
             Ref(nodes);
