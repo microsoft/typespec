@@ -45,7 +45,6 @@ model InternalRequest {
 model InternalDetails {
   state?: InternalState;
   kind?: InternalKind;
-  scoped?: Hidden.ScopedDetails;
 }
 
 union InternalState {
@@ -122,11 +121,4 @@ interface Secrets {
 
   @access(Access.internal, "java")
   delete is ArmResourceDeleteSync<Secret>;
-}
-
-@access(Access.internal, "java")
-namespace Hidden {
-  model ScopedDetails {
-    value?: string;
-  }
 }

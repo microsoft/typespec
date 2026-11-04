@@ -10,7 +10,6 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.arminternal.hidden.implementation.models.ScopedDetails;
 
 /**
  * The InternalDetails model.
@@ -26,11 +25,6 @@ public final class InternalDetails implements JsonSerializable<InternalDetails> 
      * The kind property.
      */
     private InternalKind kind;
-
-    /*
-     * The scoped property.
-     */
-    private ScopedDetails scoped;
 
     /**
      * Creates an instance of InternalDetails class.
@@ -79,26 +73,6 @@ public final class InternalDetails implements JsonSerializable<InternalDetails> 
     }
 
     /**
-     * Get the scoped property: The scoped property.
-     * 
-     * @return the scoped value.
-     */
-    public ScopedDetails scoped() {
-        return this.scoped;
-    }
-
-    /**
-     * Set the scoped property: The scoped property.
-     * 
-     * @param scoped the scoped value to set.
-     * @return the InternalDetails object itself.
-     */
-    public InternalDetails withScoped(ScopedDetails scoped) {
-        this.scoped = scoped;
-        return this;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -106,7 +80,6 @@ public final class InternalDetails implements JsonSerializable<InternalDetails> 
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("state", this.state == null ? null : this.state.toString());
         jsonWriter.writeStringField("kind", this.kind == null ? null : this.kind.toString());
-        jsonWriter.writeJsonField("scoped", this.scoped);
         return jsonWriter.writeEndObject();
     }
 
@@ -129,8 +102,6 @@ public final class InternalDetails implements JsonSerializable<InternalDetails> 
                     deserializedInternalDetails.state = InternalState.fromString(reader.getString());
                 } else if ("kind".equals(fieldName)) {
                     deserializedInternalDetails.kind = InternalKind.fromString(reader.getString());
-                } else if ("scoped".equals(fieldName)) {
-                    deserializedInternalDetails.scoped = ScopedDetails.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

@@ -8,7 +8,6 @@ import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.test.http.MockHttpResponse;
 import com.azure.core.util.Context;
-import com.azure.core.util.polling.SyncPoller;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +20,6 @@ import reactor.core.publisher.Mono;
 import tsptest.arminternal.fluent.SecretsClient;
 import tsptest.arminternal.fluent.WidgetsClient;
 import tsptest.arminternal.fluent.models.SharedResultInner;
-import tsptest.arminternal.hidden.implementation.models.ScopedDetails;
 import tsptest.arminternal.implementation.models.InternalBase;
 import tsptest.arminternal.implementation.models.InternalDetails;
 import tsptest.arminternal.implementation.models.InternalKind;
@@ -61,9 +59,7 @@ public class ArmInternalTests {
                 name);
         }
         for (Method method : SecretsClientImpl.class.getDeclaredMethods()) {
-            if (!method.getName().equals("beginCreateOrUpdate") || method.getReturnType() != SyncPoller.class) {
-                Assertions.assertFalse(Modifier.isPublic(method.getModifiers()), method.toString());
-            }
+            Assertions.assertFalse(Modifier.isPublic(method.getModifiers()), method.toString());
             Assertions.assertFalse(Modifier.isProtected(method.getModifiers()), method.toString());
         }
         for (String name : List.of("getByResourceGroup", "createOrUpdate", "createOrUpdateAsync", "beginCreateOrUpdate",
@@ -84,8 +80,6 @@ public class ArmInternalTests {
             InternalRequest.class, InternalResult.class, InternalState.class, Secret.class, SecretProperties.class)) {
             Assertions.assertEquals("tsptest.arminternal.implementation.models", type.getPackage().getName());
         }
-        Assertions.assertEquals("tsptest.arminternal.hidden.implementation.models",
-            ScopedDetails.class.getPackage().getName());
         Assertions.assertEquals("tsptest.arminternal.models", SharedState.class.getPackage().getName());
         Assertions.assertEquals("tsptest.arminternal.models", SharedResult.class.getPackage().getName());
         Assertions.assertEquals("tsptest.arminternal.fluent.models", SharedResultInner.class.getPackage().getName());
@@ -104,23 +98,20 @@ public class ArmInternalTests {
                 request.set(httpRequest);
                 return Mono.just(
                     new MockHttpResponse(httpRequest, 200, new HttpHeaders().set("Content-Type", "application/json"),
-                        ("{\"name\":\"hidden\",\"details\":{\"state\":\"Pending\",\"kind\":\"First\","
-                            + "\"scoped\":{\"value\":\"hidden-scope\"}}}").getBytes(StandardCharsets.UTF_8)));
+                        "{\"name\":\"hidden\",\"details\":{\"state\":\"Pending\",\"kind\":\"First\"}}"
+                            .getBytes(StandardCharsets.UTF_8)));
             }).build())
             .buildClient();
         WidgetsClientImpl widgets = (WidgetsClientImpl) client.getWidgets();
-        InternalRequest body = new InternalRequest().withDetails(new InternalDetails().withState(InternalState.PENDING)
-            .withKind(InternalKind.FIRST)
-            .withScoped(new ScopedDetails().withValue("custom")));
+        InternalRequest body = new InternalRequest()
+            .withDetails(new InternalDetails().withState(InternalState.PENDING).withKind(InternalKind.FIRST));
 
         InternalResult result = widgets.inspect("test-rg", "widget", body);
         Assertions.assertEquals("hidden", result.name());
         Assertions.assertEquals(InternalState.PENDING, result.details().state());
         Assertions.assertEquals(InternalKind.FIRST, result.details().kind());
-        Assertions.assertEquals("hidden-scope", result.details().scoped().value());
         Assertions.assertTrue(request.get().getUrl().getPath().endsWith("/widgets/widget/inspect"));
-        Assertions.assertEquals(
-            "{\"details\":{\"state\":\"Pending\",\"kind\":\"First\",\"scoped\":{\"value\":\"custom\"}}}",
+        Assertions.assertEquals("{\"details\":{\"state\":\"Pending\",\"kind\":\"First\"}}",
             request.get().getBodyAsBinaryData().toString());
 
         Assertions.assertEquals("hidden", widgets.inspectAsync("test-rg", "widget", body).block().name());

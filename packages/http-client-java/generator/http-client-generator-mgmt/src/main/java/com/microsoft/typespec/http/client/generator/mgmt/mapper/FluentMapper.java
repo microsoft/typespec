@@ -225,14 +225,6 @@ public class FluentMapper {
                 openModules.add(new ModuleInfo.OpenModule(packageName, openToModules));
             }
         }
-        String implementationModelsSuffix
-            = settings.getPackageName("", settings.getImplementationSubpackage(), settings.getModelsSubpackage());
-        for (String packageName : modelPackages) {
-            if (packageName.endsWith(implementationModelsSuffix) && !packageName.equals(implementationModelsPackage)) {
-                openModules.add(new ModuleInfo.OpenModule(packageName, openToModules));
-            }
-        }
-
         return moduleInfo;
     }
 

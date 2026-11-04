@@ -88,7 +88,6 @@ describe("ARM internal access", () => {
       "InternalResult",
       "Secret",
       "SecretProperties",
-      "ScopedDetails",
     ]) {
       const schema = model.schemas.objects!.find(
         (schema) => schema.language.default.name === name,
