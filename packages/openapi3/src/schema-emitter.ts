@@ -54,11 +54,11 @@ import {
   isArrayModelType,
   isNeverType,
   isSecret,
+  isTypeRefType,
   resolveEncodedEnumMemberValue,
   resolveEncodedName,
 } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
-import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import type { MetadataInfo } from "@typespec/http";
 import { Visibility, getVisibilitySuffix } from "@typespec/http";

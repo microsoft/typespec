@@ -1,5 +1,4 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import type { TypeRefValue } from "../experimental/typeref.js";
 import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { FileRef } from "./file-ref.js";
@@ -4122,4 +4121,24 @@ export interface Tracer {
    * separated by a dot. Child tracers share the parent's filtering and log destination.
    */
   sub(subarea: string): Tracer;
+}
+
+/**
+ * The native generic scalar used to store a compile-time type reference.
+ * Its template argument constrains the referenced type.
+ */
+export interface TypeRefType extends Scalar {
+  /** The name of the standard type-reference declaration. */
+  name: "TypeRef";
+}
+
+/**
+ * A value referencing an existing compiler type without copying it.
+ * Its inferred storage type is `TypeRef<T>`; the precise referenced type is available through `target`.
+ */
+export interface TypeRefValue extends BaseValue {
+  /** Identifies this value as a reference to a compiler type. */
+  valueKind: "TypeRefValue";
+  /** The referenced compiler type, preserving its original identity. */
+  target: Type;
 }

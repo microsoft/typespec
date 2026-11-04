@@ -8,10 +8,15 @@ import type {
   Program,
   Scalar,
 } from "@typespec/compiler";
-import { getSourceLocation, isArrayModelType, isUnknownType, type Type } from "@typespec/compiler";
+import {
+  getSourceLocation,
+  isArrayModelType,
+  isTypeRefType,
+  isUnknownType,
+  type Type,
+} from "@typespec/compiler";
 import type { DocTag } from "@typespec/compiler/ast";
 import { SyntaxKind } from "@typespec/compiler/ast";
-import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import type { DecoratorSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
@@ -262,7 +267,7 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
 function ScalarTsType({ scalar }: { scalar: Scalar }) {
   const { program } = useTspd();
   if (isTypeRefType(program, scalar)) {
-    return typespecCompiler["./experimental"].unsafe_TypeRefValue;
+    return typespecCompiler.TypeRefValue;
   }
   const isStd = program.checker.isStdType(scalar);
   if (isStd) {

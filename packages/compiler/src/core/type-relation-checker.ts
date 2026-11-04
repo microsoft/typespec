@@ -1,4 +1,3 @@
-import { isTypeRefType } from "../experimental/typeref.js";
 import { MultiKeyMap } from "../utils/misc.js";
 import type { Checker } from "./checker.js";
 import { walkPropertiesInherited } from "./checker.js";
@@ -19,7 +18,14 @@ import { createDiagnostic } from "./messages.js";
 import { numericRanges } from "./numeric-ranges.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
-import { isArrayModelType, isNeverType, isUnknownType, isValue, isVoidType } from "./type-utils.js";
+import {
+  isArrayModelType,
+  isNeverType,
+  isTypeRefType,
+  isUnknownType,
+  isValue,
+  isVoidType,
+} from "./type-utils.js";
 import type {
   ArrayModelType,
   ArrayValue,

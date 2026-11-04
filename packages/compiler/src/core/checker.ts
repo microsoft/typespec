@@ -1,5 +1,4 @@
 import { Realm } from "../experimental/realm.js";
-import { isTypeRefType, type TypeRefType } from "../experimental/typeref.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
@@ -51,6 +50,7 @@ import {
   isNullType,
   isTemplateInstance,
   isType,
+  isTypeRefType,
   isValue,
 } from "./type-utils.js";
 import type {
@@ -169,6 +169,7 @@ import type {
   TypeInstantiationMap,
   TypeMapper,
   TypeOfExpressionNode,
+  TypeRefType,
   TypeReferenceNode,
   TypeSpecScriptNode,
   Union,

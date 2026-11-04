@@ -55,12 +55,12 @@ import {
   getTypeName,
   isStringType,
   isType,
+  isTypeRefType,
   joinPaths,
   resolveEncodedEnumMemberValue,
   sanitizePathSegment,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {

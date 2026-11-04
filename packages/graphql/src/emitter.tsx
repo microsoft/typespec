@@ -4,6 +4,7 @@ import {
   emitFile,
   interpolatePath,
   isArrayModelType,
+  isTypeRefType,
   navigateType,
   resolvePath,
   sanitizePathSegment,
@@ -14,7 +15,6 @@ import {
   type Program,
   type Type,
 } from "@typespec/compiler";
-import { unsafe_isTypeRefType as isTypeRefType } from "@typespec/compiler/experimental";
 import { TspContext } from "@typespec/emitter-framework";
 import { printSchema } from "graphql";
 import { isInputType } from "../generated-defs/TypeSpec.GraphQL.js";

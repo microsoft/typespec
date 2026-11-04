@@ -27,10 +27,8 @@ export const typespecCompiler = createPackage({
         "getAutoDecoratorValue",
         "hasAutoDecorator",
         "setAutoDecorator",
+        "TypeRefValue",
       ],
-    },
-    "./experimental": {
-      named: ["unsafe_TypeRefValue"],
     },
   },
 });

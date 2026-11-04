@@ -325,6 +325,7 @@ export {
   isVoidType,
 } from "./core/type-utils.js";
 /* eslint-enable @typescript-eslint/no-deprecated */
+export { isTypeRefType } from "./core/type-utils.js";
 export { ListenerFlow, NoTarget } from "./core/types.js";
 export type {
   ArrayModelType,
@@ -483,6 +484,8 @@ export type {
   TypeListeners,
   TypeMapper,
   TypeOfDiagnostics,
+  TypeRefType,
+  TypeRefValue,
   TypeSpecDiagnosticTarget,
   TypeSpecLibrary,
   TypeSpecLibraryDef,

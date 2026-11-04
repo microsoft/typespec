@@ -1,6 +1,11 @@
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import type { unsafe_TypeRefValue as TypeRefValue } from "../../src/experimental/index.js";
-import { getSourceLocation, resolvePath, type Type } from "../../src/index.js";
+import {
+  getSourceLocation,
+  isTypeRefType,
+  resolvePath,
+  type Type,
+  type TypeRefValue,
+} from "../../src/index.js";
 import {
   createTester,
   expectDiagnostics,
@@ -49,7 +54,7 @@ describe("typeref", () => {
       type: { kind: "Scalar", name: "TypeRef" },
     });
     const storage = references[0].type;
-    assert(storage.kind === "Scalar");
+    assert(isTypeRefType(program, storage));
     expect(program.checker.isStdType(storage)).toEqual(false);
     expect(storage.templateMapper?.args[0]).toBe(models.get("Item"));
     expect(references[1].type).toBe(storage);

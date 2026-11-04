@@ -793,10 +793,9 @@ export type Functions = {
     await expectSignatures({
       code: `extern dec simple(target, reference: valueof TypeRef<string>);`,
       expected: `
-${importLine(["Type"])}
-import type { unsafe_TypeRefValue } from "@typespec/compiler/experimental";
+${importLine(["Type", "TypeRefValue"])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, reference: unsafe_TypeRefValue) => DecoratorValidatorCallbacks | void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, reference: TypeRefValue) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -809,10 +808,9 @@ export type Decorators = {
     await expectSignatures({
       code: `extern fn simple(reference: valueof TypeRef<string>): valueof TypeRef;`,
       expected: `
-import type { FunctionContext } from "@typespec/compiler";
-import type { unsafe_TypeRefValue } from "@typespec/compiler/experimental";
+import type { FunctionContext, TypeRefValue } from "@typespec/compiler";
 
-export type SimpleFunctionImplementation = (context: FunctionContext, reference: unsafe_TypeRefValue) => unsafe_TypeRefValue;
+export type SimpleFunctionImplementation = (context: FunctionContext, reference: TypeRefValue) => TypeRefValue;
 
 export type Functions = {
   simple: SimpleFunctionImplementation;
