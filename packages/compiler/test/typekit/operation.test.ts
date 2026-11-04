@@ -9,6 +9,7 @@ it("can get paging metadata", async () => {
 
     @list op ${t.op("listPets")}(@continuationToken token?: string): {
       @pageItems pets: Pet[];
+      @continuationToken next?: string;
     };
   `);
 
@@ -16,7 +17,23 @@ it("can get paging metadata", async () => {
 
   const pagingMetadata = $(program).operation.getPagingMetadata(listPets);
   expect(pagingMetadata?.input.continuationToken).toBeDefined();
+  expect(pagingMetadata?.output.continuationToken).toBeDefined();
   expect(pagingMetadata?.output.pageItems.property.name).toBe("pets");
+});
+
+it("can get diagnostics for a request continuation token without a response token", async () => {
+  const { listPets, program } = await Tester.compile(t.code`
+    op ${t.op("listPets")}(@continuationToken token?: string): {
+      @pageItems pets: string[];
+      @nextLink next?: string;
+    };
+  `);
+
+  const [pagingMetadata, diagnostics] =
+    $(program).operation.getPagingMetadata.withDiagnostics(listPets);
+  expectDiagnostics(diagnostics, { code: "missing-paging-continuation-token" });
+  expect(pagingMetadata?.input.continuationToken).toBeDefined();
+  expect(pagingMetadata?.output.nextLink).toBeDefined();
 });
 
 it("can get diagnostics from getPagingMetadata", async () => {

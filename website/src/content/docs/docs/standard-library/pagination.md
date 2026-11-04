@@ -80,6 +80,8 @@ It is possible to use server driven pagination on top of client driven paginatio
 
 In this case, the body of the server response for a page has a property marked as continuation token, which can be used to fetch the next page. When fetching the next page, request will include the continuation token as a query parameter.
 
+A request parameter decorated with `@continuationToken` requires a response property decorated with `@continuationToken`. A response `@nextLink` does not satisfy this requirement: it is an opaque link, not a separate token. For link-based pagination without a separate response token, remove `@continuationToken` from the request parameter; the parameter can remain part of the operation.
+
 The continuation token can be in other locations as well, for instance, the below spec indicates that the server response for a page can have a header containing the continuation token. When fetching the next page, request will include the continuation token as a query parameter.
 
 ```tsp

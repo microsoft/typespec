@@ -834,6 +834,8 @@ export type PageItemsDecorator = (
 /**
  * Pagination property defining the token to get to the next page.
  * It MUST be specified both on the request parameter and the response.
+ * A response `@nextLink` does not replace the response `@continuationToken`.
+ * For link-based pagination without a separate response token, leave the request parameter undecorated.
  *
  * @example
  * ```tsp
