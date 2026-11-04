@@ -355,6 +355,20 @@ See existing release notes for examples.
 
 # Pull request
 
+## AI-assisted contributions
+
+We welcome contributions developed with AI assistance. These tools do not replace your judgment or change our expectations for contribution quality. The following applies to code, tests, documentation, issues, and review discussions.
+
+- **Own and understand your contribution.** Review every change before submitting it. Understand the surrounding code and be prepared to explain why your approach is correct in your own words. You remain responsible for the correctness, maintainability, and licensing of everything you submit.
+- **Validate before requesting review.** Run the relevant builds, tests, lint, and formatting checks locally, including after review-driven changes. Add focused regression tests where appropriate, and investigate CI failures rather than leaving them for reviewers to diagnose. Do not weaken tests or update snapshots merely to make checks pass. State which checks you ran and explain any validation you could not perform. Use a draft PR for work in progress or to ask for help with a blocker.
+- **Engage with review yourself.** Understand the concern behind a comment before changing code. AI may help implement a fix, but you must decide whether it addresses the problem and preserves existing behavior, then review and validate the result. Simply forwarding review comments to an AI tool and submitting its response is not sufficient. The substance of your replies must be your own; translation and grammar assistance are welcome. Ask for clarification or explain your reasoning when you disagree.
+- **Keep changes and communication focused.** Remove unrelated edits, unnecessary abstractions, and redundant tests. Keep descriptions and replies concise, technically accurate, and specific to the contribution.
+- **Disclose substantive AI assistance.** Briefly describe how AI tools were used when they produced substantial portions of the contribution. Routine completion, spelling, grammar, or translation assistance does not require disclosure.
+
+Maintainers may pause review or close contributions that are unvalidated, cannot be explained by their author, or repeatedly fail to engage meaningfully with feedback. These expectations apply regardless of the tools used.
+
+These guidelines are inspired by the policies of [Astropy](https://github.com/astropy/astropy-project/blob/main/policies/ai-policy.md), [Home Assistant](https://contributors.home-assistant.io/start/ai-policy/), and [Apache Airflow](https://github.com/apache/airflow/blob/main/contributing-docs/05_pull_requests.rst#gen-ai-assisted-contributions).
+
 ## Trigger TypeSpec Playground Try It build
 
 For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
