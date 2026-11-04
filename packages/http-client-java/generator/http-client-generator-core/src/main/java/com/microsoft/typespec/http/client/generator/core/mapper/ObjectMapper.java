@@ -54,7 +54,7 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
             || settings.isFluent()
             || settings.isAzureV2()
             || !settings.isAzureV1()) && isInternalModel(compositeType)) {
-            // Internal response types must not become public Fluent inner models.
+            // internal type is not exposed to user
             packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
         } else if (settings.isFluent() && isInnerModel(compositeType)) {
             className += "Inner";
