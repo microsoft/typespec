@@ -99,8 +99,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
-                new LifecycleModelReaderWriterOptionsDefinition(),
-                new LifecycleVisibilityDefinition(),
+                .. GetLifecycleTypes(),
                 .. GetJsonLinesTypes(),
                 new BinaryContentHelperDefinition(),
                 ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
@@ -109,6 +108,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 .. GetMultipartFormDataTypes(),
                 new ModelReaderWriterContextDefinition()
             ];
+        }
+
+        private static IEnumerable<TypeProvider> GetLifecycleTypes()
+        {
+            var inputNamespace = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            var visited = new HashSet<InputType>();
+            if (inputNamespace.Models.Any(model => LifecycleModelReaderWriterOptionsDefinition.HasLifecycleVisibility(model, visited)) ||
+                inputNamespace.Clients.SelectMany(client => client.Methods).Any(method => method.Operation.RequestVisibility.HasValue))
+            {
+                yield return new LifecycleModelReaderWriterOptionsDefinition();
+                yield return new LifecycleVisibilityDefinition();
+            }
         }
 
         private static IEnumerable<TypeProvider> GetJsonLinesTypes()
