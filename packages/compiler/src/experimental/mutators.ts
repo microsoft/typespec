@@ -8,7 +8,6 @@ import type {
   Decorator,
   DecoratorArgument,
   FunctionParameter,
-  IndeterminateEntity,
   IntrinsicType,
   Model,
   Namespace,
@@ -568,17 +567,8 @@ function createMutatorEngine(
         const namespace = existing;
         mutateSubMap(namespace, "namespaces", () => namespace, activeMutators);
       }
-      clearInterstitialFunctions();
+      if (existing !== type) clearInterstitialFunctions();
       return existing as T;
-    }
-    if (
-      type.kind === "Scalar" &&
-      program.checker.isStdType(type, "TypeRef") &&
-      type.templateMapper
-    ) {
-      const target = type.templateMapper.args[0];
-      compilerAssert(isType(target), "TypeRef must have a type argument.");
-      return program.checker.getTypeRefType(mutateDecoratorArgumentValue(target, activeMutators));
     }
     // Mutating compiler types breaks a lot of things in the type checker. It is better to keep any of those as they are.
     const alwaysMutate = getAlwaysMutate(program, type);
@@ -605,6 +595,7 @@ function createMutatorEngine(
         visitSubgraph();
         visitParents();
         interstitialFunctions.pop();
+        if (clone && type.isFinished) $(realm).type.finishType(clone);
         return clone ?? type;
       } else {
         // we don't need to clone this type, so let's just return it.
@@ -657,7 +648,7 @@ function createMutatorEngine(
       clone = $(realm).type.clone(type);
       mutating = true;
       seen.set([type, activeMutators], clone);
-      seen.set([type, mutatorsToApply], clone);
+      if (mutatorsToApply.length > 0) seen.set([type, mutatorsToApply], clone);
     }
 
     function clearInterstitialFunctions() {
@@ -701,14 +692,14 @@ function createMutatorEngine(
       mutateSubMap(root, "properties", getClone, newMutators);
       if (root.indexer) {
         const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
-        if (mutating) {
-          (root as any).indexer.value = res;
+        if (clone?.kind === "Model" && clone.indexer) {
+          mutate(clone.indexer).value = res;
         }
       }
       for (const [index, prop] of root.sourceModels.entries()) {
         const newModel: any = mutateSubgraphWorker(prop.model, newMutators);
-        if (mutating) {
-          mutate(root.sourceModels[index]).model = newModel;
+        if (clone?.kind === "Model") {
+          mutate(clone.sourceModels[index]).model = newModel;
         }
       }
       mutateProperty(root, "sourceModel", getClone, newMutators);
@@ -728,11 +719,6 @@ function createMutatorEngine(
         case "ModelProperty":
           mutateProperty(root, "type", getClone, newMutators);
           mutateProperty(root, "sourceProperty", getClone, newMutators);
-          if (root.defaultValue) {
-            const value = mutateValue(root.defaultValue, newMutators);
-            const target = clone ?? root;
-            if (mutating && target.kind === "ModelProperty") target.defaultValue = value;
-          }
           break;
         case "Tuple":
           mutateSubArray(root, "values", getClone, newMutators);
@@ -826,7 +812,7 @@ function createMutatorEngine(
   }
 
   function mutateDecoratorArgumentValue<
-    T extends DecoratorArgument["jsValue"] | DecoratorArgument["value"] | IndeterminateEntity,
+    T extends DecoratorArgument["jsValue"] | DecoratorArgument["value"],
   >(value: T, newMutators: Set<MutatorAll>): T {
     if (typeof value === "object" && value !== null) {
       if (isType(value as any)) {
@@ -880,22 +866,6 @@ function createMutatorEngine(
           type: mutateDecoratorArgumentValue(value.type, newMutators),
           value: mutateDecoratorArgumentValue(value.value, newMutators),
         } as T;
-      case "ScalarValue":
-        return {
-          ...value,
-          type: mutateDecoratorArgumentValue(value.type, newMutators),
-          scalar: mutateDecoratorArgumentValue(value.scalar, newMutators),
-          value: {
-            ...value.value,
-            args: value.value.args.map((arg) => mutateValue(arg, newMutators)),
-          },
-        } as T;
-      case "TypeRefValue":
-        return {
-          ...value,
-          type: mutateDecoratorArgumentValue(value.type, newMutators),
-          target: mutateDecoratorArgumentValue(value.target, newMutators),
-        } as T;
       default:
         return value;
     }
@@ -913,13 +883,12 @@ function createMutatorEngine(
       ...type.templateMapper,
       args: [],
       map: new Map(),
-      getMappedType: (parameter) => mutatedMapper.map.get(parameter) ?? parameter,
     };
     for (const arg of type.templateMapper.args) {
-      mutate(mutatedMapper.args).push(mutateDecoratorArgumentValue(arg, newMutators));
+      mutate(mutatedMapper.args).push(mutateSubgraphWorker(arg as any, newMutators));
     }
     for (const [param, paramType] of type.templateMapper.map) {
-      mutatedMapper.map.set(param, mutateDecoratorArgumentValue(paramType, newMutators));
+      mutatedMapper.map.set(param, mutateSubgraphWorker(paramType as any, newMutators));
     }
     const target = getClone();
     if (target && "templateMapper" in target) {
@@ -935,18 +904,17 @@ function createMutatorEngine(
   ) {
     for (const [key, value] of (type as any)[prop].entries()) {
       const newValue: any = mutateSubgraphWorker(value, newMutators);
-      // Visiting a child can initialize this owner's clone.
       const target = getClone();
       if (target) {
         const map = (target as T)[prop] as any;
         map.set(key, newValue);
+
         if (newValue.name !== value.name) {
           map.rekey(key, newValue.name);
         }
       }
     }
   }
-
   function mutateSubArray<T extends MutableType, K extends keyof T>(
     type: T,
     prop: K,
@@ -955,6 +923,7 @@ function createMutatorEngine(
   ) {
     for (const [index, value] of (type as any)[prop].entries()) {
       const newValue: any = mutateSubgraphWorker(value, newMutators);
+
       const target = getClone();
       if (target) {
         ((target as T)[prop] as any)[index] = newValue;
