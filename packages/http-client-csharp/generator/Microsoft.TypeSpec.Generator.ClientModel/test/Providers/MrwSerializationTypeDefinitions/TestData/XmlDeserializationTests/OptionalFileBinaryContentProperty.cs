@@ -13,7 +13,6 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
         internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element == null))
@@ -21,19 +20,22 @@ namespace Sample
                 return null;
             }
 
+#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
             global::System.ClientModel.FileBinaryContent profileImage = default;
+#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
                 if ((localName == "profileImage"))
                 {
+#pragma warning disable SCME0004 // This generated code depends on experimental functionality.
                     profileImage = new global::System.ClientModel.FileBinaryContent(new global::System.IO.MemoryStream(global::System.Convert.FromBase64String(child.Value), false));
+#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
                     continue;
                 }
             }
             return new global::Sample.Models.TestXmlModel(profileImage);
         }
-#pragma warning restore SCME0004 // This generated code depends on experimental functionality.
     }
 }
