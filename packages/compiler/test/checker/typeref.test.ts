@@ -394,15 +394,19 @@ describe("typeref", () => {
       assert(direct?.valueKind === "TypeRefValue" && registration?.valueKind === "ScalarValue");
       expect(direct.target).toBe(target);
       expect(direct.type).toBe(program.checker.getTypeRefType(target));
-      expect(registration.value.args[0]).toMatchObject({ valueKind: "TypeRefValue", target });
-      expect(Holder.properties.get("reference")!.defaultValue).toMatchObject({ target: Item });
+      const argument = registration.value.args[0];
+      assert(argument.valueKind === "TypeRefValue");
+      expect(argument.target).toBe(target);
+      const original = Holder.properties.get("reference")!.defaultValue;
+      assert(original?.valueKind === "TypeRefValue");
+      expect(original.target).toBe(Item);
     });
 
     it("maps reference template arguments and substitutions consistently", async () => {
       const { program, Holder, Item } = await Tester.compile(`
         @test model Item {}
-        model Entry<R extends valueof TypeRef<Item>> { reference: TypeRef<Item> = R; }
-        @test model Holder { entry: Entry<typeref(Item)>; }
+        model Entry<T, R extends valueof TypeRef<Item>> { reference: TypeRef<Item> = R; }
+        @test model Holder { entry: Entry<Item, typeref(Item)>; }
       `);
       assert(Holder.entityKind === "Type" && Holder.kind === "Model");
       assert(Item.entityKind === "Type" && Item.kind === "Model");
@@ -411,14 +415,19 @@ describe("typeref", () => {
       const entry = clone.properties.get("entry")!.type;
       assert(entry.kind === "Model");
       const mapper = entry.templateMapper!;
-      const argument = mapper.args[0];
+      const argument = mapper.args[1];
       assert(argument.entityKind === "Value" && argument.valueKind === "TypeRefValue");
       const target = mutateSubgraph(program, [mutator], Item).type;
       expect(argument.target).toBe(target);
-      const parameter = mapper.map.keys().next().value!;
+      const [typeParameter, parameter] = mapper.map.keys();
+      expect(mapper.args[0]).toBe(target);
+      expect(mapper.map.get(typeParameter)).toBe(target);
+      expect(mapper.getMappedType(typeParameter) === target).toBe(true);
       expect(mapper.map.get(parameter)).toBe(argument);
       expect(mapper.getMappedType(parameter)).toBe(argument);
-      expect(entry.properties.get("reference")!.defaultValue).toMatchObject({ target });
+      const reference = entry.properties.get("reference")!.defaultValue;
+      assert(reference?.valueKind === "TypeRefValue");
+      expect(reference.target).toBe(target);
     });
   });
 });

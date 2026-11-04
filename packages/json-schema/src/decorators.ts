@@ -13,6 +13,7 @@ import {
   type Type,
   typespecTypeToJson,
   type Union,
+  UnserializableValueError,
   type Value,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
@@ -303,7 +304,17 @@ export const $extension: ExtensionDecorator = (
   value: unknown,
 ) => {
   if (!isTypeLike(value)) {
-    value = convertRemainingValuesToExtensions(context.program, value);
+    try {
+      value = convertRemainingValuesToExtensions(context.program, value);
+    } catch (error) {
+      if (!(error instanceof UnserializableValueError)) throw error;
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        target: context.getArgumentTarget(1) ?? target,
+        format: { reason: error.message },
+      });
+      return;
+    }
   }
   setExtension(context.program, target, key, value);
 };

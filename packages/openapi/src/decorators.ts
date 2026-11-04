@@ -15,6 +15,7 @@ import {
   isErrorModel,
   isType,
   serializeValueAsJson,
+  UnserializableValueError,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import * as http from "@typespec/http";
@@ -74,8 +75,17 @@ export const $extension: ExtensionDecorator = (
     "OpenAPI extension value must be a value but was a type",
     context.getArgumentTarget(1),
   );
-  const processed = convertRemainingValuesToExtensions(context.program, value);
-  setExtension(context.program, entity, extensionName as ExtensionKey, processed);
+  try {
+    const processed = convertRemainingValuesToExtensions(context.program, value);
+    setExtension(context.program, entity, extensionName as ExtensionKey, processed);
+  } catch (error) {
+    if (!(error instanceof UnserializableValueError)) throw error;
+    reportDiagnostic(context.program, {
+      code: "invalid-extension-value",
+      target: context.getArgumentTarget(1) ?? entity,
+      format: { reason: error.message },
+    });
+  }
 };
 
 // Workaround until we have a way to disable arg marshalling and just call serializeValueAsJson

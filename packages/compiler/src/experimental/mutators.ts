@@ -911,7 +911,6 @@ function createMutatorEngine(
     if (type.templateMapper === undefined) {
       return;
     }
-    const originalMapper = type.templateMapper;
     const references = new Map<Value, Value>();
     function mutateArgument(argument: TypeMapper["args"][number]) {
       if (isValue(argument) && containsTypeRefValue(argument)) {
@@ -925,7 +924,7 @@ function createMutatorEngine(
       return mutateSubgraphWorker(argument as any, newMutators);
     }
     const mutatedMapper: TypeMapper = {
-      ...originalMapper,
+      ...type.templateMapper,
       args: [],
       map: new Map(),
     };
@@ -936,10 +935,9 @@ function createMutatorEngine(
       mutatedMapper.map.set(param, mutateArgument(paramType));
     }
     if (mutating) {
-      mutatedMapper.getMappedType = (parameter) => {
-        const original = originalMapper.getMappedType(parameter);
-        return isValue(original) ? (references.get(original) ?? original) : original;
-      };
+      if (references.size > 0) {
+        mutatedMapper.getMappedType = (parameter) => mutatedMapper.map.get(parameter) ?? parameter;
+      }
       type.templateMapper = mutatedMapper;
     }
   }
@@ -997,7 +995,9 @@ function containsTypeRefValue(value: Value): boolean {
     case "TypeRefValue":
       return true;
     case "ObjectValue":
-      return [...value.properties.values()].some((property) => containsTypeRefValue(property.value));
+      return [...value.properties.values()].some((property) =>
+        containsTypeRefValue(property.value),
+      );
     case "ArrayValue":
       return value.values.some(containsTypeRefValue);
     case "ScalarValue":

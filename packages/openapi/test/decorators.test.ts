@@ -1,4 +1,5 @@
-import { expectDiagnostics, t } from "@typespec/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import { createTester, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import {
@@ -704,3 +705,24 @@ describe("@defaultResponse", () => {
     expectDiagnostics(diagnostics, []);
   });
 });
+
+const TypeRefTester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/openapi"],
+  features: ["typeref"],
+})
+  .importLibraries()
+  .using("OpenAPI");
+
+it.each(["typeref(string)", "#{ value: typeref(string) }", "#[typeref(string)]"])(
+  "diagnoses an unserializable extension value: %s",
+  async (value) => {
+    const diagnostics = await TypeRefTester.diagnose(
+      `@extension("x-reference", ${value}) model Item {}`,
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi/invalid-extension-value",
+      message:
+        "Cannot serialize extension value as JSON: Cannot serialize a type reference value as JSON.",
+    });
+  },
+);

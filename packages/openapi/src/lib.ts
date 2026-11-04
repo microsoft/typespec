@@ -59,6 +59,12 @@ export const $lib = createTypeSpecLibrary({
         default: `License 'url' and 'identifier' are mutually exclusive. Specify only one of them.`,
       },
     },
+    "invalid-extension-value": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cannot serialize extension value as JSON: ${"reason"}`,
+      },
+    },
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },

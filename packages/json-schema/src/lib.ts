@@ -185,6 +185,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Invalid type '${"type"}' for an example value`,
       },
     },
+    "invalid-extension-value": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cannot serialize extension value as JSON: ${"reason"}`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
