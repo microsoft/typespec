@@ -3,15 +3,14 @@ name: code-review
 description: >
   Review TypeSpec pull requests against the project's own rules: the Tier 0-3 breaking change
   policy, `.chronus` changelog requirements, compiler API usage, test framework conventions, and
-  emitter output stability, plus contribution quality and review readiness. Use when reviewing
-  a diff or pull request in this repository.
+  emitter output stability. Use when reviewing a diff or pull request in this repository.
 ---
 
 # TypeSpec code review
 
-Review the contribution against the rules this project actually enforces. Every comment must point
-at a concrete problem in the changed code or observable PR evidence and cite the rule or code that
-makes it a problem — if you cannot cite it, do not post it.
+Review the diff against the rules this project actually enforces. Every comment must point at a
+concrete problem in the changed code and cite the rule or code that makes it a problem — if you
+cannot cite it, do not post it.
 
 ## Scope
 
@@ -39,8 +38,7 @@ Consult these and cite them in findings:
   and the bug exception.
 - `.chronus/config.yaml` — the valid `changeKind` values and the `changedFiles` exclusions.
 - `.github/copilot-instructions.md` — changelog message guidelines and the TDD expectation.
-- `CONTRIBUTING.md` — contribution quality and review engagement expectations in
-  "AI-assisted contributions".
+- `CONTRIBUTING.md` — the "AI-assisted contributions" guidelines.
 - Sibling tests in the touched package — the established tester/assertion patterns.
 - The public compiler API (`@typespec/compiler`) and `@typespec/compiler/testing` exports — to
   confirm a used API exists and behaves as the change assumes.
@@ -156,33 +154,9 @@ For `packages/{openapi3,openapi,json-schema,http,http-server-*}`:
 - Emitters must handle new type-graph shapes defensively (new node kinds, new union variants)
   rather than crash on them.
 
-## 6. Contribution quality and review readiness
-
-Apply `CONTRIBUTING.md`'s "AI-assisted contributions" guidelines regardless of the tools used.
-Use the available PR description, check results, and review threads as evidence. If only a diff is
-available, state that validation and review engagement could not be verified; that is a limitation,
-not itself a finding.
-
-- **Validation.** Check that reported results apply to the current revision and cover the affected
-  behavior. Identify missing relevant checks or failures that still need investigation, while
-  distinguishing pending checks, blocked CI, and documented baseline failures. Do not demand the
-  full monorepo suite for every change or treat a draft asking for help as ready for review.
-- **Review engagement.** On subsequent revisions, verify that the changes address the underlying
-  concern, not just the wording of a comment, and preserve existing behavior. Point to a specific
-  unresolved concern or contradiction and ask for clarification when needed. Do not infer that the
-  author lacks understanding from a short reply.
-- **Focus and disclosure.** Flag concrete unrelated changes or redundant tests using the same
-  evidence standards as other findings. If substantive AI use is explicitly known, check for the
-  brief disclosure required by the guidelines. Do not guess AI use from writing style, require
-  prompt transcripts, or treat grammar and translation assistance as violations.
-
-Summarize readiness issues once rather than repeating CI diagnostics or existing review comments.
-The skill assists review; decisions to pause review or close a contribution remain with maintainers.
-
 ## How to comment
 
 - One issue per comment, anchored on the offending line.
-- For PR-wide readiness issues without an offending line, use one concise top-level comment.
 - State the problem, cite the rule (policy section, `.chronus/config.yaml`, guideline) or the
   relevant `file:line`, and suggest the concrete fix.
 - One or two sentences. No preamble, no summarizing the diff back to the author.
