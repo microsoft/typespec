@@ -3,6 +3,13 @@
 Tracking [issue #12454](https://github.com/microsoft/typespec/issues/12454) on
 `feature/pre-emission-task03-continuation`.
 
+**Implementation handoff:** follow the
+[scope review and prioritization](./pre-emission-task03-scope-review.md) for the next
+milestone: G1/raw-writer acceptance first, then reductions selected by demonstrated
+benefit. The inventory below retains the full accepted scope, including deferred
+work; its open rows are not all prerequisites for that narrower milestone. No
+original regression expectation or safety gate is waived.
+
 ## Status and how to read this checklist
 
 **39 work items: 4 bounded producer items complete, 32 implementation/integration
