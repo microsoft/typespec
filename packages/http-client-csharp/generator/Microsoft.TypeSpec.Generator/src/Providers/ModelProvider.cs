@@ -430,40 +430,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
-            var name = BuildNameWithoutCollisionCheck();
-            var originalName = _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
-            if (_inputModel.IsExactName || name == originalName || name != RenameModelSuffix(originalName))
-            {
-                return name;
-            }
-
-            var finalName = GetModelName(name);
-            foreach (var inputModel in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
-            {
-                if (ReferenceEquals(inputModel, _inputModel) || inputModel.External is not null)
-                {
-                    continue;
-                }
-
-                // Resolve names without constructing their CSharpTypes or recursing into collision checks.
-                var model = new ModelProvider(inputModel);
-                var reservedName = model.GetModelName(model.BuildNameWithoutCollisionCheck());
-                // Model files share a directory even when their namespaces differ.
-                if (string.Equals(reservedName, finalName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return originalName;
-                }
-            }
-
-            return name;
+            return CodeModelGenerator.Instance.TypeFactory.ModelNames.TryGetValue(_inputModel, out var name)
+                ? name
+                : BuildNameWithoutCollisionCheck();
         }
 
-        private string GetModelName(string name)
+        internal (string Name, string FinalName, string OriginalName, bool CanRename) GetNameForCollisionCheck()
         {
+            var name = BuildNameWithoutCollisionCheck();
+            var originalName = _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
             var typeNamespace = BuildNamespace();
-            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace, name, DeclaringTypeName);
-            return customType?.Name ?? name;
+            var customType = base.BuildCustomCodeView(name, typeNamespace);
+            var canRename = !_inputModel.IsExactName && name != originalName &&
+                name == RenameModelSuffix(originalName) &&
+                !CodeModelGenerator.Instance.SourceInputModel.HasTypeMapping(typeNamespace, name, DeclaringTypeName);
+            return (name, customType?.Name ?? name, originalName, canRename);
         }
 
         private string BuildNameWithoutCollisionCheck()

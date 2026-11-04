@@ -33,6 +33,74 @@ namespace Microsoft.TypeSpec.Generator
         internal IEnumerable<ModelProvider> CreatedModelProviders
             => InputTypeToModelProvider.Values.OfType<ModelProvider>();
 
+        private IReadOnlyDictionary<InputModelType, string>? _modelNames;
+        internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
+
+        private static IReadOnlyDictionary<InputModelType, string> BuildModelNames()
+        {
+            var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, bool CanRename)>();
+            var nameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            void ReserveName(string name)
+            {
+                nameCounts.TryGetValue(name, out var count);
+                nameCounts[name] = count + 1;
+            }
+
+            void AddModel(InputModelType model)
+            {
+                if (model.External is not null || candidates.ContainsKey(model))
+                {
+                    return;
+                }
+
+                // Do not construct CSharpTypes while collecting names: their creation calls BuildName.
+                var candidate = new ModelProvider(model).GetNameForCollisionCheck();
+                candidates.Add(model, candidate);
+                ReserveName(candidate.FinalName);
+                var unknown = model.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                if (unknown is not null)
+                {
+                    AddModel(unknown);
+                }
+            }
+
+            foreach (var model in input.Models)
+            {
+                AddModel(model);
+            }
+
+            foreach (var inputEnum in input.Enums)
+            {
+                if (inputEnum.External is null && !inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    ReserveName(EnumProvider.Create(inputEnum).Name);
+                }
+            }
+
+            var result = new Dictionary<InputModelType, string>();
+            foreach (var (model, candidate) in candidates)
+            {
+                if (!candidate.CanRename || nameCounts[candidate.FinalName] == 1)
+                {
+                    result.Add(model, candidate.Name);
+                    continue;
+                }
+
+                // Models and enums share an output directory, including across namespaces.
+                var name = candidate.OriginalName;
+                for (var suffix = 1; nameCounts.ContainsKey(name); suffix++)
+                {
+                    name = $"{candidate.OriginalName}{suffix}";
+                }
+                ReserveName(name);
+                result.Add(model, name);
+            }
+
+            return result;
+        }
+
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
 
         // Maps C# type names to TypeProviders for efficient lookup when resolving types by name

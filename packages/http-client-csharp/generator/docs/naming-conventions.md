@@ -140,13 +140,17 @@ The emitter keeps `Response` when the model is an error model, has an exact name
 handwritten type or previous contract requires the `Response` spelling. Acronym normalization can
 combine with this rule: a new `IpResponse` model becomes `IPResult`.
 
-Before applying either suffix conversion, the generator checks the other models' generated names,
-including acronym normalization, exact names, custom names, and previous contract spellings.
+Before applying either suffix conversion, the generator reserves the generated model and enum names,
+including synthesized unknown-discriminator models, acronym normalization, exact names, custom names,
+and previous contract spellings. Explicit customizations retain ownership of their names; only an
+implicit suffix conversion is reverted when it conflicts with a customized type.
 The comparison ignores case and namespace because model files share an output directory and must
 remain distinct on case-insensitive file systems. If the converted name is already in use, the model
 retains its name before suffix conversion. For example, a library containing both `WidgetContent` and `WidgetRequest`
 generates two distinct types with those names, rather than overwriting `WidgetRequest`. Likewise,
-`WidgetResponse` stays `WidgetResponse` if another model already uses `WidgetResult`.
+`WidgetResponse` stays `WidgetResponse` if another model already uses `WidgetResult`. If the name before
+suffix conversion is also occupied, the generator appends `1`, `2`, and subsequent numeric suffixes
+until the filename is available.
 
 ## Operation names
 

@@ -311,6 +311,101 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(string.Equals(model.RelativeFilePath, exact.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
         }
 
+        [TestCase("WidgetContent", "WidgetRequest", false)]
+        [TestCase("WidgetContent", "WidgetRequest", true)]
+        [TestCase("WidgetResponse", "WidgetResult", false)]
+        [TestCase("IpContent", "IpRequest", true)]
+        public void TestBuildName_ModelSuffixReservesEnumNames(string modelName, string enumName, bool extensible)
+        {
+            var inputModel = InputFactory.Model(modelName);
+            var inputEnum = InputFactory.StringEnum(enumName, [("One", "one")], isExtensible: extensible);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel], inputEnumTypes: [inputEnum]);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var enumProvider = factory.CreateEnum(inputEnum)!;
+
+            Assert.AreEqual(modelName.NormalizeCSharpAcronyms(), model.Name);
+            Assert.AreEqual(enumName.NormalizeCSharpAcronyms(), enumProvider.Name);
+            Assert.IsFalse(string.Equals(model.RelativeFilePath, enumProvider.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(enumProvider, factory.CSharpTypeMap[enumProvider.Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestBuildName_ModelSuffixReservesUnknownDiscriminatorName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("UnknownPetContent");
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
+            var baseModel = InputFactory.Model("PetRequest", properties: [discriminator]);
+            InputModelType[] models = reverseOrder ? [baseModel, inputModel] : [inputModel, baseModel];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToList();
+            var model = factory.CreateModel(inputModel)!;
+            var unknown = factory.CreateModel(baseModel.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPetContent", model.Name);
+            Assert.AreEqual("UnknownPetRequest", unknown.Name);
+            Assert.Contains(unknown, providers);
+            Assert.AreEqual(providers.Count, providers.Select(p => p.RelativeFilePath).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(unknown, factory.CSharpTypeMap[unknown.Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixCollisionPreservesMappedSuffixName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetContent");
+            var customizedModel = InputFactory.Model("GadgetResponse");
+            InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var customized = factory.CreateModel(customizedModel)!;
+
+            Assert.AreEqual("WidgetContent", model.Name);
+            Assert.AreEqual("WidgetRequest", customized.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(customized.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
+        }
+
+        [Test]
+        public void TestBuildName_ModelSuffixNamesAreCachedForLibrary()
+        {
+            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Content")).ToArray();
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var names = factory.ModelNames;
+
+            Assert.AreEqual(models.Length, names.Count);
+            Assert.IsEmpty(factory.CreatedModelProviders);
+            foreach (var model in models)
+            {
+                var provider = factory.CreateModel(model)!;
+                Assert.AreEqual($"{model.Name[..^"Content".Length]}Request", provider.Name);
+                Assert.AreEqual(names[model], provider.Name);
+                Assert.AreSame(names, factory.ModelNames);
+            }
+        }
+
+        [Test]
+        public void TestBuildName_ModelSuffixFallbackAvoidsReservedOriginalName()
+        {
+            var inputModel = InputFactory.Model("WidgetContent");
+            var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
+            var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, reserved], inputEnumTypes: [inputEnum]);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual("WidgetContent1", model.Name);
+        }
+
         [TestCase("ErrorResponse", false, "ErrorResponse")]
         [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
         [TestCase("IpResponse", false, "IPResponse")]
