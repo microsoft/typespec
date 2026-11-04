@@ -12,7 +12,6 @@ import {
   ClassMethod,
   FunctionDeclaration,
   InterfaceDeclaration,
-  InterfaceMethod,
   TypeDeclaration,
   UnionDeclaration,
 } from "../../../src/typescript/index.js";
@@ -26,12 +25,6 @@ describe("TypeScript deprecation documentation", () => {
     expected: string;
   }>([
     {
-      kind: "interface",
-      code: "model Example {}",
-      render: (type) => <InterfaceDeclaration type={type as Model} />,
-      expected: "interface Example {}",
-    },
-    {
       kind: "type alias",
       code: "scalar Example extends string;",
       render: (type) => <TypeAliasDeclaration type={type} doc={undefined} />,
@@ -42,12 +35,6 @@ describe("TypeScript deprecation documentation", () => {
       code: 'union Example { "one", "two" }',
       render: (type) => <UnionDeclaration type={type as Union} doc={undefined} />,
       expected: 'type Example = "one" | "two";',
-    },
-    {
-      kind: "enum",
-      code: "enum Example {}",
-      render: (type) => <EnumDeclaration type={type as Enum} />,
-      expected: "enum Example {}",
     },
     {
       kind: "dispatched declaration",
@@ -76,8 +63,10 @@ describe("TypeScript deprecation documentation", () => {
     },
   );
 
-  it("preserves deprecation on generated properties, including an empty message", async () => {
+  it("preserves model and property deprecation, including an empty message", async () => {
     const program = await getProgram(`
+      @doc("An old widget.")
+      #deprecated "Use NewWidget instead."
       model Widget {
         @doc("The old title.")
         #deprecated "Use name instead."
@@ -94,6 +83,11 @@ describe("TypeScript deprecation documentation", () => {
         <InterfaceDeclaration type={model as Model} />
       </TestFile>,
     ).toRenderTo(`
+      /**
+       * An old widget.
+       *
+       * @deprecated Use NewWidget instead.
+       */
       interface Widget {
         /**
          * The old title.
@@ -110,12 +104,13 @@ describe("TypeScript deprecation documentation", () => {
     `);
   });
 
-  it("preserves deprecation on TypeSpec interfaces and their generated methods", async () => {
+  it("preserves deprecation and parameter docs on generated interface methods", async () => {
     const program = await getProgram(`
       #deprecated "Use NewApi instead."
       interface Api {
+        @doc("Gets the old title.")
         #deprecated "Use getName instead."
-        getTitle(): string;
+        getTitle(@doc("The widget id.") id: string): string;
       }
     `);
     const [type] = program.resolveTypeReference("Api");
@@ -130,9 +125,13 @@ describe("TypeScript deprecation documentation", () => {
        */
       interface Api {
         /**
+         * Gets the old title.
+         *
          * @deprecated Use getName instead.
+         *
+         * @param {string} id - The widget id.
          */
-        getTitle(): string;
+        getTitle(id: string): string;
       }
     `);
   });
@@ -154,26 +153,6 @@ describe("TypeScript deprecation documentation", () => {
          * @param {string} id - The widget id.
          */
         function getTitle(id: string): string {}
-      `,
-    },
-    {
-      kind: "interface method",
-      render: (type) => (
-        <ts.InterfaceDeclaration name="Api">
-          <InterfaceMethod type={type} />
-        </ts.InterfaceDeclaration>
-      ),
-      expected: `
-        interface Api {
-          /**
-           * Gets the old title.
-           *
-           * @deprecated Use getName instead.
-           *
-           * @param {string} id - The widget id.
-           */
-          getTitle(id: string): string
-        }
       `,
     },
     {
@@ -215,6 +194,7 @@ describe("TypeScript deprecation documentation", () => {
     "preserves deprecation when emitting %s types as enums",
     async (kind) => {
       const program = await getProgram(`
+      @doc("The old colors.")
       #deprecated "Use NewColor instead."
       ${kind} Color {
         @doc("The old color.")
@@ -231,6 +211,8 @@ describe("TypeScript deprecation documentation", () => {
         </TestFile>,
       ).toRenderTo(`
       /**
+       * The old colors.
+       *
        * @deprecated Use NewColor instead.
        */
       enum Color {
