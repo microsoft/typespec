@@ -450,6 +450,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ns;
         }
 
+        internal static (string Name, string Namespace, string OriginalName) GetNameForCollisionCheck(InputClient inputClient)
+        {
+            // Constructing a client here can resolve parameter models and reenter the model-name index.
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var typeNamespace = string.IsNullOrEmpty(inputClient.Namespace)
+                ? factory.PrimaryNamespace
+                : factory.GetCleanNameSpace(inputClient.Namespace);
+            var name = inputClient.IsExactName ? inputClient.Name : NormalizeTypeNameForNewContract(
+                inputClient.Name.ToIdentifierName(), typeNamespace, null, static name => name.NormalizeCSharpAcronyms());
+            var customType = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, name);
+            return (customType?.Name ?? name, customType?.Type.Namespace ?? typeNamespace, name);
+        }
+
         /// <summary>
         /// Checks if two namespaces share the same last segment
         /// </summary>

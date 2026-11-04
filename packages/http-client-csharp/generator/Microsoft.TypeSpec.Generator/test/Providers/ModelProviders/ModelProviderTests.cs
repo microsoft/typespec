@@ -375,6 +375,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixMappingBelongsToOriginalInput(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetContent");
+            var mappedModel = InputFactory.Model("WidgetRequest");
+            InputModelType[] models = reverseOrder ? [mappedModel, inputModel] : [inputModel, mappedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var mapped = factory.CreateModel(mappedModel)!;
+
+            Assert.AreEqual("WidgetContent", model.Name);
+            Assert.AreEqual("CustomizedRequest", mapped.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(mapped.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(mapped, factory.CSharpTypeMap[mapped.Type]);
+            Assert.AreNotEqual(model.RelativeFilePath, mapped.RelativeFilePath);
+        }
+
         [Test]
         public void TestBuildName_ModelSuffixNamesAreCachedForLibrary()
         {

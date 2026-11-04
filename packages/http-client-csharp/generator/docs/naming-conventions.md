@@ -142,15 +142,18 @@ combine with this rule: a new `IpResponse` model becomes `IPResult`.
 
 Before applying either suffix conversion, the generator reserves the generated model and enum names,
 including synthesized unknown-discriminator models, acronym normalization, exact names, custom names,
-and previous contract spellings. Explicit customizations retain ownership of their names; only an
-implicit suffix conversion is reverted when it conflicts with a customized type.
+and previous contract spellings. Explicit customizations retain ownership of their names; when a
+direct input name and an implicit suffix conversion match the same customization, the direct input
+owns that customization and the implicit conversion is reverted.
 The comparison ignores case and namespace because model files share an output directory and must
 remain distinct on case-insensitive file systems. If the converted name is already in use, the model
 retains its name before suffix conversion. For example, a library containing both `WidgetContent` and `WidgetRequest`
 generates two distinct types with those names, rather than overwriting `WidgetRequest`. Likewise,
 `WidgetResponse` stays `WidgetResponse` if another model already uses `WidgetResult`. If the name before
 suffix conversion is also occupied, the generator appends `1`, `2`, and subsequent numeric suffixes
-until the filename is available.
+until the filename is available. Resolved client names are also reserved within their namespaces to
+prevent a model's suffix conversion from merging unrelated client and model declarations. A client
+with the same name in another namespace does not block the conversion.
 
 ## Operation names
 

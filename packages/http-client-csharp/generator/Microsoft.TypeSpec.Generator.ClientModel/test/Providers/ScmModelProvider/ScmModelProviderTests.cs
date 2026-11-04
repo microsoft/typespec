@@ -25,6 +25,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", false)]
+        [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", true)]
+        [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", false)]
+        [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", true)]
+        [TestCase("IpRequest", "Sample.Models", false, "IPContent", false)]
+        [TestCase("IpRequest", "Sample.Models", true, "IPRequest", true)]
+        public void ModelSuffixDoesNotCollideWithClient(
+            string clientName, string clientNamespace, bool exactName, string expectedName, bool clientFirst)
+        {
+            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpContent" : "WidgetContent");
+            var inputClient = InputFactory.Client(clientName, clientNamespace: clientNamespace, isExactName: exactName);
+            MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () => [inputClient]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            ClientProvider? client = clientFirst ? factory.CreateClient(inputClient) : null;
+            var model = factory.CreateModel(input)!;
+            client ??= factory.CreateClient(inputClient)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(client, factory.CSharpTypeMap[client.Type]);
+            Assert.AreNotEqual(model.Type, client.Type);
+        }
+
+        [TestCase("GadgetClient", "WidgetResponse", "WidgetResponse", "WidgetResult")]
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetContent", "CustomizedRequest")]
+        public async Task ModelSuffixDoesNotCollideWithCustomizedClient(
+            string clientName, string modelName, string expectedName, string expectedClientName)
+        {
+            var input = InputFactory.Model(modelName);
+            var inputClient = InputFactory.Client(clientName, clientNamespace: "Sample.Models", isExactName: true);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(input)!;
+            var client = factory.CreateClient(inputClient)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(expectedClientName, client.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(client, factory.CSharpTypeMap[client.Type]);
+        }
+
+        [Test]
+        public void ModelSuffixFallbackDoesNotCollideWithClient()
+        {
+            var input = InputFactory.Model("WidgetContent");
+            MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () =>
+            [
+                InputFactory.Client("WidgetRequest", clientNamespace: "Sample.Models", isExactName: true),
+                InputFactory.Client("WidgetContent", clientNamespace: "Sample.Models", isExactName: true)
+            ]);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual("WidgetContent1", model.Name);
+        }
+
         [TestCase(false, "json")]
         [TestCase(true, "json")]
         [TestCase(false, "xml")]

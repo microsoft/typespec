@@ -36,11 +36,16 @@ namespace Microsoft.TypeSpec.Generator
         private IReadOnlyDictionary<InputModelType, string>? _modelNames;
         internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
 
-        private static IReadOnlyDictionary<InputModelType, string> BuildModelNames()
+        protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
+
+        private IReadOnlyDictionary<InputModelType, string> BuildModelNames()
         {
             var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, bool CanRename)>();
+            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping)>();
             var nameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var reservedNames = GetReservedModelTypeNames().ToArray();
+            var originalNames = reservedNames.Select(type => type.OriginalName).ToHashSet(StringComparer.Ordinal);
+            var reservedTypes = reservedNames.Select(type => (type.Name, type.Namespace)).ToHashSet();
 
             void ReserveName(string name)
             {
@@ -58,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator
                 // Do not construct CSharpTypes while collecting names: their creation calls BuildName.
                 var candidate = new ModelProvider(model).GetNameForCollisionCheck();
                 candidates.Add(model, candidate);
+                originalNames.Add(candidate.OriginalName);
                 ReserveName(candidate.FinalName);
                 var unknown = model.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                 if (unknown is not null)
@@ -76,13 +82,18 @@ namespace Microsoft.TypeSpec.Generator
                 if (inputEnum.External is null && !inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                 {
                     ReserveName(EnumProvider.Create(inputEnum).Name);
+                    originalNames.Add(inputEnum.IsExactName ? inputEnum.Name : inputEnum.Name.ToIdentifierName().NormalizeCSharpAcronyms());
                 }
             }
 
             var result = new Dictionary<InputModelType, string>();
             foreach (var (model, candidate) in candidates)
             {
-                if (!candidate.CanRename || nameCounts[candidate.FinalName] == 1)
+                // A direct input takes precedence over an implicit suffix match for the same mapping.
+                var mappingBelongsToModel = candidate.HasTypeMapping &&
+                    !originalNames.Contains(candidate.Name);
+                if (!candidate.CanRename || mappingBelongsToModel ||
+                    (nameCounts[candidate.FinalName] == 1 && !reservedTypes.Contains((candidate.FinalName, candidate.FinalNamespace))))
                 {
                     result.Add(model, candidate.Name);
                     continue;
@@ -90,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 // Models and enums share an output directory, including across namespaces.
                 var name = candidate.OriginalName;
-                for (var suffix = 1; nameCounts.ContainsKey(name); suffix++)
+                for (var suffix = 1; nameCounts.ContainsKey(name) || reservedTypes.Contains((name, candidate.Namespace)); suffix++)
                 {
                     name = $"{candidate.OriginalName}{suffix}";
                 }

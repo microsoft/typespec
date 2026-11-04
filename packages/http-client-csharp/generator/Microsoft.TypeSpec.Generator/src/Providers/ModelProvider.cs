@@ -435,16 +435,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : BuildNameWithoutCollisionCheck();
         }
 
-        internal (string Name, string FinalName, string OriginalName, bool CanRename) GetNameForCollisionCheck()
+        internal (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping) GetNameForCollisionCheck()
         {
             var name = BuildNameWithoutCollisionCheck();
-            var originalName = _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
+            var originalName = _inputModel.IsExactName ? _inputModel.Name : _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
             var typeNamespace = BuildNamespace();
             var customType = base.BuildCustomCodeView(name, typeNamespace);
             var canRename = !_inputModel.IsExactName && name != originalName &&
-                name == RenameModelSuffix(originalName) &&
-                !CodeModelGenerator.Instance.SourceInputModel.HasTypeMapping(typeNamespace, name, DeclaringTypeName);
-            return (name, customType?.Name ?? name, originalName, canRename);
+                name == RenameModelSuffix(originalName);
+            return (name, customType?.Name ?? name, originalName, typeNamespace, customType?.Type.Namespace ?? typeNamespace,
+                canRename, CodeModelGenerator.Instance.SourceInputModel.HasTypeMapping(typeNamespace, name, DeclaringTypeName));
         }
 
         private string BuildNameWithoutCollisionCheck()
