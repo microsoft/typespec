@@ -1,7 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import type { Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
-import { useTsp } from "@typespec/emitter-framework";
+import { TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
 import {
   DateDeserializer,
   DateRfc3339Serializer,
@@ -12,9 +12,15 @@ import {
 } from "@typespec/emitter-framework/typescript";
 import { useClientLibrary } from "@typespec/http-client";
 import { flattenClients } from "../utils/client-discovery.js";
+import { FORM_URL_ENCODED_MEDIA_TYPE } from "../utils/form-urlencoded.js";
+import { getFormUrlEncodedSerializerTypes } from "../utils/serializer-transform.js";
 import { EncodingProvider } from "./encoding-provider.jsx";
 import { DecodeBase64, EncodeUint8Array } from "./static-helpers/bytes-encoding.jsx";
 import { JsonTransformDeclaration } from "./transforms/json/json-transform.jsx";
+import {
+  defaultApplicationNameGetter,
+  defaultTransportNameGetter,
+} from "./transforms/transform-name-policy.js";
 import { TransformDeclaration } from "./transforms/operation-transform-declaration.jsx";
 export interface ModelSerializersProps {
   path?: string;
@@ -26,6 +32,7 @@ export function ModelSerializers(props: ModelSerializersProps) {
   const dataTypes = clientLibrary.dataTypes;
   const flatClients = clientLibrary.topLevel.flatMap((c) => flattenClients(c));
   const operations = flatClients.flatMap((c) => c.operations);
+  const formUrlEncodedSerializerTypes = getFormUrlEncodedSerializerTypes($, operations);
   // Todo: Handle other kinds of serialization, for example XML. Might need to
   // revisit the way we process these and might need to track the relationship
   // between the data type and the operations that consume them.
@@ -57,6 +64,30 @@ export function ModelSerializers(props: ModelSerializersProps) {
             </EncodingProvider>
           );
         })}
+      {formUrlEncodedSerializerTypes.map((type) => {
+        let bytesDefaultEncoding: "base64" | "none" = "base64";
+        if ($.model.is(type) && isOrExtendsFile($, type)) {
+          bytesDefaultEncoding = "none";
+        }
+
+        return (
+          <EncodingProvider defaults={{ bytes: bytesDefaultEncoding }}>
+            <TransformNamePolicyContext.Provider
+              value={{
+                getTransportName: (propertyType) =>
+                  defaultTransportNameGetter(propertyType, FORM_URL_ENCODED_MEDIA_TYPE),
+                getApplicationName: defaultApplicationNameGetter,
+              }}
+            >
+              <JsonTransformDeclaration
+                type={type}
+                target="transport"
+                serializerKind="form_urlencoded"
+              />
+            </TransformNamePolicyContext.Provider>
+          </EncodingProvider>
+        );
+      })}
     </ts.SourceFile>
   );
 }
