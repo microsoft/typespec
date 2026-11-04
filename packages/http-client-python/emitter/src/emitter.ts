@@ -16,10 +16,17 @@ function getBrowserAssetUrl(filename: string): string {
   return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/browser/${filename}`;
 }
 
-function isBrowserWheelManifest(manifest: unknown): manifest is { wheels: string[] } {
+function isBrowserWheelManifest(
+  manifest: unknown,
+): manifest is { packages: string[]; wheels: string[] } {
   return (
     typeof manifest === "object" &&
     manifest !== null &&
+    "packages" in manifest &&
+    Array.isArray(manifest.packages) &&
+    manifest.packages.every(
+      (name: unknown) => typeof name === "string" && /^[a-z0-9][a-z0-9_-]*$/.test(name),
+    ) &&
     "wheels" in manifest &&
     Array.isArray(manifest.wheels) &&
     manifest.wheels.length > 0 &&
@@ -314,7 +321,6 @@ async function setupPyodideCallBrowser() {
 
   // use default MEMFS for browser, since NODEFS is not supported
   pyodide.FS.mkdirTree("/generator");
-  await pyodide.loadPackage(["micropip", "pyyaml", "markupsafe"]);
   const response = await fetch(getBrowserAssetUrl("manifest.json"));
   if (!response.ok) {
     throw new Error(`Failed to load Python browser wheel manifest: HTTP ${response.status}`);
@@ -323,9 +329,18 @@ async function setupPyodideCallBrowser() {
   if (!isBrowserWheelManifest(manifest)) {
     throw new Error("Invalid Python browser wheel manifest.");
   }
-  const micropip = pyodide.pyimport("micropip");
-  // All pure-Python dependencies are resolved at build time; native wheels come from Pyodide.
-  await micropip.install.callKwargs(manifest.wheels.map(getBrowserAssetUrl), { deps: false });
+  // Load overrides before bundled packages so their dependencies cannot select a different version.
+  await loadBrowserPackages(pyodide, manifest.wheels.map(getBrowserAssetUrl));
+  await loadBrowserPackages(pyodide, manifest.packages);
 
   return pyodide;
+}
+
+async function loadBrowserPackages(pyodide: PyodideInterface, packages: string[]): Promise<void> {
+  const errors: string[] = [];
+  // loadPackage can report failed downloads through its callback without rejecting.
+  await pyodide.loadPackage(packages, { errorCallback: (message) => errors.push(message) });
+  if (errors.length > 0) {
+    throw new Error(`Failed to load Python browser packages: ${errors.join("\n")}`);
+  }
 }

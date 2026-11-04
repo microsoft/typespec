@@ -45,3 +45,39 @@ it("provisions Python and patched pip before preview package installation", () =
   expect(pin).not.toBeNull();
   expect(steps[pip].run).toBe(`python -m pip install --upgrade pip==${pin?.[1]}`);
 });
+
+it.each(Object.entries(loadWorkflow("python-integration").jobs))(
+  "upgrades inherited Python package managers before integration setup in %s",
+  (_name, { steps }) => {
+    const packageManager = readFileSync(
+      new URL(
+        "../../packages/http-client-python/eng/scripts/setup/package_manager.py",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    const pip = packageManager.match(/^PIP_VERSION = "([^"]+)"$/m)?.[1];
+    const uv = packageManager
+      .match(/"uv": \((\d+), (\d+), (\d+)\)/)
+      ?.slice(1)
+      .join(".");
+    expect(pip).toBeDefined();
+    expect(uv).toBeDefined();
+
+    const setup = steps.findIndex((step) => step.uses === "./.github/actions/setup-python");
+    const upgrade = steps.findIndex((step) => step.name === "Upgrade Python package managers");
+    const install = steps.findIndex(
+      (step) =>
+        step.name === "Build and pack http-client-python from PR" ||
+        step.name === "Install dependencies",
+    );
+
+    expect(setup).toBeGreaterThanOrEqual(0);
+    expect(upgrade).toBeGreaterThan(setup);
+    expect(install).toBeGreaterThan(upgrade);
+    expect(steps[upgrade].run?.trim().split("\n")).toEqual([
+      `python -m pip install --upgrade pip==${pip} uv==${uv}`,
+      `echo "$(python -c 'import sysconfig; print(sysconfig.get_path("scripts"))')" >> "$GITHUB_PATH"`,
+    ]);
+  },
+);

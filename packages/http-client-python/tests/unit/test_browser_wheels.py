@@ -20,7 +20,7 @@ class BrowserWheelTests(unittest.TestCase):
     def test_missing_generator_wheel_reports_build_prerequisite(self):
         with tempfile.TemporaryDirectory() as directory:
             dist = Path(directory) / "generator" / "dist"
-            (Path(directory) / "package.json").write_text(json.dumps({"dependencies": {"pyodide": "0.26.2"}}))
+            (Path(directory) / "package.json").write_text(json.dumps({"dependencies": {"pyodide": "314.0.7"}}))
             lock = {"packages": {"pyyaml": {}, "markupsafe": {}}}
             with (
                 patch.object(builder, "_ROOT_DIR", Path(directory)),
@@ -62,34 +62,41 @@ class BrowserWheelTests(unittest.TestCase):
 
     def test_resolves_for_pyodide_and_publishes_only_pure_python_wheels(self):
         native = [
-            {"name": "PyYAML", "version": "6.0.1", "file_name": "PyYAML-6.0.1-cp312-cp312-pyodide_2024_0_wasm32.whl"},
+            {"name": "PyYAML", "version": "6.0.3", "file_name": "pyyaml-6.0.3-cp314-cp314-pyodide_2026_0_wasm32.whl"},
             {
                 "name": "MarkupSafe",
-                "version": "2.1.5",
-                "file_name": "MarkupSafe-2.1.5-cp312-cp312-pyodide_2024_0_wasm32.whl",
+                "version": "3.0.3",
+                "file_name": "markupsafe-3.0.3-cp314-cp314-pyodide_2026_0_wasm32.whl",
             },
         ]
-        lock = {"info": {"python": "3.12.1"}, "packages": dict(zip(("pyyaml", "markupsafe"), native))}
+        lock = {"info": {"python": "3.14.2"}, "packages": dict(zip(("pyyaml", "markupsafe"), native))}
+        lock["packages"].update(
+            {
+                "jinja2": {"name": "Jinja2", "version": "3.1.6", "file_name": "jinja2-3.1.6-py3-none-any.whl"},
+                "tomli": {"name": "tomli", "version": "2.4.1", "file_name": "tomli-2.4.1-py3-none-any.whl"},
+            }
+        )
         pure = ["pygen-0.1.0-py3-none-any.whl", "black-26.3.1-py3-none-any.whl"]
+        pure.append("tomli-2.0.1-py3-none-any.whl")
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "package.json").write_text(json.dumps({"dependencies": {"pyodide": "0.26.2"}}))
+            (root / "package.json").write_text(json.dumps({"dependencies": {"pyodide": "314.0.7"}}))
             dist = root / "generator" / "dist"
             dist.mkdir(parents=True)
             (dist / pure[0]).touch()
 
             def download(command, *, env, check):
                 self.assertTrue(check)
-                self.assertEqual(command[command.index("--python-version") + 1], "3.12.1")
-                self.assertEqual(command[command.index("--platform") + 1], "pyodide_2024_0_wasm32")
-                self.assertEqual(command[command.index("--abi") + 1], "cp312")
+                self.assertEqual(command[command.index("--python-version") + 1], "3.14.2")
+                self.assertEqual(command[command.index("--platform") + 1], "pyodide_2026_0_wasm32")
+                self.assertEqual(command[command.index("--abi") + 1], "cp314")
                 self.assertEqual(env["PIP_INDEX_URL"], "https://example.com/authenticated-feed/")
                 self.assertEqual(
                     Path(command[command.index("--constraint") + 1]).read_text(),
-                    "PyYAML==6.0.1\nMarkupSafe==2.1.5\nplatformdirs==4.3.8\n",
+                    "PyYAML==6.0.3\nMarkupSafe==3.0.3\nplatformdirs==4.3.8\n",
                 )
                 staging = Path(command[command.index("--dest") + 1])
-                for filename in pure + [p["file_name"] for p in native]:
+                for filename in pure + [p["file_name"] for p in native] + ["jinja2-3.1.6-py3-none-any.whl"]:
                     (staging / filename).touch()
 
             with (
@@ -102,6 +109,7 @@ class BrowserWheelTests(unittest.TestCase):
 
             manifest = json.loads((dist / "browser" / "manifest.json").read_text())
             self.assertEqual(manifest["wheels"], sorted(pure))
+            self.assertEqual(manifest["packages"], ["jinja2", "markupsafe", "pyyaml"])
             self.assertEqual(sorted(p.name for p in (dist / "browser").glob("*.whl")), sorted(pure))
 
 

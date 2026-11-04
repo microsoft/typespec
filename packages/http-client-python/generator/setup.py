@@ -12,7 +12,6 @@ import re
 
 from setuptools import setup, find_packages
 
-
 # Version extraction inspired from 'requests'
 with open(os.path.join("pygen", "_version.py"), "r") as fd:
     version = re.search(r'^VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)  # type: ignore
@@ -51,7 +50,7 @@ setup(
         "black==26.3.1",
         "docutils>=0.20.1",
         "Jinja2==3.1.6",
-        "PyYAML==6.0.1",
+        "PyYAML==6.0.3",
         "tomli==2.0.1",
         "setuptools==83.0.0",
     ],

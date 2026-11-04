@@ -108,7 +108,7 @@
   "dependencies": {
     "js-yaml": "^4.3.1",
     "marked": "^15.0.6",
-    "pyodide": "0.26.2",
+    "pyodide": "314.0.7",
     "semver": "~7.6.2",
     "tsx": "^4.23.13"
   },

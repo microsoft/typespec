@@ -9,6 +9,7 @@ import sys
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -53,7 +54,7 @@ def build_browser_wheels(venv_context):
         constraints = staging / "constraints.txt"
         constraints.write_text(
             "".join(f"{p['name']}=={p['version']}\n" for p in native_packages)
-            # Later platformdirs releases import os.geteuid, which Pyodide 0.26 does not provide.
+            # Later platformdirs releases import os.geteuid, which Pyodide does not provide.
             + "platformdirs==4.3.8\n"
         )
         platform = native_packages[0]["file_name"].removesuffix(".whl").rsplit("-", 1)[1]
@@ -100,10 +101,23 @@ def build_browser_wheels(venv_context):
         if browser.exists():
             shutil.rmtree(browser)
         browser.mkdir()
-        wheels = sorted(p.name for p in staging.glob("*-none-any.whl"))
+        bundled = {
+            (re.sub(r"[-_.]+", "-", p["name"]).lower(), p["version"]): name for name, p in lock["packages"].items()
+        }
+        packages = []
+        wheels = []
+        for path in sorted(staging.glob("*.whl")):
+            name, version = path.name.split("-")[:2]
+            key = (re.sub(r"[-_.]+", "-", name).lower(), version)
+            if key in bundled:
+                packages.append(bundled[key])
+            else:
+                wheels.append(path.name)
         for filename in wheels:
             shutil.copyfile(staging / filename, browser / filename)
-        (browser / "manifest.json").write_text(json.dumps({"wheels": wheels}, indent=2) + "\n")
+        (browser / "manifest.json").write_text(
+            json.dumps({"packages": sorted(packages), "wheels": wheels}, indent=2) + "\n"
+        )
 
 
 def main(playground=False):

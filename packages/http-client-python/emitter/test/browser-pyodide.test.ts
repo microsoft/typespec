@@ -30,10 +30,9 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     const wheels = ["pygen-0.1.0-py3-none-any.whl", "black-26.3.1-py3-none-any.whl"];
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ wheels }),
+      json: async () => ({ packages: ["jinja2", "pyyaml", "markupsafe"], wheels }),
     });
     vi.stubGlobal("fetch", fetch);
-    const install = { callKwargs: vi.fn() };
     const pyodide = {
       FS: {
         mkdirTree: vi.fn(),
@@ -41,7 +40,6 @@ describe("typespec-python: browser pyodide bootstrap", () => {
         writeFile: vi.fn(),
       },
       loadPackage: vi.fn(),
-      pyimport: vi.fn().mockReturnValue({ install }),
       toPy: vi.fn(),
       runPythonAsync: vi.fn(),
     };
@@ -58,11 +56,14 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     expect(fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/generator\/dist\/browser\/manifest\.json$/),
     );
-    expect(pyodide.loadPackage).toHaveBeenCalledWith(["micropip", "pyyaml", "markupsafe"]);
-    expect(install.callKwargs).toHaveBeenCalledWith(
+    expect(pyodide.loadPackage).toHaveBeenNthCalledWith(
+      1,
       wheels.map((name) => expect.stringMatching(new RegExp(`/browser/${name}$`))),
-      { deps: false },
+      { errorCallback: expect.any(Function) },
     );
+    expect(pyodide.loadPackage).toHaveBeenNthCalledWith(2, ["jinja2", "pyyaml", "markupsafe"], {
+      errorCallback: expect.any(Function),
+    });
     expect(pyodide.runPythonAsync).toHaveBeenCalledOnce();
   });
 
@@ -70,29 +71,51 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     { ok: false, status: 404, body: undefined, message: /HTTP 404/ },
     { ok: true, status: 200, body: null, message: /Invalid Python browser wheel/ },
     { ok: true, status: 200, body: {}, message: /Invalid Python browser wheel/ },
-    { ok: true, status: 200, body: { wheels: [] }, message: /Invalid Python browser wheel/ },
     {
       ok: true,
       status: 200,
-      body: { wheels: "not-an-array" },
+      body: { packages: [], wheels: [] },
       message: /Invalid Python browser wheel/,
     },
-    { ok: true, status: 200, body: { wheels: [null] }, message: /Invalid Python browser wheel/ },
-    { ok: true, status: 200, body: { wheels: [42] }, message: /Invalid Python browser wheel/ },
     {
       ok: true,
       status: 200,
-      body: { wheels: ["../unexpected.whl"] },
+      body: { packages: [], wheels: "not-an-array" },
       message: /Invalid Python browser wheel/,
     },
+    {
+      ok: true,
+      status: 200,
+      body: { packages: [], wheels: [null] },
+      message: /Invalid Python browser wheel/,
+    },
+    {
+      ok: true,
+      status: 200,
+      body: { packages: [], wheels: [42] },
+      message: /Invalid Python browser wheel/,
+    },
+    {
+      ok: true,
+      status: 200,
+      body: { packages: [], wheels: ["../unexpected.whl"] },
+      message: /Invalid Python browser wheel/,
+    },
+    ...[undefined, null, "jinja2", [null], ["https://example.com/package.whl"], ["../jinja2"]].map(
+      (packages) => ({
+        ok: true,
+        status: 200,
+        body: { packages, wheels: ["pygen-0.1.0-py3-none-any.whl"] },
+        message: /Invalid Python browser wheel/,
+      }),
+    ),
   ])("reports unusable browser wheel manifests: $body", async ({ ok, status, body, message }) => {
     vi.stubGlobal("window", globalThis);
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok, status, json: async () => body }));
-    const install = { callKwargs: vi.fn() };
+    const loadPackage = vi.fn();
     loadPyodide.mockResolvedValue({
       FS: { mkdirTree: vi.fn() },
-      loadPackage: vi.fn(),
-      pyimport: vi.fn().mockReturnValue({ install }),
+      loadPackage,
     });
     const { EmitterTester } = await import("./test-host.js");
     const [, diagnostics] = await EmitterTester.compileAndDiagnose(
@@ -103,6 +126,46 @@ describe("typespec-python: browser pyodide bootstrap", () => {
       code: "@typespec/http-client-python/unknown-error",
       message,
     });
-    expect(install.callKwargs).not.toHaveBeenCalled();
+    expect(loadPackage).not.toHaveBeenCalled();
   });
+
+  it.each(["rejected", "reported"])(
+    "reports %s wheel loading failures and retries initialization on the next emit",
+    async (mode) => {
+      vi.stubGlobal("window", globalThis);
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ packages: ["pyyaml"], wheels: ["pygen-0.1.0-py3-none-any.whl"] }),
+        }),
+      );
+      const loadPackage = vi.fn().mockImplementationOnce((_names, options) => {
+        if (mode === "rejected") return Promise.reject(new Error("Wheel download failed"));
+        options?.errorCallback("Wheel download failed");
+        return Promise.resolve([]);
+      });
+      loadPyodide.mockResolvedValue({
+        FS: {
+          mkdirTree: vi.fn(),
+          readdir: vi.fn().mockReturnValue([".", ".."]),
+          writeFile: vi.fn(),
+        },
+        loadPackage,
+        toPy: vi.fn(),
+        runPythonAsync: vi.fn(),
+      });
+      const { EmitterTester } = await import("./test-host.js");
+      const source = "@service namespace Test; op read(): string;";
+      const [, failure] = await EmitterTester.compileAndDiagnose(source);
+      expectDiagnostics(failure, {
+        code: "@typespec/http-client-python/unknown-error",
+        message: /Wheel download failed/,
+      });
+      const [, success] = await EmitterTester.compileAndDiagnose(source);
+      expectDiagnostics(success, []);
+      expect(loadPyodide).toHaveBeenCalledTimes(2);
+      expect(loadPackage).toHaveBeenCalledTimes(3);
+    },
+  );
 });
