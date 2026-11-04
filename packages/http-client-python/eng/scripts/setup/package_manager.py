@@ -10,15 +10,8 @@
 import subprocess
 import sys
 import venv
-import re
 from pathlib import Path
 from venvtools import ExtendedEnvBuilder
-
-# Security floors: GHSA-qwm4-qh6w-59xr (pip), GHSA-hq85-5cpj-mr62 (uv).
-MINIMUM_VERSIONS = {"pip": (26, 2, 0), "uv": (0, 13, 4)}
-PIP_VERSION = "26.2.2"
-if tuple(int(part) for part in PIP_VERSION.split(".")) < MINIMUM_VERSIONS["pip"]:
-    raise RuntimeError("The pinned build-environment pip is below the security minimum. Update PIP_VERSION.")
 
 
 class PackageManagerNotFoundError(Exception):
@@ -27,26 +20,13 @@ class PackageManagerNotFoundError(Exception):
     pass
 
 
-def _check_command_available(command: list[str], name: str) -> bool:
-    """Check availability and reject versions below the security minimum."""
+def _check_command_available(command: str) -> bool:
+    """Check if a command is available in the environment."""
     try:
-        result = subprocess.run(command + ["--version"], capture_output=True, check=True, text=True)
+        subprocess.run([command, "--version"], capture_output=True, check=True)
+        return True
     except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         return False
-    match = re.match(
-        rf"{name} (\d+)\.(\d+)(?:\.(\d+))?(?:\.post\d+)?(?:\+[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*)?(?=\s|$)",
-        result.stdout.strip(),
-    )
-    if match is None:
-        raise RuntimeError(f"Cannot verify the installed {name} version. Install a stable, patched release.")
-    version = tuple(int(value or 0) for value in match.groups())
-    minimum = MINIMUM_VERSIONS[name]
-    if version < minimum:
-        required = ".".join(str(value) for value in minimum)
-        raise RuntimeError(
-            f"{match.group(0)} is below the security minimum {required}. Upgrade {name} before continuing."
-        )
-    return True
 
 
 def detect_package_manager() -> str:
@@ -59,16 +39,19 @@ def detect_package_manager() -> str:
         PackageManagerNotFoundError: If no suitable package manager is found
     """
     # Check for uv first since it's more modern and faster
-    if _check_command_available(["uv"], "uv"):
+    if _check_command_available("uv"):
         return "uv"
 
     # Fall back to pip
-    if _check_command_available(["pip"], "pip"):
+    if _check_command_available("pip"):
         return "pip"
 
     # As a last resort, try using python -m pip
-    if _check_command_available([sys.executable, "-m", "pip"], "pip"):
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "--version"], capture_output=True, check=True)
         return "python -m pip"
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
+        pass
 
     raise PackageManagerNotFoundError("No suitable package manager found. Please install either uv or pip.")
 
@@ -90,12 +73,12 @@ def get_install_command(package_manager: str, venv_context=None) -> list:
         return cmd
     elif package_manager == "pip":
         if venv_context:
-            return ["pip", "--python", venv_context.env_exe, "install"]
+            return [venv_context.env_exe, "-m", "pip", "install"]
         else:
             return ["pip", "install"]
     elif package_manager == "python -m pip":
         if venv_context:
-            return [sys.executable, "-m", "pip", "--python", venv_context.env_exe, "install"]
+            return [venv_context.env_exe, "-m", "pip", "install"]
         else:
             return [sys.executable, "-m", "pip", "install"]
     else:
@@ -159,16 +142,13 @@ def create_venv_with_package_manager(venv_path):
                     else str(venv_path / "Scripts" / "python.exe")
                 )
 
-        context = MockVenvContext(venv_path)
+        return MockVenvContext(venv_path)
     else:
         # Use standard venv for pip
         if venv_path.exists():
-            env_builder = venv.EnvBuilder(with_pip=False)
-            context = env_builder.ensure_directories(venv_path)
+            env_builder = venv.EnvBuilder(with_pip=True)
+            return env_builder.ensure_directories(venv_path)
         else:
-            env_builder = ExtendedEnvBuilder(with_pip=False)
+            env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
             env_builder.create(venv_path)
-            context = env_builder.context
-    # Use the validated host installer rather than a potentially outdated ensurepip seed.
-    install_packages([f"pip=={PIP_VERSION}"], context, package_manager=package_manager)
-    return context
+            return env_builder.context

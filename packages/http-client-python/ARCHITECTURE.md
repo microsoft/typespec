@@ -119,39 +119,18 @@ The emitter bridges TypeSpec and Python code generation.
 
 #### Browser runtime
 
-The playground starts Pyodide 314.0.7 (Python 3.14) lazily when the Python emitter
-is selected. It uses `loadPackage` to load the generator and custom pure-Python
-wheels from the emitter's published assets, then compatible packages from the
-Pyodide CDN. The `generator/dist/browser/manifest.json` lists CDN package names
-in `packages` and published wheel filenames in `wheels`. CDN packages are reused
-only when their versions match the resolved dependency versions; exact pins are
-not silently replaced. Custom wheels load first to prevent bundled dependencies
-from selecting conflicting versions. Browser startup does not use micropip or
-query PyPI or an Azure Artifacts package index.
-Package-loading callback errors become emitter diagnostics, and the next emit
-retries initialization.
+The playground loads the generator and its pure-Python dependencies from the
+emitter's published `generator/dist/browser/manifest.json` and wheel assets using
+Pyodide's `loadPackage`. PyYAML and MarkupSafe come from the existing Pyodide CDN.
+Browser generation does not query PyPI or CFS, avoiding blocked package downloads
+on corporate networks. The Pyodide CDN and emitter asset host must still be reachable.
 
 `npm run build:playground` resolves these wheels for Pyodide's Python version and
 platform, not the build machine. The playground publication pipeline runs this
 command; ordinary `npm run build` skips browser-wheel preparation.
-Resolution honors `PIP_INDEX_URL` or `UV_DEFAULT_INDEX`,
-defaulting to the public `azure-sdk-for-python` CFS feed. The PyYAML and MarkupSafe native package
-versions are constrained to the Pyodide lockfile. A dependency that cannot be
-satisfied for this runtime fails the build rather than browser startup.
-The browser wheel set also pins `platformdirs` to a version that does not require
-`os.geteuid`, which is absent from the pinned Pyodide runtime.
-
-Package-manager detection rejects pip older than 26.2.0 and uv older than 0.13.4,
-as well as unverifiable or prerelease versions. Stable post releases and local
-version metadata are accepted without relaxing the security floors. These floors cover the published
-pip index-URL handling and uv compromised-CA advisories. Build environments
-bootstrap the CFS-available `pip==26.2.2` through the validated host installer,
-not an unchecked `ensurepip` seed. Keep these floors and the pip pin current
-as security advisories and approved feed versions change.
-CI must provision a patched package manager before `npm ci` runs emitter setup.
-The preview workflow explicitly sets up Python and upgrades pip first.
-The integration workflow upgrades pip and uv after the checked-out
-`typespec-azure` setup action so its tool pins cannot fall below these floors.
+Resolution honors `PIP_INDEX_URL` or `UV_DEFAULT_INDEX`, defaulting to the public
+`azure-sdk-for-python` CFS feed. Native dependencies match the Pyodide lockfile;
+the browser-only `platformdirs` pin avoids its unsupported `os.geteuid` API.
 
 Publish the browser manifest and wheels together with the emitter bundle under
 the same package version. Previously published bundles do not pick up this fix

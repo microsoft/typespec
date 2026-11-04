@@ -9,7 +9,6 @@ import sys
 import argparse
 import json
 import os
-import re
 import shutil
 import subprocess
 import tempfile
@@ -101,23 +100,10 @@ def build_browser_wheels(venv_context):
         if browser.exists():
             shutil.rmtree(browser)
         browser.mkdir()
-        bundled = {
-            (re.sub(r"[-_.]+", "-", p["name"]).lower(), p["version"]): name for name, p in lock["packages"].items()
-        }
-        packages = []
-        wheels = []
-        for path in sorted(staging.glob("*.whl")):
-            name, version = path.name.split("-")[:2]
-            key = (re.sub(r"[-_.]+", "-", name).lower(), version)
-            if key in bundled:
-                packages.append(bundled[key])
-            else:
-                wheels.append(path.name)
+        wheels = sorted(p.name for p in staging.glob("*-none-any.whl"))
         for filename in wheels:
             shutil.copyfile(staging / filename, browser / filename)
-        (browser / "manifest.json").write_text(
-            json.dumps({"packages": sorted(packages), "wheels": wheels}, indent=2) + "\n"
-        )
+        (browser / "manifest.json").write_text(json.dumps({"wheels": wheels}, indent=2) + "\n")
 
 
 def main(playground=False):

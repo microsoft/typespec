@@ -16,17 +16,10 @@ function getBrowserAssetUrl(filename: string): string {
   return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/browser/${filename}`;
 }
 
-function isBrowserWheelManifest(
-  manifest: unknown,
-): manifest is { packages: string[]; wheels: string[] } {
+function isBrowserWheelManifest(manifest: unknown): manifest is { wheels: string[] } {
   return (
     typeof manifest === "object" &&
     manifest !== null &&
-    "packages" in manifest &&
-    Array.isArray(manifest.packages) &&
-    manifest.packages.every(
-      (name: unknown) => typeof name === "string" && /^[a-z0-9][a-z0-9_-]*$/.test(name),
-    ) &&
     "wheels" in manifest &&
     Array.isArray(manifest.wheels) &&
     manifest.wheels.length > 0 &&
@@ -329,9 +322,8 @@ async function setupPyodideCallBrowser() {
   if (!isBrowserWheelManifest(manifest)) {
     throw new Error("Invalid Python browser wheel manifest.");
   }
-  // Load overrides before bundled packages so their dependencies cannot select a different version.
   await loadBrowserPackages(pyodide, manifest.wheels.map(getBrowserAssetUrl));
-  await loadBrowserPackages(pyodide, manifest.packages);
+  await loadBrowserPackages(pyodide, ["pyyaml", "markupsafe"]);
 
   return pyodide;
 }

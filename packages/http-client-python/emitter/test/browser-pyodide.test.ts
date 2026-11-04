@@ -30,7 +30,7 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     const wheels = ["pygen-0.1.0-py3-none-any.whl", "black-26.3.1-py3-none-any.whl"];
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ packages: ["jinja2", "pyyaml", "markupsafe"], wheels }),
+      json: async () => ({ wheels }),
     });
     vi.stubGlobal("fetch", fetch);
     const pyodide = {
@@ -61,7 +61,7 @@ describe("typespec-python: browser pyodide bootstrap", () => {
       wheels.map((name) => expect.stringMatching(new RegExp(`/browser/${name}$`))),
       { errorCallback: expect.any(Function) },
     );
-    expect(pyodide.loadPackage).toHaveBeenNthCalledWith(2, ["jinja2", "pyyaml", "markupsafe"], {
+    expect(pyodide.loadPackage).toHaveBeenNthCalledWith(2, ["pyyaml", "markupsafe"], {
       errorCallback: expect.any(Function),
     });
     expect(pyodide.runPythonAsync).toHaveBeenCalledOnce();
@@ -74,41 +74,33 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     {
       ok: true,
       status: 200,
-      body: { packages: [], wheels: [] },
+      body: { wheels: [] },
       message: /Invalid Python browser wheel/,
     },
     {
       ok: true,
       status: 200,
-      body: { packages: [], wheels: "not-an-array" },
+      body: { wheels: "not-an-array" },
       message: /Invalid Python browser wheel/,
     },
     {
       ok: true,
       status: 200,
-      body: { packages: [], wheels: [null] },
+      body: { wheels: [null] },
       message: /Invalid Python browser wheel/,
     },
     {
       ok: true,
       status: 200,
-      body: { packages: [], wheels: [42] },
+      body: { wheels: [42] },
       message: /Invalid Python browser wheel/,
     },
     {
       ok: true,
       status: 200,
-      body: { packages: [], wheels: ["../unexpected.whl"] },
+      body: { wheels: ["../unexpected.whl"] },
       message: /Invalid Python browser wheel/,
     },
-    ...[undefined, null, "jinja2", [null], ["https://example.com/package.whl"], ["../jinja2"]].map(
-      (packages) => ({
-        ok: true,
-        status: 200,
-        body: { packages, wheels: ["pygen-0.1.0-py3-none-any.whl"] },
-        message: /Invalid Python browser wheel/,
-      }),
-    ),
   ])("reports unusable browser wheel manifests: $body", async ({ ok, status, body, message }) => {
     vi.stubGlobal("window", globalThis);
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok, status, json: async () => body }));
@@ -137,7 +129,7 @@ describe("typespec-python: browser pyodide bootstrap", () => {
         "fetch",
         vi.fn().mockResolvedValue({
           ok: true,
-          json: async () => ({ packages: ["pyyaml"], wheels: ["pygen-0.1.0-py3-none-any.whl"] }),
+          json: async () => ({ wheels: ["pygen-0.1.0-py3-none-any.whl"] }),
         }),
       );
       const loadPackage = vi.fn().mockImplementationOnce((_names, options) => {

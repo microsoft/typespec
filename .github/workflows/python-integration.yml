@@ -42,12 +42,6 @@ jobs:
 
       - uses: ./.github/actions/setup-python
 
-      - name: Upgrade Python package managers
-        # The checked-out typespec-azure action can pin versions below the emitter's security floors.
-        run: |
-          python -m pip install --upgrade pip==26.2.2 uv==0.13.4
-          python -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"
-
       - name: Build and pack http-client-python from PR
         run: |
           cd core/packages/http-client-python
@@ -132,11 +126,6 @@ jobs:
 
       - uses: ./.github/actions/setup-python
 
-      - name: Upgrade Python package managers
-        run: |
-          python -m pip install --upgrade pip==26.2.2 uv==0.13.4
-          python -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"
-
       - name: Download generated artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -179,11 +168,6 @@ jobs:
 
       - uses: ./.github/actions/setup-python
 
-      - name: Upgrade Python package managers
-        run: |
-          python -m pip install --upgrade pip==26.2.2 uv==0.13.4
-          python -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"
-
       - name: Download generated artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -222,11 +206,6 @@ jobs:
       - uses: ./.github/actions/setup
 
       - uses: ./.github/actions/setup-python
-
-      - name: Upgrade Python package managers
-        run: |
-          python -m pip install --upgrade pip==26.2.2 uv==0.13.4
-          python -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"
 
       - name: Download generated artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -274,11 +253,6 @@ jobs:
       - uses: ./.github/actions/setup
 
       - uses: ./.github/actions/setup-python
-
-      - name: Upgrade Python package managers
-        run: |
-          python -m pip install --upgrade pip==26.2.2 uv==0.13.4
-          python -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"
 
       - name: Download generated artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

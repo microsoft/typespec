@@ -32,13 +32,6 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.15"
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip==26.2.2
-
       - name: Install dependencies
         run: node eng/tsp-core/tpm/cli.ts install --since origin/main
 
