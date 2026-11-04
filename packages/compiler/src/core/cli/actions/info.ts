@@ -33,13 +33,21 @@ export async function printInfoAction(
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
   const config = await loadTypeSpecConfigForPath(host, cwd, true, true);
-  const { diagnostics, filename, file, ...restOfConfig } = config;
+  const { filename, ...restOfConfig } = getPrintableConfig(config);
 
   console.log(`User Config: ${filename ?? "No config file found"}`);
   console.log("-----------");
   console.log(stringify(restOfConfig));
   console.log("-----------");
   return config.diagnostics;
+}
+
+/** @internal Strip parser/source metadata from the configuration shown by `tsp info`. */
+export function getPrintableConfig(
+  config: TypeSpecConfig,
+): Omit<TypeSpecConfig, "diagnostics" | "file" | "linterSource"> {
+  const { diagnostics: _diagnostics, file: _file, linterSource: _linterSource, ...rest } = config;
+  return rest;
 }
 
 export function formatCompilerFeatures(config?: TypeSpecConfig): string[] {
