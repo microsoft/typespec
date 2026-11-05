@@ -14,6 +14,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -67,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             cases.Add(SwitchCaseStatement.Default(Throw(New.Instance<JsonException>(
                 Literal($"Unknown discriminator value for union '{union.Name}'.")))));
 
-            return
+            MethodProvider[] methods =
             [
                 new MethodProvider(
                     new MethodSignature(GetSerializeMethodName(union), null, MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static,
@@ -86,6 +87,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new SwitchStatement(discriminator.GetString(), [.. cases])
                     }, serialization)
             ];
+            var suppressions = ExperimentalApiHelpers.MergeSuppressions(
+                ExperimentalApiHelpers.GetReferenceSuppressions(union.BaseModel),
+                union.DiscriminatedSubtypes!.Values.SelectMany(model => ExperimentalApiHelpers.GetReferenceSuppressions(model)),
+                union.DiscriminatedSubtypes!.Values.SelectMany(model => ExperimentalApiHelpers.GetReferenceSuppressions(
+                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model))));
+            foreach (var method in methods)
+            {
+                method.Update(suppressions: suppressions);
+            }
+            return methods;
         }
 
         private static string GetSerializeMethodName(InputUnionType union) => $"Serialize{GetMethodSuffix(union)}";
@@ -94,12 +105,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetMethodSuffix(InputUnionType union)
         {
-            var name = union.IsExactName ? union.Name : union.Name.ToIdentifierName();
-            var index = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
-                .Where(candidate => candidate.BaseModel == union.BaseModel
-                    && (candidate.IsExactName ? candidate.Name : candidate.Name.ToIdentifierName()) == name)
-                .TakeWhile(candidate => candidate != union).Count();
-            return index == 0 ? $"{name}Union" : $"{name}Union{index}";
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(union.BaseModel!)!;
+            var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
+            foreach (var candidate in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                .Where(candidate => candidate.BaseModel == union.BaseModel))
+            {
+                var name = $"{(candidate.IsExactName ? candidate.Name : candidate.Name.ToIdentifierName())}Union";
+                var suffix = name;
+                var index = 0;
+                while (!reserved.Add(suffix))
+                {
+                    suffix = $"{name}{++index}";
+                }
+                if (candidate == union)
+                {
+                    return suffix;
+                }
+            }
+            throw new InvalidOperationException($"Union '{union.Name}' is not registered in the input library.");
         }
 
         internal static bool RequiresEnvelope(InputType? type) => type switch

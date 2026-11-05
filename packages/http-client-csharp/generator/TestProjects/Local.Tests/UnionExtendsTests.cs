@@ -95,6 +95,80 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public async Task JsonLinesPreserveRawUnionEnvelopes()
+        {
+            var cat = Serialize(new UnionCat("Whiskers", true));
+            var dog = Serialize(new UnionDog("Rex", false));
+            var response = new Mock<PipelineResponse>();
+            var client = new Mock<UnionExtends> { CallBase = true };
+            BinaryData? requestData = null;
+            client.Setup(value => value.SendPetsAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Returns(async (BinaryContent content, RequestOptions _) =>
+                {
+                    using var stream = new MemoryStream();
+                    await content.WriteToAsync(stream, CancellationToken.None);
+                    requestData = BinaryData.FromBytes(stream.ToArray());
+                    return ClientResult.FromResponse(response.Object);
+                });
+
+            await client.Object.SendPetsAsync(GetJsonLines(cat, dog));
+
+            var expected = $"{cat}\n{dog}";
+            Assert.AreEqual(expected, requestData!.ToString());
+            using var responseStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(expected));
+            response.SetupGet(value => value.ContentStream).Returns(responseStream);
+            await using var result = AsyncStreamingResult.CreateJsonLines(response.Object);
+            var lines = new List<string>();
+            await foreach (var line in result)
+            {
+                lines.Add(line.ToString());
+            }
+            CollectionAssert.AreEqual(new[] { cat.ToString(), dog.ToString() }, lines);
+        }
+
+        private static async IAsyncEnumerable<BinaryData> GetJsonLines(params BinaryData[] values)
+        {
+            await Task.CompletedTask;
+            foreach (var value in values)
+            {
+                yield return value;
+            }
+        }
+
+        [Test]
+        public void NestedUnionPayloadsRemainConcrete()
+        {
+            Assert.IsTrue(typeof(CollisionPetsUnion).IsAbstract);
+            Assert.IsFalse(typeof(NestedMammal).IsAbstract);
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                CollisionPetsUnion.SerializeCollisionPetsUnion1(writer, new NestedMammal("Mammal"), ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            var result = CollisionPetsUnion.DeserializeCollisionPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.AreEqual(typeof(NestedMammal), result.GetType());
+            Assert.AreEqual("Mammal", result.Name);
+        }
+
+        [Test]
+        public void ExperimentalUnionVariantRoundTrips()
+        {
+#pragma warning disable UNION001
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                NestedMammal.SerializeNestedPetsUnion(writer, new ExperimentalUnionCat("Whiskers", true), ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            var result = NestedMammal.DeserializeNestedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.IsInstanceOf<ExperimentalUnionCat>(result);
+            Assert.AreEqual("Whiskers", result.Name);
+            Assert.IsTrue(((ExperimentalUnionCat)result).Meow);
+#pragma warning restore UNION001
+        }
+
+        [Test]
         public void CustomizedBinaryDataPropertiesRoundTripRawEnvelopes()
         {
             var cat = Serialize(new UnionCat("Whiskers", true));

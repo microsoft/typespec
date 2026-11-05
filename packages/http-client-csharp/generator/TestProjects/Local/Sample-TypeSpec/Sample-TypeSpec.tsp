@@ -1208,6 +1208,27 @@ model RawUnionPetContainer {
   rawLookup?: Record<UnionPets>;
 }
 
+model CollisionPetsUnion {
+  name: string;
+}
+
+model NestedMammal extends CollisionPetsUnion {}
+
+@TypeSpec.HttpClient.experimental(#{ diagnosticId: "UNION001" })
+model ExperimentalUnionCat extends NestedMammal {
+  meow: boolean;
+}
+
+@discriminated
+union CollisionPets extends CollisionPetsUnion {
+  mammal: NestedMammal,
+}
+
+@discriminated
+union NestedPets extends NestedMammal {
+  cat: ExperimentalUnionCat,
+}
+
 @route("/union-extends")
 interface UnionExtends {
   @post
@@ -1220,6 +1241,22 @@ interface UnionExtends {
   @route("/raw-container")
   @post
   echoRawContainer(@body container: RawUnionPetContainer): RawUnionPetContainer;
+
+  @route("/nested-outer")
+  @post
+  echoNestedOuter(@body pet: CollisionPets): CollisionPets;
+
+  @route("/nested-inner")
+  @post
+  echoNestedInner(@body pet: NestedPets): NestedPets;
+
+  @route("/jsonl/send")
+  @post
+  sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
+
+  @route("/jsonl/receive")
+  @get
+  receivePets(): JsonlStream<UnionPets>;
 
   @route("/pets")
   @post

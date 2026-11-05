@@ -276,6 +276,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         protected override CSharpType? CreateCSharpTypeCore(InputType inputType) => inputType switch
         {
+            InputStreamingType streaming when streaming.StreamKind != InputStreamingType.SseStreamKind &&
+                DiscriminatedUnionSerialization.RequiresEnvelope(streaming.ValueType) =>
+                new CSharpType(typeof(IAsyncEnumerable<>), typeof(BinaryData)),
 #pragma warning disable SCME0004
             InputModelType { IsFileType: true } => typeof(FileBinaryContent),
             InputPrimitiveType { IsFileType: true } => typeof(FileBinaryContent),

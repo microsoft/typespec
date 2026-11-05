@@ -112,7 +112,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 out var writer);
             writerScope.AddRange(
             [
-                writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions),
+                new IfElseStatement(
+                    value.Is(new DeclarationExpression(typeof(BinaryData), "data", out var data)),
+                    writer.As<Utf8JsonWriter>().WriteBinaryData(data),
+                    writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions)),
                 writer.As<Utf8JsonWriter>().FlushAsync(cancellationToken).Terminate()
             ]);
             loop.Add(writerScope);

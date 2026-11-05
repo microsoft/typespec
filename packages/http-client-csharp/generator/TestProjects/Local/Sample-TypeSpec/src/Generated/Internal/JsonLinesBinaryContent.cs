@@ -42,7 +42,21 @@ namespace SampleTypeSpec
                 }
                 using (Utf8JsonWriter writer = new Utf8JsonWriter(stream))
                 {
-                    writer.WriteObjectValue(value, ModelSerializationExtensions.WireOptions);
+                    if (value is BinaryData data)
+                    {
+#if NET6_0_OR_GREATER
+                        writer.WriteRawValue(data);
+#else
+                        using (JsonDocument document = JsonDocument.Parse(data))
+                        {
+                            JsonSerializer.Serialize(writer, document.RootElement);
+                        }
+#endif
+                    }
+                    else
+                    {
+                        writer.WriteObjectValue(value, ModelSerializationExtensions.WireOptions);
+                    }
                     await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
                 }
                 first = false;

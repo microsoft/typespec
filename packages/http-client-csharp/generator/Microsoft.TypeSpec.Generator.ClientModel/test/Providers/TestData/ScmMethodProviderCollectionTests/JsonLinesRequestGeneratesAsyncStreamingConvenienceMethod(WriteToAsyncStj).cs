@@ -9,7 +9,21 @@ public override async global::System.Threading.Tasks.Task WriteToAsync(global::S
         }
         using (global::System.Text.Json.Utf8JsonWriter writer = new global::System.Text.Json.Utf8JsonWriter(stream))
         {
-            writer.WriteObjectValue<T>(value, global::Sample.ModelSerializationExtensions.WireOptions);
+            if ((value is global::System.BinaryData data))
+            {
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(data);
+#else
+                using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
+                {
+                    global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                }
+#endif
+            }
+            else
+            {
+                writer.WriteObjectValue<T>(value, global::Sample.ModelSerializationExtensions.WireOptions);
+            }
             await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
         first = false;

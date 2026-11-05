@@ -1928,6 +1928,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (streamingType.StreamKind != InputStreamingType.SseStreamKind)
             {
+                if (DiscriminatedUnionSerialization.RequiresEnvelope(streamingType.ValueType))
+                {
+                    return GetRawStreamingItemType(streamingType);
+                }
                 return CreateRequiredCSharpType(
                     streamingType.ValueType,
                     streamingType,
@@ -2008,7 +2012,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return AsyncStreamingResultSnippets.CreateSse(response, rawArguments[1..]);
             }
 
-            if (!useConvenienceType)
+            if (!useConvenienceType || DiscriminatedUnionSerialization.RequiresEnvelope(streamingType.ValueType))
             {
                 return AsyncStreamingResultSnippets.CreateJsonLines(
                     response,

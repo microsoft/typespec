@@ -647,6 +647,24 @@ namespace SampleTypeSpec
                 additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The NestedMammal. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.NestedMammal"/> instance for mocking. </returns>
+        public static NestedMammal NestedMammal(string name = default)
+        {
+            return new NestedMammal(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ExperimentalUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ExperimentalUnionCat"/> instance for mocking. </returns>
+        [Experimental("UNION001")]
+        public static ExperimentalUnionCat ExperimentalUnionCat(string name = default, bool meow = default)
+        {
+            return new ExperimentalUnionCat(name, additionalBinaryDataProperties: null, meow);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

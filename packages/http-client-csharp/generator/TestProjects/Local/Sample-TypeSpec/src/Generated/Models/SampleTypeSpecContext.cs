@@ -16,9 +16,13 @@ namespace SampleTypeSpec
     /// </summary>
     [ModelReaderWriterBuildable(typeof(Animal))]
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(CollisionPetsUnion))]
     [ModelReaderWriterBuildable(typeof(CurrentDetails))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
+#pragma warning disable UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
+    [ModelReaderWriterBuildable(typeof(ExperimentalUnionCat))]
+#pragma warning restore UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
@@ -30,6 +34,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(NestedMammal))]
     [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]
     [ModelReaderWriterBuildable(typeof(OptionalNullableBase))]
     [ModelReaderWriterBuildable(typeof(OptionalNullableChild))]

@@ -86,7 +86,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var modifiers = base.BuildDeclarationModifiers();
-            return ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions.Any(union => union.BaseModel == _inputModel)
+            var unions = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions;
+            return unions.Any(union => union.BaseModel == _inputModel) &&
+                !unions.Any(union => union.DiscriminatedSubtypes?.Values.Contains(_inputModel) == true)
                 ? modifiers | TypeSignatureModifiers.Abstract
                 : modifiers;
         }

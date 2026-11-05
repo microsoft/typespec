@@ -14,8 +14,11 @@ namespace SampleTypeSpec
     public partial class UnionExtends
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static PipelineMessageClassifier _pipelineMessageClassifier204;
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+
+        private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
         internal PipelineMessage CreateEchoRequest(BinaryContent content, RequestOptions options)
         {
@@ -55,6 +58,61 @@ namespace SampleTypeSpec
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateEchoNestedOuterRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/union-extends/nested-outer", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+#pragma warning disable UNION001 // This generated code depends on experimental functionality.
+        internal PipelineMessage CreateEchoNestedInnerRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/union-extends/nested-inner", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+#pragma warning restore UNION001 // This generated code depends on experimental functionality.
+
+        internal PipelineMessage CreateSendPetsRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/union-extends/jsonl/send", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/jsonl");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateReceivePetsRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/union-extends/jsonl/receive", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/jsonl");
             message.Apply(options);
             return message;
         }
