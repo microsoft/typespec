@@ -152,6 +152,99 @@ describe("Request-context constructor requirements", () => {
     }
   });
 
+  it.each([false, true])(
+    "does not visit sibling subtypes through an ancestor (base request: %s)",
+    async (includeBaseRequest) => {
+      const program = await typeSpecCompile(
+        `
+         @discriminator("kind") model Pet { kind: string; }
+         model Cat extends Pet { kind: "cat"; catValue: string; }
+         model Dog extends Pet { kind: "dog"; dogValue: string; }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/cat") @patch(#{ implicitOptionality: true }) op updateCat(@body body: Cat): void;
+         @route("/dog") @post op createDog(@body body: Dog): void;
+         ${
+           includeBaseRequest
+             ? `#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+                @route("/pet") @patch(#{ implicitOptionality: true }) op updatePet(@body body: Pet): void;`
+             : ""
+         }`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const cat = root.models.find((m) => m.name === "Cat")!;
+      const dog = root.models.find((m) => m.name === "Dog")!;
+      strictEqual(cat.properties.find((p) => p.name === "catValue")!.requiredInConstructor, false);
+      strictEqual(
+        dog.properties.find((p) => p.name === "dogValue")!.requiredInConstructor,
+        includeBaseRequest ? false : undefined,
+      );
+    },
+  );
+
+  it.each(["body", "bodyRoot"])(
+    "honors metadata treatment within @%s and across request contexts",
+    async (bodyDecorator) => {
+      const program = await typeSpecCompile(
+        `
+         model Child { value: string; }
+         model Resource {
+           value: string;
+           #suppress "@typespec/http/metadata-ignored" "Testing explicit body metadata."
+           @header requiredHeader: string;
+           #suppress "@typespec/http/metadata-ignored" "Testing explicit body metadata."
+           @query requiredQuery: string;
+           @bodyIgnore ignored: Child;
+         }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/root") @patch(#{ implicitOptionality: true }) op updateRoot(@bodyRoot body: Resource): void;
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/other") @patch(#{ implicitOptionality: true }) op updateOther(@${bodyDecorator} body: Resource): void;
+         @route("/child") @post op createChild(@body body: Child): void;`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const model = root.models.find((m) => m.name === "Resource")!;
+      for (const name of ["requiredHeader", "requiredQuery", "ignored"]) {
+        strictEqual(
+          model.properties.find((p) => p.name === name)!.requiredInConstructor,
+          bodyDecorator === "body" ? false : undefined,
+          name,
+        );
+      }
+      const child = root.models.find((m) => m.name === "Child")!;
+      strictEqual(
+        child.properties[0].requiredInConstructor,
+        bodyDecorator === "body" ? false : undefined,
+      );
+    },
+  );
+
+  it("uses the effective visibility of a redeclared inherited property", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Base { value: string; }
+       model Derived extends Base { @visibility(Lifecycle.Create) value: string; }
+       @put op send(@body body: Derived): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    strictEqual(
+      root.models.find((m) => m.name === "Base")!.properties[0].requiredInConstructor,
+      undefined,
+    );
+    strictEqual(
+      root.models.find((m) => m.name === "Derived")!.properties[0].requiredInConstructor,
+      false,
+    );
+  });
+
   it("uses only request contexts for a model also returned by other operations", async () => {
     const program = await typeSpecCompile(
       `${resource}

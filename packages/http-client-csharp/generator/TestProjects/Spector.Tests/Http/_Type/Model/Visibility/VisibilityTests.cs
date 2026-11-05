@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,38 @@ namespace TestProjects.Spector.Tests.Http._Type.Model.Visibility
 {
     public class TypeModelVisibilityTests : SpectorTestBase
     {
+        [SpectorTest]
+        public Task GetModel() => Test(async (host) =>
+        {
+            var response = await new VisibilityClient(host, null).GetModelAsync(new VisibilityModel
+            {
+                QueryProp = 123
+            });
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+            Assert.AreEqual("abc", response.Value.ReadProp);
+        });
+
+        [SpectorTest]
+        public Task HeadModel() => Test(async (host) =>
+        {
+            var response = await new VisibilityClient(host, null).HeadModelAsync(new VisibilityModel
+            {
+                QueryProp = 123
+            });
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PatchModel() => Test(async (host) =>
+        {
+            using var content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
+            {
+                updateProp = new[] { 1, 2 }
+            }));
+            var response = await new VisibilityClient(host, null).PatchModelAsync(content);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
         [SpectorTest]
         public void SharedModelAllowsPartialConstruction()
         {

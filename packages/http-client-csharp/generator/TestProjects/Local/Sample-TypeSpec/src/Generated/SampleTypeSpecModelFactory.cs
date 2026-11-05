@@ -585,6 +585,22 @@ namespace SampleTypeSpec
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
+        /// <summary> The ConstructorOverride. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorOverride"/> instance for mocking. </returns>
+        public static ConstructorOverride ConstructorOverride(string value = default)
+        {
+            return new ConstructorOverride(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorBase"/> instance for mocking. </returns>
+        public static ConstructorBase ConstructorBase(string value = default)
+        {
+            return new ConstructorBase(value, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

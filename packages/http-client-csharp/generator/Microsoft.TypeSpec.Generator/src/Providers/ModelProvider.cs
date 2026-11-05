@@ -1726,8 +1726,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorInitializer? constructorInitializer = null;
             if (BaseModelProvider != null)
             {
+                var requiresFullBaseConstructor = isInitializationConstructor
+                    && BaseModelProvider.ShouldUseFullConstructorInDerivedTypes
+                    && baseParameters.Any(p => p.Property is not null
+                        && overriddenProperties.Contains(p.Property)
+                        && !constructorParameters.Any(available => available.Name == p.Name));
                 // Check if we should call multi-level discriminator constructor
-                if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
+                if (requiresFullBaseConstructor)
+                {
+                    // A relaxed override cannot call the validating base initialization constructor.
+                    constructorInitializer = new ConstructorInitializer(true,
+                        [.. BaseModelProvider.FullConstructor.Signature.Parameters.Select(p =>
+                            GetExpressionForCtor(p, overriddenProperties, true, constructorParameters, useDefaultForMissingParameters: true))]);
+                }
+                else if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                 {
                     var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
 
@@ -1845,7 +1857,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ParameterProvider parameter,
             HashSet<PropertyProvider> overriddenProperties,
             bool isPrimaryConstructor,
-            IReadOnlyList<ParameterProvider>? availableParameters = null)
+            IReadOnlyList<ParameterProvider>? availableParameters = null,
+            bool useDefaultForMissingParameters = false)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
@@ -1864,6 +1877,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
+            if (useDefaultForMissingParameters && availableParameters?.Any(p => p.Name == paramToUse.Name) != true)
+            {
+                return parameter.Property is not null && parameter.Type.IsCollection
+                    ? New.Instance(parameter.Type.PropertyInitializationType)
+                    : Default;
+            }
             if (availableParameters is not null && paramToUse.Property is not null)
             {
                 paramToUse = availableParameters.FirstOrDefault(p => p.Property == paramToUse.Property)
@@ -2016,7 +2035,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // skip if this is an overload / new of a base property
             // also skip if the base was required or the derived property is not required
-            if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+            if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequiredInConstructor == false || property.BaseProperty.WireInfo?.IsRequiredInConstructor == true))
             {
                 return;
             }

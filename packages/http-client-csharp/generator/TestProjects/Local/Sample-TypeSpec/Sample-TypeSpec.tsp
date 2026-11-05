@@ -1166,3 +1166,18 @@ interface DeprecationSamples {
   @get
   read(): CurrentDetails;
 }
+
+model ConstructorBase {
+  value: string;
+}
+
+model ConstructorOverride extends ConstructorBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+interface ConstructorRequirements {
+  @route("/constructor-override")
+  @put
+  send(@body body: ConstructorOverride): void;
+}

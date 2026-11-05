@@ -16,38 +16,47 @@ import type { CSharpEmitterContext } from "../sdk-context.js";
 
 export function updateModelConstructorRequirements(sdkContext: CSharpEmitterContext): void {
   const metadata = createMetadataInfo(sdkContext.program);
-  const visited = new Map<SdkType, Set<Visibility>>();
+  const visited = new Map<SdkType, Set<string>>();
 
-  function visitType(type: SdkType, visibility: Visibility): void {
-    const visibilities = visited.get(type) ?? new Set<Visibility>();
-    if (visibilities.has(visibility)) return;
-    visibilities.add(visibility);
-    visited.set(type, visibilities);
+  function visitType(
+    type: SdkType,
+    visibility: Visibility,
+    inExplicitBody = false,
+    includeSubtypes = true,
+  ): void {
+    const contexts = visited.get(type) ?? new Set<string>();
+    const context = `${visibility}:${inExplicitBody}:${includeSubtypes}`;
+    if (contexts.has(context)) return;
+    contexts.add(context);
+    visited.set(type, contexts);
 
     switch (type.kind) {
       case "nullable":
-        visitType(type.type, visibility);
+        visitType(type.type, visibility, inExplicitBody);
         break;
       case "array":
       case "dict":
-        visitType(type.valueType, visibility | Visibility.Item);
+        visitType(type.valueType, visibility | Visibility.Item, inExplicitBody);
         break;
       case "union":
         for (const variant of type.variantTypes) {
-          visitType(variant, visibility);
+          visitType(variant, visibility, inExplicitBody);
         }
         break;
       case "model":
-        if (type.baseModel) visitType(type.baseModel, visibility);
-        for (const subtype of Object.values(type.discriminatedSubtypes ?? {})) {
-          visitType(subtype, visibility);
+        // Ancestors supply inherited properties, not additional request subtypes.
+        if (type.baseModel) visitType(type.baseModel, visibility, inExplicitBody, false);
+        if (includeSubtypes) {
+          for (const subtype of Object.values(type.discriminatedSubtypes ?? {})) {
+            visitType(subtype, visibility, inExplicitBody);
+          }
         }
         if (type.additionalProperties) {
-          visitType(type.additionalProperties, visibility | Visibility.Item);
+          visitType(type.additionalProperties, visibility | Visibility.Item, inExplicitBody);
         }
         for (const property of type.properties) {
           const raw = property.__raw;
-          const inPayload = !raw || metadata.isPayloadProperty(raw, visibility);
+          const inPayload = !raw || metadata.isPayloadProperty(raw, visibility, inExplicitBody);
           const inputProperty = sdkContext.__typeCache.properties.get(property);
           if (
             inputProperty &&
@@ -60,7 +69,7 @@ export function updateModelConstructorRequirements(sdkContext: CSharpEmitterCont
           ) {
             inputProperty.requiredInConstructor = false;
           }
-          if (inPayload) visitType(property.type, visibility);
+          if (inPayload) visitType(property.type, visibility, inExplicitBody);
         }
         break;
     }
@@ -85,7 +94,14 @@ export function updateModelConstructorRequirements(sdkContext: CSharpEmitterCont
       ]) {
         if (!(visibility & lifecycle)) continue;
         const context = lifecycle | (visibility & Visibility.Patch);
-        if (operation.bodyParam) visitType(operation.bodyParam.type, context);
+        if (operation.bodyParam) {
+          const body = operation.__raw.parameters.body;
+          visitType(
+            operation.bodyParam.type,
+            context,
+            body?.bodyKind === "single" && body.isExplicit,
+          );
+        }
         for (const parameter of operation.parameters) {
           visitType(parameter.type, context & ~Visibility.Patch);
         }
