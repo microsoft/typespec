@@ -72,10 +72,7 @@ describe("emit conflict diagnostic if multiple properties are annotated with the
     @list op list(
       @${name} prop1: ${type};
       @${name} prop2: ${type};
-    ): {
-      @pageItems items: string[];
-      ${name === "continuationToken" ? "@continuationToken next?: string;" : ""}
-    };
+    ): { @pageItems items: string[] };
   `);
 
     expectDiagnostics(diagnostics, [
@@ -129,10 +126,7 @@ describe("collect paging properties", () => {
     const { list, prop, program } = await Tester.compile(t.code`
       @list op ${t.op("list")}(
         @${name} ${t.modelProperty("prop")}: ${type};
-      ): {
-        @pageItems items: string[];
-        ${name === "continuationToken" ? "@continuationToken next?: string;" : ""}
-      };
+      ): { @pageItems items: string[] };
     `);
 
     const paging = ignoreDiagnostics(getPagingOperation(program, list));
@@ -171,10 +165,7 @@ describe("collect nested paging properties", () => {
     const { list, prop, program } = await Tester.compile(t.code`
       @list op ${t.op("list")}(
         @${name} ${t.modelProperty("prop")}: ${type};
-      ): {
-        @pageItems items: string[];
-        ${name === "continuationToken" ? "@continuationToken next?: string;" : ""}
-      };
+      ): { @pageItems items: string[] };
     `);
 
     const paging = ignoreDiagnostics(getPagingOperation(program, list));
@@ -218,100 +209,56 @@ describe("collect nested paging properties", () => {
   });
 });
 
-describe("@continuationToken requires a response token for a request token", () => {
-  it.each(["", "@nextLink next?: string;"])(
-    "rejects a request token without a response token (%s)",
-    async (response) => {
-      const [{ token }, diagnostics] = await Tester.compileAndDiagnose(t.code`
-        @list op list(@continuationToken ${t.modelProperty("token")}?: string): {
+describe("@continuationToken with @nextLink", () => {
+  it.each(["@list", ""])(
+    "collects a request token and a next-link-only response (%s)",
+    async (decorator) => {
+      const { list, token, next, program } = await Tester.compile(t.code`
+        ${decorator} op ${t.op("list")}(@continuationToken ${t.modelProperty("token")}?: string): {
           @pageItems items: string[];
-          ${response}
+          @nextLink ${t.modelProperty("next")}?: string;
         };
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "missing-paging-continuation-token",
-        severity: "error",
-        message:
-          "Paged operation 'list' has a @continuationToken parameter but no @continuationToken property in its return type.",
-      });
-      expect(diagnostics[0].target).toBe(token);
-    },
-  );
-
-  it("finds request tokens in nested inherited properties", async () => {
-    const [{ token }, diagnostics] = await Tester.compileAndDiagnose(t.code`
-      model Options {
-        @continuationToken ${t.modelProperty("token")}?: string;
-      }
-      model DerivedOptions extends Options {}
-      @list op list(options: { paging: DerivedOptions }): {
-        @pageItems items: string[];
-        @nextLink next?: string;
-      };
-    `);
-
-    expectDiagnostics(diagnostics, { code: "missing-paging-continuation-token" });
-    expect(diagnostics[0].target).toBe(token);
-  });
-
-  it.each(["", "@nextLink next?: string;"])(
-    "accepts paired tokens with nested inherited union responses (%s)",
-    async (response) => {
-      const diagnostics = await Tester.diagnose(`
-        model Page {
-          @pageItems items: string[];
-          @continuationToken token?: string | null;
-          ${response}
-        }
-        model DerivedPage extends Page {}
-        @list op list(@continuationToken token?: string | null):
-          { result: DerivedPage } | { error: string };
-      `);
+      const [paging, diagnostics] = getPagingOperation(program, list);
 
       expectDiagnosticEmpty(diagnostics);
+      expect(paging?.input.continuationToken?.property).toBe(token);
+      expect(paging?.output.nextLink?.property).toBe(next);
+      expect(paging?.output.continuationToken).toBeUndefined();
+      expectDiagnosticEmpty(program.diagnostics);
     },
   );
 
-  it("accepts next-link pagination with an undecorated request token", async () => {
-    const diagnostics = await Tester.diagnose(`
-      @list op list(token?: string): {
+  it("collects nested inherited tokens and next links in union responses", async () => {
+    const { list, token, next, program } = await Tester.compile(t.code`
+      model Options {
+        @continuationToken ${t.modelProperty("token")}?: string | null;
+      }
+      model DerivedOptions extends Options {}
+      model Page {
         @pageItems items: string[];
-        @nextLink next?: string;
-      };
+        @nextLink ${t.modelProperty("next")}?: string;
+      }
+      model DerivedPage extends Page {}
+      @list op ${t.op("list")}(options: DerivedOptions):
+        { result: DerivedPage } | { error: string };
     `);
+
+    const [paging, diagnostics] = getPagingOperation(program, list);
 
     expectDiagnosticEmpty(diagnostics);
-  });
-
-  it("returns the diagnostic and metadata without requiring @list or reporting diagnostics", async () => {
-    const { list, token, program } = await Tester.compile(t.code`
-      op ${t.op("list")}(@continuationToken ${t.modelProperty("token")}?: string): {
-        @pageItems items: string[];
-        @nextLink next?: string;
-      };
-    `);
-
-    const [paging, diagnostics] = getPagingOperation(program, list);
-
-    expectDiagnostics(diagnostics, { code: "missing-paging-continuation-token" });
-    expect(diagnostics[0].target).toBe(token);
     expect(paging?.input.continuationToken?.property).toBe(token);
-    expect(paging?.output.nextLink).toBeDefined();
-    expectDiagnosticEmpty(program.diagnostics);
-  });
-
-  it("preserves missing-page-items diagnostics and undefined metadata", async () => {
-    const { list, program } = await Tester.compile(t.code`
-      op ${t.op("list")}(@continuationToken token?: string): {
-        @nextLink next?: string;
-      };
-    `);
-
-    const [paging, diagnostics] = getPagingOperation(program, list);
-
-    expect(paging).toBeUndefined();
-    expectDiagnostics(diagnostics, { code: "missing-paging-items" });
+    expect(paging?.input.continuationToken?.path.map((property) => property.name)).toEqual([
+      "options",
+      "token",
+    ]);
+    expect(paging?.output.nextLink?.property).toBe(next);
+    expect(paging?.output.nextLink?.path.map((property) => property.name)).toEqual([
+      "result",
+      "next",
+    ]);
+    expect(paging?.output.continuationToken).toBeUndefined();
   });
 });
 
@@ -360,10 +307,7 @@ describe("@continuationToken supports nullable and optional properties", () => {
     const { list, token, program } = await Tester.compile(t.code`
       @list op ${t.op("list")}(
         @continuationToken ${t.modelProperty("token")}: string | null
-      ): {
-        @pageItems items: string[];
-        @continuationToken next?: string | null;
-      };
+      ): { @pageItems items: string[] };
     `);
 
     const paging = ignoreDiagnostics(getPagingOperation(program, list));

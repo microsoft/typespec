@@ -832,10 +832,9 @@ export type PageItemsDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Pagination property defining the token to get to the next page.
- * It MUST be specified both on the request parameter and the response.
- * A response `@nextLink` does not replace the response `@continuationToken`.
- * For link-based pagination without a separate response token, leave the request parameter undecorated.
+ * Identifies a request parameter that accepts a continuation token or a response property that returns one.
+ * When the response returns a separate continuation token, annotate both that property and the corresponding request parameter.
+ * A request `@continuationToken` can also be used with a response `@nextLink` that carries the token in its URL, without a separate response token property.
  *
  * @example
  * ```tsp

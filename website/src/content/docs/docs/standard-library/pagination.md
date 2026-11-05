@@ -63,7 +63,7 @@ For server driven pagination, the server returns information on how to navigate 
 - `@prevLink`: Link to the previous page.
 - `@firstLink`: Link to the first page.
 - `@lastLink`: Link to the last page.
-- `@continuationToken`: Should be specified in both the parameters and return type of the operation. In the return type it is the token to navigate to the next page and in the parameters it mark which parameter to use to pass the next continuation token.
+- `@continuationToken`: Identifies a request parameter that accepts a continuation token or a response property that returns one. When the response returns a separate token, annotate both that property and the corresponding request parameter. A request continuation token can also be used with a response `@nextLink` without a separate response token property.
 
 :::note
 It is possible to use server driven pagination on top of client driven pagination.
@@ -79,8 +79,6 @@ It is possible to use server driven pagination on top of client driven paginatio
 ```
 
 In this case, the body of the server response for a page has a property marked as continuation token, which can be used to fetch the next page. When fetching the next page, request will include the continuation token as a query parameter.
-
-A request parameter decorated with `@continuationToken` requires a response property decorated with `@continuationToken`. A response `@nextLink` does not satisfy this requirement: it is an opaque link, not a separate token. For link-based pagination without a separate response token, remove `@continuationToken` from the request parameter; the parameter can remain part of the operation.
 
 The continuation token can be in other locations as well, for instance, the below spec indicates that the server response for a page can have a header containing the continuation token. When fetching the next page, request will include the continuation token as a query parameter.
 
@@ -108,6 +106,17 @@ The continuation token can be in other locations as well, for instance, the belo
 :::note
 For HTTP services, `@nextLink` (and other link decorators like `@prevLink`, `@firstLink`, `@lastLink`) should be followed using a GET request by default. The link URIs are expected to be treated as opaque URLs that contain all necessary information to navigate to the respective page.
 :::
+
+A service can accept a continuation token as a request parameter while returning only a next link for navigation:
+
+```tsp
+@list op listPets(@query @continuationToken token?: string): {
+  @pageItems pets: Pet[];
+  @nextLink next?: url;
+};
+```
+
+For example, the response could contain `"next": "/pets?token=abc"`. The token is carried inside the link, so a separate response `@continuationToken` property is not required. Clients should follow the next link as an opaque URL rather than extract its token. Whether a generated SDK exposes the raw request token is a separate SDK design decision; this combination of paging decorators is valid.
 
 ### Example 3: Combining client and server driven pagination for an HTTP service
 

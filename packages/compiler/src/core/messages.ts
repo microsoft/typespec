@@ -1060,12 +1060,6 @@ const diagnostics = {
       default: paramMessage`Paged operation '${"operationName"}' return type must have a property annotated with @pageItems.`,
     },
   },
-  "missing-paging-continuation-token": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Paged operation '${"operationName"}' has a @continuationToken parameter but no @continuationToken property in its return type.`,
-    },
-  },
   /**
    * Service
    */

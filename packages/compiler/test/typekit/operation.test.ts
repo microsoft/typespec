@@ -1,5 +1,5 @@
 import { assert, expect, it } from "vitest";
-import { expectDiagnostics, t } from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";
 
@@ -9,7 +9,6 @@ it("can get paging metadata", async () => {
 
     @list op ${t.op("listPets")}(@continuationToken token?: string): {
       @pageItems pets: Pet[];
-      @continuationToken next?: string;
     };
   `);
 
@@ -17,11 +16,10 @@ it("can get paging metadata", async () => {
 
   const pagingMetadata = $(program).operation.getPagingMetadata(listPets);
   expect(pagingMetadata?.input.continuationToken).toBeDefined();
-  expect(pagingMetadata?.output.continuationToken).toBeDefined();
   expect(pagingMetadata?.output.pageItems.property.name).toBe("pets");
 });
 
-it("can get diagnostics for a request continuation token without a response token", async () => {
+it("can get paging metadata for a request token and a next-link-only response", async () => {
   const { listPets, program } = await Tester.compile(t.code`
     op ${t.op("listPets")}(@continuationToken token?: string): {
       @pageItems pets: string[];
@@ -31,9 +29,10 @@ it("can get diagnostics for a request continuation token without a response toke
 
   const [pagingMetadata, diagnostics] =
     $(program).operation.getPagingMetadata.withDiagnostics(listPets);
-  expectDiagnostics(diagnostics, { code: "missing-paging-continuation-token" });
+  expectDiagnosticEmpty(diagnostics);
   expect(pagingMetadata?.input.continuationToken).toBeDefined();
   expect(pagingMetadata?.output.nextLink).toBeDefined();
+  expect(pagingMetadata?.output.continuationToken).toBeUndefined();
 });
 
 it("can get diagnostics from getPagingMetadata", async () => {

@@ -307,16 +307,6 @@ export function getPagingOperation(
     );
     return diags.wrap(undefined);
   }
-
-  if (result.input.continuationToken && !result.output.continuationToken) {
-    diags.add(
-      createDiagnostic({
-        code: "missing-paging-continuation-token",
-        format: { operationName: op.name },
-        target: result.input.continuationToken.property,
-      }),
-    );
-  }
   return diags.wrap(result);
 }
 
