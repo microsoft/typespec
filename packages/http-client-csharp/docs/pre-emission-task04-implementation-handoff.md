@@ -2,7 +2,10 @@
 
 Tracking [issue #12454](https://github.com/microsoft/typespec/issues/12454), specifically
 [Task04](https://github.com/microsoft/typespec/issues/12454#issuecomment-6543541243),
-on `feature/pre-emission-task04` in the fork.
+Implementation work is assigned to `feature/pre-emission-task04` in the fork;
+this handoff is maintained on the parent `feature/pre-emission-field-types` branch.
+Also apply the [shared implementation guide](./pre-emission-implementation-guide.md)
+and [task handoff index](./pre-emission-task-handoffs.md).
 
 ## Authority, baseline and objective
 
@@ -35,7 +38,7 @@ Do not implement these other families as incidental Task04 work:
 
 - Static receiver shortening (Tasks06/13/16), `this` removal (Task07), or
   parentheses removal (Tasks05/12).
-- Optional-argument/default omission (Task08), attribute-name qualification/suffix
+- Optional-parameter `default(T)` to `default` conversion (Task08), attribute-name qualification/suffix
   changes (Task09), the specifically retained SDK-cast family (Task10), or XML
   documentation reference decisions (Tasks17-18). An accepted ordinary type-only
   operand inside an attribute is not the attribute-name family.
