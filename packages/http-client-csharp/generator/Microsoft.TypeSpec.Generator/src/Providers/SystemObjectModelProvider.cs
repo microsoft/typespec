@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _skipDerivedConstructorParameters;
         private readonly TypeProvider? _lastContractType;
         private readonly IReadOnlyList<InputModelProperty>? _mappedInputProperties;
+        private readonly IReadOnlyList<(InputModelProperty Metadata, InputModelProperty Projected)> _httpMetadataAliases;
         private readonly bool _isMappedBaseUpgrade;
 
         // Keep the projection model-local so source properties retain their original owner.
@@ -63,8 +64,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputModelType inputModel,
             TypeProvider lastContractType,
             IReadOnlyList<InputModelProperty>? mappedInputProperties = null,
-            bool isMappedBaseUpgrade = false)
-            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, mappedInputProperties, isMappedBaseUpgrade)
+            bool isMappedBaseUpgrade = false,
+            IReadOnlyList<(InputModelProperty Metadata, InputModelProperty Projected)>? httpMetadataAliases = null)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, mappedInputProperties, isMappedBaseUpgrade, httpMetadataAliases)
         {
         }
 
@@ -74,13 +76,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             bool skipDerivedConstructorParameters,
             TypeProvider? lastContractType,
             IReadOnlyList<InputModelProperty>? mappedInputProperties = null,
-            bool isMappedBaseUpgrade = false)
+            bool isMappedBaseUpgrade = false,
+            IReadOnlyList<(InputModelProperty Metadata, InputModelProperty Projected)>? httpMetadataAliases = null)
             : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             _lastContractType = lastContractType;
             _mappedInputProperties = mappedInputProperties;
+            _httpMetadataAliases = httpMetadataAliases ?? [];
             _isMappedBaseUpgrade = isMappedBaseUpgrade;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
@@ -95,6 +99,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType SystemType => _systemType;
 
         internal bool UsesLastContractType => _lastContractType is not null;
+
+        /// <summary>
+        /// Gets the original HTTP metadata declarations and the inherited properties that represent them
+        /// after a model-local mapped-base projection. The projected property's wire metadata is unchanged.
+        /// </summary>
+        public IEnumerable<(InputModelProperty Metadata, PropertyProvider Property)> GetMappedHttpMetadataProperties()
+        {
+            foreach (var (metadata, projected) in _httpMetadataAliases)
+            {
+                var property = CanonicalView.Properties.SingleOrDefault(candidate => ReferenceEquals(candidate.InputProperty, projected))
+                    ?? throw new InvalidOperationException($"Unable to resolve projected HTTP metadata property '{metadata.Name}'.");
+                yield return (metadata, property);
+            }
+        }
 
         private protected override CanonicalTypeProvider BuildCanonicalView()
             => HasInputPropertyProjection

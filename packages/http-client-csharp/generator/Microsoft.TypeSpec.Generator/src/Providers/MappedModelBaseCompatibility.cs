@@ -364,14 +364,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     property,
                     effective));
 
-        private static bool AreMappedPropertyShapesCompatible(
+        internal static bool AreMappedPropertyShapesCompatible(
             InputModelProperty current,
             InputModelProperty mapped,
-            bool ignoreRequiredness = false)
+            bool ignoreRequiredness = false,
+            bool ignoreHttpMetadata = false)
             => (ignoreRequiredness || current.IsRequired == mapped.IsRequired) &&
                 GetInputPropertyClrName(current) == GetInputPropertyClrName(mapped) &&
                 current.IsReadOnly == mapped.IsReadOnly &&
-                current.IsHttpMetadata == mapped.IsHttpMetadata &&
+                (ignoreHttpMetadata || current.IsHttpMetadata == mapped.IsHttpMetadata) &&
                 current.IsDiscriminator == mapped.IsDiscriminator &&
                 current.Encode == mapped.Encode &&
                 InputSerializationOptionsStructuralComparer.Equals(

@@ -50,6 +50,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
 
+        // Projection checks must not materialize the parameter of a shared cached property.
+        internal ParameterProvider? CachedParameter => _parameter is { IsValueCreated: true } ? _parameter.Value : null;
+        internal FormattableString? CustomDescription => _customDescription;
+
         public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }

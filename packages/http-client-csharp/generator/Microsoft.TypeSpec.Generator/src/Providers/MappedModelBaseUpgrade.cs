@@ -49,7 +49,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var historicalProperties = historical.Properties;
             List<InputModelProperty>? properties = null;
-            HashSet<PropertyProvider>? matchedProperties = null;
+            List<(InputModelProperty Metadata, int Index)>? httpMetadataSlots = null;
+            Dictionary<PropertyProvider, (InputModelProperty Property, PropertyProvider Source, PropertyProvider Unvisited, int Index)>? matchedProperties = null;
             var visited = new HashSet<InputModelType>();
             for (var input = model.InputModel; input is not null; input = input.BaseModel)
             {
@@ -62,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     return false;
                 }
+                HashSet<PropertyProvider>? matchedInOwner = null;
                 foreach (var property in input.Properties)
                 {
                     if (!MappedModelBaseCompatibility.TryMatchHistoricalProperty(
@@ -74,28 +76,76 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
 
-                    if (!(matchedProperties ??= []).Add(match) ||
-                        !PreservesSourceOwnerProperty(owner, property, match))
+                    matchedInOwner ??= new(ReferenceEqualityComparer.Instance);
+                    if (!matchedInOwner.Add(match) ||
+                        !PreservesSourceOwnerProperty(owner, property, match, out var sourceProperty, out var unvisitedProperty))
                     {
                         return false;
                     }
-                    (properties ??= []).Add(property);
+
+                    matchedProperties ??= new(ReferenceEqualityComparer.Instance);
+                    if (matchedProperties.TryGetValue(match, out var effective))
+                    {
+                        // A path-only child declaration must not replace the ancestor's payload
+                        // metadata. Otherwise keep the nearest declaration in the derived-to-base walk.
+                        bool useInheritedPayload = effective.Property.IsHttpMetadata && !property.IsHttpMetadata;
+                        if (!PreservesSourceOwnerDetails(effective.Source, effective.Unvisited) ||
+                            !PreservesSourceOwnerDetails(sourceProperty, unvisitedProperty) ||
+                            !AreCompatibleReadOnlyDeclarations(effective.Property, property, useInheritedPayload))
+                        {
+                            return false;
+                        }
+                        if (property.IsHttpMetadata)
+                        {
+                            (httpMetadataSlots ??= []).Add((property, effective.Index));
+                        }
+                        if (useInheritedPayload)
+                        {
+                            properties![effective.Index] = property;
+                            matchedProperties[match] = (property, sourceProperty, unvisitedProperty, effective.Index);
+                        }
+                        continue;
+                    }
+                    properties ??= [];
+                    if (property.IsHttpMetadata)
+                    {
+                        (httpMetadataSlots ??= []).Add((property, properties.Count));
+                    }
+                    matchedProperties.Add(match, (property, sourceProperty, unvisitedProperty, properties.Count));
+                    properties.Add(property);
                 }
             }
 
             // This model-local projection must not replace the input-keyed TypeFactory provider:
             // other children still use its current mapping and source-owned property cache.
-            provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties ?? [], isMappedBaseUpgrade: true);
+            var httpMetadataAliases = httpMetadataSlots?.Select(slot => (slot.Metadata, Projected: properties![slot.Index])).ToArray();
+            provider = new SystemObjectModelProvider(candidateType, inputBase, historicalBase, properties ?? [],
+                isMappedBaseUpgrade: true, httpMetadataAliases: httpMetadataAliases);
             return true;
         }
 
+        private static bool AreCompatibleReadOnlyDeclarations(
+            InputModelProperty effective, InputModelProperty inherited, bool ignoreHttpMetadata)
+            => effective.IsReadOnly && inherited.IsReadOnly &&
+                // A descendant may strengthen an optional ancestor, but must not weaken it.
+                (effective.IsRequired || !inherited.IsRequired) &&
+                effective.Name == inherited.Name &&
+                string.Equals(effective.SerializedName, inherited.SerializedName, StringComparison.Ordinal) &&
+                effective.Visibility == inherited.Visibility && effective.IsApiVersion == inherited.IsApiVersion &&
+                effective.Access == inherited.Access && effective.DefaultValue is null && inherited.DefaultValue is null &&
+                effective.Experimental is null && inherited.Experimental is null && inherited.Decorators.Count == 0 &&
+                MappedModelBaseCompatibility.AreMappedPropertyShapesCompatible(effective, inherited,
+                    ignoreRequiredness: true, ignoreHttpMetadata: ignoreHttpMetadata);
+
         private static bool PreservesSourceOwnerProperty(ModelProvider owner, InputModelProperty input,
-            PropertyProvider historicalProperty)
+            PropertyProvider historicalProperty, [NotNullWhen(true)] out PropertyProvider? current,
+            [NotNullWhen(true)] out PropertyProvider? unvisited)
         {
+            unvisited = null;
             var factory = CodeModelGenerator.Instance.TypeFactory;
             // Honor cached visitor results, including removals, without populating the cache during
             // potentially recursive property conversion.
-            var current = factory.PropertyCache.TryGetValue(input, out var cached)
+            current = factory.PropertyCache.TryGetValue(input, out var cached)
                 ? cached
                 : factory.CreateUncachedProperty(input, owner);
             if (current is null || owner.IsPropertySuppressed(current) ||
@@ -109,8 +159,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // CLR shape. Reject source-owner factory/visitor changes that this process would discard.
             // Compare to the unvisited source property, not the historical member: ordinary input
             // properties can legitimately have a different shape from their mapped CLR counterparts.
-            return PropertyProvider.TryCreate(input, owner, out var unvisited) &&
-                unvisited is not null && current.Type.Equals(unvisited.Type) &&
+            return PropertyProvider.TryCreate(input, owner, out unvisited) &&
+                unvisited is not null && PreservesSourceType(current, unvisited, historicalProperty) &&
+                PreservesSourceParameterMetadata(current, unvisited) &&
                 current.Modifiers == unvisited.Modifiers && current.IsInitOnly == unvisited.IsInitOnly &&
                 current.Body is AutoPropertyBody currentBody && unvisited.Body is AutoPropertyBody unvisitedBody &&
                 currentBody.HasSetter == unvisitedBody.HasSetter &&
@@ -119,6 +170,94 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (current.WireInfo is { } wireInfo
                     ? wireInfo.IsEquivalentTo(unvisited.WireInfo)
                     : unvisited.WireInfo is null);
+        }
+
+        private static bool PreservesSourceType(PropertyProvider current, PropertyProvider unvisited, PropertyProvider historicalProperty)
+        {
+            if (current.Type.Equals(unvisited.Type))
+            {
+                return true;
+            }
+
+            // A source-owner normalization is not lost when the projected property has exactly
+            // the same historical CLR type. Keep every other owner-specific change as a veto.
+            return current.Type.Equals(historicalProperty.Type) && PreservesSourceOwnerDetails(current, unvisited);
+        }
+
+        private static bool PreservesSourceOwnerDetails(PropertyProvider current, PropertyProvider unvisited)
+            => current.IsRef == unvisited.IsRef && current.IsDiscriminator == unvisited.IsDiscriminator &&
+                current.IsAdditionalProperties == unvisited.IsAdditionalProperties &&
+                Equals(current.ExplicitInterface, unvisited.ExplicitInterface) &&
+                ReferenceEquals(current.BackingField, unvisited.BackingField) &&
+                ReferenceEquals(current.BaseProperty, unvisited.BaseProperty) &&
+                current.OriginalName == unvisited.OriginalName &&
+                current.Attributes.Count == 0 && unvisited.Attributes.Count == 0 &&
+                current.Suppressions.Count == 0 && unvisited.Suppressions.Count == 0 &&
+                PreservesSourceParameterMetadata(current, unvisited) &&
+                HasEquivalentSourceDocs(current, unvisited);
+
+        private static bool PreservesSourceParameterMetadata(PropertyProvider current, PropertyProvider unvisited)
+        {
+            // A description can be changed without materializing the lazy parameter. Do not create
+            // a parameter on the shared source property merely to inspect its metadata.
+            if (!string.Equals(current.CustomDescription?.ToString(), unvisited.CustomDescription?.ToString(), StringComparison.Ordinal))
+            {
+                return false;
+            }
+            if (current.CachedParameter is not { } parameter)
+            {
+                return true;
+            }
+            var original = unvisited.AsParameter;
+            return HasEquivalentParameterMetadata(parameter, original, current, unvisited, isPublicVariant: false) &&
+                (parameter.CachedPublicInputParameter is not { } publicVariant ||
+                    HasEquivalentParameterMetadata(publicVariant, original.ToPublicInputParameter(), current, unvisited, isPublicVariant: true));
+        }
+
+        private static bool HasEquivalentParameterMetadata(ParameterProvider parameter, ParameterProvider original,
+            PropertyProvider current, PropertyProvider unvisited, bool isPublicVariant)
+        {
+            var currentType = isPublicVariant ? current.Type.InputType : current.Type;
+            var originalType = isPublicVariant ? unvisited.Type.InputType : unvisited.Type;
+            return parameter.Name == current.Name.ToVariableName() && original.Name == unvisited.Name.ToVariableName() &&
+                parameter.Type.Equals(currentType) && original.Type.Equals(originalType) &&
+                string.Equals(parameter.Description.ToString(), original.Description.ToString(), StringComparison.Ordinal) &&
+                parameter.IsRef == original.IsRef && parameter.IsOut == original.IsOut &&
+                parameter.IsIn == original.IsIn && parameter.IsParams == original.IsParams &&
+                parameter.IsExactName == original.IsExactName &&
+                parameter.HasUnsupportedDefaultValue == original.HasUnsupportedDefaultValue &&
+                parameter.HasUnsupportedParameterModifiers == original.HasUnsupportedParameterModifiers &&
+                parameter.DefaultValue is null && original.DefaultValue is null &&
+                parameter.InitializationValue is null && original.InitializationValue is null &&
+                parameter.Attributes.Count == 0 && original.Attributes.Count == 0 &&
+                ReferenceEquals(parameter.Property, current) && ReferenceEquals(original.Property, unvisited) &&
+                parameter.Field is null && original.Field is null &&
+                parameter.InputParameter is null && original.InputParameter is null &&
+                parameter.SpreadSource is null && original.SpreadSource is null &&
+                parameter.Location == original.Location && parameter.Validation == original.Validation &&
+                parameter.WireInfo.SerializedName == parameter.Name && original.WireInfo.SerializedName == original.Name &&
+                parameter.WireInfo.SerializationFormat == original.WireInfo.SerializationFormat;
+        }
+
+        private static bool HasEquivalentSourceDocs(PropertyProvider current, PropertyProvider unvisited)
+        {
+            if (!string.Equals(current.Description?.ToString(), unvisited.Description?.ToString(), StringComparison.Ordinal))
+            {
+                return false;
+            }
+            if (current.XmlDocs is not { } currentDocs)
+            {
+                return unvisited.XmlDocs is null;
+            }
+            if (unvisited.XmlDocs is not { } unvisitedDocs)
+            {
+                return false;
+            }
+            return currentDocs.Summary?.ToDisplayString() == unvisitedDocs.Summary?.ToDisplayString() &&
+                currentDocs.Parameters.Select(item => item.ToDisplayString()).SequenceEqual(unvisitedDocs.Parameters.Select(item => item.ToDisplayString())) &&
+                currentDocs.Exceptions.Select(item => item.ToDisplayString()).SequenceEqual(unvisitedDocs.Exceptions.Select(item => item.ToDisplayString())) &&
+                currentDocs.Returns?.ToDisplayString() == unvisitedDocs.Returns?.ToDisplayString() &&
+                currentDocs.Inherit?.ToDisplayString() == unvisitedDocs.Inherit?.ToDisplayString();
         }
 
         private static bool HasCustomAlias(ModelProvider owner, InputModelProperty input, string generatedName, string inheritedName)

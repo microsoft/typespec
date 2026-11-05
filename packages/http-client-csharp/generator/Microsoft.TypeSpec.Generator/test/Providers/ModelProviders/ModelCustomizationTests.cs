@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -104,6 +106,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("prop1", wireInfo!.SerializedName);
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
+
+            var modelProvider = (ModelProvider)modelTypeProvider;
+            var request = new VariableExpression(modelProvider.Type, "request");
+            var mappedAccess = modelProvider.GetPropertyExpression(request, ["prop1"], out var mappedProperty, requireInputName: true);
+            Assert.That(mappedAccess.ToDisplayString(), Is.EqualTo("request.Prop2"));
+            Assert.That(mappedProperty.Name, Is.EqualTo("Prop2"));
 
             // validate canonical view
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);

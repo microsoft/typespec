@@ -293,9 +293,16 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// Visits a <see cref="PropertyProvider"/> and returns a possibly modified version of it.
+        /// Visits a property in the current property collection of a type in the output library.
         /// </summary>
-        /// <param name="property">The original <see cref="PropertyProvider"/>.</param>
+        /// <remarks>
+        /// This is not a callback for every input declaration. Properties that are suppressed or
+        /// projected into an inherited property may not appear in the visited collection. Use
+        /// <see cref="PreVisitProperty"/> for conversion-time changes to an input property's provider;
+        /// provider caching and owner-specific conversions can affect when that callback runs.
+        /// Changes to the visited output provider can also affect generated serialization and other output.
+        /// </remarks>
+        /// <param name="property">The output <see cref="PropertyProvider"/> being visited.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
         protected internal virtual PropertyProvider? VisitProperty(PropertyProvider property)
         {

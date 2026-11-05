@@ -157,6 +157,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private ParameterProvider? _inputParameter;
 
+        // Inspect an existing variant without materializing another source-owner cache.
+        internal ParameterProvider? CachedPublicInputParameter => _inputParameter;
+
         // A mapped last-contract property can change its CLR name and type after a visitor has
         // materialized this parameter (and possibly its public input variant).
         internal void SynchronizePropertyShape()

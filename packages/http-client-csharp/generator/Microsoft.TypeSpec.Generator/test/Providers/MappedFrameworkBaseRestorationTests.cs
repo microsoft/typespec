@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework;
 using Moq;
@@ -71,6 +72,259 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "The location constructor initializes Tags; assigning Location after base() does not.");
             Assert.DoesNotThrow(() => instance.Tags.Add("key", "value"));
             Assert.That(instance.Tags["key"], Is.EqualTo("value"));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task RestoresBaseWithCompatibleChildAndAncestorName(bool existingMappedCandidate, bool cacheNameOwners)
+        {
+            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate,
+                includeChildName: true, cacheNameOwners: cacheNameOwners);
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))), Is.True,
+                "A compatible child/ancestor repetition of Name must not block base restoration.");
+            var restored = (SystemObjectModelProvider)model.BaseModelProvider!;
+            var childName = model.InputModel.Properties.Single(property => property.Name == "name");
+            var ancestor = model.InputModel.BaseModel!.BaseModel!;
+            var ancestorName = ancestor.Properties.Single(property => property.Name == "name");
+            var projectedName = restored.Properties.Single(property => property.Name == "Name");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(childName.EnclosingType, Is.SameAs(model.InputModel));
+                Assert.That(ancestorName.EnclosingType, Is.SameAs(ancestor));
+                Assert.That(childName.IsRequired, Is.True);
+                Assert.That(ancestorName.IsRequired, Is.False);
+                Assert.That(childName.Decorators.Select(decorator => decorator.Name), Does.Contain("TypeSpec.@pattern"));
+                Assert.That(ancestorName.ApiVersions, Is.EqualTo(new[] { "v3", "v4" }));
+                Assert.That(restored.MappedInputProperties.Count(property => property.Name == "name"), Is.EqualTo(1));
+                Assert.That(restored.MappedInputProperties, Does.Contain(childName));
+                Assert.That(restored.MappedInputProperties, Does.Not.Contain(ancestorName));
+                Assert.That(projectedName.InputProperty, Is.SameAs(childName));
+                Assert.That(projectedName.WireInfo!.IsRequired, Is.True,
+                    "The effective child wire metadata must be retained.");
+                Assert.That(model.Properties.Select(property => property.Name), Does.Not.Contain("Name"));
+                Assert.That(model.Constructors.Any(constructor =>
+                    constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                    constructor.Signature.Parameters.Count == 1 &&
+                    constructor.Signature.Parameters[0].Type.Equals(new CSharpType(typeof(ResourceLocation)))), Is.True);
+            });
+
+            var sourceOwner = CodeModelGenerator.Instance.TypeFactory.CreateModel(ancestor)!;
+            var sourceName = CodeModelGenerator.Instance.TypeFactory.CreateProperty(ancestorName, sourceOwner);
+            Assert.That(sourceName!.EnclosingType, Is.SameAs(sourceOwner));
+            Assert.That(sourceName.WireInfo!.IsRequired, Is.False,
+                "The ancestor's cached property must remain unchanged.");
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task RestoresBaseWithPathNameAndAncestorPayloadName(bool existingMappedCandidate, bool cacheNameOwners)
+        {
+            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate,
+                includeChildName: true, childNameIsHttpMetadata: true, cacheNameOwners: cacheNameOwners);
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))), Is.True,
+                "A path-only name must not hide the ancestor's matching payload property.");
+            var restored = (SystemObjectModelProvider)model.BaseModelProvider!;
+            var childName = model.InputModel.Properties.Single(property => property.Name == "name");
+            var ancestor = model.InputModel.BaseModel!.BaseModel!;
+            var ancestorName = ancestor.Properties.Single(property => property.Name == "name");
+            var projectedName = restored.Properties.Single(property => property.Name == "Name");
+
+            var httpAlias = restored.GetMappedHttpMetadataProperties().Single();
+            Assert.Multiple(() =>
+            {
+                Assert.That(httpAlias.Metadata, Is.SameAs(childName));
+                Assert.That(httpAlias.Property, Is.SameAs(projectedName));
+                Assert.That(childName.EnclosingType, Is.SameAs(model.InputModel));
+                Assert.That(childName.IsHttpMetadata, Is.True);
+                Assert.That(childName.IsRequired, Is.True);
+                Assert.That(childName.Decorators.Select(decorator => decorator.Name), Does.Contain("TypeSpec.@pattern"));
+                Assert.That(ancestorName.EnclosingType, Is.SameAs(ancestor));
+                Assert.That(ancestorName.IsHttpMetadata, Is.False);
+                Assert.That(ancestorName.IsRequired, Is.False);
+                Assert.That(restored.MappedInputProperties.Count(property => property.Name == "name"), Is.EqualTo(1));
+                Assert.That(restored.MappedInputProperties, Does.Contain(ancestorName));
+                Assert.That(restored.MappedInputProperties, Does.Not.Contain(childName));
+                Assert.That(projectedName.InputProperty, Is.SameAs(ancestorName));
+                Assert.That(projectedName.WireInfo!.IsHttpMetadata, Is.False);
+                Assert.That(projectedName.WireInfo!.IsRequired, Is.False);
+                Assert.That(model.Properties.Select(property => property.Name), Does.Not.Contain("Name"));
+                Assert.That(model.Constructors.Any(constructor =>
+                    constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                    constructor.Signature.Parameters.Count == 1 &&
+                    constructor.Signature.Parameters[0].Type.Equals(new CSharpType(typeof(ResourceLocation)))), Is.True);
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task MultiplePathDeclarationsRetainTheSamePayloadAlias(bool cacheNameOwners)
+        {
+            var model = await CreateModelAsync(includeChildName: true, childNameIsHttpMetadata: true,
+                includeIntermediateHttpName: true, cacheNameOwners: cacheNameOwners);
+            model.ProcessTypeForBackCompatibility();
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))), Is.True);
+            var restored = (SystemObjectModelProvider)model.BaseModelProvider!;
+            var childName = model.InputModel.Properties.Single(property => property.Name == "name");
+            var intermediateName = model.InputModel.BaseModel!.Properties.Single(property => property.Name == "name");
+            var ancestorName = model.InputModel.BaseModel.BaseModel!.Properties.Single(property => property.Name == "name");
+            var aliases = restored.GetMappedHttpMetadataProperties().ToArray();
+            Assert.Multiple(() =>
+            {
+                Assert.That(aliases.Select(alias => alias.Metadata), Is.EqualTo(new[] { childName, intermediateName }));
+                Assert.That(aliases.Select(alias => alias.Property).Distinct().Count(), Is.EqualTo(1));
+                Assert.That(aliases[0].Property.InputProperty, Is.SameAs(ancestorName));
+                Assert.That(aliases[0].Property.WireInfo!.IsHttpMetadata, Is.False);
+                Assert.That(childName.IsHttpMetadata && intermediateName.IsHttpMetadata, Is.True);
+            });
+        }
+
+        [Test]
+        public async Task ConflictingChildAndAncestorNameWireIdentitiesRejectRestoration()
+        {
+            var model = await CreateModelAsync(includeChildName: true, childNameWire: "differentName");
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+        }
+
+        [TestCase("same-owner")]
+        [TestCase("same-ancestor")]
+        [TestCase("different-raw-name")]
+        [TestCase("weaken-requiredness")]
+        [TestCase("visibility")]
+        [TestCase("api-version")]
+        [TestCase("ancestor-default")]
+        [TestCase("ancestor-decorator")]
+        [TestCase("serialization")]
+        public async Task IncompatibleDuplicateDeclarationsRejectRestoration(string variant)
+        {
+            var model = await CreateModelAsync(includeChildName: true, duplicateNameVariant: variant);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                $"The {variant} difference must not be discarded by projection.");
+        }
+
+        [TestCase("BotData")]
+        [TestCase("Resource")]
+        public async Task DuplicateNameSourceOwnerVetoRejectsRestoration(string ownerName)
+        {
+            var visitor = new DuplicateNameOwnerVeto(ownerName);
+            var model = await CreateModelAsync(includeChildName: true, visitor: visitor);
+            Assert.That(visitor.VisitedSourceOwner, Is.True);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+        }
+
+        [TestCase("BotData", false)]
+        [TestCase("BotData", true)]
+        [TestCase("Resource", false)]
+        [TestCase("Resource", true)]
+        public async Task DuplicateNameSourceOwnerAttributesAreNotDiscarded(string ownerName, bool cacheNameOwners)
+        {
+            var visitor = new DuplicateNameOwnerAttributeChange(ownerName);
+            var model = await CreateModelAsync(includeChildName: true, cacheNameOwners: cacheNameOwners, visitor: visitor);
+            Assert.That(visitor.VisitedSourceOwner, Is.True);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                "Restoration must not discard an attribute added to either source owner.");
+        }
+
+        [TestCase("BotData", false)]
+        [TestCase("BotData", true)]
+        [TestCase("Resource", false)]
+        [TestCase("Resource", true)]
+        public async Task DuplicateNameSourceOwnerParameterDescriptionIsNotDiscarded(string ownerName, bool cacheNameOwners)
+        {
+            var visitor = new DuplicateNameOwnerParameterChange(ownerName);
+            var model = await CreateModelAsync(includeChildName: true, cacheNameOwners: cacheNameOwners, visitor: visitor);
+            Assert.That(visitor.VisitedSourceOwner, Is.True);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                "Restoration must not discard parameter metadata changed on either source owner.");
+        }
+
+        [TestCase("BotData", false)]
+        [TestCase("BotData", true)]
+        [TestCase("Resource", false)]
+        [TestCase("Resource", true)]
+        public async Task DuplicateNameUnchangedPublicParameterVariantAllowsRestoration(string ownerName, bool cacheNameOwners)
+        {
+            var visitor = new DuplicateNameOwnerPublicParameterChange(ownerName, changeDescription: false);
+            var model = await CreateModelAsync(includeChildName: true, cacheNameOwners: cacheNameOwners, visitor: visitor);
+            Assert.That(visitor.Primary, Is.Not.Null);
+            Assert.That(visitor.PublicVariant, Is.SameAs(visitor.Primary!.ToPublicInputParameter()));
+            Assert.That(visitor.PublicVariant!.Description.ToString(), Is.EqualTo(visitor.OriginalDescription));
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))), Is.True,
+                "Materializing an unchanged public-input parameter must not veto an otherwise compatible restoration.");
+        }
+
+        [TestCase("BotData", false)]
+        [TestCase("BotData", true)]
+        [TestCase("Resource", false)]
+        [TestCase("Resource", true)]
+        public async Task DuplicateNameSourceOwnerPublicParameterVariantIsNotDiscarded(string ownerName, bool cacheNameOwners)
+        {
+            var visitor = new DuplicateNameOwnerPublicParameterChange(ownerName);
+            var model = await CreateModelAsync(includeChildName: true, cacheNameOwners: cacheNameOwners, visitor: visitor);
+            Assert.That(visitor.Primary, Is.Not.Null, "The visitor must reach the intended source owner.");
+            Assert.That(visitor.PublicVariant, Is.Not.SameAs(visitor.Primary));
+            Assert.That(visitor.Primary!.ToPublicInputParameter(), Is.SameAs(visitor.PublicVariant));
+            Assert.That(visitor.Primary.Description.ToString(), Is.EqualTo(visitor.OriginalDescription));
+            Assert.That(visitor.PublicVariant!.Description.ToString(), Is.EqualTo("Owner-specific public input documentation."));
+            if (cacheNameOwners)
+            {
+                var source = visitor.Primary.Property!;
+                Assert.That(CodeModelGenerator.Instance.TypeFactory.PropertyCache.TryGetValue(source.InputProperty!, out var cached), Is.True);
+                Assert.That(cached, Is.SameAs(source), "The fixture must exercise the cached source-owner property.");
+            }
+            if (model.BaseType!.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))))
+            {
+                var projected = model.BaseModelProvider!.CanonicalView.Properties.Single(property => property.Name == "Name");
+                Assert.That(projected.AsParameter.ToPublicInputParameter().Description.ToString(),
+                    Is.EqualTo(visitor.PublicVariant.Description.ToString()),
+                    "Projection must not discard a change made only to the source owner's public-input parameter.");
+            }
+            Assert.That(model.BaseType.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                "Restoration must not discard the source owner's customized public-input parameter.");
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task UniqueSourceOwnerPublicParameterVariantIsNotDiscarded(bool cacheSourceProperty, bool customizeVariant)
+        {
+            var visitor = new UniqueLocationPublicParameterChange(customizeVariant);
+            var model = await CreateModelAsync(includeChildName: true, cacheSourceProperty: cacheSourceProperty, visitor: visitor);
+            Assert.That(visitor.Primary, Is.Not.Null, "The visitor must reach the unique child-owned Location property.");
+            Assert.That(visitor.Variant, Is.SameAs(visitor.Primary!.ToPublicInputParameter()));
+            if (customizeVariant && model.BaseType!.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))))
+            {
+                var projected = model.BaseModelProvider!.CanonicalView.Properties.Single(property => property.Name == "Location");
+                Assert.That(projected.AsParameter.ToPublicInputParameter().Description.ToString(),
+                    Is.EqualTo(visitor.Variant!.Description.ToString()),
+                    "Projection must not discard customization of the unique source-owned public-input parameter.");
+            }
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(customizeVariant ? typeof(ResourceData) : typeof(TrackedResourceData))), Is.True,
+                "A customized public-input variant must be preserved or veto restoration; an unchanged variant must not block it.");
+        }
+
+        [Test]
+        public async Task DuplicateNameSourceOwnerMetadataIsNotDiscarded(
+            [Values("BotData", "Resource")] string ownerName,
+            [Values("docs", "ref")] string change,
+            [Values(false, true)] bool cacheNameOwners,
+            [Values(false, true)] bool childNameIsHttpMetadata)
+        {
+            var visitor = new DuplicateNameOwnerMetadataChange(ownerName, change);
+            var model = await CreateModelAsync(includeChildName: true, childNameIsHttpMetadata: childNameIsHttpMetadata,
+                cacheNameOwners: cacheNameOwners, visitor: visitor);
+            Assert.That(visitor.VisitedSourceOwner, Is.True);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                "Restoration must not discard source-owner metadata from either duplicate declaration.");
         }
 
         [TestCase(true, false, false)]
@@ -141,6 +395,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var model = await CreateModelAsync(visitor: new SourceOwnerVeto(), cacheSourceProperty: cacheRemoval);
             Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task SourceOwnerHistoricalTypeNormalizationIsPreserved(bool existingMappedCandidate, bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerShapeChange("historical-type");
+            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate,
+                visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.That(visitor.VisitedSourceOwner, Is.True);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(TrackedResourceData))), Is.True,
+                "A source-owner type normalization already represented by the historical member must be retained.");
+            var projected = ((SystemObjectModelProvider)model.BaseModelProvider!).Properties.Single(property => property.Name == "Location");
+            var source = CodeModelGenerator.Instance.TypeFactory.CreateProperty(model.InputModel.Properties[0], model)!;
+            Assert.That(source.Type, Is.EqualTo(new CSharpType(typeof(ResourceLocation))));
+            Assert.That(source.EnclosingType, Is.SameAs(model));
+            Assert.That(projected.Type, Is.EqualTo(source.Type));
+            Assert.That(model.Constructors.Any(constructor =>
+                constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                constructor.Signature.Parameters.Count == 1 &&
+                constructor.Signature.Parameters[0].Type.Equals(new CSharpType(typeof(ResourceLocation)))), Is.True);
+        }
+
+        [TestCase("historical-type-setter", false)]
+        [TestCase("historical-type-setter", true)]
+        [TestCase("historical-type-attribute", false)]
+        [TestCase("historical-type-attribute", true)]
+        [TestCase("historical-type-doc", false)]
+        [TestCase("historical-type-doc", true)]
+        [TestCase("historical-type-ref", false)]
+        [TestCase("historical-type-ref", true)]
+        [TestCase("historical-type-description", false)]
+        [TestCase("historical-type-description", true)]
+        [TestCase("historical-type-parameter-name", false)]
+        [TestCase("historical-type-parameter-name", true)]
+        [TestCase("historical-type-parameter-default", false)]
+        [TestCase("historical-type-parameter-default", true)]
+        [TestCase("historical-type-parameter-attribute", false)]
+        [TestCase("historical-type-parameter-attribute", true)]
+        [TestCase("historical-type-parameter-validation", false)]
+        [TestCase("historical-type-parameter-validation", true)]
+        public async Task SourceOwnerNormalizationWithOtherChangesRejectsRestoration(string change, bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerShapeChange(change);
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+            Assert.That(visitor.VisitedSourceOwner, Is.True);
+            Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True,
+                "A matching type must not mask other source-owner customizations.");
         }
 
         [TestCase("type", false)]
@@ -329,6 +635,42 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     case "type":
                         property.Type = new CSharpType(typeof(int));
                         break;
+                    case "historical-type":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)));
+                        break;
+                    case "historical-type-setter":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)), body: new AutoPropertyBody(false));
+                        break;
+                    case "historical-type-attribute":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)),
+                            attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]);
+                        break;
+                    case "historical-type-doc":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)),
+                            xmlDocs: new XmlDocProvider(new XmlDocSummaryStatement([$"Owner-specific documentation."])));
+                        break;
+                    case "historical-type-ref":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)), isRef: true);
+                        break;
+                    case "historical-type-description":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)), description: $"Owner-specific parameter documentation.");
+                        break;
+                    case "historical-type-parameter-name":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)));
+                        property.AsParameter.Update(name: "customLocation");
+                        break;
+                    case "historical-type-parameter-default":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)));
+                        property.AsParameter.Update(defaultValue: Snippet.Default);
+                        break;
+                    case "historical-type-parameter-attribute":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)));
+                        property.AsParameter.Update(attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]);
+                        break;
+                    case "historical-type-parameter-validation":
+                        property.Update(type: new CSharpType(typeof(ResourceLocation)));
+                        property.AsParameter.Update(validation: ParameterValidationType.AssertNotNull);
+                        break;
                     case "setter":
                         property.Body = new AutoPropertyBody(false);
                         break;
@@ -353,13 +695,138 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     ReferenceEquals(owner.InputModel, input.EnclosingType) ? null : property;
         }
 
+        private sealed class DuplicateNameOwnerVeto(string ownerName) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "name" && property?.EnclosingType is ModelProvider owner &&
+                    owner.InputModel.Name == ownerName && ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    VisitedSourceOwner = true;
+                    return null;
+                }
+                return property;
+            }
+        }
+
+        private sealed class DuplicateNameOwnerAttributeChange(string ownerName) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "name" && property?.EnclosingType is ModelProvider owner &&
+                    owner.InputModel.Name == ownerName && ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    VisitedSourceOwner = true;
+                    property.Update(attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]);
+                }
+                return property;
+            }
+        }
+
+        private sealed class DuplicateNameOwnerMetadataChange(string ownerName, string change) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "name" && property?.EnclosingType is ModelProvider owner &&
+                    owner.InputModel.Name == ownerName && ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    VisitedSourceOwner = true;
+                    if (change == "docs")
+                    {
+                        property.Update(xmlDocs: new XmlDocProvider(new XmlDocSummaryStatement([$"Owner-specific documentation."])));
+                    }
+                    else
+                    {
+                        property.Update(isRef: true);
+                    }
+                }
+                return property;
+            }
+        }
+
+        private sealed class DuplicateNameOwnerParameterChange(string ownerName) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "name" && property?.EnclosingType is ModelProvider owner &&
+                    owner.InputModel.Name == ownerName && ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    VisitedSourceOwner = true;
+                    property.AsParameter.Update(description: $"Owner-specific parameter documentation.");
+                }
+                return property;
+            }
+        }
+
+        private sealed class DuplicateNameOwnerPublicParameterChange(string ownerName, bool changeDescription = true) : LibraryVisitor
+        {
+            public ParameterProvider? Primary { get; private set; }
+            public ParameterProvider? PublicVariant { get; private set; }
+            public string? OriginalDescription { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "name" && property?.EnclosingType is ModelProvider owner &&
+                    owner.InputModel.Name == ownerName && ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    var primary = property.AsParameter;
+                    var variant = primary.ToPublicInputParameter();
+                    OriginalDescription = primary.Description.ToString();
+                    if (changeDescription)
+                    {
+                        variant.Update(description: $"Owner-specific public input documentation.");
+                    }
+                    Primary = primary;
+                    PublicVariant = variant;
+                }
+                return property;
+            }
+        }
+
+        private sealed class UniqueLocationPublicParameterChange(bool customizeVariant) : LibraryVisitor
+        {
+            public ParameterProvider? Primary { get; private set; }
+            public ParameterProvider? Variant { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "location" && property?.EnclosingType is ModelProvider owner &&
+                    owner.InputModel.Name == "BotData" && ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    var primary = property.AsParameter;
+                    var variant = primary.ToPublicInputParameter();
+                    if (customizeVariant)
+                    {
+                        variant.Update(description: $"Owner-specific public location documentation.");
+                    }
+                    Primary = primary;
+                    Variant = variant;
+                }
+                return property;
+            }
+        }
+
         private static async Task<ModelProvider> CreateModelAsync(
             bool incompatibleLocationType = false,
             bool readOnlyLocation = false,
             bool readOnlyTags = false,
             bool existingMappedCandidate = false,
             LibraryVisitor? visitor = null,
-            bool cacheSourceProperty = false)
+            bool cacheSourceProperty = false,
+            bool includeChildName = false,
+            bool childNameIsHttpMetadata = false,
+            bool includeIntermediateHttpName = false,
+            string? childNameWire = null,
+            bool cacheNameOwners = false,
+            string? duplicateNameVariant = null)
         {
             // Reproduces #12304: Bot -> ProxyResource -> Resource, with location/tags owned by Bot.
             // A downstream generator maps ProxyResource to ResourceData, while the last public
@@ -367,10 +834,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var resource = InputFactory.Model("Resource", properties:
             [
                 InputFactory.Property("id", InputPrimitiveType.String, isReadOnly: true),
-                InputFactory.Property("name", InputPrimitiveType.String, isReadOnly: true),
+                InputFactory.Property("name", InputPrimitiveType.String,
+                    isRequired: duplicateNameVariant == "weaken-requiredness", isReadOnly: true,
+                    defaultValue: duplicateNameVariant == "ancestor-default" ? InputFactory.Constant.String("default") : null,
+                    serializationOptions: includeChildName ? InputFactory.Serialization.Options(json: InputFactory.Serialization.Json("name")) : null,
+                    apiVersions: includeChildName ? ["v3", "v4"] : null),
                 InputFactory.Property("type", InputPrimitiveType.String, isReadOnly: true),
+                .. duplicateNameVariant == "same-ancestor" ? new[] { InputFactory.Property("name", InputPrimitiveType.String,
+                    isReadOnly: true, serializationOptions: InputFactory.Serialization.Options(json: InputFactory.Serialization.Json("name"))) } : [],
             ]);
-            var proxyResource = InputFactory.Model("ProxyResource", properties: [], baseModel: resource);
+            var proxyResource = InputFactory.Model("ProxyResource", properties:
+                includeIntermediateHttpName
+                    ? [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, isReadOnly: true,
+                        isHttpMetadata: true, serializationOptions: InputFactory.Serialization.Options(json: InputFactory.Serialization.Json("name")))]
+                    : [], baseModel: resource);
             var locationType = new InputPrimitiveType(InputPrimitiveTypeKind.String, "azureLocation", "Azure.Core.azureLocation");
             var bot = InputFactory.Model("BotData", baseModel: proxyResource, properties:
             [
@@ -378,7 +855,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     isRequired: false, isReadOnly: readOnlyLocation),
                 InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String),
                     isRequired: false, isReadOnly: readOnlyTags),
+                .. includeChildName ? new[] { InputFactory.Property(
+                    duplicateNameVariant == "different-raw-name" ? "Name" : "name", InputPrimitiveType.String,
+                    isRequired: duplicateNameVariant != "weaken-requiredness", isReadOnly: true,
+                    isHttpMetadata: childNameIsHttpMetadata,
+                    isApiVersion: duplicateNameVariant == "api-version", wireName: childNameWire ?? "name",
+                    serializationOptions: InputFactory.Serialization.Options(json: InputFactory.Serialization.Json(
+                        duplicateNameVariant == "serialization" ? "differentName" : "name"))) } : [],
+                .. duplicateNameVariant == "same-owner" ? new[] { InputFactory.Property("name", InputPrimitiveType.String,
+                    isRequired: true, isReadOnly: true, serializationOptions: InputFactory.Serialization.Options(json: InputFactory.Serialization.Json("name"))) } : [],
             ]);
+            if (includeChildName)
+            {
+                var childName = bot.Properties.First(property => property.Name is "name" or "Name");
+                typeof(InputProperty).GetProperty(nameof(InputProperty.Decorators))!.GetSetMethod(true)!
+                    .Invoke(childName, [new[] { new InputDecoratorInfo("TypeSpec.@pattern", null) }]);
+                if (duplicateNameVariant == "visibility")
+                {
+                    childName.Update(visibility: InputVisibility.Read);
+                }
+                if (duplicateNameVariant == "ancestor-decorator")
+                {
+                    var ancestorName = resource.Properties.Single(property => property.Name == "name");
+                    typeof(InputProperty).GetProperty(nameof(InputProperty.Decorators))!.GetSetMethod(true)!
+                        .Invoke(ancestorName, [new[] { new InputDecoratorInfo("TypeSpec.@pattern", null) }]);
+                }
+            }
             var mappedInput = InputFactory.Model("MappedTrackedResource", properties: []);
             CSharpType? requestedBase = null;
 
@@ -395,6 +897,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     if (input == bot && cacheSourceProperty)
                     {
                         CodeModelGenerator.Instance.TypeFactory.CreateProperty(bot.Properties[0], provider);
+                    }
+                    if (cacheNameOwners && (input == bot || input == resource))
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateProperty(input.Properties.Single(property => property.Name == "name"), provider);
                     }
                     return provider;
                 },
@@ -426,7 +932,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     // Model the downstream generator's known envelope contract, including mutable,
                     // getter-only Tags. Do not relax the upstream default accessor/type policy.
                     var currentType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input.Type);
-                    var validReadOnly = input.Name switch
+                    var validReadOnly = input.Name.ToLowerInvariant() switch
                     {
                         "location" or "tags" => !input.IsReadOnly,
                         "id" or "name" or "type" => input.IsReadOnly,
@@ -451,9 +957,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 CodeModelGenerator.Instance.AddVisitor(visitor);
             }
 
-            var model = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .OfType<ModelProvider>()
-                .Single(provider => provider.Name == "BotData");
+            // Same-owner duplicate names are invalid as a full output model, but the base
+            // projection must still reject them without relying on model-factory construction.
+            var model = duplicateNameVariant is "same-owner" or "same-ancestor"
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(bot)!
+                : CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                    .OfType<ModelProvider>()
+                    .Single(provider => provider.Name == "BotData");
 
             // Prove historical candidate resolution succeeds; rejection must not be caused by a missing baseline.
             _ = model.BaseType;

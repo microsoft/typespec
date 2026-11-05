@@ -1290,7 +1290,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var bodyParamProvider = convenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body);
             var nonBodyProperties = bodyModel?.CanonicalView.Properties
                 .Where(p => p.WireInfo?.IsHttpMetadata == true)
-                .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
+                .Select(p => (WireName: p.WireInfo!.SerializedName, Property: p, InputName: (string?)null)).ToList();
+            if (bodyModel?.BaseModelProvider is SystemObjectModelProvider mappedBase)
+            {
+                nonBodyProperties!.AddRange(mappedBase.GetMappedHttpMetadataProperties()
+                    .Select(alias => (alias.Metadata.SerializedName, alias.Property, (string?)alias.Metadata.Name)));
+            }
 
             var convenienceParamsMap = convenienceMethodParameters.ToDictionary(
                 parameter => parameter.InputParameter?.Name ?? parameter.WireInfo.SerializedName,
@@ -1305,19 +1310,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Try to find the corresponding convenience parameter using MethodParameterSegments
-                if (protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 }
-                    && nonBodyProperties?.ContainsKey(protocolParam.Name) != true)
+                // Explicit segments identify the source property path; an alias with the same
+                // wire name must not replace a different, possibly nested, body property.
+                var segments = protocolParam.InputParameter?.MethodParameterSegments;
+                if (segments is { Count: > 1 })
                 {
                     // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
-                    var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
+                    var rootParameterName = segments[0].Name;
                     if (!convenienceParamsMap.TryGetValue(rootParameterName, out var convenienceParam))
                     {
+                        // This parameter previously could fall back to a same-named body member.
+                        // Do not guess its source or silently shift subsequent positional arguments.
+                        if (nonBodyProperties?.Any(candidate => candidate.WireName == protocolParam.Name ||
+                            candidate.WireName == protocolParam.WireInfo.SerializedName) == true)
+                        {
+                            throw new InvalidOperationException($"Cannot resolve segmented parameter '{protocolParam.Name}': root '{rootParameterName}' was not found.");
+                        }
                         continue;
                     }
 
-                    // Body parameters are handled separately.
-                    if (convenienceParam.Location == ParameterLocation.Body)
+                    // Actual body content is handled separately, but a path/query/header argument
+                    // may also be sourced from a property of the convenience body model.
+                    if (convenienceParam.Location == ParameterLocation.Body && protocolParam.Location == ParameterLocation.Body)
                     {
                         if (protocolParam.IsContentParameter
                             && convenienceParam.Type.IsIAsyncEnumerableOfT
@@ -1329,7 +1343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
 
                     // Navigate through the property path
-                    var propertySegments = protocolParam.InputParameter.MethodParameterSegments
+                    var propertySegments = segments
                         .Skip(1)
                         .Select(p => p.Name)
                         .ToList();
@@ -1337,18 +1351,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
                         typeProvider is ModelProvider paramModel)
                     {
-                        var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments, out var leafProperty);
-                        var unwrapValue = leafProperty.Type is { IsValueType: true, IsNullable: true } &&
+                        var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments,
+                            out var leafProperty, out var hasConditionalAccess, requireInputName: convenienceParam.Location == ParameterLocation.Body);
+                        if (convenienceParam.Location == ParameterLocation.Body && RequiresMappedEnumWireConversion(leafProperty, protocolParam))
+                        {
+                            throw new InvalidOperationException($"Cannot forward mapped HTTP metadata enum property '{leafProperty.Name}' " +
+                                $"to protocol parameter '{protocolParam.Name}' without enum serialization.");
+                        }
+                        var unwrapValue = leafProperty.Type.IsValueType &&
+                            (leafProperty.Type.IsNullable || hasConditionalAccess) &&
                             protocolParam.Type is { IsValueType: true, IsNullable: false };
                         if (unwrapValue)
                         {
-                            propertyExpression = propertyExpression.Property("Value");
+                            // A conditional intermediate lifts the whole expression to nullable. A cast
+                            // unwraps that complete expression; appending .Value would remain inside the
+                            // conditional chain and still yield a nullable result.
+                            propertyExpression = hasConditionalAccess
+                                ? propertyExpression.CastTo(leafProperty.Type.WithNullable(false))
+                                : propertyExpression.Property("Value");
                         }
 
                         // When the options property is an enum but the protocol method flattens it to its
                         // serialized (string/number) form, serialize it before forwarding, mirroring the
                         // conversion applied to non-grouped enum convenience parameters below.
-                        if (leafProperty.Type.IsEnum && !protocolParam.Type.IsEnum)
+                        if (convenienceParam.Location != ParameterLocation.Body && leafProperty.Type.IsEnum && !protocolParam.Type.IsEnum)
                         {
                             if (leafProperty.Type.IsNullable && !unwrapValue)
                             {
@@ -1358,6 +1384,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
 
                         AddArgument(protocolParam, propertyExpression);
+                    }
+                    else if (convenienceParam.Location == ParameterLocation.Body)
+                    {
+                        throw new InvalidOperationException($"Cannot resolve the property path for body parameter '{convenienceParam.Name}'.");
                     }
                 }
                 else
@@ -1470,6 +1500,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 conversions.Add(requireNamedArgs ? protocolParam.PositionalReference(argument) : argument);
             }
 
+            bool IsMappedHttpAlias(PropertyProvider property)
+                => nonBodyProperties?.Any(candidate => candidate.InputName is not null && ReferenceEquals(candidate.Property, property)) == true ||
+                    property.EnclosingType is SystemObjectModelProvider mapped &&
+                    mapped.GetMappedHttpMetadataProperties().Any(alias => ReferenceEquals(alias.Property, property));
+
+            bool RequiresMappedEnumWireConversion(PropertyProvider property, ParameterProvider protocolParam)
+            {
+                var type = property.Type;
+                if (!IsMappedHttpAlias(property) || !type.IsEnum || protocolParam.Type.IsEnum)
+                {
+                    return false;
+                }
+                // Native fixed enums cannot implicitly convert to unrelated primitive wire types.
+                // Extensible structs can declare public conversions, so leave those to the separate
+                // general enum-forwarding work rather than rejecting them based on an assumption.
+                var fixedEnum = type.IsFrameworkType ? type.FrameworkType.IsEnum : !type.IsStruct;
+                if (!fixedEnum || !protocolParam.Type.IsFrameworkType)
+                {
+                    return false;
+                }
+                var target = protocolParam.Type.FrameworkType;
+                return target.IsPrimitive || target == typeof(string) || target == typeof(decimal);
+            }
+
             bool TryGetNonBodyModelPropertyConversion(ParameterProvider protocolParam, out ValueExpression conversion)
             {
                 conversion = Default;
@@ -1483,10 +1537,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return false;
                 }
 
-                if (nonBodyProperties.TryGetValue(protocolParam.WireInfo.SerializedName, out var nonBodyProperty) ||
-                    nonBodyProperties.TryGetValue(protocolParam.Name, out nonBodyProperty))
+                var matches = FindByWireName(protocolParam.WireInfo.SerializedName);
+                if (matches.Length == 0)
                 {
-                    conversion = bodyParamProvider.Property(nonBodyProperty.Name);
+                    matches = FindByWireName(protocolParam.Name);
+                }
+                if (matches.Length > 1)
+                {
+                    throw new InvalidOperationException($"Ambiguous HTTP metadata property for '{protocolParam.Name}' " +
+                        $"with wire name '{protocolParam.WireInfo.SerializedName}'.");
+                }
+                if (matches is [var nonBodyProperty])
+                {
+                    if (RequiresMappedEnumWireConversion(nonBodyProperty, protocolParam))
+                    {
+                        throw new InvalidOperationException($"Cannot forward mapped HTTP metadata enum property '{nonBodyProperty.Name}' " +
+                            $"to protocol parameter '{protocolParam.Name}' without enum serialization.");
+                    }
+                    var inputName = nonBodyProperties.FirstOrDefault(candidate => candidate.InputName is not null &&
+                        ReferenceEquals(candidate.Property, nonBodyProperty)).InputName;
+                    conversion = inputName is null ? bodyParamProvider.Property(nonBodyProperty.Name) :
+                        bodyModel.GetPropertyExpression(bodyParamProvider, [inputName], out _, requireInputName: true);
                     if (nonBodyProperty.Type is { IsValueType: true, IsNullable: true } &&
                         protocolParam.Type is { IsValueType: true, IsNullable: false })
                     {
@@ -1496,6 +1567,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 return false;
+
+                PropertyProvider[] FindByWireName(string name) => [.. nonBodyProperties
+                    .Where(candidate => candidate.WireName == name)
+                    .Select(candidate => candidate.Property)
+                    .Distinct<PropertyProvider>(ReferenceEqualityComparer.Instance)];
             }
 
             return conversions;

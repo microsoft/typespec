@@ -56,6 +56,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal IEnumerable<string> DeclaredMemberNames => _namedTypeSymbol.GetMembers().Select(member => member.Name);
 
+        internal bool HasReadableInstancePropertyInSameAssembly(string name)
+        {
+            var properties = _namedTypeSymbol.GetMembers(name).OfType<IPropertySymbol>().ToArray();
+            return properties is [var property] && !property.IsStatic && !property.IsIndexer &&
+                property.ExplicitInterfaceImplementations.IsEmpty && property.GetMethod is { } getter &&
+                getter.DeclaredAccessibility is Accessibility.Public or Accessibility.Internal or Accessibility.ProtectedOrInternal;
+        }
+
         private static bool HasExperimentalAttribute(ISymbol symbol)
             => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName);
 

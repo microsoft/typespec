@@ -3828,6 +3828,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.That(protocolMethod!.BodyStatements!.ToDisplayString(), Does.Contain("options.BandIndex"));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BodyMetadataSegmentsRequireTheDeclaredRoot(bool missingRoot)
+        {
+            var request = InputFactory.Model("RequestModel", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
+                InputFactory.Property("data", InputPrimitiveType.String, isRequired: true),
+            ], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var query = InputFactory.QueryParameter("name", InputPrimitiveType.String, isRequired: true);
+            query.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter(missingRoot ? "missing" : "request", request, isRequired: true, location: InputRequestLocation.Body),
+                InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var body = InputFactory.BodyParameter("body", request, isRequired: true);
+            var service = InputFactory.BasicServiceMethod("Update",
+                InputFactory.Operation("Update", parameters: [query, body], responses: [InputFactory.OperationResponse([200])]),
+                parameters: [InputFactory.MethodParameter("request", request, isRequired: true, location: InputRequestLocation.Body)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [service]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [request], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            if (missingRoot)
+            {
+                var error = Assert.Throws<InvalidOperationException>(() => _ = new ScmMethodProviderCollection(service, client).ToArray());
+                Assert.That(error!.Message, Does.Contain("missing"));
+                return;
+            }
+            var convenience = new ScmMethodProviderCollection(service, client).First(method => method.Signature.Name == "Update" &&
+                method.Signature.Parameters.Any(parameter => parameter.Type.Name == "CancellationToken"));
+            Assert.That(convenience.BodyStatements!.ToDisplayString(), Does.Contain("request.Name"));
+        }
+
         [Test]
         public async Task MethodParameterSegments_EnumGroupedQueryParam_SerializesToProtocol()
         {
