@@ -1,5 +1,20 @@
 # Change Log - @typespec/http-client-python
 
+## 0.40.0
+
+### Features
+
+- [#12161](https://github.com/microsoft/typespec/pull/12161) Add Python 3.15 to generated package classifiers.
+
+### Bug Fixes
+
+- [#12326](https://github.com/microsoft/typespec/pull/12326) Preserve raw byte streaming for XML responses using the legacy bytes encoding instead of deserializing them as XML string scalars.
+- [#12281](https://github.com/microsoft/typespec/pull/12281) Prevent Pylint `too-many-statements` errors in generated synchronous and asynchronous structured-stream operations with SSE event dispatch. Scope the suppression to operation implementations, leaving overload declarations and non-structured-stream operations unchanged.
+- [#12342](https://github.com/microsoft/typespec/pull/12342) Escape string literals and wire names in generated Python declarations, discriminator initializers, field metadata, and templates to preserve specification values as data.
+- [#12127](https://github.com/microsoft/typespec/pull/12127) Fix the `:vartype` docstring of constant enum values (such as discriminator properties on polymorphic subclasses) to reference the enum class instead of a non-existent module-level symbol named after the enum member.
+- [#10329](https://github.com/microsoft/typespec/pull/10329) Preserve underscores before numeric enum segments and acronyms such as `A2A` without changing numeric identifiers such as `int32`.
+
+
 ## 0.39.0
 
 ### Features
