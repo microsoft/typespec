@@ -488,7 +488,7 @@ stages:
                 workingDirectory: $(buildArtifactsPath)/packages
 
               - ${{ if eq(parameters.Publish, 'public') }}:
-                  - task: EsrpRelease@11
+                  - task: EsrpRelease@14
                     inputs:
                       displayName: Publish to npmjs.org
                       ConnectedServiceName: Azure SDK PME Managed Identity
