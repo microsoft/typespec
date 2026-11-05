@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            var result = Create(providers, sourceInputs.Compilation, shouldWrite, outputDirectory);
+            var result = CreateCore(providers, sourceInputs.Compilation, shouldWrite, outputDirectory, sourceInputs, sourceModel);
             result._sourceInputs = sourceInputs;
             result._sourceModel = sourceModel;
             result._sourceOutputDirectory = outputDirectory;
@@ -106,8 +106,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Compilation? customization,
             Func<TypeProvider, bool> shouldWrite,
             string? outputDirectory = null)
+            => CreateCore(providers, customization, shouldWrite, outputDirectory, null, null);
+
+        private static PreparedFieldTypes CreateCore(IEnumerable<TypeProvider> providers, Compilation? customization,
+            Func<TypeProvider, bool> shouldWrite, string? outputDirectory, CompleteSourceInputSnapshot? sourceInputs, SourceInputModel? sourceModel)
         {
-            var result = new PreparedFieldTypes();
+            var result = new PreparedFieldTypes
+            {
+                _sourceInputs = sourceInputs,
+                _sourceModel = sourceModel,
+                _sourceOutputDirectory = sourceInputs is null ? null : outputDirectory
+            };
             if (providers is not IReadOnlyList<TypeProvider> roots || !ContractCollections.TryCopy(roots, out var capturedRoots) ||
                 customization is not CSharpCompilation compilation || HasUnsupportedSource(compilation))
             {
@@ -290,9 +299,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            result.CaptureSourceFiles(topLevel, compilation, roots);
+            result.CaptureSourceFiles(topLevel, compilation, roots, all, byName, namespacePrefixes,
+                rootStates.All(root => root.Written && root.SerializationWritten.All(written => written)));
 
-            if (result._owners.Count == 0)
+            result.CaptureBodyNames();
+            if (result._owners.Count == 0 && !result.HasBodyNameCandidates)
             {
                 return result;
             }
@@ -327,6 +338,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // that later namespace registration does not violate the captured scope.
         internal void ObserveImport(TypeProvider fileOwner, string namespaceName)
         {
+            ObserveBodyImport(fileOwner, namespaceName);
             if (_owners.TryGetValue(fileOwner, out var owner) && owner.ForbiddenImports is { } forbidden &&
                 (namespaceName.Split('.').Any(part => !IsSimpleIdentifier(part)) || forbidden.Contains(namespaceName)))
             {
@@ -336,6 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public void Dispose()
         {
+            System.Threading.Interlocked.Exchange(ref _sharedSnapshotStale, 1);
             Invalidate();
             InvalidateSourceFiles();
             foreach (var provider in _attached)
@@ -422,7 +435,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (!Validate(ReferenceEquals(candidate.FieldType, field.Type) && ReferenceEquals(state.Type, owner.Type) &&
                 ReferenceEquals(field.EnclosingType, owner) &&
-                owner.Fields.Count(current => ReferenceEquals(current, field)) == 1))
+                owner.Fields.Count(current => ReferenceEquals(current, field)) == 1 &&
+                IsTargetCurrent(state, candidate) && IsSupportedDeclarationGroup(state.Parts, requireSimpleScope: true)))
             {
                 return false;
             }
@@ -454,7 +468,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Resolve only the bounded top-level same-namespace case; never construct
         // generated syntax or speculate on a generated expression to make this decision.
         private static INamedTypeSymbol? ResolveReferencedTarget(CSharpCompilation compilation, CSharpType type,
-            IReadOnlyDictionary<(string Namespace, string Name), TypeProvider[]> generated)
+            IReadOnlyDictionary<(string Namespace, string Name), TypeProvider[]> generated, bool forStaticCall = false, bool forLoadedSourceCall = false)
         {
             var current = compilation.GlobalNamespace;
             var prefix = string.Empty;
@@ -475,12 +489,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var targets = current.GetMembers(type.Name).Take(2).ToArray();
             if (targets.Length != 1 || targets[0] is not INamedTypeSymbol target || target.Arity != 0 || target.ContainingType is not null ||
                 target.TypeKind is not (TypeKind.Class or TypeKind.Struct or TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate) ||
-                target.SpecialType != SpecialType.None || target.IsStatic ||
-                target.Locations.Any(location => location.IsInSource) ||
-                SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly) ||
+                !forStaticCall && (target.SpecialType != SpecialType.None || target.IsStatic) ||
                 !compilation.IsSymbolAccessibleWithin(target, compilation.Assembly))
             {
                 return null;
+            }
+
+            if (target.Locations.Any(location => location.IsInSource) || SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly))
+            {
+                // Call-only admission for an already loaded declaration. Field
+                // spelling and metadata value-type lookup keep their old veto.
+                return forStaticCall && forLoadedSourceCall && !target.IsFileLocal && target.TypeKind == TypeKind.Class &&
+                    target.BaseType?.SpecialType == SpecialType.System_Object && target.DeclaringSyntaxReferences.Length != 0 &&
+                    SymbolEqualityComparer.Default.Equals(target.ContainingAssembly, compilation.Assembly) &&
+                    target.DeclaringSyntaxReferences.All(r => compilation.ContainsSyntaxTree(r.SyntaxTree)) ? target : null;
             }
 
             // Extern-alias-only metadata is not visible to the writer's unaliased
@@ -529,7 +551,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return names;
         }
 
-        private bool IsSnapshotCurrent()
+        private bool CheckSnapshotCurrent()
         {
             if (!SourceInputsAreCurrent() || _roots is null || _outputRoot is null || _shouldWrite is null ||
                 !SameReferences(_roots, _rootSnapshot))

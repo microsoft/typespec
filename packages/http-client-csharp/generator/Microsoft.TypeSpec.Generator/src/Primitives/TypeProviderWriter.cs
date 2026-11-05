@@ -14,6 +14,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         internal PreparedFieldTypes? PreparedFieldTypes { get; set; }
 
+        internal bool OwnsPreparation(PreparedFieldTypes preparation, TypeProvider owner) =>
+            GetType() == typeof(TypeProviderWriter) && ReferenceEquals(PreparedFieldTypes, preparation) && ReferenceEquals(_provider, owner);
+
         public TypeProviderWriter(TypeProvider provider)
         {
             _provider = provider;
@@ -25,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (PreparedFieldTypes is not null && GetType() == typeof(TypeProviderWriter))
             {
                 writer.EnableQualifiedFallback(PreparedFieldTypes, _provider);
-                writer.AttachSourceFile(PreparedFieldTypes, _provider);
+                writer.AttachSourceFile(PreparedFieldTypes, _provider, this);
             }
             PreparedFieldTypes?.ObserveSnapshot();
             using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
@@ -39,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
             }
             var content = writer.ToString();
-            return new CodeFile(content, _provider.RelativeFilePath, writer.QualifiedContent, writer.CompleteSourceFile());
+            return new CodeFile(content, _provider.RelativeFilePath, writer.QualifiedContent, writer.CompleteSourceFile(), writer.NameAlternatives);
         }
 
         private bool IsPublicContext(TypeProvider provider)

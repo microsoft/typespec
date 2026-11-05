@@ -70,8 +70,30 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal static DeclaredCallableContract FromSymbol(IMethodSymbol symbol, Compilation compilation)
         {
             var declaration = symbol.ReducedFrom ?? symbol;
+            // ReducedFrom may expose the unconstructed generic definition even
+            // when the actual reduced symbol already carries inferred arguments.
+            // Reconstruct the native original form, never a signature/type hint.
+            if (symbol.ReducedFrom is not null && declaration.Arity != 0)
+            {
+                if (symbol.TypeArguments.Length != declaration.Arity) { return Unavailable("Incomplete reduced type arguments."); }
+                declaration = declaration.ConstructedFrom.Construct(symbol.TypeArguments.ToArray());
+            }
             var definition = declaration.PartialDefinitionPart ?? declaration;
             var implementation = definition.PartialImplementationPart;
+            // Constructed generic methods can lose their partial links. Retain
+            // both actual native counterparts, with the selected type arguments,
+            // when no containing-type substitution is required. DeclarationSymbol
+            // remains the selected symbol, not the unconstructed source intent.
+            var original = declaration.OriginalDefinition;
+            var originalDefinition = original.PartialDefinitionPart ?? original;
+            if (implementation is null && declaration.IsGenericMethod && !declaration.IsDefinition &&
+                originalDefinition.PartialImplementationPart is { } originalImplementation &&
+                SymbolEqualityComparer.Default.Equals(originalDefinition.ContainingType, declaration.ContainingType))
+            {
+                var arguments = declaration.TypeArguments.ToArray();
+                definition = originalDefinition.Construct(arguments);
+                implementation = originalImplementation.Construct(arguments);
+            }
             var result = new DeclaredCallableContract
             {
                 OriginalSymbol = symbol,

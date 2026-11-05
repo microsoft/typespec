@@ -9,7 +9,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         internal override void WriteCore(CodeWriter writer)
         {
-            writer.Append($"typeof({Type})");
+            writer.AppendRaw("typeof(");
+            if (!writer.TryWritePreparedTypeOfOperand(this)) { writer.Append($"{Type}"); }
+            writer.AppendRaw(")");
         }
     }
 }
