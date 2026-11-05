@@ -10,9 +10,12 @@ recorded in the checklist and removed from the implementation instructions here.
 Do not rebuild that slice or rerun unchanged experiments as a prerequisite for
 moving forward.
 
-**Prioritize demonstrated reduction benefit over proof completeness.** The full
-checklist remains the acceptance inventory, including deferred original positives;
-its 35 open rows are not all prerequisites for the adjusted next milestone.
+**Prioritize demonstrated reduction benefit over proof completeness.** The
+[scoped completion checklist](./pre-emission-task03-checklist.md) now defines the
+actual Task03 completion contract: its four remaining items govern closure.
+The former 39-item inventory is a deferred roadmap, not an additional completion
+gate. Original acceptance rows must remain covered or explicitly assigned to
+later owning tasks; none is erased by scoped Task03 completion.
 
 ## 1. Map acceptance and select the next high-yield slice
 
@@ -45,7 +48,7 @@ the objective includes retiring `Simplifier` cost, also identify files that can
 stop invoking it; token shortening alone does not establish runtime savings.
 This is selection evidence, not a new benchmark gate.
 
-## 2. Implement only the selected consumer's shared prerequisites
+## 2. Confirm the shared boundary and fix only required core gaps
 
 The current body permission has deliberate coverage limits: one owner/source
 file, a specific two-statement declaration-plus-return-call shape, and supported
@@ -54,7 +57,7 @@ broad SDK applicability.
 
 Use the acceptance/benefit map to decide which boundary, if any, to broaden next.
 Do not remove restrictions blindly or extend all call, generic, delegate and
-implicit-operation profiles merely because they appear in the full checklist.
+implicit-operation profiles merely because they appear in the historical inventory.
 A new proof is justified only when it:
 
 - Enables the selected raw reduction through an identified consumer.
@@ -66,12 +69,14 @@ machinery. Do not introduce another analysis framework or preparation lifecycle.
 A missing fact remains unknown; defer the affected reduction rather than skipping
 its proof and rewriting anyway.
 
-Task04 owns its role/construction changes. Identify and implement only its
-necessary shared Task03 prerequisites; coordinate dependency changes explicitly.
-Do not make ordinary declaration work wait for every advanced Task03 row, or
-implement other tasks as an untracked Task03 workaround.
+Task04 owns its role/construction changes. Identify only its necessary shared
+prerequisites and coordinate dependency changes explicitly. Another reduction
+family is not required merely to close Task03; R2 requires a usable, documented
+core boundary and fixes for identified core defects. Any added core prerequisite
+must be bounded and validated. Do not make ordinary declaration work wait for the
+deferred roadmap or implement other tasks as an untracked Task03 workaround.
 
-## 3. Prove integration for the newly adopted shape
+## 3. Integration evidence when adopting later profiles
 
 Carry existing admission, source-policy, import, identity, currentness and fallback
 controls onto each selected expansion. Add only integration evidence made relevant
@@ -88,8 +93,9 @@ by the newly adopted behavior:
   retain locally or invalidate the dependent decision; unrelated safe decisions
   must not be lost.
 
-Use faithful existing fixtures where possible. These are targeted evidence gaps,
-not instructions to build a universal host or all-family combination matrix.
+Use faithful existing fixtures where possible. These are targeted evidence gaps
+for the task adopting the profile, not unconditional Task03 closure requirements
+or instructions to build a universal host or all-family combination matrix.
 
 ## 4. Validate and report the next stable checkpoint
 
@@ -99,12 +105,13 @@ broader/unfiltered checks and independent review at stable scope. Repeat checks
 invalidated by changes, not unchanged historical producer campaigns.
 
 Report the source revision, actual results, unresolved original positives and
-outstanding CI. Prior checkpoint passes do not validate new scope; partial scope
-completion does not establish full Task03, issue completion or default activation.
+outstanding CI. Prior checkpoint passes do not validate new scope. Close scoped
+Task03 only when the four checklist items are complete; this does not complete
+the original broad roadmap, issue #12454 or default activation.
 No SDK adoption/regeneration, performance claim, original PR or issue-comment
 change is implicitly authorized by this handoff.
 
-## Work still deferred from this milestone
+## Work deferred from scoped Task03
 
 | Area                                    | Boundary                                                                                                                                                                                      |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -115,8 +122,9 @@ change is implicitly authorized by this handoff.
 | General custom dispatch support         | Audit affecting adopted maps/factories/getters; do not certify arbitrary plugins. Unsupported affecting inputs must not be ignored.                                                           |
 | Final legacy removal                    | Task19. Preserve the existing residual migration path; do not add a new post-write decision owner or accept `global::` as final generated SDK spelling.                                       |
 
-Deferred accepted positives stay explicitly pending in the full inventory. A
-retention test does not close their missing shortening counterpart. No complete
+Deferred accepted positives stay explicitly pending in the historical inventory
+and their assigned owning tasks, reconciled by R1/R4. A retention test does not
+close their missing shortening counterpart. No complete
 language-family support is required simply because a row says "complete required";
 identify the original anchor, selected consumer and benefit first.
 
