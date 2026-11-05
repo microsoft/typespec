@@ -17,6 +17,9 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Animal))]
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(ConstructorBase))]
+    [ModelReaderWriterBuildable(typeof(ConstructorClientNameCollision))]
+    [ModelReaderWriterBuildable(typeof(ConstructorClientNameCollisionBase))]
+    [ModelReaderWriterBuildable(typeof(ConstructorClientNameCollisionLeaf))]
     [ModelReaderWriterBuildable(typeof(ConstructorInheritedLeaf))]
     [ModelReaderWriterBuildable(typeof(ConstructorOverride))]
     [ModelReaderWriterBuildable(typeof(ConstructorReadOnlyBase))]
@@ -40,6 +43,7 @@ namespace SampleTypeSpec
 #pragma warning restore CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
 #pragma warning restore SAMPLE0011 // global::SampleTypeSpec.LegacyDetails is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
+    [ModelReaderWriterBuildable(typeof(LiteralConstructorBase))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]
@@ -58,6 +62,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(RenamedConstructorLeaf))]
     [ModelReaderWriterBuildable(typeof(RenamedConstructorOverride))]
     [ModelReaderWriterBuildable(typeof(RenamedConstructorReturnedName))]
+    [ModelReaderWriterBuildable(typeof(RenamedLiteralConstructorOverride))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(RequiredRenamedConstructorOverride))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResult))]

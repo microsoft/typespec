@@ -634,6 +634,74 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Is.EqualTo(Helpers.GetExpectedFromFile(rename ? "Renamed" : null)).NoClip);
         }
 
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void RenamedNarrowedLiteralPreservesInitialization(bool baseRequired, bool includeMiddle)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: baseRequired)], usage: usage);
+            var middle = includeMiddle ? InputFactory.Model("Middle", properties: [], baseModel: baseModel, usage: usage) : baseModel;
+            var property = InputFactory.Property("renamedValue", InputFactory.Literal.String("fixed"), isRequired: true);
+            property.Update(originalName: "value");
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: includeMiddle ? [baseModel, middle, inputModel] : [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var output = provider.Properties.Single();
+
+            Assert.IsFalse(output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsInstanceOf<AutoPropertyBody>(output.Body);
+            Assert.IsEmpty(provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{(baseRequired ? "Required" : "Optional")}{(includeMiddle ? "Middle" : null)}")).NoClip);
+        }
+
+        [TestCase(false, false, false, "Resource")]
+        [TestCase(true, false, false, "Resource")]
+        [TestCase(true, true, false, "Resource")]
+        [TestCase(true, false, true, "Resource")]
+        [TestCase(true, false, false, "ValueProperty")]
+        public void DifferentDeclarationsWithSameClientNameRemainDistinct(bool collide, bool reserveSuffix, bool renameBase, string modelName)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json;
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, serializedName: "original");
+            baseProperty.Update(originalName: "original");
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: usage);
+            var middleProperty = InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true, serializedName: "original");
+            middleProperty.Update(originalName: "original");
+            var middle = renameBase ? InputFactory.Model("Middle", properties: [middleProperty], baseModel: baseModel, usage: usage) : baseModel;
+            var property = InputFactory.Property(collide ? "value" : "other", InputPrimitiveType.String, isRequired: true, serializedName: "other");
+            property.Update(originalName: "other");
+            var reservedProperty = InputFactory.Property("valueProperty", InputPrimitiveType.String, isRequired: true);
+            var inputModel = InputFactory.Model(modelName, properties: reserveSuffix ? [property, reservedProperty] : [property],
+                baseModel: middle, usage: usage);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: inputModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: renameBase ? [baseModel, middle, inputModel, leaf] : [baseModel, inputModel, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var output = provider.Properties.Single(p => p.InputProperty == property);
+            var expectedName = collide ? reserveSuffix || modelName == "ValueProperty" ? "ValueProperty1" : "ValueProperty" : "Other";
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.AreEqual(expectedName, output.Name);
+            Assert.IsNull(output.BaseProperty);
+            Assert.AreEqual("other", ((InputModelProperty)output.InputProperty!).OriginalName);
+            Assert.AreEqual("other", output.WireInfo!.SerializedName);
+            Assert.AreEqual(renameBase ? "BaseValue" : "Value", provider.BaseModelProvider!.Properties.Single().Name);
+            var expectedParameters = reserveSuffix ? new[] { "value", "valueProperty1", "valueProperty" }
+                : new[] { "value", expectedName.ToVariableName() };
+            if (renameBase)
+            {
+                expectedParameters[0] = "baseValue";
+            }
+            CollectionAssert.AreEqual(expectedParameters, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(expectedParameters, CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Constructors
+                .Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(modelName == "ValueProperty" ? "ModelName" : renameBase ? "RenamedBase" : reserveSuffix ? "Reserved" : collide ? "Collision" : "Distinct")).NoClip);
+        }
+
         [TestCase("value", true)]
         [TestCase("anotherValue", false)]
         public void RenamedOverridesRespectGrandparentMemberNames(string name, bool hidesGrandparent)

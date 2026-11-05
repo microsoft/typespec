@@ -1226,6 +1226,18 @@ interface ConstructorRequirements {
   @route("/constructor-required-collections")
   @put
   sendRequiredCollections(@body body: ConstructorRequiredCollectionOverride): void;
+
+  @route("/constructor-renamed-literal")
+  @post
+  sendRenamedLiteral(
+    @body body: RenamedLiteralConstructorOverride,
+  ): RenamedLiteralConstructorOverride;
+
+  @route("/constructor-client-name-collision")
+  @post
+  sendClientNameCollision(
+    @body body: ConstructorClientNameCollisionLeaf,
+  ): ConstructorClientNameCollisionLeaf;
 }
 
 model ConstructorReadOnlyBase {
@@ -1322,3 +1334,24 @@ model ConstructorRequiredCollectionOverride extends ConstructorReadOnlyCollectio
   @clientName("requiredValues", "csharp")
   values: Record<string>;
 }
+
+model LiteralConstructorBase {
+  value: string;
+}
+
+model RenamedLiteralConstructorOverride extends LiteralConstructorBase {
+  @clientName("renamedValue", "csharp")
+  value: "fixed";
+}
+
+model ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  original: string;
+}
+
+model ConstructorClientNameCollision extends ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  other: string;
+}
+
+model ConstructorClientNameCollisionLeaf extends ConstructorClientNameCollision {}

@@ -194,6 +194,44 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void RenamedNarrowedLiteralRetainsFixedValue()
+        {
+            var model = new RenamedLiteralConstructorOverride();
+            Assert.AreEqual("fixed", model.RenamedValue);
+            Assert.AreEqual("fixed", ((LiteralConstructorBase)model).Value);
+            using var json = JsonDocument.Parse(ModelReaderWriter.Write(model));
+            Assert.AreEqual("fixed", json.RootElement.GetProperty("value").GetString());
+            var roundTrip = ModelReaderWriter.Read<RenamedLiteralConstructorOverride>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("fixed", roundTrip.RenamedValue);
+            Assert.AreEqual("fixed", ((LiteralConstructorBase)roundTrip).Value);
+            Assert.Throws<ArgumentNullException>(() => new LiteralConstructorBase(null!));
+        }
+
+        [Test]
+        public void CollidingClientNamesPreserveBothDeclaredProperties()
+        {
+            var model = new ConstructorClientNameCollision("original", "other");
+            Assert.AreEqual("original", model.Value);
+            Assert.AreEqual("other", model.ValueProperty);
+            model.Value = "changed-original";
+            model.ValueProperty = "changed-other";
+            Assert.AreEqual("changed-original", ((ConstructorClientNameCollisionBase)model).Value);
+            using var json = JsonDocument.Parse(ModelReaderWriter.Write(model));
+            Assert.AreEqual("changed-original", json.RootElement.GetProperty("original").GetString());
+            Assert.AreEqual("changed-other", json.RootElement.GetProperty("other").GetString());
+            Assert.AreEqual(2, json.RootElement.EnumerateObject().Count());
+            var roundTrip = ModelReaderWriter.Read<ConstructorClientNameCollision>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("changed-original", roundTrip.Value);
+            Assert.AreEqual("changed-other", roundTrip.ValueProperty);
+            var leaf = new ConstructorClientNameCollisionLeaf("leaf-original", "leaf-other");
+            var roundTripLeaf = ModelReaderWriter.Read<ConstructorClientNameCollisionLeaf>(ModelReaderWriter.Write(leaf))!;
+            Assert.AreEqual("leaf-original", roundTripLeaf.Value);
+            Assert.AreEqual("leaf-other", roundTripLeaf.ValueProperty);
+            Assert.Throws<ArgumentNullException>(() => new ConstructorClientNameCollision(null!, "other"));
+            Assert.Throws<ArgumentNullException>(() => new ConstructorClientNameCollision("original", null!));
+        }
+
+        [Test]
         public void DogExtendsIntermediatePetModel()
         {
             // Verify that Dog extends Pet (not Animal directly) due to @Legacy.hierarchyBuilding(Pet)

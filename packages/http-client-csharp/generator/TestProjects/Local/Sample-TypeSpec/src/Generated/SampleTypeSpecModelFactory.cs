@@ -776,6 +776,47 @@ namespace SampleTypeSpec
             return new ConstructorRequiredCollectionOverride(additionalBinaryDataProperties: null, requiredItems.ToList(), requiredValues);
         }
 
+        /// <summary> The RenamedLiteralConstructorOverride. </summary>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedLiteralConstructorOverride"/> instance for mocking. </returns>
+        public static RenamedLiteralConstructorOverride RenamedLiteralConstructorOverride()
+        {
+            return new RenamedLiteralConstructorOverride(additionalBinaryDataProperties: null, "fixed");
+        }
+
+        /// <summary> The LiteralConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LiteralConstructorBase"/> instance for mocking. </returns>
+        public static LiteralConstructorBase LiteralConstructorBase(string value = default)
+        {
+            return new LiteralConstructorBase(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ConstructorClientNameCollisionLeaf. </summary>
+        /// <param name="value"></param>
+        /// <param name="valueProperty"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorClientNameCollisionLeaf"/> instance for mocking. </returns>
+        public static ConstructorClientNameCollisionLeaf ConstructorClientNameCollisionLeaf(string value = default, string valueProperty = default)
+        {
+            return new ConstructorClientNameCollisionLeaf(value, additionalBinaryDataProperties: null, valueProperty);
+        }
+
+        /// <summary> The ConstructorClientNameCollision. </summary>
+        /// <param name="value"></param>
+        /// <param name="valueProperty"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorClientNameCollision"/> instance for mocking. </returns>
+        public static ConstructorClientNameCollision ConstructorClientNameCollision(string value = default, string valueProperty = default)
+        {
+            return new ConstructorClientNameCollision(value, additionalBinaryDataProperties: null, valueProperty);
+        }
+
+        /// <summary> The ConstructorClientNameCollisionBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorClientNameCollisionBase"/> instance for mocking. </returns>
+        public static ConstructorClientNameCollisionBase ConstructorClientNameCollisionBase(string value = default)
+        {
+            return new ConstructorClientNameCollisionBase(value, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

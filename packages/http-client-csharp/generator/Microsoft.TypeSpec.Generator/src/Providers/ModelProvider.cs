@@ -901,6 +901,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(p => p.IsDiscriminator && p.SerializedName is not null)
                 .Select(p => p.SerializedName)
                 .ToHashSet();
+            HashSet<string>? reservedPropertyNames = null;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
@@ -924,6 +925,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (outputProperty is null)
                 {
                     continue;
+                }
+
+                if (EnumerateBaseModelProviders().Any(model =>
+                    (model is SystemObjectModelProvider mappedBase ? mappedBase.MappedInputProperties : model._inputModel.Properties)
+                        .Any(p => p.OriginalName != property.OriginalName
+                            && CodeModelGenerator.Instance.TypeFactory.CreateProperty(p, model)?.Name == outputProperty.Name))
+                    && EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p =>
+                        p.Name == outputProperty.Name && p.InputProperty is InputModelProperty inputProperty
+                        && inputProperty.OriginalName != property.OriginalName)))
+                {
+                    reservedPropertyNames ??= EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)
+                        .Concat(_inputModel.Properties.Select(p => CodeModelGenerator.Instance.TypeFactory.CreateProperty(p, this))
+                            .OfType<PropertyProvider>())
+                        .Select(p => p.Name).Append(Name).ToHashSet(StringComparer.Ordinal);
+                    var name = $"{outputProperty.Name}Property";
+                    var uniqueName = name;
+                    for (int suffix = 1; !reservedPropertyNames.Add(uniqueName); suffix++)
+                    {
+                        uniqueName = $"{name}{suffix}";
+                    }
+                    outputProperty.Update(name: uniqueName);
+                    outputProperty.SynchronizePropertyShape();
                 }
 
                 if (SharedCollectionFields.TryGetValue(property, out var ownCollectionField))
@@ -1026,12 +1049,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
                         else
                         {
-                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
-                            outputProperty.Body = new ExpressionPropertyBody(
-                                This.Property(fieldName).NullCoalesce(Default),
-                                outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
-                            outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
+                            if (EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                            }
+                            if (baseOutputProperty?.Name == outputProperty.Name
+                                || outputProperty.Body is not AutoPropertyBody { InitializationExpression: not null })
+                            {
+                                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                                outputProperty.Body = new ExpressionPropertyBody(
+                                    This.Property(fieldName).NullCoalesce(Default),
+                                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                                outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
+                            }
                         }
                         outputProperty.BaseProperty = baseOutputProperty;
                     }
@@ -2036,7 +2066,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : parameter;
             if (useFullBaseConstructor && availableParameters?.Any(p => p.Name == paramToUse.Name) != true)
             {
-                if (parameter.Property is { WireInfo.IsRequired: true, Type: { IsLiteral: true, IsNullable: false } } property)
+                if (paramToUse.Property is { WireInfo.IsRequired: true, Type: { IsLiteral: true, IsNullable: false } } property)
                 {
                     return Literal(property.Type.Literal);
                 }
