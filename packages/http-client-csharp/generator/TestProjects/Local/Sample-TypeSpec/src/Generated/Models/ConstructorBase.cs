@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SampleTypeSpec
 {
@@ -18,24 +19,37 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="ConstructorBase"/>. </summary>
         /// <param name="value"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        public ConstructorBase(string value)
+        /// <param name="items"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> or <paramref name="items"/> is null. </exception>
+        public ConstructorBase(string value, IEnumerable<string> items)
         {
             Argument.AssertNotNull(value, nameof(value));
+            Argument.AssertNotNull(items, nameof(items));
 
             Value = value;
+            Items = items.ToList();
         }
 
         /// <summary> Initializes a new instance of <see cref="ConstructorBase"/>. </summary>
         /// <param name="value"></param>
+        /// <param name="mode"></param>
+        /// <param name="items"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ConstructorBase(string value, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal ConstructorBase(string value, string mode, IList<string> items, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Value = value;
+            Mode = mode;
+            Items = items;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> Gets or sets the Value. </summary>
         public virtual string Value { get; set; }
+
+        /// <summary> Gets the Mode. </summary>
+        internal string Mode { get; } = "fixed";
+
+        /// <summary> Gets the Items. </summary>
+        public IList<string> Items { get; }
     }
 }

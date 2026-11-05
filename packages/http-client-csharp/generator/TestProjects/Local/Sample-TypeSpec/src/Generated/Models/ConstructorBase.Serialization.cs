@@ -80,6 +80,20 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStringValue(Value);
+            writer.WritePropertyName("mode"u8);
+            writer.WriteStringValue(Mode);
+            writer.WritePropertyName("items"u8);
+            writer.WriteStartArray();
+            foreach (string item in Items)
+            {
+                if (item == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStringValue(item);
+            }
+            writer.WriteEndArray();
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -123,6 +137,8 @@ namespace SampleTypeSpec
                 return null;
             }
             string value = default;
+            string mode = default;
+            IList<string> items = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -131,12 +147,34 @@ namespace SampleTypeSpec
                     value = prop.Value.GetString();
                     continue;
                 }
+                if (prop.NameEquals("mode"u8))
+                {
+                    mode = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("items"u8))
+                {
+                    List<string> array = new List<string>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.Null)
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            array.Add(item.GetString());
+                        }
+                    }
+                    items = array;
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ConstructorBase(value, additionalBinaryDataProperties);
+            return new ConstructorBase(value, mode, items ?? new ChangeTrackingList<string>(), additionalBinaryDataProperties);
         }
     }
 }

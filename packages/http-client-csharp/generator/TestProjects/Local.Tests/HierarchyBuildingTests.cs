@@ -16,16 +16,24 @@ namespace TestProjects.Local.Tests
         [Test]
         public void RelaxedOverrideCanBeConstructedWithoutRequiredBaseValue()
         {
-            var model = new ConstructorOverride();
+            var model = new ConstructorOverride(Enumerable.Repeat("item", 1));
             Assert.IsNull(model.Value);
+            Assert.AreEqual("fixed", model.Mode);
+            CollectionAssert.AreEqual(new[] { "item" }, model.Items);
             model.Value = "assigned";
             Assert.AreEqual("assigned", model.Value);
             using var json = JsonDocument.Parse(ModelReaderWriter.Write(model));
             Assert.AreEqual("assigned", json.RootElement.GetProperty("value").GetString());
-            Assert.AreEqual("assigned", ModelReaderWriter.Read<ConstructorOverride>(ModelReaderWriter.Write(model))!.Value);
+            Assert.AreEqual("fixed", json.RootElement.GetProperty("mode").GetString());
+            Assert.AreEqual("item", json.RootElement.GetProperty("items")[0].GetString());
+            var roundTrip = ModelReaderWriter.Read<ConstructorOverride>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("assigned", roundTrip.Value);
+            Assert.AreEqual("fixed", roundTrip.Mode);
+            CollectionAssert.AreEqual(new[] { "item" }, roundTrip.Items);
             Assert.AreEqual("assigned", ((ConstructorBase)model).Value);
-            Assert.Throws<ArgumentNullException>(() => new ConstructorBase(null!));
-            Assert.AreEqual("required", new ConstructorBase("required").Value);
+            Assert.Throws<ArgumentNullException>(() => new ConstructorOverride(null!));
+            Assert.Throws<ArgumentNullException>(() => new ConstructorBase(null!, ["item"]));
+            Assert.AreEqual("required", new ConstructorBase("required", ["item"]).Value);
         }
 
         [Test]

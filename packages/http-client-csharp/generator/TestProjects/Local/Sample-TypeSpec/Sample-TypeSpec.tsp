@@ -1169,6 +1169,8 @@ interface DeprecationSamples {
 
 model ConstructorBase {
   value: string;
+  mode: "fixed";
+  items: string[];
 }
 
 model ConstructorOverride extends ConstructorBase {

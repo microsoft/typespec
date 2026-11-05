@@ -16,6 +16,11 @@ namespace SampleTypeSpec
     /// <summary> The ConstructorOverride. </summary>
     public partial class ConstructorOverride : ConstructorBase, IJsonModel<ConstructorOverride>
     {
+        /// <summary> Initializes a new instance of <see cref="ConstructorOverride"/> for deserialization. </summary>
+        internal ConstructorOverride()
+        {
+        }
+
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override ConstructorBase PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
@@ -114,10 +119,34 @@ namespace SampleTypeSpec
             {
                 return null;
             }
+            string mode = default;
+            IList<string> items = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             string value = default;
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("mode"u8))
+                {
+                    mode = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("items"u8))
+                {
+                    List<string> array = new List<string>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.Null)
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            array.Add(item.GetString());
+                        }
+                    }
+                    items = array;
+                    continue;
+                }
                 if (prop.NameEquals("value"u8))
                 {
                     value = prop.Value.GetString();
@@ -128,7 +157,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ConstructorOverride(additionalBinaryDataProperties, value);
+            return new ConstructorOverride(mode, items ?? new ChangeTrackingList<string>(), additionalBinaryDataProperties, value);
         }
     }
 }

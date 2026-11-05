@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SampleTypeSpec
 {
@@ -14,14 +15,20 @@ namespace SampleTypeSpec
     public partial class ConstructorOverride : ConstructorBase
     {
         /// <summary> Initializes a new instance of <see cref="ConstructorOverride"/>. </summary>
-        public ConstructorOverride() : base(default, default)
+        /// <param name="items"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="items"/> is null. </exception>
+        public ConstructorOverride(IEnumerable<string> items) : base(default, "fixed", items.ToList(), default)
         {
+            Argument.AssertNotNull(items, nameof(items));
+
         }
 
         /// <summary> Initializes a new instance of <see cref="ConstructorOverride"/>. </summary>
+        /// <param name="mode"></param>
+        /// <param name="items"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="value"></param>
-        internal ConstructorOverride(IDictionary<string, BinaryData> additionalBinaryDataProperties, string value) : base(value, additionalBinaryDataProperties)
+        internal ConstructorOverride(string mode, IList<string> items, IDictionary<string, BinaryData> additionalBinaryDataProperties, string value) : base(value, mode, items, additionalBinaryDataProperties)
         {
         }
 

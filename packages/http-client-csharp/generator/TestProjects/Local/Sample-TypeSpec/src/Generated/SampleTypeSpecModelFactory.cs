@@ -586,19 +586,25 @@ namespace SampleTypeSpec
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
         /// <summary> The ConstructorOverride. </summary>
+        /// <param name="items"></param>
         /// <param name="value"></param>
         /// <returns> A new <see cref="SampleTypeSpec.ConstructorOverride"/> instance for mocking. </returns>
-        public static ConstructorOverride ConstructorOverride(string value = default)
+        public static ConstructorOverride ConstructorOverride(IEnumerable<string> items = default, string value = default)
         {
-            return new ConstructorOverride(additionalBinaryDataProperties: null, value);
+            items ??= new ChangeTrackingList<string>();
+
+            return new ConstructorOverride("fixed", items.ToList(), additionalBinaryDataProperties: null, value);
         }
 
         /// <summary> The ConstructorBase. </summary>
         /// <param name="value"></param>
+        /// <param name="items"></param>
         /// <returns> A new <see cref="SampleTypeSpec.ConstructorBase"/> instance for mocking. </returns>
-        public static ConstructorBase ConstructorBase(string value = default)
+        public static ConstructorBase ConstructorBase(string value = default, IEnumerable<string> items = default)
         {
-            return new ConstructorBase(value, additionalBinaryDataProperties: null);
+            items ??= new ChangeTrackingList<string>();
+
+            return new ConstructorBase(value, "fixed", items.ToList(), additionalBinaryDataProperties: null);
         }
 
         /// <summary> The NullableDynamicModel. </summary>

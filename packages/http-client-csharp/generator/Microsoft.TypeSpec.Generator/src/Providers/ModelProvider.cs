@@ -1737,7 +1737,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     // A relaxed override cannot call the validating base initialization constructor.
                     constructorInitializer = new ConstructorInitializer(true,
                         [.. BaseModelProvider.FullConstructor.Signature.Parameters.Select(p =>
-                            GetExpressionForCtor(p, overriddenProperties, true, constructorParameters, useDefaultForMissingParameters: true))]);
+                            GetExpressionForCtor(p, overriddenProperties, true, constructorParameters, useFullBaseConstructor: true))]);
                 }
                 else if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                 {
@@ -1858,7 +1858,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<PropertyProvider> overriddenProperties,
             bool isPrimaryConstructor,
             IReadOnlyList<ParameterProvider>? availableParameters = null,
-            bool useDefaultForMissingParameters = false)
+            bool useFullBaseConstructor = false)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
@@ -1877,8 +1877,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
-            if (useDefaultForMissingParameters && availableParameters?.Any(p => p.Name == paramToUse.Name) != true)
+            if (useFullBaseConstructor && availableParameters?.Any(p => p.Name == paramToUse.Name) != true)
             {
+                if (parameter.Property is { WireInfo.IsRequired: true, Type: { IsLiteral: true, IsNullable: false } } property)
+                {
+                    return Literal(property.Type.Literal);
+                }
                 return parameter.Property is not null && parameter.Type.IsCollection
                     ? New.Instance(parameter.Type.PropertyInitializationType)
                     : Default;
@@ -1890,7 +1894,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ?? paramToUse;
             }
 
-            return paramToUse.Property is not null ? GetConversion(paramToUse.Property, sourceParameter: paramToUse) : paramToUse;
+            ValueExpression expression = paramToUse.Property is not null ? GetConversion(paramToUse.Property, sourceParameter: paramToUse) : paramToUse;
+            if (useFullBaseConstructor && CSharpType.RequiresToList(paramToUse.Type, parameter.Type))
+            {
+                expression = paramToUse.Type.IsNullable ? expression.NullConditional().ToList() : expression.ToList();
+            }
+            return expression;
         }
 
         private ValueExpression? GetUnknownDiscriminatorExpression(PropertyProvider property)

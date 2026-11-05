@@ -4,6 +4,7 @@
 import type {
   SdkClientType,
   SdkHttpOperation,
+  SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import {
@@ -18,14 +19,9 @@ export function updateModelConstructorRequirements(sdkContext: CSharpEmitterCont
   const metadata = createMetadataInfo(sdkContext.program);
   const visited = new Map<SdkType, Set<string>>();
 
-  function visitType(
-    type: SdkType,
-    visibility: Visibility,
-    inExplicitBody = false,
-    includeSubtypes = true,
-  ): void {
+  function visitType(type: SdkType, visibility: Visibility, inExplicitBody = false): void {
     const contexts = visited.get(type) ?? new Set<string>();
-    const context = `${visibility}:${inExplicitBody}:${includeSubtypes}`;
+    const context = `${visibility}:${inExplicitBody}`;
     if (contexts.has(context)) return;
     contexts.add(context);
     visited.set(type, contexts);
@@ -43,35 +39,38 @@ export function updateModelConstructorRequirements(sdkContext: CSharpEmitterCont
           visitType(variant, visibility, inExplicitBody);
         }
         break;
-      case "model":
-        // Ancestors supply inherited properties, not additional request subtypes.
-        if (type.baseModel) visitType(type.baseModel, visibility, inExplicitBody, false);
-        if (includeSubtypes) {
-          for (const subtype of Object.values(type.discriminatedSubtypes ?? {})) {
-            visitType(subtype, visibility, inExplicitBody);
-          }
+      case "model": {
+        for (const subtype of Object.values(type.discriminatedSubtypes ?? {})) {
+          visitType(subtype, visibility, inExplicitBody);
         }
-        if (type.additionalProperties) {
-          visitType(type.additionalProperties, visibility | Visibility.Item, inExplicitBody);
-        }
-        for (const property of type.properties) {
-          const raw = property.__raw;
-          const inPayload = !raw || metadata.isPayloadProperty(raw, visibility, inExplicitBody);
-          const inputProperty = sdkContext.__typeCache.properties.get(property);
-          if (
-            inputProperty &&
-            !inputProperty.readOnly &&
-            !property.optional &&
-            !property.discriminator &&
-            raw &&
-            (!isVisible(sdkContext.program, raw, visibility) ||
-              (inPayload && metadata.isOptional(raw, visibility)))
-          ) {
-            inputProperty.requiredInConstructor = false;
+        // Walk effective inherited properties without treating ancestors as request types.
+        const propertyNames = new Set<string>();
+        for (let model: SdkModelType | undefined = type; model; model = model.baseModel) {
+          if (model.additionalProperties) {
+            visitType(model.additionalProperties, visibility | Visibility.Item, inExplicitBody);
           }
-          if (inPayload) visitType(property.type, visibility, inExplicitBody);
+          for (const property of model.properties) {
+            if (propertyNames.has(property.name)) continue;
+            propertyNames.add(property.name);
+            const raw = property.__raw;
+            const inPayload = !raw || metadata.isPayloadProperty(raw, visibility, inExplicitBody);
+            const inputProperty = sdkContext.__typeCache.properties.get(property);
+            if (
+              inputProperty &&
+              !inputProperty.readOnly &&
+              !property.optional &&
+              !property.discriminator &&
+              raw &&
+              (!isVisible(sdkContext.program, raw, visibility) ||
+                (inPayload && metadata.isOptional(raw, visibility)))
+            ) {
+              inputProperty.requiredInConstructor = false;
+            }
+            if (inPayload) visitType(property.type, visibility, inExplicitBody);
+          }
         }
         break;
+      }
     }
   }
 

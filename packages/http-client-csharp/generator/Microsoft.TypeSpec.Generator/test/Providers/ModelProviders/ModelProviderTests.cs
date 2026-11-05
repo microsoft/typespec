@@ -537,6 +537,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void RelaxedOverridePreservesFullBaseArguments()
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    baseProperty,
+                    InputFactory.Property("mode", InputFactory.Literal.String("fixed"), isRequired: true),
+                    InputFactory.Property("enabled", InputFactory.Literal.Bool(true), isRequired: true),
+                    InputFactory.Property("version", InputFactory.Literal.Int32(3), isRequired: true),
+                    InputFactory.Property("optionalMode", InputFactory.Literal.String("optional")),
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true)
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+        }
+
+        [Test]
         public void RequiredOverrideInitializesRelaxedBaseProperty()
         {
             var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);

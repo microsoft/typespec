@@ -135,6 +135,40 @@ describe("Request-context constructor requirements", () => {
     strictEqual(child.properties[0].requiredInConstructor, undefined);
   });
 
+  it.each([false, true])(
+    "does not propagate shadowed inherited references (base request: %s)",
+    async (includeBaseRequest) => {
+      const program = await typeSpecCompile(
+        `
+         model Child { value: string; }
+         model Base { child: Child; }
+         model Middle extends Base {}
+         model Envelope extends Middle {
+           @visibility(Lifecycle.Create) child: Child;
+           title: string;
+         }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/update") @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;
+         @route("/create") @post op create(@body body: Envelope): void;
+         ${
+           includeBaseRequest
+             ? `#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+                @route("/base") @patch(#{ implicitOptionality: true }) op updateBase(@body body: Base): void;`
+             : ""
+         }`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const child = root.models.find((m) => m.name === "Child")!;
+      strictEqual(
+        child.properties[0].requiredInConstructor,
+        includeBaseRequest ? false : undefined,
+      );
+    },
+  );
+
   it("preserves required non-body parameters embedded in a body root", async () => {
     const program = await typeSpecCompile(
       `
