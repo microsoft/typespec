@@ -279,6 +279,14 @@ namespace Microsoft.TypeSpec.Generator
             if (Configuration.UnreferencedTypesHandling == Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize)
             {
                 RemoveMethodsFromModelFactory(removeCandidates, graph.Nodes);
+                foreach (var provider in generatedProviders)
+                {
+                    var nestedTypes = provider.NestedTypes.Where(ShouldWriteProvider).ToArray();
+                    if (nestedTypes.Length != provider.NestedTypes.Count)
+                    {
+                        provider.Update(nestedTypes: nestedTypes);
+                    }
+                }
             }
         }
 

@@ -368,6 +368,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsFalse(client.Methods.Any(m => m.Signature.Name is "GetItems" or "GetItemsAsync"));
             var collections = client.CollectionResultProviders;
             var helpers = collections.NestedTypes;
+            var otherHelpers = otherClient.CollectionResultProviders.NestedTypes;
             Assert.AreEqual(4, helpers.Count);
 
             using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
@@ -376,10 +377,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 Assert.AreEqual(keepAll || customReference && helper.Name == "GetItemsCollectionResult", session.ShouldWriteProvider(helper), helper.Name);
             }
-            foreach (var helper in otherClient.CollectionResultProviders.NestedTypes)
+            foreach (var helper in otherHelpers)
             {
                 Assert.AreEqual(keepAll, session.ShouldWriteProvider(helper), $"OtherClient.{helper.Name}");
             }
+            CollectionAssert.AreEqual(helpers.Where(session.ShouldWriteProvider), collections.NestedTypes);
+            CollectionAssert.AreEqual(otherHelpers.Where(session.ShouldWriteProvider), otherClient.CollectionResultProviders.NestedTypes);
             var pageProvider = generator.Object.TypeFactory.CreateModel(page)!;
             Assert.AreEqual(keepAll || customReference, session.ShouldWriteProvider(pageProvider), pageProvider.Type.ToString());
             var output = new TypeProviderWriter(collections).Write().Content;
