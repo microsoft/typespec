@@ -26,7 +26,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets or sets the Value. </summary>
-        public new string Value
+        public new virtual string Value
         {
             get => base.Value;
             set => base.Value = value;

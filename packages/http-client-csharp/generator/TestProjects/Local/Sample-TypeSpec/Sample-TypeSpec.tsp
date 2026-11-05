@@ -1187,6 +1187,10 @@ interface ConstructorRequirements {
   @put
   sendReadOnly(@body body: ConstructorReadOnlyOverride): void;
 
+  @route("/constructor-read-only-leaf")
+  @put
+  sendReadOnlyLeaf(@body body: ConstructorReadOnlyLeaf): void;
+
   @route("/constructor-xml-override")
   @put
   sendXml(@body body: XmlConstructorOverride, @header contentType: "application/xml"): void;
@@ -1198,6 +1202,11 @@ model ConstructorReadOnlyBase {
 }
 
 model ConstructorReadOnlyOverride extends ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorReadOnlyLeaf extends ConstructorReadOnlyOverride {
   @visibility(Lifecycle.Create)
   value: string;
 }

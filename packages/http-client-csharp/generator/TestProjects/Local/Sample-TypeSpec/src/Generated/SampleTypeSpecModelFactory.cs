@@ -623,6 +623,14 @@ namespace SampleTypeSpec
             return new ConstructorReadOnlyBase(value, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The ConstructorReadOnlyLeaf. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyLeaf"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyLeaf ConstructorReadOnlyLeaf(string value = default)
+        {
+            return new ConstructorReadOnlyLeaf(additionalBinaryDataProperties: null, value);
+        }
+
         /// <summary> The XmlConstructorOverride. </summary>
         /// <param name="title"></param>
         /// <param name="note"></param>

@@ -27,7 +27,7 @@ namespace SampleTypeSpec
         /// <param name="value"></param>
         /// <param name="title"></param>
         /// <param name="note"></param>
-        internal XmlConstructorMiddle(string value, string title, string note) : base(value, title)
+        internal XmlConstructorMiddle(string value, string title, string note) : base(value, title, true)
         {
             Note = note;
         }

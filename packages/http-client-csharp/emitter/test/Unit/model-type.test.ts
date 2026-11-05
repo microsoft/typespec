@@ -135,15 +135,21 @@ describe("Request-context constructor requirements", () => {
     strictEqual(child.properties[0].requiredInConstructor, undefined);
   });
 
-  it.each([false, true])(
-    "does not propagate shadowed inherited references (base request: %s)",
-    async (includeBaseRequest) => {
+  it.each([
+    { includeBaseRequest: false, rename: false },
+    { includeBaseRequest: true, rename: false },
+    { includeBaseRequest: false, rename: true },
+    { includeBaseRequest: true, rename: true },
+  ])(
+    "does not propagate shadowed inherited references (%o)",
+    async ({ includeBaseRequest, rename }) => {
       const program = await typeSpecCompile(
         `
          model Child { value: string; }
          model Base { child: Child; }
          model Middle extends Base {}
          model Envelope extends Middle {
+           ${rename ? '@clientName("renamedChild", "csharp")' : ""}
            @visibility(Lifecycle.Create) child: Child;
            title: string;
          }
@@ -157,10 +163,16 @@ describe("Request-context constructor requirements", () => {
              : ""
          }`,
         runner,
+        { IsTCGCNeeded: true },
       );
       strictEqual(program.diagnostics.length, 0);
       const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
       const [root] = createModel(sdkContext);
+      ok(
+        root.models
+          .find((m) => m.name === "Envelope")!
+          .properties.some((p) => p.name === (rename ? "renamedChild" : "child")),
+      );
       const child = root.models.find((m) => m.name === "Child")!;
       strictEqual(
         child.properties[0].requiredInConstructor,

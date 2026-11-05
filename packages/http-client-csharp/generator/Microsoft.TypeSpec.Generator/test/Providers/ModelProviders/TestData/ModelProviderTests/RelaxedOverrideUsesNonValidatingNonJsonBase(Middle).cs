@@ -14,7 +14,7 @@ namespace Sample.Models
 
         }
 
-        internal Middle(string value, string note) : base(value)
+        internal Middle(string value, string note) : base(value, true)
         {
             Note = note;
         }

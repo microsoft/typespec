@@ -10,7 +10,7 @@ namespace Sample.Models
         {
         }
 
-        internal Resource(string value) : base(value)
+        internal Resource(string value) : base(value, true)
         {
         }
 

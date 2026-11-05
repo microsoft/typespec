@@ -51,8 +51,9 @@ export function updateModelConstructorRequirements(sdkContext: CSharpEmitterCont
             visitType(model.additionalProperties, visibility | Visibility.Item, inExplicitBody);
           }
           for (const property of model.properties) {
-            if (propertyNames.has(property.name)) continue;
-            propertyNames.add(property.name);
+            const name = property.__raw?.name ?? property.name;
+            if (propertyNames.has(name)) continue;
+            propertyNames.add(name);
             const raw = property.__raw;
             const inPayload = !raw || metadata.isPayloadProperty(raw, visibility, inExplicitBody);
             const inputProperty = sdkContext.__typeCache.properties.get(property);

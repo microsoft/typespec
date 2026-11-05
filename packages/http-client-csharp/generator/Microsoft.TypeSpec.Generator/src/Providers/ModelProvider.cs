@@ -945,10 +945,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         var baseOutputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                         if (DomainEqual(baseProperty, property))
                         {
-                            if (baseProperty.IsReadOnly != property.IsReadOnly
+                            var hasDifferentBaseAccessors = EnumerateBaseModels().Any(model => model.Properties.Any(p =>
+                                p.Name == property.Name && DomainEqual(p, property) && p.IsReadOnly != property.IsReadOnly));
+                            if (hasDifferentBaseAccessors
                                 && outputProperty.Body.HasSetter && baseOutputProperty is { Body.HasSetter: true })
                             {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                                outputProperty.Modifiers |= baseProperty.IsReadOnly != property.IsReadOnly
+                                    ? MethodSignatureModifiers.New
+                                    : MethodSignatureModifiers.Override;
                                 outputProperty.Body = new ExpressionPropertyBody(
                                     Base.Property(baseOutputProperty.Name),
                                     Base.Property(baseOutputProperty.Name).Assign(Value));
@@ -1648,15 +1652,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             var marker = new ParameterProvider(markerName,
                 $"Distinguishes this non-validating constructor from the initialization constructor.", typeof(bool));
-            var initializer = fullConstructor.Signature.Initializer;
-            if (BaseModelProvider?.NeedsNonValidatingInheritanceConstructor == true && initializer is not null)
-            {
-                initializer = new ConstructorInitializer(true, [.. initializer.Arguments, True]);
-            }
             return new ConstructorProvider(
                 new ConstructorSignature(Type, fullConstructor.Signature.Description,
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
-                    [.. fullConstructor.Signature.Parameters, marker], initializer: initializer),
+                    [.. fullConstructor.Signature.Parameters, marker], initializer: fullConstructor.Signature.Initializer),
                 fullConstructor.BodyStatements ?? MethodBodyStatement.Empty,
                 this,
                 suppressions: fullConstructor.Suppressions);
@@ -1828,7 +1827,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 else if (baseParameters.Count > 0)
                 {
                     // Standard base constructor call
-                    constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
+                    var arguments = baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
+                    constructorInitializer = new ConstructorInitializer(true,
+                        !isInitializationConstructor && BaseModelProvider.NeedsNonValidatingInheritanceConstructor
+                            ? [.. arguments, True]
+                            : [.. arguments]);
                 }
                 else
                 {

@@ -19,6 +19,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ConstructorBase))]
     [ModelReaderWriterBuildable(typeof(ConstructorOverride))]
     [ModelReaderWriterBuildable(typeof(ConstructorReadOnlyBase))]
+    [ModelReaderWriterBuildable(typeof(ConstructorReadOnlyLeaf))]
     [ModelReaderWriterBuildable(typeof(ConstructorReadOnlyOverride))]
     [ModelReaderWriterBuildable(typeof(CurrentDetails))]
     [ModelReaderWriterBuildable(typeof(Dog))]

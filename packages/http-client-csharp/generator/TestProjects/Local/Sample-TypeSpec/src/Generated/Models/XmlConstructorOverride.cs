@@ -25,7 +25,7 @@ namespace SampleTypeSpec
         /// <param name="title"></param>
         /// <param name="note"></param>
         /// <param name="value"></param>
-        internal XmlConstructorOverride(string title, string note, string value) : base(value, title, note)
+        internal XmlConstructorOverride(string title, string note, string value) : base(value, title, note, true)
         {
         }
 
