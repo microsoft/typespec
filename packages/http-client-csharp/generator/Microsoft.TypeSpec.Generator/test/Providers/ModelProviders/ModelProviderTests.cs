@@ -617,18 +617,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Is.EqualTo(Helpers.GetExpectedFromFile(includeIntermediate ? "ResourceWithMiddle" : "Resource")).NoClip);
         }
 
-        [Test]
-        public void RequiredOverrideInitializesRelaxedBaseProperty()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RequiredOverrideInitializesRelaxedBaseProperty(bool rename)
         {
             var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
             baseProperty.Update(isRequiredInConstructor: false);
-            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property(rename ? "renamedValue" : "value", InputPrimitiveType.String, isRequired: true);
+            property.Update(originalName: "value");
             var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
             var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
 
-            Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(rename ? "Renamed" : null)).NoClip);
+        }
+
+        [TestCase("value", true)]
+        [TestCase("anotherValue", false)]
+        public void RenamedOverridesRespectGrandparentMemberNames(string name, bool hidesGrandparent)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)], usage: usage);
+            var middleProperty = InputFactory.Property("renamedValue", InputPrimitiveType.String, isRequired: true);
+            middleProperty.Update(originalName: "value", isRequiredInConstructor: false);
+            var middle = InputFactory.Model("Middle", properties: [middleProperty], baseModel: baseModel, usage: usage);
+            var property = InputFactory.Property(name, InputPrimitiveType.String, isRequired: true);
+            property.Update(originalName: "value", isRequiredInConstructor: false);
+            var leaf = InputFactory.Model("Leaf", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var output = CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Properties.Single();
+
+            Assert.AreEqual(hidesGrandparent, output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(output.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ReadOnlyCollectionOverridesShareCompatibleStorage(bool dictionary, bool rename)
+        {
+            var type = dictionary ? (InputType)InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String);
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("items", type, isRequired: true, isReadOnly: true)], usage: usage);
+            var property = InputFactory.Property(rename ? "renamedItems" : "items", type, isRequired: true);
+            property.Update(originalName: "items", isRequiredInConstructor: false);
+            var model = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, model]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+            var output = provider.Properties.Single();
+            var baseOutput = provider.BaseModelProvider!.Properties.Single();
+
+            Assert.AreNotEqual(baseOutput.Type, output.Type);
+            Assert.IsNotNull(baseOutput.BackingField);
+            Assert.AreSame(baseOutput.BackingField, output.BackingField);
+            Assert.IsFalse(baseOutput.Body.HasSetter);
+            Assert.AreEqual(!rename, output.Modifiers.HasFlag(MethodSignatureModifiers.New));
         }
 
         [TestCase(InputModelTypeUsage.Json)]

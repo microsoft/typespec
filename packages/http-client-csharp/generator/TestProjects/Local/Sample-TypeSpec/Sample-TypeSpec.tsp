@@ -1210,6 +1210,22 @@ interface ConstructorRequirements {
   @route("/constructor-writable-leaf")
   @put
   sendWritableLeaf(@body body: ConstructorWritableLeaf): void;
+
+  @route("/constructor-returned-name")
+  @put
+  sendReturnedName(@body body: RenamedConstructorReturnedName): void;
+
+  @route("/constructor-required-renamed")
+  @put
+  sendRequiredRenamed(@body body: RequiredRenamedConstructorOverride): void;
+
+  @route("/constructor-read-only-collections")
+  @put
+  sendReadOnlyCollections(@body body: ConstructorReadOnlyCollectionOverride): void;
+
+  @route("/constructor-required-collections")
+  @put
+  sendRequiredCollections(@body body: ConstructorRequiredCollectionOverride): void;
 }
 
 model ConstructorReadOnlyBase {
@@ -1268,4 +1284,41 @@ model ConstructorReadOnlyMiddle extends ConstructorWritableBase {
 model ConstructorWritableLeaf extends ConstructorReadOnlyMiddle {
   @visibility(Lifecycle.Create)
   value: string;
+}
+
+model RenamedConstructorReturnedName extends RenamedConstructorOverride {
+  @clientName("value", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RequiredRenamedConstructorOverride extends RenamedConstructorOverride {
+  @clientName("requiredValue", "csharp")
+  value: string;
+}
+
+model ConstructorReadOnlyCollectionBase {
+  @visibility(Lifecycle.Read)
+  items: string[];
+
+  @visibility(Lifecycle.Read)
+  values: Record<string>;
+}
+
+model ConstructorReadOnlyCollectionOverride extends ConstructorReadOnlyCollectionBase {
+  @clientName("renamedItems", "csharp")
+  @visibility(Lifecycle.Create)
+  items: string[];
+
+  @clientName("renamedValues", "csharp")
+  @visibility(Lifecycle.Create)
+  values: Record<string>;
+}
+
+model ConstructorRequiredCollectionOverride extends ConstructorReadOnlyCollectionOverride {
+  @clientName("requiredItems", "csharp")
+  items: string[];
+
+  @clientName("requiredValues", "csharp")
+  values: Record<string>;
 }

@@ -31,7 +31,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets or sets the RenamedValue. </summary>
-        public string RenamedValue
+        public virtual string RenamedValue
         {
             get => base.Value;
             set => base.Value = value;

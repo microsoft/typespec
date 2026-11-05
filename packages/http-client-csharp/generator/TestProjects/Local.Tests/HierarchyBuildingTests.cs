@@ -136,6 +136,64 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void RenamedOverrideCanReuseGrandparentName()
+        {
+            var model = new RenamedConstructorReturnedName("title") { Value = "assigned" };
+            Assert.AreEqual("assigned", ((RenamedConstructorOverride)model).RenamedValue);
+            Assert.AreEqual("assigned", ((RenamedConstructorBase)model).Value);
+            var roundTrip = ModelReaderWriter.Read<RenamedConstructorReturnedName>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("assigned", roundTrip.Value);
+        }
+
+        [Test]
+        public void RequiredRenamedOverrideInitializesRelaxedBaseStorage()
+        {
+            var model = new RequiredRenamedConstructorOverride("title", "supplied");
+            Assert.AreEqual("supplied", model.RequiredValue);
+            Assert.AreEqual("supplied", ((RenamedConstructorOverride)model).RenamedValue);
+            Assert.AreEqual("supplied", ((RenamedConstructorBase)model).Value);
+            var roundTrip = ModelReaderWriter.Read<RequiredRenamedConstructorOverride>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("supplied", roundTrip.RequiredValue);
+            Assert.Throws<ArgumentNullException>(() => new RequiredRenamedConstructorOverride("title", null!));
+        }
+
+        [Test]
+        public void RenamedCollectionsShareReadOnlyBaseStorage()
+        {
+            var model = new ConstructorReadOnlyCollectionOverride();
+            Assert.IsTrue((bool)model.RenamedItems.GetType().GetProperty("IsUndefined")!.GetValue(model.RenamedItems)!);
+            model.RenamedItems.Add("item");
+            model.RenamedValues.Add("key", "value");
+            CollectionAssert.AreEqual(new[] { "item" }, ((ConstructorReadOnlyCollectionBase)model).Items);
+            Assert.AreEqual("value", ((ConstructorReadOnlyCollectionBase)model).Values["key"]);
+            var roundTrip = ModelReaderWriter.Read<ConstructorReadOnlyCollectionOverride>(ModelReaderWriter.Write(model))!;
+            CollectionAssert.AreEqual(new[] { "item" }, roundTrip.RenamedItems);
+            CollectionAssert.AreEqual(new[] { "item" }, ((ConstructorReadOnlyCollectionBase)roundTrip).Items);
+            Assert.AreEqual("value", roundTrip.RenamedValues["key"]);
+            Assert.IsNull(typeof(ConstructorReadOnlyCollectionBase).GetProperty(nameof(ConstructorReadOnlyCollectionBase.Items))!.GetSetMethod(true));
+        }
+
+        [Test]
+        public void RequiredRenamedCollectionsInitializeSharedStorageOnce()
+        {
+            var enumerations = 0;
+            var items = Enumerable.Range(0, 1).Select(_ =>
+            {
+                enumerations++;
+                return "item";
+            });
+            var model = new ConstructorRequiredCollectionOverride(items, new System.Collections.Generic.Dictionary<string, string> { ["key"] = "value" });
+            Assert.AreEqual(1, enumerations);
+            CollectionAssert.AreEqual(new[] { "item" }, model.RequiredItems);
+            CollectionAssert.AreEqual(new[] { "item" }, ((ConstructorReadOnlyCollectionBase)model).Items);
+            Assert.AreEqual("value", ((ConstructorReadOnlyCollectionBase)model).Values["key"]);
+            model.RequiredItems.Add("another");
+            Assert.AreEqual(2, ((ConstructorReadOnlyCollectionOverride)model).RenamedItems.Count);
+            var roundTrip = ModelReaderWriter.Read<ConstructorRequiredCollectionOverride>(ModelReaderWriter.Write(model))!;
+            CollectionAssert.AreEqual(new[] { "item", "another" }, roundTrip.RequiredItems);
+        }
+
+        [Test]
         public void DogExtendsIntermediatePetModel()
         {
             // Verify that Dog extends Pet (not Animal directly) due to @Legacy.hierarchyBuilding(Pet)

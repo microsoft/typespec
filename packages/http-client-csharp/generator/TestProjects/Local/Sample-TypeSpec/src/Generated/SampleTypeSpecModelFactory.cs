@@ -722,6 +722,60 @@ namespace SampleTypeSpec
             return new ConstructorWritableBase(value, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The RenamedConstructorReturnedName. </summary>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorReturnedName"/> instance for mocking. </returns>
+        public static RenamedConstructorReturnedName RenamedConstructorReturnedName(string title = default, string value = default)
+        {
+            return new RenamedConstructorReturnedName(title, additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The RequiredRenamedConstructorOverride. </summary>
+        /// <param name="title"></param>
+        /// <param name="requiredValue"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RequiredRenamedConstructorOverride"/> instance for mocking. </returns>
+        public static RequiredRenamedConstructorOverride RequiredRenamedConstructorOverride(string title = default, string requiredValue = default)
+        {
+            return new RequiredRenamedConstructorOverride(title, additionalBinaryDataProperties: null, requiredValue);
+        }
+
+        /// <summary> The ConstructorReadOnlyCollectionOverride. </summary>
+        /// <param name="renamedItems"></param>
+        /// <param name="renamedValues"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyCollectionOverride"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyCollectionOverride ConstructorReadOnlyCollectionOverride(IEnumerable<string> renamedItems = default, IDictionary<string, string> renamedValues = default)
+        {
+            renamedItems ??= new ChangeTrackingList<string>();
+            renamedValues ??= new ChangeTrackingDictionary<string, string>();
+
+            return new ConstructorReadOnlyCollectionOverride(additionalBinaryDataProperties: null, renamedItems.ToList(), renamedValues);
+        }
+
+        /// <summary> The ConstructorReadOnlyCollectionBase. </summary>
+        /// <param name="items"></param>
+        /// <param name="values"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyCollectionBase"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyCollectionBase ConstructorReadOnlyCollectionBase(IEnumerable<string> items = default, IReadOnlyDictionary<string, string> values = default)
+        {
+            items ??= new ChangeTrackingList<string>();
+            values ??= new ChangeTrackingDictionary<string, string>();
+
+            return new ConstructorReadOnlyCollectionBase(items.ToList(), values, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ConstructorRequiredCollectionOverride. </summary>
+        /// <param name="requiredItems"></param>
+        /// <param name="requiredValues"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorRequiredCollectionOverride"/> instance for mocking. </returns>
+        public static ConstructorRequiredCollectionOverride ConstructorRequiredCollectionOverride(IEnumerable<string> requiredItems = default, IDictionary<string, string> requiredValues = default)
+        {
+            requiredItems ??= new ChangeTrackingList<string>();
+            requiredValues ??= new ChangeTrackingDictionary<string, string>();
+
+            return new ConstructorRequiredCollectionOverride(additionalBinaryDataProperties: null, requiredItems.ToList(), requiredValues);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

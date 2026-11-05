@@ -572,9 +572,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 fields.AddRange(AdditionalPropertyFields);
             }
 
+            fields.AddRange(SharedCollectionFields.Values);
             foreach (var property in _inputModel.Properties)
             {
-                if (IsDiscriminator(property))
+                if (IsDiscriminator(property) || SharedCollectionFields.ContainsKey(property))
                 {
                     continue;
                 }
@@ -593,6 +594,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             return [.. fields];
+        }
+
+        private Dictionary<InputModelProperty, FieldProvider>? _sharedCollectionFields;
+        private Dictionary<InputModelProperty, FieldProvider> SharedCollectionFields => _sharedCollectionFields ??= BuildSharedCollectionFields();
+
+        private Dictionary<InputModelProperty, FieldProvider> BuildSharedCollectionFields()
+        {
+            Dictionary<InputModelProperty, FieldProvider> fields = [];
+            foreach (var property in _inputModel.Properties)
+            {
+                if (IsDiscriminator(property)
+                    || !InputDerivedProperties.Values.Any(properties => properties.TryGetValue(property.OriginalName, out var candidate)
+                        && DomainEqual(property, candidate) && property.IsReadOnly != candidate.IsReadOnly)
+                    || EnumerateBaseModels().Any(model => model.Properties.Any(candidate =>
+                        candidate.OriginalName == property.OriginalName && DomainEqual(candidate, property))))
+                {
+                    continue;
+                }
+                if (CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(property.Type) is { IsCollection: true } type)
+                {
+                    fields.Add(property, new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.Protected,
+                        type.PropertyInitializationType.WithNullable(type.IsNullable),
+                        $"_{property.Name.ToVariableName()}",
+                        this));
+                }
+            }
+            return fields;
         }
 
         private static bool IsDiscriminator(InputProperty property)
@@ -897,6 +926,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                if (SharedCollectionFields.TryGetValue(property, out var ownCollectionField))
+                {
+                    outputProperty.BackingField = ownCollectionField;
+                }
+
                 // Apply back-compat type replacement only for properties on the public API
                 // surface: changing the type of an internal/private generated property is not
                 // a source-breaking change
@@ -942,13 +976,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (baseProperties.TryGetValue(property.OriginalName, out var baseProperty))
                     {
-                        var baseOutputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
+                        var baseOutputProperty = outputProperty.Type.IsCollection
+                            ? EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)
+                                .FirstOrDefault(candidate => candidate.InputProperty == baseProperty)
+                            : CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                         if (DomainEqual(baseProperty, property))
                         {
+                            if (outputProperty.Type.IsCollection && baseOutputProperty?.BackingField is { } collectionField
+                                && collectionField.Type.Equals(outputProperty.Type.PropertyInitializationType, ignoreNullable: true))
+                            {
+                                outputProperty.BackingField = collectionField;
+                            }
                             var hasDifferentBaseAccessors = EnumerateBaseModels().Any(model => model.Properties.Any(p =>
                                 p.OriginalName == property.OriginalName && DomainEqual(p, property) && p.IsReadOnly != property.IsReadOnly));
                             var hasDifferentName = baseOutputProperty is not null && baseOutputProperty.Name != outputProperty.Name;
-                            if (baseOutputProperty is not null && (hasDifferentName
+                            if (outputProperty.BackingField is not null)
+                            {
+                                if (EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
+                                {
+                                    outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                                }
+                            }
+                            else if (baseOutputProperty is not null && (hasDifferentName
                                 || hasDifferentBaseAccessors && outputProperty.Body.HasSetter && baseOutputProperty.Body.HasSetter))
                             {
                                 if (!hasDifferentName)
@@ -956,6 +1005,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                     outputProperty.Modifiers |= baseProperty.IsReadOnly != property.IsReadOnly
                                         ? MethodSignatureModifiers.New
                                         : MethodSignatureModifiers.Override;
+                                }
+                                else if (EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
+                                {
+                                    outputProperty.Modifiers |= MethodSignatureModifiers.New;
                                 }
                                 var getter = Base.Property(baseOutputProperty.Name);
                                 var setter = outputProperty.Body.HasSetter && baseOutputProperty.Body.HasSetter
@@ -982,6 +1035,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
                         outputProperty.BaseProperty = baseOutputProperty;
                     }
+                }
+                if (outputProperty.BackingField is { } sharedField && outputProperty.Type.IsCollection
+                    && sharedField.Type.Equals(outputProperty.Type.PropertyInitializationType, ignoreNullable: true))
+                {
+                    outputProperty.Body = new ExpressionPropertyBody(
+                        sharedField,
+                        outputProperty.Body.HasSetter ? sharedField.Assign(GetConversion(outputProperty, source: Value)) : null);
                 }
                 properties.Add(outputProperty);
             }
@@ -2144,7 +2204,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (property?.BaseProperty is not null
                 && (!isPrimaryConstructor || wireInfo.IsRequiredInConstructor == false
                     || property.BaseProperty.WireInfo is { IsRequiredInConstructor: true, IsReadOnly: false }
-                    || property.Name != property.BaseProperty.Name && property.Body is ExpressionPropertyBody))
+                    || property.Name != property.BaseProperty.Name && property.BaseProperty.WireInfo is { IsReadOnly: true }
+                        && property.Body is ExpressionPropertyBody))
             {
                 return;
             }
@@ -2171,7 +2232,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     initializationValue = parameter;
 
-                    if (CSharpType.RequiresToList(parameter.Type, type))
+                    if (CSharpType.RequiresToList(parameter.Type, type)
+                        && property?.BackingField?.Type.Equals(type.PropertyInitializationType, ignoreNullable: true) != true)
                     {
                         initializationValue = parameter.Type.IsNullable ?
                             initializationValue.NullConditional().ToList() :
@@ -2186,6 +2248,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (initializationValue != null)
             {
+                if (parameter is not null && property?.BackingField is { } backingField && type!.IsCollection
+                    && backingField.Type.Equals(type.PropertyInitializationType, ignoreNullable: true))
+                {
+                    initializationValue = GetConversion(property, source: initializationValue, sourceParameter: parameter);
+                }
                 methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignee.Assign(initializationValue).Terminate(),
                     property is not null ? ExperimentalApiHelpers.GetMemberSuppressions(property) : ExperimentalApiHelpers.GetMemberSuppressions(field!)));
             }
@@ -2199,6 +2266,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType from = property?.Type ?? field!.Type;
             sourceParameter ??= property?.AsParameter ?? field!.AsParameter;
             source ??= sourceParameter;
+
+            if (property?.BackingField is not null && from.IsCollection
+                && to.Equals(from.PropertyInitializationType, ignoreNullable: true))
+            {
+                var requiresMaterialization = CSharpType.RequiresToList(sourceParameter.Type, from);
+                var collection = (requiresMaterialization ? source.ToList() : source).CastTo(from);
+                ValueExpression converted = New.Instance(to.WithNullable(false), collection);
+                if (!requiresMaterialization)
+                {
+                    converted = new AsExpression(collection, to.WithNullable(false)).NullCoalesce(converted);
+                }
+                return new TernaryConditionalExpression(source.Equal(Null), Null, converted);
+            }
 
             if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
             {
