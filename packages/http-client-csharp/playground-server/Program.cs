@@ -96,7 +96,7 @@ app.UseRateLimiter();
 // Resolve the generator DLL path. Default: dist/generator in the http-client-csharp package.
 var generatorPath = Environment.GetEnvironmentVariable("GENERATOR_PATH")
     ?? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "dist", "generator", "Microsoft.TypeSpec.Generator.dll"));
-var generators = new GeneratorRegistry(generatorPath, Environment.GetEnvironmentVariable("AZURE_GENERATOR_PATH"));
+var generators = new GeneratorRegistry(generatorPath, Environment.GetEnvironmentVariable("AZURE_GENERATOR_ROOT"));
 
 // Capture the generator's assembly file version at startup so a deploy of a
 // new binary implicitly invalidates every previously cached response.
@@ -105,7 +105,7 @@ foreach (var path in generators.Paths)
 {
     if (!File.Exists(path))
     {
-        Console.Error.WriteLine($"WARNING: Generator DLL not found at {path}. Check GENERATOR_PATH and AZURE_GENERATOR_PATH.");
+        Console.Error.WriteLine($"WARNING: Generator DLL not found at {path}. Check GENERATOR_PATH and AZURE_GENERATOR_ROOT.");
     }
 
     string version;
@@ -127,6 +127,8 @@ foreach (var path in generators.Paths)
 // Root route exists so Azure App Service platform probes (Always On warm-up
 // and availability pings hit "/") get a 200 instead of logging noisy 404s.
 app.MapGet("/", () => Results.Ok(new { status = "ok", service = "csharp-playground-server" }));
+
+app.MapGet("/generators", () => Results.Ok(generators.Catalog));
 
 app.MapGet("/health", () =>
 {
@@ -212,7 +214,8 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
         return Results.StatusCode(503);
     }
 
-    var cacheKey = MemoryGenerationCache.ComputeKey(generatorName, body.CodeModel!, body.Configuration!, generatorVersions[selectedGeneratorPath]);
+    var cacheVersion = generators.GetPackageVersion(generatorName) ?? generatorVersions[selectedGeneratorPath];
+    var cacheKey = MemoryGenerationCache.ComputeKey(generatorName, body.CodeModel!, body.Configuration!, cacheVersion);
     if (cache.TryGet(cacheKey, out var cached) && cached is not null)
     {
         request.HttpContext.Response.Headers["X-Cache"] = "HIT";

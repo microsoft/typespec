@@ -412,6 +412,7 @@ stages:
                         CONTEXT="$(Build.SourcesDirectory)/${{ parameters.PackagePath }}"
                         az acr build \
                           --registry "$REGISTRY" \
+                          --no-cache \
                           --image "$APP_NAME:$(Build.BuildId)" \
                           --file "$CONTEXT/${{ parameters.PlaygroundServerDockerfile }}" \
                           "$CONTEXT"
