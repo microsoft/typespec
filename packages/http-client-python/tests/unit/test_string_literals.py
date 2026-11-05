@@ -31,6 +31,7 @@ from pygen.codegen.serializers.enum_serializer import EnumSerializer
 from pygen.codegen.serializers.builder_serializer import OperationSerializer, _get_polymorphic_subtype_template
 from pygen.codegen.serializers.model_serializer import DpgModelSerializer
 from pygen.codegen.serializers.general_serializer import GeneralSerializer
+from pygen.codegen.serializers.parameter_serializer import ParameterSerializer, PopKwargType
 from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.utils import json_dumps_template
 
@@ -753,3 +754,60 @@ def test_enum_values_are_literals(code_model, env, value):
     assignments = [node for node in ast.walk(ast.parse(source)) if isinstance(node, ast.Assign)]
     assignment = next(node for node in assignments if any(getattr(t, "id", "") == "VALUE" for t in node.targets))
     assert ast.literal_eval(assignment.value) == value
+
+
+def _request_parameter(code_model, wire_name, location, optional=False, client_default_value=None):
+    yaml_data = {
+        "wireName": wire_name,
+        "clientName": "filter",
+        "location": location,
+        "implementation": "Method",
+        "optional": optional,
+        "description": "Example parameter.",
+    }
+    if client_default_value is not None:
+        yaml_data["clientDefaultValue"] = client_default_value
+    return Parameter(
+        yaml_data,
+        code_model,
+        type=StringType({"type": "string"}, code_model),
+    )
+
+
+@pytest.mark.parametrize("wire_name", [name for name in VALUES if name])
+@pytest.mark.parametrize("location", ["query", "header"])
+def test_request_builder_wire_names_are_literals(code_model, wire_name, location):
+    parameter = _request_parameter(code_model, wire_name, location)
+    kwarg_name = "params" if location == "query" else "headers"
+    lines = ParameterSerializer("sample").serialize_query_header(
+        parameter, kwarg_name, "_SERIALIZER", is_legacy=False
+    )
+    module = ast.parse("def build_request():\n    " + "\n    ".join(lines))
+    assignment = module.body[0].body[0]
+    assert isinstance(assignment, ast.Assign)
+    assert ast.literal_eval(assignment.targets[0].slice) == wire_name
+
+
+@pytest.mark.parametrize("wire_name", [name for name in VALUES if name])
+def test_path_wire_names_are_literals(code_model, wire_name):
+    parameter = _request_parameter(code_model, wire_name, "path")
+    lines = ParameterSerializer("sample").serialize_path([parameter], "_SERIALIZER")
+    module = ast.parse("\n".join(lines))
+    arguments = module.body[0].value
+    assert isinstance(arguments, ast.Dict)
+    assert [ast.literal_eval(key) for key in arguments.keys] == [wire_name]
+
+
+@pytest.mark.parametrize("wire_name", [name for name in VALUES if name])
+def test_kwargs_pop_wire_names_are_literals(code_model, wire_name):
+    parameter = _request_parameter(
+        code_model, wire_name, "query", optional=True, client_default_value="dflt"
+    )
+    lines = ParameterSerializer("sample").pop_kwargs_from_signature(
+        [parameter], True, PopKwargType.NO, PopKwargType.SIMPLE
+    )
+    signature = next(line for line in lines if line.startswith("filter:"))
+    function = ast.parse(f"def build_request({signature}): pass").body[0]
+    outer_pop = function.args.defaults[0]
+    inner_pop = outer_pop.args[1]
+    assert ast.literal_eval(inner_pop.args[0]) == wire_name
