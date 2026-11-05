@@ -136,6 +136,83 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public async Task JsonLinesBytesKeepBase64Encoding()
+        {
+            var response = new Mock<PipelineResponse>();
+            var client = new Mock<UnionExtends> { CallBase = true };
+            string? requestData = null;
+            client.Setup(value => value.SendBytesAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Returns(async (BinaryContent content, RequestOptions _) =>
+                {
+                    using var stream = new MemoryStream();
+                    await content.WriteToAsync(stream, CancellationToken.None);
+                    requestData = BinaryData.FromBytes(stream.ToArray()).ToString();
+                    return ClientResult.FromResponse(response.Object);
+                });
+            await client.Object.SendBytesAsync(GetJsonLines(BinaryData.FromString("hello"), BinaryData.FromString("world")));
+            Assert.AreEqual("\"aGVsbG8=\"\n\"d29ybGQ=\"", requestData);
+        }
+
+        [Test]
+        public void XmlUnionBaseRoundTripsWithoutAnEnvelope()
+        {
+            Assert.IsFalse(typeof(XmlUnionPet).IsAbstract);
+            var options = new ModelReaderWriterOptions("X");
+            var pet = new XmlUnionPet("Whiskers");
+            var result = ModelReaderWriter.Read<XmlUnionPet>(ModelReaderWriter.Write(pet, options), options)!;
+            Assert.AreEqual("Whiskers", result.Name);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AlternateTypesPreserveRawUnionEnvelopes(bool mappedUnion)
+        {
+            var data = BinaryData.FromString("{\"kind\":\"cat\",\"value\":{\"name\":\"Whiskers\"}}");
+            var response = new Mock<PipelineResponse>();
+            response.SetupGet(value => value.Content).Returns(data);
+            var client = new Mock<UnionExtends> { CallBase = true };
+            string? requestData = null;
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream, CancellationToken.None);
+                requestData = BinaryData.FromBytes(stream.ToArray()).ToString();
+            }
+            client.Setup(value => value.EchoMappedUnion(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(ClientResult.FromResponse(response.Object));
+            client.Setup(value => value.EchoMappedBase(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(ClientResult.FromResponse(response.Object));
+            if (mappedUnion)
+            {
+                using var document = JsonDocument.Parse(data);
+                var result = client.Object.EchoMappedUnion(document.RootElement);
+                Assert.AreEqual(data.ToString(), result.Value.GetRawText());
+            }
+            else
+            {
+                var result = client.Object.EchoMappedBase(data);
+                Assert.AreEqual(data.ToString(), result.Value.ToString());
+            }
+            Assert.AreEqual(data.ToString(), requestData);
+        }
+
+        [Test]
+        public void NestedSameNamedUnionRoundTrips()
+        {
+#pragma warning disable UNION001
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                NestedMammal.SerializeCollisionPetsUnion2(writer, new ExperimentalUnionCat("Whiskers", true), ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            var result = NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.IsInstanceOf<ExperimentalUnionCat>(result);
+            Assert.AreEqual("Whiskers", result.Name);
+#pragma warning restore UNION001
+        }
+
+        [Test]
         public void NestedUnionPayloadsRemainConcrete()
         {
             Assert.IsTrue(typeof(CollisionPetsUnion).IsAbstract);

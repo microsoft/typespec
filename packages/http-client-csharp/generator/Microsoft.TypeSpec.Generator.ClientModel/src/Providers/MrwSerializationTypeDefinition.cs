@@ -82,6 +82,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool? _shouldOverrideMethods;
         private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
             (_model.BaseModelProvider != null || HasCustomBaseJsonModelWriteCoreMethod());
+        private bool ShouldOverrideJsonModelWriteCore => ShouldOverrideMethods &&
+            (_model.BaseModelProvider is not SystemObjectModelProvider systemBase ||
+                ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase) ||
+                HasCustomBaseJsonModelWriteCoreMethod());
         private bool? _shouldSkipSerializationMethodOverrides;
         private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
@@ -328,7 +332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
 
         /// <summary>
-        /// Determines whether the hand-authored base declares a <c>JsonModelWriteCore</c> method that the
+        /// Determines whether the hand-authored or external base declares a <c>JsonModelWriteCore</c> method that the
         /// generated one can legally override.
         /// </summary>
         /// <remarks>
@@ -337,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <c>override</c> against it produces CS0506/CS0115/CS0507.
         /// </remarks>
         private bool HasCustomBaseJsonModelWriteCoreMethod()
-            => GetCustomSerializationBaseType() is { } baseType &&
+            => (_model.BaseModelProvider is SystemObjectModelProvider ? _model.BaseType : GetCustomSerializationBaseType()) is { } baseType &&
                 ModelReaderWriterHelpers.FindMethodInHierarchy(
                     baseType,
                     IsJsonModelWriteCoreSignature,
@@ -741,7 +745,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (ShouldOverrideMethods)
+            if (ShouldOverrideJsonModelWriteCore)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -1302,7 +1306,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase)
         {
             // base.<JsonModelWriteCore>()
-            bool callBaseWriteMethod = ShouldOverrideMethods
+            bool callBaseWriteMethod = ShouldOverrideJsonModelWriteCore
                 && (_jsonPatchProperty is null || !isDynamicModelWithNonDynamicBase);
             return callBaseWriteMethod ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()

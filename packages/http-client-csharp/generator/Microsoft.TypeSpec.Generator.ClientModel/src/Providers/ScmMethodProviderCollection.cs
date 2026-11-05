@@ -420,12 +420,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         var inputParameter = ServiceMethod.Parameters.FirstOrDefault(p =>
                             p.Location == InputRequestLocation.Body &&
                             string.Equals(p.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
+                        ValueExpression[] contentArguments = inputBodyType is InputStreamingType streaming &&
+                            DiscriminatedUnionSerialization.RequiresEnvelope(streaming.ValueType)
+                            ? [parameter, True]
+                            : [parameter];
                         ValueExpression contentExpression = inputParameter is { IsRequired: false }
                             ? new TernaryConditionalExpression(
                                 parameter.Equal(Null),
                                 Null,
-                                New.Instance(contentType, parameter))
-                            : New.Instance(contentType, parameter);
+                                New.Instance(contentType, contentArguments))
+                            : New.Instance(contentType, contentArguments);
                         statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }

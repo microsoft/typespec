@@ -9,7 +9,7 @@ public override async global::System.Threading.Tasks.Task WriteToAsync(global::S
         }
         using (global::System.Text.Json.Utf8JsonWriter writer = new global::System.Text.Json.Utf8JsonWriter(stream))
         {
-            if ((value is global::System.BinaryData data))
+            if ((_writeRawData && (value is global::System.BinaryData data)))
             {
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(data);

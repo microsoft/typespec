@@ -107,8 +107,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(union.BaseModel!)!;
             var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
+            foreach (var baseModel in union.BaseModel!.GetAllBaseModels())
+            {
+                reserved.Add(ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)!.Name);
+                foreach (var inherited in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                    .Where(candidate => candidate.BaseModel == baseModel && RequiresEnvelope(candidate)))
+                {
+                    reserved.Add(GetMethodSuffix(inherited));
+                }
+            }
             foreach (var candidate in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
-                .Where(candidate => candidate.BaseModel == union.BaseModel))
+                .Where(candidate => candidate.BaseModel == union.BaseModel && RequiresEnvelope(candidate)))
             {
                 var name = $"{(candidate.IsExactName ? candidate.Name : candidate.Name.ToIdentifierName())}Union";
                 var suffix = name;
@@ -127,21 +136,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal static bool RequiresEnvelope(InputType? type) => type switch
         {
-            InputUnionType { BaseModel: not null, EnvelopePropertyName: not null } => true,
-            InputNullableType nullable => RequiresEnvelope(nullable.Type),
-            InputArrayType array => RequiresEnvelope(array.ValueType),
-            InputDictionaryType dictionary => RequiresEnvelope(dictionary.ValueType),
+            InputUnionType { External: null, BaseModel: { External: null }, EnvelopePropertyName: not null } => true,
+            InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type),
+            InputArrayType { External: null } array => RequiresEnvelope(array.ValueType),
+            InputDictionaryType { External: null } dictionary => RequiresEnvelope(dictionary.ValueType),
             _ => false
         };
 
         internal static bool RequiresEnvelope(InputType? type, CSharpType valueType) => type switch
         {
-            InputUnionType { BaseModel: not null, EnvelopePropertyName: not null } union =>
-                valueType.WithNullable(false).Equals(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel)!),
-            InputNullableType nullable => RequiresEnvelope(nullable.Type, valueType),
-            InputArrayType array => valueType.IsList && !valueType.IsReadOnlyMemory &&
+            InputUnionType union when RequiresEnvelope(union) =>
+                valueType.WithNullable(false).Equals(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!),
+            InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type, valueType),
+            InputArrayType { External: null } array => valueType.IsList && !valueType.IsReadOnlyMemory &&
                 RequiresEnvelope(array.ValueType, valueType.ElementType),
-            InputDictionaryType dictionary => valueType.IsDictionary && RequiresEnvelope(dictionary.ValueType, valueType.ElementType),
+            InputDictionaryType { External: null } dictionary => valueType.IsDictionary && RequiresEnvelope(dictionary.ValueType, valueType.ElementType),
             _ => false
         };
 

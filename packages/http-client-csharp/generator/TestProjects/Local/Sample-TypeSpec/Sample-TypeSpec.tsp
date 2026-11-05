@@ -1229,6 +1229,60 @@ union NestedPets extends NestedMammal {
   cat: ExperimentalUnionCat,
 }
 
+namespace NestedUnions {
+  @discriminated
+  union CollisionPets extends NestedMammal {
+    cat: ExperimentalUnionCat,
+  }
+}
+
+model XmlUnionPet {
+  name: string;
+}
+
+model XmlUnionCat extends XmlUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union XmlUnionPets extends XmlUnionPet {
+  cat: XmlUnionCat,
+}
+
+model MappedUnionPet {}
+
+model MappedUnionCat extends MappedUnionPet {
+  name: string;
+}
+
+@alternateType(
+  {
+    identity: "System.Text.Json.JsonElement",
+  },
+  "csharp"
+)
+@discriminated
+union MappedUnionPets extends MappedUnionPet {
+  cat: MappedUnionCat,
+}
+
+@alternateType(
+  {
+    identity: "System.Object",
+  },
+  "csharp"
+)
+model ExternalUnionBase {}
+
+model ExternalUnionCat extends ExternalUnionBase {
+  name: string;
+}
+
+@discriminated
+union ExternalBasePets extends ExternalUnionBase {
+  cat: ExternalUnionCat,
+}
+
 @route("/union-extends")
 interface UnionExtends {
   @post
@@ -1250,9 +1304,36 @@ interface UnionExtends {
   @post
   echoNestedInner(@body pet: NestedPets): NestedPets;
 
+  @route("/nested-same-name")
+  @post
+  echoNestedSameName(@body pet: NestedUnions.CollisionPets): NestedUnions.CollisionPets;
+
+  @route("/xml-pets/json")
+  @post
+  echoXmlPets(@body pet: XmlUnionPets): XmlUnionPets;
+
+  @route("/xml-pets/xml")
+  @post
+  echoXmlBase(@body pet: XmlUnionPet, @header contentType: "application/xml"): {
+    @header contentType: "application/xml";
+    @body pet: XmlUnionPet;
+  };
+
+  @route("/mapped-union")
+  @post
+  echoMappedUnion(@body pet: MappedUnionPets): MappedUnionPets;
+
+  @route("/mapped-base")
+  @post
+  echoMappedBase(@body pet: ExternalBasePets): ExternalBasePets;
+
   @route("/jsonl/send")
   @post
   sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
+
+  @route("/jsonl/bytes")
+  @post
+  sendBytes(stream: JsonlStream<bytes>): NoContentResponse;
 
   @route("/jsonl/receive")
   @get

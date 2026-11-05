@@ -410,6 +410,376 @@ namespace SampleTypeSpec
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
         /// <summary>
+        /// [Protocol Method] EchoNestedSameName
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+#pragma warning disable UNION001 // This generated code depends on experimental functionality.
+        public virtual ClientResult EchoNestedSameName(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoNestedSameNameRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+#pragma warning restore UNION001 // This generated code depends on experimental functionality.
+
+        /// <summary>
+        /// [Protocol Method] EchoNestedSameName
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+#pragma warning disable UNION001 // This generated code depends on experimental functionality.
+        public virtual async Task<ClientResult> EchoNestedSameNameAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoNestedSameNameRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+#pragma warning restore UNION001 // This generated code depends on experimental functionality.
+
+        /// <summary> EchoNestedSameName. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable UNION001 // This generated code depends on experimental functionality.
+        public virtual ClientResult<NestedMammal> EchoNestedSameName(NestedMammal pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            NestedMammal.SerializeCollisionPetsUnion2(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            ClientResult result = EchoNestedSameName(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return ClientResult.FromValue(NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+        }
+#pragma warning restore UNION001 // This generated code depends on experimental functionality.
+
+        /// <summary> EchoNestedSameName. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable UNION001 // This generated code depends on experimental functionality.
+        public virtual async Task<ClientResult<NestedMammal>> EchoNestedSameNameAsync(NestedMammal pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            NestedMammal.SerializeCollisionPetsUnion2(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            ClientResult result = await EchoNestedSameNameAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return ClientResult.FromValue(NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+        }
+#pragma warning restore UNION001 // This generated code depends on experimental functionality.
+
+        /// <summary>
+        /// [Protocol Method] EchoXmlPets
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EchoXmlPets(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoXmlPetsRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoXmlPets
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EchoXmlPetsAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoXmlPetsRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EchoXmlPets. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<XmlUnionPet> EchoXmlPets(XmlUnionPet pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            XmlUnionPet.SerializeXmlUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            ClientResult result = EchoXmlPets(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return ClientResult.FromValue(XmlUnionPet.DeserializeXmlUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+        }
+
+        /// <summary> EchoXmlPets. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<XmlUnionPet>> EchoXmlPetsAsync(XmlUnionPet pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            XmlUnionPet.SerializeXmlUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            ClientResult result = await EchoXmlPetsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return ClientResult.FromValue(XmlUnionPet.DeserializeXmlUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoXmlBase
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EchoXmlBase(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoXmlBaseRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoXmlBase
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EchoXmlBaseAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoXmlBaseRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EchoXmlBase. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<XmlUnionPet> EchoXmlBase(XmlUnionPet pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using BinaryContent content = pet.ToBinaryContent("X");
+            ClientResult result = EchoXmlBase(content, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((XmlUnionPet)result, result.GetRawResponse());
+        }
+
+        /// <summary> EchoXmlBase. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<XmlUnionPet>> EchoXmlBaseAsync(XmlUnionPet pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using BinaryContent content = pet.ToBinaryContent("X");
+            ClientResult result = await EchoXmlBaseAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((XmlUnionPet)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoMappedUnion
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EchoMappedUnion(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoMappedUnionRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoMappedUnion
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EchoMappedUnionAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoMappedUnionRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EchoMappedUnion. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<JsonElement> EchoMappedUnion(JsonElement pet, CancellationToken cancellationToken = default)
+        {
+            Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            pet.WriteTo(content.JsonWriter);
+            ClientResult result = EchoMappedUnion(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            JsonElement element = document.RootElement;
+            return ClientResult.FromValue(element.Clone(), result.GetRawResponse());
+        }
+
+        /// <summary> EchoMappedUnion. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<JsonElement>> EchoMappedUnionAsync(JsonElement pet, CancellationToken cancellationToken = default)
+        {
+            Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            pet.WriteTo(content.JsonWriter);
+            ClientResult result = await EchoMappedUnionAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            JsonElement element = document.RootElement;
+            return ClientResult.FromValue(element.Clone(), result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoMappedBase
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EchoMappedBase(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoMappedBaseRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoMappedBase
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EchoMappedBaseAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoMappedBaseRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EchoMappedBase. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> EchoMappedBase(BinaryData pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            ClientResult result = EchoMappedBase(BinaryContent.Create(pet), cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
+
+        /// <summary> EchoMappedBase. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> EchoMappedBaseAsync(BinaryData pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            ClientResult result = await EchoMappedBaseAsync(BinaryContent.Create(pet), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
+
+        /// <summary>
         /// [Protocol Method] SendPets
         /// <list type="bullet">
         /// <item>
@@ -460,8 +830,63 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(stream, nameof(stream));
 
-            using BinaryContent content = new JsonLinesBinaryContent<BinaryData>(stream);
+            using BinaryContent content = new JsonLinesBinaryContent<BinaryData>(stream, true);
             return await SendPetsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendBytes
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SendBytes(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendBytesRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendBytes
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SendBytesAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendBytesRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> SendBytes. </summary>
+        /// <param name="stream"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="stream"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SendBytesAsync(IAsyncEnumerable<BinaryData> stream, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(stream, nameof(stream));
+
+            using BinaryContent content = new JsonLinesBinaryContent<BinaryData>(stream);
+            return await SendBytesAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>

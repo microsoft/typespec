@@ -87,8 +87,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var modifiers = base.BuildDeclarationModifiers();
             var unions = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions;
-            return unions.Any(union => union.BaseModel == _inputModel) &&
-                !unions.Any(union => union.DiscriminatedSubtypes?.Values.Contains(_inputModel) == true)
+            // XML deserialization constructs the nominal base without a union discriminator.
+            return !_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) &&
+                unions.Any(union => union.BaseModel == _inputModel && DiscriminatedUnionSerialization.RequiresEnvelope(union)) &&
+                !unions.Any(union => DiscriminatedUnionSerialization.RequiresEnvelope(union) &&
+                    union.DiscriminatedSubtypes?.Values.Contains(_inputModel) == true)
                 ? modifiers | TypeSignatureModifiers.Abstract
                 : modifiers;
         }

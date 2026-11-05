@@ -23,6 +23,7 @@ namespace SampleTypeSpec
 #pragma warning disable UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(ExperimentalUnionCat))]
 #pragma warning restore UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
+    [ModelReaderWriterBuildable(typeof(ExternalUnionCat))]
     [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
@@ -64,6 +65,8 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(XmlItem))]
     [ModelReaderWriterBuildable(typeof(XmlModelWithNamespace))]
     [ModelReaderWriterBuildable(typeof(XmlNestedModel))]
+    [ModelReaderWriterBuildable(typeof(XmlUnionCat))]
+    [ModelReaderWriterBuildable(typeof(XmlUnionPet))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {
     }

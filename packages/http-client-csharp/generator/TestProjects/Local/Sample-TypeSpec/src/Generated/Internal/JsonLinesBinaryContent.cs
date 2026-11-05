@@ -22,11 +22,14 @@ namespace SampleTypeSpec
         {
             10
         };
+        private readonly bool _writeRawData;
 
         /// <param name="values"></param>
-        public JsonLinesBinaryContent(IAsyncEnumerable<T> values)
+        /// <param name="writeRawData"></param>
+        public JsonLinesBinaryContent(IAsyncEnumerable<T> values, bool writeRawData = false)
         {
             _values = values;
+            _writeRawData = writeRawData;
         }
 
         /// <param name="stream"></param>
@@ -42,7 +45,7 @@ namespace SampleTypeSpec
                 }
                 using (Utf8JsonWriter writer = new Utf8JsonWriter(stream))
                 {
-                    if (value is BinaryData data)
+                    if (_writeRawData && value is BinaryData data)
                     {
 #if NET6_0_OR_GREATER
                         writer.WriteRawValue(data);

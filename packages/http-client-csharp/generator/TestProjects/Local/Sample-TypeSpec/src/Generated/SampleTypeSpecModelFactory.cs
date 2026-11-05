@@ -665,6 +665,31 @@ namespace SampleTypeSpec
             return new ExperimentalUnionCat(name, additionalBinaryDataProperties: null, meow);
         }
 
+        /// <summary> The XmlUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionCat"/> instance for mocking. </returns>
+        public static XmlUnionCat XmlUnionCat(string name = default, bool meow = default)
+        {
+            return new XmlUnionCat(name, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The XmlUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionPet"/> instance for mocking. </returns>
+        public static XmlUnionPet XmlUnionPet(string name = default)
+        {
+            return new XmlUnionPet(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ExternalUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ExternalUnionCat"/> instance for mocking. </returns>
+        public static ExternalUnionCat ExternalUnionCat(string name = default)
+        {
+            return new ExternalUnionCat(name, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly CSharpType _valuesType;
         private readonly FieldProvider _valuesField;
         private readonly FieldProvider _newLineField;
+        private readonly FieldProvider _writeRawDataField;
         private readonly ParameterProvider _streamParameter = new("stream", FormattableStringHelpers.Empty, typeof(Stream));
 
         public JsonLinesBinaryContentDefinition()
@@ -42,6 +43,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "_newLine",
                 this,
                 initializationValue: New.Array(typeof(byte), false, false, [Literal(10)]));
+            _writeRawDataField = new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(bool),
+                "_writeRawData",
+                this);
         }
 
         protected override CSharpType[] GetTypeArguments() => [_t];
@@ -59,16 +65,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override CSharpType BuildBaseType()
             => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
-        protected override FieldProvider[] BuildFields() => [_valuesField, _newLineField];
+        protected override FieldProvider[] BuildFields() => [_valuesField, _newLineField, _writeRawDataField];
 
         protected override ConstructorProvider[] BuildConstructors()
         {
             var values = new ParameterProvider("values", FormattableStringHelpers.Empty, _valuesType);
+            var writeRawData = new ParameterProvider("writeRawData", FormattableStringHelpers.Empty, typeof(bool), defaultValue: False);
             return
             [
                 new ConstructorProvider(
-                    new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [values]),
-                    new MethodBodyStatement[] { _valuesField.Assign(values).Terminate() },
+                    new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [values, writeRawData]),
+                    new MethodBodyStatement[]
+                    {
+                        _valuesField.Assign(values).Terminate(),
+                        _writeRawDataField.Assign(writeRawData).Terminate()
+                    },
                     this)
             ];
         }
@@ -113,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             writerScope.AddRange(
             [
                 new IfElseStatement(
-                    value.Is(new DeclarationExpression(typeof(BinaryData), "data", out var data)),
+                    _writeRawDataField.AsValueExpression.As<bool>().And(value.Is(new DeclarationExpression(typeof(BinaryData), "data", out var data))),
                     writer.As<Utf8JsonWriter>().WriteBinaryData(data),
                     writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions)),
                 writer.As<Utf8JsonWriter>().FlushAsync(cancellationToken).Terminate()
