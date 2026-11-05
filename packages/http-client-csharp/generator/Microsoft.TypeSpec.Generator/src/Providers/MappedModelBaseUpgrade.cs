@@ -142,12 +142,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             [NotNullWhen(true)] out PropertyProvider? unvisited)
         {
             unvisited = null;
-            var factory = CodeModelGenerator.Instance.TypeFactory;
             // Honor cached visitor results, including removals, without populating the cache during
             // potentially recursive property conversion.
-            current = factory.PropertyCache.TryGetValue(input, out var cached)
+            current = CodeModelGenerator.Instance.TypeFactory.PropertyCache.TryGetValue(input, out var cached)
                 ? cached
-                : factory.CreateUncachedProperty(input, owner);
+                : CodeModelGenerator.Instance.TypeFactory.CreateUncachedProperty(input, owner);
             if (current is null || owner.IsPropertySuppressed(current) ||
                 current.Name != historicalProperty.Name ||
                 HasCustomAlias(owner, input, current.Name, historicalProperty.Name))
