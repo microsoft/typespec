@@ -61,7 +61,7 @@ G1 or expand every producer profile.
       only when its bounded necessity is established for the selected consumer; do
       not require another reduction family or a general analysis framework just to
       close Task03.
-- [ ] **R3 — Reconcile validation for the final adopted core.** Record the exact
+- [x] **R3 — Reconcile validation for the final adopted core.** Record the exact
       source revision, executed focused regressions, required broad/unfiltered
       results, independent-review findings and dispositions, and outstanding CI.
       Verify both original raw outcomes and relevant input/currentness/capture/fallback
@@ -93,7 +93,10 @@ ownership/generic gate and 15-case surrounding guard run pass. Fresh unfiltered
 five C# hashes pass. Complete independent medium review of the five C# files and
 two checkpoint documents found no concrete production defect. The subsequent
 R1–R4 docs-only contract update and reconciliation do not invalidate those source
-results. Exact published source revision will be recorded when publication finishes.
+results. Exact adopted source revision:
+[`305048a0812c1d6e6d1b24e6de31dec38cc35cbb`](https://github.com/live1206/typespec/commit/305048a0812c1d6e6d1b24e6de31dec38cc35cbb).
+This result-record update changes only documentation; all five C# source hashes
+remain identical to the final validated and independently reviewed code.
 
 R1 is **partial**: the acceptance map is present, but representative eligible/enabled
 counts and a demonstrated-benefit winner are still unmeasured. The temporary

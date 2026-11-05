@@ -5,6 +5,8 @@ Source baseline: `92713ff0b` (code checkpoint `b317c10cf`). The docs-only
 none of the five C# files validated here. Follow the
 [remaining-work handoff](./pre-emission-task03-scope-review.md) and
 [scoped checklist](./pre-emission-task03-checklist.md).
+Adopted code revision:
+[`305048a0812c1d6e6d1b24e6de31dec38cc35cbb`](https://github.com/live1206/typespec/commit/305048a0812c1d6e6d1b24e6de31dec38cc35cbb).
 
 This maps the existing **15-row / 44-source original inventory**, not a new
 feature checklist. Producer evidence is not occurrence permission or raw-writer
