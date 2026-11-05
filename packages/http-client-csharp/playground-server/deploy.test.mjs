@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-// cspell:ignore esac
+// cspell:ignore esac ALRM
 
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
@@ -26,7 +26,24 @@ beforeEach(async () => {
   await writeFile(
     join(bin, "timeout"),
     `#!/usr/bin/env bash
+echo "$*" >> "$FAKE_STATE/timeouts"
 if [[ "$SCENARIO" == "deployment-timeout" && "$2" == "3600" ]]; then exit 124; fi
+if [[ "$SCENARIO" == "read-timeout" && "$*" == *" container show "* && ! -f "$FAKE_STATE/read-timeout" ]]; then
+  touch "$FAKE_STATE/read-timeout"
+  exit 124
+fi
+if [[ "$SCENARIO" == "update-timeout" && "$2" == "3600" ]]; then
+  shift 2
+  /usr/bin/timeout --kill-after=1 30 "$@" &
+  supervisor=$!
+  while [[ ! -f "$FAKE_STATE/update-started" ]]; do
+    if ! kill -0 "$supervisor" 2>/dev/null; then wait "$supervisor"; exit $?; fi
+    /usr/bin/sleep 0.01
+  done
+  kill -ALRM "$supervisor"
+  wait "$supervisor"
+  exit $?
+fi
 exec /usr/bin/timeout "$@"
 `,
     { mode: 0o755 },
@@ -45,11 +62,23 @@ case "$1 $2 $3" in
   "webapp config container")
     if [[ "$4" == "set" ]]; then
       echo "$RUN_ID deploy" >> "$FAKE_STATE/events"
+      if [[ "$SCENARIO" == "update-timeout" ]]; then
+        touch "$FAKE_STATE/update-started"
+        /usr/bin/sleep 1
+        touch "$FAKE_STATE/stale-update"
+      fi
       while [[ "$1" != "--container-image-name" ]]; do shift; done
       printf '[{"name":"DOCKER_CUSTOM_IMAGE_NAME","value":"DOCKER|%s"}]' "$2" > "$FAKE_STATE/image"
       if [[ "$SCENARIO" == "gateway-timeout" ]]; then echo GatewayTimeout >&2; exit 1; fi
     elif [[ "$SCENARIO" == "unconfirmed" ]]; then
       echo '[{"value":"DOCKER|wrong-image"}]'
+    elif [[ "$SCENARIO" == "read-auth" ]]; then
+      echo AuthorizationFailed >&2
+      exit 1
+    elif [[ "$SCENARIO" == "read-transient" && ! -f "$FAKE_STATE/read-transient" ]]; then
+      touch "$FAKE_STATE/read-transient"
+      echo ServiceUnavailable >&2
+      exit 1
     else
       cat "$FAKE_STATE/image"
     fi
@@ -87,7 +116,7 @@ function deploy(scenario = "success", id = "one") {
         SCENARIO: scenario,
         RUN_ID: id,
       },
-      timeout: 20_000,
+      timeout: 60_000,
     },
   );
 }
@@ -118,6 +147,33 @@ test("does not deploy after a build failure", async () => {
 test("reports the bounded deployment timeout", async () => {
   await assert.rejects(deploy("deployment-timeout"), /exit code 124/);
   await assert.rejects(readFile(join(root, "commands")));
+});
+
+test("the overall timeout stops an in-flight update instead of letting it escape", async () => {
+  await assert.rejects(deploy("update-timeout"), /exit code 124/);
+  await assert.rejects(readFile(join(root, "stale-update")));
+  const timeouts = (await readFile(join(root, "timeouts"), "utf8")).trim().split("\n");
+  assert.ok(
+    timeouts
+      .filter((line) => line.includes("webapp config container"))
+      .every((line) => line.startsWith("--foreground ")),
+  );
+});
+
+for (const scenario of ["read-transient", "read-timeout"]) {
+  test(`continues verification after ${scenario}`, async () => {
+    const { stderr } = await deploy(scenario);
+    assert.match(stderr, /Container configuration read failed/);
+    const commands = await readFile(join(root, "commands"), "utf8");
+    assert.equal(commands.match(/webapp config container set/g).length, 1);
+  });
+}
+
+test("fails explicitly on a configuration-read authorization error", async () => {
+  await assert.rejects(deploy("read-auth"), /AuthorizationFailed/);
+  const commands = await readFile(join(root, "commands"), "utf8");
+  assert.equal(commands.match(/webapp config container show/g).length, 1);
+  assert.equal(commands.match(/webapp config container set/g).length, 1);
 });
 
 test("fails if the desired image is never confirmed", async () => {
