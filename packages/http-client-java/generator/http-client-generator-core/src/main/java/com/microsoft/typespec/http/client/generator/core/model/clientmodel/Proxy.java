@@ -67,7 +67,7 @@ public class Proxy {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        if (includeImplementationImports) {
+        if (includeImplementationImports && settings.isAzureV1()) {
             Annotation.HOST.addImportsTo(imports);
             Annotation.SERVICE_INTERFACE.addImportsTo(imports);
         }

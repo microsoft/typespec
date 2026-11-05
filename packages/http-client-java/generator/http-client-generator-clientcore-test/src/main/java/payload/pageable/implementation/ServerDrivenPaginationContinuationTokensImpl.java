@@ -1,15 +1,10 @@
 package payload.pageable.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
@@ -18,7 +13,12 @@ import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderNestedResponseBodyResponse;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderResponseBodyResponse;
@@ -55,79 +55,306 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for PageableClientServerDrivenPaginationContinuationTokens to be used by
-     * the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "PageableClientServerDrivenPaginationContinuationTokens", host = "{endpoint}")
     public interface ServerDrivenPaginationContinuationTokensService {
         static ServerDrivenPaginationContinuationTokensService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("payload.pageable.implementation.ServerDrivenPaginationContinuationTokensServiceImpl");
-                return (ServerDrivenPaginationContinuationTokensService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new ServerDrivenPaginationContinuationTokensServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(String endpoint, String token, String foo,
+            String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(String endpoint, String token, String foo,
+            String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(
-            @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
-            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(
-            @HostParam("endpoint") String endpoint, @QueryParam("token") String token, @HeaderParam("foo") String foo,
-            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(
-            @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
-            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
+    }
+
+    private static final class ServerDrivenPaginationContinuationTokensServiceImpl
+        implements ServerDrivenPaginationContinuationTokensService {
+        private static final ClientLogger LOGGER
+            = new ClientLogger(ServerDrivenPaginationContinuationTokensServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private ServerDrivenPaginationContinuationTokensServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(
+                endpoint + "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "token", true, token, true);
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (foo != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestQueryResponseBodyResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, RequestQueryResponseBodyResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(
+                endpoint + "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (token != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("token"), token);
+            }
+            if (foo != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestHeaderResponseBodyResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, RequestHeaderResponseBodyResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "token", true, token, true);
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (foo != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestQueryResponseHeaderResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, RequestQueryResponseHeaderResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (token != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("token"), token);
+            }
+            if (foo != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestHeaderResponseHeaderResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, RequestHeaderResponseHeaderResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(String endpoint,
+            String token, String foo, String bar, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "token", true, token, true);
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (foo != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestQueryNestedResponseBodyResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, RequestQueryNestedResponseBodyResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(String endpoint,
+            String token, String foo, String bar, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (token != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("token"), token);
+            }
+            if (foo != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestHeaderNestedResponseBodyResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, RequestHeaderNestedResponseBodyResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**

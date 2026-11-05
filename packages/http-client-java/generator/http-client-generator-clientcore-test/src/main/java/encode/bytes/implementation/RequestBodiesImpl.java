@@ -1,27 +1,25 @@
 package encode.bytes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.utils.Base64Uri;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * An instance of this class provides access to all the operations defined in RequestBodies.
  */
 public final class RequestBodiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +37,7 @@ public final class RequestBodiesImpl {
 
     /**
      * Initializes an instance of RequestBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     RequestBodiesImpl(BytesClientImpl client) {
@@ -48,72 +46,141 @@ public final class RequestBodiesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for BytesClientRequestBodies to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "BytesClientRequestBodies", host = "{endpoint}")
     public interface RequestBodiesService {
-        static RequestBodiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.RequestBodiesServiceImpl");
-                return (RequestBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
 
+        static RequestBodiesService getNewInstance(HttpPipeline pipeline) {
+            return new RequestBodiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/default",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/octet-stream",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> octetStream(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/custom-content-type",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> customContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("image/png") BinaryData value,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/base64",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/json") byte[] value, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/base64url",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64url(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/json") Base64Uri value,
+        Response<Void> defaultMethod(String endpoint, String contentType, BinaryData value, long contentLength,
             RequestContext requestContext);
+
+        Response<Void> octetStream(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext);
+
+        Response<Void> customContentType(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext);
+
+        Response<Void> base64(String endpoint, String contentType, byte[] value, RequestContext requestContext);
+
+        Response<Void> base64url(String endpoint, String contentType, Base64Uri value, RequestContext requestContext);
+    }
+
+    private static final class RequestBodiesServiceImpl implements RequestBodiesService {
+
+        private static final ClientLogger LOGGER = new ClientLogger(RequestBodiesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
+
+        private RequestBodiesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> defaultMethod(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/body/request/default");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            httpRequest.getHeaders().set(HttpHeaderName.CONTENT_LENGTH, String.valueOf(contentLength));
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/octet-stream", () -> value);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    RequestBodiesServiceImpl.JSON_SERIALIZER, null, null, null, RequestBodiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> octetStream(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/body/request/octet-stream");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            httpRequest.getHeaders().set(HttpHeaderName.CONTENT_LENGTH, String.valueOf(contentLength));
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/octet-stream", () -> value);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    RequestBodiesServiceImpl.JSON_SERIALIZER, null, null, null, RequestBodiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> customContentType(String endpoint, String contentType, BinaryData value,
+            long contentLength, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/body/request/custom-content-type");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            httpRequest.getHeaders().set(HttpHeaderName.CONTENT_LENGTH, String.valueOf(contentLength));
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "image/png", () -> value);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    RequestBodiesServiceImpl.JSON_SERIALIZER, null, null, null, RequestBodiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64(String endpoint, String contentType, byte[] value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/body/request/base64");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/json",
+                () -> BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    RequestBodiesServiceImpl.JSON_SERIALIZER, null, null, null, RequestBodiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64url(String endpoint, String contentType, Base64Uri value,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/body/request/base64url");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/json",
+                () -> BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    RequestBodiesServiceImpl.JSON_SERIALIZER, null, null, null, RequestBodiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
     }
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -135,7 +202,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The octetStream operation.
-     * 
+     *
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -156,7 +223,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The customContentType operation.
-     * 
+     *
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -178,7 +245,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -197,7 +264,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -214,4 +281,6 @@ public final class RequestBodiesImpl {
                 return service.base64url(this.client.getEndpoint(), contentType, valueConverted, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(RequestBodiesImpl.class);
 }
