@@ -17,6 +17,37 @@ namespace TestProjects.Local.Tests
 {
     public class ModelSerializationExtensionsTests
     {
+        [TestCase("[0].description", 0, 3, ".description")]
+        [TestCase("[12].description", 12, 4, ".description")]
+        [TestCase("[0]", 0, 3, "")]
+        [TestCase("[12][3].description", 12, 4, "[3].description")]
+        [TestCase("[2147483647].description", int.MaxValue, 12, ".description")]
+        public void TryGetIndexConsumesCompleteIndexSegment(string path, int expectedIndex, int expectedBytesConsumed, string expectedRemainder)
+        {
+            ReadOnlySpan<byte> slice = Encoding.UTF8.GetBytes(path);
+
+            Assert.That(slice.TryGetIndex(out int index, out int bytesConsumed), Is.True);
+            Assert.That(index, Is.EqualTo(expectedIndex));
+            Assert.That(bytesConsumed, Is.EqualTo(expectedBytesConsumed));
+            Assert.That(Encoding.UTF8.GetString(slice.Slice(bytesConsumed)), Is.EqualTo(expectedRemainder));
+        }
+
+        [TestCase("")]
+        [TestCase("0]")]
+        [TestCase("[")]
+        [TestCase("[]")]
+        [TestCase("[-1]")]
+        [TestCase("[0")]
+        [TestCase("[abc]")]
+        [TestCase("[2147483648]")]
+        public void TryGetIndexRejectsInvalidIndex(string path)
+        {
+            ReadOnlySpan<byte> slice = Encoding.UTF8.GetBytes(path);
+
+            Assert.That(slice.TryGetIndex(out _, out int bytesConsumed), Is.False);
+            Assert.That(bytesConsumed, Is.Zero);
+        }
+
         [TestCase(short.MinValue, "-32768")]
         [TestCase(short.MaxValue, "32767")]
         [TestCase(ushort.MinValue, "0")]

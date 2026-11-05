@@ -1,7 +1,7 @@
 ### Prerequisite
 
-- Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
-- Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
+- Install a supported [Node.js](https://nodejs.org/) LTS. (Verify by running `node --version`)
+- Install [**.NET 10.0 SDK**](https://dotnet.microsoft.com/download/dotnet/10.0) for your specific platform. (or a higher version)
 
 ### Naming conventions
 
@@ -91,3 +91,26 @@ declaration on which to place an attribute.
 Graduation is an explicit source change: dependencies becoming generally available, or
 removing entries from `dependsOn`, does not remove `[Experimental("C")]`. Remove the
 declaration's `@experimental` decorator when the public API is ready to graduate.
+
+### Dynamic models
+
+The C# emitter supports the `@dynamicModel` decorator from `@azure-tools/typespec-client-generator-core`. Use the `"csharp"` scope to mark a model or namespace as dynamic.
+
+```tsp
+import "@azure-tools/typespec-client-generator-core";
+
+using Azure.ClientGenerator.Core;
+
+@dynamicModel("csharp")
+model Pet {
+  name: string;
+  kind: string;
+}
+
+@dynamicModel("csharp")
+namespace PetStore {
+  model Dog extends Pet {
+    breed: string;
+  }
+}
+```

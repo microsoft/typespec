@@ -1238,11 +1238,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Find the base model (should not have @dynamicModel decorator)
             var baseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModel");
             Assert.IsNotNull(baseModel);
-            Assert.IsFalse(baseModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsFalse(baseModel!.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
 
             var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModel");
             Assert.IsNotNull(derivedModel);
-            Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
             Assert.IsTrue(derivedModel.IsDynamicModel);
 
             // Verify that the base model is not marked as dynamic
@@ -1347,9 +1347,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNotNull(childModel.DiscriminatorValue, "Child model should have a discriminator value");
 
             // Only the child has the @dynamicModel decorator
-            Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
-            Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
-            Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
+            Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
+            Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
 
             // Verify all models in the chain are marked as dynamic due to discriminated inheritance
             Assert.IsTrue(childModel.IsDynamicModel);

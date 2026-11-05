@@ -23,7 +23,7 @@ namespace Sample
                 case global::System.ClientModel.Primitives.IJsonModel<T> jsonModel:
                     jsonModel.Write(writer, (options ?? global::Sample.ModelSerializationExtensions.WireOptions));
                     break;
-                case global::System.Byte[] bytes:
+                case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);
                     break;
                 case global::System.BinaryData bytes0:

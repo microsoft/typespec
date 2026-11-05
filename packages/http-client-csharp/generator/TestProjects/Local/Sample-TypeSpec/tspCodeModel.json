@@ -5338,8 +5338,10 @@
       "doc": "A sample dynamic model.",
       "decorators": [
         {
-          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
-          "arguments": {}
+          "name": "Azure.ClientGenerator.Core.@dynamicModel",
+          "arguments": {
+            "scope": "csharp"
+          }
         }
       ],
       "serializationOptions": {
@@ -5628,8 +5630,10 @@
             "doc": "Another sample dynamic model.",
             "decorators": [
               {
-                "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
-                "arguments": {}
+                "name": "Azure.ClientGenerator.Core.@dynamicModel",
+                "arguments": {
+                  "scope": "csharp"
+                }
               }
             ],
             "serializationOptions": {
@@ -9776,8 +9780,10 @@
       "usage": "Input,Json",
       "decorators": [
         {
-          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
-          "arguments": {}
+          "name": "Azure.ClientGenerator.Core.@dynamicModel",
+          "arguments": {
+            "scope": "csharp"
+          }
         }
       ],
       "serializationOptions": {
@@ -10165,8 +10171,10 @@
       "usage": "Input,Output,Json",
       "decorators": [
         {
-          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
-          "arguments": {}
+          "name": "Azure.ClientGenerator.Core.@dynamicModel",
+          "arguments": {
+            "scope": "csharp"
+          }
         }
       ],
       "serializationOptions": {

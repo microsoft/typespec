@@ -59,8 +59,13 @@ public class JavaEnum {
     }
 
     public final void value(String name, String value, String description, IType type) {
+        value(name, value, description, type, new String[0]);
+    }
+
+    public final void value(String name, String value, String description, IType type, String... annotations) {
         addExpectedCommaAndNewLine();
         contents.javadocComment(CoreUtils.isNullOrEmpty(description) ? "Enum value " + value + "." : description);
+        contents.annotation(annotations);
         contents.text(name + "(" + type.defaultValueExpression(value) + ")");
         previouslyAddedValue = true;
         addNewLine = true;

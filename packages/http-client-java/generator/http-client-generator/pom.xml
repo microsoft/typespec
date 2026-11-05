@@ -45,6 +45,12 @@
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
+      <artifactId>azure-core</artifactId>
+      <version>1.60.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.azure</groupId>
       <artifactId>azure-json</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>

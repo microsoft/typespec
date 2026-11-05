@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentDefineMethod;
 import java.util.LinkedHashSet;
@@ -31,12 +32,14 @@ public class FluentResourceCollectionInterfaceTemplate implements IJavaTemplate<
             comment.description(collection.getDescription());
         });
 
+        ExperimentalAnnotationUtil.write(javaFile, collection.getInnerGroupClient().getApiMetadata());
         javaFile.publicInterface(collection.getInterfaceType().getName(), interfaceBlock -> {
             // methods
             collection.getMethodsForTemplate().forEach(method -> {
                 ClientMethodTemplate.generateJavadoc(method.getInnerClientMethod(), interfaceBlock,
                     method.getInnerProxyMethod(), true);
 
+                ExperimentalAnnotationUtil.write(interfaceBlock, method.getInnerClientMethod().getApiMetadata());
                 interfaceBlock.publicMethod(method.getMethodSignature());
             });
 
@@ -58,6 +61,7 @@ public class FluentResourceCollectionInterfaceTemplate implements IJavaTemplate<
                 }
 
                 interfaceBlock.javadocComment(defineMethod::writeJavadoc);
+                ExperimentalAnnotationUtil.write(interfaceBlock, defineMethod.getApiMetadata());
                 interfaceBlock.publicMethod(defineMethod.getInterfaceMethodSignature());
             });
         });

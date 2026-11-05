@@ -36,6 +36,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.AreEqual(expected, writer.ToString(false));
         }
 
+        [TestCase(typeof(int[]), "int[]")]
+        [TestCase(typeof(int?[]), "int?[]")]
+        [TestCase(typeof(int?[][]), "int?[][]")]
+        [TestCase(typeof(List<int>[]), "global::System.Collections.Generic.List<int>[]")]
+        [TestCase(typeof(List<int>[,]), "global::System.Collections.Generic.List<int>[,]")]
+        [TestCase(typeof(int[][,]), "int[][,]")]
+        [TestCase(typeof(int[,][]), "int[,][]")]
+        [TestCase(typeof(int?[][,][,,]), "int?[][,][,,]")]
+        [TestCase(typeof(List<int[,][]>), "global::System.Collections.Generic.List<int[,][]>")]
+        public void ArrayTypesRenderValidElementAndOrderedRanks(Type type, string expected)
+        {
+            using var writer = new CodeWriter();
+            writer.Append($"{new CSharpType(type)}");
+            var actual = writer.ToString(false);
+            Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ArrayCreationPreservesNullableValueElement()
+        {
+            using var writer = new CodeWriter();
+            using (new CodeWriter.NewInstanceScope(writer))
+            {
+                writer.Append($"{new CSharpType(typeof(int?[]))}");
+            }
+            Assert.That(writer.ToString(false), Is.EqualTo("int?[]"));
+        }
+
         [Test]
         public void FormatInFormat()
         {

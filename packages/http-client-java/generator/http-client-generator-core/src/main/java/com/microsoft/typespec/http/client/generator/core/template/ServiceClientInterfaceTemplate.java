@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -37,6 +38,7 @@ public class ServiceClientInterfaceTemplate implements IJavaTemplate<ServiceClie
         javaFile.javadocComment(comment -> {
             comment.description(String.format("The interface for %1$s class.", serviceClient.getInterfaceName()));
         });
+        ExperimentalAnnotationUtil.write(javaFile, serviceClient.getApiMetadata());
         javaFile.publicInterface(serviceClient.getInterfaceName(), interfaceBlock -> {
             for (ServiceClientProperty property : serviceClient.getProperties()) {
                 if (property.getMethodVisibility() == JavaVisibility.Public) {
