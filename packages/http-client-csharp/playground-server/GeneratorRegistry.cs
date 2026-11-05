@@ -35,9 +35,12 @@ internal sealed class GeneratorRegistry
                     throw new InvalidDataException($"Invalid package identity or version for {packageName} at {packageRoot}.");
                 }
                 var path = Path.Combine(packageRoot, "dist", "generator", "Microsoft.TypeSpec.Generator.dll");
-                if (!File.Exists(path))
+                foreach (var requiredPath in new[] { path, Path.ChangeExtension(path, ".runtimeconfig.json") })
                 {
-                    throw new FileNotFoundException($"Generator runtime missing for {packageName}.", path);
+                    if (!File.Exists(requiredPath))
+                    {
+                        throw new FileNotFoundException($"Generator runtime missing for {packageName}.", requiredPath);
+                    }
                 }
                 _paths.Add(generatorName, path);
                 packages.Add(new(generatorName, packageName, version.GetString()!));

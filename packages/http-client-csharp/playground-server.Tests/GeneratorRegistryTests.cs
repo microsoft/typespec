@@ -115,6 +115,16 @@ public class GeneratorRegistryTests
     }
 
     [Test]
+    public void MissingRuntimeConfigurationFailsAtStartup()
+    {
+        var path = Path.ChangeExtension(GetGeneratorPath("http-client-csharp-mgmt"), ".runtimeconfig.json");
+        File.Delete(path);
+
+        var exception = Assert.Throws<FileNotFoundException>(() => new GeneratorRegistry("unbranded.dll", _root));
+        Assert.That(exception!.FileName, Is.EqualTo(path));
+    }
+
+    [Test]
     public void MissingPackageMetadataFailsAtStartup()
     {
         File.Delete(Path.Combine(_root, "http-client-csharp", "package.json"));
@@ -155,6 +165,7 @@ public class GeneratorRegistryTests
         var generatorPath = GetGeneratorPath(package);
         Directory.CreateDirectory(Path.GetDirectoryName(generatorPath)!);
         File.WriteAllText(generatorPath, "fake runtime");
+        File.WriteAllText(Path.ChangeExtension(generatorPath, ".runtimeconfig.json"), "{}");
         File.WriteAllText(Path.Combine(_root, package, "package.json"),
             JsonSerializer.Serialize(new { name = name ?? $"@azure-typespec/{package}", version }));
     }

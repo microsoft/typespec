@@ -3,11 +3,8 @@
 # Licensed under the MIT License.
 set -euo pipefail
 
-storage=(--account-name typespec --container-name pkgs --auth-mode login --only-show-errors)
-blob="_locks/csharp-playground-server"
-
 deploy() {
-  local context="$1" tag="$2" lease="$3"
+  local context="$1" tag="$2"
   local registry="typespecacr" app="csharp-playground-server" group="typespec"
   local image="$registry.azurecr.io/$app:$tag"
 
@@ -17,8 +14,6 @@ deploy() {
   # ARM may apply the update even when the CLI reports a GatewayTimeout.
   # Verify the configured image before deciding whether to retry.
   for attempt in 1 2 3; do
-    timeout --kill-after=5 20 az storage blob lease renew "${storage[@]}" \
-      --blob-name "$blob" --lease-id "$lease"
     echo "Deploy attempt $attempt: $image"
     if ! timeout --kill-after=5 90 az webapp config container set \
       --name "$app" --resource-group "$group" \
@@ -42,10 +37,8 @@ deploy() {
   return 1
 }
 
-# The child runs in timeout's process group so losing the lease can stop both it
-# and any active CLI command before another publisher acquires the expired lease.
 if [[ "${1:-}" == "--deploy" ]]; then
-  deploy "$2" "$3" "$4"
+  deploy "$2" "$3"
   exit
 fi
 
@@ -54,81 +47,8 @@ if [[ $# != 2 || ! -d "$1" || ! "$2" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; 
   exit 1
 fi
 
-error_file=$(mktemp)
-lock_file=$(mktemp)
-lease_id=""
-deployment_pid=""
-
-cleanup() {
-  local status=$?
-  trap - EXIT INT TERM
-  if [[ -n "$deployment_pid" ]]; then
-    kill -TERM -- "-$deployment_pid" 2> /dev/null || true
-    sleep 1
-    kill -KILL -- "-$deployment_pid" 2>/dev/null || true
-    wait "$deployment_pid" 2>/dev/null || true
-  fi
-  if [[ -n "$lease_id" ]]; then
-    if ! timeout --kill-after=5 20 az storage blob lease release "${storage[@]}" \
-      --blob-name "$blob" --lease-id "$lease_id"; then
-      echo "Failed to release playground deployment lease; it will expire after 60s." >&2
-      status=1
-    fi
-  fi
-  rm -f "$error_file" "$lock_file"
-  exit "$status"
-}
-trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
-
-if ! timeout --kill-after=5 20 az storage blob upload "${storage[@]}" \
-  --name "$blob" --file "$lock_file" --overwrite false --if-none-match '*' \
-  > /dev/null 2> "$error_file"; then
-  if ! grep -Eq 'BlobAlreadyExists|ConditionNotMet|LeaseIdMissing' "$error_file"; then
-    echo "Failed to initialize the playground deployment lock blob." >&2
-    cat "$error_file" >&2
-    exit 1
-  fi
-fi
-
-deadline=$((SECONDS + 1800))
-while true; do
-  if lease_id=$(timeout --kill-after=5 20 az storage blob lease acquire "${storage[@]}" \
-    --blob-name "$blob" --lease-duration 60 -o tsv 2> "$error_file"); then
-    if [[ -z "$lease_id" ]]; then
-      echo "Storage returned an empty deployment lease ID." >&2
-      exit 1
-    fi
-    break
-  fi
-  if ! grep -q 'LeaseAlreadyPresent' "$error_file"; then
-    echo "Failed to acquire the playground deployment lease." >&2
-    cat "$error_file" >&2
-    exit 1
-  fi
-  if ((SECONDS >= deadline)); then
-    echo "Timed out waiting 30 minutes for the playground deployment lease." >&2
-    exit 1
-  fi
-  echo "Another playground deployment holds the lease; retrying in 10s..."
-  sleep 10
-done
-
-timeout --kill-after=5 3600 bash "$0" --deploy "$1" "$2" "$lease_id" &
-deployment_pid=$!
-while kill -0 "$deployment_pid" 2> /dev/null; do
-  sleep 20
-  if kill -0 "$deployment_pid" 2> /dev/null; then
-    if ! timeout --kill-after=5 20 az storage blob lease renew "${storage[@]}" \
-      --blob-name "$blob" --lease-id "$lease_id"; then
-      echo "Deployment lease renewal failed; stopping build/deployment." >&2
-      exit 1
-    fi
-  fi
-done
-if wait "$deployment_pid"; then
-  deployment_pid=""
+if timeout --kill-after=5 3600 bash "$0" --deploy "$1" "$2"; then
+  exit 0
 else
   status=$?
   echo "Playground build/deployment failed with exit code $status." >&2

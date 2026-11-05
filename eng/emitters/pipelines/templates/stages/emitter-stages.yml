@@ -318,6 +318,8 @@ stages:
           os: linux
         jobs:
           - job: Publish
+            ${{ if and(parameters.PlaygroundServerDockerfile, parameters.PlaygroundServerAppName) }}:
+              timeoutInMinutes: 90
             steps:
               - checkout: self
 
