@@ -153,6 +153,32 @@ describe("isUnionEnum", () => {
     expect(isUnionEnum(Priority)).toBe(true);
   });
 
+  it("flattens nested named string unions", async () => {
+    const { ProvisioningState } = await runner.compile(t.code`
+      union ResourceProvisioningState {
+        Succeeded: "Succeeded",
+        Failed: "Failed",
+        Cancelled: "Cancelled",
+      }
+
+      union ${t.union("ProvisioningState")} {
+        Accepted: "Accepted",
+        Creating: "Creating",
+        ResourceProvisioningState,
+        string,
+      }
+    `);
+
+    expect(isUnionEnum(ProvisioningState)).toBe(true);
+    expect(getUnionEnumMembers(ProvisioningState).map((member) => member.value)).toEqual([
+      "Accepted",
+      "Creating",
+      "Succeeded",
+      "Failed",
+      "Cancelled",
+    ]);
+  });
+
   it("returns false for union with non-string variant types", async () => {
     const { Mixed } = await runner.compile(t.code`
       model Foo { x: string; }
@@ -163,6 +189,65 @@ describe("isUnionEnum", () => {
     `);
 
     expect(isUnionEnum(Mixed)).toBe(false);
+  });
+
+  it("returns false for conflicting flattened member names or values", async () => {
+    const { ConflictingName, ConflictingValue } = await runner.compile(t.code`
+      union InnerName { State: "inner" }
+      union ${t.union("ConflictingName")} {
+        State: "outer",
+        InnerName,
+      }
+
+      union InnerValue { First: "same" }
+      union ${t.union("ConflictingValue")} {
+        Second: "same",
+        InnerValue,
+      }
+    `);
+
+    expect(isUnionEnum(ConflictingName)).toBe(false);
+    expect(isUnionEnum(ConflictingValue)).toBe(false);
+  });
+
+  it("does not treat a named nested union variant as an enum member", async () => {
+    const { Outer } = await runner.compile(t.code`
+      union Inner {
+        X: "x",
+        Y: "y",
+      }
+      union ${t.union("Outer")} {
+        Group: Inner,
+        string,
+      }
+    `);
+
+    expect(isUnionEnum(Outer)).toBe(false);
+  });
+
+  it("returns false for members that collide after C# name normalization", async () => {
+    const { Outer } = await runner.compile(t.code`
+      union Inner { ready: "inner" }
+      union ${t.union("Outer")} {
+        Ready: "outer",
+        Inner,
+      }
+    `);
+
+    expect(isUnionEnum(Outer)).toBe(false);
+  });
+
+  it("flattens nullable wrappers around nested unions", async () => {
+    const { MaybeStatus } = await runner.compile(t.code`
+      union Status { Ready: "ready" }
+      union ${t.union("MaybeStatus")} {
+        Status,
+        null,
+      }
+    `);
+
+    expect(isUnionEnum(MaybeStatus)).toBe(true);
+    expect(getUnionEnumMembers(MaybeStatus).map((member) => member.value)).toEqual(["ready"]);
   });
 });
 
@@ -279,6 +364,29 @@ describe("union-as-enum rendering", () => {
           High
       }
     `);
+  });
+
+  it("renders named variants containing anonymous literal unions", async () => {
+    const { Choice } = await runner.compile(t.code`
+      union ${t.union("Choice")} {
+        Group: "a" | "b",
+        Other: "c",
+      }
+    `);
+
+    expect(isUnionEnum(Choice)).toBe(true);
+    expect(getUnionEnumMembers(Choice).map((member) => member.value)).toEqual(["a", "b", "c"]);
+  });
+
+  it("does not flatten named variants containing nullable anonymous unions", async () => {
+    const { Choice } = await runner.compile(t.code`
+      union ${t.union("Choice")} {
+        Group: "a" | null,
+        Other: "b",
+      }
+    `);
+
+    expect(isUnionEnum(Choice)).toBe(false);
   });
 
   it("renders union with inline anonymous union of string literals and null", async () => {

@@ -13,12 +13,23 @@ it("emits one nullable suffix for optional nullable value parameters", async () 
         null,
       }
 
+      union Status {
+        Ready: "ready",
+        null,
+      }
+
+      union MaybeStatus {
+        Status,
+        null,
+      }
+
       @route("/nullable")
       interface NullableParameters {
         @get test(
           @query value?: int32 | null,
           @query choice?: Choice | null,
           @query maybeInt?: MaybeInt | null,
+          @query status?: MaybeStatus,
         ): void;
       }
     `),
@@ -41,8 +52,12 @@ it("emits one nullable suffix for optional nullable value parameters", async () 
   expect(interfaceContent).toBeDefined();
   expect(mockContent).toBeDefined();
   expect(controllerContent).toBeDefined();
-  expect(interfaceContent).toContain("TestAsync(int? value, Choice? choice, int? maybeInt)");
-  expect(mockContent).toContain("TestAsync(int? value, Choice? choice, int? maybeInt)");
+  expect(interfaceContent).toContain(
+    "TestAsync(int? value, Choice? choice, int? maybeInt, MaybeStatus? status)",
+  );
+  expect(mockContent).toContain(
+    "TestAsync(int? value, Choice? choice, int? maybeInt, MaybeStatus? status)",
+  );
   expect(controllerContent).toContain("int? value");
   expect(controllerContent).toContain("Choice? choice");
   expect(controllerContent).toContain("int? maybeInt");
