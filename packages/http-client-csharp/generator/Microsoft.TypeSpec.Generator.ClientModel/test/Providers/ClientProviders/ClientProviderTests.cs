@@ -2614,7 +2614,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 CollectionAssert.AreEqual(new[] { getRequest.Signature.Name }, requestCalls);
             }
 
-            var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+            var collections = client.CollectionResultProviders.NestedTypes.OfType<CollectionResultDefinition>().ToArray();
             Assert.AreEqual(4, collections.Length);
             foreach (var collection in collections)
             {

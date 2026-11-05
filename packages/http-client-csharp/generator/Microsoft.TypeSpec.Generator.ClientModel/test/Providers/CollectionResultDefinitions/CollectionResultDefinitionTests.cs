@@ -502,10 +502,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
-        public void TestCollectionResultNamesDoNotCollideWhenOperationsAreRenamed()
+        public void TestCollectionResultNamesPreserveDistinctListOperations()
         {
-            // Two paging operations "list" and "listAll" both get renamed to "GetAll" by CleanOperationNames.
-            // Numeric suffixes disambiguate helpers using the same normalized operation name.
+            // List/Get normalization preserves distinct operations when their projected names collide.
             var thingModel = InputFactory.Model("thing", properties:
             [
                 InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
@@ -517,7 +516,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             var pagingMetadata = InputFactory.NextLinkPagingMetadata(["things"], ["next"], InputResponseLocation.Body);
 
-            // "list" will be renamed to "GetAll", "listAll" will also be renamed to "GetAll"
             var listOperation = InputFactory.Operation("list", responses: [response]);
             var listAllOperation = InputFactory.Operation("listAll", responses: [response]);
 
@@ -542,8 +540,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CollectionAssert.AreEquivalent(
                 new[]
                 {
-                    "GetAllCollectionResult", "GetAllAsyncCollectionResult", "GetAllCollectionResultOfT", "GetAllAsyncCollectionResultOfT",
-                    "GetAllCollectionResult2", "GetAllAsyncCollectionResult2", "GetAllCollectionResultOfT2", "GetAllAsyncCollectionResultOfT2"
+                    "ListCollectionResult", "ListAsyncCollectionResult", "ListCollectionResultOfT", "ListAsyncCollectionResultOfT",
+                    "ListAllCollectionResult", "ListAllAsyncCollectionResult", "ListAllCollectionResultOfT", "ListAllAsyncCollectionResultOfT"
                 }, collectionResultNames);
         }
 
