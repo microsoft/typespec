@@ -18,10 +18,10 @@ names are under `generator/Microsoft.TypeSpec.Generator/test/Writers/`.
 
 | Row / original anchor | Task and actual consumer | Current evidence / missing stages | Disposition and incremental cost |
 | --- | --- | --- | --- |
-| 1. Ordinary calls — `UnobservedCallSourceAllowsNamespaceReduction(0–8)` | Task03 shared facts; Task04 expression spelling; declaration/type/creation writers | `OriginalTypeOfHostAcceptance` proves actual instance `Pass`, physical inputs, raw seed/typeof shortening, binding/diagnostics/emit/runtime. Other operand families lack raw permission. | Partial. **Next candidate: case 0's independent unused declaration**, not constructor spelling. Reuses current lifetime, lookup, whole-owner envelope and fallback. |
+| 1. Ordinary calls — `UnobservedCallSourceAllowsNamespaceReduction(0–8)` | Task03 shared facts; Task04 expression spelling; declaration/type/creation writers | `OriginalTypeOfHostAcceptance` proves actual instance `Pass`, physical inputs, raw seed/typeof shortening, binding/diagnostics/emit/runtime. Other operand families lack raw permission. | Partial. **Adopted prerequisite: case 0's independent unused declaration**, not constructor spelling; remaining Task04 operands stay deferred. Reuses current lifetime, lookup, whole-owner envelope and fallback. |
 | 2. Maps/overrides — `ReorderedArgumentsUseParameterIdentityRatherThanEvaluationOrder`, `MultipleOmittedCaptureParametersProtectBothSources` | Tasks03/04; argument-containing writers | `NamedCallProofs` proves native maps and selective capture release. No faithful multi-argument raw permission pair. | Deferred accepted positives. Requires the selected multi-argument emission context, not another general mapping subsystem. |
 | 3. Delegates — `DelegateInvokeCallerExpressionRemainsExact`, `DelegateContractNotImplementationAttributesControlsCapture` | Tasks03/04; invocation/operand writers | `ParameterDelegateProofs` proves parameter Invoke contracts/runtime, not the original local `PlainDelegate callback = Target`. | Deferred. Original local declaration/Invoke authority and raw counterparts remain necessary. |
-| 4. Partial metadata — `PartialMethodCaptureAttributesAreReadFromCombinedSymbol` | Tasks03/04; captured operand writer | `LoadedSourceCallProofs`/`SourceInstanceConstructionProofs` cover source correspondence and partial observer controls. Original generated/custom raw pair missing. | Deferred. Reuse source-part facts when a selected consumer needs them. |
+| 4. Partial metadata — `PartialMethodCaptureAttributesAreReadFromCombinedSymbol` | Tasks03/04; captured operand writer | `LoadedSourceCallProofs`/`SourceInstanceConstructionProofs` cover source correspondence and partial observer controls. The original combined-partial fixture's raw counterpart is missing; a generated/custom split would be additional adoption evidence, not the original fixture's identity. | Deferred. Reuse source-part facts when a selected consumer needs them. |
 | 5. Extensions — `StructuralThisReceiverExtensionReceiverSourceObservation`, conditional reduced-extension receiver capture | Tasks03/06/07/13; receiver writers | `ReducedExtensionProofs` proves lookup, receiver formal and runtime; import purity controls retained. No receiver-edit raw permission. | Deferred to corresponding receiver/grammar slice; do not broaden all extension profiles first. |
 | 6. Construction/initializers — `OrdinaryConstructorInitializerSourceCanReduce` | Tasks03/04; creation/initializer writers | `BaseInitializerProofs` proves actual base constructor/maps/runtime. Original construction spelling permission missing. | Deferred. The selected declaration candidate does **not** authorize shortening `new Exception()` or `base(...)`. |
 | 7. Closures — `EnclosingCallProofCoversLambdaSource` | Tasks03/04/07; nested type/receiver/declaration writers | `LambdaCallProofs` proves bounded parent conversion/captures/shared edges. Original private-instance lambda raw permission missing. | Deferred. Generated-parent evidence and exact closure emission context add more cost than the selected declaration prerequisite. |
@@ -56,16 +56,42 @@ counterpart. It is not being used to close the original mixed fixture.
   failures/skips. Formatting/Cop and all five changed C# hashes pass. Complete
   independent medium review of all seven changed files found no concrete defect;
   remote CI remains unverified.
-- **Representative corpus counts remain unmeasured.** A temporary probe attempted
-  existing Sample-TypeSpec/client-structure/bytes inputs. Setup errors were not
-  measurements; the corrected run timed out before yielding valid counts. It was
-  archived and removed. No eligible/enabled occurrence or file totals are inferred
-  from certificate counts, IR counts or textual `global::` matches.
-- Common declaration types are plausible, **not a measured winner**. Their used
-  locals, multiple owners/files and additional descriptors require broader
-  prerequisites than the current unused-default-local profile. The candidate
-  above is selected **provisionally for low incremental cost and an exact original
-  consumer**, not because corpus-wide benefit has been demonstrated.
+- **Bounded representative measurement:** the existing
+  `PreparedFieldTypeClientTests.RealClientRestPartParticipatesInPreparedFieldLookup`
+  fixture ran both normal and rest-client-shadow configurations successfully
+  (2/2, 10.7 seconds). It uses the emitter-produced
+  `TestProjects/Spector/http/client/structure/default/tspCodeModel.json`, SHA-256
+  `9d4bf7bd8281febecea40ffa940b698b9cca42a6af012dd75638c6c758c6ccb4`.
+  Measurement reused each configuration's actual original standard-writer
+  `src/Generated/Foo.cs` before legacy processing; no writer was replayed.
+
+  | Measured subset / configuration | Eligible field sites / enabled raw sites | Eligible body sites / enabled raw sites | Explicit qualified local candidates | `typeof` candidates |
+  | --- | --- | --- | --- | --- |
+  | Normal Foo client | 1 / 1 in one file | 0 / 0 | 4 `PipelineMessage` sites in one file | 0 |
+  | Rest-client name-shadow control | 0 / 0 | 0 / 0 | The same 4 sites, not four additional sites | 0 |
+
+  There is **one distinct measured output file**, not two independent files or
+  all generated files. The compilation is the existing controlled fixture, not
+  a successful consuming SDK build or asynchronous `CSharpGen` adoption. Body
+  eligibility is zero because the input has 38 top-level providers and the
+  adopted body envelope requires exactly one; zero captured body alternatives
+  agrees with that structural exclusion. The four locals are syntax-node counts
+  from the actual raw file, **not granted permissions or proof objects**.
+- **Selected next consumer:** Task04's `PipelineMessage` declaration-type sites
+  in this Foo client. They offer four observed qualified-local opportunities,
+  whereas bare `typeof` has none in this measured subset and the field site is
+  already shortened. The four-site figure is an **upper-bound opportunity
+  estimate**: future eligible/enabled counts remain unmeasured until Task04
+  supplies its local role, lookup/import/observation permission and wider
+  finalized-file envelope. Reuse R2's shared lifetime, occurrence, currentness and
+  fallback interfaces; do not add a general binder or constructor proof system.
+  Additional shared prerequisites must be justified by those exact sites.
+- This selects the highest observed opportunity among these bounded candidates,
+  **not an SDK-wide measured winner**. Broader corpus totals remain unmeasured.
+  Earlier broad/extended-writer probes timed out without valid counts; they were
+  archived and the temporary test edits restored exactly. The already adopted
+  unused-Exception declaration slice remains a low-incremental-cost prerequisite,
+  not evidence that all ordinary used declarations are supported.
 - No file is being claimed to retire Simplifier. Current workspace processing
   retains the residual path; token shortening does not establish runtime savings.
 
@@ -123,9 +149,14 @@ The current finite profile still excludes fields and multiple owners.
 This bounded checkpoint's fresh broader checks and independent review are
 recorded above. Later scope requires fresh gates; report exact results, unresolved
 original positives and CI. The historical 35 open items are deferred work, not
-additional scoped Task03 completion gates. R1 remains open because representative
-eligible/enabled counts and a demonstrated-benefit selection are unestablished;
-R4 remains open pending exact later-owner reconciliation and scoped completion
-publication. This checkpoint does not claim scoped Task03 completion, full issue
-completion, default activation, performance, SDK adoption/regeneration, or original
-PR/issue-comment work.
+additional scoped Task03 completion gates. R1's bounded counts and Task04
+opportunity selection are accepted by independent review and parent reconciliation;
+R1 is complete under the scoped estimates allowance.
+The [follow-up ledger](./pre-emission-task03-follow-up-ledger.md) provides exact
+owners and public retained anchors. The user explicitly agreed that Task13 owns
+only the exact two-variant conditional property/capture regression, preserving
+its original expectations and controls; general conditional property expansion
+remains excluded. **Scoped Task03 (R1–R4) is complete with this publication.**
+The overall issue, deferred consumer work, default activation, performance,
+SDK adoption/regeneration, asynchronous `CSharpGen` adoption and original
+PR/issue-comment work are not being claimed complete or authorized.

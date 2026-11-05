@@ -44,7 +44,7 @@ G1 or expand every producer profile.
 
 ## Remaining work required to finish Task03
 
-- [ ] **R1 — Reconcile acceptance and reduction benefit.** Use the existing
+- [x] **R1 — Reconcile acceptance and reduction benefit.** Use the existing
       15-row/44-source-file inventory to record each original anchor, actual writer
       consumer, current producer/permission/raw-output evidence, retained controls,
       and remaining gaps. Assign each row either to the adopted Task03 core or to an
@@ -69,7 +69,7 @@ G1 or expand every producer profile.
       rerun checks invalidated by new changes. Do not rerun old producer campaigns or
       add SDK/performance work solely because the handoff documents changed. No
       unresolved defect or required validation failure in adopted scope may be hidden.
-- [ ] **R4 — Publish the scoped completion and follow-up ledger.** State exactly
+- [x] **R4 — Publish the scoped completion and follow-up ledger.** State exactly
       what Task03 provides, its limitations, and the selected next consumer. Link
       every deferred original acceptance row to an explicit owning task and retained
       regression anchor; obtain agreement on any ownership not already established.
@@ -81,8 +81,13 @@ G1 or expand every producer profile.
 
 The [acceptance and handoff map](./pre-emission-task03-acceptance-map.md) records
 all 15 original rows, current evidence, remaining gaps and the reusable core
-interfaces. R2's selected follow-on consumer is Task04 ordinary declaration/type
-work; construction spelling remains Task04-deferred. The bounded declaration
+interfaces. The [follow-up ledger](./pre-emission-task03-follow-up-ledger.md)
+links explicit owners and commit-pinned retained anchors. The user confirmed
+Task13 ownership of the exact two-variant conditional property/capture regression,
+with original expectations and capture/retention controls unchanged; general
+conditional property expansion remains excluded. R2's selected follow-on consumer is Task04's
+four observed `PipelineMessage` declaration-type opportunities in the measured
+Foo client; future permissions remain unestablished. Construction spelling remains Task04-deferred. The bounded declaration
 prerequisite is validated, not a request to implement another language family.
 
 The original `Pass(new Exception())` seed now shortens; the construction operand
@@ -98,13 +103,33 @@ results. Exact adopted source revision:
 This result-record update changes only documentation; all five C# source hashes
 remain identical to the final validated and independently reviewed code.
 
-R1 is **partial**: the acceptance map is present, but representative eligible/enabled
-counts and a demonstrated-benefit winner are still unmeasured. The temporary
-probe failed and was removed; this declaration slice is provisional low incremental
-cost. R4 remains **open**: the row map retains deferred anchors and proposed task
-groupings, but exact row-level ownership/agreement and scoped completion publication
-are not established. Remote CI is unverified. Scoped Task03 is not yet complete;
-its historical deferred roadmap is not an additional completion gate.
+R1 is **complete for the scoped mapping/selection contract**: bounded representative counts are recorded for
+one actual raw Foo client file in two source-context variants (2/2, 10.7 seconds).
+Its 38-root input admits no body profile; actual body names are 0. The normal field
+site is eligible/enabled (1/1); shadowing retains (0/0). Four explicit qualified
+`PipelineMessage` local-type sites versus zero typeof sites justify the selected
+Task04 opportunity within this subset. Those four sites are an upper-bound
+candidate estimate, not eligible permissions or an SDK-wide measured winner.
+Broader corpus totals and future Task04 eligible/enabled counts are unmeasured.
+Temporary measurement edits were restored exactly; the adopted code is unchanged.
+Independent medium review and its correction follow-up accepted the bounded
+mapping/selection under the estimates allowance. Parent reconciliation confirmed
+correct established task assignments and exact retained anchors. No further
+measurement or Core family is required to close R1.
+
+R4 is **complete with this scoped publication**: the reviewed ledger assigns every
+original row to its explicit consumer task and retains the public, immutable
+regression anchors. The user confirmed the only new assignment: Task13 owns
+`StructuralConditionalStaticReceiverReducedExtensionReceiverCapture(false/true)`,
+including both original variants and their unchanged expectations and
+capture/retention controls. This is a narrow ownership assignment, not authority
+to broaden the conditional property family.
+
+**Scoped Task03 is complete (R1–R4).** The overall issue and deferred roadmap
+remain open in their owning tasks; they are not additional Task03 gates. Remote
+CI remains unverified. This is not default activation, SDK-wide coverage, a
+performance improvement, complete `Simplifier` replacement, or asynchronous
+`CSharpGen` adoption.
 
 R1 and R4 reconcile requirements; they are not instructions to create another
 proof-completeness checklist. Start with existing raw-writer fixtures and available
@@ -117,8 +142,9 @@ no new benchmark gate or regeneration campaign is required here.
 
 The previous full inventory remains available in the
 [historical checklist](https://github.com/live1206/typespec/blob/92713ff0bcf4ee6efb81c4fd4964e1d49723b15b/packages/http-client-csharp/docs/pre-emission-task03-checklist.md).
-The identifiers below refer to that inventory. R1/R4 must supply the exact
-acceptance-row ownership; broad grouping alone is not enough to lose a case.
+The identifiers below refer to that inventory. The completed R1/R4
+[ledger](./pre-emission-task03-follow-up-ledger.md) supplies exact acceptance-row
+ownership and retained anchors; broad grouping does not replace those obligations.
 
 | Historical area                                                                | Owning work and boundary                                                                                                                                                                                                              |
 | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
