@@ -145,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (mappedBase.HasFlatInputProjection)
+            if (mappedBase.HasInputPropertyProjection)
             {
                 // Renamed custom members can claim an input property without colliding with
                 // the framework member's CLR name. Keep that property with its source owner.
@@ -212,6 +212,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             });
         }
 
+        // A successful lookup may have no match. An ambiguous identity or conflicting known wire
+        // metadata instead rejects restoration, even when another historical member is compatible.
+        internal static bool TryMatchHistoricalProperty(CSharpType mappedType, InputModelProperty input,
+            IReadOnlyList<PropertyProvider> historicalProperties, out PropertyProvider? match)
+        {
+            match = null;
+            var matches = historicalProperties.Where(previous =>
+                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                    mappedType, input, previous)).ToArray();
+            var matchCount = matches.Length;
+            if (matchCount > 1 || historicalProperties.Any(previous =>
+                HasKnownPropertyIdentity(input, previous) &&
+                (matchCount == 0 || !ReferenceEquals(matches[0], previous))))
+            {
+                return false;
+            }
+            if (matchCount == 0)
+            {
+                return true;
+            }
+            if (HasConflictingKnownWireMetadata(input, matches[0]))
+            {
+                return false;
+            }
+            match = matches[0];
+            return true;
+        }
+
         internal static bool HasKnownPropertyIdentity(InputModelProperty current, PropertyProvider previous)
         {
             var wireName = current.SerializedName ?? current.Name;
@@ -250,6 +278,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (currentBase is null)
             {
                 return false;
+            }
+
+            if (mappedBase.HasInputPropertyProjection)
+            {
+                return MappedModelBaseUpgrade.CanReplaceCurrentBase(_model, mappedBase);
             }
 
             if (mappedBase.UsesLastContractType &&
@@ -316,7 +349,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 AreMappedPropertyShapesCompatible(property, wireMatch!);
         }
 
-        private static string GetInputPropertyClrName(InputModelProperty property)
+        internal static string GetInputPropertyClrName(InputModelProperty property)
             => property.IsExactName
                 ? property.Name
                 : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
@@ -331,14 +364,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     property,
                     effective));
 
-        private static bool AreMappedPropertyShapesCompatible(
+        internal static bool AreMappedPropertyShapesCompatible(
             InputModelProperty current,
             InputModelProperty mapped,
-            bool ignoreRequiredness = false)
+            bool ignoreRequiredness = false,
+            bool ignoreHttpMetadata = false)
             => (ignoreRequiredness || current.IsRequired == mapped.IsRequired) &&
                 GetInputPropertyClrName(current) == GetInputPropertyClrName(mapped) &&
                 current.IsReadOnly == mapped.IsReadOnly &&
-                current.IsHttpMetadata == mapped.IsHttpMetadata &&
+                (ignoreHttpMetadata || current.IsHttpMetadata == mapped.IsHttpMetadata) &&
                 current.IsDiscriminator == mapped.IsDiscriminator &&
                 current.Encode == mapped.Encode &&
                 InputSerializationOptionsStructuralComparer.Equals(
