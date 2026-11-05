@@ -11,7 +11,7 @@ namespace Sample
 {
     public partial class ModelSerializationExtensions
     {
-        public static void WriteBase64StringValue(this global::System.Text.Json.Utf8JsonWriter writer, global::System.Byte[] value, string format)
+        public static void WriteBase64StringValue(this global::System.Text.Json.Utf8JsonWriter writer, byte[] value, string format)
         {
             if ((value == null))
             {
@@ -53,7 +53,7 @@ namespace Sample
 
         public static void WriteBase64UrlStringValue(this global::System.Text.Json.Utf8JsonWriter writer, global::System.ReadOnlySpan<byte> source)
         {
-            global::System.Byte[] encoded = new byte[global::System.Buffers.Text.Base64.GetMaxEncodedToUtf8Length(source.Length)];
+            byte[] encoded = new byte[global::System.Buffers.Text.Base64.GetMaxEncodedToUtf8Length(source.Length)];
             global::System.Buffers.OperationStatus status = global::System.Buffers.Text.Base64.EncodeToUtf8(source, encoded, out int bytesConsumed, out int bytesWritten);
             if (((status != global::System.Buffers.OperationStatus.Done) || (bytesConsumed != source.Length)))
             {
