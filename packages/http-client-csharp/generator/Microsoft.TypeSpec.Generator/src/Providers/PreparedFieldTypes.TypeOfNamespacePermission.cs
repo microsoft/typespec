@@ -34,7 +34,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private readonly IReadOnlySet<string> _actualImports;
             private readonly CSharpParseOptions _parseOptions;
             private readonly CSharpCompilation _compilation;
-            private readonly CSharpCompilationOptions _options;
             private readonly CompleteSourceInputSnapshot? _inputs;
             private readonly SourceInputModel? _sourceModel;
             private readonly string? _sourceOutputDirectory;
@@ -58,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CSharpParseOptions parseOptions, CSharpCompilation compilation)
             {
                 _session = session; _shape = shape; _lookup = lookup; _graph = graph; _observed = observed;
-                _actualImports = actualImports; _parseOptions = parseOptions; _compilation = compilation; _options = compilation.Options;
+                _actualImports = actualImports; _parseOptions = parseOptions; _compilation = compilation;
                 _inputs = session._sourceInputs; _sourceModel = session._sourceModel; _sourceOutputDirectory = session._sourceOutputDirectory;
                 _id = lookup.Occurrence.Id; _producer = lookup.Occurrence.Producer; _generation = session._sourceGeneration;
                 SimpleSpelling = lookup.SimpleSpelling; QualifiedSpelling = lookup.QualifiedSpelling;
@@ -81,7 +80,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // currentness or input/environment callback in this producer.
                 // Above checks only inspect immutable or scalar owned inputs.
                 var shape = PreparedTypeOfFiniteEmissionShape.TryCapture(file, session._sourceRootList, compilation, leaf);
-                if (shape is null || !OwnsLeaf(shape, leaf) || file.Generation != session._sourceGeneration ||
+                // Only membership is frozen: occurrence identity, opacity and
+                // children are immutable. Live producer/currentness checks remain.
+                var ownsLeaf = shape is not null && OwnsLeaf(shape, leaf);
+                if (shape is null || !ownsLeaf || file.Generation != session._sourceGeneration ||
                     leaf.Id.Generation != file.Generation || leaf.Id.File != file.FilePath ||
                     !(ReferenceEquals(leaf.Producer, shape.Operand) || ReferenceEquals(leaf.Producer, shape.Declaration))) { return null; }
 
@@ -120,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         _session._sourceFiles.Count == 1 &&
                         _session._sourceFiles.TryGetValue(File.FileOwner, out var file) && ReferenceEquals(file, File) &&
                         _session._sourceRootSnapshot.Length == 1 && ReferenceEquals(_session._sourceRootSnapshot[0], File.FileOwner) &&
-                        ReferenceEquals(File.Compilation, _compilation) && ReferenceEquals(_compilation.Options, _options) &&
+                        ReferenceEquals(File.Compilation, _compilation) &&
                         // Compilation, options and parse options are immutable; the
                         // policy and native symbol lookup were completed at capture.
 
@@ -132,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             _inputs.IsCurrentFor(_sourceOutputDirectory)) &&
                         _session.CallEnvironmentIsCurrent() &&
                         ReferenceEquals(Occurrence.Id, _id) && ReferenceEquals(Occurrence.Producer, _producer) &&
-                        _id.Generation == _generation && _id.File == File.FilePath && OwnsLeaf(_shape, Occurrence) &&
+                        _id.Generation == _generation && _id.File == File.FilePath &&
                         ReferenceEquals(File.FileOwner.CachedType, _lookup.OwnerType) &&
                         _lookup.OwnerType.IdentityVersion == _lookup.OwnerTypeVersion &&
                         ReferenceEquals(NamespaceSiteType(_producer), _lookup.OperandType) &&

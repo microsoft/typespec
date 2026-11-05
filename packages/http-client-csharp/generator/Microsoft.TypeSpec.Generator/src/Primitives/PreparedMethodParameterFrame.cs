@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             if (!ReferenceEquals((object?)method.BodyStatements ?? method.BodyExpression, body) ||
                 !ContractCollections.TryCopy(method.Signature.Parameters, out var parameters)) { return null; }
-            var ownedBlockInvocation = PreparedOwnedGenericBlockScope.GetInvocation(method);
+            var ownedBlockInvocation = PreparedUnusedDefaultLocalCallBlock.GetInvocation(method);
             var region = ImmutableArray.CreateBuilder<(object, StructuredSourceShape)>();
             if (!CaptureRegion(body, region, new HashSet<object>(ReferenceEqualityComparer.Instance), 0,
                 allowThis: PreparedGeneratedMethodGroup.HasOwningRootCallProfile(method),
@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (!IsCurrent() ||
                 !(_ownedBlockInvocation is null
                     ? ReferenceEquals(_body, invocation) && PreparedGeneratedMethodGroup.HasOwningRootCallProfile(_method)
-                    : ReferenceEquals(_ownedBlockInvocation, invocation) && ReferenceEquals(PreparedOwnedGenericBlockScope.GetInvocation(_method), invocation)) ||
+                    : ReferenceEquals(_ownedBlockInvocation, invocation) && ReferenceEquals(PreparedUnusedDefaultLocalCallBlock.GetInvocation(_method), invocation)) ||
                 !ContractCollections.TryCopy(_method.EnclosingType.CachedMethods, out var methods) ||
                 methods.Count(m => ReferenceEquals(m, _method)) != 1 || !CodeWriter.HasMethodDeclaration(_method)) { return null; }
             return _method.EnclosingType.CachedType;
@@ -104,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 parameters.Length == _states.Length && parameters.Where((p, i) => !ReferenceEquals(p, _states[i].Parameter)).Any() == false &&
                 _signatureShape.Matches(StructuredSourceShape.Capture(_signature, true)) && _states.All(s => s.IsCurrent()) &&
                 _region.All(r => r.Shape.Matches(StructuredSourceShape.Capture(r.Producer, true))) &&
-                (_ownedBlockInvocation is null || ReferenceEquals(PreparedOwnedGenericBlockScope.GetInvocation(_method), _ownedBlockInvocation));
+                (_ownedBlockInvocation is null || ReferenceEquals(PreparedUnusedDefaultLocalCallBlock.GetInvocation(_method), _ownedBlockInvocation));
             if (!current) { System.Threading.Interlocked.Exchange(ref _stale, 1); }
             return current;
         }

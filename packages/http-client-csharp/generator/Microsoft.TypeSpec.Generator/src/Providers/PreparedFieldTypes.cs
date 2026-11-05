@@ -19,9 +19,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     internal sealed partial class PreparedFieldTypes : IDisposable
     {
-        private readonly Dictionary<TypeProvider, Dictionary<FieldProvider, Candidate>> _fields = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<TypeProvider, OwnerState> _owners = new(ReferenceEqualityComparer.Instance);
         private readonly List<TypeProvider> _attached = [];
-        private readonly Dictionary<TypeProvider, HashSet<string>> _forbiddenImports = new(ReferenceEqualityComparer.Instance);
         private IReadOnlyList<TypeProvider>? _roots;
         private TypeProvider[] _rootSnapshot = [];
         private RootState[] _rootStates = [];
@@ -33,9 +32,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private string? _outputRoot;
         private int _valid;
 
-        private sealed record Candidate(CSharpType FieldType, CSharpType OwnerType, TypeProvider? Target,
-            TypeProvider[] OwnerParts, TypeProvider[] TargetParts, INamedTypeSymbol? ReferencedTarget = null, long FieldTypeVersion = 0,
-            string[]? SourceScopeNames = null, bool CrossNamespace = false);
+        private sealed record OwnerState(CSharpType Type, TypeProvider[] Parts, string[] SourceScopeNames)
+        {
+            internal Dictionary<FieldProvider, Candidate> Fields { get; } = new(ReferenceEqualityComparer.Instance);
+            internal HashSet<string>? ForbiddenImports { get; set; }
+        }
+
+        private sealed record Candidate(CSharpType FieldType, TypeProvider? Target,
+            TypeProvider[] TargetParts, INamedTypeSymbol? ReferencedTarget = null, long FieldTypeVersion = 0,
+            bool CrossNamespace = false);
+
         private sealed record RootState(TypeProvider Provider, bool Written, TypeProvider[] Serializations, bool[] SerializationWritten);
         private sealed record ProviderState(TypeProvider Provider, CSharpType Type, string Name, string Namespace,
             int Arity, TypeProvider? Declaring, CSharpType? DeclaringType, TypeProvider[] Nested, string RelativeFilePath);
@@ -222,6 +228,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
+                var ownerState = new OwnerState(ownerType, ownerParts, sourceScope.Names);
                 foreach (var field in owner.Fields)
                 {
                     var type = field.Type;
@@ -257,7 +264,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         {
                             continue;
                         }
-                        candidate = new Candidate(type, ownerType, matchingTargets[0], ownerParts, targets, SourceScopeNames: sourceScope.Names);
+                        candidate = new Candidate(type, matchingTargets[0], targets);
                     }
                     else
                     {
@@ -271,7 +278,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         {
                             continue;
                         }
-                        candidate = new Candidate(type, ownerType, null, ownerParts, [], referencedTarget, type.IdentityVersion, sourceScope.Names);
+                        candidate = new Candidate(type, null, [], referencedTarget, type.IdentityVersion);
                     }
 
                     if (type.Namespace != ownerType.Namespace)
@@ -281,20 +288,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             continue;
                         }
                         candidate = candidate with { CrossNamespace = true };
-                        if (!result._forbiddenImports.TryGetValue(owner, out var fileImports))
-                        {
-                            fileImports = new HashSet<string>(StringComparer.Ordinal);
-                            result._forbiddenImports.Add(owner, fileImports);
-                        }
-                        fileImports.UnionWith(forbiddenImports);
+                        (ownerState.ForbiddenImports ??= new HashSet<string>(StringComparer.Ordinal)).UnionWith(forbiddenImports);
                     }
 
-                    if (!result._fields.TryGetValue(owner, out var fields))
-                    {
-                        fields = new Dictionary<FieldProvider, Candidate>(ReferenceEqualityComparer.Instance);
-                        result._fields.Add(owner, fields);
-                    }
-                    fields.Add(field, candidate);
+                    ownerState.Fields.Add(field, candidate);
+                }
+                if (ownerState.Fields.Count > 0)
+                {
+                    result._owners.Add(owner, ownerState);
                 }
             }
 
@@ -302,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 rootStates.All(root => root.Written && root.SerializationWritten.All(written => written)));
 
             result.CaptureBodyNames();
-            if (result._fields.Count == 0 && !result.HasBodyNameCandidates)
+            if (result._owners.Count == 0 && !result.HasBodyNameCandidates)
             {
                 return result;
             }
@@ -338,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal void ObserveImport(TypeProvider fileOwner, string namespaceName)
         {
             ObserveBodyImport(fileOwner, namespaceName);
-            if (_forbiddenImports.TryGetValue(fileOwner, out var forbidden) &&
+            if (_owners.TryGetValue(fileOwner, out var owner) && owner.ForbiddenImports is { } forbidden &&
                 (namespaceName.Split('.').Any(part => !IsSimpleIdentifier(part)) || forbidden.Contains(namespaceName)))
             {
                 Invalidate();
@@ -360,91 +361,99 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal bool CanCommit()
         {
             ObserveSourceSnapshot();
-            if (System.Threading.Volatile.Read(ref _valid) == 0 || !IsSnapshotCurrent())
+            if (!ValidateSnapshot())
             {
-                Invalidate();
                 return false;
             }
-            foreach (var (owner, fields) in _fields)
+            foreach (var (owner, state) in _owners)
             {
-                foreach (var field in fields.Keys)
+                foreach (var (field, candidate) in state.Fields)
                 {
-                    if (!CanWriteSimpleName(owner, field))
+                    // Keep the observation boundary for each occurrence: callbacks
+                    // and retained collections can diverge between snapshot checks.
+                    ObserveSourceSnapshot();
+                    if (!ValidateSnapshot() || !ValidateCandidateScopes() ||
+                        !ValidateOccurrence(owner, state, field, candidate))
                     {
                         return false;
                     }
                 }
             }
-            var current = System.Threading.Volatile.Read(ref _valid) != 0 && IsSnapshotCurrent();
-            if (!current)
-            {
-                Invalidate();
-            }
-            return current;
+            // A divergence first seen by the final check must also be sticky.
+            return ValidateSnapshot();
         }
 
         internal void ObserveSnapshot()
         {
             ObserveSourceSnapshot();
-            if (System.Threading.Volatile.Read(ref _valid) != 0 &&
-                (!IsSnapshotCurrent() || !AreCandidateScopesCurrent()))
+            if (ValidateSnapshot())
             {
-                Invalidate();
+                ValidateCandidateScopes();
             }
         }
 
-        private bool AreCandidateScopesCurrent()
+        private bool ValidateSnapshot() => Validate(
+            System.Threading.Volatile.Read(ref _valid) != 0 && IsSnapshotCurrent());
+
+        private bool Validate(bool current)
         {
-            foreach (var fields in _fields.Values)
+            if (!current)
             {
-                foreach (var candidate in fields.Values)
+                Invalidate();
+            }
+            return System.Threading.Volatile.Read(ref _valid) != 0;
+        }
+
+        private bool ValidateCandidateScopes()
+        {
+            foreach (var state in _owners.Values)
+            {
+                if (!Validate(IsSupportedDeclarationGroup(state.Parts, requireSimpleScope: true)))
                 {
-                    if (!IsSupportedDeclarationGroup(candidate.OwnerParts, requireSimpleScope: true) || !IsTargetCurrent(candidate))
+                    return false;
+                }
+                foreach (var candidate in state.Fields.Values)
+                {
+                    if (!Validate(IsTargetCurrent(state, candidate)))
                     {
                         return false;
                     }
                 }
             }
-            return true;
+            return System.Threading.Volatile.Read(ref _valid) != 0;
         }
 
         internal bool CanWriteSimpleName(TypeProvider owner, FieldProvider field)
         {
             ObserveSnapshot();
-            if (System.Threading.Volatile.Read(ref _valid) == 0 ||
-                !_fields.TryGetValue(owner, out var fields) || !fields.TryGetValue(field, out var candidate))
+            return System.Threading.Volatile.Read(ref _valid) != 0 &&
+                _owners.TryGetValue(owner, out var state) && state.Fields.TryGetValue(field, out var candidate) &&
+                ValidateOccurrence(owner, state, field, candidate);
+        }
+
+        private bool ValidateOccurrence(TypeProvider owner, OwnerState state, FieldProvider field, Candidate candidate)
+        {
+            if (!Validate(ReferenceEquals(candidate.FieldType, field.Type) && ReferenceEquals(state.Type, owner.Type) &&
+                ReferenceEquals(field.EnclosingType, owner) &&
+                owner.Fields.Count(current => ReferenceEquals(current, field)) == 1 &&
+                IsTargetCurrent(state, candidate) && IsSupportedDeclarationGroup(state.Parts, requireSimpleScope: true)))
             {
-                return false;
-            }
-            if (!ReferenceEquals(candidate.FieldType, field.Type) || !ReferenceEquals(candidate.OwnerType, owner.Type) ||
-                !IsTargetCurrent(candidate) || !ReferenceEquals(field.EnclosingType, owner) ||
-                !IsSupportedDeclarationGroup(candidate.OwnerParts, requireSimpleScope: true) ||
-                owner.Fields.Count(current => ReferenceEquals(current, field)) != 1)
-            {
-                Invalidate();
                 return false;
             }
 
             // Public update APIs can retain mutable lists, and method signatures can
             // be updated independently of their providers. A divergence is sticky:
             // reverting the model later cannot make already-emitted text safe again.
-            var scopeNames = CaptureScopeNames(candidate.OwnerParts);
-            if (candidate.SourceScopeNames is not null)
-            {
-                scopeNames.UnionWith(candidate.SourceScopeNames);
-            }
-            if (scopeNames.Contains(candidate.FieldType.Name) || !scopeNames.All(IsSimpleIdentifier) || !SourceInputsAreCurrent())
-            {
-                Invalidate();
-                return false;
-            }
-            return System.Threading.Volatile.Read(ref _valid) != 0;
+            var scopeNames = CaptureScopeNames(state.Parts);
+            scopeNames.UnionWith(state.SourceScopeNames);
+            return Validate(!scopeNames.Contains(candidate.FieldType.Name) && scopeNames.All(IsSimpleIdentifier) &&
+                SourceInputsAreCurrent());
         }
 
         private static bool HasSupportedFieldTypeShape(CSharpType type) =>
             !type.IsArray && !type.IsNullable && !type.IsGenericType && type.DeclaringType is null && !type.IsLiteral && !type.IsUnion;
 
-        private static bool IsTargetCurrent(Candidate candidate) => candidate.Target is not null
+        private static bool IsTargetCurrent(OwnerState owner, Candidate candidate) => candidate.Target is not null
             ? ReferenceEquals(candidate.FieldType, candidate.Target.Type) && IsSupportedDeclarationGroup(candidate.TargetParts, requireSimpleScope: false)
             // Retained argument lists can change shape without incrementing the
             // canonical identity version. Observation/use must recheck the same
@@ -452,7 +461,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             : candidate.ReferencedTarget is not null && HasSupportedFieldTypeShape(candidate.FieldType) &&
                 candidate.FieldType.IdentityVersion == candidate.FieldTypeVersion &&
                 candidate.FieldType.Name == candidate.ReferencedTarget.Name &&
-                (candidate.CrossNamespace || candidate.FieldType.Namespace == candidate.OwnerType.Namespace) &&
+                (candidate.CrossNamespace || candidate.FieldType.Namespace == owner.Type.Namespace) &&
                 candidate.FieldType.Namespace == candidate.ReferencedTarget.ContainingNamespace.ToDisplayString();
 
         // The metadata namespace view already exists before the writer runs.

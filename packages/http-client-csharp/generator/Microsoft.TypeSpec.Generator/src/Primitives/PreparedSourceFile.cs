@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal bool DisableXmlDocs => _disableXmlDocs;
         internal TypeProvider FileOwner { get; }
         internal string FilePath { get; }
-        internal ImmutableArray<PreparedSourceOccurrence> Roots => _roots.ToImmutableArray();
+        internal ImmutableArray<PreparedSourceOccurrence> Roots => _roots;
         internal bool IsInvalid => System.Threading.Volatile.Read(ref _invalid) != 0;
         internal PreparedSourceObservations? Observations { get; private set; }
         private readonly Compilation _compilation;
@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private readonly Func<CSharpType, PreparedGeneratedMethodGroup?>? _resolveGeneratedGroup;
         private readonly Func<ITypeSymbol, string, CSharpType?, PreparedReducedExtensionGroup?>? _resolveReducedGroup;
         private readonly bool _allowBaseInitializer;
-        private readonly List<PreparedSourceOccurrence> _roots = [];
+        private readonly ImmutableArray<PreparedSourceOccurrence> _roots;
         private readonly Dictionary<TypeProvider, Dictionary<(string Role, int Index), PreparedSourceOccurrence>> _byOwner = new(ReferenceEqualityComparer.Instance);
         private readonly List<OwnerSnapshot> _owners = [];
         private int _invalid;
@@ -50,7 +50,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _resolveGeneratedGroup = resolveGeneratedGroup;
             _resolveReducedGroup = resolveReducedGroup;
             _allowBaseInitializer = allowBaseInitializer;
-            CaptureOwner(owner, "type", new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance));
+            var roots = new List<PreparedSourceOccurrence>();
+            CaptureOwner(owner, "type", new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance), roots);
+            // Freeze even a rejected partial capture; ordering and references are
+            // the same ones recorded by the owner map and consumed by the cursor.
+            _roots = roots.ToImmutableArray();
         }
 
         internal static bool HasCommentOnlyLicenseHeader(string header)
@@ -69,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return true;
         }
 
-        private void CaptureOwner(TypeProvider owner, string path, HashSet<TypeProvider> ancestors)
+        private void CaptureOwner(TypeProvider owner, string path, HashSet<TypeProvider> ancestors, List<PreparedSourceOccurrence> capturedRoots)
         {
             if (!ancestors.Add(owner) || _byOwner.ContainsKey(owner)) { Invalidate(); return; }
             var roots = new Dictionary<(string, int), PreparedSourceOccurrence>();
@@ -81,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     _compilation, _disableXmlDocs, _resolveCallType, _callEnvironmentCurrent, _resolveGeneratedGroup, _resolveReducedGroup,
                     _allowBaseInitializer && role == "constructor" && ReferenceEquals(owner, FileOwner));
                 roots.Add((role, index), occurrence);
-                _roots.Add(occurrence);
+                capturedRoots.Add(occurrence);
             }
             // Type documentation can be lazily built/custom-produced during writing. Preserve it as
             // an opaque boundary, never call XmlDocs/ShouldWriteTypeXmlDocs here to discover it.
@@ -100,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (writesMembers && !writesOnlyFields && ContractCollections.TryCopy(owner.CachedMethods, out var methods))
             { for (int i = 0; i < methods.Length; i++) { Add("method", i, methods[i], false); } }
             if (writesMembers && !writesOnlyFields && ContractCollections.TryCopy(owner.CachedNestedTypes, out var nested))
-            { for (int i = 0; i < nested.Length; i++) { CaptureOwner(nested[i], $"{path}/nested[{i}]", ancestors); } }
+            { for (int i = 0; i < nested.Length; i++) { CaptureOwner(nested[i], $"{path}/nested[{i}]", ancestors, capturedRoots); } }
             ancestors.Remove(owner);
         }
 
@@ -146,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             internal IDisposable BeginRoot(TypeProvider owner, string role, int index)
             {
                 if (_inRoot || !_file.IsCurrent() || !_file._byOwner.TryGetValue(owner, out var roots) ||
-                    !roots.TryGetValue((role, index), out var root) || _nextRoot >= _file._roots.Count ||
+                    !roots.TryGetValue((role, index), out var root) || _nextRoot >= _file._roots.Length ||
                     !ReferenceEquals(root, _file._roots[_nextRoot]) || !_rootsSeen.Add(root))
                 { _file.Invalidate(); return EmptyScope.Instance; }
                 _nextRoot++;
@@ -199,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             internal bool Complete()
             {
                 if (_inRoot || !_file.IsCurrent()) { _file.Invalidate(); }
-                if (_nextRoot != _file._roots.Count || _rootsSeen.Count != _file._roots.Count) { _file.Invalidate(); }
+                if (_nextRoot != _file._roots.Length || _rootsSeen.Count != _file._roots.Length) { _file.Invalidate(); }
                 return !_file.IsInvalid;
             }
         }

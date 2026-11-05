@@ -283,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             // generated-call family remains expression-only; this additional
             // grammar certifies imports, not generated method selection.
             if (method.BodyStatements is { } statements)
-            { return forImports ? SafeImportStatement(statements, method, 0) : PreparedOwnedGenericBlockScope.GetInvocation(method) is not null; }
+            { return forImports ? SafeImportStatement(statements, method, 0) : PreparedUnusedDefaultLocalCallBlock.GetInvocation(method) is not null; }
             return method.BodyExpression is { } expression &&
                 (SafeExpression(expression, method, 0, forImports) || HasOwningRootCallProfile(method) ||
                     !forImports && genericSignature?.HasTypeOfParameterBody == true);

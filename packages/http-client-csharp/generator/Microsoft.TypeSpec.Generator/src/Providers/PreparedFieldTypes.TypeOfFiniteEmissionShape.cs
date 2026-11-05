@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -30,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private readonly bool _disableReduction;
             private readonly string _outputDirectory;
             private readonly MethodProvider _method;
+            private readonly PreparedUnusedDefaultLocalCallBlock.ClosedArgumentKind _argumentKind;
             private int _stale;
             internal PreparedSourceFile File { get; }
             internal PreparedSourceOccurrence ExpressionRoot { get; }
@@ -43,11 +43,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private PreparedTypeOfFiniteEmissionShape(PreparedSourceFile file, PreparedGeneratedMethodGroup group,
                 IReadOnlyList<TypeProvider> owners, ImmutableArray<TypeProvider> ownerSnapshot, MethodProvider method,
                 PreparedSourceOccurrence body, PreparedSourceOccurrence declaration, PreparedSourceOccurrence assignment,
-                TypeOfExpression? operand, InvokeMethodExpression call)
+                TypeOfExpression? operand, PreparedUnusedDefaultLocalCallBlock.ParsedBlock parsed)
             {
                 File = file; _group = group; _owners = owners; _ownerSnapshot = ownerSnapshot; _method = method;
                 ExpressionRoot = body; DeclarationOccurrence = declaration; AssignmentOccurrence = assignment;
-                Declaration = (DeclarationExpression)declaration.Producer; Operand = operand; Call = call;
+                Declaration = parsed.Declaration; Operand = operand; Call = parsed.Call; _argumentKind = parsed.ArgumentKind;
                 _generator = CodeModelGenerator.Instance; _configuration = _generator.Configuration;
                 _license = _generator.LicenseHeader; _disableXmlDocs = _configuration.DisableXmlDocs;
                 _enabled = _configuration.EnablePreEmissionSimplification; _disableReduction = _configuration.DisableRoslynReduce;
@@ -69,19 +69,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var callerRoot = file.Roots.SingleOrDefault(root => root.Id.RootRole == site.Id.RootRole &&
                     root.Id.RootIndex == site.Id.RootIndex && root.Id.MemberPath == site.Id.MemberPath);
                 if (callerRoot?.Producer is not MethodProvider caller || !methods.Any(method => ReferenceEquals(method, caller)) ||
-                    PreparedOwnedGenericBlockScope.GetInvocation(caller) is not { } call ||
-                    !ContractCollections.TryCopy(call.Arguments, out var arguments) || arguments.Length != 1 ||
+                    PreparedUnusedDefaultLocalCallBlock.TryParse(caller) is not { } parsed ||
+                    parsed.ArgumentKind == PreparedUnusedDefaultLocalCallBlock.ClosedArgumentKind.ExplicitGeneric)
+                { return null; }
+                var call = parsed.Call;
+                if (!ContractCollections.TryCopy(call.Arguments, out var arguments) || arguments.Length != 1 ||
                     !(arguments[0] is TypeOfExpression { } typeOf && typeOf.GetType() == typeof(TypeOfExpression) ||
-                        PreparedOwnedGenericBlockScope.IsOriginalConstructionArgument(arguments[0])) ||
-                    call.TypeArguments is not null && (!ContractCollections.TryCopy(call.TypeArguments, out var types) || !types.IsEmpty) ||
-                    caller.BodyStatements is not MethodBodyStatements block ||
-                    !ContractCollections.TryCopy(block.Statements, out var statements) || statements.Length != 2 ||
-                    statements[0] is not ExpressionStatement { Expression: AssignmentExpression { Variable: DeclarationExpression declaration } assignment })
+                        PreparedUnusedDefaultLocalCallBlock.IsOriginalConstructionArgument(arguments[0])) ||
+                    call.TypeArguments is not null && (!ContractCollections.TryCopy(call.TypeArguments, out var types) || !types.IsEmpty))
                 { return null; }
                 var nodes = callerRoot.DescendantsAndSelf().ToArray();
-                var bodies = nodes.Where(node => ReferenceEquals(node.Producer, block)).ToArray();
-                var declarations = nodes.Where(node => ReferenceEquals(node.Producer, declaration)).ToArray();
-                var assignments = nodes.Where(node => ReferenceEquals(node.Producer, assignment)).ToArray();
+                var bodies = nodes.Where(node => ReferenceEquals(node.Producer, parsed.Block)).ToArray();
+                var declarations = nodes.Where(node => ReferenceEquals(node.Producer, parsed.Declaration)).ToArray();
+                var assignments = nodes.Where(node => ReferenceEquals(node.Producer, parsed.Assignment)).ToArray();
                 if (bodies.Length != 1 || declarations.Length != 1 || assignments.Length != 1 ||
                     bodies[0].DescendantsAndSelf().Any(node => node.IsOpaque) ||
                     PreparedGeneratedMethodGroup.TryCapture(file.FileOwner, compilation) is not { } group ||
@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var sourceOwner = CaptureSourceOwnerScope(compilation, file.FileOwner.CachedType!.Namespace, file.FileOwner.CachedType.Name);
                 if (!sourceOwner.Supported || sourceOwner.Exists) { return null; }
                 var result = new PreparedTypeOfFiniteEmissionShape(file, group, owners, roots, caller, bodies[0],
-                    declarations[0], assignments[0], arguments[0] as TypeOfExpression, call);
+                    declarations[0], assignments[0], arguments[0] as TypeOfExpression, parsed);
                 return result.IsCurrent ? result : null;
             }
 
@@ -103,7 +103,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         _generator.LicenseHeader == _license && _configuration.DisableXmlDocs == _disableXmlDocs &&
                         _configuration.EnablePreEmissionSimplification == _enabled && _configuration.DisableRoslynReduce == _disableReduction &&
                         _configuration.OutputDirectory == _outputDirectory && ContractCollections.SameReferences(_owners, _ownerSnapshot) &&
-                        ReferenceEquals(PreparedOwnedGenericBlockScope.GetInvocation(_method), Call) &&
+                        PreparedUnusedDefaultLocalCallBlock.TryParse(_method) is { } parsed &&
+                        ReferenceEquals(parsed.Block, ExpressionRoot.Producer) && ReferenceEquals(parsed.Declaration, Declaration) &&
+                        ReferenceEquals(parsed.Assignment, AssignmentOccurrence.Producer) && ReferenceEquals(parsed.Call, Call) &&
+                        parsed.ArgumentKind == _argumentKind &&
                         PreparedCallImportScope.HasPureFormattedTypes(_group.ImportTypes) && _group.IsCurrent && File.IsCurrent())
                     { return true; }
                     System.Threading.Interlocked.Exchange(ref _stale, 1);

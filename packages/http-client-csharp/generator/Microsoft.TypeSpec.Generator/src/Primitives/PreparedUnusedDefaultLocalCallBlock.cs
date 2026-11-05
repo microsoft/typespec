@@ -9,12 +9,19 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
-    // Lexical ownership only, not parameter/local type evidence or call selection.
+    // Written shape only, not parameter/local type evidence or call selection.
     // One unused scalar parameter, one unused closed metadata/default declaration,
     // then one explicit unqualified invocation. No general local binder or CFG.
-    internal static class PreparedOwnedGenericBlockScope
+    internal static class PreparedUnusedDefaultLocalCallBlock
     {
-        internal static InvokeMethodExpression? GetInvocation(MethodProvider method)
+        internal enum ClosedArgumentKind { ExplicitGeneric, TypeOf, Construction }
+
+        internal readonly record struct ParsedBlock(MethodBodyStatements Block, DeclarationExpression Declaration,
+            AssignmentExpression Assignment, InvokeMethodExpression Call, ClosedArgumentKind ArgumentKind);
+
+        internal static InvokeMethodExpression? GetInvocation(MethodProvider method) => TryParse(method)?.Call;
+
+        internal static ParsedBlock? TryParse(MethodProvider method)
         {
             var signature = method.Signature;
             if (signature.Modifiers != MethodSignatureModifiers.Public ||
@@ -62,7 +69,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 // The writer allocates collisions by adding numeric suffixes. A
                 // digit-ended callee could otherwise become a newly allocated name.
                 char.IsDigit(name![name.Length - 1])) { return null; }
-            return call;
+            return new ParsedBlock((MethodBodyStatements)statements, declaration, assignment, call,
+                explicitGeneric ? ClosedArgumentKind.ExplicitGeneric : originalTypeOf ? ClosedArgumentKind.TypeOf : ClosedArgumentKind.Construction);
         }
 
         private static bool Identifier(string? name) => !string.IsNullOrEmpty(name) &&

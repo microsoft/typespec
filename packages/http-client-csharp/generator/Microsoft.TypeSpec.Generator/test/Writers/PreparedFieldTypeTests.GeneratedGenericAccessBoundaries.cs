@@ -223,7 +223,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var helperSyntax = (MethodDeclarationSyntax)helper.DeclaringSyntaxReferences.Single().GetSyntax();
             Assert.That(helperSyntax.TypeParameterList!.Parameters.Single().Identifier.ValueText, Is.EqualTo("T"));
             Assert.That(helperSyntax.DescendantNodes().OfType<TypeOfExpressionSyntax>().Single().Type.ToString(), Is.EqualTo("T"));
-            Assert.That(PreparedOwnedGenericBlockScope.GetInvocation(owner.Caller), Is.SameAs(owner.Call));
+            Assert.That(PreparedUnusedDefaultLocalCallBlock.GetInvocation(owner.Caller), Is.SameAs(owner.Call));
             Assert.That(PreparedGeneratedGenericSignature.TryCapture(owner.Helper, inputs), Is.Null);
             Assert.That(node.Id.File, Is.EqualTo(file.FilePath));
             Assert.That(node.CallProofs, Is.Not.Null);
