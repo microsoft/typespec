@@ -43,7 +43,7 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async get(options?: GetOptions) {
+  async get(options?: GetOptions): Promise<number> {
     return get(this.#context, options);
   }
 }
