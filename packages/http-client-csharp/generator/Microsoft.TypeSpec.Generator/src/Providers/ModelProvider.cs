@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
+        private const string ContentSuffix = "Content";
         private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
         internal InputModelType InputModel => _inputModel;
@@ -93,6 +94,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Whether this model is reused from another shipped package (linked via an `external` block)
         // rather than emitted by this library. Such a type's constructor surface is owned elsewhere.
         internal bool IsExternal => _inputModel.External is not null;
+
+        /// <summary>
+        /// Gets explicitly customized members that own properties added to an externally mapped base model.
+        /// </summary>
+        public IEnumerable<PropertyProvider> ExternalPropertyReplacements => CanonicalView.Properties.Where(property =>
+            property.OriginalName is not null &&
+            property.InputProperty?.EnclosingType is InputModelType { External: not null } owner &&
+            owner != _inputModel);
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
 
@@ -421,6 +430,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
+            return CodeModelGenerator.Instance.TypeFactory.ModelNames.TryGetValue(_inputModel, out var name)
+                ? name
+                : BuildNameWithoutCollisionCheck();
+        }
+
+        internal (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping) GetNameForCollisionCheck()
+        {
+            var name = BuildNameWithoutCollisionCheck();
+            var originalName = _inputModel.IsExactName ? _inputModel.Name : _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
+            var typeNamespace = BuildNamespace();
+            var customType = base.BuildCustomCodeView(name, typeNamespace);
+            var canRename = !_inputModel.IsExactName && name != originalName &&
+                name == RenameModelSuffix(originalName);
+            return (name, customType?.Name ?? name, originalName, typeNamespace, customType?.Type.Namespace ?? typeNamespace,
+                canRename, CodeModelGenerator.Instance.SourceInputModel.HasTypeMapping(typeNamespace, name, DeclaringTypeName));
+        }
+
+        private string BuildNameWithoutCollisionCheck()
+        {
             if (_inputModel.IsExactName)
             {
                 return _inputModel.Name;
@@ -432,8 +460,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected override string NormalizeTypeName(string name)
         {
             var normalizedName = base.NormalizeTypeName(name);
-            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) ||
-                !normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            var renamedName = RenameModelSuffix(normalizedName);
+            if (renamedName == normalizedName)
             {
                 return normalizedName;
             }
@@ -446,7 +474,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return normalizedName;
             }
 
-            return $"{normalizedName[..^ResponseSuffix.Length]}Result";
+            return renamedName;
+        }
+
+        private string RenameModelSuffix(string name)
+        {
+            if ((_inputModel.Usage & (InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Error)) == InputModelTypeUsage.Input &&
+                name.EndsWith(ContentSuffix, StringComparison.Ordinal))
+            {
+                return $"{name[..^ContentSuffix.Length]}Request";
+            }
+
+            if (!_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) &&
+                name.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            {
+                return $"{name[..^ResponseSuffix.Length]}Result";
+            }
+
+            return name;
         }
 
         private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
@@ -454,7 +499,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
             var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
-            return customCodeView ?? BuildResponseSuffixFallbackView(
+            return customCodeView ?? BuildModelSuffixFallbackView(
                 typeName,
                 typeNamespace,
                 (name, ns) => base.BuildCustomCodeView(name, ns));
@@ -465,13 +510,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
             var lastContractView = base.BuildLastContractView(typeName, typeNamespace);
-            return lastContractView ?? BuildResponseSuffixFallbackView(
+            return lastContractView ?? BuildModelSuffixFallbackView(
                 typeName,
                 typeNamespace,
                 (name, ns) => base.BuildLastContractView(name, ns));
         }
 
-        private TypeProvider? BuildResponseSuffixFallbackView(
+        private TypeProvider? BuildModelSuffixFallbackView(
             string typeName,
             string typeNamespace,
             Func<string, string, TypeProvider?> buildView)
@@ -483,9 +528,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var originalName = _inputModel.Name.ToIdentifierName();
             var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
-            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+            var renamedName = RenameModelSuffix(normalizedOriginalName);
+            if (renamedName == normalizedOriginalName ||
                 originalName == typeName ||
-                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
+                typeName != renamedName)
             {
                 return null;
             }
@@ -832,7 +878,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<string> skippedBasePropertyNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
-                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                var inputProperties = baseModelProvider is SystemObjectModelProvider mappedBase
+                    ? mappedBase.MappedInputProperties
+                    : baseModelProvider._inputModel.Properties;
+                foreach (var baseProperty in inputProperties)
                 {
                     if (baseProperties.ContainsKey(baseProperty.Name) ||
                         skippedBasePropertyNames.Contains(baseProperty.Name))
@@ -1300,7 +1349,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousParameter in previousParameters)
             {
                 if (targetIndex < targetParameters.Count
-                    && targetParameters[targetIndex].Equals(previousParameter))
+                    && targetParameters[targetIndex].Equals(previousParameter)
+                    && ModelBaseMemberCompatibility.AreClrTypesEqual(targetParameters[targetIndex].Type, previousParameter.Type))
                 {
                     var keptParameter = PartialMethodCustomization.CloneParameterWithName(
                         targetParameters[targetIndex],
@@ -1316,7 +1366,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Each extra parameter (not consumed by the chain target) must map to a settable, wire-backed
                 // property assigned in the restored constructor's body.
                 var property = restorablePropertyLookup.TryGetValue(previousParameter.Name, out var chained)
-                    && chained.Type.AreNamesEqual(previousParameter.Type)
+                    && ModelBaseMemberCompatibility.AreClrTypesEqual(
+                        chained.Type.WithNullable(false), previousParameter.Type.WithNullable(false))
                     ? chained
                     : null;
 
@@ -1325,7 +1376,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true);
+                var restoredParameter = new ParameterProvider(
+                    previousParameter.Name,
+                    property.AsParameter.Description,
+                    property.AsParameter.Type.WithNullable(previousParameter.Type.IsNullable),
+                    property: property,
+                    validation: previousParameter.DefaultValue is null
+                        && previousParameter.Type is { IsValueType: false, IsNullable: false }
+                        ? ParameterValidationType.AssertNotNull
+                        : ParameterValidationType.None);
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));
             }
@@ -1338,7 +1397,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
             foreach (var (property, parameter) in extraAssignments)
             {
-                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
+                if (property.EnclosingType is SystemObjectModelProvider mappedModel &&
+                    !mappedModel.CanAssignProperty(property, parameter.Type))
+                {
+                    return false;
+                }
+
+                ValueExpression assignee = property;
+                var assignmentType = property.Type;
+                if (property.BackingField is { } backingField &&
+                    (property.EnclosingType == this || property.EnclosingType == CustomCodeView))
+                {
+                    assignee = backingField;
+                    assignmentType = backingField.Type;
+                }
+                if (parameter.Type is { IsValueType: true, IsNullable: true } && !assignmentType.IsNullable ||
+                    parameter.Type.IsArray && !ModelBaseMemberCompatibility.AreClrTypesEqual(parameter.Type, assignmentType) ||
+                    parameter.Type.Arguments.Count != assignmentType.Arguments.Count ||
+                    !parameter.Type.Arguments.Zip(assignmentType.Arguments).All(pair =>
+                        ModelBaseMemberCompatibility.AreClrTypesEqual(pair.First, pair.Second)))
+                {
+                    return false;
+                }
+
                 ValueExpression value = parameter;
                 if (CSharpType.RequiresToList(parameter.Type, property.Type))
                 {
@@ -1417,7 +1498,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     break;
                 }
 
-                if (subset[matched].Equals(parameter))
+                if (subset[matched].Equals(parameter) &&
+                    ModelBaseMemberCompatibility.AreClrTypesEqual(subset[matched].Type, parameter.Type))
                 {
                     matched++;
                 }
@@ -1429,18 +1511,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
         {
             var lookup = new Dictionary<string, PropertyProvider>();
-            foreach (var property in CanonicalView.Properties)
+            var memberNames = new HashSet<string>();
+            foreach (var model in new[] { this }.Concat(EnumerateBaseModelProviders()))
             {
-                if (!MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                foreach (var property in model.CanonicalView.Properties)
                 {
-                    continue;
+                    if (!memberNames.Add(property.Name)
+                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                    {
+                        continue;
+                    }
+
+                    var setterModifiers = property.Body switch
+                    {
+                        AutoPropertyBody body => body.SetterModifiers,
+                        MethodPropertyBody body => body.SetterModifiers,
+                        _ => MethodSignatureModifiers.None,
+                    };
+                    if (model != this && setterModifiers == MethodSignatureModifiers.Private)
+                    {
+                        continue;
+                    }
+
+                    lookup.TryAdd(property.AsParameter.Name, property);
+
+                    if (property.OriginalName != null)
+                    {
+                        lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                    }
                 }
 
-                lookup.TryAdd(property.AsParameter.Name, property);
-
-                if (property.OriginalName != null)
+                memberNames.UnionWith(model.CanonicalView.Fields.Select(field => field.Name));
+                if (model.CustomCodeView is NamedTypeSymbolProvider customCode)
                 {
-                    lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                    memberNames.UnionWith(customCode.DeclaredMemberNames);
                 }
             }
 
@@ -1553,7 +1657,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // parameters need to be ordered from the base-most class to the derived class
-            return properties.SelectMany(l => l);
+            var result = new List<PropertyProvider>();
+            var externalSlots = new Dictionary<InputProperty, int>();
+            foreach (var property in properties.SelectMany(l => l))
+            {
+                if (property.InputProperty is { EnclosingType: InputModelType { External: not null } } inputProperty)
+                {
+                    if (externalSlots.TryGetValue(inputProperty, out var index))
+                    {
+                        // Keep the original slot order and name, but use the nearest replacement's metadata.
+                        property.AsParameter.Update(name: result[index].AsParameter.Name);
+                        result[index] = property;
+                        continue;
+                    }
+                    externalSlots.Add(inputProperty, result.Count);
+                }
+                result.Add(property);
+            }
+            return result;
         }
 
         private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
@@ -1604,8 +1725,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Build constructor parameters first so we can use them for initializer
+            var externalReplacements = ExternalPropertyReplacements.ToArray();
+            foreach (var replacement in externalReplacements)
+            {
+                var index = baseParameters.FindIndex(parameter =>
+                    parameter.Property?.InputProperty == replacement.InputProperty);
+                if (index >= 0)
+                {
+                    // Keep the inherited constructor slot without mutating the shared external provider.
+                    replacement.AsParameter.Update(name: baseParameters[index].Name);
+                    baseParameters[index] = isInitializationConstructor
+                        ? replacement.AsParameter.ToPublicInputParameter()
+                        : replacement.AsParameter;
+                }
+            }
+
             foreach (var property in CanonicalView.Properties)
             {
+                if (externalReplacements.Contains(property) && baseParameters.Any(parameter => parameter.Property == property))
+                {
+                    continue;
+                }
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
@@ -1624,27 +1764,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorInitializer? constructorInitializer = null;
             if (BaseModelProvider != null)
             {
-                if (baseParameters.Count > 0)
+                // Check if we should call multi-level discriminator constructor
+                if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                 {
-                    // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
-                    {
-                        var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
+                    var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
 
-                        ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
-                            ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
-                            : DiscriminatorLiteral;
+                    ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
+                        ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
+                        : DiscriminatorLiteral;
 
-                        var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
-                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
+                    var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
+                        .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
 
-                        constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
-                    }
-                    else
-                    {
-                        // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
-                    }
+                    constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
+                }
+                else if (baseParameters.Count > 0)
+                {
+                    // Standard base constructor call
+                    constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
                 }
                 else
                 {

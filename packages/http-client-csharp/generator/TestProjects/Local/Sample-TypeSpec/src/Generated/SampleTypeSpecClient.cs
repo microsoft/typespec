@@ -41,6 +41,7 @@ namespace SampleTypeSpec
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
+        private DeprecationSamples _cachedDeprecationSamples;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -1220,7 +1221,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] head as boolean.
+        /// [Protocol Method] Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1233,16 +1234,16 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
+        public virtual ClientResult<bool> HeadAsBoolean(string id, RequestOptions options)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return Pipeline.ProcessHeadAsBoolMessage(message, options);
         }
 
         /// <summary>
-        /// [Protocol Method] head as boolean.
+        /// [Protocol Method] Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1255,34 +1256,34 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
+        public virtual async Task<ClientResult<bool>> HeadAsBooleanAsync(string id, RequestOptions options)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return await Pipeline.ProcessHeadAsBoolMessageAsync(message, options).ConfigureAwait(false);
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary> Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses. </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HeadAsBoolean(string id, CancellationToken cancellationToken = default)
+        public virtual ClientResult<bool> HeadAsBoolean(string id, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             return HeadAsBoolean(id, cancellationToken.ToRequestOptions());
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary> Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses. </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<bool>> HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
@@ -2306,6 +2307,12 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(notebook, nameof(notebook));
 
             return new Notebooks(Pipeline, _endpoint, notebook);
+        }
+
+        /// <summary> Initializes a new instance of DeprecationSamples. </summary>
+        public virtual DeprecationSamples GetDeprecationSamplesClient()
+        {
+            return Volatile.Read(ref _cachedDeprecationSamples) ?? Interlocked.CompareExchange(ref _cachedDeprecationSamples, new DeprecationSamples(Pipeline, _endpoint), null) ?? _cachedDeprecationSamples;
         }
     }
 }

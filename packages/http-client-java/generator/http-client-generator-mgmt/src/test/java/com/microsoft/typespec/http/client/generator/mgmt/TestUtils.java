@@ -21,6 +21,8 @@ public class TestUtils {
 
         public MockConnection() {
             super(null, null);
+            // No transport exists in this mock; otherwise the listener spins on the common pool.
+            stop();
         }
     }
 

@@ -27,10 +27,13 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SerializationFormats;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
@@ -67,6 +70,75 @@ public class ModelMapperTests {
         ClientModels.getInstance().clear();
         new MockUnitJavagen();
         JavaSettings.clear();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "create,true,true",
+        "update,true,false",
+        ",true,true",
+        "create,false,false",
+        "update,false,false",
+        ",false,false" })
+    public void mergePatchRequiredForCreateRespectsMutability(String mutability, boolean required,
+        boolean expectedRequiredForCreate) {
+        Property source = property("state", new StringSchema());
+        source.setRequired(required);
+        if (mutability != null) {
+            XmsExtensions extensions = new XmsExtensions();
+            extensions.setXmsMutability(List.of("read", mutability));
+            source.setExtensions(extensions);
+        }
+        ClientModelProperty mapped = ModelPropertyMapper.getInstance().map(source, true);
+        Assertions.assertFalse(mapped.isRequired());
+        Assertions.assertEquals(expectedRequiredForCreate, mapped.isRequiredForCreate());
+
+        ClientModel model = new ClientModel.Builder().name("ChatTopic")
+            .packageName("com.azure.mock.models")
+            .properties(List.of(mapped))
+            .build();
+        JavaFile file = new JavaFile("ChatTopic.java");
+        StreamSerializationModelTemplate.getInstance().write(model, file);
+        String generated = file.getContents().toString();
+        Assertions.assertTrue(generated.contains("setState(String state)"), generated);
+        Assertions.assertEquals(expectedRequiredForCreate, generated.contains("Required when create the resource."),
+            generated);
+    }
+
+    @ParameterizedTest
+    @CsvSource({ ",true", ",false", "lite,true", "lite,false", "premium,true", "premium,false" })
+    public void mergePatchModelsAreOnlyGeneratedForNonFluentInput(String fluent, boolean input) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("fluent".equals(key)) {
+                    return (T) fluent;
+                }
+                return "stream-style-serialization".equals(key) ? (T) Boolean.TRUE : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        ObjectSchema schema = object("MergePatchModel", null);
+        schema.setUsage(input
+            ? Set.of(SchemaContext.INPUT, SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.JSON_MERGE_PATCH)
+            : Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.JSON_MERGE_PATCH));
+        Property value = property("value", new StringSchema());
+        value.setRequired(true);
+        schema.getProperties().add(value);
+
+        ClientModel model = ModelMapper.getInstance().map(schema);
+        boolean mergePatch = fluent == null && input;
+        Assertions.assertEquals(mergePatch,
+            model.getImplementationDetails().getUsages().contains(ImplementationDetails.Usage.JSON_MERGE_PATCH));
+        Assertions.assertEquals(!mergePatch, model.getProperties().get(0).isRequired());
+
+        JavaFile file = new JavaFile("MergePatchModel.java");
+        StreamSerializationModelTemplate.getInstance().write(model, file);
+        String generated = file.getContents().toString();
+        Assertions.assertEquals(mergePatch, generated.contains("updatedProperties"), generated);
+        Assertions.assertEquals(mergePatch, generated.contains("JsonMergePatchHelper"), generated);
+        Assertions.assertEquals(mergePatch, generated.contains("toJsonMergePatch"), generated);
     }
 
     @ParameterizedTest

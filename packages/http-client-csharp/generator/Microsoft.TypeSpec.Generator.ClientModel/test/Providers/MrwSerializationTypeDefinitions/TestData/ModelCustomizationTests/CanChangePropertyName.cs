@@ -15,7 +15,7 @@ namespace Sample.Models
         {
         }
 
-        internal MockInputModel(global::System.String[] prop2, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string[] prop2, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             Prop2 = prop2;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;

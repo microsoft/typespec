@@ -41,10 +41,10 @@ export default config;
 In `src/main.tsx`:
 
 ```tsx
-import { registerMonacoDefaultWorkersForVite } from "@typespec/playground";
 import PlaygroundManifest from "@typespec/playground/manifest";
 import { renderReactPlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
+import { registerMonacoDefaultWorkersForVite } from "@typespec/playground/vite/workers";
 
 // Import styles
 import "@typespec/playground/styles.css";
@@ -55,6 +55,31 @@ await renderReactPlayground({
   ...PlaygroundManifest,
   emitterViewers: {
     "@typespec/openapi3": [SwaggerUIViewer],
+  },
+});
+```
+
+### Monaco workers with Vite
+
+Call `registerMonacoDefaultWorkersForVite()` from `@typespec/playground/vite/workers` before
+creating any playground editors. This browser-only entry configures Monaco's editor and JSON
+workers. The consuming Vite application bundles the workers, so their URLs follow its `base`
+and asset configuration without copying assets from the playground package.
+
+The registration function is no longer exported from `@typespec/playground`; update existing
+imports to `@typespec/playground/vite/workers`. The function name and call are unchanged.
+The `@typespec/playground/vite` entry is for the Node-side Vite configuration, not browser code.
+
+`definePlaygroundViteConfig` already excludes the worker entry from dependency pre-bundling.
+If you configure Vite yourself, add this exclusion so Vite can transform the worker imports
+during development:
+
+```ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  optimizeDeps: {
+    exclude: ["@typespec/playground/vite/workers"],
   },
 });
 ```

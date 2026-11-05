@@ -5,7 +5,6 @@ import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
 import "@typespec/http-client";
-import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -25,7 +24,6 @@ namespace SampleTypeSpec;
 using TypeSpec.Http;
 using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
-using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
 using TypeSpec.Events;
 using TypeSpec.SSE;
@@ -388,7 +386,7 @@ model RoundTripModel {
 }
 
 @doc("A sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model DynamicModel {
   name: string;
   optionalUnknown?: unknown;
@@ -408,12 +406,12 @@ model DynamicModel {
 }
 
 @doc("Another sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model AnotherDynamicModel {
   bar: string;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.json)
 @access(Access.public)
 model NullableDynamicModel {
@@ -432,7 +430,7 @@ model OptionalNullableBase {
   inheritedNullable?: string | null;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.output | Usage.json)
 @access(Access.public)
 model OptionalNullableDynamicProperties extends OptionalNullableBase {}
@@ -792,8 +790,9 @@ op internalProtocol(@body body: Thing): Thing;
 op stillConvenient(): void;
 
 @route("/headAsBoolean")
-@doc("head as boolean.")
+@doc("Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.")
 @head
+@responseAsBool
 @convenientAPI(true, "csharp")
 op headAsBoolean(@path id: string): void;
 
@@ -1130,3 +1129,40 @@ op getAcronymParameters(
 @post
 @convenientAPI(true, "csharp")
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
+
+#deprecated "Use \"CurrentDetails\" instead.\nSee C:\\sdk."
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0011",
+})
+model LegacyDetails {
+  choice: LegacyChoice;
+  extensibleChoice: LegacyExtensibleChoice;
+}
+
+#deprecated "Use CurrentChoice instead."
+enum LegacyChoice {
+  one,
+  two,
+}
+
+#deprecated "Use CurrentExtensibleChoice instead."
+union LegacyExtensibleChoice {
+  string,
+  one: "one",
+}
+
+model CurrentDetails extends LegacyDetails {
+  previous?: LegacyDetails[];
+}
+
+interface DeprecationSamples {
+  #deprecated "Use \"read\" instead.\nSee C:\\sdk."
+  @route("/deprecated")
+  @get
+  legacy(): LegacyDetails;
+
+  @route("/deprecated/current")
+  @get
+  read(): CurrentDetails;
+}

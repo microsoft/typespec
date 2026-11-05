@@ -101,6 +101,10 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
     $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
+  } elseif ($tspFile -match "tsp[\\/]arm-internal\.tsp$") {
+    $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
   } elseif ($tspFile -match "tsp[\\/]protocol-api-sync-over-async.tsp") {
     # test hidden protocol methods when sync methods call the async implementation
     $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
@@ -112,6 +116,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
+  } elseif ($tspFile -match "tsp[\\/]experimental\.tsp$") {
+    $tspOptions += " --option ""@typespec/http-client-java.experimental-annotation=tsptest.experimental.annotations.Preview"""
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/ExperimentalCustomization.java"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp

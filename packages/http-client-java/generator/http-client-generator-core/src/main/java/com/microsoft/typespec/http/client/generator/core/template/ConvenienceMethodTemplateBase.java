@@ -43,6 +43,7 @@ import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemp
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
@@ -303,6 +304,7 @@ abstract class ConvenienceMethodTemplateBase {
                     convenienceMethod.getProxyMethod(), false));
 
                 addGeneratedAnnotation(classBlock);
+                ExperimentalAnnotationUtil.write(classBlock, convenienceMethod.getApiMetadata());
                 TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
 
                 JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
