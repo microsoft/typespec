@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 SETUP = Path(__file__).resolve().parents[2] / "eng" / "scripts" / "setup"
 sys.path.insert(0, str(SETUP))
@@ -56,9 +56,41 @@ class BrowserWheelTests(unittest.TestCase):
         ):
             builder.main(playground=True)
 
-        install.assert_called_once_with(["build"], context)
+        install.assert_called_once_with(["build", "pip==26.2.2"], context)
         run.assert_called_once_with(context, "build", ["--wheel"], additional_dir="generator")
         browser.assert_called_once_with(context)
+
+    def test_uv_playground_build_seeds_pip_before_preparing_browser_wheels(self):
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(builder, "_ROOT_DIR", Path(directory)),
+            patch("package_manager.detect_package_manager", return_value="uv"),
+            patch.object(builder.subprocess, "check_call") as create,
+            patch.object(builder.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as install,
+            patch.object(builder, "python_run") as build,
+            patch.object(builder, "build_browser_wheels") as browser,
+        ):
+            steps = Mock()
+            steps.attach_mock(install, "install")
+            steps.attach_mock(build, "build")
+            steps.attach_mock(browser, "browser")
+
+            builder.main(playground=True)
+
+            context = browser.call_args.args[0]
+            create.assert_called_once_with(["uv", "venv", str(Path(directory) / "venv_build_wheel")])
+            self.assertEqual(
+                steps.mock_calls,
+                [
+                    call.install(
+                        ["uv", "pip", "install", "--python", context.env_exe, "build", "pip==26.2.2"],
+                        capture_output=True,
+                        text=True,
+                    ),
+                    call.build(context, "build", ["--wheel"], additional_dir="generator"),
+                    call.browser(context),
+                ],
+            )
 
     def test_resolves_for_pyodide_and_publishes_only_pure_python_wheels(self):
         native = [

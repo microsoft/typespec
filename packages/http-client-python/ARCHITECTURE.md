@@ -128,6 +128,8 @@ on corporate networks. The Pyodide CDN and emitter asset host must still be reac
 `npm run build:playground` resolves these wheels for Pyodide's Python version and
 platform, not the build machine. The playground publication pipeline runs this
 command; ordinary `npm run build` skips browser-wheel preparation.
+Playground builds also provision a pinned pip in the temporary build environment,
+including unseeded environments created by uv.
 Resolution honors `PIP_INDEX_URL` or `UV_DEFAULT_INDEX`, defaulting to the public
 `azure-sdk-for-python` CFS feed. Native dependencies match the Pyodide lockfile;
 the browser-only `platformdirs` pin avoids its unsupported `os.geteuid` API.

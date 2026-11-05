@@ -96,7 +96,8 @@ def main(playground=False):
     venv_path = _ROOT_DIR / "venv_build_wheel"
     venv_context = create_venv_with_package_manager(venv_path)
 
-    install_packages(["build"], venv_context)
+    # uv environments are unseeded; playground wheel downloads also need pip.
+    install_packages(["build", "pip==26.2.2"] if playground else ["build"], venv_context)
     python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
     if playground:
         build_browser_wheels(venv_context)
