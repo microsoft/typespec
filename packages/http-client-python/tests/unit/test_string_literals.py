@@ -801,7 +801,7 @@ def test_path_wire_names_are_literals(code_model, wire_name):
 @pytest.mark.parametrize("wire_name", [name for name in VALUES if name])
 def test_kwargs_pop_wire_names_are_literals(code_model, wire_name):
     parameter = _request_parameter(
-        code_model, wire_name, "query", optional=True, client_default_value="dflt"
+        code_model, wire_name, "query", optional=True, client_default_value="default"
     )
     lines = ParameterSerializer("sample").pop_kwargs_from_signature(
         [parameter], True, PopKwargType.NO, PopKwargType.SIMPLE
