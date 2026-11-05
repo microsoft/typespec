@@ -137,9 +137,12 @@ public final class ManagedIdentityTrackedResourceImpl implements ManagedIdentity
         azure.resourcemanager.commonproperties.CommonPropertiesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.managedIdentityTrackedResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "managedIdentityTrackedResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/managedIdentityTrackedResources/{managedIdentityTrackedResourceName}",
+            "resourceGroupName");
+        this.managedIdentityTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/managedIdentityTrackedResources/{managedIdentityTrackedResourceName}",
+            "managedIdentityTrackedResourceName");
     }
 
     public ManagedIdentityTrackedResource refresh() {

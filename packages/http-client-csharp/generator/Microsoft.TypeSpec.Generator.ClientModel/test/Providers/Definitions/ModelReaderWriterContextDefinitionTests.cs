@@ -613,6 +613,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public void ExperimentalObsoleteFrameworkTypesHaveAllSuppressions()
+        {
+            var model = InputFactory.Model("ParentModel", properties:
+                [InputFactory.Property("Value", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model],
+                createCSharpTypeCore: input =>
+                {
+#pragma warning disable FRAMEWORK001, CS0618
+                    return input == InputPrimitiveType.String
+                        ? new CSharpType(typeof(ExperimentalObsoleteFrameworkType))
+                        : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+#pragma warning restore FRAMEWORK001, CS0618
+                });
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
+        }
+
+        [Test]
         public async Task NullableValueTypesAreHandledCorrectly()
         {
             var customizedModel = InputFactory.Model("CustomizedModel");
@@ -1217,6 +1237,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task CustomObsoleteDiagnosticIdsAreSuppressed()
+        {
+            var model = InputFactory.Model("CustomizedObsoleteModel", deprecation: "Generated message");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [model, InputFactory.Model("RegularModel")],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
+        }
+
+        [Test]
         public void ValidateObsoleteGeneratedTypeHasAttributeSuppression()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
@@ -1421,6 +1454,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(Sample.Agents.ShadowedModel)), "p1", new AutoPropertyBody(false), this)];
             }
+        }
+
+        [Experimental("FRAMEWORK001")]
+        [Obsolete("Use CurrentModel instead.")]
+        public class ExperimentalObsoleteFrameworkType : IPersistableModel<object>
+        {
+            public object Create(BinaryData data, ModelReaderWriterOptions options) => throw new NotImplementedException();
+            public string GetFormatFromOptions(ModelReaderWriterOptions options) => throw new NotImplementedException();
+            public BinaryData Write(ModelReaderWriterOptions options) => throw new NotImplementedException();
         }
 
         public class FrameworkModelWithMRW : IJsonModel<FrameworkModelWithMRW>, IPersistableModel<FrameworkModelWithMRW>

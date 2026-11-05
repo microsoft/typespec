@@ -8,7 +8,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 ### Introduction
 
-This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, C#) to generate HTTP clients from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
+This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, C#) to generate HTTP clients from TypeSpec. Some client emitters are in **preview**; consult each emitter's documentation for its release status and compatibility requirements.
 
 By following this guide, you will learn:
 
@@ -31,10 +31,10 @@ Below is an example of the `package.json` snippet where client emitters are defi
 
 ```json
   "dependencies": {
-    "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
-    "@typespec/http-client-java": "^0.1.9",
-    "@typespec/http-client-python": "^0.6.6",
-    "@typespec/http-client-js": "^0.38.1",
+    "@typespec/http-client-csharp": "^1.0.0",
+    "@typespec/http-client-java": "^0.9.0",
+    "@typespec/http-client-python": "^0.39.0",
+    "@typespec/http-client-js": "^0.16.3",
   }
 ```
 
@@ -83,7 +83,7 @@ Before using the Java client emitter, ensure the following dependencies are inst
 
 ### C# Client Emitter Settings
 
-Before using the C# client emitter, ensure that the [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) is installed.
+Before using the C# client emitter, ensure that the [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (or higher) is installed.
 Full configuration options can be found in the [C# Client Emitter README](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md#configuration)
 
 ## JavaScript Client Emitter Example
@@ -94,7 +94,7 @@ Add the following dependencies to your `package.json` file:
 
 ```json
 "dependencies": {
-  "@typespec/http-client-js": "^0.38.1"
+  "@typespec/http-client-js": "^0.16.3"
 }
 ```
 
@@ -135,7 +135,7 @@ Add the following dependencies to your `package.json` file:
 
 ```json
 "dependencies": {
-  "@typespec/http-client-python": "^0.6.6"
+  "@typespec/http-client-python": "^0.39.0"
 }
 ```
 
@@ -173,7 +173,7 @@ Add the following dependencies to your `package.json` file:
 
 ```json
 "dependencies": {
-  "@typespec/http-client-java": "^0.1.9"
+  "@typespec/http-client-java": "^0.9.0"
 }
 ```
 
@@ -211,7 +211,7 @@ Add the following dependencies to your `package.json` file:
 
 ```json
 "dependencies": {
-  "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2"
+  "@typespec/http-client-csharp": "^1.0.0"
 }
 ```
 
@@ -284,7 +284,7 @@ tsp compile {path to main.tsp}/main.tsp
 
 <Aside>
 
-**All client emitters are in preview**. These emitters are actively being developed and may experience changes or updates that could affect their functionality. Please follow the official documentation for the latest updates.
+**Some client emitters are in preview**. These emitters are actively being developed and may experience changes or updates that could affect their functionality. Please follow each emitter's official documentation for its release status and the latest updates.
 
 - [TypeSpec C# emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md)
 - [TypeSpec Python emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/README.md)

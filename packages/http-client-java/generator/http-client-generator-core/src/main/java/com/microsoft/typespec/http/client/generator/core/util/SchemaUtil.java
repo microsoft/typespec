@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Experimental;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -33,6 +34,16 @@ import java.util.stream.Collectors;
 public class SchemaUtil {
 
     private SchemaUtil() {
+    }
+
+    /**
+     * Gets the experimental API metadata for Java.
+     *
+     * @param metadata the code model metadata.
+     * @return the experimental API metadata, or null when the API is not experimental.
+     */
+    public static Experimental getExperimental(Metadata metadata) {
+        return metadata == null ? null : metadata.getExperimental();
     }
 
     public static Schema getLowestCommonParent(List<Schema> schemas) {

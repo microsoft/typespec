@@ -59,8 +59,10 @@ import {
   isRecordModelType,
   listServices,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import type { Authentication, HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
 import { Visibility, getAuthentication } from "@typespec/http";
+import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
@@ -246,6 +248,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
+  "experimental-annotation"?: string;
   "use-default-http-status-code-to-exception-type-mapping"?: boolean;
 
   // configure
@@ -364,6 +367,11 @@ export class CodeModelBuilder {
   public async build(): Promise<CodeModel> {
     if (this.program.hasError()) {
       return this.codeModel;
+    }
+
+    // Metadata-only consumers may load a different version of Alloy.
+    if (this.isBranded() && this.options["experimental-annotation"] !== undefined) {
+      await import("@typespec/http-client/typekit");
     }
 
     // on filtering of preview version: TCGC only do this on "apiVersion" parameter in clientInitialization
@@ -556,6 +564,30 @@ export class CodeModelBuilder {
 
   private isAzureV2(): boolean {
     return this.options["flavor"]?.toLocaleLowerCase() === "azurev2";
+  }
+
+  private applyExperimental(
+    target: Type | undefined,
+    metadata: Pick<Metadata, "experimental">,
+  ): void {
+    if (
+      !this.isBranded() ||
+      this.options["experimental-annotation"] === undefined ||
+      target === undefined
+    ) {
+      return;
+    }
+
+    const [details, diagnostics] = $(
+      this.program,
+    ).client.getFeatureLifecycleDetails.withDiagnostics(target, {
+      emitterName: LIB_NAME,
+    });
+    this.program.reportDiagnostics(diagnostics);
+    if (details) {
+      metadata.experimental =
+        details.diagnosticId === undefined ? {} : { diagnosticId: details.diagnosticId };
+    }
   }
 
   private processModels() {
@@ -758,6 +790,7 @@ export class CodeModelBuilder {
       security: this.codeModel.security,
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    this.applyExperimental(client.__raw?.type, codeModelClient);
     if (client.isExactName) {
       codeModelClient.language.java = codeModelClient.language.java ?? {};
       codeModelClient.language.java.name = clientName;
@@ -893,6 +926,7 @@ export class CodeModelBuilder {
           }
           codeModelGroup.language.default.crossLanguageDefinitionId =
             subClient.crossLanguageDefinitionId;
+          this.applyExperimental(subClient.__raw?.type, codeModelGroup);
           for (const serviceMethod of serviceMethods) {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               addOperation(
@@ -1048,6 +1082,7 @@ export class CodeModelBuilder {
 
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
+    this.applyExperimental(httpOperation.__raw.operation, codeModelOperation);
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
@@ -1181,6 +1216,7 @@ export class CodeModelBuilder {
         codeModelOperation,
         sdkMethod,
         httpOperation.bodyParam,
+        clientContext,
       );
     }
 
@@ -1616,18 +1652,6 @@ export class CodeModelBuilder {
         }
       }
 
-      if (this.supportsAdvancedVersioning() && param.__raw) {
-        // versioning
-        const addedOn = getAddedOnVersions(this.program, param.__raw);
-        if (addedOn) {
-          extensions = extensions ?? {};
-          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
-            param.__raw,
-            addedOn,
-          );
-        }
-      }
-
       // format if array
       let style = undefined;
       let explode = undefined;
@@ -1717,6 +1741,8 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      this.applyParameterVersioning(param, parameter, clientContext);
+      this.applyExperimental(param.__raw, parameter);
       if (param.isExactName) {
         parameter.language.java = parameter.language.java ?? {};
         parameter.language.java.name = param.name;
@@ -1835,6 +1861,7 @@ export class CodeModelBuilder {
             opParameter = clonedOpParameter;
           }
 
+          this.applyExperimental(sdkMethodParameter.__raw, opParameter);
           request.signatureParameters.push(opParameter);
           request.parameters.push(opParameter);
         }
@@ -1922,17 +1949,23 @@ export class CodeModelBuilder {
     parameters.forEach((it, index) => {
       // use required/optional from the group property, if available
       const optional = groupProperties?.at(index)?.optional ?? !it.required;
-      addProperty(
-        optionBagSchema,
-        createGroupProperty(it.language.default.name, it.language.default.description, it.schema, {
+      const property = createGroupProperty(
+        it.language.default.name,
+        it.language.default.description,
+        it.schema,
+        {
+          experimental: it.experimental,
+          language: { java: it.language.java },
           originalParameter: [it],
           summary: it.summary,
           required: !optional,
           nullable: it.nullable,
           readOnly: false,
           serializedName: it.language.default.serializedName,
-        }),
+        },
       );
+      this.applyExperimental(groupProperties?.at(index)?.__raw, property);
+      addProperty(optionBagSchema, property);
     });
 
     if (type) {
@@ -2165,10 +2198,28 @@ export class CodeModelBuilder {
     }
   }
 
+  private applyParameterVersioning(
+    source: SdkHttpOperationParameterType | SdkBodyParameter,
+    parameter: Parameter,
+    clientContext: ClientContext,
+  ) {
+    if (this.supportsAdvancedVersioning() && source.__raw) {
+      const addedOn = getAddedOnVersions(this.program, source.__raw);
+      if (addedOn) {
+        parameter.extensions = parameter.extensions ?? {};
+        parameter.extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
+          source.__raw,
+          [...addedOn],
+        );
+      }
+    }
+  }
+
   private processParameterBody(
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkBody: SdkBodyParameter,
+    clientContext: ClientContext,
   ): boolean {
     let bodyParameterFlattened = false;
 
@@ -2230,6 +2281,10 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
+    if (!parameter.required) {
+      this.applyParameterVersioning(sdkBody, parameter, clientContext);
+    }
+    this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
 
@@ -2389,6 +2444,7 @@ export class CodeModelBuilder {
           {
             originalParameter: originalParameter,
             targetProperty: existBodyProperty,
+            experimental: existBodyProperty.experimental,
             language: {
               default: {
                 serializedName: existBodyProperty.serializedName,
@@ -2400,7 +2456,7 @@ export class CodeModelBuilder {
             nullable: existBodyProperty.nullable,
           },
         );
-        if (existBodyProperty.language?.java?.name) {
+        if (existBodyProperty.language?.java) {
           virtualParameter.language.java = existBodyProperty.language.java;
         }
         request.parameters.push(virtualParameter);
@@ -2918,6 +2974,7 @@ export class CodeModelBuilder {
     const choices: ChoiceValue[] = [];
     type.values.forEach((it: SdkEnumValueType) => {
       const choice = createChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
+      this.applyExperimental(it.__raw, choice);
       if (it.isExactName) {
         choice.language.java = choice.language.java ?? {};
         choice.language.java.name = it.name;
@@ -2955,6 +3012,7 @@ export class CodeModelBuilder {
       });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    this.applyExperimental(type.__raw, schema);
     return addSchema(this.codeModel.schemas, schema);
   }
 
@@ -3071,6 +3129,7 @@ export class CodeModelBuilder {
       objectSchema.language.java.name = type.name;
     }
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    this.applyExperimental(rawModelType, objectSchema);
 
     if (type.external) {
       // java name
@@ -3234,6 +3293,7 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    this.applyExperimental(modelProperty.__raw, codeModelProperty);
     if (modelProperty.isExactName) {
       codeModelProperty.language.java = codeModelProperty.language.java ?? {};
       codeModelProperty.language.java.name = modelProperty.name;

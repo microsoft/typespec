@@ -465,7 +465,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToIdentifierName(),
                         new ExpressionPropertyBody(
-                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)), nullCoalesce: true)),
+                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(statusCodes), nullCoalesce: true)),
                         this)
                     {
                         BackingField = classifierBackingField
@@ -1217,13 +1217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                foreach (var statusCode in response.StatusCodes)
-                {
-                    if (statusCode >= 200 && statusCode < 400)
-                    {
-                        statusCodes.Add(statusCode);
-                    }
-                }
+                statusCodes.UnionWith(response.StatusCodes);
             }
 
             return [.. statusCodes.OrderBy(i => i)];

@@ -130,7 +130,6 @@
     "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/babel__code-frame": "catalog:",
     "@types/mustache": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",

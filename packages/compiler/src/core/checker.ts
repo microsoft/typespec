@@ -719,6 +719,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  function getDeclarationContext(ctx: CheckContext, node: Node): CheckContext {
+    // Named concrete declarations are independent of an enclosing template; expressions are not.
+    if (node.symbol.flags & SymbolFlags.Declaration && !isTemplatedNode(node)) {
+      return ctx.maskFlags(CheckFlags.InTemplateDeclaration).exitTemplateObserverScope();
+    }
+    return ctx;
+  }
+
   /**
    * Check a member symbol.
    * @param sym Symbol binding a member node.
@@ -729,7 +737,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const symbolLinks = getSymbolLinks(sym);
     const parentNode = getSymNode(sym.parent!);
     compilerAssert(parentNode, "Expected member container parent symbol to have a node");
-    const memberContainer = getTypeForNode(parentNode, ctx);
+    const innerCtx = getDeclarationContext(ctx, parentNode);
+    const memberContainer = getTypeForNode(parentNode, innerCtx);
     const type = symbolLinks.declaredType ?? symbolLinks.type;
 
     if (type) {
@@ -737,7 +746,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       const memberNode = getSymNode(sym);
       compilerAssert(memberNode, "Expected member symbol to have a node");
-      return checkMember(ctx, memberNode as MemberNode, memberContainer as MemberContainerType)!;
+      return checkMember(
+        innerCtx,
+        memberNode as MemberNode,
+        memberContainer as MemberContainerType,
+      )!;
     }
   }
 
@@ -1754,19 +1767,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       sym.flags &
         (SymbolFlags.Model |
           SymbolFlags.Scalar |
+          SymbolFlags.Enum |
           SymbolFlags.Alias |
           SymbolFlags.Interface |
           SymbolFlags.Operation |
           SymbolFlags.Union)
     ) {
-      const decl = sym.declarations[0] as TemplateableNode;
+      const decl = sym.declarations[0] as TemplateableNode | EnumStatementNode;
       if (!isTemplatedNode(decl)) {
-        // Not a templated node, and we are moving through a typeref to a new declaration.
-        // Therefore, we are no longer in a template declaration if we were before, and we are
-        // visiting a new declaration, so we exit the active template observer scope, if any.
-        const innerCtx = ctx
-          .maskFlags(CheckFlags.InTemplateDeclaration)
-          .exitTemplateObserverScope();
+        const innerCtx = getDeclarationContext(ctx, decl);
         if (argumentNodes.length > 0) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -1912,7 +1921,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /**
-   * Check the declared type of a templatable node.
+   * Check the declared type of a referenced declaration.
    * @param node Declaration node
    * @param sym Node Symbol
    * @param mapper Type mapper for template resolution
@@ -1921,20 +1930,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkDeclaredTypeOrIndeterminate(
     ctx: CheckContext,
     sym: Sym,
-    node: TemplateableNode,
+    node: TemplateableNode | EnumStatementNode,
   ): Type | IndeterminateEntity {
     const type =
       sym.flags & SymbolFlags.Model
         ? checkModelStatement(ctx, node as ModelStatementNode)
         : sym.flags & SymbolFlags.Scalar
           ? checkScalar(ctx, node as ScalarStatementNode)
-          : sym.flags & SymbolFlags.Alias
-            ? checkAlias(ctx, node as AliasStatementNode)
-            : sym.flags & SymbolFlags.Interface
-              ? checkInterface(ctx, node as InterfaceStatementNode)
-              : sym.flags & SymbolFlags.Operation
-                ? checkOperation(ctx, node as OperationStatementNode)
-                : checkUnion(ctx, node as UnionStatementNode);
+          : sym.flags & SymbolFlags.Enum
+            ? checkEnum(ctx, node as EnumStatementNode)
+            : sym.flags & SymbolFlags.Alias
+              ? checkAlias(ctx, node as AliasStatementNode)
+              : sym.flags & SymbolFlags.Interface
+                ? checkInterface(ctx, node as InterfaceStatementNode)
+                : sym.flags & SymbolFlags.Operation
+                  ? checkOperation(ctx, node as OperationStatementNode)
+                  : checkUnion(ctx, node as UnionStatementNode);
 
     return type;
   }

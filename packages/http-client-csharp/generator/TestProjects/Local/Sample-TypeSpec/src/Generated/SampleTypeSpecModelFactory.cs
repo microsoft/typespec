@@ -553,6 +553,38 @@ namespace SampleTypeSpec
             return new GetNotebookResult(name, content, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The LegacyDetails. </summary>
+        /// <param name="choice"></param>
+        /// <param name="extensibleChoice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LegacyDetails"/> instance for mocking. </returns>
+#pragma warning disable CS0612 // This generated code references obsolete functionality.
+#pragma warning disable CS0618 // This generated code references obsolete functionality.
+        [Experimental("SAMPLE0011")]
+        public static LegacyDetails LegacyDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default)
+        {
+            return new LegacyDetails(choice, extensibleChoice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore CS0612 // This generated code references obsolete functionality.
+#pragma warning restore CS0618 // This generated code references obsolete functionality.
+
+        /// <summary> The CurrentDetails. </summary>
+        /// <param name="choice"></param>
+        /// <param name="extensibleChoice"></param>
+        /// <param name="previous"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CurrentDetails"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
+#pragma warning disable CS0612 // This generated code references obsolete functionality.
+#pragma warning disable CS0618 // This generated code references obsolete functionality.
+        public static CurrentDetails CurrentDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default, IEnumerable<LegacyDetails> previous = default)
+        {
+            previous ??= new ChangeTrackingList<LegacyDetails>();
+
+            return new CurrentDetails(choice, extensibleChoice, additionalBinaryDataProperties: null, previous.ToList());
+        }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
+#pragma warning restore CS0612 // This generated code references obsolete functionality.
+#pragma warning restore CS0618 // This generated code references obsolete functionality.
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

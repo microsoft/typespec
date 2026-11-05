@@ -5,9 +5,11 @@ using System;
 using System.Buffers;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SampleTypeSpec;
 
@@ -15,6 +17,37 @@ namespace TestProjects.Local.Tests
 {
     public class ModelSerializationExtensionsTests
     {
+        [TestCase("[0].description", 0, 3, ".description")]
+        [TestCase("[12].description", 12, 4, ".description")]
+        [TestCase("[0]", 0, 3, "")]
+        [TestCase("[12][3].description", 12, 4, "[3].description")]
+        [TestCase("[2147483647].description", int.MaxValue, 12, ".description")]
+        public void TryGetIndexConsumesCompleteIndexSegment(string path, int expectedIndex, int expectedBytesConsumed, string expectedRemainder)
+        {
+            ReadOnlySpan<byte> slice = Encoding.UTF8.GetBytes(path);
+
+            Assert.That(slice.TryGetIndex(out int index, out int bytesConsumed), Is.True);
+            Assert.That(index, Is.EqualTo(expectedIndex));
+            Assert.That(bytesConsumed, Is.EqualTo(expectedBytesConsumed));
+            Assert.That(Encoding.UTF8.GetString(slice.Slice(bytesConsumed)), Is.EqualTo(expectedRemainder));
+        }
+
+        [TestCase("")]
+        [TestCase("0]")]
+        [TestCase("[")]
+        [TestCase("[]")]
+        [TestCase("[-1]")]
+        [TestCase("[0")]
+        [TestCase("[abc]")]
+        [TestCase("[2147483648]")]
+        public void TryGetIndexRejectsInvalidIndex(string path)
+        {
+            ReadOnlySpan<byte> slice = Encoding.UTF8.GetBytes(path);
+
+            Assert.That(slice.TryGetIndex(out _, out int bytesConsumed), Is.False);
+            Assert.That(bytesConsumed, Is.Zero);
+        }
+
         [TestCase(short.MinValue, "-32768")]
         [TestCase(short.MaxValue, "32767")]
         [TestCase(ushort.MinValue, "0")]
@@ -32,6 +65,81 @@ namespace TestProjects.Local.Tests
             writer.Flush();
 
             Assert.AreEqual(expected, Encoding.UTF8.GetString(buffer.WrittenSpan));
+        }
+
+        private static IEnumerable<TestCaseData> NestedIntegerCollections()
+            => IntegerCollections<short>(short.MinValue, short.MaxValue, "-32768,32767")
+                .Concat(IntegerCollections<ushort>(ushort.MinValue, ushort.MaxValue, "0,65535"))
+                .Concat(IntegerCollections<uint>(uint.MinValue, uint.MaxValue, "0,4294967295"))
+                .Concat(IntegerCollections<ulong>(ulong.MinValue, ulong.MaxValue, "0,18446744073709551615"));
+
+        private static IEnumerable<TestCaseData> IntegerCollections<T>(T min, T max, string numbers) where T : struct
+        {
+            (object Collection, string Expected)[] collections =
+            [
+                (new T[] { min, max }, $"[{numbers}]"),
+                (new List<T> { min, max }, $"[{numbers}]"),
+                (new T?[] { min, null, max }, $"[{numbers.Replace(",", ",null,")}]"),
+                (Array.Empty<T>(), "[]")
+            ];
+            foreach (var (collection, expected) in collections)
+            {
+                foreach (var isDictionary in new[] { false, true })
+                {
+                    foreach (var isAsync in new[] { false, true })
+                    {
+                        yield return new TestCaseData(collection, expected, isDictionary, isAsync);
+                    }
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(NestedIntegerCollections))]
+        public async Task NestedIntegerRequestBodiesSerialize(
+            object collection,
+            string expected,
+            bool isDictionary,
+            bool isAsync)
+        {
+            using var content = isDictionary
+                ? BinaryContentHelper.FromDictionary(new Dictionary<string, object> { ["numbers"] = collection })
+                : BinaryContentHelper.FromEnumerable<object>(new[] { collection });
+            using var stream = new MemoryStream();
+            if (isAsync)
+            {
+                await content.WriteToAsync(stream, default);
+            }
+            else
+            {
+                content.WriteTo(stream, default);
+            }
+
+            Assert.AreEqual(isDictionary ? $"{{\"numbers\":{expected}}}" : $"[{expected}]", Encoding.UTF8.GetString(stream.ToArray()));
+        }
+
+        [Test]
+        public void WriteObjectValuePreservesDictionaryAndByteArrayHandling()
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+
+            writer.WriteObjectValue(new Dictionary<string, object>
+            {
+                ["bytes"] = new byte[] { 0, 1, 255 },
+                ["nested"] = new Dictionary<string, object> { ["count"] = 1 }
+            });
+            writer.Flush();
+
+            Assert.AreEqual("""{"bytes":"AAH/","nested":{"count":1}}""", Encoding.UTF8.GetString(buffer.WrittenSpan));
+        }
+
+        [Test]
+        public void WriteObjectValueRejectsUnsupportedCollectionElements()
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+
+            Assert.Throws<NotSupportedException>(() => writer.WriteObjectValue(new[] { new object() }));
         }
 
         [TestCase("{ \"text\": \"こんにちは 🌍\", \"escaped\": \"\\u0061\" }")]
