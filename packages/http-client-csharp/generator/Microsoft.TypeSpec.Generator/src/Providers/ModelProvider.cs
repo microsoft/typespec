@@ -1922,7 +1922,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var parameter = property?.AsParameter ?? field!.AsParameter;
             if (isPrimaryConstructor)
             {
-                if (isStruct || (wireInfo.IsRequired && !type!.IsLiteral))
+                if (isStruct || (wireInfo.IsRequiredInConstructor && !type!.IsLiteral))
                 {
                     if (!wireInfo.IsReadOnly)
                     {

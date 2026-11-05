@@ -478,6 +478,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         };
 
         [Test]
+        public void ConstructorRequirementsDoNotChangeWireRequirements()
+        {
+            var title = InputFactory.Property("title", InputPrimitiveType.String, isRequired: true);
+            var state = InputFactory.Property("state", InputPrimitiveType.String, isRequired: true);
+            state.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("Resource", properties: [title, state], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var provider = new ModelProvider(inputModel);
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(new[] { "title", "state", "additionalBinaryDataProperties" }, provider.FullConstructor.Signature.Parameters.Select(p => p.Name));
+            var stateProperty = provider.Properties.Single(p => p.Name == "State");
+            Assert.IsTrue(stateProperty.WireInfo!.IsRequired);
+            Assert.IsFalse(stateProperty.Type.IsNullable);
+            Assert.IsTrue(stateProperty.Body.HasSetter);
+            Assert.IsFalse(provider.Properties.Single(p => p.Name == "Title").Body.HasSetter);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [Test]
+        public void PartialRequestAllowsEmptyConstructionAndInheritedSetters()
+        {
+            var baseProperty = InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true);
+            baseProperty.Update(isRequiredInConstructor: false);
+            var property = InputFactory.Property("value", InputPrimitiveType.Int32, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = new ModelProvider(inputModel);
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsEmpty(constructor.Signature.Parameters);
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.BaseModelProvider!.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.Properties.Single().WireInfo!.IsRequired);
+        }
+
+        [Test]
+        public async Task ConstructorRequirementsPreservePublishedOverload()
+        {
+            var title = InputFactory.Property("title", InputPrimitiveType.String, isRequired: true);
+            var state = InputFactory.Property("state", InputPrimitiveType.String, isRequired: true);
+            state.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("Resource", properties: [title, state], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = (ModelProvider)CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(t => t.Name == "Resource");
+
+            provider.ProcessTypeForBackCompatibility();
+
+            var constructors = provider.Constructors.Where(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            Assert.AreEqual(2, constructors.Length);
+            Assert.AreEqual(1, constructors[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, constructors[1].Signature.Parameters.Count);
+            Assert.AreEqual("title", constructors[1].Signature.Initializer!.Arguments.Single().ToDisplayString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [Test]
         public void TestBuildConstructor_ValidateConstructors()
         {
             var properties = new List<InputModelProperty>

@@ -199,6 +199,8 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  /** Overrides constructor requiredness without changing the wire contract. */
+  requiredInConstructor?: boolean;
   apiVersions: string[];
   discriminator: boolean;
   serializedName: string;

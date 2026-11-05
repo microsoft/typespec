@@ -10,6 +10,30 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null)]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsConstructorRequirednessSeparately(bool? requiredInConstructor)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "value", "optional": false,
+                      {{(requiredInConstructor.HasValue ? $"\"requiredInConstructor\": {requiredInConstructor.Value.ToString().ToLowerInvariant()}," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(requiredInConstructor, property.IsRequiredInConstructor);
+            Assert.IsTrue(property.IsRequired);
+        }
+
         [TestCase(null, false)]
         [TestCase(false, false)]
         [TestCase(true, true)]

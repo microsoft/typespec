@@ -15,6 +15,23 @@ namespace TestProjects.Spector.Tests.Http._Type.Model.Visibility
     public class TypeModelVisibilityTests : SpectorTestBase
     {
         [SpectorTest]
+        public void SharedModelAllowsPartialConstruction()
+        {
+            var model = new VisibilityModel
+            {
+                QueryProp = 123,
+                DeleteProp = true
+            };
+            model.CreateProp.Add("foo");
+            model.UpdateProp.Add(1);
+
+            Assert.AreEqual(123, model.QueryProp);
+            Assert.IsTrue(model.DeleteProp);
+            CollectionAssert.AreEqual(new[] { "foo" }, model.CreateProp);
+            CollectionAssert.AreEqual(new[] { 1 }, model.UpdateProp);
+        }
+
+        [SpectorTest]
         public Task Models_ReadOnlyRoundTrip() => Test(async (host) =>
         {
             var response = await new VisibilityClient(host, null).PutReadOnlyModelAsync(new ReadOnlyModel());

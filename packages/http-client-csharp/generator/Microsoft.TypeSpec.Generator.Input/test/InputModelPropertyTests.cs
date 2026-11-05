@@ -65,6 +65,18 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void CanUpdateConstructorRequirednessWithoutChangingWireRequirement()
+        {
+            var property = InputFactory.Property("TestName", InputPrimitiveType.String, isRequired: true);
+
+            property.Update(isRequiredInConstructor: false);
+            property.Update();
+
+            Assert.IsFalse(property.IsRequiredInConstructor);
+            Assert.IsTrue(property.IsRequired);
+        }
+
+        [Test]
         public void CanUpdateModelPropertyIsReadOnly()
         {
             var property = InputFactory.Property("TestName", InputPrimitiveType.String, isReadOnly: false);

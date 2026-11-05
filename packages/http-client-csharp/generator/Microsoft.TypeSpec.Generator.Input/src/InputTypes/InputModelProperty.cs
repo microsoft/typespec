@@ -40,6 +40,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public bool IsDiscriminator { get; internal set; }
+        /// <summary>
+        /// Overrides constructor requiredness without changing the wire contract.
+        /// </summary>
+        public bool? IsRequiredInConstructor { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
         public ArrayKnownEncoding? Encode { get; internal set; }
@@ -59,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <param name="serializedName">The new serialized name for the property.</param>
         /// <param name="serializationOptions">The new serialization options for the property.</param>
         /// <param name="apiVersions">The new API versions for the property.</param>
+        /// <param name="isRequiredInConstructor">The new constructor requiredness override.</param>
         public void Update(
             string? name = null,
             string? summary = null,
@@ -71,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? serializedName = null,
             bool? isHttpMetadata = null,
             InputSerializationOptions? serializationOptions = null,
-            IEnumerable<string>? apiVersions = null)
+            IEnumerable<string>? apiVersions = null,
+            bool? isRequiredInConstructor = null)
         {
             if (name != null)
             {
@@ -96,6 +102,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (isRequired.HasValue)
             {
                 IsRequired = isRequired.Value;
+            }
+
+            if (isRequiredInConstructor.HasValue)
+            {
+                IsRequiredInConstructor = isRequiredInConstructor.Value;
             }
 
             if (isReadOnly.HasValue)

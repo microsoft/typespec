@@ -35,10 +35,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             protected override ConstructorProvider[] BuildConstructors() => [];
         }
 
-        [Test]
-        public void KebabCaseSerializedName()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void KebabCaseSerializedName(bool relaxedConstructor)
         {
             var inputModelProperty = InputFactory.Property("kebab-case", InputPrimitiveType.String, wireName: "kebab-case", isRequired: true);
+            if (relaxedConstructor)
+            {
+                inputModelProperty.Update(isRequiredInConstructor: false);
+            }
             var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();

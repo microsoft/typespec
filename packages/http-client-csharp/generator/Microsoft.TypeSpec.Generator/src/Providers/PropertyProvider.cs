@@ -355,7 +355,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // If the property is required and is not on a round-trip model, it doesn't need a setter as it can just be set via
             // constructor.
             // Round-trip models need setters so that a model returned from a service method can be modified.
-            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output))
+            var requiredInConstructor = (inputProperty as InputModelProperty)?.IsRequiredInConstructor ?? inputProperty.IsRequired;
+            if (requiredInConstructor && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output))
             {
                 return false;
             }
