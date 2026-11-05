@@ -182,6 +182,74 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] EchoRawContainer
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EchoRawContainer(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoRawContainerRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoRawContainer
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EchoRawContainerAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoRawContainerRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EchoRawContainer. </summary>
+        /// <param name="container"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="container"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<RawUnionPetContainer> EchoRawContainer(RawUnionPetContainer container, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(container, nameof(container));
+
+            ClientResult result = EchoRawContainer(container, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((RawUnionPetContainer)result, result.GetRawResponse());
+        }
+
+        /// <summary> EchoRawContainer. </summary>
+        /// <param name="container"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="container"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<RawUnionPetContainer>> EchoRawContainerAsync(RawUnionPetContainer container, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(container, nameof(container));
+
+            ClientResult result = await EchoRawContainerAsync(container, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((RawUnionPetContainer)result, result.GetRawResponse());
+        }
+
+        /// <summary>
         /// [Protocol Method] EchoPets
         /// <list type="bullet">
         /// <item>

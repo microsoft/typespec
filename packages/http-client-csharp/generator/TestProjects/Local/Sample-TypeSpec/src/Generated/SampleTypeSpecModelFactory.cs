@@ -594,6 +594,15 @@ namespace SampleTypeSpec
             return new UnionCat(name, additionalBinaryDataProperties: null, meow);
         }
 
+        /// <summary> The UnionDog. </summary>
+        /// <param name="name"></param>
+        /// <param name="bark"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionDog"/> instance for mocking. </returns>
+        public static UnionDog UnionDog(string name = default, bool bark = default)
+        {
+            return new UnionDog(name, additionalBinaryDataProperties: null, bark);
+        }
+
         /// <summary> The UnionPetContainer. </summary>
         /// <param name="pet"></param>
         /// <param name="nullablePet"></param>
@@ -612,6 +621,29 @@ namespace SampleTypeSpec
                 pets.ToList(),
                 lookup,
                 alternatePet,
+                additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RawUnionPetContainer. </summary>
+        /// <param name="pet"></param>
+        /// <param name="nullablePet"></param>
+        /// <param name="pets"></param>
+        /// <param name="lookup"></param>
+        /// <param name="rawPets"></param>
+        /// <param name="rawLookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RawUnionPetContainer"/> instance for mocking. </returns>
+        public static RawUnionPetContainer RawUnionPetContainer(BinaryData pet = default, BinaryData nullablePet = default, IEnumerable<BinaryData> pets = default, IDictionary<string, BinaryData> lookup = default, BinaryData rawPets = default, BinaryData rawLookup = default)
+        {
+            pets ??= new ChangeTrackingList<BinaryData>();
+            lookup ??= new ChangeTrackingDictionary<string, BinaryData>();
+
+            return new RawUnionPetContainer(
+                pet,
+                nullablePet,
+                pets.ToList(),
+                lookup,
+                rawPets,
+                rawLookup,
                 additionalBinaryDataProperties: null);
         }
 

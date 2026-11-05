@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> The UnionDog. </summary>
-    internal partial class UnionDog : UnionPet
+    public partial class UnionDog : UnionPet
     {
         /// <summary> Initializes a new instance of <see cref="UnionDog"/>. </summary>
         /// <param name="name"></param>

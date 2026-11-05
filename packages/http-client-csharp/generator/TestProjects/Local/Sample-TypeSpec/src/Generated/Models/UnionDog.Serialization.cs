@@ -14,7 +14,7 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The UnionDog. </summary>
-    internal partial class UnionDog : UnionPet, IJsonModel<UnionDog>
+    public partial class UnionDog : UnionPet, IJsonModel<UnionDog>
     {
         /// <summary> Initializes a new instance of <see cref="UnionDog"/> for deserialization. </summary>
         internal UnionDog()

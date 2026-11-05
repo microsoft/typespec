@@ -111,6 +111,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _ => false
         };
 
+        internal static bool RequiresEnvelope(InputType? type, CSharpType valueType) => type switch
+        {
+            InputUnionType { BaseModel: not null, EnvelopePropertyName: not null } union =>
+                valueType.WithNullable(false).Equals(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel)!),
+            InputNullableType nullable => RequiresEnvelope(nullable.Type, valueType),
+            InputArrayType array => valueType.IsList && !valueType.IsReadOnlyMemory &&
+                RequiresEnvelope(array.ValueType, valueType.ElementType),
+            InputDictionaryType dictionary => valueType.IsDictionary && RequiresEnvelope(dictionary.ValueType, valueType.ElementType),
+            _ => false
+        };
+
         internal static MethodBodyStatement SerializeValue(
             InputType inputType,
             CSharpType valueType,

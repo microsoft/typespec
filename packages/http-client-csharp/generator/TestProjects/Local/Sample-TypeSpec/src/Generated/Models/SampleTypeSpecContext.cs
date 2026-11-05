@@ -42,6 +42,7 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0003 // global::SampleTypeSpec.PreviewDetails is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(PreviewDetails))]
 #pragma warning restore SAMPLE0003 // global::SampleTypeSpec.PreviewDetails is experimental and may change in future versions.
+    [ModelReaderWriterBuildable(typeof(RawUnionPetContainer))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResult))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]
@@ -50,6 +51,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Tree))]
     [ModelReaderWriterBuildable(typeof(UnionAdditionalProperties))]
     [ModelReaderWriterBuildable(typeof(UnionCat))]
+    [ModelReaderWriterBuildable(typeof(UnionDog))]
     [ModelReaderWriterBuildable(typeof(UnionPet))]
     [ModelReaderWriterBuildable(typeof(UnionPetContainer))]
     [ModelReaderWriterBuildable(typeof(Wrapper))]

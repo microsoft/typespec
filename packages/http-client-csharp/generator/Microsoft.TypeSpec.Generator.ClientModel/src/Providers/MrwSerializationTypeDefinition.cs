@@ -1796,7 +1796,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement[] deserializationStatements;
-            if (DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType))
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType, propertyType))
             {
                 deserializationStatements =
                 [
@@ -2180,7 +2180,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var propertyIsNullable = wireInfo.IsNullable;
 
             // Generate the serialization statements for the property
-            var serializationStatement = DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType)
+            var serializationStatement = DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType, propertyType)
                 ? DiscriminatedUnionSerialization.SerializeValue(
                     wireInfo.InputType!, propertyType, propertyExpression, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet)
                 : CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);

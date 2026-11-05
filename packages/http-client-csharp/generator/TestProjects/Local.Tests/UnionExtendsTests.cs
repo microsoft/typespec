@@ -87,6 +87,46 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void UnionVariantsArePublic()
+        {
+            Assert.IsTrue(typeof(UnionPet).IsPublic);
+            Assert.IsTrue(typeof(UnionCat).IsPublic);
+            Assert.IsTrue(typeof(UnionDog).IsPublic);
+        }
+
+        [Test]
+        public void CustomizedBinaryDataPropertiesRoundTripRawEnvelopes()
+        {
+            var cat = Serialize(new UnionCat("Whiskers", true));
+            var dog = Serialize(new UnionDog("Rex", false));
+            var container = new RawUnionPetContainer(cat)
+            {
+                NullablePet = dog,
+                RawPets = BinaryData.FromString($"[{cat},{dog}]"),
+                RawLookup = BinaryData.FromString($"{{\"best\":{dog}}}")
+            };
+            container.Pets.Add(cat);
+            container.Pets.Add(null!);
+            container.Lookup.Add("best", dog);
+            container.Lookup.Add("missing", null!);
+
+            var result = ModelReaderWriter.Read<RawUnionPetContainer>(ModelReaderWriter.Write(container))!;
+
+            Assert.AreEqual(cat.ToString(), result.Pet.ToString());
+            Assert.AreEqual(dog.ToString(), result.NullablePet.ToString());
+            Assert.AreEqual(cat.ToString(), result.Pets[0].ToString());
+            Assert.IsNull(result.Pets[1]);
+            Assert.AreEqual(dog.ToString(), result.Lookup["best"].ToString());
+            Assert.IsNull(result.Lookup["missing"]);
+            Assert.AreEqual(container.RawPets.ToString(), result.RawPets.ToString());
+            Assert.AreEqual(container.RawLookup.ToString(), result.RawLookup.ToString());
+
+            container.NullablePet = null!;
+            var nullResult = ModelReaderWriter.Read<RawUnionPetContainer>(ModelReaderWriter.Write(container))!;
+            Assert.IsNull(nullResult.NullablePet);
+        }
+
+        [Test]
         public void AbstractBaseCannotBeDeserializedWithoutUnionContext()
         {
             using var document = JsonDocument.Parse("{\"name\":\"Other\"}");

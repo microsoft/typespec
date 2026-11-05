@@ -1199,6 +1199,15 @@ model UnionPetContainer {
   alternatePet?: AlternateUnionPets;
 }
 
+model RawUnionPetContainer {
+  pet: UnionPets;
+  nullablePet?: UnionPets | null;
+  pets?: UnionPets[];
+  lookup?: Record<UnionPets>;
+  rawPets?: UnionPets[];
+  rawLookup?: Record<UnionPets>;
+}
+
 @route("/union-extends")
 interface UnionExtends {
   @post
@@ -1207,6 +1216,10 @@ interface UnionExtends {
   @route("/container")
   @post
   echoContainer(@body container: UnionPetContainer): UnionPetContainer;
+
+  @route("/raw-container")
+  @post
+  echoRawContainer(@body container: RawUnionPetContainer): RawUnionPetContainer;
 
   @route("/pets")
   @post
