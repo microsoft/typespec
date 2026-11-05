@@ -114,8 +114,9 @@ if ($null -eq $filter) {
     $launchSettings["profiles"]["Sample-Service"].Add("executablePath", $mtgExe)
 
     foreach ($kvp in $spectorLaunchProjects.GetEnumerator()) {
+        $generatorName = $kvp.Key -eq "http-type-union-discriminated-extends" ? "ScmCodeModelGenerator" : "StubLibraryGenerator"
         $launchSettings["profiles"].Add($kvp.Key, @{})
-        $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -g StubLibraryGenerator")
+        $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -g $generatorName")
         $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
         $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mtgExe)
     }
