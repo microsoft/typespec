@@ -53,7 +53,7 @@ G1 or expand every producer profile.
       incremental implementation cost; label estimates and unmeasured claims. Select
       the next high-yield slice from that evidence. Do not implement every row merely
       to complete this mapping.
-- [ ] **R2 — Confirm the shared boundary and next-task handoff.** Document the
+- [x] **R2 — Confirm the shared boundary and next-task handoff.** Document the
       facts, permission/lifetime interfaces, supported profiles and explicit unknowns
       that the selected next consumer can reuse. Assign role/construction work to its
       owning task, such as Task04, without making it wait for the deferred roadmap.
@@ -76,6 +76,32 @@ G1 or expand every producer profile.
       Report scoped Task03 completion separately from the still-open overall issue
       and deferred roadmap. Do not claim default activation, broad SDK coverage,
       performance improvement or complete `Simplifier` replacement.
+
+### Current reconciliation checkpoint
+
+The [acceptance and handoff map](./pre-emission-task03-acceptance-map.md) records
+all 15 original rows, current evidence, remaining gaps and the reusable core
+interfaces. R2's selected follow-on consumer is Task04 ordinary declaration/type
+work; construction spelling remains Task04-deferred. The bounded declaration
+prerequisite is validated, not a request to implement another language family.
+
+The original `Pass(new Exception())` seed now shortens; the construction operand
+stays qualified. A captured-call control preserves exact constructor CAE/runtime
+text while shortening only the seed. The new eight-case gate, 158-case affected
+ownership/generic gate and 15-case surrounding guard run pass. Fresh unfiltered
+**4,086 core / 2,696 client** pass with zero failures/skips; formatting/Cop and all
+five C# hashes pass. Complete independent medium review of the five C# files and
+two checkpoint documents found no concrete production defect. The subsequent
+R1–R4 docs-only contract update and reconciliation do not invalidate those source
+results. Exact published source revision will be recorded when publication finishes.
+
+R1 is **partial**: the acceptance map is present, but representative eligible/enabled
+counts and a demonstrated-benefit winner are still unmeasured. The temporary
+probe failed and was removed; this declaration slice is provisional low incremental
+cost. R4 remains **open**: the row map retains deferred anchors and proposed task
+groupings, but exact row-level ownership/agreement and scoped completion publication
+are not established. Remote CI is unverified. Scoped Task03 is not yet complete;
+its historical deferred roadmap is not an additional completion gate.
 
 R1 and R4 reconcile requirements; they are not instructions to create another
 proof-completeness checklist. Start with existing raw-writer fixtures and available

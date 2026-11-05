@@ -50,7 +50,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 operand.GetType() == typeof(TypeOfExpression) && IsRuntimeType(operand.Type, typeof(Exception)) &&
                 !operand.Type.IsLiteral && operand.Type.DeclaringType is null &&
                 (call.TypeArguments is null || ContractCollections.TryCopy(call.TypeArguments, out var ordinaryTypes) && ordinaryTypes.IsEmpty);
-            if (!explicitGeneric && !originalTypeOf) { return null; }
+            var originalConstruction = arguments.Length == 1 && IsOriginalConstructionArgument(arguments[0]) &&
+                (call.TypeArguments is null || ContractCollections.TryCopy(call.TypeArguments, out var constructionTypes) && constructionTypes.IsEmpty);
+            if (!explicitGeneric && !originalTypeOf && !originalConstruction) { return null; }
             var name = call.MethodSignature?.Name ?? call.MethodName;
             var parameterName = parameters[0].EmittedDeclarationState.Name;
             var localName = declaration.Variable.Declaration.RequestedName;
@@ -67,6 +69,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             SyntaxFacts.IsValidIdentifier(name) && SyntaxFacts.GetKeywordKind(name) == SyntaxKind.None &&
             (name[0] is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_') &&
             System.Linq.Enumerable.All(name, c => c is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or >= '0' and <= '9' or '_');
+
+        // Written shape only: the unused declaration is outside this argument.
+        // This supplies neither constructor selection nor constructor-name permission.
+        internal static bool IsOriginalConstructionArgument(ValueExpression argument) =>
+            argument is NewInstanceExpression creation && creation.GetType() == typeof(NewInstanceExpression) &&
+            creation.Type is { IsLiteral: false, DeclaringType: null } type && IsRuntimeType(type, typeof(Exception)) &&
+            ContractCollections.TryCopy(creation.Parameters, out var arguments) && arguments.IsEmpty &&
+            creation.InitExpression is null && creation.ConstructorIntent is null && creation.ConstructorProviderIntent is null;
 
         private static bool IsRuntimeType(CSharpType type, Type expected) => type is not null && type.GetType() == typeof(CSharpType) &&
             type.IsFrameworkType && type.FrameworkType.GetType() == typeof(object).GetType() &&

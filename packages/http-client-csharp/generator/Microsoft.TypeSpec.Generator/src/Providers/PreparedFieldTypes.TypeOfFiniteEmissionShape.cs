@@ -36,14 +36,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             internal PreparedSourceOccurrence DeclarationOccurrence { get; }
             internal PreparedSourceOccurrence AssignmentOccurrence { get; }
             internal DeclarationExpression Declaration { get; }
-            internal TypeOfExpression Operand { get; }
+            internal TypeOfExpression? Operand { get; }
             internal InvokeMethodExpression Call { get; }
             internal ImmutableHashSet<string> KnownNamespaceImports { get; }
 
             private PreparedTypeOfFiniteEmissionShape(PreparedSourceFile file, PreparedGeneratedMethodGroup group,
                 IReadOnlyList<TypeProvider> owners, ImmutableArray<TypeProvider> ownerSnapshot, MethodProvider method,
                 PreparedSourceOccurrence body, PreparedSourceOccurrence declaration, PreparedSourceOccurrence assignment,
-                TypeOfExpression operand, InvokeMethodExpression call)
+                TypeOfExpression? operand, InvokeMethodExpression call)
             {
                 File = file; _group = group; _owners = owners; _ownerSnapshot = ownerSnapshot; _method = method;
                 ExpressionRoot = body; DeclarationOccurrence = declaration; AssignmentOccurrence = assignment;
@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _license = _generator.LicenseHeader; _disableXmlDocs = _configuration.DisableXmlDocs;
                 _enabled = _configuration.EnablePreEmissionSimplification; _disableReduction = _configuration.DisableRoslynReduce;
                 _outputDirectory = _configuration.OutputDirectory;
-                // The default-local and typeof native formatters both register
+                // The default-local and native argument formatters both register
                 // System even when their spelling stays qualified. Group imports
                 // conservatively cover signatures, docs and observer attributes.
                 KnownNamespaceImports = group.ImportNamespaces.Append("System")
@@ -71,7 +71,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (callerRoot?.Producer is not MethodProvider caller || !methods.Any(method => ReferenceEquals(method, caller)) ||
                     PreparedOwnedGenericBlockScope.GetInvocation(caller) is not { } call ||
                     !ContractCollections.TryCopy(call.Arguments, out var arguments) || arguments.Length != 1 ||
-                    arguments[0] is not TypeOfExpression operand || operand.GetType() != typeof(TypeOfExpression) ||
+                    !(arguments[0] is TypeOfExpression { } typeOf && typeOf.GetType() == typeof(TypeOfExpression) ||
+                        PreparedOwnedGenericBlockScope.IsOriginalConstructionArgument(arguments[0])) ||
                     call.TypeArguments is not null && (!ContractCollections.TryCopy(call.TypeArguments, out var types) || !types.IsEmpty) ||
                     caller.BodyStatements is not MethodBodyStatements block ||
                     !ContractCollections.TryCopy(block.Statements, out var statements) || statements.Length != 2 ||
@@ -89,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var sourceOwner = CaptureSourceOwnerScope(compilation, file.FileOwner.CachedType!.Namespace, file.FileOwner.CachedType.Name);
                 if (!sourceOwner.Supported || sourceOwner.Exists) { return null; }
                 var result = new PreparedTypeOfFiniteEmissionShape(file, group, owners, roots, caller, bodies[0],
-                    declarations[0], assignments[0], operand, call);
+                    declarations[0], assignments[0], arguments[0] as TypeOfExpression, call);
                 return result.IsCurrent ? result : null;
             }
 
