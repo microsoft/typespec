@@ -66,7 +66,7 @@ public class GeneratorRegistryTests
     }
 
     [Test]
-    public void UnconfiguredAzurePathIsNotEnumerated()
+    public void MissingAzurePathIsNotEnumerated()
     {
         var registry = new GeneratorRegistry("unbranded.dll");
 

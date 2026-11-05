@@ -10,7 +10,7 @@ ARG AZURE_GENERATOR_VERSION=1.0.0-alpha.20261103.2
 RUN npm pack --ignore-scripts "@azure-typespec/http-client-csharp-provisioning@${AZURE_GENERATOR_VERSION}" \
   && mkdir generator \
   && tar -xzf azure-typespec-http-client-csharp-provisioning-*.tgz \
-       --strip-components=3 -C generator package/dist/generator \
+    --strip-components=3 -C generator package/dist/generator \
   && test -f generator/Microsoft.TypeSpec.Generator.dll \
   && test -f generator/Microsoft.TypeSpec.Generator.runtimeconfig.json \
   && test -f generator/Azure.Generator.dll \
