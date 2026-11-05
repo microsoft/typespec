@@ -346,6 +346,34 @@ Models are handled differently based on how they're defined:
 
 [friendlyname]: ../../standard-library/built-in-decorators.md#@friendlyName
 
+### Component Names
+
+By default, schema names include their namespace relative to the service, such as `Models.User_Profile`. A `@friendlyName` overrides that name. Reusable parameter keys use the same naming rules, with a property-name segment when the source model has multiple properties.
+
+Use `component-name-strategy` to omit namespaces or customize the separator between namespace and parameter-property segments:
+
+```yaml
+options:
+  "@typespec/openapi3":
+    component-name-strategy: name-only
+```
+
+Alternatively, use `{ kind: fqn, separator: "_" }` to emit `Models_User_Profile`, or an empty separator to concatenate segments. Separators do not replace punctuation inside identifiers or friendly names. The default strategy is `fqn` with `"."` separators.
+
+Character restrictions are configured independently. For systems such as AWS API Gateway that require alphanumeric model names:
+
+```yaml
+options:
+  "@typespec/openapi3":
+    component-name-character-set: alphanumeric
+```
+
+This removes characters outside `[A-Za-z0-9]` from the complete component key, including friendly names. For example, `Models.User_Profile` becomes `ModelsUserProfile`. Combine it with `component-name-strategy: name-only` to produce `UserProfile`. Case is preserved; Unicode characters are removed rather than transliterated.
+
+The default character set, `openapi`, preserves existing behavior and allows letters, digits, dots, hyphens, and underscores. Both options affect schema and reusable parameter keys and their references, including named multipart schemas. They do not change operation IDs, HTTP parameter names, JSON property names, discriminator values, security-scheme names, or explicit `@useRef` URLs.
+
+Names that become empty or collide after transformation produce errors; the emitter does not invent fallback names or append counters. Adjust identifiers, friendly names, or namespace settings to resolve these errors. Alphanumeric naming addresses model-name restrictions, not other AWS API Gateway import limitations.
+
 ### Type Mapping
 
 This table shows how TypeSpec types map to OpenAPI/JSON Schema types:

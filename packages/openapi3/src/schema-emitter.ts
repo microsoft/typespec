@@ -70,6 +70,7 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { attachExtensions } from "./attach-extensions.js";
+import { getComponentTypeName, normalizeComponentName } from "./component-naming.js";
 import { getOneOf, getRef } from "./decorators.js";
 import type { JsonSchemaModule } from "./json-schema.js";
 import type { OpenAPI3EmitterOptions } from "./lib.js";
@@ -257,7 +258,7 @@ export class OpenAPI3SchemaEmitterBase<
       );
     }
 
-    const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
+    const baseName = getComponentTypeName(program, model, this.#typeNameOptions(), this._options);
     const isMultipart = this.getContentType().startsWith("multipart/");
     const name = isMultipart ? baseName + "MultiPart" : baseName;
 
@@ -329,7 +330,12 @@ export class OpenAPI3SchemaEmitterBase<
       items: this.emitter.emitTypeReference(elementType),
     });
 
-    const name = getOpenAPITypeName(this.emitter.getProgram(), array, this.#typeNameOptions());
+    const name = getComponentTypeName(
+      this.emitter.getProgram(),
+      array,
+      this.#typeNameOptions(),
+      this._options,
+    );
     return this.#createDeclaration(array, name, this.applyConstraints(array, schema as any));
   }
 
@@ -541,7 +547,12 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+    const baseName = getComponentTypeName(
+      this.emitter.getProgram(),
+      en,
+      this.#typeNameOptions(),
+      this._options,
+    );
 
     return this.#createDeclaration(en, baseName, new ObjectBuilder(this.enumSchema(en)));
   }
@@ -569,7 +580,12 @@ export class OpenAPI3SchemaEmitterBase<
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const schema = this.unionSchema(union);
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
+    const baseName = getComponentTypeName(
+      this.emitter.getProgram(),
+      union,
+      this.#typeNameOptions(),
+      this._options,
+    );
     return this.#createDeclaration(union, baseName, schema);
   }
 
@@ -833,7 +849,12 @@ export class OpenAPI3SchemaEmitterBase<
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<Schema> {
     const isStd = isStdType(this.emitter.getProgram(), scalar);
     const schema = this.#getSchemaForScalar(scalar);
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+    const baseName = getComponentTypeName(
+      this.emitter.getProgram(),
+      scalar,
+      this.#typeNameOptions(),
+      this._options,
+    );
 
     // Don't create a declaration for std types
     return isStd
@@ -981,7 +1002,8 @@ export class OpenAPI3SchemaEmitterBase<
     }
 
     const skipNameValidation = type.kind === "Model" && type.templateMapper !== undefined;
-    if (!skipNameValidation) {
+    const alphanumeric = this._options.componentNameCharacterSet === "alphanumeric";
+    if (!skipNameValidation && !alphanumeric) {
       name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
     }
 
@@ -994,8 +1016,17 @@ export class OpenAPI3SchemaEmitterBase<
 
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
-    const fullName =
-      name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+    let fullName = name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+    if (alphanumeric) {
+      const normalized = normalizeComponentName(
+        this.emitter.getProgram(),
+        type,
+        fullName,
+        this._options,
+      );
+      if (normalized === undefined) return {};
+      fullName = normalized;
+    }
 
     const decl = this.emitter.result.declaration(fullName, schema);
     checkDuplicateTypeName(

@@ -172,6 +172,36 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 | `kind`      | `"parent-container" \| "fqn" \| "explicit-only"` | `"parent-container"` | Determines how to generate operation IDs when `@operationId` is not used.<br />Avaliable options are:<br /> - `parent-container`: Uses the parent namespace and operation name to generate the ID.<br /> - `fqn`: Uses the fully qualified name of the operation to generate the ID.<br /> - `explicit-only`: Only use explicitly defined operation IDs. |
 | `separator` | `string`                                         |                      | Separator used to join segment in the operation name.                                                                                                                                                                                                                                                                                                    |
 
+### `component-name-strategy`
+
+**Type:** `"fqn" | "name-only" | object { kind, separator }`
+
+**Options:**
+
+- `"fqn" | "name-only"` (default: `"fqn"`)
+
+  Naming strategy for schema and reusable parameter component keys.
+  `fqn` preserves service-relative namespace qualification; `name-only` omits namespaces.
+  Friendly names override namespace qualification. Operation IDs and HTTP names are unchanged.
+
+- `object { kind, separator }`
+
+| Name        | Type                   | Default | Description                                                                                                                                                                                                                                                      |
+| ----------- | ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kind`      | `"fqn" \| "name-only"` | `"fqn"` | Naming strategy for schema and reusable parameter component keys.<br />`fqn` preserves service-relative namespace qualification; `name-only` omits namespaces.<br />Friendly names override namespace qualification. Operation IDs and HTTP names are unchanged. |
+| `separator` | `string`               | `"."`   | Separator between namespace and parameter-property segments. May be empty. Does not replace punctuation within identifiers or friendly names.                                                                                                                    |
+
+### `component-name-character-set`
+
+**Type:** `"openapi" | "alphanumeric"`
+
+**Default:** `"openapi"`
+
+Character set for schema and reusable parameter component keys, independent of namespace qualification.
+`openapi` preserves existing validation, allowing letters, digits, dots, hyphens, and underscores.
+`alphanumeric` removes characters outside `[A-Za-z0-9]`, including punctuation in friendly names.
+Empty names and collisions are errors. Does not affect operation IDs, HTTP names, or explicit external references.
+
 ### `enum-strategy`
 
 **Type:** `"default" | "annotated"`

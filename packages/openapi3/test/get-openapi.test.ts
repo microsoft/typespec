@@ -1,5 +1,5 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { it } from "vitest";
 import { getOpenAPI3 } from "../src/openapi.js";
 import { ApiTester } from "./test-host.js";
@@ -48,4 +48,33 @@ it("has diagnostics", async () => {
         "Status code range '455 to '495' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX. Example: `@minValue(400) @maxValue(499)` for 4XX.",
     },
   ]);
+});
+
+it("applies component naming independently to each service through the object API", async () => {
+  const { program } = await ApiTester.compile(`
+    import "@typespec/http";
+    using Http;
+    @service namespace First {
+      namespace Models { model User_Profile { first: string; } }
+      @get op read(): Models.User_Profile;
+    }
+    @service namespace Second {
+      namespace Models { model User_Profile { second: string; } }
+      @get op read(): Models.User_Profile;
+    }
+  `);
+  const records = await getOpenAPI3(program, {
+    "component-name-strategy": "name-only",
+    "component-name-character-set": "alphanumeric",
+  });
+  strictEqual(records.length, 2);
+  for (const [index, record] of records.entries()) {
+    ok(!record.versioned);
+    expectDiagnostics(record.diagnostics, []);
+    const schemas = record.document.components!.schemas!;
+    deepStrictEqual(Object.keys(schemas), ["UserProfile"]);
+    deepStrictEqual(Object.keys((schemas.UserProfile as any).properties), [
+      index === 0 ? "first" : "second",
+    ]);
+  }
 });
