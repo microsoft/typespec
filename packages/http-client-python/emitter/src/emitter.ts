@@ -18,7 +18,11 @@ import { getRootNamespace, md2Rst } from "./utils.js";
 import { dumpCodeModelToYaml } from "./yaml-utils.js";
 
 function getBrowserPygenWheelUrl(): string {
-  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
+  // Release wheels ship in npm; the playground blob feed hosts prerelease assets.
+  const packageUrl = pkgJson.version.includes("-")
+    ? `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}`
+    : `https://cdn.jsdelivr.net/npm/${PACKAGE_NAME}@${pkgJson.version}`;
+  return `${packageUrl}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
 }
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
