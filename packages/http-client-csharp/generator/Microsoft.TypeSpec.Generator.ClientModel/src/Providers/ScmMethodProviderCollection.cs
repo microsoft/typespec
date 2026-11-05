@@ -82,12 +82,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         internal static bool IsNextLinkContinuationTokenParameter(InputServiceMethod serviceMethod, ParameterProvider parameter)
+            => parameter.InputParameter is { } inputParameter
+                && IsNextLinkContinuationTokenParameter(serviceMethod, inputParameter);
+
+        internal static bool IsNextLinkContinuationTokenParameter(InputServiceMethod serviceMethod, InputParameter inputParameter)
         {
             if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
                 || serviceMethod is not InputPagingServiceMethod
                 {
                     PagingMetadata.NextLink: not null
-                } || parameter.InputParameter is not { } inputParameter)
+                })
             {
                 return false;
             }
@@ -160,60 +164,172 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
                 || _pagingServiceMethod?.PagingMetadata.NextLink is null
-                || !ServiceMethod.Operation.Parameters.Any(parameter => parameter.IsContinuationToken)
-                || Client.BackCompatProvider.LastContractView?.Methods is not { Count: > 0 } previousMethods)
+                || !ServiceMethod.Operation.Parameters.Any(parameter => parameter.IsContinuationToken))
             {
                 return methods;
             }
 
-            var methodNames = methods.Select(method => method.Signature.Name).ToHashSet();
-            var previousMethodsByName = previousMethods
-                .Where(previous => methodNames.Contains(previous.Signature.Name)
+            var previousMethods = Client.BackCompatProvider.LastContractView?.Methods ?? [];
+            var customMethods = Client.CustomCodeView?.Methods ?? [];
+            if (previousMethods.Count == 0 && customMethods.Count == 0)
+            {
+                return methods;
+            }
+
+            var syncName = ServiceMethod.Name;
+            var asyncName = syncName + "Async";
+            List<MethodProvider>? candidates = null;
+            foreach (var previous in previousMethods)
+            {
+                if ((previous.Signature.Name == syncName || previous.Signature.Name == asyncName)
                     && MethodSignatureHelper.IsPublicApi(previous.Signature)
                     && ScmCodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
                         Client.BackCompatProvider.Type.FullyQualifiedName,
                         previous.Signature.Name,
                         previous.Signature.Parameters.Select(parameter => parameter.Type).ToArray()) != true)
-                .ToLookup(previous => previous.Signature.Name);
-            var legacyProtocols = new Dictionary<bool, ScmMethodProvider>();
-            var legacyMethods = new List<ScmMethodProvider>();
-            bool hasSignatureCollision = false;
-            foreach (var method in methods.ToArray())
-            {
-                var previousOverloads = previousMethodsByName[method.Signature.Name];
-                bool isAsync = method.Signature.Name == ServiceMethod.Name + "Async";
-                if (!legacyProtocols.TryGetValue(isAsync, out var protocol))
                 {
-                    protocol = BuildProtocolMethod(_createRequestMethod, isAsync, shouldMakeParametersRequired: false, includeContinuationToken: true);
-                    legacyProtocols.Add(isAsync, protocol);
+                    (candidates ??= []).Add(previous);
+                }
+            }
+            foreach (var custom in customMethods)
+            {
+                if ((custom.Signature.Name == syncName || custom.Signature.Name == asyncName)
+                    && (custom.IsPartialMethod || MethodSignatureHelper.IsPublicApi(custom.Signature)))
+                {
+                    (candidates ??= []).Add(custom);
+                }
+            }
+            if (candidates == null)
+            {
+                return methods;
+            }
+
+            ScmMethodProvider? syncProtocol = null;
+            ScmMethodProvider? asyncProtocol = null;
+            var methodCount = methods.Count;
+            var legacyMethods = new ScmMethodProvider?[methodCount];
+            bool hasSignatureCollision = false;
+            for (int i = 0; i < methodCount; i++)
+            {
+                var method = methods[i];
+                if (!candidates.Any(candidate => candidate.Signature.Name == method.Signature.Name
+                    && candidate.Signature.ReturnType?.AreNamesEqual(method.Signature.ReturnType) == true))
+                {
+                    continue;
                 }
 
-                var legacyMethod = method.Kind == ScmMethodKind.Protocol
-                    ? protocol
-                    : BuildConvenienceMethod(protocol, isAsync, includeContinuationToken: true);
-                legacyMethods.Add(legacyMethod);
+                var legacyMethod = legacyMethods[i] = BuildLegacyMethod(method);
                 var token = legacyMethod.Signature.Parameters
                     .FirstOrDefault(parameter => IsNextLinkContinuationTokenParameter(ServiceMethod, parameter));
-                // Match after applying partial customizations, which can rename the token parameter.
-                if (token != null && previousOverloads.Any(previous =>
-                    previous.Signature.ReturnType?.AreNamesEqual(legacyMethod.Signature.ReturnType) == true
-                    && previous.Signature.Parameters.Any(parameter => parameter.Name == token.Name && parameter.Type.AreNamesEqual(token.Type))))
+                bool retainMethod = legacyMethod.IsPartialMethod;
+                if (token != null)
                 {
-                    hasSignatureCollision |= previousOverloads.Any(previous =>
-                        MethodSignature.MethodSignatureComparer.Equals(previous.Signature, method.Signature)
-                        && previous.Signature.Parameters.Any(parameter => parameter.Name == token.Name && parameter.Type.AreNamesEqual(token.Type)));
+                    foreach (var candidate in candidates)
+                    {
+                        if (candidate.Signature.Name != method.Signature.Name
+                            || candidate.Signature.ReturnType?.AreNamesEqual(legacyMethod.Signature.ReturnType) != true)
+                        {
+                            continue;
+                        }
+                        int tokenIndex = FindContinuationTokenParameterIndex(candidate.Signature, token);
+                        if (tokenIndex < 0)
+                        {
+                            continue;
+                        }
+
+                        retainMethod = true;
+                        hasSignatureCollision |= MethodSignature.MethodSignatureComparer.Equals(candidate.Signature, method.Signature)
+                            || HasOptionalArgumentCollision(method.Signature, candidate.Signature, tokenIndex);
+                    }
+                }
+                if (retainMethod)
+                {
                     methods.Add(legacyMethod);
                 }
             }
             if (hasSignatureCollision)
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    DiagnosticCodes.ContinuationTokenSignatureCollision,
-                    $"The continuation-token parameter for operation '{ServiceMethod.Name}' was retained because removing it would collide with a previously published method signature.",
+                    DiagnosticCodes.SignatureCollision,
+                    $"The continuation-token parameter for operation '{ServiceMethod.Name}' was retained because removing it would create a signature collision or ambiguous call with an existing method.",
                     ServiceMethod.Operation.CrossLanguageDefinitionId);
-                return legacyMethods;
+                var result = new ScmMethodProvider[methodCount];
+                for (int i = 0; i < methodCount; i++)
+                {
+                    var method = result[i] = legacyMethods[i] ?? BuildLegacyMethod(methods[i]);
+                    if (previousMethods.Count == 0 && _generateConvenienceMethod
+                        && method.Kind == ScmMethodKind.Protocol && !method.IsPartialMethod)
+                    {
+                        foreach (var parameter in method.Signature.Parameters)
+                        {
+                            parameter.DefaultValue = null;
+                        }
+                    }
+                }
+                return result;
             }
             return methods;
+
+            ScmMethodProvider BuildLegacyMethod(ScmMethodProvider method)
+            {
+                bool isAsync = method.Signature.Name == asyncName;
+                var protocol = isAsync
+                    ? asyncProtocol ??= BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired: false, includeContinuationToken: true)
+                    : syncProtocol ??= BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired: false, includeContinuationToken: true);
+                return method.Kind == ScmMethodKind.Protocol
+                    ? protocol
+                    : BuildConvenienceMethod(protocol, isAsync, includeContinuationToken: true);
+            }
+        }
+
+        internal static int FindContinuationTokenParameterIndex(MethodSignature signature, ParameterProvider token)
+        {
+            for (int i = 0; i < signature.Parameters.Count; i++)
+            {
+                var parameter = signature.Parameters[i];
+                if (parameter.Type.AreNamesEqual(token.Type)
+                    && (parameter.Name == token.Name || parameter.Name == token.InputParameter?.Name
+                        || parameter.Name == token.InputParameter?.OriginalName))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private static bool HasOptionalArgumentCollision(MethodSignature tokenless, MethodSignature previous, int tokenIndex)
+        {
+            int argumentCount = tokenIndex + 1;
+            for (int i = 0; i < tokenless.Parameters.Count; i++)
+            {
+                if (tokenless.Parameters[i].DefaultValue == null)
+                {
+                    argumentCount = Math.Max(argumentCount, i + 1);
+                }
+            }
+            for (int i = tokenIndex + 1; i < previous.Parameters.Count; i++)
+            {
+                if (previous.Parameters[i].DefaultValue == null)
+                {
+                    argumentCount = Math.Max(argumentCount, i + 1);
+                }
+            }
+            // Both overloads must omit trailing optional arguments; an exact-arity overload wins otherwise.
+            if (argumentCount >= Math.Min(tokenless.Parameters.Count, previous.Parameters.Count))
+            {
+                return false;
+            }
+            for (int i = 0; i < argumentCount; i++)
+            {
+                var currentType = tokenless.Parameters[i].Type;
+                var previousType = previous.Parameters[i].Type;
+                if (!currentType.AreNamesEqual(previousType)
+                    || currentType.IsNullable != previousType.IsNullable && (currentType.IsValueType || previousType.IsValueType))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
@@ -243,11 +359,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
-            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
-            if (!includeContinuationToken)
-            {
-                convenienceParameters.RemoveAll(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p));
-            }
+            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client, includeContinuationToken);
             ParameterProvider[] signatureParameters = [.. convenienceParameters, ScmKnownParameters.CreateCancellationToken()];
 
             // Detect a partial method declaration in the client's custom code matching this convenience method.
@@ -1518,11 +1630,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
             var convertedRequiredParameters = new List<ParameterProvider>();
-            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
-            if (!includeContinuationToken)
-            {
-                protocolParameters.RemoveAll(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p));
-            }
+            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client, includeContinuationToken);
             var contentIndex = protocolParameters.FindIndex(parameter => parameter.IsContentParameter);
             var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
             var makeOptionalRequired = shouldMakeParametersRequired

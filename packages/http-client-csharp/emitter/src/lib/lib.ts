@@ -68,7 +68,7 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`${"message"}`,
     },
   },
-  "continuation-token-signature-collision": {
+  "signature-collision": {
     severity: "warning",
     messages: {
       default: paramMessage`${"message"}`,

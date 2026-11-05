@@ -1619,7 +1619,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var method in result)
             {
                 if ((!originalSignatures.ContainsKey(method)
-                        || method is ScmMethodProvider scmMethod && continuationTokenMethods.ContainsKey(scmMethod)
+                        || method is ScmMethodProvider scmMethod && continuationTokenMethods?.ContainsKey(scmMethod) == true
                             && method.Signature.Parameters[^1].DefaultValue == null)
                     && PreviousSignatureEndsWithCancellationToken(method.Signature))
                 {
@@ -1636,21 +1636,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result;
         }
 
-        private static Dictionary<ScmMethodProvider, ParameterProvider> GetNextLinkContinuationTokenMethods(IEnumerable<MethodProvider> methods)
+        private static Dictionary<ScmMethodProvider, ParameterProvider>? GetNextLinkContinuationTokenMethods(IEnumerable<MethodProvider> methods)
         {
-            var result = new Dictionary<ScmMethodProvider, ParameterProvider>();
             if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption)
             {
-                return result;
+                return null;
             }
 
+            Dictionary<ScmMethodProvider, ParameterProvider>? result = null;
             foreach (var method in methods.OfType<ScmMethodProvider>())
             {
                 if (method.ServiceMethod is { } serviceMethod
                     && method.Signature.Parameters.FirstOrDefault(parameter =>
                         ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(serviceMethod, parameter)) is { } token)
                 {
-                    result.Add(method, token);
+                    (result ??= []).TryAdd(method, token);
                 }
             }
             return result;
@@ -1658,9 +1658,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodProvider> BuildNextLinkMethodsForBackCompatibility(
             IEnumerable<MethodProvider> originalMethods,
-            Dictionary<ScmMethodProvider, ParameterProvider> continuationTokenMethods)
+            Dictionary<ScmMethodProvider, ParameterProvider>? continuationTokenMethods)
         {
-            if (continuationTokenMethods.Count == 0)
+            if (continuationTokenMethods == null)
             {
                 return base.BuildMethodsForBackCompatibility(originalMethods);
             }
@@ -1674,14 +1674,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .ToArray();
             var tokenlessSignatures = tokenlessMethods
                 .Select(method => (method.ServiceMethod, method.Kind, method.Signature.Name)).ToHashSet();
-            var hiddenTokenMethods = continuationTokenMethods
-                .Where(method => tokenlessSignatures.Contains((method.Key.ServiceMethod, method.Key.Kind, method.Key.Signature.Name)))
-                .ToDictionary(method => method.Key, method => method.Value);
+            Dictionary<ScmMethodProvider, ParameterProvider>? hiddenTokenMethods = null;
+            foreach (var method in continuationTokenMethods)
+            {
+                if (tokenlessSignatures.Contains((method.Key.ServiceMethod, method.Key.Kind, method.Key.Signature.Name))
+                    || HasCustomTokenlessMethod(method.Key, method.Value))
+                {
+                    (hiddenTokenMethods ??= []).TryAdd(method.Key, method.Value);
+                }
+            }
             // Snapshot defaults before the base pass builds shims, and keep published tokenless methods
             // in the match set so regeneration does not replace them with required-parameter shims.
             var previousDefaults = GetContinuationTokenDefaults(hiddenTokenMethods);
-            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods)];
-            result.RemoveAll(method => tokenlessMethods.Contains(method));
+            var compatibleMethods = base.BuildMethodsForBackCompatibility(originalMethods);
+            var result = new List<MethodProvider>(compatibleMethods.Count);
+            foreach (var method in compatibleMethods)
+            {
+                if (method is ScmMethodProvider scmMethod && !continuationTokenMethods.ContainsKey(scmMethod)
+                    && tokenlessSignatures.Contains((scmMethod.ServiceMethod, scmMethod.Kind, scmMethod.Signature.Name)))
+                {
+                    continue;
+                }
+                result.Add(method);
+            }
             result.AddRange(tokenlessMethods);
 
             foreach (var method in result.OfType<ScmMethodProvider>())
@@ -1691,7 +1706,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (!hiddenTokenMethods.ContainsKey(method))
+                if (hiddenTokenMethods?.ContainsKey(method) != true)
                 {
                     // A signature collision retains the ordinary token-bearing API. Protocol parameters
                     // become required only after the base pass has used their defaults to restore old overloads.
@@ -1721,43 +1736,88 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result;
         }
 
-        private record ContinuationTokenDefaults(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults);
-
-        private List<ContinuationTokenDefaults> GetContinuationTokenDefaults(Dictionary<ScmMethodProvider, ParameterProvider> continuationTokenMethods)
+        private bool HasCustomTokenlessMethod(ScmMethodProvider method, ParameterProvider token)
         {
+            foreach (var custom in CustomCodeView?.Methods ?? [])
+            {
+                if (custom.IsPartialMethod || !MethodSignatureHelper.IsPublicApi(custom.Signature)
+                    || custom.Signature.Name != method.Signature.Name
+                    || custom.Signature.ReturnType?.AreNamesEqual(method.Signature.ReturnType) != true
+                    || custom.Signature.Parameters.Count != method.Signature.Parameters.Count - 1
+                    || ScmMethodProviderCollection.FindContinuationTokenParameterIndex(custom.Signature, token) >= 0)
+                {
+                    continue;
+                }
+
+                int customIndex = 0;
+                bool matches = true;
+                foreach (var parameter in method.Signature.Parameters)
+                {
+                    if (ReferenceEquals(parameter, token))
+                    {
+                        continue;
+                    }
+                    var customType = custom.Signature.Parameters[customIndex++].Type;
+                    if (!parameter.Type.AreNamesEqual(customType)
+                        || parameter.Type.IsNullable != customType.IsNullable && (parameter.Type.IsValueType || customType.IsValueType))
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (matches)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private IReadOnlyList<(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults)> GetContinuationTokenDefaults(
+            Dictionary<ScmMethodProvider, ParameterProvider>? continuationTokenMethods)
+        {
+            if (continuationTokenMethods == null || LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return [];
+            }
+
             var methodsByName = continuationTokenMethods.ToLookup(method => method.Key.Signature.Name);
-            List<ContinuationTokenDefaults> result = [];
-            foreach (var previous in LastContractView!.Methods)
+            List<(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults)>? result = null;
+            foreach (var previous in previousMethods)
             {
                 var signature = previous.Signature;
-                if (!methodsByName.Contains(signature.Name)
-                    || !signature.Parameters.Any(parameter => parameter.DefaultValue != null))
+                if (!signature.Parameters.Any(parameter => parameter.DefaultValue != null))
                 {
                     continue;
                 }
-                var token = methodsByName[signature.Name]
-                    .Where(method => method.Key.Signature.ReturnType?.AreNamesEqual(signature.ReturnType) == true)
-                    .Select(method => method.Value)
-                    .FirstOrDefault(token => signature.Parameters.Any(parameter => parameter.Name == token.Name));
-                if (token == null)
+                foreach (var method in methodsByName[signature.Name])
                 {
-                    continue;
-                }
+                    if (method.Key.Signature.ReturnType?.AreNamesEqual(signature.ReturnType) != true)
+                    {
+                        continue;
+                    }
+                    int tokenIndex = ScmMethodProviderCollection.FindContinuationTokenParameterIndex(signature, method.Value);
+                    if (tokenIndex < 0)
+                    {
+                        continue;
+                    }
 
-                int tokenIndex = 0;
-                while (signature.Parameters[tokenIndex].Name != token.Name)
-                {
-                    tokenIndex++;
+                    if (signature.Parameters.Skip(tokenIndex + 1).Any(parameter => parameter.DefaultValue != null))
+                    {
+                        (result ??= []).Add((signature, tokenIndex, signature.Parameters.Select(parameter => parameter.DefaultValue).ToArray()));
+                    }
+                    break;
                 }
-                if (signature.Parameters.Skip(tokenIndex + 1).Any(parameter => parameter.DefaultValue != null))
-                {
-                    result.Add(new(signature, tokenIndex, signature.Parameters.Select(parameter => parameter.DefaultValue).ToArray()));
-                }
+            }
+            if (result == null)
+            {
+                return [];
             }
             return result;
         }
 
-        private static void RestoreContinuationTokenDefaults(IReadOnlyList<MethodProvider> methods, List<ContinuationTokenDefaults> previousDefaults)
+        private static void RestoreContinuationTokenDefaults(IReadOnlyList<MethodProvider> methods,
+            IReadOnlyList<(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults)> previousDefaults)
         {
             if (previousDefaults.Count == 0)
             {

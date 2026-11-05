@@ -4388,34 +4388,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             bool supportsPageResumption, bool newOptionalParameter, bool hasPreviousDefaults, bool customizeProtocol,
             bool stringFilter = false, bool regenerate = false, bool protocolOnly = false)
         {
-            var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
-            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
-            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
-            token.Update(isContinuationToken: true, methodParameterSegments: [methodToken]);
-            var filterType = stringFilter ? InputPrimitiveType.String : InputPrimitiveType.Boolean;
-            var filter = InputFactory.QueryParameter("filter", filterType);
-            var item = InputFactory.Model("Item");
-            var page = InputFactory.Model("Page", properties:
-            [
-                InputFactory.Property("items", InputFactory.Array(item)),
-                InputFactory.Property("nextLink", InputPrimitiveType.Url)
-            ]);
-            var operation = InputFactory.Operation("GetItems",
-                parameters: newOptionalParameter ? [pageSize, token, filter] : [pageSize, token],
-                generateConvenienceMethod: !protocolOnly,
-                responses: [InputFactory.OperationResponse([200], page)]);
-            var method = InputFactory.PagingServiceMethod("GetItems", operation,
-                parameters: newOptionalParameter
-                    ? [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
-                       methodToken,
-                       InputFactory.MethodParameter("filter", filterType, location: InputRequestLocation.Query)]
-                    : [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
-                       methodToken],
-                response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
-                pagingMetadata: new InputPagingServiceMetadata(["items"],
-                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
-                    null));
-            var inputClient = InputFactory.Client(TestClientName, methods: [method]);
+            var (inputClient, item, page, method) = CreateContinuationTokenPagingClient(newOptionalParameter, stringFilter, protocolOnly);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 inputModels: () => [item, page],
@@ -4479,9 +4452,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
                 Assert.AreEqual("diagnostic", notification.RootElement.GetProperty("method").GetString());
                 var warning = notification.RootElement.GetProperty("params");
-                Assert.AreEqual("continuation-token-signature-collision", warning.GetProperty("code").GetString());
+                Assert.AreEqual("signature-collision", warning.GetProperty("code").GetString());
                 Assert.AreEqual("warning", warning.GetProperty("severity").GetString());
-                Assert.AreEqual(operation.CrossLanguageDefinitionId, warning.GetProperty("crossLanguageDefinitionId").GetString());
+                Assert.AreEqual(method.Operation.CrossLanguageDefinitionId, warning.GetProperty("crossLanguageDefinitionId").GetString());
                 StringAssert.Contains("retained", warning.GetProperty("message").GetString());
                 Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name == "filter")));
                 Assert.IsTrue(visible.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken)))
@@ -4514,6 +4487,134 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     m.Suppressions.Any(suppression => suppression.Code.ToDisplayString() == Literal("AZC0002").ToDisplayString())));
             Assert.IsTrue(hidden.All(m => m.Signature.Attributes.Single(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))
                 .Arguments.Single().ToDisplayString() == FrameworkEnumValue(System.ComponentModel.EditorBrowsableState.Never).ToDisplayString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NextLinkPagingImplementsRenamedPartials(bool hasLastContract)
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient();
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync("CustomProtocol",
+                    method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                lastContractCompilation: hasLastContract
+                    ? () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken))
+                    : null,
+                clientResponseApi: new ResumableClientResultProvider());
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var implementations = client.Methods.Where(method => method.IsPartialMethod).ToArray();
+            Assert.AreEqual(2, implementations.Length);
+            Assert.IsTrue(implementations.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "resumeToken")));
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var expected = hasLastContract
+                ? Helpers.GetExpectedFromFile("True,False,CustomProtocol", method: nameof(BackCompatibility_NextLinkContinuationToken))
+                : Helpers.GetExpectedFromFile("False");
+            Assert.AreEqual(expected, output.Content);
+        }
+
+        [Test]
+        public async Task NextLinkPagingRetainsTokenForOptionalArgumentCollision()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter: true, stringFilter: true);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(),
+                clientResponseApi: new ResumableClientResultProvider());
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var methods = client.Methods.Where(method => method.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
+            Assert.AreEqual(4, methods.Length);
+            Assert.IsTrue(methods.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "token")));
+            using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+            Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NextLinkPagingAccountsForCustomMethods(bool tokenBearingCustomMethod)
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(
+                withFilter: tokenBearingCustomMethod, stringFilter: tokenBearingCustomMethod);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(tokenBearingCustomMethod.ToString()),
+                lastContractCompilation: tokenBearingCustomMethod ? null
+                    : () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var methods = client.Methods.Where(method => method.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
+            Assert.AreEqual(4, methods.Length);
+            Assert.IsTrue(methods.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "token")));
+            Assert.IsTrue(methods.All(method => method.Signature.Attributes.Any(attribute =>
+                attribute.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))) == !tokenBearingCustomMethod));
+            if (tokenBearingCustomMethod)
+            {
+                using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+                Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+                Assert.IsTrue(methods.Where(method => method.Signature.Parameters[^1].Type.Equals(typeof(System.ClientModel.Primitives.RequestOptions)))
+                    .All(method => method.Signature.Parameters.All(parameter => parameter.DefaultValue == null)));
+            }
+            else
+            {
+                Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
+            }
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var expected = tokenBearingCustomMethod
+                ? Helpers.GetExpectedFromFile(method: nameof(NextLinkPagingRetainsTokenForOptionalArgumentCollision))
+                : Helpers.GetExpectedFromFile("False");
+            Assert.AreEqual(expected, output.Content);
+        }
+
+        private static (InputClient Client, InputModelType Item, InputModelType Page, InputPagingServiceMethod Method)
+            CreateContinuationTokenPagingClient(bool withFilter = false, bool stringFilter = false, bool protocolOnly = false)
+        {
+            var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
+            token.Update(isContinuationToken: true, methodParameterSegments: [methodToken]);
+            var filterType = stringFilter ? InputPrimitiveType.String : InputPrimitiveType.Boolean;
+            var filter = InputFactory.QueryParameter("filter", filterType);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                    InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems",
+                parameters: withFilter ? [pageSize, token, filter] : [pageSize, token],
+                generateConvenienceMethod: !protocolOnly,
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation,
+                parameters: withFilter
+                    ? [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
+                           methodToken,
+                           InputFactory.MethodParameter("filter", filterType, location: InputRequestLocation.Query)]
+                    : [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
+                           methodToken],
+                response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
+            return (InputFactory.Client(TestClientName, methods: [method]), item, page, method);
         }
 
         [Test]

@@ -6,7 +6,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
     internal static class DiagnosticCodes
     {
         public const string ClientNamespaceConflict = "client-namespace-conflict";
-        public const string ContinuationTokenSignatureCollision = "continuation-token-signature-collision";
+        public const string SignatureCollision = "signature-collision";
         public const string MissingItemsProperty = "missing-items-property";
         public const string NoMatchingItemsProperty = "no-matching-items-property";
         public const string UnsupportedSerialization = "unsupported-serialization";

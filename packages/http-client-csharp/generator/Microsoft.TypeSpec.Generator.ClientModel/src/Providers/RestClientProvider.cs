@@ -1238,7 +1238,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
-            ClientProvider client)
+            ClientProvider client,
+            bool includeContinuationToken = true)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1270,6 +1271,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
+                if (!includeContinuationToken && ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(serviceMethod, inputParam))
+                {
+                    continue;
+                }
+
                 if (inputParam.IsReadOnly)
                 {
                     continue;

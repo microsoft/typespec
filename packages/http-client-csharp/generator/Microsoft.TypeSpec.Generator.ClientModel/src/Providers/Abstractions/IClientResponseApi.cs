@@ -27,9 +27,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Gets whether paging collections support resuming enumeration from a continuation token.
         /// </summary>
         /// <remarks>
-        /// When enabled, next-link paging methods omit the raw request continuation-token parameter
-        /// from new public signatures. Callers must be able to resume paging through the returned collection.
-        /// Defaults to false to preserve existing method signatures.
+        /// When enabled, a paging method that has both a next-link response and a request parameter marked
+        /// as the continuation token omits that parameter from its new public signatures. Callers resume
+        /// through the returned collection instead, for example with Azure's <c>AsPages(continuationToken)</c>.
+        /// Published token-bearing overloads and custom partial implementations are retained. If removing
+        /// the parameter would cause a signature collision or ambiguous call, it is retained with a warning.
+        /// Token-based paging without a next link, and next-link methods without a marked token parameter,
+        /// are unaffected. Defaults to false to preserve existing method signatures.
         /// </remarks>
         bool SupportsPageResumption => false;
 

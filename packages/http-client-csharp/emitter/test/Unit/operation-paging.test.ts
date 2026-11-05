@@ -88,7 +88,7 @@ describe("Next link operations", () => {
     },
   );
 
-  it("does not mark an ordinary parameter named token", async () => {
+  it("does not infer the continuation-token marker from an ordinary query parameter's name", async () => {
     const program = await typeSpecCompile(
       `
         @list
