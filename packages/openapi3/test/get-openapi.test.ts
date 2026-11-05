@@ -65,15 +65,14 @@ it("applies component naming independently to each service through the object AP
   `);
   const records = await getOpenAPI3(program, {
     "component-name-strategy": "name-only",
-    "component-name-character-set": "alphanumeric",
   });
   strictEqual(records.length, 2);
   for (const [index, record] of records.entries()) {
     ok(!record.versioned);
     expectDiagnostics(record.diagnostics, []);
     const schemas = record.document.components!.schemas!;
-    deepStrictEqual(Object.keys(schemas), ["UserProfile"]);
-    deepStrictEqual(Object.keys((schemas.UserProfile as any).properties), [
+    deepStrictEqual(Object.keys(schemas), ["User_Profile"]);
+    deepStrictEqual(Object.keys((schemas.User_Profile as any).properties), [
       index === 0 ? "first" : "second",
     ]);
   }

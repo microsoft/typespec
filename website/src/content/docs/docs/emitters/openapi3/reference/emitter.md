@@ -185,17 +185,6 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 | `kind`      | `"fqn" \| "name-only"` | `"fqn"` | Naming strategy for schema and reusable parameter component keys.<br />`fqn` preserves service-relative namespace qualification; `name-only` omits namespaces.<br />Friendly names override namespace qualification. Operation IDs and HTTP names are unchanged. |
 | `separator` | `string`               | `"."`   | Separator between namespace and parameter-property segments. May be empty. Does not replace punctuation within identifiers or friendly names.                                                                                                                    |
 
-### `component-name-character-set`
-
-**Type:** `"openapi" | "alphanumeric"`
-
-**Default:** `"openapi"`
-
-Character set for schema and reusable parameter component keys, independent of namespace qualification.
-`openapi` preserves existing validation, allowing letters, digits, dots, hyphens, and underscores.
-`alphanumeric` removes characters outside `[A-Za-z0-9]`, including punctuation in friendly names.
-Empty names and collisions are errors. Does not affect operation IDs, HTTP names, or explicit external references.
-
 ### `enum-strategy`
 
 **Type:** `"default" | "annotated"`

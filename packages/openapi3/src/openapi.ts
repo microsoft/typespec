@@ -87,18 +87,13 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { stringify } from "yaml";
-import {
-  getComponentTypeName,
-  hasCustomComponentNames,
-  normalizeComponentName,
-} from "./component-naming.js";
+import { getComponentTypeName, hasCustomComponentNames } from "./component-naming.js";
 import { getRef } from "./decorators.js";
 import type { OperationExamples } from "./examples.js";
 import { getExampleOrExamples, resolveOperationExamples } from "./examples.js";
 import type { JsonSchemaModule } from "./json-schema.js";
 import { resolveJsonSchemaModule } from "./json-schema.js";
 import type {
-  ComponentNameCharacterSet,
   ComponentNameStrategy,
   EnumStrategy,
   FileType,
@@ -275,7 +270,6 @@ export function resolveOptions(
       separator:
         typeof componentNameStrategy === "string" ? "." : (componentNameStrategy.separator ?? "."),
     },
-    componentNameCharacterSet: resolvedOptions["component-name-character-set"] ?? "openapi",
     enumStrategy,
   };
 }
@@ -316,8 +310,6 @@ export interface ResolvedOpenAPI3EmitterOptions {
     /** Separator between namespace and parameter-property segments. */
     separator: string;
   };
-  /** Component key character set; defaults to existing OpenAPI validation. */
-  componentNameCharacterSet?: ComponentNameCharacterSet;
   /** Formats requested for each document; inferred from the output extension or defaulted to YAML when absent. */
   fileTypes: FileType[];
   /** Resolved output path template; includes an OpenAPI-version directory when multiple specification versions are requested. */
@@ -1454,7 +1446,7 @@ function createOAPIEmitter(
         ? getComponentTypeName(program, body.type, typeNameOptions, options)
         : undefined;
     if (name !== undefined && customComponentNames) {
-      name = normalizeComponentName(program, body.type, name, options);
+      name = ensureValidComponentFixedFieldKey(program, body.type, name);
       if (name) {
         const existing = multipartSchemaTypes.get(name);
         if (existing && existing !== body.type) {
@@ -1846,14 +1838,13 @@ function createOAPIEmitter(
 
   function emitParameters() {
     for (const [property, param] of params) {
-      let validKey: string | undefined;
+      let validKey: string;
       if (customComponentNames) {
         const parent = property.model!;
         const name = getComponentTypeName(program, parent, typeNameOptions, options);
         const separator = options.componentNameStrategy?.separator ?? ".";
         const key = parent.properties.size > 1 ? name + separator + property.name : name;
-        validKey = normalizeComponentName(program, property, key, options);
-        if (validKey === undefined) continue;
+        validKey = ensureValidComponentFixedFieldKey(program, property, key);
         checkDuplicateTypeName(program, property, validKey, root.components!.parameters!);
       } else {
         const key = getParameterKey(

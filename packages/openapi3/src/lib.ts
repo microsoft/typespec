@@ -11,8 +11,6 @@ export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export type EnumStrategy = "default" | "annotated";
 /** Namespace qualification for schema and reusable parameter component keys. */
 export type ComponentNameStrategy = "fqn" | "name-only";
-/** Allowed characters in schema and reusable parameter component keys. */
-export type ComponentNameCharacterSet = "openapi" | "alphanumeric";
 /** User-supplied emitter configuration; omitted settings are normalized by `resolveOptions`. */
 export interface OpenAPI3EmitterOptions {
   /**
@@ -135,15 +133,6 @@ export interface OpenAPI3EmitterOptions {
         /** Separator between namespace and parameter-property segments; defaults to `"."`. May be empty. */
         separator?: string;
       };
-
-  /**
-   * Character set for schema and reusable parameter keys, independent of namespace qualification.
-   * `openapi` preserves existing validation. `alphanumeric` removes characters outside `[A-Za-z0-9]`,
-   * including punctuation in friendly names. Empty names and collisions are errors.
-   * Does not affect operation IDs, HTTP names, or explicit external references.
-   * @default openapi
-   */
-  "component-name-character-set"?: ComponentNameCharacterSet;
 
   /**
    * How to emit TypeSpec enums.
@@ -353,18 +342,6 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         },
       ],
     } as any,
-    "component-name-character-set": {
-      type: "string",
-      enum: ["openapi", "alphanumeric"],
-      nullable: true,
-      default: "openapi",
-      description: [
-        "Character set for schema and reusable parameter component keys, independent of namespace qualification.",
-        "`openapi` preserves existing validation, allowing letters, digits, dots, hyphens, and underscores.",
-        "`alphanumeric` removes characters outside `[A-Za-z0-9]`, including punctuation in friendly names.",
-        "Empty names and collisions are errors. Does not affect operation IDs, HTTP names, or explicit external references.",
-      ].join("\n"),
-    },
     "enum-strategy": {
       type: "string",
       enum: ["default", "annotated"],
@@ -530,13 +507,6 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
-      },
-    },
-    "empty-component-name": {
-      severity: "error",
-      docs: fileRef.fromPackageRoot("src/diagnostics/empty-component-name.md"),
-      messages: {
-        default: paramMessage`Component name '${"name"}' contains no ASCII letters or digits after alphanumeric sanitization. Use an alphanumeric identifier or @friendlyName.`,
       },
     },
     "streams-not-supported": {

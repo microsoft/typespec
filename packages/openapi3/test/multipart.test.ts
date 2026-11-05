@@ -14,12 +14,12 @@ worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor }) => {
         @route("/b") op second(@multipartBody body: Models.Upload_Form): void;
       }
     `,
-      { "component-name-character-set": "alphanumeric" },
+      { "component-name-strategy": "name-only" },
     );
-    expect(Object.keys(res.components.schemas)).toEqual(["ModelsUploadForm"]);
+    expect(Object.keys(res.components.schemas)).toEqual(["Upload_Form"]);
     for (const path of ["/a", "/b"]) {
       expect(res.paths[path].post.requestBody.content["multipart/form-data"].schema).toEqual({
-        $ref: "#/components/schemas/ModelsUploadForm",
+        $ref: "#/components/schemas/Upload_Form",
       });
     }
   });
@@ -27,11 +27,11 @@ worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor }) => {
   it("reports transformed multipart and regular schema collisions", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      model Upload_Form { name: HttpPart<string>; }
-      model UploadForm { value: string; }
-      op upload(@multipartBody body: Upload_Form): UploadForm;
+      namespace Multipart { model Upload_Form { name: HttpPart<string>; } }
+      namespace Payload { model Upload_Form { value: string; } }
+      op upload(@multipartBody body: Multipart.Upload_Form): Payload.Upload_Form;
     `,
-      { "component-name-character-set": "alphanumeric" },
+      { "component-name-strategy": "name-only" },
     );
     expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
   });

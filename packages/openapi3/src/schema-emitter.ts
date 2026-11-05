@@ -70,7 +70,7 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { attachExtensions } from "./attach-extensions.js";
-import { getComponentTypeName, normalizeComponentName } from "./component-naming.js";
+import { getComponentTypeName } from "./component-naming.js";
 import { getOneOf, getRef } from "./decorators.js";
 import type { JsonSchemaModule } from "./json-schema.js";
 import type { OpenAPI3EmitterOptions } from "./lib.js";
@@ -1002,8 +1002,7 @@ export class OpenAPI3SchemaEmitterBase<
     }
 
     const skipNameValidation = type.kind === "Model" && type.templateMapper !== undefined;
-    const alphanumeric = this._options.componentNameCharacterSet === "alphanumeric";
-    if (!skipNameValidation && !alphanumeric) {
+    if (!skipNameValidation) {
       name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
     }
 
@@ -1016,17 +1015,8 @@ export class OpenAPI3SchemaEmitterBase<
 
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
-    let fullName = name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
-    if (alphanumeric) {
-      const normalized = normalizeComponentName(
-        this.emitter.getProgram(),
-        type,
-        fullName,
-        this._options,
-      );
-      if (normalized === undefined) return {};
-      fullName = normalized;
-    }
+    const fullName =
+      name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     const decl = this.emitter.result.declaration(fullName, schema);
     checkDuplicateTypeName(

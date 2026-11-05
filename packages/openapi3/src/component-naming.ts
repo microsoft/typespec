@@ -1,14 +1,11 @@
 import type { Program, Type, TypeNameOptions } from "@typespec/compiler";
 import { getOpenAPITypeName } from "@typespec/openapi";
-import { reportDiagnostic } from "./lib.js";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { ensureValidComponentFixedFieldKey } from "./util.js";
 
 export function hasCustomComponentNames(options: ResolvedOpenAPI3EmitterOptions): boolean {
   return (
     options.componentNameStrategy?.kind === "name-only" ||
-    (options.componentNameStrategy?.separator ?? ".") !== "." ||
-    options.componentNameCharacterSet === "alphanumeric"
+    (options.componentNameStrategy?.separator ?? ".") !== "."
   );
 }
 
@@ -40,21 +37,4 @@ export function getComponentTypeName(
     namespace = namespace.namespace;
   }
   return segments.join(separator);
-}
-
-export function normalizeComponentName(
-  program: Program,
-  type: Type,
-  name: string,
-  options: ResolvedOpenAPI3EmitterOptions,
-): string | undefined {
-  if (options.componentNameCharacterSet !== "alphanumeric") {
-    return ensureValidComponentFixedFieldKey(program, type, name);
-  }
-  const result = name.replace(/[^A-Za-z0-9]/g, "");
-  if (result === "") {
-    reportDiagnostic(program, { code: "empty-component-name", format: { name }, target: type });
-    return undefined;
-  }
-  return result;
 }

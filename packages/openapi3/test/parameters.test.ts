@@ -263,35 +263,34 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
       `,
         {
           "component-name-strategy": { kind: "name-only", separator: "_" },
-          "component-name-character-set": "alphanumeric",
         },
       );
       expect(Object.keys(doc.components.parameters)).toEqual([
-        "QueryOptionspagesize",
-        "QueryOptionsuserid",
-        "SingleOption",
+        "Query_Options_page_size",
+        "Query_Options_user_id",
+        "Single_Option",
       ]);
       expect(doc.paths["/"].get.parameters).toEqual([
-        { $ref: "#/components/parameters/QueryOptionspagesize" },
-        { $ref: "#/components/parameters/QueryOptionsuserid" },
-        { $ref: "#/components/parameters/SingleOption" },
+        { $ref: "#/components/parameters/Query_Options_page_size" },
+        { $ref: "#/components/parameters/Query_Options_user_id" },
+        { $ref: "#/components/parameters/Single_Option" },
       ]);
-      expect(doc.components.parameters.QueryOptionspagesize.name).toBe("page-size");
-      expect(doc.components.parameters.QueryOptionsuserid.name).toBe("x-user-id");
-      expect(doc.components.parameters.SingleOption.name).toBe("sort-by");
+      expect(doc.components.parameters.Query_Options_page_size.name).toBe("page-size");
+      expect(doc.components.parameters.Query_Options_user_id.name).toBe("x-user-id");
+      expect(doc.components.parameters.Single_Option.name).toBe("sort-by");
     });
 
-    it("reports parameter collisions after sanitization", async () => {
+    it("reports parameter collisions after omitting namespaces", async () => {
       const diagnostics = await diagnoseOpenApiFor(
         `
-        model Paging_Options { @query a: string; }
-        model PagingOptions { @query b: string; }
-        @route("/a") op first(...Paging_Options): void;
-        @route("/b") op second(...PagingOptions): void;
+        namespace A { model Paging_Options { @query a: string; } }
+        namespace B { model Paging_Options { @query b: string; } }
+        @route("/a") op first(...A.Paging_Options): void;
+        @route("/b") op second(...B.Paging_Options): void;
       `,
         {
           "omit-unreachable-types": true,
-          "component-name-character-set": "alphanumeric",
+          "component-name-strategy": "name-only",
         },
       );
       expectDiagnostics(diagnostics, [

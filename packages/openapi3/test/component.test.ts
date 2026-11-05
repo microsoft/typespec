@@ -252,7 +252,6 @@ worksFor(supportedVersions, async (specHelpers) => {
       const current = await specHelpers.openApiFor(code);
       const explicit = await specHelpers.openApiFor(code, {
         "component-name-strategy": "fqn",
-        "component-name-character-set": "openapi",
       });
       expect(explicit).toEqual(current);
       expect(current.components.schemas["Models.User_Profile"]).toBeDefined();
@@ -273,7 +272,7 @@ worksFor(supportedVersions, async (specHelpers) => {
       });
     });
 
-    it("sanitizes all schema kinds and friendly names without changing payload names", async () => {
+    it("uses namespace separators across schema kinds without changing friendly or payload names", async () => {
       const doc = await specHelpers.openApiFor(
         `
         @service namespace Demo {
@@ -294,24 +293,24 @@ worksFor(supportedVersions, async (specHelpers) => {
           @get op read(): Models.User_List;
         }
       `,
-        { "component-name-character-set": "alphanumeric" },
+        { "component-name-strategy": { kind: "fqn", separator: "_" } },
       );
       expect(Object.keys(doc.components.schemas)).toEqual([
-        "ModelsUserId",
-        "ModelsUserKind",
-        "ModelsUserList",
-        "ModelsUserProfile",
-        "ModelsUserState",
-        "PageUserProfile",
+        "Models_User_Id",
+        "Models_User_Kind",
+        "Models_User_List",
+        "Models_User_Profile",
+        "Models_User_State",
+        "Page-User_Profile",
       ]);
-      expect(doc.components.schemas.ModelsUserList.items.$ref).toBe(
-        "#/components/schemas/ModelsUserProfile",
+      expect(doc.components.schemas.Models_User_List.items.$ref).toBe(
+        "#/components/schemas/Models_User_Profile",
       );
-      expect(doc.components.schemas.ModelsUserProfile.properties.user_id.$ref).toBe(
-        "#/components/schemas/ModelsUserId",
+      expect(doc.components.schemas.Models_User_Profile.properties.user_id.$ref).toBe(
+        "#/components/schemas/Models_User_Id",
       );
-      expect(doc.components.schemas.ModelsUserProfile.properties.next.$ref).toBe(
-        "#/components/schemas/PageUserProfile",
+      expect(doc.components.schemas.Models_User_Profile.properties.next.$ref).toBe(
+        "#/components/schemas/Page-User_Profile",
       );
     });
 
@@ -330,7 +329,7 @@ worksFor(supportedVersions, async (specHelpers) => {
       expect(Object.keys(doc.components.schemas)).toEqual(["Friendly.Name", "Models_User.Profile"]);
     });
 
-    it("combines name-only with sanitization and preserves discriminator references", async () => {
+    it("omits namespaces while preserving discriminator references", async () => {
       const doc = await specHelpers.openApiFor(
         `
         @service namespace Demo {
@@ -343,43 +342,44 @@ worksFor(supportedVersions, async (specHelpers) => {
       `,
         {
           "component-name-strategy": "name-only",
-          "component-name-character-set": "alphanumeric",
         },
       );
-      expect(doc.components.schemas.PetBase.discriminator).toEqual({
+      expect(doc.components.schemas.Pet_Base.discriminator).toEqual({
         propertyName: "pet_kind",
-        mapping: { house_cat: "#/components/schemas/HouseCat" },
+        mapping: { house_cat: "#/components/schemas/House_Cat" },
       });
-      expect(doc.components.schemas.HouseCat.allOf).toEqual([
-        { $ref: "#/components/schemas/PetBase" },
+      expect(doc.components.schemas.House_Cat.allOf).toEqual([
+        { $ref: "#/components/schemas/Pet_Base" },
       ]);
     });
 
-    it("sanitizes generated envelopes and visibility variants together", async () => {
+    it("omits namespaces for generated envelopes and visibility variants", async () => {
       const doc = await specHelpers.openApiFor(
         `
-        model House_Cat {
-          value: string;
-          @visibility(Lifecycle.Create) secret: string;
+        namespace Models {
+          model House_Cat {
+            value: string;
+            @visibility(Lifecycle.Create) secret: string;
+          }
+          @discriminated union Pet_Choice { house_cat: House_Cat }
         }
-        @discriminated union Pet_Choice { house_cat: House_Cat }
-        @put op update(@body data: Pet_Choice): Pet_Choice;
+        @put op update(@body data: Models.Pet_Choice): Models.Pet_Choice;
       `,
-        { "component-name-character-set": "alphanumeric" },
+        { "component-name-strategy": "name-only" },
       );
       for (const suffix of ["", "CreateOrUpdate"]) {
-        expect(doc.components.schemas[`PetChoice${suffix}`].discriminator.mapping).toEqual({
-          house_cat: `#/components/schemas/PetChoiceHousecat${suffix}`,
+        expect(doc.components.schemas[`Pet_Choice${suffix}`].discriminator.mapping).toEqual({
+          house_cat: `#/components/schemas/Pet_ChoiceHouse_cat${suffix}`,
         });
-        expect(doc.components.schemas[`PetChoiceHousecat${suffix}`].properties.value.$ref).toBe(
-          `#/components/schemas/HouseCat${suffix}`,
+        expect(doc.components.schemas[`Pet_ChoiceHouse_cat${suffix}`].properties.value.$ref).toBe(
+          `#/components/schemas/House_Cat${suffix}`,
         );
       }
       expect(doc.paths["/"].put.requestBody.content["application/json"].schema.$ref).toBe(
-        "#/components/schemas/PetChoiceCreateOrUpdate",
+        "#/components/schemas/Pet_ChoiceCreateOrUpdate",
       );
       expect(doc.paths["/"].put.responses["200"].content["application/json"].schema.$ref).toBe(
-        "#/components/schemas/PetChoice",
+        "#/components/schemas/Pet_Choice",
       );
     });
 
@@ -393,46 +393,26 @@ worksFor(supportedVersions, async (specHelpers) => {
       `,
         {
           "component-name-strategy": "name-only",
-          "component-name-character-set": "alphanumeric",
           "include-x-typespec-name": "inline-only",
         },
       );
       const schema = doc.paths["/"].get.responses["200"].content["application/json"].schema;
       expect(schema["x-typespec-name"]).toBe("Box<Models.User_Profile>");
-      expect(schema.properties.value.$ref).toBe("#/components/schemas/UserProfile");
-      expect(doc.components.schemas.UserProfile.properties.external.$ref).toBe(
+      expect(schema.properties.value.$ref).toBe("#/components/schemas/User_Profile");
+      expect(doc.components.schemas.User_Profile.properties.external.$ref).toBe(
         "../common.json#/components/schemas/User_Profile",
       );
     });
 
-    it.each([
-      {
-        options: { "component-name-strategy": "name-only" },
-        code: `
+    it("reports collisions after omitting namespaces", async () => {
+      const diagnostics = await specHelpers.diagnoseOpenApiFor(
+        `
         namespace A { model User {} } namespace B { model User {} }
         op read(): A.User | B.User;
       `,
-      },
-      {
-        options: { "component-name-character-set": "alphanumeric" },
-        code: `
-        model User_Profile {} model UserProfile {}
-      `,
-      },
-    ] satisfies { options: OpenAPI3EmitterOptions; code: string }[])(
-      "reports final-key collisions for $options",
-      async ({ options, code }) => {
-        const diagnostics = await specHelpers.diagnoseOpenApiFor(code, options);
-        expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
-      },
-    );
-
-    it("rejects an empty sanitized friendly name", async () => {
-      const diagnostics = await specHelpers.diagnoseOpenApiFor(
-        `@friendlyName("___") model User {}`,
-        { "component-name-character-set": "alphanumeric" },
+        { "component-name-strategy": "name-only" },
       );
-      expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/empty-component-name" }]);
+      expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
     });
   });
 
