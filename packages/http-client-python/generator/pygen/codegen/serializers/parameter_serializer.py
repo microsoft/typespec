@@ -232,7 +232,8 @@ class ParameterSerializer:
                     default_value = kwarg.client_default_value_declaration
                 if check_kwarg_dict and (kwarg.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]):
                     kwarg_dict = "headers" if kwarg.location == ParameterLocation.HEADER else "params"
-                    default_value = f"_{kwarg_dict}.pop({python_string_literal(kwarg.wire_name)}, {default_value})"
+                    wire_literal = python_string_literal(kwarg.wire_name, quote="'")
+                    default_value = f"_{kwarg_dict}.pop({wire_literal}, {default_value})"
 
                 retval.append(
                     f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"
