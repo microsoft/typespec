@@ -668,6 +668,23 @@ describe("json serialization of examples", () => {
       const examples = getExamples(program, test);
       expect(serializeValueAsJson(program, examples[0].value, test)).toEqual(123);
     });
+
+    it("stay numbers for a numeric literal type", async () => {
+      const { literal, mixed, program } = (await Tester.compile(`
+        const n: Id = 123;
+        @encode(string) scalar Id extends int64;
+
+        model Test {
+          @example(n) /*literal*/literal: 123;
+          @example(n) /*mixed*/mixed: 123 | string;
+        }
+      `)) as any;
+
+      for (const prop of [literal, mixed]) {
+        const examples = getExamples(program, prop);
+        expect(serializeValueAsJson(program, examples[0].value, prop)).toEqual(123);
+      }
+    });
   });
 
   it("serialize tuple items with the encoding of their type", async () => {
@@ -684,6 +701,69 @@ describe("json serialization of examples", () => {
     expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual(["123", "123", false]);
     const examples = getExamples(program, test);
     expect(serializeValueAsJson(program, examples[0].value, test)).toEqual(["123", "123", true]);
+  });
+
+  it("serialize arrays and tuples behind a nullable union with the encoding of their items", async () => {
+    const { tuple, array, pair, program } = (await Tester.compile(`
+      @encode(string) scalar Id extends int64;
+
+      model Test {
+        @example(#[123]) /*tuple*/tuple?: [Id] | null = #[9007199254740993];
+        @example(#[123]) /*array*/array?: Id[] | null = #[9007199254740993];
+        /*pair*/pair?: [int32] | [Id, Id] | null = #[1, 2];
+      }
+    `)) as any;
+
+    for (const prop of [tuple, array]) {
+      expect(serializeValueAsJson(program, prop.defaultValue, prop)).toEqual(["9007199254740993"]);
+      const examples = getExamples(program, prop);
+      expect(serializeValueAsJson(program, examples[0].value, prop)).toEqual(["123"]);
+    }
+    expect(serializeValueAsJson(program, pair.defaultValue, pair)).toEqual(["1", "2"]);
+  });
+
+  describe("recursive unions", () => {
+    it("serialize a numeric example", async () => {
+      const result = await getJsonValueOfExample(`
+        @example(123)
+        union /*test*/Loop { self: Loop, n: int64 }
+      `);
+      expect(result).toEqual(123);
+    });
+
+    it("serialize with the encoding of the variant the value is assignable to", async () => {
+      const { loop, mutual, ids, program } = (await Tester.compile(`
+        @encode(string) scalar Id extends int64;
+        union LoopId { self: LoopId, id: Id, flag: boolean }
+        union A { b: B, n: int32 }
+        union B { a: A, id: Id }
+        union LoopIds { self: LoopIds, ids: Id[] }
+
+        model Test {
+          @example(123) /*loop*/loop: LoopId;
+          @example(123) /*mutual*/mutual: A;
+          @example(#[123]) /*ids*/ids: LoopIds;
+        }
+      `)) as any;
+
+      const serializeExample = (prop: any) =>
+        serializeValueAsJson(program, getExamples(program, prop)[0].value, prop);
+      expect(serializeExample(loop)).toEqual("123");
+      expect(serializeExample(mutual)).toEqual("123");
+      expect(serializeExample(ids)).toEqual(["123"]);
+    });
+
+    it("serialize an object example", async () => {
+      const result = await getJsonValueOfExample(`
+        model Pet { name: string }
+        union Loop { self: Loop, pet: Pet }
+
+        model Test {
+          @example(#{ name: "a" }) /*test*/test: Loop;
+        }
+      `);
+      expect(result).toEqual({ name: "a" });
+    });
   });
 
   it("serialize models with parent", async () => {

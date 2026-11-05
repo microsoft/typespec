@@ -321,6 +321,8 @@ describe("emitting models", () => {
           constId?: Id = big;
           nullableConstId?: Id | null = big;
           tupleId?: [Id, Id] = #[big, 9007199254740993];
+          nullableTupleId?: [Id] | null = #[9007199254740993];
+          nullableArrayId?: Id[] | null = #[9007199254740993];
         }
 
         @encode(string) scalar Id extends int64;
@@ -335,6 +337,8 @@ describe("emitting models", () => {
       deepStrictEqual(properties.constId.default, "9007199254740993");
       deepStrictEqual(properties.nullableConstId.default, "9007199254740993");
       deepStrictEqual(properties.tupleId.default, ["9007199254740993", "9007199254740993"]);
+      deepStrictEqual(properties.nullableTupleId.default, ["9007199254740993"]);
+      deepStrictEqual(properties.nullableArrayId.default, ["9007199254740993"]);
     });
 
     it("specify default value on boolean property", async () => {

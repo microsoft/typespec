@@ -320,6 +320,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor, ver
           @encode(string) id: int64 = 9007199254740993;
           @encode(string) amount: decimal = 1050.25;
           scalarId: Id = 9007199254740993;
+          nullableIds: Id[] | null = #[9007199254740993];
         }
 
         @encode(string) scalar Id extends int64;
@@ -335,6 +336,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor, ver
       default: "1050.25",
     });
     expect(res.schemas.Test.properties.scalarId.default).toEqual("9007199254740993");
+    expect(res.schemas.Test.properties.nullableIds.default).toEqual(["9007199254740993"]);
     expect(res.schemas.Id).toMatchObject({ type: "string" });
   });
 

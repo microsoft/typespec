@@ -4,6 +4,7 @@ import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
 import type {
+  ArrayValue,
   DiagnosticTarget,
   NoTarget,
   NumericValue,
@@ -11,6 +12,7 @@ import type {
   Scalar,
   ScalarValue,
   Type,
+  Union,
   Value,
 } from "../core/types.js";
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
@@ -93,16 +95,7 @@ export function serializeValueAsJson(
     case "EnumValue":
       return value.value.value ?? value.value.name;
     case "ArrayValue":
-      return value.values.map((v, index) =>
-        serializeValueAsJson(
-          program,
-          v,
-          getArrayItemType(program, type, index),
-          /* encodeAs: */ undefined,
-          handlers,
-          diagnosticTarget,
-        ),
-      );
+      return serializeArrayValueAsJson(program, value, type, handlers, diagnosticTarget);
     case "ObjectValue":
       return serializeObjectValueAsJson(program, value, type, handlers, diagnosticTarget);
     case "ScalarValue":
@@ -110,6 +103,26 @@ export function serializeValueAsJson(
     case "Function":
       throw new UnserializableValueError("Cannot serialize a function value as JSON.");
   }
+}
+
+function serializeArrayValueAsJson(
+  program: Program,
+  value: ArrayValue,
+  type: Type,
+  handlers?: ValueJsonSerializers,
+  diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
+): unknown[] {
+  type = resolveUnions(program, value, type) ?? type;
+  return value.values.map((v, index) =>
+    serializeValueAsJson(
+      program,
+      v,
+      getArrayItemType(program, type, index),
+      /* encodeAs: */ undefined,
+      handlers,
+      diagnosticTarget,
+    ),
+  );
 }
 
 /** The type the item at `index` of an array value is serialized as. */
@@ -133,19 +146,13 @@ function resolveNumericScalar(
   value: NumericValue,
   type: Type,
 ): Scalar | undefined {
-  switch (type.kind) {
+  const target = resolveUnions(program, value, type);
+  switch (target?.kind) {
     case "Scalar":
-      return type;
-    case "Union": {
-      // Default values don't keep their exact type, so fall back to the value's scalar.
-      const source = program.checker.getValueExactType(value) ?? value.scalar;
-      const variant =
-        source &&
-        [...type.variants.values()].find((x) =>
-          ignoreDiagnostics(program.checker.isTypeAssignableTo(source, x.type, value)),
-        );
-      return variant ? resolveNumericScalar(program, value, variant.type) : value.scalar;
-    }
+      return target;
+    case "Number":
+      // A numeric literal type is a number whatever scalar the value came from.
+      return undefined;
     default:
       return value.scalar;
   }
@@ -176,28 +183,57 @@ function getPropertyOfType(type: Type, name: string): Type | undefined {
   }
 }
 
-function resolveUnions(program: Program, value: ObjectValue, type: Type): Type | undefined {
+/**
+ * Resolve the union variant a value is serialized as: the first variant the value is assignable to,
+ * looking through nested unions. Unions already visited are skipped, so a recursive union such as
+ * `union Loop { self: Loop, n: int64 }` resolves to `int64`.
+ * Returns the type itself when it is not a union, and undefined when no variant matches.
+ */
+function resolveUnions(program: Program, value: Value, type: Type): Type | undefined {
   if (type.kind !== "Union") {
     return type;
   }
-  const exactValueType = program.checker.getValueExactType(value);
-  for (const variant of type.variants.values()) {
-    if (
-      ignoreDiagnostics(
-        program.checker.isTypeAssignableTo(exactValueType ?? value.type, variant.type, value),
-      )
-    ) {
-      // If the variant is itself a union, recursively resolve it
+  const visited = new Set<Union>();
+  const resolve = (union: Union): Type | undefined => {
+    visited.add(union);
+    for (const variant of union.variants.values()) {
       if (variant.type.kind === "Union") {
-        const resolvedNested = resolveUnions(program, value, variant.type);
-        if (resolvedNested && resolvedNested !== variant.type) {
-          return resolvedNested;
+        const resolved = visited.has(variant.type) ? undefined : resolve(variant.type);
+        if (resolved) {
+          return resolved;
         }
+      } else if (isValueAssignableTo(program, value, variant.type)) {
+        return variant.type;
       }
-      return variant.type;
+    }
+    return undefined;
+  };
+  return resolve(type);
+}
+
+/**
+ * Check a value against a type it may be serialized as.
+ * Default values don't keep their exact type, so a numeric value falls back to its scalar
+ * and an array value to its items.
+ */
+function isValueAssignableTo(program: Program, value: Value, target: Type): boolean {
+  const exactType = program.checker.getValueExactType(value);
+  if (exactType === undefined && value.valueKind === "ArrayValue") {
+    if (target.kind === "Model" && isArrayModelType(target)) {
+      return value.values.every((x) => isValueAssignableTo(program, x, target.indexer.value));
+    }
+    if (target.kind === "Tuple") {
+      return (
+        target.values.length === value.values.length &&
+        value.values.every((x, index) => isValueAssignableTo(program, x, target.values[index]))
+      );
     }
   }
-  return type;
+  const source = exactType ?? (value.valueKind === "NumericValue" ? value.scalar : value.type);
+  return (
+    source !== undefined &&
+    ignoreDiagnostics(program.checker.isTypeAssignableTo(source, target, value))
+  );
 }
 
 function serializeObjectValueAsJson(
