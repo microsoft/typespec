@@ -100,7 +100,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
-            MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
+            MethodSignatureModifiers setterModifier = !propHasSetter ? MethodSignatureModifiers.None
+                : inputProperty.IsReadOnly && !IsDiscriminatorProperty(inputProperty)
+                    ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
+                    : MethodSignatureModifiers.Public;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
@@ -337,7 +340,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (inputProperty.IsReadOnly)
             {
-                return false;
+                // Writable descendants share storage without exposing a public setter on the base.
+                return !_isRequiredNonNullableConstant
+                    && type.Equals(type.OutputType)
+                    && inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input)
+                    && !EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly)
+                    && HasRelaxedConstructorOverride(inputProperty, includeBaseModels: false);
             }
 
             if (_isRequiredNonNullableConstant)
@@ -375,7 +383,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private static bool HasRelaxedConstructorOverride(InputProperty inputProperty)
+        private static bool HasRelaxedConstructorOverride(InputProperty inputProperty, bool includeBaseModels = true)
         {
             if (inputProperty.EnclosingType is not InputModelType model)
             {
@@ -395,13 +403,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (current.Properties.Any(p => p.Name == inputProperty.Name
                     && p.Type.Name == inputProperty.Type.Name
                     && p.IsRequired == inputProperty.IsRequired
+                    && !p.IsReadOnly
+                    && (p.Type is InputNullableType) == (inputProperty.Type is InputNullableType)
                     && p.IsRequiredInConstructor == false))
                 {
                     // Matching overrides need compatible accessors without changing serialization.
                     return true;
                 }
 
-                if (current.BaseModel is not null)
+                if (includeBaseModels && current.BaseModel is not null)
                 {
                     pending.Push(current.BaseModel);
                 }

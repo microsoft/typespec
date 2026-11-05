@@ -607,6 +607,51 @@ namespace SampleTypeSpec
             return new ConstructorBase(value, "fixed", items.ToList(), additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The ConstructorReadOnlyOverride. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyOverride"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyOverride ConstructorReadOnlyOverride(string value = default)
+        {
+            return new ConstructorReadOnlyOverride(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorReadOnlyBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyBase"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyBase ConstructorReadOnlyBase(string value = default)
+        {
+            return new ConstructorReadOnlyBase(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The XmlConstructorOverride. </summary>
+        /// <param name="title"></param>
+        /// <param name="note"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlConstructorOverride"/> instance for mocking. </returns>
+        public static XmlConstructorOverride XmlConstructorOverride(string title = default, string note = default, string value = default)
+        {
+            return new XmlConstructorOverride(title, note, value);
+        }
+
+        /// <summary> The XmlConstructorMiddle. </summary>
+        /// <param name="value"></param>
+        /// <param name="title"></param>
+        /// <param name="note"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlConstructorMiddle"/> instance for mocking. </returns>
+        public static XmlConstructorMiddle XmlConstructorMiddle(string value = default, string title = default, string note = default)
+        {
+            return new XmlConstructorMiddle(value, title, note);
+        }
+
+        /// <summary> The XmlConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlConstructorBase"/> instance for mocking. </returns>
+        public static XmlConstructorBase XmlConstructorBase(string value = default, string title = default)
+        {
+            return new XmlConstructorBase(value, title);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

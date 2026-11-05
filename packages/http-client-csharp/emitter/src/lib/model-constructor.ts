@@ -9,6 +9,7 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import {
   createMetadataInfo,
+  isBodyIgnore,
   isVisible,
   resolveRequestVisibility,
   Visibility,
@@ -62,6 +63,7 @@ export function updateModelConstructorRequirements(sdkContext: CSharpEmitterCont
               !property.discriminator &&
               raw &&
               (!isVisible(sdkContext.program, raw, visibility) ||
+                (!inExplicitBody && isBodyIgnore(sdkContext.program, raw)) ||
                 (inPayload && metadata.isOptional(raw, visibility)))
             ) {
               inputProperty.requiredInConstructor = false;

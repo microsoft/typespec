@@ -560,6 +560,63 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RelaxedOverrideKeepsReadOnlyBaseNonPubliclyWritable(bool relaxRequirement)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, isReadOnly: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            if (relaxRequirement)
+            {
+                property.Update(isRequiredInConstructor: false);
+            }
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var partialProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            partialProperty.Update(isRequiredInConstructor: false);
+            var partialModel = InputFactory.Model("Partial", properties: [partialProperty], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel, partialModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.IsTrue(provider.Properties.Single().Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.BaseModelProvider!.Properties.Single().WireInfo!.IsReadOnly);
+            Assert.That(new TypeProviderWriter(provider.BaseModelProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Base")).NoClip);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(relaxRequirement ? "Resource" : "RequiredResource")).NoClip);
+        }
+
+        [TestCase(InputModelTypeUsage.Xml, false)]
+        [TestCase(InputModelTypeUsage.Xml, true)]
+        [TestCase(InputModelTypeUsage.MultipartFormData, false)]
+        [TestCase(InputModelTypeUsage.MultipartFormData, true)]
+        public void RelaxedOverrideUsesNonValidatingNonJsonBase(InputModelTypeUsage format, bool includeIntermediate)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var usage = InputModelTypeUsage.Input | format;
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: usage);
+            var middle = includeIntermediate
+                ? InputFactory.Model("Middle", baseModel: baseModel, properties: [InputFactory.Property("note", InputPrimitiveType.String)], usage: usage)
+                : baseModel;
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: includeIntermediate ? [baseModel, middle, inputModel] : [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)!;
+
+            Assert.IsTrue(baseProvider.Constructors.Any(c => c.Signature.Modifiers == (MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected)));
+            Assert.That(new TypeProviderWriter(baseProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Base")).NoClip);
+            if (includeIntermediate)
+            {
+                Assert.That(new TypeProviderWriter(provider.BaseModelProvider!).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Middle")).NoClip);
+            }
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(includeIntermediate ? "ResourceWithMiddle" : "Resource")).NoClip);
+        }
+
         [Test]
         public void RequiredOverrideInitializesRelaxedBaseProperty()
         {

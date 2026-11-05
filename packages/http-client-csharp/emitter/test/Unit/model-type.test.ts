@@ -246,7 +246,7 @@ describe("Request-context constructor requirements", () => {
       for (const name of ["requiredHeader", "requiredQuery", "ignored"]) {
         strictEqual(
           model.properties.find((p) => p.name === name)!.requiredInConstructor,
-          bodyDecorator === "body" ? false : undefined,
+          name === "ignored" || bodyDecorator === "body" ? false : undefined,
           name,
         );
       }
@@ -257,6 +257,35 @@ describe("Request-context constructor requirements", () => {
       );
     },
   );
+
+  it("omits ignored body-root fields without relaxing their types or HTTP parameters", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Child { value: string; }
+       model Resource {
+         value: string;
+         @header requiredHeader: string;
+         @query requiredQuery: string;
+         @bodyIgnore ignored: Child;
+       }
+       @post op create(@bodyRoot body: Resource): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    strictEqual(model.properties.find((p) => p.name === "ignored")!.requiredInConstructor, false);
+    for (const name of ["value", "requiredHeader", "requiredQuery"]) {
+      strictEqual(
+        model.properties.find((p) => p.name === name)!.requiredInConstructor,
+        undefined,
+        name,
+      );
+    }
+    const child = root.models.find((m) => m.name === "Child")!;
+    strictEqual(child.properties[0].requiredInConstructor, undefined);
+  });
 
   it("uses the effective visibility of a redeclared inherited property", async () => {
     const program = await typeSpecCompile(

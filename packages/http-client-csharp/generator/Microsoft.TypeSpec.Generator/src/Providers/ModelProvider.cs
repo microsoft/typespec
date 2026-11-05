@@ -75,6 +75,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ModelProvider? _baseModelProvider;
         private ModelProvider? _backCompatBaseModelProvider;
         private ConstructorProvider? _fullConstructor;
+        private ConstructorProvider? _nonValidatingInheritanceConstructor;
+        private bool? _needsNonValidatingInheritanceConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
@@ -211,6 +213,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             base.ResetConstructors();
             _fullConstructor = null;
+            _nonValidatingInheritanceConstructor = null;
+            _needsNonValidatingInheritanceConstructor = null;
         }
 
         protected FieldProvider? RawDataField
@@ -938,9 +942,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (baseProperties.TryGetValue(property.Name, out var baseProperty))
                     {
+                        var baseOutputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                         if (DomainEqual(baseProperty, property))
                         {
-                            outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                            if (baseProperty.IsReadOnly != property.IsReadOnly
+                                && outputProperty.Body.HasSetter && baseOutputProperty is { Body.HasSetter: true })
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                                outputProperty.Body = new ExpressionPropertyBody(
+                                    Base.Property(baseOutputProperty.Name),
+                                    Base.Property(baseOutputProperty.Name).Assign(Value));
+                            }
+                            else
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                            }
                         }
                         else
                         {
@@ -951,7 +967,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                 outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
                             outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
                         }
-                        outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
+                        outputProperty.BaseProperty = baseOutputProperty;
                     }
                 }
                 properties.Add(outputProperty);
@@ -1077,6 +1093,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!constructorParameters.SequenceEqual(FullConstructor.Signature.Parameters))
             {
                 constructors.Add(FullConstructor);
+            }
+            if (NeedsNonValidatingInheritanceConstructor)
+            {
+                constructors.Add(NonValidatingInheritanceConstructor);
             }
 
             // For multi-level discriminators, add one additional private protected constructor
@@ -1592,6 +1612,56 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
         }
 
+        private bool NeedsNonValidatingInheritanceConstructor
+        {
+            get
+            {
+                if (_needsNonValidatingInheritanceConstructor is { } needsConstructor)
+                {
+                    return needsConstructor;
+                }
+                if (!ShouldUseFullConstructorInDerivedTypes || IsExternal || HasBaseModelProviderCycle())
+                {
+                    _needsNonValidatingInheritanceConstructor = false;
+                    return false;
+                }
+                var parameters = BuildConstructorParameters(true).Parameters;
+                var hasRelaxedOverride = InputDerivedProperties.Values.Any(properties => properties.Values.Any(property =>
+                    property.IsRequiredInConstructor == false
+                    && parameters.Any(p => p.Property?.InputProperty?.Name == property.Name)));
+                return (_needsNonValidatingInheritanceConstructor = hasRelaxedOverride
+                    && (parameters.SequenceEqual(FullConstructor.Signature.Parameters)
+                        || BaseModelProvider?.NeedsNonValidatingInheritanceConstructor == true)).Value;
+            }
+        }
+
+        private ConstructorProvider NonValidatingInheritanceConstructor =>
+            _nonValidatingInheritanceConstructor ??= BuildNonValidatingInheritanceConstructor();
+
+        private ConstructorProvider BuildNonValidatingInheritanceConstructor()
+        {
+            var fullConstructor = FullConstructor;
+            var markerName = "skipValidation";
+            while (fullConstructor.Signature.Parameters.Any(p => p.Name == markerName))
+            {
+                markerName += "Core";
+            }
+            var marker = new ParameterProvider(markerName,
+                $"Distinguishes this non-validating constructor from the initialization constructor.", typeof(bool));
+            var initializer = fullConstructor.Signature.Initializer;
+            if (BaseModelProvider?.NeedsNonValidatingInheritanceConstructor == true && initializer is not null)
+            {
+                initializer = new ConstructorInitializer(true, [.. initializer.Arguments, True]);
+            }
+            return new ConstructorProvider(
+                new ConstructorSignature(Type, fullConstructor.Signature.Description,
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [.. fullConstructor.Signature.Parameters, marker], initializer: initializer),
+                fullConstructor.BodyStatements ?? MethodBodyStatement.Empty,
+                this,
+                suppressions: fullConstructor.Suppressions);
+        }
+
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)
         {
             var properties = new Stack<List<PropertyProvider>>();
@@ -1735,9 +1805,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (requiresFullBaseConstructor)
                 {
                     // A relaxed override cannot call the validating base initialization constructor.
+                    var arguments = BaseModelProvider.FullConstructor.Signature.Parameters.Select(p =>
+                        GetExpressionForCtor(p, overriddenProperties, true, constructorParameters, useFullBaseConstructor: true));
                     constructorInitializer = new ConstructorInitializer(true,
-                        [.. BaseModelProvider.FullConstructor.Signature.Parameters.Select(p =>
-                            GetExpressionForCtor(p, overriddenProperties, true, constructorParameters, useFullBaseConstructor: true))]);
+                        BaseModelProvider.NeedsNonValidatingInheritanceConstructor
+                            ? [.. arguments, True]
+                            : [.. arguments]);
                 }
                 else if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                 {
@@ -2043,8 +2116,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // skip if this is an overload / new of a base property
-            // also skip if the base was required or the derived property is not required
-            if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequiredInConstructor == false || property.BaseProperty.WireInfo?.IsRequiredInConstructor == true))
+            // also skip if the base constructor initializes it or the derived property is not required
+            if (property?.BaseProperty is not null
+                && (!isPrimaryConstructor || wireInfo.IsRequiredInConstructor == false
+                    || property.BaseProperty.WireInfo is { IsRequiredInConstructor: true, IsReadOnly: false }))
             {
                 return;
             }

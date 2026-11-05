@@ -29,5 +29,31 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateSendReadOnlyRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/constructor-read-only-override", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateSendXmlRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/constructor-xml-override", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/xml");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
     }
 }

@@ -100,5 +100,137 @@ namespace SampleTypeSpec
 
             return await SendAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// [Protocol Method] SendReadOnly
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SendReadOnly(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendReadOnlyRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendReadOnly
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SendReadOnlyAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendReadOnlyRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> SendReadOnly. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SendReadOnly(ConstructorReadOnlyOverride body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return SendReadOnly(body, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> SendReadOnly. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SendReadOnlyAsync(ConstructorReadOnlyOverride body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await SendReadOnlyAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SendXml(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendXmlRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendXml
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SendXmlAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendXmlRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> SendXml. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SendXml(XmlConstructorOverride body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return SendXml(body, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> SendXml. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SendXmlAsync(XmlConstructorOverride body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await SendXmlAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

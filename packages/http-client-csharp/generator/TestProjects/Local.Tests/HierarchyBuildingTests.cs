@@ -37,6 +37,35 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void RelaxedOverrideOfReadOnlyPropertySharesValueWithoutPublicBaseSetter()
+        {
+            var model = new ConstructorReadOnlyOverride { Value = "assigned" };
+            Assert.AreEqual("assigned", model.Value);
+            Assert.AreEqual("assigned", ((ConstructorReadOnlyBase)model).Value);
+            Assert.IsNull(typeof(ConstructorReadOnlyBase).GetProperty(nameof(ConstructorReadOnlyBase.Value))!.GetSetMethod());
+            var roundTrip = ModelReaderWriter.Read<ConstructorReadOnlyOverride>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("assigned", roundTrip.Value);
+            Assert.AreEqual("assigned", ((ConstructorReadOnlyBase)roundTrip).Value);
+        }
+
+        [Test]
+        public void RelaxedNonJsonOverrideDoesNotValidateMissingBaseValue()
+        {
+            var model = new XmlConstructorOverride("title");
+            Assert.IsNull(model.Value);
+            Assert.IsNull(model.Note);
+            Assert.AreEqual("title", model.Title);
+            model.Value = "assigned";
+            model.Note = "note";
+            Assert.AreEqual("assigned", ((XmlConstructorBase)model).Value);
+            Assert.AreEqual("note", model.Note);
+            Assert.Throws<ArgumentNullException>(() => new XmlConstructorOverride(null!));
+            Assert.Throws<ArgumentNullException>(() => new XmlConstructorBase(null!, "title"));
+            Assert.Throws<ArgumentNullException>(() => new XmlConstructorMiddle(null!, "title"));
+            Assert.AreEqual("required", new XmlConstructorBase("required", "title").Value);
+        }
+
+        [Test]
         public void DogExtendsIntermediatePetModel()
         {
             // Verify that Dog extends Pet (not Animal directly) due to @Legacy.hierarchyBuilding(Pet)
