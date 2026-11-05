@@ -84,7 +84,9 @@ foreach ($specFile in Get-Sorted-Specs) {
         continue
     }
     
-    Invoke (Get-TspCommand $specFile $generationDir $stubbed)
+    # Union-extends Spector tests execute the generated client rather than only checking its API.
+    $generateStub = $Stubbed -and $subPath -ne (Join-Path 'http' 'type' 'union' 'discriminated' 'extends')
+    Invoke (Get-TspCommand $specFile $generationDir $generateStub)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
