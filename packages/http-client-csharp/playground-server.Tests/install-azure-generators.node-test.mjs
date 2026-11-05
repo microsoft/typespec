@@ -9,7 +9,7 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { installAzureGenerators } from "./install-azure-generators.mjs";
+import { installAzureGenerators } from "../playground-server/install-azure-generators.mjs";
 
 const packages = [
   ["http-client-csharp", "1.2.3", "Azure.Generator.dll"],

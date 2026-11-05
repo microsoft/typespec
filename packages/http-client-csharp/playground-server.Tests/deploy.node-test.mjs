@@ -12,7 +12,10 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const execute = promisify(execFile);
-const script = fileURLToPath(new URL("./deploy.sh", import.meta.url)).replaceAll("\\", "/");
+const script = fileURLToPath(new URL("../playground-server/deploy.sh", import.meta.url)).replaceAll(
+  "\\",
+  "/",
+);
 let root;
 let bin;
 
