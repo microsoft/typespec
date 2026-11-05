@@ -11,6 +11,7 @@ from types import SimpleNamespace
 from typing import Literal, Optional, get_args
 
 import pytest
+import black
 from jinja2 import Environment, PackageLoader
 
 from pygen import OptionsDict
@@ -31,6 +32,7 @@ from pygen.codegen.serializers.enum_serializer import EnumSerializer
 from pygen.codegen.serializers.builder_serializer import OperationSerializer, _get_polymorphic_subtype_template
 from pygen.codegen.serializers.model_serializer import DpgModelSerializer
 from pygen.codegen.serializers.general_serializer import GeneralSerializer
+from pygen.codegen.serializers.sample_serializer import SampleSerializer
 from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.utils import json_dumps_template
 
@@ -90,6 +92,51 @@ def code_model():
 @pytest.fixture
 def env():
     return Environment(loader=PackageLoader("pygen.codegen", "templates"), trim_blocks=True, lstrip_blocks=True)
+
+
+@pytest.mark.parametrize("value", VALUES + ['"1"', 'W/"1"', '"one", "two"', "trailing\\"])
+def test_sample_parameter_preserves_string_literal(code_model, value):
+    parameter = SimpleNamespace(type=StringType({"type": "string"}, code_model))
+    literal = SampleSerializer.handle_param(parameter, value)
+    assert ast.literal_eval(literal) == value
+    source = black.format_str(f"if_match = {literal}\n", mode=black.Mode(line_length=120))
+    assert ast.literal_eval(ast.parse(source).body[0].value) == value
+
+
+@pytest.mark.parametrize("value", ['"1"', 'W/"1"', '"one", "two"'])
+@pytest.mark.parametrize("positional", [False, True])
+def test_sample_preserves_required_if_match(code_model, env, value, positional):
+    parameter = Parameter(
+        {
+            "wireName": "If-Match",
+            "clientName": "if_match",
+            "location": "header",
+            "implementation": "Method",
+            "optional": False,
+        },
+        code_model,
+        type=StringType({"type": "string"}, code_model),
+    )
+    operation = SimpleNamespace(
+        name="add_binding",
+        operation_type="operation",
+        parameters=SimpleNamespace(
+            positional=[parameter] if positional else [],
+            keyword_only=[] if positional else [parameter],
+        ),
+        response_type_annotation=lambda **kwargs: "None",
+    )
+    group = SimpleNamespace(client=code_model.clients[0], is_mixin=True)
+    serializer = SampleSerializer(
+        code_model, env, group, operation, {"parameters": {"If-Match": value}}, "add_binding.py"
+    )
+    source = black.format_str(serializer.serialize(), mode=black.Mode(line_length=120))
+    function = next(node for node in ast.parse(source).body if isinstance(node, ast.FunctionDef))
+    call = function.body[1].value
+    assert call.func.attr == "add_binding"
+    assert len(call.keywords) == 1
+    assert call.keywords[0].arg == "if_match"
+    assert ast.literal_eval(call.keywords[0].value) == value
 
 
 @pytest.mark.parametrize("async_mode", [False, True])
