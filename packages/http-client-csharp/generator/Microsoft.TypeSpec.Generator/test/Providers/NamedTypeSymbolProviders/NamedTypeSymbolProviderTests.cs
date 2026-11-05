@@ -475,6 +475,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task GlobalUsingCandidatesAreCachedPerCompilation()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Factory")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+            CollectionAssert.Contains(provider.BodyDependencyTypes.Select(type => type.Namespace), "Sample.TestClient");
+
+            var candidates = NamedTypeSymbolProvider.GetGlobalUsingNamespaceCandidates(compilation);
+            CollectionAssert.AreEquivalent(new[] { "Sample.TestClient", "Sample.Models" }, candidates);
+            Assert.AreSame(candidates, NamedTypeSymbolProvider.GetGlobalUsingNamespaceCandidates(compilation));
+            var otherCompilation = compilation.RemoveAllSyntaxTrees();
+            var otherCandidates = NamedTypeSymbolProvider.GetGlobalUsingNamespaceCandidates(otherCompilation);
+            Assert.AreNotSame(candidates, otherCandidates);
+            Assert.IsEmpty(otherCandidates);
+            Assert.AreSame(otherCandidates, NamedTypeSymbolProvider.GetGlobalUsingNamespaceCandidates(otherCompilation));
+        }
+
+        [Test]
         public async Task BodyDependenciesIncludeUsingNamespaceCandidatesForUnresolvedTypeSyntax()
         {
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -21,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
+        private static readonly ConditionalWeakTable<Compilation, string[]> _globalUsingNamespaceCandidates = new();
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
         private string? _metadataName;
@@ -771,24 +773,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            foreach (var syntaxTree in semanticModel.Compilation.SyntaxTrees)
-            {
-                if (syntaxTree == node.SyntaxTree || syntaxTree.GetRoot() is not CompilationUnitSyntax otherCompilationUnit)
-                {
-                    continue;
-                }
-
-                foreach (var usingDirective in otherCompilationUnit.Usings)
-                {
-                    if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
-                    {
-                        AddUsingNamespace(namespaces, usingDirective, semanticModel.Compilation.GetSemanticModel(syntaxTree));
-                    }
-                }
-            }
-
+            namespaces.UnionWith(GetGlobalUsingNamespaceCandidates(semanticModel.Compilation));
             return [.. namespaces];
         }
+
+        internal static IReadOnlyList<string> GetGlobalUsingNamespaceCandidates(Compilation compilation)
+            => _globalUsingNamespaceCandidates.GetValue(compilation, static compilation =>
+            {
+                var namespaces = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var syntaxTree in compilation.SyntaxTrees)
+                {
+                    if (syntaxTree.GetRoot() is not CompilationUnitSyntax compilationUnit)
+                    {
+                        continue;
+                    }
+
+                    foreach (var usingDirective in compilationUnit.Usings)
+                    {
+                        if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
+                        {
+                            AddUsingNamespace(namespaces, usingDirective, compilation.GetSemanticModel(syntaxTree));
+                        }
+                    }
+                }
+
+                return [.. namespaces];
+            });
 
         private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective, SemanticModel semanticModel)
         {
