@@ -104,10 +104,6 @@ class SampleSerializer(BaseSerializer):
 
     @staticmethod
     def handle_param(param: Union[Parameter, BodyParameter], param_value: Any) -> str:
-        if isinstance(param_value, str):
-            if any(i in param_value for i in '\r\n"'):
-                return f'"""{param_value}"""'
-
         return param.type.serialize_sample_value(param_value)
 
     # prepare operation parameters
