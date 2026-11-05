@@ -43,6 +43,8 @@ try {
 
             Invoke-LoggedCommand "dotnet test ./playground-server.Tests -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
 
+            Invoke-LoggedCommand "node --test ./playground-server/install-azure-generators.test.mjs ./playground-server/deploy.test.mjs" -GroupOutput
+
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }
         finally {
