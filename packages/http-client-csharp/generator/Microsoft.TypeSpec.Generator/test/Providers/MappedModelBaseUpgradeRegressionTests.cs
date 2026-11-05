@@ -118,16 +118,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             string? customizationAttribute = null, bool cachePropertyFirst = false, string locationWireName = "location",
             int mappedCandidateCount = 0, bool equivalentCandidates = true, bool reverseCandidateOrder = false)
         {
-            var baselineSource = """
-                using Microsoft.TypeSpec.Generator.Tests.Providers.UpgradeFramework;
-                namespace Sample.Models
-                {
-                    public class Derived : NamedTrackedResource
-                    {
-                        public Derived(string name) : base(name) { }
-                    }
-                }
-                """;
+            var baselineSource = Helpers.GetExpectedFromFile("Baseline");
             var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
                 .Append(typeof(NamedResource).Assembly.Location).Distinct(StringComparer.Ordinal)
                 .Select(path => MetadataReference.CreateFromFile(path));
@@ -173,8 +164,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll")),
                 ],
                 compilation: customAlias is null && customizationAttribute is null ? null : () => Helpers.GetCompilationFromSourceFilesAsync(
-                    [("Derived.cs", "using Microsoft.TypeSpec.Generator.Customizations; namespace Sample.Models { " + customizationAttribute +
-                        " public partial class Derived { " + customAlias + " } }")]),
+                    [("Derived.cs", Helpers.GetExpectedFromFile("Customization")
+                        .Replace("__CUSTOMIZATION_ATTRIBUTE__", customizationAttribute ?? string.Empty)
+                        .Replace("__CUSTOM_ALIAS__", customAlias ?? string.Empty))]),
                 lastContractCompilation: () => Task.FromResult<Compilation>(baseline),
                 createLastContractModelBase: (previous, _) => previous.AreNamesEqual(new CSharpType(typeof(NamedTrackedResource)))
                     ? new CSharpType(typeof(NamedTrackedResource)) : null);
