@@ -34,6 +34,30 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsTrue(property.IsRequired);
         }
 
+        [TestCase(null)]
+        [TestCase("value")]
+        public void LoadsOriginalPropertyNameIndependentlyOfWireAndClientNames(string? originalName)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "renamedValue", "serializedName": "wireValue",
+                      {{(originalName is not null ? $"\"originalName\": \"{originalName}\"," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(originalName ?? "renamedValue", property.OriginalName);
+            Assert.AreEqual("renamedValue", property.Name);
+            Assert.AreEqual("wireValue", property.SerializedName);
+        }
+
         [TestCase(null, false)]
         [TestCase(false, false)]
         [TestCase(true, true)]

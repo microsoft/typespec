@@ -96,6 +96,46 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void InheritedRelaxedOverrideDoesNotRestoreRequiredAncestorParameter()
+        {
+            var model = new ConstructorInheritedLeaf(["item"]) { Value = "assigned" };
+            Assert.AreEqual("assigned", ((ConstructorBase)model).Value);
+            Assert.AreEqual("fixed", model.Mode);
+            CollectionAssert.AreEqual(new[] { "item" }, model.Items);
+            var roundTrip = ModelReaderWriter.Read<ConstructorInheritedLeaf>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("assigned", roundTrip.Value);
+            CollectionAssert.AreEqual(new[] { "item" }, roundTrip.Items);
+            Assert.Throws<ArgumentNullException>(() => new ConstructorInheritedLeaf(null!));
+        }
+
+        [Test]
+        public void RenamedRelaxedOverrideSharesBaseValueAndRetainsOtherRequirements()
+        {
+            var model = new RenamedConstructorOverride("title") { RenamedValue = "assigned" };
+            Assert.AreEqual("assigned", ((RenamedConstructorBase)model).Value);
+            Assert.AreEqual("title", model.Title);
+            var roundTrip = ModelReaderWriter.Read<RenamedConstructorOverride>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("assigned", roundTrip.RenamedValue);
+            Assert.AreEqual("assigned", ((RenamedConstructorBase)roundTrip).Value);
+            var leaf = new RenamedConstructorLeaf("title") { RenamedValue = "leaf" };
+            Assert.AreEqual("leaf", ((RenamedConstructorBase)leaf).Value);
+            Assert.Throws<ArgumentNullException>(() => new RenamedConstructorOverride(null!));
+            Assert.Throws<ArgumentNullException>(() => new RenamedConstructorBase(null!, "title"));
+        }
+
+        [Test]
+        public void ReadOnlyIntermediateDoesNotExposeForwardedSetter()
+        {
+            var model = new ConstructorWritableLeaf { Value = "assigned" };
+            Assert.IsNull(typeof(ConstructorReadOnlyMiddle).GetProperty(nameof(ConstructorReadOnlyMiddle.Value))!.GetSetMethod());
+            Assert.IsTrue(typeof(ConstructorReadOnlyMiddle).GetProperty(nameof(ConstructorReadOnlyMiddle.Value))!.GetSetMethod(true)!.IsFamilyAndAssembly);
+            Assert.AreEqual("assigned", ((ConstructorReadOnlyMiddle)model).Value);
+            Assert.AreEqual("assigned", ((ConstructorWritableBase)model).Value);
+            var roundTrip = ModelReaderWriter.Read<ConstructorWritableLeaf>(ModelReaderWriter.Write(model))!;
+            Assert.AreEqual("assigned", ((ConstructorWritableBase)roundTrip).Value);
+        }
+
+        [Test]
         public void DogExtendsIntermediatePetModel()
         {
             // Verify that Dog extends Pet (not Animal directly) due to @Legacy.hierarchyBuilding(Pet)

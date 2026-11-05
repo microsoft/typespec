@@ -27,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
+            OriginalName = name;
             Summary = summary;
             Doc = doc;
             Type = type;
@@ -40,6 +41,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public bool IsDiscriminator { get; internal set; }
+        /// <summary>
+        /// The property declaration name before client-side renaming.
+        /// </summary>
+        public string OriginalName { get; internal set; }
         /// <summary>
         /// Overrides constructor requiredness without changing the wire contract.
         /// </summary>
@@ -64,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <param name="serializationOptions">The new serialization options for the property.</param>
         /// <param name="apiVersions">The new API versions for the property.</param>
         /// <param name="isRequiredInConstructor">The new constructor requiredness override.</param>
+        /// <param name="originalName">The property declaration name before client-side renaming.</param>
         public void Update(
             string? name = null,
             string? summary = null,
@@ -77,11 +83,17 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? isHttpMetadata = null,
             InputSerializationOptions? serializationOptions = null,
             IEnumerable<string>? apiVersions = null,
-            bool? isRequiredInConstructor = null)
+            bool? isRequiredInConstructor = null,
+            string? originalName = null)
         {
             if (name != null)
             {
                 Name = name;
+            }
+
+            if (originalName != null)
+            {
+                OriginalName = originalName;
             }
 
             if (summary != null)

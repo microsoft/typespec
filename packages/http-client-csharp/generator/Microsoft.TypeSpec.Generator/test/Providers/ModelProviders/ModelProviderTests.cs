@@ -631,6 +631,83 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
         }
 
+        [TestCase(InputModelTypeUsage.Json)]
+        [TestCase(InputModelTypeUsage.Xml)]
+        public void InheritedRelaxedOverrideReplacesAncestorConstructorRequirement(InputModelTypeUsage format)
+        {
+            var usage = InputModelTypeUsage.Input | format;
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("title", InputPrimitiveType.String, isRequired: true)
+                ], usage: usage);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var middle = InputFactory.Model("Middle", properties: [property], baseModel: baseModel, usage: usage);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Initializer!.Arguments.Select(a => a.ToDisplayString()));
+            CollectionAssert.AreEqual(new[] { "value", "title" },
+                provider.BaseModelProvider!.BaseModelProvider!.Constructors
+                    .Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+        }
+
+        [Test]
+        public void ForwardedReadOnlyIntermediatePreservesSetterAccessibility()
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)], usage: usage);
+            var middle = InputFactory.Model("Middle", baseModel: baseModel,
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, isReadOnly: true)], usage: usage);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var leaf = InputFactory.Model("Leaf", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(middle)!;
+            var outputProperty = provider.Properties.Single();
+            var setterModifiers = outputProperty.Body switch
+            {
+                AutoPropertyBody body => body.SetterModifiers,
+                MethodPropertyBody body => body.SetterModifiers,
+                _ => MethodSignatureModifiers.None
+            };
+
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected, setterModifiers);
+            Assert.IsTrue(outputProperty.WireInfo!.IsReadOnly);
+            Assert.IsTrue(CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Properties.Single().Body.HasSetter);
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public void RenamedOverridesMatchDeclarationIdentity(bool requiredInConstructor, bool isOverride)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("title", InputPrimitiveType.String, isRequired: true)
+                ], usage: usage);
+            var property = InputFactory.Property("renamedValue", InputPrimitiveType.String, isRequired: true, wireName: "value");
+            property.Update(isRequiredInConstructor: requiredInConstructor, originalName: isOverride ? "value" : "other");
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(isOverride
+                ? requiredInConstructor ? new[] { "title", "renamedValue" } : new[] { "title" }
+                : new[] { "value", "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual(isOverride, provider.Properties.Single().BaseProperty is not null);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(isOverride ? requiredInConstructor ? "Required" : "Relaxed" : "Unrelated")).NoClip);
+        }
+
         [Test]
         public async Task ConstructorRequirementsPreservePublishedOverload()
         {

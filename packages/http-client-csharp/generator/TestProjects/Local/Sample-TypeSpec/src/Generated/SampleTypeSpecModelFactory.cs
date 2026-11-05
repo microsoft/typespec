@@ -660,6 +660,68 @@ namespace SampleTypeSpec
             return new XmlConstructorBase(value, title);
         }
 
+        /// <summary> The ConstructorInheritedLeaf. </summary>
+        /// <param name="items"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorInheritedLeaf"/> instance for mocking. </returns>
+        public static ConstructorInheritedLeaf ConstructorInheritedLeaf(IEnumerable<string> items = default, string value = default)
+        {
+            items ??= new ChangeTrackingList<string>();
+
+            return new ConstructorInheritedLeaf("fixed", items.ToList(), additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The RenamedConstructorOverride. </summary>
+        /// <param name="title"></param>
+        /// <param name="renamedValue"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorOverride"/> instance for mocking. </returns>
+        public static RenamedConstructorOverride RenamedConstructorOverride(string title = default, string renamedValue = default)
+        {
+            return new RenamedConstructorOverride(title, additionalBinaryDataProperties: null, renamedValue);
+        }
+
+        /// <summary> The RenamedConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorBase"/> instance for mocking. </returns>
+        public static RenamedConstructorBase RenamedConstructorBase(string value = default, string title = default)
+        {
+            return new RenamedConstructorBase(value, title, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RenamedConstructorLeaf. </summary>
+        /// <param name="title"></param>
+        /// <param name="renamedValue"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorLeaf"/> instance for mocking. </returns>
+        public static RenamedConstructorLeaf RenamedConstructorLeaf(string title = default, string renamedValue = default)
+        {
+            return new RenamedConstructorLeaf(title, additionalBinaryDataProperties: null, renamedValue);
+        }
+
+        /// <summary> The ConstructorWritableLeaf. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorWritableLeaf"/> instance for mocking. </returns>
+        public static ConstructorWritableLeaf ConstructorWritableLeaf(string value = default)
+        {
+            return new ConstructorWritableLeaf(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorReadOnlyMiddle. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyMiddle"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyMiddle ConstructorReadOnlyMiddle(string value = default)
+        {
+            return new ConstructorReadOnlyMiddle(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorWritableBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorWritableBase"/> instance for mocking. </returns>
+        public static ConstructorWritableBase ConstructorWritableBase(string value = default)
+        {
+            return new ConstructorWritableBase(value, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

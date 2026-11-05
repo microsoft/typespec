@@ -77,6 +77,18 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void RenamingPreservesOriginalPropertyName()
+        {
+            var property = InputFactory.Property("value", InputPrimitiveType.String);
+            property.Update(name: "renamedValue");
+
+            Assert.AreEqual("value", property.OriginalName);
+            Assert.AreEqual("renamedValue", property.Name);
+            property.Update(originalName: "originalValue");
+            Assert.AreEqual("originalValue", property.OriginalName);
+        }
+
+        [Test]
         public void CanUpdateModelPropertyIsReadOnly()
         {
             var property = InputFactory.Property("TestName", InputPrimitiveType.String, isReadOnly: false);
@@ -116,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         public void CanUpdateMultiplePropertiesAtOnce()
         {
             var property = InputFactory.Property("OriginalName", InputPrimitiveType.String, isRequired: false, isDiscriminator: false);
-            
+
             property.Update(
                 name: "UpdatedName",
                 summary: "Updated summary",

@@ -53,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             string? kind = null;
             string? summary = null;
+            string? originalName = null;
             string? doc = null;
             string? serializedName = null;
             bool isApiVersion = false;
@@ -75,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("originalName", ref originalName)
                     || reader.TryReadString("kind", ref kind)
                     || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadString("summary", ref summary)
@@ -102,6 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
+            property.OriginalName = originalName ?? property.Name;
             property.Summary = summary;
             property.Doc = doc;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");

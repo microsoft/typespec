@@ -199,6 +199,33 @@ describe("Request-context constructor requirements", () => {
   });
 
   it.each([false, true])(
+    "preserves override identity independently of SDK names (%s)",
+    async (rename) => {
+      const program = await typeSpecCompile(
+        `
+       model Base { value: string; }
+       model Resource extends Base {
+         ${rename ? '@clientName("renamedValue", "csharp")' : ""}
+         @visibility(Lifecycle.Create) value: string;
+       }
+       @put op send(@body body: Resource): void;`,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const property = root.models.find((m) => m.name === "Resource")!.properties[0];
+      strictEqual(property.name, rename ? "renamedValue" : "value");
+      strictEqual(
+        "originalName" in property ? property.originalName : undefined,
+        rename ? "value" : undefined,
+      );
+      strictEqual(property.requiredInConstructor, false);
+    },
+  );
+
+  it.each([false, true])(
     "does not visit sibling subtypes through an ancestor (base request: %s)",
     async (includeBaseRequest) => {
       const program = await typeSpecCompile(

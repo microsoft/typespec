@@ -1194,6 +1194,22 @@ interface ConstructorRequirements {
   @route("/constructor-xml-override")
   @put
   sendXml(@body body: XmlConstructorOverride, @header contentType: "application/xml"): void;
+
+  @route("/constructor-inherited-leaf")
+  @put
+  sendInheritedLeaf(@body body: ConstructorInheritedLeaf): void;
+
+  @route("/constructor-renamed-override")
+  @put
+  sendRenamed(@body body: RenamedConstructorOverride): void;
+
+  @route("/constructor-renamed-leaf")
+  @put
+  sendRenamedLeaf(@body body: RenamedConstructorLeaf): void;
+
+  @route("/constructor-writable-leaf")
+  @put
+  sendWritableLeaf(@body body: ConstructorWritableLeaf): void;
 }
 
 model ConstructorReadOnlyBase {
@@ -1221,6 +1237,35 @@ model XmlConstructorMiddle extends XmlConstructorBase {
 }
 
 model XmlConstructorOverride extends XmlConstructorMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorInheritedLeaf extends ConstructorOverride {}
+
+model RenamedConstructorBase {
+  value: string;
+  title: string;
+}
+
+model RenamedConstructorOverride extends RenamedConstructorBase {
+  @clientName("renamedValue", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorLeaf extends RenamedConstructorOverride {}
+
+model ConstructorWritableBase {
+  value: string;
+}
+
+model ConstructorReadOnlyMiddle extends ConstructorWritableBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorWritableLeaf extends ConstructorReadOnlyMiddle {
   @visibility(Lifecycle.Create)
   value: string;
 }

@@ -345,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     && type.Equals(type.OutputType)
                     && inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input)
                     && !EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly)
-                    && HasRelaxedConstructorOverride(inputProperty, includeBaseModels: false);
+                    && CodeModelGenerator.Instance.TypeFactory.HasRelaxedConstructorOverride(inputProperty, includeBaseModels: false);
             }
 
             if (_isRequiredNonNullableConstant)
@@ -365,7 +365,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Round-trip models need setters so that a model returned from a service method can be modified.
             var requiredInConstructor = (inputProperty as InputModelProperty)?.IsRequiredInConstructor ?? inputProperty.IsRequired;
             if (requiredInConstructor && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output)
-                && !HasRelaxedConstructorOverride(inputProperty))
+                && !CodeModelGenerator.Instance.TypeFactory.HasRelaxedConstructorOverride(inputProperty))
             {
                 return false;
             }
@@ -381,47 +381,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return true;
-        }
-
-        private static bool HasRelaxedConstructorOverride(InputProperty inputProperty, bool includeBaseModels = true)
-        {
-            if (inputProperty.EnclosingType is not InputModelType model)
-            {
-                return false;
-            }
-
-            var pending = new Stack<InputModelType>();
-            var visited = new HashSet<InputModelType>();
-            pending.Push(model);
-            while (pending.TryPop(out var current))
-            {
-                if (!visited.Add(current))
-                {
-                    continue;
-                }
-
-                if (current.Properties.Any(p => p.Name == inputProperty.Name
-                    && p.Type.Name == inputProperty.Type.Name
-                    && p.IsRequired == inputProperty.IsRequired
-                    && !p.IsReadOnly
-                    && (p.Type is InputNullableType) == (inputProperty.Type is InputNullableType)
-                    && p.IsRequiredInConstructor == false))
-                {
-                    // Matching overrides need compatible accessors without changing serialization.
-                    return true;
-                }
-
-                if (includeBaseModels && current.BaseModel is not null)
-                {
-                    pending.Push(current.BaseModel);
-                }
-                foreach (var derived in current.DerivedModels)
-                {
-                    pending.Push(derived);
-                }
-            }
-
-            return false;
         }
 
         private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
