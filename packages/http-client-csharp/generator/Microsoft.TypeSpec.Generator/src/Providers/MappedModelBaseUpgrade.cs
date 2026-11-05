@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (effective.IsRequired || !inherited.IsRequired) &&
                 effective.Name == inherited.Name &&
                 string.Equals(effective.SerializedName, inherited.SerializedName, StringComparison.Ordinal) &&
-                effective.Visibility == inherited.Visibility && effective.IsApiVersion == inherited.IsApiVersion &&
+                effective.IsApiVersion == inherited.IsApiVersion &&
                 effective.Access == inherited.Access && effective.DefaultValue is null && inherited.DefaultValue is null &&
                 effective.Experimental is null && inherited.Experimental is null && inherited.Decorators.Count == 0 &&
                 MappedModelBaseCompatibility.AreMappedPropertyShapesCompatible(effective, inherited,

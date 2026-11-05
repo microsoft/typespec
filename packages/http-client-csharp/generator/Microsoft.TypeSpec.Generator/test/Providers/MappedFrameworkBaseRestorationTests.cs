@@ -198,7 +198,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("same-ancestor")]
         [TestCase("different-raw-name")]
         [TestCase("weaken-requiredness")]
-        [TestCase("visibility")]
         [TestCase("api-version")]
         [TestCase("ancestor-default")]
         [TestCase("ancestor-decorator")]
@@ -870,10 +869,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 var childName = bot.Properties.First(property => property.Name is "name" or "Name");
                 typeof(InputProperty).GetProperty(nameof(InputProperty.Decorators))!.GetSetMethod(true)!
                     .Invoke(childName, [new[] { new InputDecoratorInfo("TypeSpec.@pattern", null) }]);
-                if (duplicateNameVariant == "visibility")
-                {
-                    childName.Update(visibility: InputVisibility.Read);
-                }
                 if (duplicateNameVariant == "ancestor-decorator")
                 {
                     var ancestorName = resource.Properties.Single(property => property.Name == "name");
