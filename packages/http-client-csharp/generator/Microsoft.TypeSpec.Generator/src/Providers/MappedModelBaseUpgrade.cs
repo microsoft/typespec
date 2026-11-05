@@ -92,12 +92,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool PreservesSourceOwnerProperty(ModelProvider owner, InputModelProperty input,
             PropertyProvider historicalProperty)
         {
-            var factory = CodeModelGenerator.Instance.TypeFactory;
             // Honor cached visitor results, including removals, without populating the cache during
             // potentially recursive property conversion.
-            var current = factory.PropertyCache.TryGetValue(input, out var cached)
+            var current = CodeModelGenerator.Instance.TypeFactory.PropertyCache.TryGetValue(input, out var cached)
                 ? cached
-                : factory.CreateUncachedProperty(input, owner);
+                : CodeModelGenerator.Instance.TypeFactory.CreateUncachedProperty(input, owner);
             if (current is null || owner.IsPropertySuppressed(current) ||
                 current.Name != historicalProperty.Name ||
                 HasCustomAlias(owner, input, current.Name, historicalProperty.Name))
