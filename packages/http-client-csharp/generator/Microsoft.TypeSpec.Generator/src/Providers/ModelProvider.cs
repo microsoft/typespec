@@ -1432,7 +1432,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     restoredParameters.Single(restored => restored.Name == parameter.Name).ShareVariableWith(parameter);
                 }
                 initializer = new ConstructorInitializer(true, baseParameters);
-                bodyStatements.Add(targetConstructor.BodyStatements);
+                bodyStatements.Add(ExperimentalApiHelpers.Suppress(targetConstructor.BodyStatements, targetConstructor.Suppressions));
                 extraAssignments.RemoveAll(assignment => assignment.Property.EnclosingType is SystemObjectModelProvider);
             }
 

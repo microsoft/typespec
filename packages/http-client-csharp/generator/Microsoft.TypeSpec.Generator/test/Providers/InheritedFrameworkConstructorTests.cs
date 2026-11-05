@@ -2,14 +2,18 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Tests.Providers.Framework;
 using Moq;
@@ -95,6 +99,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile()));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CopiedConstructorBodyPreservesWarningSuppressions(bool suppressWarning)
+        {
+            var provider = await CreateModelAsync(typeof(TrackedResourceData),
+                "ResourceLocation location = default, int count = 7", "location", includeCount: true);
+            var target = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            target.Update(bodyStatements: new MethodBodyStatement[] { target.BodyStatements!, Snippet.Static(typeof(DeprecatedHelper)).Invoke("Check").Terminate() },
+                suppressions: suppressWarning ? [new SuppressionStatement(null, Snippet.Literal("CS0618"), "Test suppression.")] : []);
+            provider.ProcessTypeForBackCompatibility();
+            var restored = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                constructor.Signature.Parameters.Count == 2);
+            Assert.That(restored.Signature.Initializer!.IsBase, Is.True);
+            Assert.That(restored.Signature.Initializer.Arguments.Select(argument => argument.ToDisplayString()), Is.EqualTo(new[] { "location" }));
+            Assert.That(restored.BodyStatements!.ToDisplayString(), Does.Contain("Count = count;").And.Contain("Check()"));
+            var source = new TypeProviderWriter(provider).Write().Content;
+            var compilation = CreateCompilation(source).WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                specificDiagnosticOptions: ImmutableDictionary<string, ReportDiagnostic>.Empty.Add("CS0618", ReportDiagnostic.Error)));
+            var diagnostics = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            if (suppressWarning)
+            {
+                Assert.That(diagnostics, Is.Empty, string.Join(Environment.NewLine, diagnostics.Select(diagnostic => diagnostic.ToString())));
+            }
+            else
+            {
+                var restoredSyntax = compilation.SyntaxTrees.Single().GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>()
+                    .Single(constructor => constructor.ParameterList.Parameters.Count == 2);
+                Assert.That(diagnostics.Any(diagnostic => diagnostic.Id == "CS0618" &&
+                    restoredSyntax.Span.Contains(diagnostic.Location.SourceSpan)), Is.True,
+                    "The unsuppressed control must prove the copied body itself requires the warning suppression.");
+            }
+        }
+
+        [Test]
+        public async Task CopiedBodySuppressionDoesNotCoverAddedAssignments()
+        {
+            var provider = await CreateModelAsync(typeof(TrackedResourceData),
+                "ResourceLocation location, int count", "location", includeCount: true, countRequired: false);
+            var target = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            target.Update(bodyStatements: new MethodBodyStatement[] { target.BodyStatements ?? MethodBodyStatement.Empty,
+                    Snippet.Static(typeof(DeprecatedHelper)).Invoke("Check").Terminate() },
+                suppressions: [new SuppressionStatement(null, Snippet.Literal("CS0618"), "Test suppression.")]);
+            provider.Properties.Single(property => property.Name == "Count")
+                .Update(attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("Regression diagnostic"))]);
+            provider.ProcessTypeForBackCompatibility();
+            var restored = provider.Constructors.Single(constructor => constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                constructor.Signature.Parameters.Count == 2);
+            Assert.That(restored.Signature.Initializer!.IsBase, Is.True);
+            var compilation = CreateCompilation(new TypeProviderWriter(provider).Write().Content).WithOptions(
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                    specificDiagnosticOptions: ImmutableDictionary<string, ReportDiagnostic>.Empty.Add("CS0618", ReportDiagnostic.Error)));
+            var restoredSyntax = compilation.SyntaxTrees.Single().GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>()
+                .Single(constructor => constructor.ParameterList.Parameters.Count == 2);
+            var assignment = restoredSyntax.DescendantNodes().OfType<AssignmentExpressionSyntax>()
+                .Single(expression => expression.Left.ToString() == "Count");
+            var diagnostics = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Id == "CS0618" &&
+                restoredSyntax.Span.Contains(diagnostic.Location.SourceSpan)).ToArray();
+            Assert.That(diagnostics.Length, Is.EqualTo(1));
+            Assert.That(assignment.Span.Contains(diagnostics[0].Location.SourceSpan), Is.True,
+                "The warning on a new assignment must not be hidden by the copied target body's suppression.");
+        }
+
         [Test]
         public async Task InheritedArgumentsFollowFrameworkConstructorOrder()
         {
@@ -113,20 +179,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         private static async Task<ModelProvider> CreateModelAsync(Type frameworkType, string declaration, string argument,
-            bool includeCount = false, bool includeSecondLocation = false)
+            bool includeCount = false, bool includeSecondLocation = false, bool countRequired = true)
         {
             var countAssignment = includeCount ? "Count = " + (declaration.Contains("int?") ? "count.GetValueOrDefault()" : "count") + ";" : "";
-            var source = $$"""
-                using Microsoft.TypeSpec.Generator.Tests.Providers.Framework;
-                namespace Sample.Models
-                {
-                    public class BotData : global::{{frameworkType.FullName}}
-                    {
-                        public BotData({{declaration}}) : base({{argument}}) { {{countAssignment}} }
-                        {{(includeCount ? "public int Count { get; set; }" : "")}}
-                    }
-                }
-                """;
+            var source = Helpers.GetExpectedFromFile("Historical")
+                .Replace("__FRAMEWORK_TYPE__", frameworkType.FullName)
+                .Replace("__DECLARATION__", declaration)
+                .Replace("__ARGUMENT__", argument)
+                .Replace("__COUNT_ASSIGNMENT__", countAssignment)
+                .Replace("__COUNT_PROPERTY__", includeCount ? "public int Count { get; set; }" : "");
             var baseline = CreateCompilation(source);
             Assert.That(baseline.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
             var locationType = new InputPrimitiveType(InputPrimitiveTypeKind.String, "azureLocation", "Azure.Core.azureLocation");
@@ -134,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             InputModelProperty[] inheritedProperties = [location,
                 .. includeSecondLocation ? new[] { InputFactory.Property("secondLocation", locationType) } : []];
             var input = InputFactory.Model("BotData", properties: [.. inheritedProperties,
-                .. includeCount ? new[] { InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true) } : []]);
+                .. includeCount ? new[] { InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: countRequired) } : []]);
             var mappedInput = InputFactory.Model("MappedBase", properties: []);
             var previousBase = new NamedTypeSymbolProvider(baseline.GetTypeByMetadataName(frameworkType.FullName!)!, baseline);
             await MockHelpers.LoadMockGeneratorAsync(
@@ -173,6 +234,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.Framework
 {
+    public static class DeprecatedHelper
+    {
+        [Obsolete("Regression diagnostic")]
+        public static void Check() { }
+    }
+
     public class PrivateSetterFrameworkBase
     {
         protected PrivateSetterFrameworkBase() { }

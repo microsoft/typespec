@@ -111,6 +111,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return PropertyProvider.TryCreate(input, owner, out var unvisited) &&
                 unvisited is not null && current.Type.Equals(unvisited.Type) &&
                 current.Modifiers == unvisited.Modifiers && current.IsInitOnly == unvisited.IsInitOnly &&
+                current.Attributes.Count == unvisited.Attributes.Count &&
+                current.Attributes.Zip(unvisited.Attributes).All(pair =>
+                    pair.First.Type.Equals(pair.Second.Type) && pair.First.ToDisplayString() == pair.Second.ToDisplayString()) &&
                 current.Body is AutoPropertyBody currentBody && unvisited.Body is AutoPropertyBody unvisitedBody &&
                 currentBody.HasSetter == unvisitedBody.HasSetter &&
                 currentBody.SetterModifiers == unvisitedBody.SetterModifiers &&

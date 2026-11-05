@@ -8,10 +8,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Tests.Providers.RestorationFramework;
 using Moq;
@@ -141,6 +143,78 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var model = await CreateModelAsync(visitor: new SourceOwnerVeto(), cacheSourceProperty: cacheRemoval);
             Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+        }
+
+        [TestCase("add", false)]
+        [TestCase("add", true)]
+        [TestCase("remove", false)]
+        [TestCase("remove", true)]
+        [TestCase("change-argument", false)]
+        [TestCase("change-argument", true)]
+        [TestCase("change-named-argument", false)]
+        [TestCase("change-named-argument", true)]
+        [TestCase("identical", false)]
+        [TestCase("identical", true)]
+        public async Task SourceOwnerAttributesAreNotDiscardedByProjection(string change, bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerAttributeChange(change);
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty,
+                experimentalLocation: change != "add");
+            var preservesSource = change != "identical";
+            // Nonempty experimental attributes are independently rejected by a later compatibility
+            // gate today. Exercise the projection guard directly so those cases are not false positives.
+            var canProject = MappedModelBaseUpgrade.TryCreate(model, new CSharpType(typeof(TrackedResourceData)),
+                model.LastContractView!.BaseTypeProvider!, out _);
+            Assert.Multiple(() =>
+            {
+                Assert.That(visitor.VisitedSourceOwner, Is.True);
+                Assert.That(canProject, Is.EqualTo(!preservesSource),
+                    "The projection guard must reject changed attributes but accept structurally identical ones.");
+                var location = model.Properties.SingleOrDefault(property => property.Name == "Location");
+                if (preservesSource)
+                {
+                    Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+                    Assert.That(location, Is.Not.Null);
+                }
+                if (location is not null)
+                {
+                    Assert.That(location.Attributes.Select(attribute => attribute.ToDisplayString()),
+                        Is.EqualTo(visitor.ExpectedAttributes));
+                    var source = new TypeProviderWriter(model).Write().Content;
+                    foreach (var attribute in visitor.ExpectedAttributes)
+                    {
+                        Assert.That(source, Does.Contain(attribute));
+                    }
+                }
+            });
+        }
+
+        private sealed class SourceOwnerAttributeChange(string change) : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+            public string[] ExpectedAttributes { get; private set; } = [];
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "location" && property?.EnclosingType is ModelProvider owner &&
+                    ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    VisitedSourceOwner = true;
+                    var original = property.Attributes;
+                    AttributeStatement[] attributes = change switch
+                    {
+                        "add" => [.. original, new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("source-only"))],
+                        "remove" => [],
+                        "change-argument" => [new AttributeStatement(original[0].Type, Snippet.Literal("CHANGED001"))],
+                        "change-named-argument" => [new AttributeStatement(original[0].Type, original[0].Arguments,
+                            [new KeyValuePair<string, ValueExpression>("UrlFormat", Snippet.Literal("https://example.test/{0}"))])],
+                        _ => [.. original.Select(attribute => new AttributeStatement(attribute.Type, attribute.Arguments, attribute.PositionalArguments))],
+                    };
+                    ExpectedAttributes = [.. attributes.Select(attribute => attribute.ToDisplayString())];
+                    property.Update(attributes: attributes);
+                }
+                return property;
+            }
         }
 
         [TestCase("type", false)]
@@ -359,7 +433,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             bool readOnlyTags = false,
             bool existingMappedCandidate = false,
             LibraryVisitor? visitor = null,
-            bool cacheSourceProperty = false)
+            bool cacheSourceProperty = false,
+            bool experimentalLocation = false)
         {
             // Reproduces #12304: Bot -> ProxyResource -> Resource, with location/tags owned by Bot.
             // A downstream generator maps ProxyResource to ResourceData, while the last public
@@ -372,10 +447,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             ]);
             var proxyResource = InputFactory.Model("ProxyResource", properties: [], baseModel: resource);
             var locationType = new InputPrimitiveType(InputPrimitiveTypeKind.String, "azureLocation", "Azure.Core.azureLocation");
+            var location = InputFactory.Property("location", incompatibleLocationType ? InputPrimitiveType.Int32 : locationType,
+                isRequired: false, isReadOnly: readOnlyLocation);
+            if (experimentalLocation)
+            {
+                InputFactory.Experimental(location, "TEST001");
+            }
             var bot = InputFactory.Model("BotData", baseModel: proxyResource, properties:
             [
-                InputFactory.Property("location", incompatibleLocationType ? InputPrimitiveType.Int32 : locationType,
-                    isRequired: false, isReadOnly: readOnlyLocation),
+                location,
                 InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String),
                     isRequired: false, isReadOnly: readOnlyTags),
             ]);
