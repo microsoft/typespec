@@ -188,6 +188,7 @@ export interface InputPropertyTypeBase extends DecoratedType {
   doc?: string;
   summary?: string;
   isApiVersion: boolean;
+  isContinuationToken?: boolean;
   defaultValue?: InputConstant;
   optional: boolean;
   crossLanguageDefinitionId: string;
