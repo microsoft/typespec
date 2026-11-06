@@ -33,7 +33,7 @@ export class TypeSpecBundledPackageUploader {
     });
   }
 
-  async upload({ manifest, files }: TypeSpecBundle): Promise<UploadBundleResult> {
+  async upload({ manifest, files, assets }: TypeSpecBundle): Promise<UploadBundleResult> {
     const imports = Object.fromEntries(
       Object.entries(manifest.imports).map(([key, value]) => {
         return [
@@ -43,13 +43,21 @@ export class TypeSpecBundledPackageUploader {
       }),
     );
     const created = await this.#uploadManifest(manifest);
-    if (!created) {
-      return { status: "already-exists", imports };
+    let uploaded = created;
+    if (created) {
+      for (const file of files) {
+        await this.#uploadJsFile(manifest.name, manifest.version, file);
+      }
     }
-    for (const file of files) {
-      await this.#uploadJsFile(manifest.name, manifest.version, file);
+    for (const asset of assets ?? []) {
+      const result = await this.uploadBinaryAsset(
+        join(manifest.name, manifest.version, asset.filename),
+        Buffer.from(asset.content),
+        asset.contentType,
+      );
+      uploaded ||= result.status === "uploaded";
     }
-    return { status: "uploaded", imports };
+    return { status: uploaded ? "uploaded" : "already-exists", imports };
   }
 
   async getIndex(name: string, version: string): Promise<PackageIndex | undefined> {

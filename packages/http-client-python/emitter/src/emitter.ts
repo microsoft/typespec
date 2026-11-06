@@ -1,14 +1,9 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext } from "@typespec/compiler";
 import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
-import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
-import {
-  BLOB_STORAGE_BASE_URL,
-  PACKAGE_NAME,
-  PYGEN_WHEEL_FILENAME,
-  PYODIDE_VERSION,
-} from "./constants.js";
+import { PYODIDE_VERSION } from "./constants.js";
+import { generatorWheelUrl } from "./generator-wheel.js";
 import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
@@ -16,14 +11,6 @@ import type { PyodideInterface } from "./pyodide-loader.js";
 import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 import { dumpCodeModelToYaml } from "./yaml-utils.js";
-
-function getBrowserPygenWheelUrl(): string {
-  // Release wheels ship in npm; the playground blob feed hosts prerelease assets.
-  const packageUrl = pkgJson.version.includes("-")
-    ? `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}`
-    : `https://cdn.jsdelivr.net/npm/${PACKAGE_NAME}@${pkgJson.version}`;
-  return `${packageUrl}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
-}
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
@@ -312,7 +299,7 @@ async function setupPyodideCallBrowser() {
   pyodide.FS.mkdirTree("/generator");
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
-  await micropip.install(getBrowserPygenWheelUrl());
+  await micropip.install(generatorWheelUrl);
 
   return pyodide;
 }
