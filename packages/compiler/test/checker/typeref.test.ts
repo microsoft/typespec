@@ -430,4 +430,73 @@ describe("typeref", () => {
       expect(reference.target).toBe(target);
     });
   });
+
+  it.each([
+    ["direct", "", "typeref(Service)"],
+    [
+      "reflection-annotated",
+      "const namespaceRef: TypeRef<Reflection.Namespace> = typeref(Service);",
+      "namespaceRef",
+    ],
+  ])(
+    "rejects assigning a %s namespace reference to a model reference",
+    async (_case, setup, source) => {
+      const diagnostics = await Tester.diagnose(`
+        namespace Service {}
+        ${setup}
+        const modelRef: TypeRef<Reflection.Model> = ${source};
+      `);
+      expectDiagnostics(diagnostics, { code: "unassignable" });
+    },
+  );
+
+  it.each(["Reflection.Model | string", "{}"])(
+    "rejects a namespace constraint assigned to TypeRef<%s>",
+    async (constraint) => {
+      const diagnostics = await Tester.diagnose(`
+        namespace Service {}
+        const namespaceRef: TypeRef<Reflection.Namespace> = typeref(Service);
+        const reference: TypeRef<${constraint}> = namespaceRef;
+      `);
+      expectDiagnostics(diagnostics, { code: "unassignable" });
+    },
+  );
+
+  it.each(["Namespace", "Model", "Enum", "Scalar", "Union"])(
+    "preserves the reflected kind of Reflection.%s",
+    async (kind) => {
+      const { program } = await referenceTester.compile(`
+        ${declaration}
+        const reference: TypeRef<Reflection.${kind}> = typeref(Reflection.${kind});
+        @capture(reference) model Test {}
+      `);
+      const reflection = program
+        .getGlobalNamespaceType()
+        .namespaces.get("TypeSpec")!
+        .namespaces.get("Reflection")!;
+      expect(references[0].target).toBe(reflection.models.get(kind));
+    },
+  );
+
+  it("rejects a reflection namespace declaration as a model reference", async () => {
+    const diagnostics = await Tester.diagnose(`
+      const reference: TypeRef<Reflection.Model> = typeref(Reflection.Namespace);
+    `);
+    expectDiagnostics(diagnostics, { code: "unassignable" });
+  });
+
+  it("does not treat nested TypeSpec.Reflection namespaces as the standard namespace", async () => {
+    await Tester.compile(`
+      namespace Other.TypeSpec.Reflection { model Namespace {} }
+      const reference: TypeRef<Reflection.Model> = typeref(Other.TypeSpec.Reflection.Namespace);
+    `);
+  });
+
+  it("can reference a concrete union with a union constraint", async () => {
+    await Tester.compile(`
+      model Input {}
+      model Output {}
+      const reference: TypeRef<Reflection.Union> = typeref(Input | Output);
+    `);
+  });
 });

@@ -128,6 +128,7 @@ const ReflectionNameToKind = {
   Namespace: "Namespace",
   Operation: "Operation",
   Scalar: "Scalar",
+  StringTemplate: "StringTemplate",
   TemplateParameter: "TemplateParameter",
   Tuple: "Tuple",
   Union: "Union",
@@ -308,8 +309,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return isTypeAssignableToInternal(source.type!, target, diagnosticTarget, relationCache);
     }
 
+    // Reflection declarations represent their named kind, not their implementation's Model kind.
+    const sourceKind = isReflectionType(source) ? ReflectionNameToKind[source.name] : source.kind;
     if (isReflectionType(target)) {
-      return source.kind === ReflectionNameToKind[target.name] || isNeverType(source)
+      return sourceKind === ReflectionNameToKind[target.name] || isNeverType(source)
         ? [Related.true, []]
         : [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
@@ -337,6 +340,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         }
       }
       return [Related.true, []];
+    }
+
+    if (source.kind === "Model" && sourceKind !== "Model" && target.kind === "Model") {
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     if (
@@ -506,8 +513,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
     return (
       type.kind === "Model" &&
+      Object.hasOwn(ReflectionNameToKind, type.name) &&
       type.namespace?.name === "Reflection" &&
-      type.namespace?.namespace?.name === "TypeSpec"
+      type.namespace?.namespace?.name === "TypeSpec" &&
+      type.namespace?.namespace?.namespace?.name === ""
     );
   }
 
