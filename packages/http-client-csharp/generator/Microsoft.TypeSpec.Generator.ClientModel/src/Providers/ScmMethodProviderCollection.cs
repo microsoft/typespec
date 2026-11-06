@@ -40,6 +40,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<ScmMethodProvider>? _methods;
         private readonly bool _generateConvenienceMethod;
         private readonly Lazy<InputStreamingType?> _streamingResponse;
+        private ScmMethodProvider? _legacySyncProtocol;
+        private ScmMethodProvider? _legacyAsyncProtocol;
 
         private ClientProvider Client { get; }
         protected InputServiceMethod ServiceMethod { get; }
@@ -87,6 +89,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// The service method supplies the paging strategy and maps standalone convenience parameters
         /// to the marked HTTP parameter; the marker alone does not imply omission.
         /// </summary>
+        /// <param name="serviceMethod">The paging operation and HTTP-to-convenience parameter mapping.</param>
+        /// <param name="inputParameter">
+        /// The source parameter, or null for generated runtime parameters such as RequestOptions and CancellationToken.
+        /// Runtime parameters are never omitted.
+        /// </param>
         internal static bool ShouldOmitContinuationTokenParameter(InputServiceMethod serviceMethod, InputParameter? inputParameter)
         {
             if (inputParameter == null
@@ -194,10 +201,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return methods;
             }
 
-            ScmMethodProvider? syncProtocol = null;
-            ScmMethodProvider? asyncProtocol = null;
             var methodCount = methods.Count;
-            var legacyMethods = new ScmMethodProvider?[methodCount];
+            var legacyMethods = new Dictionary<ScmMethodProvider, ScmMethodProvider>(methodCount);
             bool hasSignatureCollision = false;
             for (int i = 0; i < methodCount; i++)
             {
@@ -208,8 +213,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var legacyMethod = BuildLegacyMethod(method, ref syncProtocol, ref asyncProtocol);
-                legacyMethods[i] = legacyMethod;
+                var legacyMethod = BuildLegacyMethod(method);
+                legacyMethods.TryAdd(method, legacyMethod);
                 var token = legacyMethod.Signature.Parameters
                     .FirstOrDefault(parameter => ShouldOmitContinuationTokenParameter(ServiceMethod, parameter.InputParameter));
                 bool retainMethod = legacyMethod.IsPartialMethod;
@@ -223,6 +228,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
                         int tokenIndex = FindContinuationTokenParameterIndex(candidate.Signature, token);
+                        if (tokenIndex < 0 && MethodSignature.MethodSignatureComparer.Equals(candidate.Signature, legacyMethod.Signature))
+                        {
+                            // Custom code can rename the token while preserving its CLR signature.
+                            tokenIndex = 0;
+                            while (!ReferenceEquals(legacyMethod.Signature.Parameters[tokenIndex], token))
+                            {
+                                tokenIndex++;
+                            }
+                        }
                         if (tokenIndex < 0)
                         {
                             continue;
@@ -241,14 +255,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (hasSignatureCollision)
             {
+                bool preservesPartial = methods.Take(methodCount).Any(method => method.IsPartialMethod);
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.SignatureCollision,
-                    $"The continuation-token parameter for operation '{ServiceMethod.Name}' was retained because removing it would create a signature collision or ambiguous call with an existing method.",
+                    preservesPartial
+                        ? $"The custom partial implementation for operation '{ServiceMethod.Name}' was preserved. Conflicting generated continuation-token overloads were omitted."
+                        : $"The continuation-token parameter for operation '{ServiceMethod.Name}' was retained because removing it would create a signature collision or ambiguous call with an existing method.",
                     ServiceMethod.Operation.CrossLanguageDefinitionId);
                 var result = new ScmMethodProvider[methodCount];
                 for (int i = 0; i < methodCount; i++)
                 {
-                    var method = legacyMethods[i] ?? BuildLegacyMethod(methods[i], ref syncProtocol, ref asyncProtocol);
+                    var method = methods[i];
+                    if (!method.IsPartialMethod)
+                    {
+                        method = legacyMethods.TryGetValue(method, out var legacyMethod) ? legacyMethod : BuildLegacyMethod(method);
+                    }
                     result[i] = method;
                     if (previousMethods.Count == 0 && _generateConvenienceMethod
                         && method.Kind == ScmMethodKind.Protocol && !method.IsPartialMethod)
@@ -264,13 +285,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return methods;
         }
 
-        private ScmMethodProvider BuildLegacyMethod(ScmMethodProvider method,
-            ref ScmMethodProvider? syncProtocol, ref ScmMethodProvider? asyncProtocol)
+        private ScmMethodProvider BuildLegacyMethod(ScmMethodProvider method)
         {
             bool isAsync = method.Signature.Name == ServiceMethod.Name + "Async";
             var protocol = isAsync
-                ? asyncProtocol ??= BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired: false, includeContinuationToken: true)
-                : syncProtocol ??= BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired: false, includeContinuationToken: true);
+                ? _legacyAsyncProtocol ??= BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired: false, includeContinuationToken: true)
+                : _legacySyncProtocol ??= BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired: false, includeContinuationToken: true);
             return method.Kind == ScmMethodKind.Protocol
                 ? protocol
                 : BuildConvenienceMethod(protocol, isAsync, includeContinuationToken: true);
@@ -317,40 +337,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool previousIsBetter = false;
             var compilation = ScmCodeModelGenerator.Instance.SourceInputModel?.Customization
                 ?? ScmCodeModelGenerator.Instance.SourceInputModel?.LastContract;
-            for (int i = 0; i < argumentCount; i++)
+            for (int i = 0; i < sharedCount; i++)
             {
                 var currentType = tokenless.Parameters[i].Type;
                 var previousType = previous.Parameters[i].Type;
-                if (currentType.AreNamesEqual(previousType)
-                    && (currentType.IsNullable == previousType.IsNullable || !currentType.IsValueType && !previousType.IsValueType))
+                if (!currentType.AreNamesEqual(previousType)
+                    || currentType.IsNullable != previousType.IsNullable && (currentType.IsValueType || previousType.IsValueType))
+                {
+                    // An untyped default converts to either target. Only an implicit conversion between
+                    // the targets can make one overload better; null has the same ambiguity for nullable targets.
+                    if (compilation == null)
+                    {
+                        return true;
+                    }
+                    var currentSymbol = GetParameterTypeSymbol(compilation, currentType);
+                    var previousSymbol = GetParameterTypeSymbol(compilation, previousType);
+                    bool currentToPrevious = currentSymbol != null && previousSymbol != null
+                        && compilation.ClassifyCommonConversion(currentSymbol, previousSymbol).IsImplicit;
+                    bool previousToCurrent = currentSymbol != null && previousSymbol != null
+                        && compilation.ClassifyCommonConversion(previousSymbol, currentSymbol).IsImplicit;
+                    if (!currentToPrevious && !previousToCurrent)
+                    {
+                        return true;
+                    }
+                    tokenlessIsBetter |= currentToPrevious && !previousToCurrent;
+                    previousIsBetter |= previousToCurrent && !currentToPrevious;
+                }
+                int suppliedCount = i + 1;
+                if (suppliedCount < argumentCount)
                 {
                     continue;
                 }
-                // An untyped default converts to either target. Only an implicit conversion between
-                // the targets can make one overload better; null has the same ambiguity for nullable targets.
-                if (compilation == null)
+                if (tokenlessIsBetter && previousIsBetter)
                 {
                     return true;
                 }
-                var currentSymbol = GetParameterTypeSymbol(compilation, currentType);
-                var previousSymbol = GetParameterTypeSymbol(compilation, previousType);
-                bool currentToPrevious = currentSymbol != null && previousSymbol != null
-                    && compilation.ClassifyCommonConversion(currentSymbol, previousSymbol).IsImplicit;
-                bool previousToCurrent = currentSymbol != null && previousSymbol != null
-                    && compilation.ClassifyCommonConversion(previousSymbol, currentSymbol).IsImplicit;
-                if (!currentToPrevious && !previousToCurrent)
+                // With equivalent supplied parameter types an exact-arity overload wins.
+                if (!tokenlessIsBetter && !previousIsBetter
+                    && (suppliedCount < sharedCount || tokenless.Parameters.Count == previous.Parameters.Count))
                 {
                     return true;
                 }
-                tokenlessIsBetter |= currentToPrevious && !previousToCurrent;
-                previousIsBetter |= previousToCurrent && !currentToPrevious;
             }
-            if (tokenlessIsBetter || previousIsBetter)
-            {
-                return tokenlessIsBetter && previousIsBetter;
-            }
-            // With equivalent supplied parameter types an exact-arity overload wins.
-            return argumentCount < sharedCount || tokenless.Parameters.Count == previous.Parameters.Count;
+            return false;
         }
 
         private static ITypeSymbol? GetParameterTypeSymbol(Compilation compilation, CSharpType type)

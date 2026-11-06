@@ -44,20 +44,20 @@ namespace Sample
             return this.GetItemsAsync(maxPageSize: maxPageSize, token: token, filter: default, options: options);
         }
 
-#pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+#pragma warning disable AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize, string token, global::System.Threading.CancellationToken cancellationToken)
         {
             return this.GetItems(maxPageSize: maxPageSize, token: token, filter: default, cancellationToken: cancellationToken);
         }
-#pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+#pragma warning restore AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
 
-#pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+#pragma warning disable AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize, string token, global::System.Threading.CancellationToken cancellationToken)
         {
             return this.GetItemsAsync(maxPageSize: maxPageSize, token: token, filter: default, cancellationToken: cancellationToken);
         }
-#pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+#pragma warning restore AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
     }
 }

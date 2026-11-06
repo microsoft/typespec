@@ -1271,6 +1271,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
+                // Request builders and retained overloads must still accept the wire token.
                 if (!includeContinuationToken && ScmMethodProviderCollection.ShouldOmitContinuationTokenParameter(serviceMethod, inputParam))
                 {
                     continue;
