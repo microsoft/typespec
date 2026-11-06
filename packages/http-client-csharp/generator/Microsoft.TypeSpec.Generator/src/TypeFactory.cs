@@ -124,7 +124,9 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
         private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
-        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+        // Internal consumers may read cached conversions; only TypeFactory populates the cache.
+        internal IReadOnlyDictionary<InputProperty, PropertyProvider?> PropertyCache => _propertyCache;
+        private readonly Dictionary<InputProperty, PropertyProvider?> _propertyCache = [];
         private readonly Dictionary<InputModelType, HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)>> _relaxedConstructorOverrides = [];
         private readonly Dictionary<InputModelType, HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)>> _descendantRelaxedConstructorOverrides = [];
 
@@ -574,10 +576,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
-            PropertyCache.Add(property, propertyProvider);
+            _propertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
 
+        // Dispatch through factory overrides and visitors for a specific owner without reading or
+        // populating the input-keyed cache. Projection and reentrant validation require this path.
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
 
