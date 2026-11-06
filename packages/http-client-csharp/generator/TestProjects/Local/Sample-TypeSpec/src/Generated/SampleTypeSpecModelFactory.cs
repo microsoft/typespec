@@ -803,6 +803,22 @@ namespace SampleTypeSpec
             return new CustomIntermediateMammal(additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The RebasedUnionA. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionA"/> instance for mocking. </returns>
+        public static RebasedUnionA RebasedUnionA(string name = default)
+        {
+            return new RebasedUnionA(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RebasedUnionB. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionB"/> instance for mocking. </returns>
+        public static RebasedUnionB RebasedUnionB(string name = default)
+        {
+            return new RebasedUnionB(name, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The ConstructorOverride. </summary>
         /// <param name="items"></param>
         /// <param name="value"></param>

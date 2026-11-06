@@ -349,7 +349,9 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var visitedTypes = new HashSet<CSharpType>();
-                for (var type = customBase; type is not null && visitedTypes.Add(type); type = type.BaseType)
+                for (var type = customBase; type is not null && visitedTypes.Add(type);
+                    type = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                        type.Namespace, type.Name, type.DeclaringType?.Name)?.BaseType ?? type.BaseType)
                 {
                     if (GetProvider(unionBase)?.HasTypeIdentity(type) == true)
                     {

@@ -1452,6 +1452,10 @@ interface UnionExtends {
   @post
   echoCustomIntermediate(@body pet: CustomIntermediatePets): CustomIntermediatePets;
 
+  @route("/rebased-variants")
+  @post
+  echoRebasedVariants(@body pet: RebasedPets): RebasedPets;
+
   @route("/jsonl/send")
   @post
   sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
@@ -1528,6 +1532,20 @@ model CustomIntermediateCat extends CustomIntermediateMammal {
 @discriminated
 union CustomIntermediatePets extends CustomIntermediatePet {
   cat: CustomIntermediateCat,
+}
+
+model RebasedUnionPet {
+  name: string;
+}
+
+model RebasedUnionA extends RebasedUnionPet {}
+
+model RebasedUnionB extends RebasedUnionPet {}
+
+@discriminated
+union RebasedPets extends RebasedUnionPet {
+  a: RebasedUnionA,
+  b: RebasedUnionB,
 }
 
 model ConstructorBase {

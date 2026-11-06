@@ -94,7 +94,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         internal bool HasTypeIdentity(CSharpType type)
-            => CachedType is { } cached ? cached.AreNamesEqual(type) :
+            => string.IsNullOrEmpty(type.Namespace)
+                ? type.Name == (CachedType?.Name ?? CustomCodeView?.Name ?? BuildName()) :
+                CachedType is { } cached ? cached.AreNamesEqual(type) :
                 type.Name == (CustomCodeView?.Name ?? BuildName()) &&
                 type.Namespace == (CustomCodeView?.Type.Namespace ?? BuildNamespace());
 

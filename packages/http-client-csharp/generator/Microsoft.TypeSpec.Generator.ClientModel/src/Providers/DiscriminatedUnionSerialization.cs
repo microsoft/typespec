@@ -35,7 +35,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 new IfStatement(value.Equal(Null)) { jsonWriter.WriteNullValue(), Return() }
             ];
-            foreach (var (tag, model) in union.DiscriminatedSubtypes!.OrderByDescending(entry => entry.Value.GetAllBaseModels().Count()))
+            foreach (var (tag, model) in union.DiscriminatedSubtypes!.OrderByDescending(entry =>
+                GetInheritanceDepth(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(entry.Value)!)))
             {
                 var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model)!;
                 var matches = value.Is(new DeclarationExpression(type, "variant", out var variant));
@@ -97,6 +98,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 method.Update(suppressions: suppressions);
             }
             return methods;
+        }
+
+        private static int GetInheritanceDepth(CSharpType type)
+        {
+            var depth = 0;
+            var visited = new HashSet<CSharpType>();
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            for (CSharpType? current = type; current is not null && visited.Add(current);)
+            {
+                depth++;
+                if (factory.CSharpTypeMap.TryGetValue(current, out var provider) && provider is ModelProvider model)
+                {
+                    current = model.BaseType;
+                }
+                else if (string.IsNullOrEmpty(current.Namespace) &&
+                    factory.CSharpTypeMap.Values.OfType<ModelProvider>().FirstOrDefault(model => model.Name == current.Name) is { } generated)
+                {
+                    current = generated.BaseType;
+                }
+                else
+                {
+                    current = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                        current.Namespace, current.Name, current.DeclaringType?.Name)?.BaseType ?? current.BaseType;
+                }
+            }
+            return depth;
         }
 
         private static string GetSerializeMethodName(InputUnionType union) => $"Serialize{GetMethodSuffix(union)}";

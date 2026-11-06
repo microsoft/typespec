@@ -404,6 +404,23 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(data.ToString(), result.Children[0].ToString());
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CustomRebasedVariantsUseTheirOwnDiscriminator(bool derived)
+        {
+            RebasedUnionPet pet = derived ? new RebasedUnionB("Whiskers") : new RebasedUnionA("Rex");
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                RebasedUnionPet.SerializeRebasedPetsUnion(writer, pet, ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            Assert.AreEqual(derived ? "b" : "a", document.RootElement.GetProperty("kind").GetString());
+            var result = RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.AreEqual(pet.GetType(), result.GetType());
+            Assert.AreEqual(pet.Name, result.Name);
+        }
+
         [Test]
         public void NestedUnionPayloadsRemainConcrete()
         {

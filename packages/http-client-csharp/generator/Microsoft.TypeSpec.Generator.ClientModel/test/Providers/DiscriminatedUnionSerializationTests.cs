@@ -331,6 +331,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 serialization.Methods.Select(method => method.Signature.Name).ToArray());
         }
 
+        [TestCase("b")]
+        [TestCase("c")]
+        public async Task CustomRebasedVariantsDispatchMostDerivedFirst(string variantName)
+        {
+            var model = InputFactory.Model("pet");
+            var a = InputFactory.Model("a", baseModel: model);
+            var b = InputFactory.Model(variantName, baseModel: model);
+            var union = new InputUnionType("pets", [a, b], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["a"] = a, ["b"] = b });
+            var generator = LoadUnions([model, a, b], [union]);
+            generator.SetupProperty(input => input.SourceInputModel,
+                new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null));
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            var code = serialization.Methods.Single(method => method.Signature.Name == "SerializePetsUnion")
+                .BodyStatements!.ToDisplayString();
+            const string matchA = "value is global::Sample.Models.A";
+            var matchB = $"value is global::Sample.Models.{(variantName == "b" ? "B" : "C")}";
+            StringAssert.Contains(matchA, code);
+            StringAssert.Contains(matchB, code);
+            Assert.Less(code.IndexOf(matchB, System.StringComparison.Ordinal), code.IndexOf(matchA, System.StringComparison.Ordinal));
+        }
+
         [TestCase(true, "deserializePetsUnion")]
         [TestCase(false, "deserializePetsUnion")]
         [TestCase(true, "serializePetsUnion")]

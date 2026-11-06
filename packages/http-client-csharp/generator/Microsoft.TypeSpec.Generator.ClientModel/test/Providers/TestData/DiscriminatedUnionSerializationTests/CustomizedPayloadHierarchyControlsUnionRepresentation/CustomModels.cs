@@ -3,8 +3,6 @@
 
 namespace Sample.Models
 {
-    public partial class Pet {}
-    public partial class OtherPet : Pet {}
     public partial class Cat : System.Exception {}
     public partial class Mammal : System.Exception {}
     public partial class GoodCat : Pet {}

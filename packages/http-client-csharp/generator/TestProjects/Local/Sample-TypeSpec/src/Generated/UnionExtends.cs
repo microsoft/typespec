@@ -1628,6 +1628,82 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] EchoRebasedVariants
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EchoRebasedVariants(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoRebasedVariantsRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] EchoRebasedVariants
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EchoRebasedVariantsAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateEchoRebasedVariantsRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> EchoRebasedVariants. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<RebasedUnionPet> EchoRebasedVariants(RebasedUnionPet pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            RebasedUnionPet.SerializeRebasedPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            ClientResult result = EchoRebasedVariants(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return ClientResult.FromValue(RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+        }
+
+        /// <summary> EchoRebasedVariants. </summary>
+        /// <param name="pet"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<RebasedUnionPet>> EchoRebasedVariantsAsync(RebasedUnionPet pet, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
+            RebasedUnionPet.SerializeRebasedPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            ClientResult result = await EchoRebasedVariantsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return ClientResult.FromValue(RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+        }
+
+        /// <summary>
         /// [Protocol Method] SendPets
         /// <list type="bullet">
         /// <item>

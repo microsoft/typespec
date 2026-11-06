@@ -78,6 +78,9 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(PreviewDetails))]
 #pragma warning restore SAMPLE0003 // global::SampleTypeSpec.PreviewDetails is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(RawUnionPetContainer))]
+    [ModelReaderWriterBuildable(typeof(RebasedUnionA))]
+    [ModelReaderWriterBuildable(typeof(RebasedUnionB))]
+    [ModelReaderWriterBuildable(typeof(RebasedUnionPet))]
     [ModelReaderWriterBuildable(typeof(RenamedConstructorBase))]
     [ModelReaderWriterBuildable(typeof(RenamedConstructorLeaf))]
     [ModelReaderWriterBuildable(typeof(RenamedConstructorOverride))]
