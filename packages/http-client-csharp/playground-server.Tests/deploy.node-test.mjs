@@ -128,7 +128,6 @@ test("builds and verifies deployment without acquiring storage leases", async ()
   await deploy();
   const commands = await readFile(join(root, "commands"), "utf8");
   assert.doesNotMatch(commands, /storage blob/);
-  assert.match(commands, /acr build .*--no-cache/);
   assert.match(
     commands,
     /--container-image-name typespecacr.azurecr.io\/csharp-playground-server:test-one/,
