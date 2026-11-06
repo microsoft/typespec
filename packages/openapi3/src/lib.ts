@@ -337,6 +337,13 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
     },
+    "missing-server-variable-default": {
+      severity: "warning",
+      docs: fileRef.fromPackageRoot("src/diagnostics/missing-server-variable-default.md"),
+      messages: {
+        default: paramMessage`Server variable '${"propName"}' has no default, but OpenAPI ${"openapiVersion"} requires its default to be one of its enum values. Set a default on the parameter.`,
+      },
+    },
     "invalid-format": {
       severity: "warning",
       messages: {
