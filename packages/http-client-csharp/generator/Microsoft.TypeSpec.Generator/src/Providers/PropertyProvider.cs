@@ -100,7 +100,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
-            MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
+            MethodSignatureModifiers setterModifier = !propHasSetter ? MethodSignatureModifiers.None
+                : inputProperty.IsReadOnly && !IsDiscriminatorProperty(inputProperty)
+                    ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
+                    : MethodSignatureModifiers.Public;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
@@ -337,7 +340,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (inputProperty.IsReadOnly)
             {
-                return false;
+                // Writable descendants share storage without exposing a public setter on the base.
+                return !_isRequiredNonNullableConstant
+                    && type.Equals(type.OutputType)
+                    && inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input)
+                    && !EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly)
+                    && CodeModelGenerator.Instance.TypeFactory.HasRelaxedConstructorOverride(inputProperty, includeBaseModels: false);
             }
 
             if (_isRequiredNonNullableConstant)
@@ -355,7 +363,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // If the property is required and is not on a round-trip model, it doesn't need a setter as it can just be set via
             // constructor.
             // Round-trip models need setters so that a model returned from a service method can be modified.
-            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output))
+            var requiredInConstructor = (inputProperty as InputModelProperty)?.IsRequiredInConstructor ?? inputProperty.IsRequired;
+            if (requiredInConstructor && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output)
+                && !CodeModelGenerator.Instance.TypeFactory.HasRelaxedConstructorOverride(inputProperty))
             {
                 return false;
             }

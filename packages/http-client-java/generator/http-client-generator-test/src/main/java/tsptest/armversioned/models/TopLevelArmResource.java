@@ -148,7 +148,7 @@ public interface TopLevelArmResource {
          * resource to be created, but also allows for any other optional properties to be specified.
          */
         interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithProperties,
-            DefinitionStages.WithParameter, DefinitionStages.WithNewParameter {
+            DefinitionStages.WithNextLink, DefinitionStages.WithNewHeader {
             /**
              * Executes the create request.
              * 
@@ -192,29 +192,29 @@ public interface TopLevelArmResource {
         }
 
         /**
-         * The stage of the TopLevelArmResource definition allowing to specify parameter.
+         * The stage of the TopLevelArmResource definition allowing to specify nextLink.
          */
-        interface WithParameter {
+        interface WithNextLink {
             /**
-             * Specifies the parameter property: The parameter parameter.
+             * Specifies the nextLink property: The nextLink parameter.
              * 
-             * @param parameter The parameter parameter.
+             * @param nextLink The nextLink parameter.
              * @return the next definition stage.
              */
-            WithCreate withParameter(String parameter);
+            WithCreate withNextLink(String nextLink);
         }
 
         /**
-         * The stage of the TopLevelArmResource definition allowing to specify newParameter.
+         * The stage of the TopLevelArmResource definition allowing to specify newHeader.
          */
-        interface WithNewParameter {
+        interface WithNewHeader {
             /**
-             * Specifies the newParameter property: The newParameter parameter.
+             * Specifies the newHeader property: The newHeader parameter.
              * 
-             * @param newParameter The newParameter parameter.
+             * @param newHeader The newHeader parameter.
              * @return the next definition stage.
              */
-            WithCreate withNewParameter(String newParameter);
+            WithCreate withNewHeader(String newHeader);
         }
     }
 
@@ -228,8 +228,8 @@ public interface TopLevelArmResource {
     /**
      * The template for TopLevelArmResource update.
      */
-    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithParameter,
-        UpdateStages.WithNewParameter {
+    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithNextLink,
+        UpdateStages.WithNewHeader {
         /**
          * Executes the update request.
          * 
@@ -277,29 +277,29 @@ public interface TopLevelArmResource {
         }
 
         /**
-         * The stage of the TopLevelArmResource update allowing to specify parameter.
+         * The stage of the TopLevelArmResource update allowing to specify nextLink.
          */
-        interface WithParameter {
+        interface WithNextLink {
             /**
-             * Specifies the parameter property: The parameter parameter.
+             * Specifies the nextLink property: The nextLink parameter.
              * 
-             * @param parameter The parameter parameter.
+             * @param nextLink The nextLink parameter.
              * @return the next definition stage.
              */
-            Update withParameter(String parameter);
+            Update withNextLink(String nextLink);
         }
 
         /**
-         * The stage of the TopLevelArmResource update allowing to specify newParameter.
+         * The stage of the TopLevelArmResource update allowing to specify newHeader.
          */
-        interface WithNewParameter {
+        interface WithNewHeader {
             /**
-             * Specifies the newParameter property: The newParameter parameter.
+             * Specifies the newHeader property: The newHeader parameter.
              * 
-             * @param newParameter The newParameter parameter.
+             * @param newHeader The newHeader parameter.
              * @return the next definition stage.
              */
-            Update withNewParameter(String newParameter);
+            Update withNewHeader(String newHeader);
         }
     }
 

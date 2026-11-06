@@ -1,1 +1,0 @@
-using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span, new global::Sample.LifecycleModelReaderWriterOptions(global::Sample.LifecycleVisibility.Create, "W"));

@@ -51,6 +51,7 @@ import type {
 } from "@typespec/compiler";
 import {
   NoTarget,
+  compilerAssert,
   getDoc,
   getNamespaceFullName,
   getOverloadedOperation,
@@ -65,7 +66,6 @@ import { Visibility, getAuthentication } from "@typespec/http";
 import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
-import { fail } from "assert";
 import type {
   Client as CodeModelClient,
   EncodedProperty,
@@ -1216,6 +1216,7 @@ export class CodeModelBuilder {
         codeModelOperation,
         sdkMethod,
         httpOperation.bodyParam,
+        clientContext,
       );
     }
 
@@ -1651,18 +1652,6 @@ export class CodeModelBuilder {
         }
       }
 
-      if (this.supportsAdvancedVersioning() && param.__raw) {
-        // versioning
-        const addedOn = getAddedOnVersions(this.program, param.__raw);
-        if (addedOn) {
-          extensions = extensions ?? {};
-          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
-            param.__raw,
-            addedOn,
-          );
-        }
-      }
-
       // format if array
       let style = undefined;
       let explode = undefined;
@@ -1752,6 +1741,7 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      this.applyParameterVersioning(param, parameter, clientContext);
       this.applyExperimental(param.__raw, parameter);
       if (param.isExactName) {
         parameter.language.java = parameter.language.java ?? {};
@@ -2208,10 +2198,28 @@ export class CodeModelBuilder {
     }
   }
 
+  private applyParameterVersioning(
+    source: SdkHttpOperationParameterType | SdkBodyParameter,
+    parameter: Parameter,
+    clientContext: ClientContext,
+  ) {
+    if (this.supportsAdvancedVersioning() && source.__raw) {
+      const addedOn = getAddedOnVersions(this.program, source.__raw);
+      if (addedOn) {
+        parameter.extensions = parameter.extensions ?? {};
+        parameter.extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
+          source.__raw,
+          [...addedOn],
+        );
+      }
+    }
+  }
+
   private processParameterBody(
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkBody: SdkBodyParameter,
+    clientContext: ClientContext,
   ): boolean {
     let bodyParameterFlattened = false;
 
@@ -2273,6 +2281,9 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
+    if (!parameter.required) {
+      this.applyParameterVersioning(sdkBody, parameter, clientContext);
+    }
     this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
@@ -2488,7 +2499,10 @@ export class CodeModelBuilder {
           }
           break;
         default:
-          fail(`Unsupported response replacement: ${responseReplacement satisfies never}`);
+          compilerAssert(
+            false,
+            `Unsupported response replacement: ${responseReplacement satisfies never}`,
+          );
       }
     }
 
@@ -2704,7 +2718,9 @@ export class CodeModelBuilder {
   }
 
   private processSchema(type: SdkType, nameHint: string): Schema {
-    return this.schemaCache.process(type, nameHint) || fail("Unable to process schema.");
+    const schema = this.schemaCache.process(type, nameHint);
+    compilerAssert(schema, "Unable to process schema.");
+    return schema;
   }
 
   private processSchemaImpl(type: SdkType, nameHint: string): Schema {
@@ -2957,9 +2973,7 @@ export class CodeModelBuilder {
     const rawEnumType = type.__raw;
     const namespace = getNamespace(rawEnumType);
     const valueType = this.processSchema(type.valueType, type.valueType.kind);
-    if (!isPrimitiveSchema(valueType)) {
-      fail("Choice values must use a primitive schema.");
-    }
+    compilerAssert(isPrimitiveSchema(valueType), "Choice values must use a primitive schema.");
     const choices: ChoiceValue[] = [];
     type.values.forEach((it: SdkEnumValueType) => {
       const choice = createChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
@@ -3898,8 +3912,10 @@ export class CodeModelBuilder {
           }
         }
       } else if (schema.type === SchemaType.Dictionary) {
-        if (!schema.elementType)
-          fail("Dictionary element type must be resolved before propagating usage.");
+        compilerAssert(
+          schema.elementType,
+          "Dictionary element type must be resolved before propagating usage.",
+        );
         innerApplySchemaUsage(schema.elementType, schemaUsage);
       } else if (schema.type === SchemaType.Array) {
         innerApplySchemaUsage(schema.elementType, schemaUsage);
@@ -3953,8 +3969,10 @@ export class CodeModelBuilder {
         );
       }
     } else if (schema.type === SchemaType.Dictionary) {
-      if (!schema.elementType)
-        fail("Dictionary element type must be resolved before tracking usage.");
+      compilerAssert(
+        schema.elementType,
+        "Dictionary element type must be resolved before tracking usage.",
+      );
       this.trackSchemaUsage(schema.elementType, schemaUsage);
     } else if (schema.type === SchemaType.Array) {
       this.trackSchemaUsage(schema.elementType, schemaUsage);

@@ -53,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             string? kind = null;
             string? summary = null;
+            string? originalName = null;
             string? doc = null;
             string? serializedName = null;
             bool isApiVersion = false;
@@ -60,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
-            int visibility = (int)InputVisibility.All;
+            bool? isRequiredInConstructor = null;
             bool isHttpMetadata = false;
             string? access = null;
             bool isDiscriminator = false;
@@ -75,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("originalName", ref originalName)
                     || reader.TryReadString("kind", ref kind)
                     || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadString("summary", ref summary)
@@ -83,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
                     || reader.TryReadBoolean("optional", ref isOptional)
-                    || reader.TryReadInt32("lifecycleVisibility", ref visibility)
+                    || reader.TryReadNullableBoolean("requiredInConstructor", ref isRequiredInConstructor)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
@@ -102,11 +104,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
+            property.OriginalName = originalName ?? property.Name;
             property.Summary = summary;
             property.Doc = doc;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
-            property.Visibility = (InputVisibility)visibility;
+            property.IsRequiredInConstructor = isRequiredInConstructor;
             property.IsReadOnly = isReadOnly;
             property.IsHttpMetadata = isHttpMetadata;
             property.Access = access;

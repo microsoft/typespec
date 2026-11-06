@@ -2,7 +2,6 @@ vi.resetModules();
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { TestHost } from "@typespec/compiler/testing";
-import { Visibility } from "@typespec/http";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -14,217 +13,355 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
-describe("Lifecycle visibility", () => {
-  it("retains lifecycle context for read-only multipart parts", async () => {
-    const host = await createEmitterTestHost();
+describe("Request-context constructor requirements", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  const resource = `
+    model Resource {
+      title: string;
+      @visibility(Lifecycle.Read, Lifecycle.Update) state: string;
+      @visibility(Lifecycle.Read, Lifecycle.Create) initialValue: string;
+      @visibility(Lifecycle.Read) id: string;
+      optionalValue?: string;
+    }
+  `;
+
+  it.each([
+    ["@post", ["title", "initialValue"]],
+    ["@put", ["title"]],
+    ["@patch", ["title", "state"]],
+    [
+      '#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."\n@patch(#{ implicitOptionality: true })',
+      [],
+    ],
+    ["@patch(#{ implicitOptionality: false })", ["title", "state"]],
+    ["@parameterVisibility(Lifecycle.Update) @post", ["title", "state"]],
+    ["@parameterVisibility(Lifecycle.Create) @put", ["title", "initialValue"]],
+    ["@parameterVisibility(Lifecycle.Create, Lifecycle.Update) @post", ["title"]],
+    ["@parameterVisibility(Lifecycle.Create) @patch", ["title", "initialValue"]],
+  ])("uses effective contracts for %s", async (decorators, expectedRequired) => {
     const program = await typeSpecCompile(
-      `
-      model Topic {
-        title: HttpPart<string>;
-        @visibility(Lifecycle.Read) id?: HttpPart<string>;
-      }
-      @post op create(@multipartBody input: Topic, @header contentType: "multipart/form-data"): void;
-      `,
-      host,
+      `${resource} ${decorators} op send(@body body: Resource): Resource;`,
+      runner,
     );
-    const context = await createCSharpSdkContext(createEmitterContext(program));
-    const [root] = createModel(context);
-    const id = root.models
-      .find((model) => model.name === "Topic")
-      ?.properties.find((p) => p.name === "id");
-    ok(id);
-    strictEqual(id.readOnly, true);
-    strictEqual(id.lifecycleVisibility, undefined);
-    strictEqual(
-      [...context.__typeCache.operations.values()][0].requestVisibility,
-      Visibility.Create,
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    deepStrictEqual(
+      model.properties
+        .filter((p) => !p.optional && !p.readOnly && p.requiredInConstructor !== false)
+        .map((p) => p.name),
+      expectedRequired,
+    );
+    deepStrictEqual(
+      model.properties.map((p) => [p.name, p.optional, p.readOnly]),
+      [
+        ["title", false, false],
+        ["state", false, false],
+        ["initialValue", false, false],
+        ["id", false, true],
+        ["optionalValue", true, false],
+      ],
     );
   });
 
-  it.each(["application/xml", "text/xml", "application/vnd.typespec+xml", "application/json"])(
-    "retains read-only request visibility only where serialization needs it: %s",
-    async (contentType) => {
-      const host = await createEmitterTestHost();
-      const program = await typeSpecCompile(
-        `
-        model Topic {
-          title: string;
-          @visibility(Lifecycle.Read) id: string;
-        }
-        @post op create(@body input: Topic, @header contentType: "${contentType}"): Topic;
-        `,
-        host,
-      );
-      const context = await createCSharpSdkContext(createEmitterContext(program));
-      createModel(context);
-      strictEqual(
-        [...context.__typeCache.operations.values()][0].requestVisibility,
-        contentType === "application/json" ? undefined : Visibility.Create,
-      );
-    },
-  );
-
-  it.each(["@body input: Topic", "@body input: Topic[]", "@body input: Record<Topic>"])(
-    "keeps one shared model and relaxes properties excluded from an input lifecycle: %s",
-    async (body) => {
-      const host = await createEmitterTestHost();
-      const program = await typeSpecCompile(
-        `
-        model Topic {
-          title: string;
-          @visibility(Lifecycle.Read, Lifecycle.Update)
-          state: int32;
-          @visibility(Lifecycle.Read)
-          id: string;
-        }
-        @route("/create") @post op create(${body}): Topic;
-        @route("/update") @put @parameterVisibility(Lifecycle.Update)
-        op update(${body}): Topic;
-        `,
-        host,
-      );
-      const context = await createCSharpSdkContext(createEmitterContext(program));
-      const [root] = createModel(context);
-      const topics = root.models.filter((model) => model.name === "Topic");
-      strictEqual(topics.length, 1);
-      const [topic] = topics;
-      strictEqual(topic.properties.find((p) => p.name === "title")?.optional, false);
-      strictEqual(topic.properties.find((p) => p.name === "state")?.optional, true);
-      strictEqual(topic.properties.find((p) => p.name === "id")?.readOnly, true);
-      strictEqual(
-        topic.properties.find((p) => p.name === "state")?.lifecycleVisibility,
-        Visibility.Read | Visibility.Update,
-      );
-      deepStrictEqual(
-        [...context.__typeCache.operations.values()].map((op) => op.requestVisibility),
-        [Visibility.Create, Visibility.Update],
-      );
-    },
-  );
-
-  it("keeps a visible required property required for an update-only input", async () => {
-    const host = await createEmitterTestHost();
+  it("intersects separate request contexts without including responses", async () => {
     const program = await typeSpecCompile(
-      `
-      model Topic {
-        @visibility(Lifecycle.Read, Lifecycle.Update)
-        state: int32;
-      }
-      @put @parameterVisibility(Lifecycle.Update)
-      op update(@body input: Topic): Topic;
-      `,
-      host,
+      `${resource}
+       @route("/create") @post op create(@body body: Resource): Resource;
+       @route("/update") @parameterVisibility(Lifecycle.Update) @put
+       op update(@body body: Resource): Resource;
+       @route("/read") @get op read(): Resource;`,
+      runner,
     );
-    const context = await createCSharpSdkContext(createEmitterContext(program));
-    const [root] = createModel(context);
-    strictEqual(root.models[0].properties[0].optional, false);
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    deepStrictEqual(
+      model.properties
+        .filter((p) => !p.optional && !p.readOnly && p.requiredInConstructor !== false)
+        .map((p) => p.name),
+      ["title"],
+    );
   });
 
-  it.each(["", '@discriminator("kind")'])(
-    "does not apply a derived input's lifecycle to sibling models: %s",
-    async (discriminator) => {
-      const host = await createEmitterTestHost();
+  it("propagates PATCH to nested and inherited models but not collection items", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Base { baseValue: string; }
+       model Child extends Base { value: string; child?: Child; }
+       model Item { value: string; }
+       model Envelope { child: Child; items: Item[]; values: Record<Item>; }
+       #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+       @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    for (const name of ["Envelope", "Base", "Child"]) {
+      const model = root.models.find((m) => m.name === name)!;
+      ok(model);
+      for (const property of model.properties.filter((p) => !p.optional)) {
+        strictEqual(property.requiredInConstructor, false, `${name}.${property.name}`);
+      }
+    }
+    const item = root.models.find((m) => m.name === "Item")!;
+    ok(item);
+    strictEqual(item.properties[0].requiredInConstructor, undefined);
+  });
+
+  it("does not relax a nested model for an invisible reference", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Child { value: string; }
+       model Envelope { @visibility(Lifecycle.Create) child: Child; title: string; }
+       @route("/create") @post op create(@body body: Envelope): void;
+       #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+       @route("/update") @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const child = root.models.find((m) => m.name === "Child")!;
+    ok(child);
+    strictEqual(child.properties[0].requiredInConstructor, undefined);
+  });
+
+  it.each([
+    { includeBaseRequest: false, rename: false },
+    { includeBaseRequest: true, rename: false },
+    { includeBaseRequest: false, rename: true },
+    { includeBaseRequest: true, rename: true },
+  ])(
+    "does not propagate shadowed inherited references (%o)",
+    async ({ includeBaseRequest, rename }) => {
       const program = await typeSpecCompile(
         `
-      ${discriminator} model Topic {
-        title: string;
-      }
-      model CreateTopic extends Topic { kind: "create"; }
-      model UpdateTopic extends Topic {
-        kind: "update";
-        @visibility(Lifecycle.Read, Lifecycle.Update) state: int32;
-      }
-      @route("/create") @post op create(@body input: CreateTopic): Topic;
-      @route("/update") @put @parameterVisibility(Lifecycle.Update)
-      op update(@body input: UpdateTopic): Topic;
-      `,
-        host,
+         model Child { value: string; }
+         model Base { child: Child; }
+         model Middle extends Base {}
+         model Envelope extends Middle {
+           ${rename ? '@clientName("renamedChild", "csharp")' : ""}
+           @visibility(Lifecycle.Create) child: Child;
+           title: string;
+         }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/update") @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;
+         @route("/create") @post op create(@body body: Envelope): void;
+         ${
+           includeBaseRequest
+             ? `#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+                @route("/base") @patch(#{ implicitOptionality: true }) op updateBase(@body body: Base): void;`
+             : ""
+         }`,
+        runner,
+        { IsTCGCNeeded: true },
       );
-      const context = await createCSharpSdkContext(createEmitterContext(program));
-      const [root] = createModel(context);
-      strictEqual(
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      ok(
         root.models
-          .find((m) => m.name === "UpdateTopic")
-          ?.properties.find((p) => p.name === "state")?.optional,
-        false,
+          .find((m) => m.name === "Envelope")!
+          .properties.some((p) => p.name === (rename ? "renamedChild" : "child")),
       );
-    },
-  );
-
-  it.each(["Topic", "Topic[]", "Record<Topic>"])(
-    "includes non-discriminated descendants in base-typed requests: %s",
-    async (bodyType) => {
-      const host = await createEmitterTestHost();
-      const program = await typeSpecCompile(
-        `
-        model Topic { title: string; }
-        model DerivedTopic extends Topic {
-          @visibility(Lifecycle.Read, Lifecycle.Update) state: string;
-        }
-        model SpecialTopic extends DerivedTopic {
-          @visibility(Lifecycle.Read, Lifecycle.Update) specialState: string;
-        }
-        @route("/create") @post op create(@body input: ${bodyType}): void;
-        @route("/read") @get op read(): SpecialTopic;
-        `,
-        host,
-      );
-      const context = await createCSharpSdkContext(createEmitterContext(program));
-      const [root] = createModel(context);
+      const child = root.models.find((m) => m.name === "Child")!;
       strictEqual(
-        [...context.__typeCache.operations.values()].find(
-          (operation) => operation.name === "create",
-        )?.requestVisibility,
-        Visibility.Create,
+        child.properties[0].requiredInConstructor,
+        includeBaseRequest ? false : undefined,
       );
-      for (const [modelName, propertyName] of [
-        ["DerivedTopic", "state"],
-        ["SpecialTopic", "specialState"],
-      ]) {
-        const property = root.models
-          .find((model) => model.name === modelName)
-          ?.properties.find((p) => p.name === propertyName);
-        ok(property);
-        strictEqual(property.lifecycleVisibility, Visibility.Read | Visibility.Update);
-        strictEqual(property.optional, true);
-      }
     },
   );
 
-  it("propagates visibility through recursive, inherited, and polymorphic inputs", async () => {
-    const host = await createEmitterTestHost();
+  it("preserves required non-body parameters embedded in a body root", async () => {
     const program = await typeSpecCompile(
       `
-      @discriminator("kind") model Topic {
-        title: string;
-        child?: Topic;
-        @visibility(Lifecycle.Read, Lifecycle.Update) state: int32;
+       model Resource { value: string; @header requiredHeader: string; @query requiredQuery: string; }
+       @post op send(@bodyRoot body: Resource): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    ok(model);
+    for (const property of model.properties) {
+      strictEqual(property.requiredInConstructor, undefined, property.name);
+    }
+  });
+
+  it.each([false, true])(
+    "preserves override identity independently of SDK names (%s)",
+    async (rename) => {
+      const program = await typeSpecCompile(
+        `
+       model Base { value: string; }
+       model Resource extends Base {
+         ${rename ? '@clientName("renamedValue", "csharp")' : ""}
+         @visibility(Lifecycle.Create) value: string;
+       }
+       @put op send(@body body: Resource): void;`,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const property = root.models.find((m) => m.name === "Resource")!.properties[0];
+      strictEqual(property.name, rename ? "renamedValue" : "value");
+      strictEqual(
+        "originalName" in property ? property.originalName : undefined,
+        rename ? "value" : undefined,
+      );
+      strictEqual(property.requiredInConstructor, false);
+    },
+  );
+
+  it.each([false, true])(
+    "does not visit sibling subtypes through an ancestor (base request: %s)",
+    async (includeBaseRequest) => {
+      const program = await typeSpecCompile(
+        `
+         @discriminator("kind") model Pet { kind: string; }
+         model Cat extends Pet { kind: "cat"; catValue: string; }
+         model Dog extends Pet { kind: "dog"; dogValue: string; }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/cat") @patch(#{ implicitOptionality: true }) op updateCat(@body body: Cat): void;
+         @route("/dog") @post op createDog(@body body: Dog): void;
+         ${
+           includeBaseRequest
+             ? `#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+                @route("/pet") @patch(#{ implicitOptionality: true }) op updatePet(@body body: Pet): void;`
+             : ""
+         }`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const cat = root.models.find((m) => m.name === "Cat")!;
+      const dog = root.models.find((m) => m.name === "Dog")!;
+      strictEqual(cat.properties.find((p) => p.name === "catValue")!.requiredInConstructor, false);
+      strictEqual(
+        dog.properties.find((p) => p.name === "dogValue")!.requiredInConstructor,
+        includeBaseRequest ? false : undefined,
+      );
+    },
+  );
+
+  it.each(["body", "bodyRoot"])(
+    "honors metadata treatment within @%s and across request contexts",
+    async (bodyDecorator) => {
+      const program = await typeSpecCompile(
+        `
+         model Child { value: string; }
+         model Resource {
+           value: string;
+           #suppress "@typespec/http/metadata-ignored" "Testing explicit body metadata."
+           @header requiredHeader: string;
+           #suppress "@typespec/http/metadata-ignored" "Testing explicit body metadata."
+           @query requiredQuery: string;
+           @bodyIgnore ignored: Child;
+         }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/root") @patch(#{ implicitOptionality: true }) op updateRoot(@bodyRoot body: Resource): void;
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/other") @patch(#{ implicitOptionality: true }) op updateOther(@${bodyDecorator} body: Resource): void;
+         @route("/child") @post op createChild(@body body: Child): void;`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const model = root.models.find((m) => m.name === "Resource")!;
+      for (const name of ["requiredHeader", "requiredQuery", "ignored"]) {
+        strictEqual(
+          model.properties.find((p) => p.name === name)!.requiredInConstructor,
+          name === "ignored" || bodyDecorator === "body" ? false : undefined,
+          name,
+        );
       }
-      model SpecialTopic extends Topic {
-        kind: "special";
-        @visibility(Lifecycle.Read, Lifecycle.Update) specialState: string;
-      }
-      model Envelope { topics: Topic[]; }
-      @post op create(@body input: Envelope): Topic;
-      `,
-      host,
+      const child = root.models.find((m) => m.name === "Child")!;
+      strictEqual(
+        child.properties[0].requiredInConstructor,
+        bodyDecorator === "body" ? false : undefined,
+      );
+    },
+  );
+
+  it("omits ignored body-root fields without relaxing their types or HTTP parameters", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Child { value: string; }
+       model Resource {
+         value: string;
+         @header requiredHeader: string;
+         @query requiredQuery: string;
+         @bodyIgnore ignored: Child;
+       }
+       @post op create(@bodyRoot body: Resource): void;`,
+      runner,
     );
-    const context = await createCSharpSdkContext(createEmitterContext(program));
-    const [root] = createModel(context);
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    strictEqual(model.properties.find((p) => p.name === "ignored")!.requiredInConstructor, false);
+    for (const name of ["value", "requiredHeader", "requiredQuery"]) {
+      strictEqual(
+        model.properties.find((p) => p.name === name)!.requiredInConstructor,
+        undefined,
+        name,
+      );
+    }
+    const child = root.models.find((m) => m.name === "Child")!;
+    strictEqual(child.properties[0].requiredInConstructor, undefined);
+  });
+
+  it("uses the effective visibility of a redeclared inherited property", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Base { value: string; }
+       model Derived extends Base { @visibility(Lifecycle.Create) value: string; }
+       @put op send(@body body: Derived): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
     strictEqual(
-      root.models.find((m) => m.name === "Topic")?.properties.find((p) => p.name === "state")
-        ?.optional,
-      true,
+      root.models.find((m) => m.name === "Base")!.properties[0].requiredInConstructor,
+      undefined,
     );
     strictEqual(
-      root.models
-        .find((m) => m.name === "SpecialTopic")
-        ?.properties.find((p) => p.name === "specialState")?.optional,
-      true,
+      root.models.find((m) => m.name === "Derived")!.properties[0].requiredInConstructor,
+      false,
     );
+  });
+
+  it("uses only request contexts for a model also returned by other operations", async () => {
+    const program = await typeSpecCompile(
+      `${resource}
+       @route("/create") @post op create(@body body: Resource): void;
+       @route("/read") @get op read(): Resource;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    ok(model);
     strictEqual(
-      [...context.__typeCache.operations.values()][0].requestVisibility,
-      Visibility.Create,
+      model.properties.find((p) => p.name === "initialValue")!.requiredInConstructor,
+      undefined,
     );
   });
 });
