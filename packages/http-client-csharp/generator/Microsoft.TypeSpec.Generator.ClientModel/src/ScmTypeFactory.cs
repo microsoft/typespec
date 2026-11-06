@@ -25,9 +25,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private Dictionary<InputClient, ClientProvider?>? _clientCache;
         private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 
-        protected override IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames()
-            => ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Select(ClientProvider.GetNameForCollisionCheck);
-
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;

@@ -849,28 +849,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual string? BuildOriginalName() => _inputType is { IsExactName: false } ? _inputType.Name.ToIdentifierName() : null;
 
         protected string NormalizeTypeNameForNewContract(string name)
-            => NormalizeTypeNameForNewContract(name, BuildNamespace(), _declaringTypeName.Value, NormalizeTypeName);
-
-        protected static string NormalizeTypeNameForNewContract(
-            string name, string typeNamespace, string? declaringTypeName, Func<string, string> normalizeTypeName)
         {
+            var typeNamespace = BuildNamespace();
             var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 typeNamespace,
                 name,
-                declaringTypeName);
+                _declaringTypeName.Value);
             if (currentType is not null)
             {
                 return name;
             }
 
-            var normalizedName = normalizeTypeName(name);
+            var normalizedName = NormalizeTypeName(name);
             if (normalizedName == name)
             {
                 return name;
             }
 
             if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace, normalizedName, declaringTypeName) is not null)
+                typeNamespace, normalizedName, _declaringTypeName.Value) is not null)
             {
                 return normalizedName;
             }
@@ -878,7 +875,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
                 typeNamespace,
                 name,
-                declaringTypeName);
+                _declaringTypeName.Value);
             return lastContractType is null ? normalizedName : name;
         }
 

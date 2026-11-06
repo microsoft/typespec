@@ -68,9 +68,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return FindTypeInCompilation(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
         }
 
-        internal bool HasTypeMapping(string ns, string name, string? declaringTypeName = null)
-            => _nameMap.Value.TryGetValue(name, out var type) && IsContainingTypeMatch(type, ns, declaringTypeName);
-
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
             var type = FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
