@@ -284,6 +284,103 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 serialization.Methods.Select(method => method.Signature.Name).ToArray());
         }
 
+        [TestCase(true, "deserializePetsUnion")]
+        [TestCase(false, "deserializePetsUnion")]
+        [TestCase(true, "serializePetsUnion")]
+        [TestCase(false, "serializePetsUnion")]
+        public void UnionHelperNamesAvoidDescendantProperties(bool declaredVariant, string propertyName)
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var descendant = InputFactory.Model("descendant", baseModel: declaredVariant ? cat : model,
+                properties: [InputFactory.Property(propertyName, InputPrimitiveType.String)]);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            LoadUnions([model, cat, descendant], [union]);
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            Assert.IsTrue(serialization.Methods.Any(method => method.Signature.Name == "DeserializePetsUnion1"));
+        }
+
+        [Test]
+        public async Task UnionHelperNamesAvoidDescendantCustomMembers()
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            var generator = LoadUnions([model, cat], [union]);
+            generator.SetupProperty(input => input.SourceInputModel,
+                new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null));
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion2", "DeserializePetsUnion2" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+        }
+
+        [Test]
+        public void IntermediateExternalAncestorKeepsRawUnionRepresentation()
+        {
+            var model = InputFactory.Model("pet");
+            var mammal = InputFactory.Model("mammal", baseModel: model,
+                external: new InputExternalTypeMetadata("System.Object", null, null));
+            var cat = InputFactory.Model("cat", baseModel: mammal);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            LoadUnions([model, mammal, cat], [union]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            Assert.IsFalse(DiscriminatedUnionSerialization.RequiresEnvelope(union));
+            Assert.IsTrue(factory.CreateCSharpType(union)!.Equals(typeof(System.BinaryData)));
+            var provider = factory.CreateModel(model)!;
+            Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsFalse(provider.SerializationProviders.SelectMany(serialization => serialization.Methods)
+                .Any(method => method.Signature.Name == "DeserializePetsUnion"));
+        }
+
+        [TestCase("array")]
+        [TestCase("dictionary")]
+        [TestCase("nested")]
+        public void DynamicUnionCollectionsKeepPatchTraversal(string shape)
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            InputType collection = shape switch
+            {
+                "dictionary" => InputFactory.Dictionary(union),
+                "nested" => InputFactory.Array(InputFactory.Dictionary(union)),
+                _ => InputFactory.Array(union)
+            };
+            var container = InputFactory.Model("container", isDynamicModel: true,
+                properties: [InputFactory.Property("pets", collection)]);
+            LoadUnions([model, cat, container], [union]);
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(container)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            var code = serialization.Methods.Single(method => method.Signature.Name == "JsonModelWriteCore")
+                .BodyStatements!.ToDisplayString();
+            StringAssert.Contains(shape == "dictionary" ? "Patch.Contains" : "Patch.IsRemoved", code);
+            StringAssert.Contains(shape == "dictionary" ? "patchContains" : "for (int i", code);
+            StringAssert.Contains("SerializePetsUnion", code);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ExternalAncestorAboveUnionBaseDoesNotBreakPayloadInheritance(bool baseAsVariant)
+        {
+            var ancestor = InputFactory.Model("ancestor",
+                external: new InputExternalTypeMetadata("System.Object", null, null));
+            var model = InputFactory.Model("pet", baseModel: ancestor);
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var variant = baseAsVariant ? model : cat;
+            var union = new InputUnionType("pets", [variant], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["pet"] = variant });
+            LoadUnions([ancestor, model, cat], [union]);
+            Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(union));
+            Assert.AreEqual(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model),
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union));
+        }
+
         [TestCase("response")]
         [TestCase("request")]
         [TestCase("property")]

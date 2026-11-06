@@ -719,6 +719,40 @@ namespace SampleTypeSpec
             return new DirectUnionPetContainer(pet, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The DynamicUnionPetContainer. </summary>
+        /// <param name="pets"></param>
+        /// <param name="lookup"></param>
+        /// <param name="nested"></param>
+        /// <param name="nestedLookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicUnionPetContainer"/> instance for mocking. </returns>
+        public static DynamicUnionPetContainer DynamicUnionPetContainer(IEnumerable<UnionPet> pets = default, IDictionary<string, UnionPet> lookup = default, IEnumerable<IList<UnionPet>> nested = default, IEnumerable<IDictionary<string, UnionPet>> nestedLookup = default)
+        {
+            pets ??= new ChangeTrackingList<UnionPet>();
+            lookup ??= new ChangeTrackingDictionary<string, UnionPet>();
+            nested ??= new ChangeTrackingList<IList<UnionPet>>();
+            nestedLookup ??= new ChangeTrackingList<IDictionary<string, UnionPet>>();
+
+            return new DynamicUnionPetContainer(pets.ToList(), lookup, nested.ToList(), nestedLookup.ToList(), default);
+        }
+
+        /// <summary> The DescendantUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="deserializeDescendantPetsUnion"></param>
+        /// <param name="serializeDescendantPetsUnion"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DescendantUnionCat"/> instance for mocking. </returns>
+        public static DescendantUnionCat DescendantUnionCat(string name = default, string deserializeDescendantPetsUnion = default, string serializeDescendantPetsUnion = default)
+        {
+            return new DescendantUnionCat(name, additionalBinaryDataProperties: null, deserializeDescendantPetsUnion, serializeDescendantPetsUnion);
+        }
+
+        /// <summary> The IntermediateUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.IntermediateUnionCat"/> instance for mocking. </returns>
+        public static IntermediateUnionCat IntermediateUnionCat(string name = default)
+        {
+            return new IntermediateUnionCat(name, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

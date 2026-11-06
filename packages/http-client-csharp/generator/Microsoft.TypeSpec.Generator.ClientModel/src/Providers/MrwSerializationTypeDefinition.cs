@@ -2185,8 +2185,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Generate the serialization statements for the property
             var serializationStatement = DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType, propertyType)
-                ? DiscriminatedUnionSerialization.SerializeValue(
-                    wireInfo.InputType!, propertyType, propertyExpression, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet)
+                ? CreateEnvelopeSerializationStatement(
+                    wireInfo.InputType!, propertyType, propertyExpression, propertySerializationName)
                 : CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
             // Check for encoded arrays and override the serialization statement

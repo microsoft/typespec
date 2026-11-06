@@ -179,7 +179,9 @@ namespace Microsoft.TypeSpec.Generator
                     break;
                 case InputUnionType unionType:
                     if (unionType.BaseModel is { External: null } &&
-                        unionType.DiscriminatedSubtypes?.Values.All(model => model.External is null) == true)
+                        unionType.DiscriminatedSubtypes?.Values.All(model => model.External is null &&
+                            model.GetSelfAndBaseModels().TakeWhile(ancestor => ancestor != unionType.BaseModel)
+                                .All(ancestor => ancestor.External is null)) == true)
                     {
                         type = CreateCSharpType(unionType.BaseModel);
                         break;

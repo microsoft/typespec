@@ -108,7 +108,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(union.BaseModel!)!;
             var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
             var memberNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var inputModel in new[] { union.BaseModel! }.Concat(union.BaseModel!.GetAllBaseModels()))
+            foreach (var inputModel in new[] { union.BaseModel! }.Concat(union.BaseModel!.GetAllBaseModels())
+                .Concat(union.BaseModel!.GetAllDerivedModels()))
             {
                 var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
                 memberNames.UnionWith(provider.CanonicalView.Properties.Select(property => property.Name));
@@ -151,7 +152,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static bool RequiresEnvelope(InputType? type) => type switch
         {
             InputUnionType { External: null, BaseModel: { External: null }, EnvelopePropertyName: not null } union =>
-                union.DiscriminatedSubtypes is not null && union.DiscriminatedSubtypes.Values.All(model => model.External is null),
+                union.DiscriminatedSubtypes is not null && union.DiscriminatedSubtypes.Values.All(model =>
+                    model.External is null && model.GetSelfAndBaseModels().TakeWhile(ancestor => ancestor != union.BaseModel)
+                        .All(ancestor => ancestor.External is null)),
             InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type),
             InputArrayType { External: null } array => RequiresEnvelope(array.ValueType),
             InputDictionaryType { External: null } dictionary => RequiresEnvelope(dictionary.ValueType),

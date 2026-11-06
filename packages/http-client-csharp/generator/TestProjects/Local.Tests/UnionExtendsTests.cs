@@ -86,6 +86,82 @@ namespace TestProjects.Local.Tests
             Assert.IsFalse(typeof(UnionDog).IsAbstract);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void DynamicUnionCollectionsPreservePatchesAndEnvelopes(bool patched)
+        {
+#pragma warning disable SCME0001
+            var cat = new UnionCat("Whiskers", true);
+            var dog = new UnionDog("Rex", false);
+            var container = new DynamicUnionPetContainer();
+            container.Pets.Add(cat);
+            container.Pets.Add(dog);
+            container.Pets.Add(null);
+            container.Lookup.Add("remove", cat);
+            container.Lookup.Add("replace", cat);
+            container.Lookup.Add("keep", dog);
+            container.Lookup.Add("null", null);
+            container.Nested.Add(new List<UnionPet> { cat, dog, null! });
+            container.NestedLookup.Add(new Dictionary<string, UnionPet> { ["remove"] = cat, ["keep"] = dog, ["null"] = null! });
+            container = ModelReaderWriter.Read<DynamicUnionPetContainer>(ModelReaderWriter.Write(container))!;
+            if (patched)
+            {
+                container.Patch.Remove("$.pets[0]"u8);
+                container.Patch.Remove("$.lookup.remove"u8);
+                container.Patch.Set("$.lookup.replace"u8, """{"kind":"dog","value":{"name":"Patch","bark":true}}"""u8);
+                container.Patch.Set("$.lookup.add"u8, """{"kind":"cat","value":{"name":"Added","meow":false}}"""u8);
+                container.Patch.Remove("$.nested[0][0]"u8);
+                container.Patch.Remove("$.nestedLookup[0].remove"u8);
+            }
+
+            using var document = JsonDocument.Parse(ModelReaderWriter.Write(container, ModelSerializationExtensions.WireOptions));
+            var root = document.RootElement;
+            var pets = root.GetProperty("pets");
+            Assert.AreEqual(patched ? 2 : 3, pets.GetArrayLength());
+            Assert.AreEqual(patched ? "dog" : "cat", pets[0].GetProperty("kind").GetString());
+            Assert.AreEqual(patched ? "Rex" : "Whiskers", pets[0].GetProperty("value").GetProperty("name").GetString());
+            Assert.AreEqual(JsonValueKind.Null, pets[pets.GetArrayLength() - 1].ValueKind);
+            var lookup = root.GetProperty("lookup");
+            Assert.AreEqual(!patched, lookup.TryGetProperty("remove", out _));
+            Assert.AreEqual(patched ? "dog" : "cat", lookup.GetProperty("replace").GetProperty("kind").GetString());
+            Assert.AreEqual("dog", lookup.GetProperty("keep").GetProperty("kind").GetString());
+            Assert.AreEqual(JsonValueKind.Null, lookup.GetProperty("null").ValueKind);
+            if (patched)
+            {
+                Assert.AreEqual("Patch", lookup.GetProperty("replace").GetProperty("value").GetProperty("name").GetString());
+                Assert.AreEqual("Added", lookup.GetProperty("add").GetProperty("value").GetProperty("name").GetString());
+            }
+            var nested = root.GetProperty("nested")[0];
+            Assert.AreEqual(patched ? 2 : 3, nested.GetArrayLength());
+            Assert.AreEqual(patched ? "dog" : "cat", nested[0].GetProperty("kind").GetString());
+            Assert.AreEqual(JsonValueKind.Null, nested[nested.GetArrayLength() - 1].ValueKind);
+            var nestedLookup = root.GetProperty("nestedLookup")[0];
+            Assert.AreEqual(!patched, nestedLookup.TryGetProperty("remove", out _));
+            Assert.AreEqual("dog", nestedLookup.GetProperty("keep").GetProperty("kind").GetString());
+            Assert.AreEqual(JsonValueKind.Null, nestedLookup.GetProperty("null").ValueKind);
+#pragma warning restore SCME0001
+        }
+
+        [Test]
+        public void DescendantPropertiesDoNotHideUnionHelpers()
+        {
+            var cat = new DescendantUnionCat("Whiskers")
+            {
+                DeserializeDescendantPetsUnion = "read",
+                SerializeDescendantPetsUnion = "write"
+            };
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                DescendantUnionPet.SerializeDescendantPetsUnion1(writer, cat, ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            var result = (DescendantUnionCat)DescendantUnionPet.DeserializeDescendantPetsUnion1(
+                document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.AreEqual("read", result.DeserializeDescendantPetsUnion);
+            Assert.AreEqual("write", result.SerializeDescendantPetsUnion);
+        }
+
         [Test]
         public void UnionVariantsArePublic()
         {
@@ -245,22 +321,26 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual("Whiskers", result.Name);
         }
 
-        [Test]
-        public void ExternallyMappedVariantUsesRawEnvelope()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExternallyMappedVariantOrAncestorUsesRawEnvelope(bool intermediate)
         {
             var data = BinaryData.FromString("{\"kind\":\"cat\",\"value\":{\"name\":\"Whiskers\"}}");
             var response = new Mock<PipelineResponse>();
             response.SetupGet(value => value.Content).Returns(data);
             var client = new Mock<UnionExtends> { CallBase = true };
             string? requestData = null;
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream, CancellationToken.None);
+                requestData = BinaryData.FromBytes(stream.ToArray()).ToString();
+            }
             client.Setup(value => value.EchoMappedVariant(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
-                .Callback<BinaryContent, RequestOptions>((content, _) =>
-                {
-                    using var stream = new MemoryStream();
-                    content.WriteTo(stream, CancellationToken.None);
-                    requestData = BinaryData.FromBytes(stream.ToArray()).ToString();
-                }).Returns(ClientResult.FromResponse(response.Object));
-            var result = client.Object.EchoMappedVariant(data);
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(ClientResult.FromResponse(response.Object));
+            client.Setup(value => value.EchoMappedIntermediate(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(ClientResult.FromResponse(response.Object));
+            var result = intermediate ? client.Object.EchoMappedIntermediate(data) : client.Object.EchoMappedVariant(data);
             Assert.AreEqual(data.ToString(), result.Value.ToString());
             Assert.AreEqual(data.ToString(), requestData);
         }

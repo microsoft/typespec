@@ -1302,6 +1302,47 @@ model DirectUnionPetContainer {
   pet: DirectUnionPet;
 }
 
+@dynamicModel("csharp")
+model DynamicUnionPetContainer {
+  pets?: (UnionPets | null)[];
+  lookup?: Record<UnionPets | null>;
+  nested?: (UnionPets | null)[][];
+  nestedLookup?: Record<UnionPets | null>[];
+}
+
+model DescendantUnionPet {
+  name: string;
+}
+
+model DescendantUnionCat extends DescendantUnionPet {
+  deserializeDescendantPetsUnion?: string;
+  serializeDescendantPetsUnion?: string;
+}
+
+@discriminated
+union DescendantPets extends DescendantUnionPet {
+  cat: DescendantUnionCat,
+}
+
+model IntermediateUnionPet {}
+
+@alternateType(
+  {
+    identity: "System.Object",
+  },
+  "csharp"
+)
+model IntermediateUnionMammal extends IntermediateUnionPet {}
+
+model IntermediateUnionCat extends IntermediateUnionMammal {
+  name: string;
+}
+
+@discriminated
+union IntermediatePets extends IntermediateUnionPet {
+  cat: IntermediateUnionCat,
+}
+
 model ExternalVariantBase {}
 
 @alternateType(
@@ -1378,6 +1419,18 @@ interface UnionExtends {
   @route("/direct-container")
   @post
   echoDirectContainer(@body container: DirectUnionPetContainer): DirectUnionPetContainer;
+
+  @route("/dynamic-container")
+  @post
+  echoDynamicContainer(@body container: DynamicUnionPetContainer): DynamicUnionPetContainer;
+
+  @route("/descendant-members")
+  @post
+  echoDescendantMembers(@body pet: DescendantPets): DescendantPets;
+
+  @route("/mapped-intermediate")
+  @post
+  echoMappedIntermediate(@body pet: IntermediatePets): IntermediatePets;
 
   @route("/jsonl/send")
   @post

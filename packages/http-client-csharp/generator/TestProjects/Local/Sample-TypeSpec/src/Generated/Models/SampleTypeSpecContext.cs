@@ -18,11 +18,14 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(CollisionPetsUnion))]
     [ModelReaderWriterBuildable(typeof(CurrentDetails))]
+    [ModelReaderWriterBuildable(typeof(DescendantUnionCat))]
+    [ModelReaderWriterBuildable(typeof(DescendantUnionPet))]
     [ModelReaderWriterBuildable(typeof(DirectUnionCat))]
     [ModelReaderWriterBuildable(typeof(DirectUnionPet))]
     [ModelReaderWriterBuildable(typeof(DirectUnionPetContainer))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
+    [ModelReaderWriterBuildable(typeof(DynamicUnionPetContainer))]
 #pragma warning disable UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(ExperimentalUnionCat))]
 #pragma warning restore UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
@@ -30,6 +33,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
+    [ModelReaderWriterBuildable(typeof(IntermediateUnionCat))]
 #pragma warning disable SAMPLE0011 // global::SampleTypeSpec.LegacyDetails is experimental and may change in future versions.
 #pragma warning disable CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
     [ModelReaderWriterBuildable(typeof(LegacyDetails))]
