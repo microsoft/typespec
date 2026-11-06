@@ -48,19 +48,17 @@ function normalizeFragment(fragment: string) {
 
 /**
  * Joins route fragments, adding a slash when a fragment lacks a recognized separator
- * and trimming one trailing slash from non-final fragments. Preserves URI-template path expansions.
+ * and merging overlapping slashes at fragment boundaries. Preserves URI-template path expansions.
  * An empty input returns an empty string.
  */
 export function joinPathSegments(rest: string[]) {
   let current = "";
   for (const segment of rest) {
     const normalized = normalizeFragment(segment);
-    // Merge trailing and leading slashes to avoid double slashes
-    if (current.endsWith("/") && normalized.startsWith("/")) {
-      current += normalized.slice(1);
-    } else {
-      current += normalized;
+    if (current.endsWith("/") && (normalized.startsWith("/") || normalized.startsWith("{/"))) {
+      current = current.slice(0, -1);
     }
+    current += normalized;
   }
   return current;
 }

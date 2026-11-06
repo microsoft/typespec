@@ -640,6 +640,14 @@ describe("uri template", () => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);
     });
+
+    it.each([`@path(#{style: "path"}) one: string`, "@path one?: string"])(
+      "merges trailing / with path expansion for %s",
+      async (param) => {
+        const op = await getOp(`@route("/foo/") op foo(${param}): void;`);
+        expect(op.uriTemplate).toEqual("/foo{/one}");
+      },
+    );
   });
 
   describe("warn when path interpolation would result in duplicate //", () => {
