@@ -82,7 +82,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        internal static bool IsNextLinkContinuationTokenParameter(InputServiceMethod serviceMethod, InputParameter? inputParameter)
+        /// <summary>
+        /// Determines whether a parameter should be omitted from a next-link paging API.
+        /// The service method supplies the paging strategy and maps standalone convenience parameters
+        /// to the marked HTTP parameter; the marker alone does not imply omission.
+        /// </summary>
+        internal static bool ShouldOmitContinuationTokenParameter(InputServiceMethod serviceMethod, InputParameter? inputParameter)
         {
             if (inputParameter == null
                 || !ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
@@ -203,9 +208,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var legacyMethod = legacyMethods[i] = BuildLegacyMethod(method, ref syncProtocol, ref asyncProtocol);
+                var legacyMethod = BuildLegacyMethod(method, ref syncProtocol, ref asyncProtocol);
+                legacyMethods[i] = legacyMethod;
                 var token = legacyMethod.Signature.Parameters
-                    .FirstOrDefault(parameter => IsNextLinkContinuationTokenParameter(ServiceMethod, parameter.InputParameter));
+                    .FirstOrDefault(parameter => ShouldOmitContinuationTokenParameter(ServiceMethod, parameter.InputParameter));
                 bool retainMethod = legacyMethod.IsPartialMethod;
                 if (token != null)
                 {
@@ -242,7 +248,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var result = new ScmMethodProvider[methodCount];
                 for (int i = 0; i < methodCount; i++)
                 {
-                    var method = result[i] = legacyMethods[i] ?? BuildLegacyMethod(methods[i], ref syncProtocol, ref asyncProtocol);
+                    var method = legacyMethods[i] ?? BuildLegacyMethod(methods[i], ref syncProtocol, ref asyncProtocol);
+                    result[i] = method;
                     if (previousMethods.Count == 0 && _generateConvenienceMethod
                         && method.Kind == ScmMethodKind.Protocol && !method.IsPartialMethod)
                     {
@@ -1456,10 +1463,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (IsNextLinkContinuationTokenParameter(ServiceMethod, protocolParam.InputParameter)
-                    && !convenienceMethodParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p.InputParameter))
-                    && (protocolParam.InputParameter?.MethodParameterSegments is not { Count: > 1 } tokenSegments
-                        || !convenienceParamsMap.ContainsKey(tokenSegments[0].Name)))
+                if (ShouldOmitContinuationTokenParameter(ServiceMethod, protocolParam.InputParameter)
+                    && !convenienceMethodParameters.Any(p => ShouldOmitContinuationTokenParameter(ServiceMethod, p.InputParameter))
+                    && !(protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 } tokenSegments
+                        && convenienceParamsMap.ContainsKey(tokenSegments[0].Name)))
                 {
                     AddArgument(protocolParam, Default);
                     continue;
@@ -1895,14 +1902,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             if (createRequestParameters.Count == bodyParameters.Count
-                || createRequestParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p.InputParameter)))
+                || createRequestParameters.Any(p => ShouldOmitContinuationTokenParameter(ServiceMethod, p.InputParameter)))
             {
                 var arguments = new ValueExpression[createRequestParameters.Count];
                 bool allMatched = true;
                 for (int i = 0; i < createRequestParameters.Count; i++)
                 {
-                    if (IsNextLinkContinuationTokenParameter(ServiceMethod, createRequestParameters[i].InputParameter)
-                        && !bodyParameters.Any(p => IsNextLinkContinuationTokenParameter(ServiceMethod, p.InputParameter)))
+                    if (ShouldOmitContinuationTokenParameter(ServiceMethod, createRequestParameters[i].InputParameter)
+                        && !bodyParameters.Any(p => ShouldOmitContinuationTokenParameter(ServiceMethod, p.InputParameter)))
                     {
                         arguments[i] = Default;
                         continue;
@@ -1940,8 +1947,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (segments is not { Count: > 1 })
                 {
-                    if (IsNextLinkContinuationTokenParameter(ServiceMethod, createRequestParameter.InputParameter)
-                        && !protocolParameters.Any(parameter => IsNextLinkContinuationTokenParameter(ServiceMethod, parameter.InputParameter)))
+                    if (ShouldOmitContinuationTokenParameter(ServiceMethod, createRequestParameter.InputParameter)
+                        && !protocolParameters.Any(parameter => ShouldOmitContinuationTokenParameter(ServiceMethod, parameter.InputParameter)))
                     {
                         arguments[i] = Default;
                         continue;

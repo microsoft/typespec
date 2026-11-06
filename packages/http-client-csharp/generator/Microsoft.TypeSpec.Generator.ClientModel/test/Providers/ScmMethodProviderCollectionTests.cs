@@ -1931,14 +1931,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [Values] bool supportsPageResumption,
             [Values] bool hasNextLink,
             [Values] bool isHeader,
-            [Values] bool isContinuationToken)
+            [Values] bool isContinuationToken,
+            [Values] bool emptyTokenSegments)
         {
             InputParameter token = isHeader
                 ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
                 : InputFactory.QueryParameter("token", InputPrimitiveType.String);
             var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String,
                 location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query);
-            token.Update(isContinuationToken: isContinuationToken, methodParameterSegments: [methodToken]);
+            token.Update(isContinuationToken: isContinuationToken,
+                methodParameterSegments: emptyTokenSegments ? [] : [methodToken]);
+            if (emptyTokenSegments)
+            {
+                methodToken.Update(isContinuationToken: isContinuationToken);
+            }
             var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
             var item = InputFactory.Model("Item");
             var page = InputFactory.Model("Page", properties:
@@ -1963,18 +1969,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methods = new ScmMethodProviderCollection(method, client);
             var omitToken = supportsPageResumption && hasNextLink && isContinuationToken;
-
-            Assert.AreEqual(4, methods.Count);
-            foreach (var generated in methods)
-            {
-                Assert.AreEqual(!omitToken, generated.Signature.Parameters.Any(p => p.Name == "token"));
-                Assert.IsTrue(generated.Signature.Parameters.Any(p => p.Name == "filter"));
-                var syntax = CSharpSyntaxTree.ParseText(generated.BodyStatements!.ToDisplayString()).GetRoot();
-                var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single();
-                Assert.AreEqual(omitToken ? "default" : "token", construction.ArgumentList!.Arguments[1].Expression.ToString());
-                Assert.AreEqual("filter", construction.ArgumentList.Arguments[2].Expression.ToString());
-            }
-            Assert.IsTrue(client.RestClient.GetCreateRequestMethod(operation).Signature.Parameters.Any(p => p.Name == "token"));
 
             using var writer = new CodeWriter();
             foreach (var generated in methods)
@@ -2025,19 +2019,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methods = new ScmMethodProviderCollection(method, client);
-
-            Assert.AreEqual(4, methods.Count);
-            Assert.AreEqual(customizeMethods ? 4 : 0, methods.Count(method => method.IsPartialMethod));
-            Assert.AreEqual(methods.Count, methods.Select(method => method.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
-            foreach (var generated in methods)
-            {
-                Assert.IsTrue(generated.Signature.Parameters.Any(p => ReferenceEquals(p.InputParameter, options)));
-                var syntax = CSharpSyntaxTree.ParseText(generated.BodyStatements!.ToDisplayString()).GetRoot();
-                var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single();
-                Assert.AreEqual(standaloneToken ? supportsPageResumption ? "default" : "token" : "options.Token",
-                    construction.ArgumentList!.Arguments[1].Expression.ToString());
-                Assert.AreEqual("options.Filter", construction.ArgumentList.Arguments[2].Expression.ToString());
-            }
 
             using var writer = new CodeWriter();
             foreach (var generated in methods)

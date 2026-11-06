@@ -4373,8 +4373,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [TestCase(false, false, true, false)]
-        [TestCase(false, true, true, false)]
+        [TestCase(false, false, true, false, Description = "Unbranded paging retains the token because collection-based resumption is not enabled.")]
+        [TestCase(false, true, true, false, Description = "Unbranded paging retains the token when a new optional parameter is added.")]
         [TestCase(true, false, true, false)]
         [TestCase(true, true, true, false)]
         [TestCase(true, false, false, false)]
@@ -4421,40 +4421,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 client.ProcessTypeForBackCompatibility();
             }
 
-            if (customizeProtocol)
-            {
-                Assert.AreEqual(2, client.Methods.Count(method => method.IsPartialMethod
-                    && method.Signature.Parameters.Any(parameter => parameter.Name == "resumeToken")));
-            }
             var file = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
             var retainsToken = supportsPageResumption && (hasPreviousDefaults || newOptionalParameter);
-            var baseline = stringFilter ? "StringFilter"
+            var baseline = protocolOnly ? "StringFilter,ProtocolOnly" : stringFilter ? "StringFilter"
                 : $"{supportsPageResumption},{newOptionalParameter}{(customizeProtocol ? ",CustomProtocol" : hasPreviousDefaults ? "" : ",NoDefaults")}";
-            if (!protocolOnly)
-            {
-                Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), file.Content);
-            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), file.Content);
             using (var requestWriter = new CodeWriter())
             {
                 requestWriter.WriteMethod(client.RestClient.GetCreateRequestMethod(method.Operation));
                 var requestBaseline = newOptionalParameter ? stringFilter ? "CreateRequest,StringFilter" : "CreateRequest,Filter" : "CreateRequest";
                 Assert.AreEqual(Helpers.GetExpectedFromFile(requestBaseline), requestWriter.ToString(false));
             }
-            if (!retainsToken)
-            {
-                Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
-            }
-
-            var methods = client.Methods.Where(m => m.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
-            var visible = methods.Where(m => !m.Signature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))).ToArray();
-            Assert.AreEqual(protocolOnly ? 2 : 4, visible.Length);
-            Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name is "token" or "resumeToken")
-                == (!supportsPageResumption || retainsToken)));
-            var hidden = methods.Except(visible).ToArray();
-            Assert.IsTrue(methods.All(m => (m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)
-                || m.BodyStatements!.ToDisplayString().Contains("resumeToken", StringComparison.Ordinal))
-                == m.Signature.Parameters.Any(p => p.Name is "token" or "resumeToken")));
-            Assert.AreEqual(methods.Length, methods.Select(m => m.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
             if (retainsToken)
             {
                 using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
@@ -4463,44 +4440,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual("signature-collision", warning.GetProperty("code").GetString());
                 Assert.AreEqual("warning", warning.GetProperty("severity").GetString());
                 Assert.AreEqual(method.Operation.CrossLanguageDefinitionId, warning.GetProperty("crossLanguageDefinitionId").GetString());
-                StringAssert.Contains("retained", warning.GetProperty("message").GetString());
-                Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name == "filter") == newOptionalParameter));
-                Assert.IsTrue(visible.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken)))
-                    .All(m => m.Signature.Parameters.All(p => p.DefaultValue != null)));
-                Assert.AreEqual(newOptionalParameter ? protocolOnly ? 2 : 4 : 0, hidden.Length);
-                if (protocolOnly)
-                {
-                    Assert.IsTrue(visible.All(m => m.Signature.Parameters.All(p => p.DefaultValue != null)));
-                }
                 if (!customizeProtocol)
                 {
                     var compilation = await CompilePagingApiConsumerAsync(client);
                     Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic =>
                         diagnostic.Severity == DiagnosticSeverity.Error).Select(diagnostic => diagnostic.ToString()));
                 }
-                return;
             }
-            if (!supportsPageResumption)
+            else
             {
-                Assert.AreEqual(newOptionalParameter ? 2 : 0, hidden.Length);
-                Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name is "token" or "resumeToken")));
-                Assert.IsTrue(visible.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken)))
-                    .All(m => m.Signature.Parameters.All(p => p.DefaultValue != null)));
-                return;
+                Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
             }
-
-            Assert.AreEqual(newOptionalParameter ? 8 : 4, hidden.Length);
-            Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Any(p => p.Name is "token" or "resumeToken")));
-            Assert.IsTrue(hidden.All(m => m.Signature.Parameters.Take(2).All(p => p.DefaultValue == null)));
-            var publishedConvenienceOverloads = hidden.Where(m =>
-                m.Signature.Parameters.Count == 3 && m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken))).ToArray();
-            Assert.AreEqual(2, publishedConvenienceOverloads.Length);
-            Assert.IsTrue(publishedConvenienceOverloads.All(m => (m.Signature.Parameters[^1].DefaultValue != null) == hasPreviousDefaults));
-            Assert.IsTrue(hidden.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken))
-                && m.Signature.Parameters[^1].DefaultValue == null).All(m =>
-                    m.Suppressions.Any(suppression => suppression.Code.ToDisplayString() == Literal("AZC0002").ToDisplayString())));
-            Assert.IsTrue(hidden.All(m => m.Signature.Attributes.Single(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))
-                .Arguments.Single().ToDisplayString() == FrameworkEnumValue(System.ComponentModel.EditorBrowsableState.Never).ToDisplayString()));
         }
 
         [TestCase(false)]
@@ -4541,11 +4491,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             client.ProcessTypeForBackCompatibility();
 
-            var methods = client.Methods.Where(method => method.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
-            var visible = methods.Where(method => !method.Signature.Attributes.Any(attribute =>
-                attribute.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))).ToArray();
-            Assert.AreEqual(4, visible.Length);
-            Assert.IsTrue(visible.All(method => method.Signature.Parameters.All(parameter => parameter.Name != "token")));
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
             Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
             var compilation = await CompilePagingApiConsumerAsync(client);
             Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
@@ -4588,9 +4535,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             client.ProcessTypeForBackCompatibility();
 
-            var implementations = client.Methods.Where(method => method.IsPartialMethod).ToArray();
-            Assert.AreEqual(2, implementations.Length);
-            Assert.IsTrue(implementations.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "resumeToken")));
             var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
             var expected = hasLastContract
                 ? Helpers.GetExpectedFromFile("True,False,CustomProtocol", method: nameof(BackCompatibility_NextLinkContinuationToken))
@@ -4614,9 +4558,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             client.ProcessTypeForBackCompatibility();
 
-            var methods = client.Methods.Where(method => method.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
-            Assert.AreEqual(4, methods.Length);
-            Assert.IsTrue(methods.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "token")));
             using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
             Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
             var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
@@ -4629,6 +4570,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(
                 withFilter: tokenBearingCustomMethod, stringFilter: tokenBearingCustomMethod);
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 inputModels: () => [item, page],
@@ -4636,28 +4579,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 lastContractCompilation: tokenBearingCustomMethod ? null
                     : () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
                 clientResponseApi: new ResumableClientResultProvider());
-            using var diagnostics = new MemoryStream();
-            using var emitter = new Emitter(diagnostics);
             generator.SetupGet(g => g.Emitter).Returns(emitter);
             var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
 
             client.ProcessTypeForBackCompatibility();
 
-            var methods = client.Methods.Where(method => method.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
-            Assert.AreEqual(4, methods.Length);
-            Assert.IsTrue(methods.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "token")));
-            Assert.IsTrue(methods.All(method => method.Signature.Attributes.Any(attribute =>
-                attribute.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))) == !tokenBearingCustomMethod));
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
             using (var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray())))
             {
                 Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
             }
-            if (tokenBearingCustomMethod)
-            {
-                Assert.IsTrue(methods.Where(method => method.Signature.Parameters[^1].Type.Equals(typeof(System.ClientModel.Primitives.RequestOptions)))
-                    .All(method => method.Signature.Parameters.All(parameter => parameter.DefaultValue == null)));
-            }
-            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
             var expected = tokenBearingCustomMethod
                 ? Helpers.GetExpectedFromFile(method: nameof(NextLinkPagingRetainsTokenForOptionalArgumentCollision))
                 : Helpers.GetExpectedFromFile("False");

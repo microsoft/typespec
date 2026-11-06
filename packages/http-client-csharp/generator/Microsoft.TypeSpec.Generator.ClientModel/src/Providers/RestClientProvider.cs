@@ -1271,7 +1271,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
-                if (!includeContinuationToken && ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(serviceMethod, inputParam))
+                if (!includeContinuationToken && ScmMethodProviderCollection.ShouldOmitContinuationTokenParameter(serviceMethod, inputParam))
                 {
                     continue;
                 }
