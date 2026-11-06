@@ -345,6 +345,65 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(data.ToString(), requestData);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HelpersDoNotMatchTheirEnclosingType(bool serializeName)
+        {
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                if (serializeName)
+                {
+                    SerializePetsUnion.SerializePetsUnion1(writer, new SerializeNamedCat("Whiskers"), ModelSerializationExtensions.WireOptions);
+                }
+                else
+                {
+                    DeserializePetsUnion.SerializePetsUnion1(writer, new DeserializeNamedCat("Whiskers"), ModelSerializationExtensions.WireOptions);
+                }
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            Assert.AreEqual("cat", document.RootElement.GetProperty("kind").GetString());
+            var name = serializeName
+                ? SerializePetsUnion.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions).Name
+                : DeserializePetsUnion.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions).Name;
+            Assert.AreEqual("Whiskers", name);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CustomizedPayloadBasesKeepRawEnvelopes(bool intermediate)
+        {
+            var data = BinaryData.FromString("{\"kind\":\"cat\",\"value\":{\"meow\":true}}");
+            var response = new Mock<PipelineResponse>();
+            response.SetupGet(value => value.Content).Returns(data);
+            var client = new Mock<UnionExtends> { CallBase = true };
+            string? requestData = null;
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream, CancellationToken.None);
+                requestData = BinaryData.FromBytes(stream.ToArray()).ToString();
+            }
+            client.Setup(value => value.EchoCustomBase(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(ClientResult.FromResponse(response.Object));
+            client.Setup(value => value.EchoCustomIntermediate(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(ClientResult.FromResponse(response.Object));
+            var result = intermediate ? client.Object.EchoCustomIntermediate(data) : client.Object.EchoCustomBase(data);
+            Assert.AreEqual(data.ToString(), result.Value.ToString());
+            Assert.AreEqual(data.ToString(), requestData);
+        }
+
+        [Test]
+        public void CustomizedPayloadUnionPropertiesKeepRawEnvelopes()
+        {
+            var data = BinaryData.FromString("{\"kind\":\"cat\",\"value\":{\"meow\":true}}");
+            var container = new CustomUnionPet { Name = "Whiskers" };
+            container.Children.Add(data);
+            var result = ModelReaderWriter.Read<CustomUnionPet>(ModelReaderWriter.Write(container))!;
+            Assert.AreEqual("Whiskers", result.Name);
+            Assert.AreEqual(data.ToString(), result.Children[0].ToString());
+        }
+
         [Test]
         public void NestedUnionPayloadsRemainConcrete()
         {

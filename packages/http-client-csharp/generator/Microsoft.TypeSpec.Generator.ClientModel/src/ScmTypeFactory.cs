@@ -59,6 +59,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
         private bool? _hasDynamicModels;
 
+        internal bool HasCompatibleDiscriminatedUnionBase(InputUnionType union) => HasCompatibleUnionBase(union);
+
         private HashSet<InputModelType>? _rootInputModels;
 
         internal HashSet<InputModelType> RootOutputModels

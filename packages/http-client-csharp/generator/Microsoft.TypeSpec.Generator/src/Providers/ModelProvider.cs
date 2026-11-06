@@ -90,6 +90,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
+        internal bool HasTypeIdentity(CSharpType type)
+            => CachedType is { } cached ? cached.AreNamesEqual(type) :
+                type.Name == (CustomCodeView?.Name ?? BuildName()) &&
+                type.Namespace == (CustomCodeView?.Type.Namespace ?? BuildNamespace());
+
         // Whether this model is reused from another shipped package (linked via an `external` block)
         // rather than emitted by this library. Such a type's constructor surface is owned elsewhere.
         internal bool IsExternal => _inputModel.External is not null;

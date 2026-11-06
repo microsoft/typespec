@@ -268,6 +268,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 serialization.Methods.Select(method => method.Signature.Name).ToArray());
         }
 
+        [TestCase("serializePetsUnion")]
+        [TestCase("deserializePetsUnion")]
+        public void UnionHelperNamesDoNotMatchEnclosingType(string modelName)
+        {
+            var model = InputFactory.Model(modelName);
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            LoadUnions([model, cat], [union]);
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion1", "DeserializePetsUnion1" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+        }
+
+        [TestCase("cat", false)]
+        [TestCase("intermediateCat", false)]
+        [TestCase("goodCat", true)]
+        [TestCase("bridgeCat", true)]
+        [TestCase("rebasedCat", true)]
+        [TestCase("brokenBridgeCat", false)]
+        public async Task CustomizedPayloadHierarchyControlsUnionRepresentation(string variantName, bool compatible)
+        {
+            var model = InputFactory.Model("pet");
+            var mammal = InputFactory.Model("mammal", baseModel: model);
+            var otherPet = InputFactory.Model("otherPet", baseModel: model);
+            var cat = InputFactory.Model(variantName, baseModel: variantName == "intermediateCat" ? mammal : model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            var container = InputFactory.Model("container", properties: [InputFactory.Property("children", InputFactory.Array(union))]);
+            var generator = LoadUnions([model, mammal, otherPet, cat, container], [union]);
+            generator.SetupProperty(input => input.SourceInputModel,
+                new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null));
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+
+            var unionType = factory.CreateCSharpType(union)!;
+            Assert.AreEqual(compatible, DiscriminatedUnionSerialization.RequiresEnvelope(union));
+            Assert.AreEqual(!compatible, unionType.Equals(typeof(System.BinaryData)));
+            var provider = factory.CreateModel(model)!;
+            Assert.AreEqual(compatible, provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.AreEqual(compatible, provider.SerializationProviders.SelectMany(serialization => serialization.Methods)
+                .Any(method => method.Signature.Name == "DeserializePetsUnion"));
+            var serialization = factory.CreateModel(container)!.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            var code = new TypeProviderWriter(serialization).Write().Content;
+            StringAssert.Contains(compatible ? "IList<global::Sample.Models.Pet>" : "IList<global::System.BinaryData>", code);
+        }
+
         [Test]
         public async Task UnionHelperNamesDoNotCollideWithCustomMembers()
         {
@@ -581,12 +628,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var cat = InputFactory.Model("cat", baseModel: model);
             var union = new InputUnionType("pets", [cat], model, "kind", "value",
                 new Dictionary<string, InputModelType> { ["cat"] = cat });
+            LoadUnions([model, cat], [union]);
             Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(union));
             Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(new InputNullableType(union)));
             Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(InputFactory.Array(union)));
             Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(InputFactory.Dictionary(union)));
             Assert.IsFalse(DiscriminatedUnionSerialization.RequiresEnvelope(cat));
-            LoadUnions([model, cat], [union]);
             var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model)!;
             Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(union, type));
             Assert.IsTrue(DiscriminatedUnionSerialization.RequiresEnvelope(new InputNullableType(union), type.WithNullable(true)));

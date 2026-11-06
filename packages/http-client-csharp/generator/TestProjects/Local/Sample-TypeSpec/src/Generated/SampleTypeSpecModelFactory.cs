@@ -753,6 +753,56 @@ namespace SampleTypeSpec
             return new IntermediateUnionCat(name, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The SerializeNamedCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.SerializeNamedCat"/> instance for mocking. </returns>
+        public static SerializeNamedCat SerializeNamedCat(string name = default)
+        {
+            return new SerializeNamedCat(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The DeserializeNamedCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DeserializeNamedCat"/> instance for mocking. </returns>
+        public static DeserializeNamedCat DeserializeNamedCat(string name = default)
+        {
+            return new DeserializeNamedCat(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The CustomUnionCat. </summary>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomUnionCat"/> instance for mocking. </returns>
+        public static CustomUnionCat CustomUnionCat(bool meow = default)
+        {
+            return new CustomUnionCat(meow, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The CustomUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomUnionPet"/> instance for mocking. </returns>
+        public static CustomUnionPet CustomUnionPet(string name = default, IEnumerable<BinaryData> children = default)
+        {
+            children ??= new ChangeTrackingList<BinaryData>();
+
+            return new CustomUnionPet(name, children.ToList(), additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The CustomIntermediateCat. </summary>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomIntermediateCat"/> instance for mocking. </returns>
+        public static CustomIntermediateCat CustomIntermediateCat(bool meow = default)
+        {
+            return new CustomIntermediateCat(additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The CustomIntermediateMammal. </summary>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomIntermediateMammal"/> instance for mocking. </returns>
+        public static CustomIntermediateMammal CustomIntermediateMammal()
+        {
+            return new CustomIntermediateMammal(additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

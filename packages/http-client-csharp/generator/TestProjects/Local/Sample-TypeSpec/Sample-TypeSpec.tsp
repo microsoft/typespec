@@ -1432,6 +1432,26 @@ interface UnionExtends {
   @post
   echoMappedIntermediate(@body pet: IntermediatePets): IntermediatePets;
 
+  @route("/serialize-class-name")
+  @post
+  echoSerializeClassName(@body pet: SerializeClassNames.Pets): SerializeClassNames.Pets;
+
+  @route("/deserialize-class-name")
+  @post
+  echoDeserializeClassName(@body pet: DeserializeClassNames.Pets): DeserializeClassNames.Pets;
+
+  @route("/custom-base")
+  @post
+  echoCustomBase(@body pet: CustomUnionPets): CustomUnionPets;
+
+  @route("/custom-container")
+  @post
+  echoCustomContainer(@body pet: CustomUnionPet): CustomUnionPet;
+
+  @route("/custom-intermediate")
+  @post
+  echoCustomIntermediate(@body pet: CustomIntermediatePets): CustomIntermediatePets;
+
   @route("/jsonl/send")
   @post
   sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
@@ -1455,4 +1475,57 @@ interface UnionExtends {
   @route("/cat")
   @get
   getCat(): UnionCat;
+}
+
+model SerializePetsUnion {
+  name: string;
+}
+
+model SerializeNamedCat extends SerializePetsUnion {}
+
+namespace SerializeClassNames {
+  @discriminated
+  union Pets extends SerializePetsUnion {
+    cat: SerializeNamedCat,
+  }
+}
+
+model DeserializePetsUnion {
+  name: string;
+}
+
+model DeserializeNamedCat extends DeserializePetsUnion {}
+
+namespace DeserializeClassNames {
+  @discriminated
+  union Pets extends DeserializePetsUnion {
+    cat: DeserializeNamedCat,
+  }
+}
+
+model CustomUnionPet {
+  name?: string;
+  children?: CustomUnionPets[];
+}
+
+model CustomUnionCat extends CustomUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union CustomUnionPets extends CustomUnionPet {
+  cat: CustomUnionCat,
+}
+
+model CustomIntermediatePet {}
+
+model CustomIntermediateMammal extends CustomIntermediatePet {}
+
+model CustomIntermediateCat extends CustomIntermediateMammal {
+  meow: boolean;
+}
+
+@discriminated
+union CustomIntermediatePets extends CustomIntermediatePet {
+  cat: CustomIntermediateCat,
 }
