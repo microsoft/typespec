@@ -65,6 +65,41 @@ describe("inline discriminated unions", () => {
     expect(codeModel.types.find((type) => type.name === "Pet")).not.toHaveProperty("discriminator");
   });
 
+  it("preserves the declared constraint through intermediate SDK base models", async () => {
+    const { codeModel, diagnostics } = await emitCodeModel(
+      petService(undefined, undefined, "extends Mammal").replace(
+        "model Cat",
+        "model Mammal extends PetBase {} model Cat",
+      ),
+    );
+    expectDiagnostics(diagnostics, []);
+    expect(codeModel.types.find((type) => type.name === "Pet")).toMatchObject({
+      type: "combined",
+      baseType: { name: "PetBase" },
+      discriminator: {
+        variants: { cat: { name: "Cat" }, dog: { name: "Dog" } },
+      },
+    });
+  });
+
+  it("preserves variant keys independently of SDK model names", async () => {
+    const { codeModel, diagnostics } = await emitCodeModel(
+      'import "@azure-tools/typespec-client-generator-core";' +
+        petService().replace(
+          "model Cat",
+          '@Azure.ClientGenerator.Core.clientName("Feline", "python") model Cat',
+        ),
+    );
+    expectDiagnostics(diagnostics, []);
+    expect(codeModel.types.find((type) => type.name === "Pet")).toMatchObject({
+      type: "combined",
+      baseType: { name: "PetBase" },
+      discriminator: {
+        variants: { cat: { name: "Feline" }, dog: { name: "Dog" } },
+      },
+    });
+  });
+
   it("supports recursive variants", async () => {
     const { codeModel, diagnostics } = await emitCodeModel(
       petService().replace("meows: boolean;", "meows: boolean; friend?: Pet;"),

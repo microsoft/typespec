@@ -16,7 +16,7 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import { isHttpMetadata, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { Type } from "@typespec/compiler";
-import { getDiscriminatedUnion, getEncode } from "@typespec/compiler";
+import { getEncode } from "@typespec/compiler";
 import type { HttpAuth } from "@typespec/http";
 import { Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
@@ -557,7 +557,7 @@ function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string
   context.__typesMap.set(type, result);
   result.types = type.variantTypes.map((x) => getType(context, x));
   if (type.discriminatedOptions) {
-    const metadata = getInlineUnionDiscriminator(context, type);
+    const metadata = getInlineUnionDiscriminator(type);
     if (metadata) {
       result.baseType = getType(context, metadata.baseType);
       result.discriminator = {
@@ -576,37 +576,25 @@ function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string
   return result;
 }
 
-function getInlineUnionDiscriminator(
-  context: PythonSdkContext,
-  type: SdkUnionType,
-):
+function getInlineUnionDiscriminator(type: SdkUnionType):
   | {
       baseType: SdkModelType;
       propertyName: string;
       variants: [string, SdkModelType][];
     }
   | undefined {
-  const raw = type.__raw;
   const options = type.discriminatedOptions;
-  // TCGC 0.73 does not yet export SdkUnionType.baseType. Use the explicit
-  // compiler constraint, never an inferred common ancestor.
-  if (options?.envelope !== "none" || raw?.kind !== "Union" || raw.baseType?.kind !== "Model") {
-    return undefined;
-  }
-  const [union] = getDiscriminatedUnion(context.program, raw);
-  if (!union || union.defaultVariant || union.variants.size === 0) {
+  const baseType = type.baseType;
+  if (options?.envelope !== "none" || baseType?.kind !== "model" || type.variants.size === 0) {
     return undefined;
   }
   const variants: [string, SdkModelType][] = [];
-  let baseType: SdkModelType | undefined;
   let propertyName: string | undefined;
-  for (const [tag, variant] of union.variants) {
-    const model = type.variantTypes.find((x) => x.__raw === variant);
-    if (model?.kind !== "model") return undefined;
+  for (const [tag, model] of type.variants) {
+    if (typeof tag !== "string" || model.kind !== "model") return undefined;
     let base = model.baseModel;
-    while (base && base.__raw !== raw.baseType) base = base.baseModel;
+    while (base && base !== baseType) base = base.baseModel;
     if (!base) return undefined;
-    baseType = base;
     let owner: SdkModelType | undefined = model;
     let property: SdkModelPropertyType | undefined;
     while (owner && !property) {
@@ -626,7 +614,7 @@ function getInlineUnionDiscriminator(
     propertyName = wireName;
     variants.push([tag, model]);
   }
-  return baseType && propertyName !== undefined ? { baseType, propertyName, variants } : undefined;
+  return propertyName !== undefined ? { baseType, propertyName, variants } : undefined;
 }
 
 export function getConstantType(

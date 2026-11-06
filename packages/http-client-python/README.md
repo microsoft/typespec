@@ -59,7 +59,9 @@ union Pet extends PetBase {
 ```
 
 Enable `features: [union-extends]` in `tspconfig.yaml` while union constraints are
-experimental. `Pet` is an annotated `Union[Cat, Dog]`, not an alias for `PetBase`.
+experimental. This preview uses TCGC `0.74.0-dev.19` and consumes its SDK union
+`baseType` and keyed `variants` directly. Union-to-model conversion is disabled
+so `Pet` remains an annotated `Union[Cat, Dog]`, not an alias for `PetBase`.
 Responses and model properties typed as `Pet` select the variant using the inline
 discriminator. Models serialize through their existing literal discriminator
 properties, producing JSON such as
@@ -82,6 +84,23 @@ not an implicit default variant. Object envelopes, unnamed default variants,
 structural variants, and existing non-literal or optional discriminator
 properties are rejected with an `unsupported-discriminated-union` diagnostic.
 Ordinary untagged unions and `@discriminator` model hierarchies are unchanged.
+
+The TCGC preview imports compiler APIs that require `@typespec/compiler`
+`1.18.0-dev.15`, although its published compiler peer range still specifies
+`^1.17.0`. The emitter's development dependencies use an npm override to keep
+one compiler version throughout the dependency graph. Applications using this
+preview also need the compatible compiler and a root-level override:
+
+```json
+{
+  "dependencies": {
+    "@typespec/compiler": "1.18.0-dev.15"
+  },
+  "overrides": {
+    "@typespec/compiler": "$@typespec/compiler"
+  }
+}
+```
 
 ## Emitter options
 

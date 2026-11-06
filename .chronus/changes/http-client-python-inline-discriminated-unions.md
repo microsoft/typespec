@@ -15,6 +15,8 @@ envelopes and default variants are not supported.
 Handle transitive discriminator inheritance and narrowed literal discriminator
 fields in TypedDict views. Update `@typespec/http-specs` to `0.1.0-alpha.45` to
 cover the constrained union scenarios in synchronous and asynchronous clients.
+Use TCGC `0.74.0-dev.19` union constraints and keyed variants directly, with
+compatible Azure prereleases and TypeSpec compiler `1.18.0-dev.15`.
 
 ```tsp
 model PetBase {
