@@ -76,6 +76,23 @@
     "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^"
   },
+  "peerDependenciesMeta": {
+    "@alloy-js/core": {
+      "optional": false
+    },
+    "@alloy-js/csharp": {
+      "optional": true
+    },
+    "@alloy-js/python": {
+      "optional": true
+    },
+    "@alloy-js/typescript": {
+      "optional": true
+    },
+    "@typespec/compiler": {
+      "optional": false
+    }
+  },
   "devDependencies": {
     "@alloy-js/cli": "catalog:",
     "@alloy-js/core": "catalog:",
