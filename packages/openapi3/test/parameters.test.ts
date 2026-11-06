@@ -247,6 +247,78 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
       ]);
     });
 
+    it("names reusable parameter keys independently of wire names", async () => {
+      const doc = await openApiFor(
+        `
+        @service namespace Demo {
+          namespace Models {
+            model Query_Options {
+              @query("page-size") page_size: int32;
+              @header("x-user-id") user_id: string;
+            }
+            model Single_Option { @query("sort-by") sort_by: string; }
+          }
+          @get op read(...Models.Query_Options, ...Models.Single_Option): void;
+        }
+      `,
+        {
+          "component-name-strategy": { kind: "name-only", separator: "_" },
+        },
+      );
+      expect(Object.keys(doc.components.parameters)).toEqual([
+        "Query_Options_page_size",
+        "Query_Options_user_id",
+        "Single_Option",
+      ]);
+      expect(doc.paths["/"].get.parameters).toEqual([
+        { $ref: "#/components/parameters/Query_Options_page_size" },
+        { $ref: "#/components/parameters/Query_Options_user_id" },
+        { $ref: "#/components/parameters/Single_Option" },
+      ]);
+      expect(doc.components.parameters.Query_Options_page_size.name).toBe("page-size");
+      expect(doc.components.parameters.Query_Options_user_id.name).toBe("x-user-id");
+      expect(doc.components.parameters.Single_Option.name).toBe("sort-by");
+    });
+
+    it("reports parameter collisions after omitting namespaces", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
+        namespace A { model Paging_Options { @query a: string; } }
+        namespace B { model Paging_Options { @query b: string; } }
+        @route("/a") op first(...A.Paging_Options): void;
+        @route("/b") op second(...B.Paging_Options): void;
+      `,
+        {
+          "omit-unreachable-types": true,
+          "component-name-strategy": "name-only",
+        },
+      );
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi/duplicate-type-name",
+          message: /parameter/,
+        },
+      ]);
+    });
+
+    it("uses the configured separator for shared parameter properties", async () => {
+      const doc = await openApiFor(
+        `
+        model Paging { @query page_size: int32; @query page_number: int32; }
+        @get op read(...Paging): void;
+      `,
+        { "component-name-strategy": { kind: "fqn", separator: "_" } },
+      );
+      expect(doc.paths["/"].get.parameters).toEqual([
+        { $ref: "#/components/parameters/Paging_page_size" },
+        { $ref: "#/components/parameters/Paging_page_number" },
+      ]);
+      expect(Object.keys(doc.components.parameters)).toEqual([
+        "Paging_page_number",
+        "Paging_page_size",
+      ]);
+    });
+
     it("errors on invalid parameter keys", async () => {
       const diagnostics = await diagnoseOpenApiFor(
         `
