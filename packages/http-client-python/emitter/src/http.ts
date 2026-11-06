@@ -778,7 +778,7 @@ function emitHttpBodyParameter(
     contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
     clientName: bodyParam.isGeneratedName ? "body" : getClientName(bodyParam),
-    wireName: bodyParam.isGeneratedName ? "body" : bodyParam.name,
+    wireName: bodyParam.isGeneratedName ? "body" : bodyParam.serializedName,
     implementation: getImplementation(context, bodyParam),
     clientDefaultValue: bodyParam.clientDefaultValue,
     defaultContentType: bodyParam.defaultContentType,
