@@ -1,0 +1,485 @@
+{
+  "name": "OwnedPilot",
+  "apiVersions": [],
+  "enums": [
+    {
+      "$id": "1",
+      "kind": "enum",
+      "name": "Kind",
+      "apiVersions": [],
+      "crossLanguageDefinitionId": "OwnedPilot.Kind",
+      "valueType": {
+        "$id": "2",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "3",
+          "kind": "enumvalue",
+          "name": "first",
+          "value": "first",
+          "valueType": {
+            "$ref": "2"
+          },
+          "enumType": {
+            "$ref": "1"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "$id": "4",
+          "kind": "enumvalue",
+          "name": "second",
+          "value": "second",
+          "valueType": {
+            "$ref": "2"
+          },
+          "enumType": {
+            "$ref": "1"
+          },
+          "decorators": [],
+          "isExactName": false
+        }
+      ],
+      "namespace": "OwnedPilot",
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Input",
+      "decorators": [],
+      "isExactName": false
+    }
+  ],
+  "constants": [
+    {
+      "$id": "5",
+      "kind": "constant",
+      "name": "UploadContentType",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "6",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "multipart/form-data",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "7",
+      "kind": "constant",
+      "name": "UploadContentType1",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "8",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "multipart/form-data",
+      "decorators": [],
+      "isExactName": false
+    }
+  ],
+  "models": [
+    {
+      "$id": "9",
+      "kind": "model",
+      "name": "Base",
+      "apiVersions": [],
+      "namespace": "OwnedPilot",
+      "crossLanguageDefinitionId": "OwnedPilot.Base",
+      "usage": "Input,MultipartFormData",
+      "decorators": [],
+      "serializationOptions": {},
+      "isExactName": false,
+      "properties": [
+        {
+          "$id": "10",
+          "kind": "property",
+          "name": "value",
+          "apiVersions": [],
+          "serializedName": "value",
+          "type": {
+            "$ref": "1"
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "OwnedPilot.Base.value",
+          "serializationOptions": {
+            "multipart": {
+              "isFilePart": false,
+              "isMulti": false,
+              "defaultContentTypes": [
+                "application/json"
+              ],
+              "name": "value",
+              "headers": []
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        }
+      ]
+    },
+    {
+      "$id": "11",
+      "kind": "model",
+      "name": "Derived",
+      "apiVersions": [],
+      "namespace": "OwnedPilot",
+      "crossLanguageDefinitionId": "OwnedPilot.Derived",
+      "usage": "Input,MultipartFormData",
+      "decorators": [],
+      "serializationOptions": {},
+      "isExactName": false,
+      "baseModel": {
+        "$ref": "9"
+      },
+      "properties": [
+        {
+          "$id": "12",
+          "kind": "property",
+          "name": "value",
+          "apiVersions": [],
+          "serializedName": "value",
+          "type": {
+            "$ref": "3"
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "OwnedPilot.Derived.value",
+          "serializationOptions": {
+            "multipart": {
+              "isFilePart": false,
+              "isMulti": false,
+              "defaultContentTypes": [
+                "application/json"
+              ],
+              "name": "value",
+              "headers": []
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "$id": "13",
+      "kind": "client",
+      "name": "OwnedPilotClient",
+      "isExactName": false,
+      "namespace": "OwnedPilot",
+      "methods": [
+        {
+          "$id": "14",
+          "kind": "basic",
+          "name": "upload",
+          "isExactName": false,
+          "accessibility": "public",
+          "apiVersions": [],
+          "operation": {
+            "$id": "15",
+            "name": "upload",
+            "isExactName": false,
+            "accessibility": "public",
+            "parameters": [
+              {
+                "$id": "16",
+                "kind": "header",
+                "name": "contentType",
+                "serializedName": "Content-Type",
+                "doc": "Body parameter's content type. Known values are multipart/form-data",
+                "type": {
+                  "$ref": "5"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": true,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "OwnedPilot.upload.contentType",
+                "methodParameterSegments": [
+                  {
+                    "$id": "17",
+                    "kind": "method",
+                    "name": "contentType",
+                    "serializedName": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are multipart/form-data",
+                    "type": {
+                      "$ref": "5"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "OwnedPilot.upload.contentType",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              },
+              {
+                "$id": "18",
+                "kind": "body",
+                "name": "body",
+                "serializedName": "body",
+                "type": {
+                  "$ref": "9"
+                },
+                "isApiVersion": false,
+                "contentTypes": [
+                  "multipart/form-data"
+                ],
+                "defaultContentType": "multipart/form-data",
+                "optional": false,
+                "scope": "Method",
+                "decorators": [],
+                "readOnly": false,
+                "crossLanguageDefinitionId": "OwnedPilot.upload.body",
+                "methodParameterSegments": [
+                  {
+                    "$id": "19",
+                    "kind": "method",
+                    "name": "body",
+                    "serializedName": "body",
+                    "type": {
+                      "$ref": "9"
+                    },
+                    "location": "Body",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Method",
+                    "crossLanguageDefinitionId": "OwnedPilot.upload.body",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false,
+                "serializationOptions": {}
+              }
+            ],
+            "responses": [
+              {
+                "statusCodes": [
+                  204
+                ],
+                "headers": [],
+                "isErrorResponse": false,
+                "serializationOptions": {}
+              }
+            ],
+            "httpMethod": "POST",
+            "uri": "{endpoint}",
+            "path": "/upload",
+            "requestMediaTypes": [
+              "multipart/form-data"
+            ],
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "OwnedPilot.upload",
+            "decorators": [],
+            "namespace": "OwnedPilot"
+          },
+          "parameters": [
+            {
+              "$ref": "19"
+            },
+            {
+              "$ref": "17"
+            }
+          ],
+          "response": {},
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "OwnedPilot.upload"
+        },
+        {
+          "$id": "20",
+          "kind": "basic",
+          "name": "uploadDerived",
+          "isExactName": false,
+          "accessibility": "public",
+          "apiVersions": [],
+          "operation": {
+            "$id": "21",
+            "name": "uploadDerived",
+            "isExactName": false,
+            "accessibility": "public",
+            "parameters": [
+              {
+                "$id": "22",
+                "kind": "header",
+                "name": "contentType",
+                "serializedName": "Content-Type",
+                "doc": "Body parameter's content type. Known values are multipart/form-data",
+                "type": {
+                  "$ref": "7"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": true,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "OwnedPilot.uploadDerived.contentType",
+                "methodParameterSegments": [
+                  {
+                    "$id": "23",
+                    "kind": "method",
+                    "name": "contentType",
+                    "serializedName": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are multipart/form-data",
+                    "type": {
+                      "$ref": "7"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "OwnedPilot.uploadDerived.contentType",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              },
+              {
+                "$id": "24",
+                "kind": "body",
+                "name": "body",
+                "serializedName": "body",
+                "type": {
+                  "$ref": "11"
+                },
+                "isApiVersion": false,
+                "contentTypes": [
+                  "multipart/form-data"
+                ],
+                "defaultContentType": "multipart/form-data",
+                "optional": false,
+                "scope": "Method",
+                "decorators": [],
+                "readOnly": false,
+                "crossLanguageDefinitionId": "OwnedPilot.uploadDerived.body",
+                "methodParameterSegments": [
+                  {
+                    "$id": "25",
+                    "kind": "method",
+                    "name": "body",
+                    "serializedName": "body",
+                    "type": {
+                      "$ref": "11"
+                    },
+                    "location": "Body",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Method",
+                    "crossLanguageDefinitionId": "OwnedPilot.uploadDerived.body",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false,
+                "serializationOptions": {}
+              }
+            ],
+            "responses": [
+              {
+                "statusCodes": [
+                  204
+                ],
+                "headers": [],
+                "isErrorResponse": false,
+                "serializationOptions": {}
+              }
+            ],
+            "httpMethod": "POST",
+            "uri": "{endpoint}",
+            "path": "/derived",
+            "requestMediaTypes": [
+              "multipart/form-data"
+            ],
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "OwnedPilot.uploadDerived",
+            "decorators": [],
+            "namespace": "OwnedPilot"
+          },
+          "parameters": [
+            {
+              "$ref": "25"
+            },
+            {
+              "$ref": "23"
+            }
+          ],
+          "response": {},
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "OwnedPilot.uploadDerived"
+        }
+      ],
+      "parameters": [
+        {
+          "$id": "26",
+          "kind": "endpoint",
+          "name": "endpoint",
+          "serializedName": "endpoint",
+          "doc": "Service host",
+          "type": {
+            "$id": "27",
+            "kind": "url",
+            "name": "endpoint",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+          },
+          "isApiVersion": false,
+          "optional": false,
+          "scope": "Client",
+          "isEndpoint": true,
+          "serverUrlTemplate": "{endpoint}",
+          "skipUrlEncoding": false,
+          "readOnly": false,
+          "crossLanguageDefinitionId": "OwnedPilot.endpoint",
+          "isExactName": false
+        }
+      ],
+      "initializedBy": 1,
+      "decorators": [],
+      "crossLanguageDefinitionId": "OwnedPilot",
+      "apiVersions": [],
+      "isMultiServiceClient": false
+    }
+  ]
+}

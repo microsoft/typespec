@@ -29,11 +29,11 @@ namespace Microsoft.TypeSpec.Generator.Statements
             variable = new VariableExpression(type, Variable);
         }
 
-        public void Add(MethodBodyStatement statement) => _body.Add(statement);
+        public void Add(MethodBodyStatement statement) { TouchSource(); _body.Add(statement); }
 
-        public void AddRange(IEnumerable<MethodBodyStatement> statements) => _body.AddRange(statements);
+        public void AddRange(IEnumerable<MethodBodyStatement> statements) { TouchSource(); _body.AddRange(statements); }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {

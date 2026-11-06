@@ -27,6 +27,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public sealed class MethodSignature(string Name, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<AttributeStatement>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null)
         : MethodSignatureBase(Name, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>(), ReturnType)
     {
+        // Keep collection-expression producer inputs in an inspectable array without copying externally
+        // retained lists or admitting custom IReadOnlyList accessors during later metadata capture.
+        public MethodSignature(string Name, FormattableString? Description, MethodSignatureModifiers Modifiers,
+            CSharpType? ReturnType, FormattableString? ReturnDescription, ParameterProvider[] Parameters,
+            IReadOnlyList<AttributeStatement>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null,
+            IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null,
+            string? NonDocumentComment = null)
+            : this(Name, Description, Modifiers, ReturnType, ReturnDescription, (IReadOnlyList<ParameterProvider>)Parameters,
+                Attributes, GenericArguments, GenericParameterConstraints, ExplicitInterface, NonDocumentComment)
+        {
+        }
+
         // Ref returns and variable argument lists are not represented by this signature model.
         internal bool HasUnsupportedBaseContract { get; init; }
         public FormattableString? ReturnDescription { get; } = ReturnDescription;

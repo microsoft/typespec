@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         }
 
         public CSharpType? Type { get; }
+        internal bool IsStaticPlaceholder => ReferenceEquals(this, _nullType);
 
         private static Dictionary<CSharpType, TypeReferenceExpression> _typeCache = new Dictionary<CSharpType, TypeReferenceExpression>();
         internal static TypeReferenceExpression FromType(CSharpType? type)
@@ -66,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendIf($"{Type}", Type is not null);
         }

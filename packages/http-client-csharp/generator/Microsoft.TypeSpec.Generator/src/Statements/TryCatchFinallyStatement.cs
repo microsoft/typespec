@@ -14,6 +14,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public IReadOnlyList<CatchExpression> Catches { get; private set; }
         public FinallyExpression? Finally { get; private set; }
 
+        public TryCatchFinallyStatement(TryExpression @try, CatchExpression[] catches, FinallyExpression? @finally)
+            : this(@try, (IReadOnlyList<CatchExpression>)catches, @finally) { }
+
         public TryCatchFinallyStatement(TryExpression @try, IReadOnlyList<CatchExpression> catches, FinallyExpression? @finally)
         {
             Try = @try;
@@ -29,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         {
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Try.Write(writer);
 
@@ -43,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
+            TouchSource();
             var updated = visitor.VisitTryCatchFinallyStatement(this, methodProvider);
 
             if (updated is not TryCatchFinallyStatement updatedTryCatchFinallyStatement)
@@ -73,6 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             IReadOnlyList<CatchExpression>? catches = null,
             FinallyExpression? @finally = null)
         {
+            TouchSource();
             if (@try != null)
             {
                 Try = @try;

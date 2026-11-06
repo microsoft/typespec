@@ -15,6 +15,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// </summary>
     public sealed record FormattableStringExpression : ValueExpression
     {
+        public FormattableStringExpression(string format, ValueExpression[] args) : this(format, (IReadOnlyList<ValueExpression>)args) { }
+
         public FormattableStringExpression(string format, IReadOnlyList<ValueExpression> args)
         {
 #if DEBUG
@@ -24,10 +26,11 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             Args = args;
         }
 
-        private string Format { get; init; }
+        internal string Format { get; init; }
+        internal IReadOnlyList<ValueExpression> Arguments => Args;
         private IReadOnlyList<ValueExpression> Args { get; init; }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw("$\"");
             var argumentCount = 0;

@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record BinaryOperatorExpression(string Operator, ValueExpression Left, ValueExpression Right, bool AddParentheses = true) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRawIf("(", AddParentheses);
             Left.Write(writer);

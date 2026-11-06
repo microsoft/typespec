@@ -9,7 +9,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// <param name="Items">The items to set during collection initialization.</param>
     public sealed record CollectionInitializerExpression(params ValueExpression[] Items) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw("{ ");
             for (int i = 0; i < Items.Length; i++)

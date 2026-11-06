@@ -15,7 +15,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Statements = statements;
         }
 
-        internal override void Write(CodeWriter writer)
+        public MethodBodyStatements(MethodBodyStatement[] statements) : this((IReadOnlyList<MethodBodyStatement>)statements) { }
+
+        internal override void WriteCore(CodeWriter writer)
         {
             foreach (var statement in Statements)
             {
@@ -25,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
+            TouchSource();
             var replaced = visitor.VisitStatements(this, methodProvider);
             if (replaced is not MethodBodyStatements updatedStatements)
             {

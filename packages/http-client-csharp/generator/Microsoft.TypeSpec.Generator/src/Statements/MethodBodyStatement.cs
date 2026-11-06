@@ -11,7 +11,17 @@ namespace Microsoft.TypeSpec.Generator.Statements
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public abstract class MethodBodyStatement : IEnumerable<MethodBodyStatement>
     {
-        internal abstract void Write(CodeWriter writer);
+        private long _sourceRevision;
+        internal long SourceRevision => System.Threading.Volatile.Read(ref _sourceRevision);
+        protected void TouchSource() => System.Threading.Interlocked.Increment(ref _sourceRevision);
+
+        internal void Write(CodeWriter writer)
+        {
+            using var occurrence = writer.EnterSourceNode(this);
+            WriteCore(writer);
+        }
+
+        internal abstract void WriteCore(CodeWriter writer);
 
         internal virtual MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
@@ -23,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         private class PrivateEmptyLineStatement : MethodBodyStatement
         {
-            internal override void Write(CodeWriter writer)
+            internal override void WriteCore(CodeWriter writer)
             {
                 writer.WriteLine();
             }
@@ -36,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         private class PrivateEmptyStatement : MethodBodyStatement
         {
-            internal override void Write(CodeWriter writer)
+            internal override void WriteCore(CodeWriter writer)
             {
                 // Do nothing
             }

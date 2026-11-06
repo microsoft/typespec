@@ -76,7 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             return args;
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using var scope = new CodeWriter.XmlDocWritingScope(writer);
 

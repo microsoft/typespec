@@ -13,18 +13,73 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class AttributeStatement : MethodBodyStatement
     {
-        public CSharpType Type => _type ??= Data!.AttributeClass!.GetCSharpType();
+        public CSharpType Type
+        {
+            get
+            {
+                if (_type is null)
+                {
+                    _type = Data!.AttributeClass!.GetCSharpType();
+                    DeclaredTypeSnapshot.TryCapture(_type, out _dataTypeOrigin);
+                }
+                return _type;
+            }
+        }
         private CSharpType? _type;
+        private DeclaredTypeSnapshot? _dataTypeOrigin;
 
         public IReadOnlyList<ValueExpression> Arguments
-            => _arguments ??= Data!.ConstructorArguments.SelectMany(ConvertArgumentToValueExpression).ToList();
+        {
+            get
+            {
+                if (_arguments is null)
+                {
+                    _arguments = Data!.ConstructorArguments.SelectMany(ConvertArgumentToValueExpression).ToList();
+                    _dataArgumentsOrigin = new AttributeProjectionValues(_arguments);
+                }
+                return _arguments;
+            }
+        }
         private IReadOnlyList<ValueExpression>? _arguments;
+        private AttributeProjectionValues? _dataArgumentsOrigin;
 
         public IReadOnlyList<KeyValuePair<string, ValueExpression>> PositionalArguments
-            => _positionalArguments ??= Data!.NamedArguments.Select(a => new KeyValuePair<string, ValueExpression>(a.Key, ConvertArgumentToValueExpression(a.Value)[0])).ToList();
+        {
+            get
+            {
+                if (_positionalArguments is null)
+                {
+                    _positionalArguments = Data!.NamedArguments.Select(a => new KeyValuePair<string, ValueExpression>(a.Key, ConvertArgumentToValueExpression(a.Value)[0])).ToList();
+                    _dataNamedKeys = _positionalArguments.Select(argument => argument.Key).ToArray();
+                    _dataNamedOrigin = new AttributeProjectionValues(_positionalArguments.Select(argument => argument.Value).ToArray());
+                }
+                return _positionalArguments;
+            }
+        }
         private IReadOnlyList<KeyValuePair<string, ValueExpression>>? _positionalArguments;
+        private string[]? _dataNamedKeys;
+        private AttributeProjectionValues? _dataNamedOrigin;
 
         internal AttributeData? Data { get; }
+        internal CSharpType? CachedType => _type;
+        internal IReadOnlyList<ValueExpression>? CachedArguments => _arguments;
+        internal IReadOnlyList<KeyValuePair<string, ValueExpression>>? CachedPositionalArguments => _positionalArguments;
+
+        internal bool IsOriginalDataProjectionCurrent()
+        {
+            if (_type is not null && _dataTypeOrigin?.IsCurrent() != true ||
+                _arguments is not null && _dataArgumentsOrigin?.IsCurrent(_arguments) != true)
+            {
+                return false;
+            }
+            if (_positionalArguments is null)
+            {
+                return true;
+            }
+            return ContractCollections.TryCopy(_positionalArguments, out var named) && _dataNamedKeys is not null &&
+                named.Length == _dataNamedKeys.Length && named.Select((item, index) => item.Key == _dataNamedKeys[index]).All(same => same) &&
+                _dataNamedOrigin?.IsCurrent(named.Select(item => item.Value).ToArray()) == true;
+        }
 
         public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<KeyValuePair<string, ValueExpression>> positionalArguments)
         {
@@ -56,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             };
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.Append($"[{Type}");
             var hasArguments = Arguments.Count > 0 || PositionalArguments.Count > 0;

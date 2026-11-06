@@ -13,6 +13,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     /// </summary>
     public sealed class ConstructorSignature : MethodSignatureBase
     {
+        public ConstructorSignature(CSharpType type, FormattableString? description, MethodSignatureModifiers modifiers,
+            ParameterProvider[] parameters, IReadOnlyList<AttributeStatement>? attributes = null, ConstructorInitializer? initializer = null)
+            : this(type, description, modifiers, (IReadOnlyList<ParameterProvider>)parameters, attributes, initializer)
+        {
+        }
+
         public ConstructorSignature(
             CSharpType type,
             FormattableString? description,
@@ -36,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IReadOnlyList<AttributeStatement>? attributes = null,
             ConstructorInitializer? initializer = null)
         {
+            TouchDeclaration();
             if (type is not null)
             {
                 Type = type;

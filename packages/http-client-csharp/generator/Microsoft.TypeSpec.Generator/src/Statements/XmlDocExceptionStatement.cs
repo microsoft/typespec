@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             _ => throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, $"Cannot create an XmlDocExceptionStatement with {exceptionType} exceptionType")
         };
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using var scope = new CodeWriter.XmlDocWritingScope(writer);
 

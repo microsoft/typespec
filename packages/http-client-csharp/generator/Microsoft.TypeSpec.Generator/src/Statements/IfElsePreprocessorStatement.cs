@@ -20,7 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Else = elseStatement;
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.WriteLine($"#if {Condition}");
             If.Write(writer);
@@ -35,6 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
+            TouchSource();
             var updated = visitor.VisitIfElsePreprocessorStatement(this, methodProvider);
             if (updated is not IfElsePreprocessorStatement updatedIfElseStatement)
             {

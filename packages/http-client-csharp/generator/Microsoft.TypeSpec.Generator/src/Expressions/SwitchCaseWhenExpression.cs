@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record SwitchCaseWhenExpression(ValueExpression Case, ValueExpression Condition) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Case.Write(writer);
             writer.AppendRaw(" when ");

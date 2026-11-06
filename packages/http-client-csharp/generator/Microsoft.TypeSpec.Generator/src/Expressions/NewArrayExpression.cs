@@ -10,7 +10,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         private const string StackAllocKeyword = "stackalloc";
         private const string NewKeyword = "new";
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             var newStr = IsStackAlloc ? StackAllocKeyword : NewKeyword;
 

@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public ValueExpression Value => Property(nameof(KeyValuePair<object, object>.Value));
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Original.Write(writer);
         }

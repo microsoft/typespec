@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         {
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.Append(Declaration);
         }
@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public void Update(CSharpType? type = null, string? name = null)
         {
+            TouchSource();
             if (type != null)
             {
                 Type = type;

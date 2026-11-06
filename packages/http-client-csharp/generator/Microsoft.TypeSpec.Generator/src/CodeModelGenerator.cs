@@ -74,6 +74,10 @@ namespace Microsoft.TypeSpec.Generator
 
         internal bool IsNewProject { get; set; }
         internal bool IsHosted { get; set; }
+        internal CompilerBuildGenerationContext? CompilerBuildContext { get; set; }
+        internal bool IsCompilerBuildHost => CompilerBuildContext is not null;
+        internal CompilerBuildInputProof.BootstrapAssets? CompilerBuildAssets => CompilerBuildContext?.BootstrapAssets;
+        internal string? CompilerBuildAssetsFile => CompilerBuildAssets?.Path;
         private InputLibrary _inputLibrary;
 
         public virtual Emitter Emitter { get; }

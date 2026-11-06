@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class XmlDocInheritStatement : MethodBodyStatement
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.WriteLine($"/// <inheritdoc/>");
         }

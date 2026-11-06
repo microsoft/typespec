@@ -17,7 +17,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 {
-    public class NamedTypeSymbolProviderTests
+    public partial class NamedTypeSymbolProviderTests
     {
         private NamedTypeSymbolProvider _namedTypeSymbolProvider;
         private NamedSymbol _namedSymbol;

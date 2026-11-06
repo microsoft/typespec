@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         public ValueExpression Variable { get; private set; } = Variable;
         public ValueExpression Value { get; private set; } = Value;
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Variable.Write(writer);
             if (UseNullCoalesce)
@@ -34,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var expr = visitor.VisitAssignmentExpression(this, method);
 
             if (expr is not AssignmentExpression assignmentExpression)

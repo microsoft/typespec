@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// <param name="Literal">The literal value.</param>
     public sealed record LiteralExpression(object? Literal) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRaw(Format(Literal) ?? throw new NotImplementedException());
         }

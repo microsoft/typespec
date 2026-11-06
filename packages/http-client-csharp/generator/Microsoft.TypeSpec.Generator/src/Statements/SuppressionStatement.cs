@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public T? AsStatement<T>() where T : MethodBodyStatement
             => Inner as T ?? (Inner as SuppressionStatement)?.AsStatement<T>();
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using var warnings = writer.SuppressWarnings([this]);
             Inner?.Write(writer);

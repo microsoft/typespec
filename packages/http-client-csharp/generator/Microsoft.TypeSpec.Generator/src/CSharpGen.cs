@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -23,13 +24,42 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Executes the generator task with the <see cref="CodeModelGenerator"/> instance.
         /// </summary>
-        public async Task ExecuteAsync()
-        {
-            CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
-            CodeModelGenerator.Instance.Stopwatch.Start();
+        public Task ExecuteAsync() => ExecuteCoreAsync(null);
 
-            var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
-            var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+        // A false residual-input result requires the trusted caller to discard
+        // the isolated output. A true result is not a complete host certificate:
+        // publication, all consumers and compilation still require validation.
+        // Generation mutates the generator instance; fallback must use a fresh
+        // instance rather than reuse this one, including after an exception.
+        internal async Task<CompilerBuildGenerationResult> ExecuteForCompilerBuildAsync(string isolatedOutputDirectory,
+            CompilerBuildInputProof.ITrustedCompilerBuildSession session)
+        {
+            var generator = CodeModelGenerator.Instance;
+            var previousContext = generator.CompilerBuildContext;
+            var generation = new CompilerBuildGenerationContext(isolatedOutputDirectory, session);
+            generator.CompilerBuildContext = generation;
+            try
+            {
+                generation.Initialize(generator);
+                await ExecuteCoreAsync(generation);
+                return new CompilerBuildGenerationResult(generation.UsedCapturedResidualInputs);
+            }
+            finally
+            {
+                generator.CompilerBuildContext = previousContext;
+            }
+        }
+
+        internal sealed record CompilerBuildGenerationResult(bool UsedCapturedResidualInputs);
+
+        private async Task ExecuteCoreAsync(CompilerBuildGenerationContext? compilerBuild)
+        {
+            var generator = CodeModelGenerator.Instance;
+            var outputPath = compilerBuild?.OutputDirectory ?? generator.Configuration.OutputDirectory;
+            var generatedSourceOutputPath = compilerBuild?.GeneratedSourceDirectory ?? generator.Configuration.ProjectGeneratedDirectory;
+
+            generator.Emitter.Info("Starting code generation");
+            generator.Stopwatch.Start();
 
             // Resolve PackageReference items from the .csproj so custom code referencing external
             // NuGet types compiles correctly.
@@ -57,10 +87,12 @@ namespace Microsoft.TypeSpec.Generator
 
             await Task.WhenAll(generateAttributeTasks);
 
-            CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
+            var sourceInputModel = new SourceInputModel(
                 await customCodeWorkspace.GetCompilationAsync(),
                 await GeneratedCodeWorkspace.LoadBaselineContract(),
                 GeneratedCodeWorkspace.LoadApiCompatBaseline());
+            compilerBuild?.ApplySourceProof(sourceInputModel);
+            CodeModelGenerator.Instance.SourceInputModel = sourceInputModel;
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
 
@@ -95,30 +127,76 @@ namespace Microsoft.TypeSpec.Generator
             try
             {
                 using var referenceMapSession = ProviderReferenceMapAnalyzer.PrepareForGeneration(output.TypeProviders);
-                foreach (var outputType in output.TypeProviders)
+                // This one finalized-provider lifetime owns both field spellings and non-emitting
+                // executable occurrence snapshots. The standard writer consumes them in its one pass.
+                using var preparedFields = PreparedFieldTypes.CreateForGeneration(
+                    CodeModelGenerator.Instance, output.TypeProviders, referenceMapSession.ShouldWriteProvider);
+
+                // Keep the existing streaming path when preparation is disabled.
+                // With prepared spellings, stage every file until the complete
+                // provider snapshot has survived all writer callbacks.
+                List<CodeFile>? stagedFiles = preparedFields is null && compilerBuild?.SourceProof is null
+                    ? null : new List<CodeFile>();
+
+                void WriteFiles(PreparedFieldTypes? fields)
                 {
-                    if (!referenceMapSession.ShouldWriteProvider(outputType))
+                    void AddFile(TypeProvider provider)
                     {
-                        continue;
-                    }
-
-                    if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    var writer = CodeModelGenerator.Instance.GetWriter(outputType);
-                    generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
-
-                    foreach (var serialization in outputType.SerializationProviders)
-                    {
-                        if (!referenceMapSession.ShouldWriteProvider(serialization))
+                        fields?.ObserveSnapshot();
+                        var writer = CodeModelGenerator.Instance.GetWriter(provider);
+                        writer.PreparedFieldTypes = fields;
+                        var file = writer.Write();
+                        fields?.ObserveSnapshot();
+                        if (stagedFiles is null)
                         {
-                            continue;
+                            generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(file));
                         }
+                        else
+                        {
+                            stagedFiles.Add(file);
+                        }
+                    }
 
-                        writer = CodeModelGenerator.Instance.GetWriter(serialization);
-                        generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
+                    foreach (var provider in GetWrittenProviders(output, referenceMapSession))
+                    {
+                        AddFile(provider);
+                    }
+                }
+
+                WriteFiles(preparedFields);
+                if (stagedFiles is not null)
+                {
+                    // A writer callback may register a rewriter after preparation
+                    // started. Recheck after the proof itself, then use the already
+                    // captured qualified variants if the opt-out became active.
+                    var fieldsCanCommit = preparedFields is not null && preparedFields.CanCommit() && PreparedFieldTypes.IsPolicyEnabled(generator);
+                    var hasBodyNames = stagedFiles.Any(file => file.PreparedBodyNameCount != 0);
+                    var bodyChoices = stagedFiles.Select(file => (File: file,
+                        BodyAllowed: hasBodyNames && preparedFields?.CanCommitBodyNames(file) == true)).ToArray();
+                    // Preserve the established field-only path when no body name
+                    // was actually emitted; unused new facts add no veto/callbacks.
+                    var sharedCanCommit = hasBodyNames
+                        ? preparedFields is not null && preparedFields.CanCommitSharedSnapshot() && PreparedFieldTypes.IsPolicyEnabled(generator)
+                        : fieldsCanCommit;
+                    if (compilerBuild is not null)
+                    {
+                        var residualWorkspace = await compilerBuild.TryCreateResidualWorkspaceAsync(generator);
+                        if (residualWorkspace is not null)
+                        {
+                            generatedCodeWorkspace = residualWorkspace;
+                        }
+                        sharedCanCommit &= residualWorkspace is not null;
+                    }
+                    if (hasBodyNames)
+                    {
+                        sharedCanCommit &= preparedFields is not null && preparedFields.CanCommitSharedSnapshot() && PreparedFieldTypes.IsPolicyEnabled(generator);
+                    }
+                    foreach (var (file, bodyAllowed) in bodyChoices)
+                    {
+                        // Both variants were emitted during the same writer pass;
+                        // never rerun callbacks if the prepared proof changed.
+                        generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(
+                            file.SelectPreparedNames(sharedCanCommit && fieldsCanCommit, sharedCanCommit && (!hasBodyNames || bodyAllowed))));
                     }
                 }
 
@@ -153,14 +231,19 @@ namespace Microsoft.TypeSpec.Generator
             // Write the generated files to the output directory
             foreach (var file in generatedFiles)
             {
-                var filename = Path.Combine(outputPath, file.Name);
+                var filename = compilerBuild?.ResolveOutputFile(file.Name) ?? Path.Combine(outputPath, file.Name);
                 CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
             }
 
-            // Write additional output files (e.g. configuration schemas, .targets files)
-            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+            // A compiler-host session emits only provider files into its private
+            // output. Its trusted caller must reject generators that require
+            // additional C# files; normal generation retains all extra outputs.
+            if (compilerBuild is null)
+            {
+                await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+            }
 
             // Write project scaffolding files (after additional files so schema existence can be checked)
             if (CodeModelGenerator.Instance.IsNewProject)
@@ -169,6 +252,28 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
+
+            compilerBuild?.ValidateResult(generator);
+        }
+
+        private static IEnumerable<TypeProvider> GetWrittenProviders(OutputLibrary output, ProviderReferenceMapSession referenceMapSession)
+        {
+            foreach (var outputType in output.TypeProviders)
+            {
+                if (!referenceMapSession.ShouldWriteProvider(outputType) ||
+                    outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
+                {
+                    continue;
+                }
+                yield return outputType;
+                foreach (var serialization in outputType.SerializationProviders)
+                {
+                    if (referenceMapSession.ShouldWriteProvider(serialization))
+                    {
+                        yield return serialization;
+                    }
+                }
+            }
         }
 
         internal static void FilterAllCustomizedMembers(OutputLibrary output)

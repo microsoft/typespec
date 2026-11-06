@@ -12,6 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         private List<MethodBodyStatement> _body = [];
         public MethodBodyStatement Body => _body;
+        internal IReadOnlyList<MethodBodyStatement> SourceBody => _body;
 
         public TryExpression(params MethodBodyStatement[] statements)
         {
@@ -21,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.WriteRawLine("try");
             using (writer.Scope())
@@ -35,6 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override TryExpression Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitTryExpression(this, method);
 
             var newBody = new List<MethodBodyStatement>(_body.Count);
@@ -53,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public void Update(MethodBodyStatement body)
         {
+            TouchSource();
             _body.Clear();
             _body.Add(body);
         }
