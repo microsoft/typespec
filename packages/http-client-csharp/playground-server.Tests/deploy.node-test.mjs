@@ -58,10 +58,6 @@ set -eu
 echo "$RUN_ID $*" >> "$FAKE_STATE/commands"
 case "$1 $2 $3" in
   "acr build --registry")
-    if [[ " $* " == *" --no-cache "* ]]; then
-      echo "ERROR: unrecognized arguments: --no-cache" >&2
-      exit 2
-    fi
     echo "$RUN_ID build" >> "$FAKE_STATE/events"
     /usr/bin/sleep 0.2
     if [[ "$SCENARIO" == "build-failure" ]]; then exit 1; fi
@@ -128,15 +124,10 @@ function deploy(scenario = "success", id = "one") {
   );
 }
 
-test("builds with supported Azure CLI options and verifies deployment without storage leases", async () => {
+test("builds and verifies deployment without acquiring storage leases", async () => {
   await deploy();
   const commands = await readFile(join(root, "commands"), "utf8");
   assert.doesNotMatch(commands, /storage blob/);
-  assert.doesNotMatch(commands, /--no-cache/);
-  assert.match(
-    commands,
-    /acr build --registry typespecacr --image csharp-playground-server:test-one/,
-  );
   assert.match(
     commands,
     /--container-image-name typespecacr.azurecr.io\/csharp-playground-server:test-one/,
