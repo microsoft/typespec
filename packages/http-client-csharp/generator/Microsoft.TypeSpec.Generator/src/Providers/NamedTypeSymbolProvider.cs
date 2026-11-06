@@ -780,7 +780,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal static IReadOnlyList<string> GetGlobalUsingNamespaceCandidates(Compilation compilation)
             => _globalUsingNamespaceCandidates.GetValue(compilation, static compilation =>
             {
-                var namespaces = new HashSet<string>(StringComparer.Ordinal);
+                HashSet<string>? namespaces = null;
                 foreach (var syntaxTree in compilation.SyntaxTrees)
                 {
                     if (syntaxTree.GetRoot() is not CompilationUnitSyntax compilationUnit)
@@ -792,12 +792,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
                         {
+                            namespaces ??= new HashSet<string>(StringComparer.Ordinal);
                             AddUsingNamespace(namespaces, usingDirective, compilation.GetSemanticModel(syntaxTree));
                         }
                     }
                 }
 
-                return [.. namespaces];
+                return namespaces is null ? [] : [.. namespaces];
             });
 
         private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective, SemanticModel semanticModel)

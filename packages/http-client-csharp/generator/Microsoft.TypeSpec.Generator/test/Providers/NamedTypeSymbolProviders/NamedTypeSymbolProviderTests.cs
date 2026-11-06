@@ -500,6 +500,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var provider = new NamedTypeSymbolProvider(symbol, compilation);
 
             Assert.IsTrue(provider.BodyDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.ReferencedModel"));
+            var globalCandidates = NamedTypeSymbolProvider.GetGlobalUsingNamespaceCandidates(compilation);
+            Assert.IsEmpty(globalCandidates);
+            Assert.AreSame(globalCandidates, NamedTypeSymbolProvider.GetGlobalUsingNamespaceCandidates(compilation));
         }
 
         [Test]
