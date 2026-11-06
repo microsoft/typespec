@@ -819,6 +819,30 @@ namespace SampleTypeSpec
             return new RebasedUnionB(name, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The RebasedUnionALeaf. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionALeaf"/> instance for mocking. </returns>
+        public static RebasedUnionALeaf RebasedUnionALeaf(string name = default)
+        {
+            return new RebasedUnionALeaf(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RebasedUnionBLeaf. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionBLeaf"/> instance for mocking. </returns>
+        public static RebasedUnionBLeaf RebasedUnionBLeaf(string name = default)
+        {
+            return new RebasedUnionBLeaf(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The PetsUnion. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.PetsUnion"/> instance for mocking. </returns>
+        public static PetsUnion PetsUnion(string name = default)
+        {
+            return new PetsUnion(name, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The ConstructorOverride. </summary>
         /// <param name="items"></param>
         /// <param name="value"></param>

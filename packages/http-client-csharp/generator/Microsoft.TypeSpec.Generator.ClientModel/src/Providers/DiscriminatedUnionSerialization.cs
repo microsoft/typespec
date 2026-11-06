@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(value.Equal(Null)) { jsonWriter.WriteNullValue(), Return() }
             ];
             foreach (var (tag, model) in union.DiscriminatedSubtypes!.OrderByDescending(entry =>
-                GetInheritanceDepth(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(entry.Value)!)))
+                GetTypeHierarchy(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(entry.Value)!).Count()))
             {
                 var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model)!;
                 var matches = value.Is(new DeclarationExpression(type, "variant", out var variant));
@@ -100,30 +100,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return methods;
         }
 
-        private static int GetInheritanceDepth(CSharpType type)
+        private static IEnumerable<CSharpType> GetTypeHierarchy(CSharpType type)
         {
-            var depth = 0;
             var visited = new HashSet<CSharpType>();
             var factory = ScmCodeModelGenerator.Instance.TypeFactory;
             for (CSharpType? current = type; current is not null && visited.Add(current);)
             {
-                depth++;
                 if (factory.CSharpTypeMap.TryGetValue(current, out var provider) && provider is ModelProvider model)
                 {
+                    yield return model.Type;
                     current = model.BaseType;
                 }
                 else if (string.IsNullOrEmpty(current.Namespace) &&
                     factory.CSharpTypeMap.Values.OfType<ModelProvider>().FirstOrDefault(model => model.Name == current.Name) is { } generated)
                 {
+                    yield return generated.Type;
                     current = generated.BaseType;
                 }
                 else
                 {
+                    yield return current;
                     current = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                         current.Namespace, current.Name, current.DeclaringType?.Name)?.BaseType ?? current.BaseType;
                 }
             }
-            return depth;
         }
 
         private static string GetSerializeMethodName(InputUnionType union) => $"Serialize{GetMethodSuffix(union)}";
@@ -132,13 +132,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetMethodSuffix(InputUnionType union)
         {
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(union.BaseModel!)!;
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var inputs = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            var model = factory.CreateModel(union.BaseModel!)!;
+            var baseTypes = GetTypeHierarchy(model.Type).Skip(1).ToHashSet();
+            var baseModels = inputs.Models.Where(candidate => candidate != union.BaseModel &&
+                baseTypes.Contains(factory.CreateCSharpType(candidate)!)).ToArray();
             var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
             var memberNames = new HashSet<string>(StringComparer.Ordinal) { model.Name };
-            foreach (var inputModel in new[] { union.BaseModel! }.Concat(union.BaseModel!.GetAllBaseModels())
-                .Concat(union.BaseModel!.GetAllDerivedModels()))
+            foreach (var inputModel in new[] { union.BaseModel! }.Concat(baseModels)
+                .Concat(union.BaseModel!.GetAllDerivedModels())
+                .Concat(inputs.Models.Where(candidate =>
+                    GetTypeHierarchy(factory.CreateCSharpType(candidate)!).Skip(1).Contains(model.Type))).Distinct())
             {
-                var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+                var provider = factory.CreateModel(inputModel)!;
+                reserved.Add(provider.Name);
                 memberNames.UnionWith(provider.CanonicalView.Properties.Select(property => property.Name));
                 memberNames.UnionWith(provider.CanonicalView.Fields.Select(field => field.Name));
                 if (provider.CustomCodeView is { } custom)
@@ -148,16 +156,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     memberNames.UnionWith(custom.Methods.Select(method => method.Signature.Name));
                 }
             }
-            foreach (var baseModel in union.BaseModel!.GetAllBaseModels())
+            foreach (var baseModel in baseModels)
             {
-                reserved.Add(ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)!.Name);
-                foreach (var inherited in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                foreach (var inherited in inputs.Unions
                     .Where(candidate => candidate.BaseModel == baseModel && RequiresEnvelope(candidate)))
                 {
                     reserved.Add(GetMethodSuffix(inherited));
                 }
             }
-            foreach (var candidate in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+            foreach (var candidate in inputs.Unions
                 .Where(candidate => candidate.BaseModel == union.BaseModel && RequiresEnvelope(candidate)))
             {
                 var name = $"{(candidate.IsExactName ? candidate.Name : candidate.Name.ToIdentifierName())}Union";

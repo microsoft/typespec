@@ -421,6 +421,48 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(pet.Name, result.Name);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CustomRebasedBasesKeepSeparateUnionHelpers(bool derived)
+        {
+            RebasedUnionA pet = derived ? new RebasedUnionBLeaf("Whiskers") : new RebasedUnionALeaf("Rex");
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                if (pet is RebasedUnionB b)
+                {
+                    RebasedUnionB.SerializePetsUnion1(writer, b, ModelSerializationExtensions.WireOptions);
+                }
+                else
+                {
+                    RebasedUnionA.SerializePetsUnion(writer, pet, ModelSerializationExtensions.WireOptions);
+                }
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            Assert.AreEqual(derived ? "b" : "a", document.RootElement.GetProperty("kind").GetString());
+            var result = derived
+                ? RebasedUnionB.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions)
+                : RebasedUnionA.DeserializePetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.AreEqual(pet.GetType(), result.GetType());
+            Assert.AreEqual(pet.Name, result.Name);
+        }
+
+        [Test]
+        public void UnionHelpersDoNotHideDescendantModelDeserialization()
+        {
+            var pet = new PetsUnion("Whiskers");
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                DeserializerPet.SerializePetsUnion1(writer, pet, ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            Assert.AreEqual("pet", document.RootElement.GetProperty("kind").GetString());
+            var result = DeserializerPet.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.IsInstanceOf<PetsUnion>(result);
+            Assert.AreEqual(pet.Name, result.Name);
+        }
+
         [Test]
         public void NestedUnionPayloadsRemainConcrete()
         {

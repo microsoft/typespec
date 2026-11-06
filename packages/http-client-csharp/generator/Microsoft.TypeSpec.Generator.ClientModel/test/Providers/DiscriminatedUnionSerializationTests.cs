@@ -230,6 +230,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 new TypeProviderWriter(innerSerialization).Write().Content);
         }
 
+        [TestCase(true, "b")]
+        [TestCase(false, "b")]
+        [TestCase(true, "c")]
+        [TestCase(false, "c")]
+        public async Task RebasedUnionHelperNamesDoNotHideInheritedDeserializers(bool reverseOrder, string modelName)
+        {
+            var root = InputFactory.Model("root");
+            var a = InputFactory.Model("a", baseModel: root);
+            var b = InputFactory.Model(modelName, baseModel: root);
+            var aLeaf = InputFactory.Model("aLeaf", baseModel: a);
+            var cat = InputFactory.Model("cat", baseModel: b);
+            var outer = new InputUnionType("pets", [aLeaf], a, "kind", "value",
+                new Dictionary<string, InputModelType> { ["a"] = aLeaf });
+            var inner = new InputUnionType("pets", [cat], b, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            var generator = LoadUnions([root, a, b, aLeaf, cat], reverseOrder ? [inner, outer] : [outer, inner]);
+            generator.SetupProperty(input => input.SourceInputModel,
+                new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null));
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var outerNames = factory.CreateModel(a)!.SerializationProviders.SelectMany(provider => provider.Methods)
+                .Select(method => method.Signature.Name).ToArray();
+            var serialization = factory.CreateModel(b)!.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            Assert.IsFalse(serialization.Methods.Any(method => outerNames.Contains(method.Signature.Name) &&
+                method.Signature.Name.StartsWith("Deserialize", System.StringComparison.Ordinal)));
+            StringAssert.Contains("DeserializePetsUnion1", new TypeProviderWriter(serialization).Write().Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void UnionHelperNamesDoNotHideDescendantDeserializers(bool indirect)
+        {
+            var model = InputFactory.Model("pet");
+            var intermediate = InputFactory.Model("intermediate", baseModel: model);
+            var variant = InputFactory.Model("petsUnion", baseModel: indirect ? intermediate : model);
+            var union = new InputUnionType("pets", [variant], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["pet"] = variant });
+            LoadUnions([model, intermediate, variant], [union]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var serialization = factory.CreateModel(model)!.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion1", "DeserializePetsUnion1" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+            StringAssert.Contains("DeserializePetsUnion1",
+                DiscriminatedUnionSerialization.DeserializeValue(union, factory.CreateCSharpType(union)!,
+                    Default.As<JsonElement>(), Default.As<ModelReaderWriterOptions>(), out var value).ToDisplayString() +
+                value.ToDisplayString());
+        }
+
         [Test]
         public void ExternallyMappedVariantKeepsRawUnionRepresentation()
         {

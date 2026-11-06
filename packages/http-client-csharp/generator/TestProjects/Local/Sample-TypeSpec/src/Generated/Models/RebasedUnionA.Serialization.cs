@@ -131,5 +131,49 @@ namespace SampleTypeSpec
             }
             return new RebasedUnionA(name, additionalBinaryDataProperties);
         }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="value"> The union variant to serialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static void SerializePetsUnion(Utf8JsonWriter writer, RebasedUnionA value, ModelReaderWriterOptions options)
+        {
+            if (value == null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+            if (value is RebasedUnionALeaf variant)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("kind"u8);
+                writer.WriteStringValue("a");
+                writer.WritePropertyName("value"u8);
+                writer.WriteObjectValue(variant, options);
+                writer.WriteEndObject();
+                return;
+            }
+            throw new ArgumentException("The value is not a variant of union 'Pets'.", nameof(value));
+        }
+
+        /// <param name="element"> The JSON envelope to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static RebasedUnionA DeserializePetsUnion(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty("kind"u8, out JsonElement discriminator) || !(discriminator.ValueKind == JsonValueKind.String) || !element.TryGetProperty("value"u8, out JsonElement discriminator0) || discriminator0.ValueKind != JsonValueKind.Object)
+            {
+                throw new JsonException("Invalid object envelope for union 'Pets'.");
+            }
+            switch (discriminator.GetString())
+            {
+                case "a":
+                    return RebasedUnionALeaf.DeserializeRebasedUnionALeaf(discriminator0, options);
+                default:
+                    throw new JsonException("Unknown discriminator value for union 'Pets'.");
+            }
+        }
     }
 }

@@ -1456,6 +1456,18 @@ interface UnionExtends {
   @post
   echoRebasedVariants(@body pet: RebasedPets): RebasedPets;
 
+  @route("/rebased-base")
+  @post
+  echoRebasedBase(@body pet: RebasedBase.Pets): RebasedBase.Pets;
+
+  @route("/rebased-derived")
+  @post
+  echoRebasedDerived(@body pet: RebasedDerived.Pets): RebasedDerived.Pets;
+
+  @route("/descendant-deserializer")
+  @post
+  echoDescendantDeserializer(@body pet: DescendantDeserializer.Pets): DescendantDeserializer.Pets;
+
   @route("/jsonl/send")
   @post
   sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
@@ -1542,10 +1554,41 @@ model RebasedUnionA extends RebasedUnionPet {}
 
 model RebasedUnionB extends RebasedUnionPet {}
 
+model RebasedUnionALeaf extends RebasedUnionA {}
+
+model RebasedUnionBLeaf extends RebasedUnionB {}
+
 @discriminated
 union RebasedPets extends RebasedUnionPet {
   a: RebasedUnionA,
   b: RebasedUnionB,
+}
+
+namespace RebasedBase {
+  @discriminated
+  union Pets extends RebasedUnionA {
+    a: RebasedUnionALeaf,
+  }
+}
+
+namespace RebasedDerived {
+  @discriminated
+  union Pets extends RebasedUnionB {
+    b: RebasedUnionBLeaf,
+  }
+}
+
+model DeserializerPet {
+  name: string;
+}
+
+model PetsUnion extends DeserializerPet {}
+
+namespace DescendantDeserializer {
+  @discriminated
+  union Pets extends DeserializerPet {
+    pet: PetsUnion,
+  }
 }
 
 model ConstructorBase {
