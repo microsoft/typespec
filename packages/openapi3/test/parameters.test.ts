@@ -296,6 +296,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/openapi/duplicate-type-name",
+          message: /parameter/,
         },
       ]);
     });

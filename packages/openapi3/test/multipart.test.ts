@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor, emitOpenApiWithDiagnostics }) => {
   it("uses configured component names for repeated named multipart bodies", async () => {
     const res = await openApiFor(
       `
@@ -33,6 +33,32 @@ worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor }) => {
     `,
       { "component-name-strategy": "name-only" },
     );
+    expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
+  });
+
+  it("validates multipart keys before creating references with the default strategy", async () => {
+    const [doc, diagnostics] = await emitOpenApiWithDiagnostics(`
+      model \`Upload/Form\` { name: HttpPart<string>; }
+      op upload(@multipartBody body: \`Upload/Form\`): void;
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/invalid-component-fixed-field-key",
+      },
+    ]);
+    expect(Object.keys(doc.components!.schemas!)).toEqual(["Upload_Form"]);
+    expect(doc.paths["/"].post!.requestBody).toMatchObject({
+      content: { "multipart/form-data": { schema: { $ref: "#/components/schemas/Upload_Form" } } },
+    });
+  });
+
+  it("reports duplicate multipart keys with the default strategy", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`
+      @friendlyName("UploadForm") model First { a: HttpPart<string>; }
+      @friendlyName("UploadForm") model Second { b: HttpPart<string>; }
+      @route("/a") op first(@multipartBody body: First): void;
+      @route("/b") op second(@multipartBody body: Second): void;
+    `);
     expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
   });
 

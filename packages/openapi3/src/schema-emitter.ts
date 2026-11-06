@@ -65,7 +65,6 @@ import {
   checkDuplicateTypeName,
   getExtensions,
   getExternalDocs,
-  getOpenAPITypeName,
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
@@ -308,7 +307,14 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   modelInstantiation(model: Model, name: string | undefined): EmitterOutput<Record<string, any>> {
-    name = name ?? getOpenAPITypeName(this.emitter.getProgram(), model, this.#typeNameOptions());
+    name =
+      name ??
+      getComponentTypeName(
+        this.emitter.getProgram(),
+        model,
+        this.#typeNameOptions(),
+        this._options,
+      );
     if (!name) {
       return this.modelLiteral(model);
     }

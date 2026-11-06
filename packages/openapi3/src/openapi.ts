@@ -81,13 +81,12 @@ import {
   getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
-  getParameterKey,
   getTagsMetadata,
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
 import { stringify } from "yaml";
-import { getComponentTypeName, hasCustomComponentNames } from "./component-naming.js";
+import { getComponentTypeName } from "./component-naming.js";
 import { getRef } from "./decorators.js";
 import type { OperationExamples } from "./examples.js";
 import { getExampleOrExamples, resolveOperationExamples } from "./examples.js";
@@ -366,7 +365,6 @@ function createOAPIEmitter(
   let visibilityUsage: VisibilityUsageTracker;
   let sseModule: SSEModule | undefined;
   let jsonSchemaModule: JsonSchemaModule | undefined;
-  const customComponentNames = hasCustomComponentNames(options);
   let multipartSchemaTypes: Map<string, Type>;
 
   // Map model properties that represent shared parameters to their parameter
@@ -1445,7 +1443,7 @@ function createOAPIEmitter(
       "name" in body.type && body.type.name !== ""
         ? getComponentTypeName(program, body.type, typeNameOptions, options)
         : undefined;
-    if (name !== undefined && customComponentNames) {
+    if (name !== undefined) {
       name = ensureValidComponentFixedFieldKey(program, body.type, name);
       if (name) {
         const existing = multipartSchemaTypes.get(name);
@@ -1838,24 +1836,18 @@ function createOAPIEmitter(
 
   function emitParameters() {
     for (const [property, param] of params) {
-      let validKey: string;
-      if (customComponentNames) {
-        const parent = property.model!;
-        const name = getComponentTypeName(program, parent, typeNameOptions, options);
-        const separator = options.componentNameStrategy?.separator ?? ".";
-        const key = parent.properties.size > 1 ? name + separator + property.name : name;
-        validKey = ensureValidComponentFixedFieldKey(program, property, key);
-        checkDuplicateTypeName(program, property, validKey, root.components!.parameters!);
-      } else {
-        const key = getParameterKey(
-          program,
-          property,
-          param,
-          root.components!.parameters!,
-          typeNameOptions,
-        );
-        validKey = ensureValidComponentFixedFieldKey(program, property, key);
-      }
+      const parent = property.model!;
+      const name = getComponentTypeName(program, parent, typeNameOptions, options);
+      const separator = options.componentNameStrategy?.separator ?? ".";
+      const key = parent.properties.size > 1 ? name + separator + property.name : name;
+      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
+      checkDuplicateTypeName(
+        program,
+        property,
+        validKey,
+        root.components!.parameters!,
+        "parameter",
+      );
       root.components!.parameters![validKey] = { ...param };
       for (const key of Object.keys(param)) {
         delete param[key];
@@ -1879,7 +1871,7 @@ function createOAPIEmitter(
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
         const multipartType = multipartSchemaTypes.get(declaration.name);
-        if (customComponentNames && multipartType) {
+        if (multipartType) {
           checkDuplicateTypeName(program, multipartType, declaration.name, schemas);
         }
         schemas[declaration.name] = declaration.value as any;
