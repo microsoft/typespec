@@ -1383,9 +1383,24 @@ export class CodeModelBuilder {
         .map(pascalCase)
         .join("");
       const payload = this.processSchema(event.payloadType, `${payloadSchemaNameHint}EventPayload`);
+      const explicitClientName =
+        event.type.kind === "model" && event.type.__raw
+          ? getClientNameOverride(this.sdkContext, event.type.__raw)
+          : undefined;
+      const envelope =
+        event.isEventEnvelope &&
+        event.type.kind === "model" &&
+        event.type.name.trim().length > 0 &&
+        (!event.type.isGeneratedName || explicitClientName !== undefined)
+          ? {
+              schemaName: event.type.name,
+              isExactName: event.type.isExactName,
+            }
+          : {};
       return {
         event,
         payload,
+        ...envelope,
       };
     });
     const supportedEvents = events;
@@ -1427,10 +1442,12 @@ export class CodeModelBuilder {
           streamName: streamType.name,
           sourceNamespace: getNamespace(streamType.__raw),
           javaNamespace: modelNamespace,
-          events: supportedEvents.map(({ event, payload }) => ({
+          events: supportedEvents.map(({ event, payload, schemaName, isExactName }) => ({
             name: event.eventType!,
             payload,
             terminal: event.isTerminalEvent,
+            schemaName,
+            isExactName,
           })),
         }),
       };

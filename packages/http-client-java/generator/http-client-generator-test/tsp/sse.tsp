@@ -30,76 +30,82 @@ model ProtocolOnlyPayload {
 scalar SecondsDuration extends duration;
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model ScalarEnvelope {
+model TestTextStreamEvent {
   @data
   payload: string;
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model DictionaryEnvelope {
+model TestEventStreamEvent {
+  @data
+  payload: string;
+}
+
+@clientNamespace("TspTest.Sse.Stream", "java")
+model TestMapStreamEvent {
   @data
   payload: Record<string>;
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model CollectionsEnvelope {
+model TestCollectionsStreamEvent {
   @data
   payload: Record<string[]>[];
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model ModelMapEnvelope {
+model TestModelMapStreamEvent {
   @data
   payload: Record<StartedPayload>;
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model DurationEnvelope {
+model TestDurationStreamEvent {
   @data
   payload: SecondsDuration;
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model DurationCollectionsEnvelope {
+model TestDurationsStreamEvent {
   @data
   payload: Record<Record<SecondsDuration[]>[]>;
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model StartedEnvelope {
+model TestStartedStreamEvent {
   @data
   payload: StartedPayload;
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")
-model CompletedEnvelope {
+model TestCompletedStreamEvent {
   @data
   payload: CompletedPayload;
 }
 
-model ProtocolOnlyEnvelope {
+model ProtocolOnlyMessageStreamEvent {
   @data
   payload: ProtocolOnlyPayload;
 }
 
 @events
 union TestStreamEvents {
-  started: StartedEnvelope,
-  text: ScalarEnvelope,
-  event: ScalarEnvelope,
-  map: DictionaryEnvelope,
-  collections: CollectionsEnvelope,
-  modelMap: ModelMapEnvelope,
-  duration: DurationEnvelope,
-  durations: DurationCollectionsEnvelope,
+  started: TestStartedStreamEvent,
+  text: TestTextStreamEvent,
+  event: TestEventStreamEvent,
+  map: TestMapStreamEvent,
+  collections: TestCollectionsStreamEvent,
+  modelMap: TestModelMapStreamEvent,
+  duration: TestDurationStreamEvent,
+  durations: TestDurationsStreamEvent,
 
   @terminalEvent
-  completed: CompletedEnvelope,
+  completed: TestCompletedStreamEvent,
 }
 
 @events
 union ProtocolOnlyStreamEvents {
-  message: ProtocolOnlyEnvelope,
+  message: ProtocolOnlyMessageStreamEvent,
 }
 
 @clientNamespace("TspTest.Sse.Stream", "java")

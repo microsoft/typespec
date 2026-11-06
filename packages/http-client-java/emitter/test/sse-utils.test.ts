@@ -12,8 +12,17 @@ describe("SSE schema construction", () => {
       sourceNamespace: "Search.Retrieval",
       javaNamespace: "com.azure.search.retrieval",
       events: [
-        { name: "retrieval.started", payload, terminal: false },
-        { name: "response.completed", payload: createStringSchema("string", ""), terminal: true },
+        {
+          name: "retrieval.started",
+          payload,
+          terminal: false,
+          schemaName: "KnowledgeBaseRetrievalStartedStreamEvent",
+        },
+        {
+          name: "response.completed",
+          payload: createStringSchema("string", ""),
+          terminal: true,
+        },
       ],
     });
 
@@ -38,7 +47,10 @@ describe("SSE schema construction", () => {
     expect([...schemas.eventSchemas.keys()]).toEqual(["retrieval.started", "response.completed"]);
     const started = schemas.eventSchemas.get("retrieval.started")!;
     expect(started.language).toMatchObject({
-      default: { name: "RetrievalStartedStreamEvent", namespace: "Search.Retrieval" },
+      default: {
+        name: "KnowledgeBaseRetrievalStartedStreamEvent",
+        namespace: "Search.Retrieval",
+      },
       java: { namespace: "com.azure.search.retrieval" },
     });
     expect(started).toMatchObject({
@@ -95,6 +107,54 @@ describe("SSE schema construction", () => {
     });
   });
 
+  it("preserves exact Java envelope names", () => {
+    const schemas = createSseSchemas({
+      streamName: "StreamEvents",
+      sourceNamespace: "SseNaming",
+      javaNamespace: "com.azure.sse",
+      events: [
+        {
+          name: "message",
+          payload: createStringSchema("string", ""),
+          terminal: false,
+          schemaName: "ClientRenamedStreamEvent",
+          isExactName: true,
+        },
+      ],
+    });
+
+    expect(schemas.eventSchemas.get("message")!.language).toMatchObject({
+      default: { name: "ClientRenamedStreamEvent", namespace: "SseNaming" },
+      java: { name: "ClientRenamedStreamEvent", namespace: "com.azure.sse" },
+    });
+  });
+
+  it("rejects requested event wrapper collisions with both wire names", () => {
+    expect(() =>
+      createSseSchemas({
+        streamName: "SearchEvents",
+        sourceNamespace: "SseNaming",
+        javaNamespace: "com.azure.sse",
+        events: [
+          {
+            name: "activity.started",
+            payload: createStringSchema("string", ""),
+            terminal: false,
+            schemaName: "ActivityStreamEvent",
+          },
+          {
+            name: "activity.completed",
+            payload: createStringSchema("string", ""),
+            terminal: false,
+            schemaName: "ActivityStreamEvent",
+          },
+        ],
+      }),
+    ).toThrow(
+      "SSE union 'SearchEvents' event wrapper name 'ActivityStreamEvent' is requested by wire events 'activity.started' and 'activity.completed'.",
+    );
+  });
+
   it("reports exact pattern conflicts as duplicate schema names", () => {
     expect(() =>
       createSseSchemas({
@@ -103,6 +163,8 @@ describe("SSE schema construction", () => {
         javaNamespace: "com.azure.sse",
         events: [{ name: "123", payload: createStringSchema("string", ""), terminal: false }],
       }),
-    ).toThrow("resolves to duplicate schema name '123StreamEvent'");
+    ).toThrow(
+      "SSE union '123StreamEvents' event wrapper name '123StreamEvent' for wire event '123' conflicts with the stream base schema.",
+    );
   });
 });

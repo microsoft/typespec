@@ -24,18 +24,25 @@ export function createSseSchemas({
   streamName: string;
   sourceNamespace: string | undefined;
   javaNamespace: string;
-  events: readonly { name: string; payload: Schema; terminal: boolean }[];
+  events: readonly {
+    name: string;
+    payload: Schema;
+    terminal: boolean;
+    schemaName?: string;
+    isExactName?: boolean;
+  }[];
 }): SseSchemas {
   const { baseName, eventNames } = resolveSseSchemaNames(
     streamName,
-    events.map((event) => event.name),
+    events.map(({ name, schemaName }) => ({ name, schemaName })),
   );
-  const schemaLanguage = (name: string) => ({
+  const schemaLanguage = (name: string, isExactName = false) => ({
     default: {
       name,
       namespace: sourceNamespace,
     },
     java: {
+      ...(isExactName ? { name } : {}),
       namespace: javaNamespace,
     },
   });
@@ -60,13 +67,13 @@ export function createSseSchemas({
   );
 
   const eventSchemas = new Map<string, ObjectSchema>();
-  for (const { name, payload, terminal } of events) {
+  for (const { name, payload, terminal, isExactName } of events) {
     const schemaName = eventNames.get(name)!;
     const eventSchema = createObjectSchema(
       schemaName,
       `Represents the '${name}' ${streamName} event.`,
       {
-        language: schemaLanguage(schemaName),
+        language: schemaLanguage(schemaName, isExactName),
         usage: [SchemaContext.Sse],
         sseMetadata: { streamName, eventName: name, terminal },
         parents: {
@@ -93,7 +100,7 @@ export function createSseSchemas({
 
 function resolveSseSchemaNames(
   streamName: string,
-  eventNames: string[],
+  events: readonly { name: string; schemaName?: string }[],
 ): { baseName: string; eventNames: Map<string, string> } {
   const normalizedStreamName = javaToPascalCase(streamName);
   const baseName = normalizedStreamName.endsWith("Events")
@@ -104,7 +111,7 @@ function resolveSseSchemaNames(
     : baseName;
   const resolvedEventNames = new Map<string, string>();
   const wireNamesBySchemaName = new Map<string, string>();
-  for (const eventName of eventNames) {
+  for (const { name: eventName, schemaName: requestedSchemaName } of events) {
     let prefix = baseStem;
     const firstSegment = eventName
       .split(/[^A-Za-z0-9]+/)
@@ -118,16 +125,17 @@ function resolveSseSchemaNames(
       .filter((segment) => segment.length > 0)
       .map(javaToPascalCase)
       .join("");
-    const schemaName = `${prefix}${normalizedEventName}${SSE_STREAM_EVENT_SUFFIX}`;
+    const schemaName =
+      requestedSchemaName ?? `${prefix}${normalizedEventName}${SSE_STREAM_EVENT_SUFFIX}`;
     const collidingWireName = wireNamesBySchemaName.get(schemaName);
     if (schemaName === baseName) {
       throw new Error(
-        `SSE event name '${eventName}' resolves to duplicate schema name '${schemaName}', which is already used by the stream base schema.`,
+        `SSE union '${streamName}' event wrapper name '${schemaName}' for wire event '${eventName}' conflicts with the stream base schema.`,
       );
     }
     if (collidingWireName !== undefined) {
       throw new Error(
-        `SSE event names '${collidingWireName}' and '${eventName}' resolve to duplicate schema name '${schemaName}'.`,
+        `SSE union '${streamName}' event wrapper name '${schemaName}' is requested by wire events '${collidingWireName}' and '${eventName}'.`,
       );
     }
     wireNamesBySchemaName.set(schemaName, eventName);

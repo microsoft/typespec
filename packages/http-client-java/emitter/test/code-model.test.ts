@@ -1035,9 +1035,12 @@ describe("code model characterization", () => {
       metadata.knowledgeBase.events.map((event) => event.eventSchema.language.default.name),
     ).toEqual([
       "KnowledgeBaseRetrievalStartedStreamEvent",
-      "KnowledgeBaseRetrievalCompletedStreamEvent",
-      "KnowledgeBaseRetrievalActivityCompletedStreamEvent",
-      "KnowledgeBaseRetrievalResponseCompletedStreamEvent",
+      "KnowledgeBaseActivityStartedStreamEvent",
+      "KnowledgeBaseActivityCompletedStreamEvent",
+      "KnowledgeBaseAnswerCompletedStreamEvent",
+      "KnowledgeBaseReferencesCompletedStreamEvent",
+      "KnowledgeBaseErrorStreamEvent",
+      "KnowledgeBaseResponseCompletedStreamEvent",
     ]);
     expect(metadata.digitEvent.events[0].eventSchema.language.default.name).toBe(
       "123DoneStreamEvent",
@@ -1045,6 +1048,43 @@ describe("code model characterization", () => {
     expect(metadata.digitEvent.events[0].eventSchema.language.java?.name).toBeUndefined();
     expect(metadata.digitStream.baseSchema.language.default.name).toBe("123Event");
     expect(metadata.digitStream.baseSchema.language.java?.name).toBeUndefined();
+  });
+
+  it("uses usable envelope names and preserves wire-based fallback naming", async () => {
+    const program = await compileSseScenario("SseEnvelopeNaming");
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const metadata = Object.fromEntries(
+      model.clients[0].operationGroups[0].operations!.map((operation) => [
+        operation.language.default.name,
+        operation.sseMetadata!,
+      ]),
+    );
+
+    expect(
+      metadata.envelopes.events.map((event) => event.eventSchema.language.default.name),
+    ).toEqual(["AuthoredNamedStreamEvent", "ClientRenamedStreamEvent", "XMLStreamEvent"]);
+    expect(metadata.envelopes.events[0].eventSchema.language.java?.name).toBeUndefined();
+    expect(metadata.envelopes.events[1].eventSchema.language.java?.name).toBeUndefined();
+    expect(metadata.envelopes.events[2].eventSchema.language.java?.name).toBe("XMLStreamEvent");
+    expect(
+      metadata.fallbacks.events.map((event) => event.eventSchema.language.default.name),
+    ).toEqual(["FallbackEventDirectStreamEvent", "FallbackEventAnonymousStreamEvent"]);
+    expect(
+      metadata.fallbacks.events.map(
+        (event) => event.eventSchema.properties?.[0].schema.language.default.name,
+      ),
+    ).toEqual(["DirectPayload", "AnonymousEventPayload"]);
   });
 
   it("keeps per-event names stable across additions and ordering", async () => {
@@ -1094,8 +1134,44 @@ describe("code model characterization", () => {
           report: () => {},
         },
       }).build(),
-    ).rejects.toThrow("resolve to duplicate schema name 'RetrievalStartedStreamEvent'");
+    ).rejects.toThrow(
+      "SSE union 'RetrievalStreamEvents' event wrapper name 'RetrievalStartedStreamEvent' is requested by wire events 'retrieval.started' and 'retrieval-started'.",
+    );
   });
+
+  it.each([
+    {
+      namespace: "SseEnvelopeReuse",
+      unionName: "ReusedEnvelopeEvents",
+      wrapperName: "SharedNamedStreamEvent",
+    },
+    {
+      namespace: "SseEnvelopeClientNameCollision",
+      unionName: "DuplicateClientNameEvents",
+      wrapperName: "SameNamedStreamEvent",
+    },
+  ])(
+    "rejects duplicate requested SSE envelope names in $unionName",
+    async ({ namespace, unionName, wrapperName }) => {
+      const program = await compileSseScenario(namespace);
+      expectDiagnosticEmpty(program.diagnostics);
+      await expect(
+        new CodeModelBuilder(program, {
+          program,
+          emitterOutputDir: "/code-model-test-output",
+          options: { flavor: "azure" },
+          perf: {
+            startTimer: () => ({ end: () => 0 }),
+            time: (_label, callback) => callback(),
+            timeAsync: (_label, callback) => callback(),
+            report: () => {},
+          },
+        }).build(),
+      ).rejects.toThrow(
+        `SSE union '${unionName}' event wrapper name '${wrapperName}' is requested by wire events 'first' and 'second'.`,
+      );
+    },
+  );
 
   it("registers synthetic SSE schemas without propagating SSE usage to payloads", async () => {
     const program = await compileSseScenario("SseSchemaIsolation");
@@ -1185,18 +1261,16 @@ describe("code model characterization", () => {
 
     expect(operations.collision.baseSchema.language.default.name).toBe("CollisionEvent1");
     expect(operations.collision.events[0].eventSchema.language.default.name).toBe(
-      "CollisionEventMessageStreamEvent",
+      "CollisionEnvelope",
     );
     expect(operations.exact.baseSchema.language.default.name).toBe("ExactCollisionEvent1");
+    expect(operations.exact.events[0].eventSchema.language.default.name).toBe("ExactEnvelope");
     expect(operations.azure.baseSchema.language.default.name).toBe("AzureCollisionEvent");
+    expect(operations.azure.events[0].eventSchema.language.default.name).toBe("AzureEnvelope");
     expect(operations.one.baseSchema.language.default.name).toBe("SharedEvent");
     expect(operations.two.baseSchema.language.default.name).toBe("SharedEvent1");
-    expect(operations.one.events[0].eventSchema.language.default.name).toBe(
-      "SharedEventMessageStreamEvent1",
-    );
-    expect(operations.two.events[0].eventSchema.language.default.name).toBe(
-      "SharedEventMessageStreamEvent2",
-    );
+    expect(operations.one.events[0].eventSchema.language.default.name).toBe("SharedEnvelope");
+    expect(operations.two.events[0].eventSchema.language.default.name).toBe("SharedEnvelope1");
     expect(operations.again.baseSchema).toBe(operations.one.baseSchema);
     expect(operations.again).not.toBe(operations.one);
     expect(operations.again.events).not.toBe(operations.one.events);
@@ -1237,11 +1311,9 @@ describe("code model characterization", () => {
     )!.sseMetadata!;
 
     expect(metadata.baseSchema.language.default.name).toBe("SkippedEvent");
-    expect(metadata.events[0].eventSchema.language.default.name).toBe(
-      "SkippedEventMessageStreamEvent",
-    );
+    expect(metadata.events[0].eventSchema.language.default.name).toBe("Envelope");
     expect(model.schemas.objects?.map((schema) => schema.language.default.name)).toEqual(
-      expect.arrayContaining(["SkippedEvent", "SkippedEventMessageStreamEvent"]),
+      expect.arrayContaining(["SkippedEvent", "Envelope"]),
     );
   });
 

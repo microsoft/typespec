@@ -60,33 +60,33 @@ namespace SseTest {
   }
 
   @clientNamespace("SseTest.Retrieve", "java")
-  model StartedEnvelopeIgnoredByJava {
+  model RetrievalStartedStreamEvent {
     @data
     payload: RetrievalStarted;
   }
 
   @clientNamespace("SseTest.Retrieve", "java")
-  model CompletedEnvelopeIgnoredByJava {
+  model RetrievalResponseCompletedStreamEvent {
     @data
     payload: ResponseCompleted;
   }
 
-  model ProtocolOnlyEnvelopeIgnoredByJava {
+  model ProtocolOnlyMessageStreamEvent {
     @data
     payload: ProtocolOnlyPayload;
   }
 
   @events
   union RetrievalStreamEvents {
-    `retrieval.started`: StartedEnvelopeIgnoredByJava,
+    `retrieval.started`: RetrievalStartedStreamEvent,
 
     @terminalEvent
-    `response.completed`: CompletedEnvelopeIgnoredByJava,
+    `response.completed`: RetrievalResponseCompletedStreamEvent,
   }
 
   @events
   union ProtocolOnlyStreamEvents {
-    message: ProtocolOnlyEnvelopeIgnoredByJava,
+    message: ProtocolOnlyMessageStreamEvent,
   }
 
   @events
@@ -319,32 +319,67 @@ namespace SseGenericUnsupportedFirst {
 
 // Scenario: emitter-owned SSE name patterns with generator-owned Java normalization.
 namespace SseNaming {
-  model PayloadEnvelope {
+  model RetrievalStartedStreamEvent {
+    @data value: string;
+  }
+
+  model RetrievalResponseCompletedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseRetrievalStartedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseActivityStartedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseActivityCompletedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseAnswerCompletedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseReferencesCompletedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseErrorStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseResponseCompletedStreamEvent {
     @data value: string;
   }
 
   @events
   union RetrievalStreamEvents {
-    `retrieval.started`: PayloadEnvelope,
-    `response.completed`: PayloadEnvelope,
+    `retrieval.started`: RetrievalStartedStreamEvent,
+    `response.completed`: RetrievalResponseCompletedStreamEvent,
   }
 
   @events
   union KnowledgeBaseRetrievalStreamEvents {
-    `retrieval.started`: PayloadEnvelope,
-    `baseRetrieval.completed`: PayloadEnvelope,
-    `activity.completed`: PayloadEnvelope,
-    `response.completed`: PayloadEnvelope,
+    `retrieval.started`: KnowledgeBaseRetrievalStartedStreamEvent,
+    `activity.started`: KnowledgeBaseActivityStartedStreamEvent,
+    `activity.completed`: KnowledgeBaseActivityCompletedStreamEvent,
+    `answer.completed`: KnowledgeBaseAnswerCompletedStreamEvent,
+    `references.completed`: KnowledgeBaseReferencesCompletedStreamEvent,
+    error: KnowledgeBaseErrorStreamEvent,
+    `response.completed`: KnowledgeBaseResponseCompletedStreamEvent,
   }
 
   @events
   union StreamEvents {
-    `123.done`: PayloadEnvelope,
+    `123.done`: string,
   }
 
   @events
   union `123Events` {
-    done: PayloadEnvelope,
+    done: string,
   }
 
   @route("/retrieval") @get op retrieval(): SSEStream<RetrievalStreamEvents>;
@@ -354,72 +389,156 @@ namespace SseNaming {
 }
 
 namespace SseNamingResponseOnly {
-  model PayloadEnvelope {
+  model RetrievalResponseCompletedStreamEvent {
     @data value: string;
   }
 
   @events
   union RetrievalStreamEvents {
-    `response.completed`: PayloadEnvelope,
+    `response.completed`: RetrievalResponseCompletedStreamEvent,
   }
 
   @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
 }
 
 namespace SseNamingWithRetrieval {
-  model PayloadEnvelope {
+  model RetrievalStartedStreamEvent {
+    @data value: string;
+  }
+
+  model RetrievalResponseCompletedStreamEvent {
     @data value: string;
   }
 
   @events
   union RetrievalStreamEvents {
-    `retrieval.started`: PayloadEnvelope,
-    `response.completed`: PayloadEnvelope,
+    `retrieval.started`: RetrievalStartedStreamEvent,
+    `response.completed`: RetrievalResponseCompletedStreamEvent,
   }
 
   @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
 }
 
 namespace SseNamingOrderFirst {
-  model PayloadEnvelope {
+  model KnowledgeBaseRetrievalStartedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseRetrievalCompletedStreamEvent {
     @data value: string;
   }
 
   @events
   union KnowledgeBaseRetrievalStreamEvents {
-    `retrieval.started`: PayloadEnvelope,
-    `baseRetrieval.completed`: PayloadEnvelope,
+    `retrieval.started`: KnowledgeBaseRetrievalStartedStreamEvent,
+    `baseRetrieval.completed`: KnowledgeBaseRetrievalCompletedStreamEvent,
   }
 
   @route("/") @get op read(): SSEStream<KnowledgeBaseRetrievalStreamEvents>;
 }
 
 namespace SseNamingOrderSecond {
-  model PayloadEnvelope {
+  model KnowledgeBaseRetrievalStartedStreamEvent {
+    @data value: string;
+  }
+
+  model KnowledgeBaseRetrievalCompletedStreamEvent {
     @data value: string;
   }
 
   @events
   union KnowledgeBaseRetrievalStreamEvents {
-    `baseRetrieval.completed`: PayloadEnvelope,
-    `retrieval.started`: PayloadEnvelope,
+    `baseRetrieval.completed`: KnowledgeBaseRetrievalCompletedStreamEvent,
+    `retrieval.started`: KnowledgeBaseRetrievalStartedStreamEvent,
   }
 
   @route("/") @get op read(): SSEStream<KnowledgeBaseRetrievalStreamEvents>;
 }
 
 namespace SseNamingCollision {
-  model PayloadEnvelope {
+  @events
+  union RetrievalStreamEvents {
+    `retrieval.started`: string,
+    `retrieval-started`: string,
+  }
+
+  @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
+}
+
+namespace SseEnvelopeNaming {
+  model DirectPayload {
+    value: string;
+  }
+
+  model AuthoredNamedStreamEvent {
+    @data value: string;
+  }
+
+  @clientName("ClientRenamedStreamEvent", "java")
+  model RenamedEnvelope {
+    @data value: string;
+  }
+
+  @clientName(exact("XMLStreamEvent"), "java")
+  model ExactEnvelope {
     @data value: string;
   }
 
   @events
-  union RetrievalStreamEvents {
-    `retrieval.started`: PayloadEnvelope,
-    `retrieval-started`: PayloadEnvelope,
+  union EnvelopeEvents {
+    authored: AuthoredNamedStreamEvent,
+    renamed: RenamedEnvelope,
+    exact: ExactEnvelope,
   }
 
-  @route("/") @get op read(): SSEStream<RetrievalStreamEvents>;
+  @events
+  union FallbackEvents {
+    direct: DirectPayload,
+    anonymous: {
+      @data value: string,
+    },
+  }
+
+  @route("/envelopes") @get op envelopes(): SSEStream<EnvelopeEvents>;
+  @route("/fallbacks") @get op fallbacks(): SSEStream<FallbackEvents>;
+}
+
+namespace SseEnvelopeReuse {
+  model SharedNamedStreamEvent {
+    @data value: string;
+  }
+
+  @events
+  union ReusedEnvelopeEvents {
+    first: SharedNamedStreamEvent,
+    second: SharedNamedStreamEvent,
+  }
+
+  @route("/") @get op read(): SSEStream<ReusedEnvelopeEvents>;
+}
+
+namespace SseEnvelopeClientNameCollision {
+  namespace One {
+    @clientNamespace("SseEnvelopeClientNameCollision", "java")
+    model SameNamedStreamEvent {
+      @data value: string;
+    }
+  }
+
+  namespace Two {
+    @clientNamespace("SseEnvelopeClientNameCollision", "java")
+    model SameNamedStreamEvent {
+      @data value: string;
+    }
+  }
+
+  @events
+  union DuplicateClientNameEvents {
+    first: One.SameNamedStreamEvent,
+    second: Two.SameNamedStreamEvent,
+  }
+
+  @route("/") @get op read(): SSEStream<DuplicateClientNameEvents>;
 }
 
 // Scenario: authored envelope hierarchy and reuse never define the generated hierarchy.
