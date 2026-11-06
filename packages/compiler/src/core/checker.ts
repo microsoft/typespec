@@ -2363,7 +2363,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): FunctionParameter {
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType) {
+    if (links.declaredType && ctx.mapper === undefined) {
       return links.declaredType as FunctionParameter;
     }
     if (
@@ -2407,7 +2407,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       parameterType = createType({
         ...base,
         mixed: false,
-        type: node.type ? getTypeForNode(node.type) : unknownType,
+        type: node.type ? getTypeForNode(node.type, ctx) : unknownType,
         implementation: node.symbol.value!,
       });
     }
@@ -4795,6 +4795,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case "Model":
       case "Interface":
       case "Union":
+      case "Scalar":
         if (isTemplateInstance(type)) {
           // this is an alias for some instantiation, so late-bind the instantiation
           lateBindMemberContainer(type);
@@ -6559,6 +6560,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
         mutate(type.symbol).type = type;
         break;
+      case "Scalar":
+        type.symbol = createSymbol(
+          type.node,
+          type.name,
+          SymbolFlags.Scalar | SymbolFlags.LateBound,
+        );
+        mutate(type.symbol).type = type;
+        break;
       case "Interface":
         type.symbol = createSymbol(
           type.node,
@@ -7546,6 +7555,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
+
+    lateBindMemberContainer(type);
+    lateBindMembers(type);
 
     return finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
   }
