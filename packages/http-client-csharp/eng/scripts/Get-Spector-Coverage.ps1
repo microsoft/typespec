@@ -56,7 +56,7 @@ $specs = Get-Sorted-Specs
 
  # test all
  Write-Host "Generating Spector coverage" -ForegroundColor Cyan
- $command  = "dotnet test $spectorCsproj"
+ $command  = "dotnet test $spectorCsproj --logger trx"
  Invoke $command
  # exit if the testing failed
  if ($LASTEXITCODE -ne 0) {

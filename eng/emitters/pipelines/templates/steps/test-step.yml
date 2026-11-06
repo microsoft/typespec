@@ -97,6 +97,42 @@ steps:
       arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)
 
+  - task: PublishTestResults@2
+    displayName: "Publish ${{ parameters.LanguageShortName }} test script results"
+    ${{ if eq(parameters.LanguageShortName, 'python') }}:
+      condition: and(succeededOrFailed(), contains(coalesce(variables['TestArguments'], '${{ parameters.TestArgs }}'), '-GenerationChecks'))
+    ${{ elseif eq(parameters.LanguageShortName, 'java') }}:
+      # Regeneration also rebuilds the Java generator and runs its Maven tests.
+      condition: and(succeededOrFailed(), or(contains(coalesce(variables['TestArguments'], '${{ parameters.TestArgs }}'), '-UnitTests'), contains(coalesce(variables['TestArguments'], '${{ parameters.TestArgs }}'), '-GenerationChecks')))
+    ${{ else }}:
+      condition: and(succeededOrFailed(), contains('${{ parameters.TestArgs }}', '-UnitTests'))
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: |
+        test-results.xml
+        generator/**/target/surefire-reports/TEST-*.xml
+        tests/test-results/*.xml
+      searchFolder: $(selfRepositoryPath)${{ parameters.PackagePath }}
+      mergeTestResults: true
+      testRunTitle: ${{ parameters.LanguageShortName }} $(Agent.JobName)
+      failTaskOnFailedTests: true
+      failTaskOnFailureToPublishResults: true
+      failTaskOnMissingResultsFile: true
+
+  - ${{ if eq(parameters.LanguageShortName, 'csharp') }}:
+      - task: PublishTestResults@2
+        displayName: "Publish C# generator and Spector test results"
+        condition: and(succeededOrFailed(), contains('${{ parameters.TestArgs }}', '-UnitTests'))
+        inputs:
+          testResultsFormat: VSTest
+          testResultsFiles: "generator/**/TestResults/*.trx"
+          searchFolder: $(selfRepositoryPath)${{ parameters.PackagePath }}
+          mergeTestResults: true
+          testRunTitle: C# generator $(Agent.JobName)
+          failTaskOnFailedTests: true
+          failTaskOnFailureToPublishResults: true
+          failTaskOnMissingResultsFile: true
+
   - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.EnableCadlRanchReport, true)) }}:
       - task: AzureCLI@2
         displayName: "Upload Cadl Ranch Standard Coverage Report"
