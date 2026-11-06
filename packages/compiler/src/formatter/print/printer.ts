@@ -27,6 +27,7 @@ import type {
   FunctionParameterNode,
   FunctionTypeExpressionNode,
   IdentifierNode,
+  ImportStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -204,7 +205,7 @@ export function printNode(
       return printTypeSpecScript(path as AstPath<TypeSpecScriptNode>, options, print);
     // Statements
     case SyntaxKind.ImportStatement:
-      return [`import "${node.path.value}";`];
+      return [`import `, (path as AstPath<ImportStatementNode>).call(print, "path"), `;`];
     case SyntaxKind.UsingStatement:
       return [`using `, (path as AstPath<UsingStatementNode>).call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
@@ -1160,6 +1161,9 @@ export function printObjectLiteral(
   if (!hasProperties && !nodeHasComments) {
     return "#{}";
   }
+  if (!hasProperties) {
+    return printEmptyLiteralWithComments(path, options, "#{", "}");
+  }
   const lineDoc = softline;
   const body: Doc[] = [
     joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
@@ -1193,6 +1197,10 @@ export function printArrayLiteral(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
+  const node = path.node;
+  if (node.values.length === 0 && hasComments(node, CommentCheckFlags.Dangling)) {
+    return printEmptyLiteralWithComments(path, options, "#[", "]");
+  }
   return group([
     "#[",
     indent(
@@ -1203,6 +1211,21 @@ export function printArrayLiteral(
     ),
     softline,
     "]",
+  ]);
+}
+
+/** Print a literal that has no members but contains comments, keeping the closing token off the comment line. */
+function printEmptyLiteralWithComments(
+  path: AstPath<ObjectLiteralNode | ArrayLiteralNode>,
+  options: TypeSpecPrettierOptions,
+  open: string,
+  close: string,
+) {
+  return group([
+    open,
+    indent([hardline, printDanglingComments(path, options, { sameIndent: true })]),
+    hardline,
+    close,
   ]);
 }
 
