@@ -43,6 +43,7 @@ namespace SampleTypeSpec
         private PlantOperations _cachedPlantOperations;
         private DeprecationSamples _cachedDeprecationSamples;
         private UnionExtends _cachedUnionExtends;
+        private ConstructorRequirements _cachedConstructorRequirements;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -2320,6 +2321,12 @@ namespace SampleTypeSpec
         public virtual UnionExtends GetUnionExtendsClient()
         {
             return Volatile.Read(ref _cachedUnionExtends) ?? Interlocked.CompareExchange(ref _cachedUnionExtends, new UnionExtends(Pipeline, _endpoint), null) ?? _cachedUnionExtends;
+        }
+
+        /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
+        public virtual ConstructorRequirements GetConstructorRequirementsClient()
+        {
+            return Volatile.Read(ref _cachedConstructorRequirements) ?? Interlocked.CompareExchange(ref _cachedConstructorRequirements, new ConstructorRequirements(Pipeline, _endpoint), null) ?? _cachedConstructorRequirements;
         }
     }
 }

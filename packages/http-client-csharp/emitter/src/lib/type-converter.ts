@@ -302,6 +302,8 @@ function fromSdkModelProperty(
   property = {
     kind: sdkProperty.kind,
     name: sdkProperty.name,
+    originalName:
+      sdkProperty.__raw?.name !== sdkProperty.name ? sdkProperty.__raw?.name : undefined,
     apiVersions: sdkProperty.apiVersions,
     serializedName: serializedName,
     summary: sdkProperty.summary,

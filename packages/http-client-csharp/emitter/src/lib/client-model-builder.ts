@@ -18,6 +18,7 @@ import type {
 } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
 import { createDiagnostic } from "./lib.js";
+import { updateModelConstructorRequirements } from "./model-constructor.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
@@ -57,6 +58,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const rootClients = sdkPackage.clients;
   const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
   const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
+  updateModelConstructorRequirements(sdkContext);
 
   const models: InputModelType[] = [];
   const enums: InputEnumType[] = [];

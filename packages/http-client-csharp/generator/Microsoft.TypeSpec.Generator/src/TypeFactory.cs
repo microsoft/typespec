@@ -33,6 +33,87 @@ namespace Microsoft.TypeSpec.Generator
         internal IEnumerable<ModelProvider> CreatedModelProviders
             => InputTypeToModelProvider.Values.OfType<ModelProvider>();
 
+        private IReadOnlyDictionary<InputModelType, string>? _modelNames;
+        internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
+
+        protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
+
+        private IReadOnlyDictionary<InputModelType, string> BuildModelNames()
+        {
+            var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping)>();
+            var nameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var reservedNames = GetReservedModelTypeNames().ToArray();
+            var originalNames = reservedNames.Select(type => type.OriginalName).ToHashSet(StringComparer.Ordinal);
+            var reservedTypes = reservedNames.Select(type => (type.Name, type.Namespace)).ToHashSet();
+
+            void ReserveName(string name)
+            {
+                nameCounts.TryGetValue(name, out var count);
+                nameCounts[name] = count + 1;
+            }
+
+            void AddModel(InputModelType model)
+            {
+                if (model.External is not null || candidates.ContainsKey(model))
+                {
+                    return;
+                }
+
+                // Do not construct CSharpTypes while collecting names: their creation calls BuildName.
+                var candidate = new ModelProvider(model).GetNameForCollisionCheck();
+                candidates.Add(model, candidate);
+                originalNames.Add(candidate.OriginalName);
+                ReserveName(candidate.FinalName);
+                var unknown = model.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                if (unknown is not null)
+                {
+                    AddModel(unknown);
+                }
+            }
+
+            foreach (var model in input.Models)
+            {
+                AddModel(model);
+            }
+
+            foreach (var inputEnum in input.Enums)
+            {
+                if (inputEnum.External is null && !inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    ReserveName(EnumProvider.Create(inputEnum).Name);
+                    originalNames.Add(inputEnum.IsExactName ? inputEnum.Name : inputEnum.Name.ToIdentifierName().NormalizeCSharpAcronyms());
+                }
+            }
+
+            var result = new Dictionary<InputModelType, string>();
+            foreach (var (model, candidate) in candidates)
+            {
+                // A direct input takes precedence over an implicit suffix match for the same mapping.
+                var mappingBelongsToModel = candidate.HasTypeMapping &&
+                    !originalNames.Contains(candidate.Name);
+                if (!candidate.CanRename || mappingBelongsToModel ||
+                    (nameCounts[candidate.FinalName] == 1 && !reservedTypes.Contains((candidate.FinalName, candidate.FinalNamespace))))
+                {
+                    result.Add(model, candidate.Name);
+                    continue;
+                }
+
+                // Models and enums share an output directory, including across namespaces.
+                var name = candidate.OriginalName;
+                for (var suffix = 1; nameCounts.ContainsKey(name) ||
+                    reservedTypes.Contains((name, candidate.Namespace)) ||
+                    (name != candidate.OriginalName && originalNames.Contains(name)); suffix++)
+                {
+                    name = $"{candidate.OriginalName}{suffix}";
+                }
+                ReserveName(name);
+                result.Add(model, name);
+            }
+
+            return result;
+        }
+
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
 
         // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
@@ -44,6 +125,8 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
         private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+        private readonly Dictionary<InputModelType, HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)>> _relaxedConstructorOverrides = [];
+        private readonly Dictionary<InputModelType, HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)>> _descendantRelaxedConstructorOverrides = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
@@ -589,6 +672,65 @@ namespace Microsoft.TypeSpec.Generator
                 propertyProvider = visitor.PreVisitProperty(property, propertyProvider);
             }
             return propertyProvider;
+        }
+
+        internal bool HasRelaxedConstructorOverride(InputProperty property, bool includeBaseModels = true)
+        {
+            if (property.EnclosingType is not InputModelType model)
+            {
+                return false;
+            }
+
+            var cache = includeBaseModels ? _relaxedConstructorOverrides : _descendantRelaxedConstructorOverrides;
+            if (!cache.TryGetValue(model, out var signatures))
+            {
+                HashSet<InputModelType> models = [];
+                Stack<InputModelType> pending = new();
+                pending.Push(model);
+                while (pending.TryPop(out var current))
+                {
+                    if (!models.Add(current))
+                    {
+                        continue;
+                    }
+                    if (current.BaseModel is not null)
+                    {
+                        pending.Push(current.BaseModel);
+                    }
+                    foreach (var derived in current.DerivedModels)
+                    {
+                        pending.Push(derived);
+                    }
+                }
+
+                HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)> allSignatures = [];
+                foreach (var current in models)
+                {
+                    _relaxedConstructorOverrides[current] = allSignatures;
+                    _descendantRelaxedConstructorOverrides[current] = [];
+                }
+                foreach (var current in models)
+                {
+                    foreach (var candidate in current.Properties)
+                    {
+                        if (candidate.IsReadOnly || candidate.IsRequiredInConstructor != false)
+                        {
+                            continue;
+                        }
+                        var signature = (candidate.OriginalName, candidate.Type.Name, candidate.IsRequired, candidate.Type is InputNullableType);
+                        allSignatures.Add(signature);
+                        HashSet<InputModelType> ancestors = [];
+                        for (var ancestor = current; ancestor is not null && ancestors.Add(ancestor); ancestor = ancestor.BaseModel)
+                        {
+                            _descendantRelaxedConstructorOverrides[ancestor].Add(signature);
+                        }
+                    }
+                }
+                signatures = cache[model];
+            }
+
+            return signatures.Contains(((property as InputModelProperty)?.OriginalName ?? property.Name,
+                property.Type.Name, property.IsRequired, property.Type is InputNullableType));
         }
 
         /// <summary>
