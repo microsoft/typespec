@@ -38,6 +38,7 @@ Consult these and cite them in findings:
   and the bug exception.
 - `.chronus/config.yaml` — the valid `changeKind` values and the `changedFiles` exclusions.
 - `.github/copilot-instructions.md` — changelog message guidelines and the TDD expectation.
+- `CONTRIBUTING.md` — the "AI-assisted contributions" guidelines.
 - Sibling tests in the touched package — the established tester/assertion patterns.
 - The public compiler API (`@typespec/compiler`) and `@typespec/compiler/testing` exports — to
   confirm a used API exists and behaves as the change assumes.
