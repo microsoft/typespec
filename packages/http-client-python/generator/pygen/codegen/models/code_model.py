@@ -95,6 +95,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.named_unions: list[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
         ]
+        self._disambiguate_union_names()
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.cross_language_version = self.yaml_data.get("crossLanguageVersion")
         self.for_test: bool = False
@@ -105,6 +106,30 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self._relative_import_path: dict[str, str] = {}
         self.metadata: dict[str, Any] = yaml_data.get("metadata", {})
         self.has_external_type = any(isinstance(t, ExternalType) for t in self.types_map.values())
+
+    def _disambiguate_union_names(self) -> None:
+        # All aliases share _unions.py, even when their models live in separate namespaces.
+        namespaces: dict[str, set[str]] = {}
+        for union in self.named_unions:
+            namespaces.setdefault(union.name, set()).add(union.client_namespace)
+        used_names = set(namespaces)
+        aliases: dict[tuple[str, str], str] = {}
+        for union in self.named_unions:
+            if len(namespaces[union.name]) <= 1:
+                continue
+            key = (union.client_namespace, union.name)
+            if key not in aliases:
+                relative_namespace = union.client_namespace.removeprefix(self.namespace + ".")
+                prefix = "".join(part.title() for part in relative_namespace.split("."))
+                candidate = prefix + union.name
+                alias = candidate
+                suffix = 1
+                while alias in used_names:
+                    alias = f"{candidate}{suffix}"
+                    suffix += 1
+                aliases[key] = alias
+                used_names.add(alias)
+            union.name = aliases[key]
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:

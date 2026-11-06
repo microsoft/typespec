@@ -21,6 +21,7 @@ import type { HttpAuth } from "@typespec/http";
 import { Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import type { PythonSdkContext } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import {
   camelToSnakeCase,
   emitParamBase,
@@ -539,16 +540,81 @@ function emitBuiltInType(
 }
 
 function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string, any> {
-  return getSimpleTypeResult(context, {
+  if (context.__typesMap.has(type)) {
+    return context.__typesMap.get(type)!;
+  }
+  const result: Record<string, any> = {
     name: type.isGeneratedName ? undefined : type.name,
     snakeCaseName: type.isGeneratedName ? undefined : camelToSnakeCase(type.name),
     description: type.isGeneratedName ? "" : `Type of ${type.name}`,
     internal: true,
     type: "combined",
-    types: type.variantTypes.map((x) => getType(context, x)),
+    types: [],
     xmlMetadata: {},
     clientNamespace: getClientNamespace(context, type.namespace),
-  });
+  };
+  // Cache before visiting variants: a model property can refer back to this union.
+  context.__typesMap.set(type, result);
+  result.types = type.variantTypes.map((x) => getType(context, x));
+  if (type.discriminatedOptions) {
+    const metadata = getInlineUnionDiscriminator(type);
+    if (metadata) {
+      result.baseType = getType(context, metadata.baseType);
+      result.discriminator = {
+        propertyName: metadata.propertyName,
+        variants: Object.fromEntries(
+          metadata.variants.map(([tag, model]) => [tag, getType(context, model)]),
+        ),
+      };
+    } else {
+      reportDiagnostic(context.program, {
+        code: "unsupported-discriminated-union",
+        target: type.__raw ?? context.program.getGlobalNamespaceType(),
+      });
+    }
+  }
+  return result;
+}
+
+function getInlineUnionDiscriminator(type: SdkUnionType):
+  | {
+      baseType: SdkModelType;
+      propertyName: string;
+      variants: [string, SdkModelType][];
+    }
+  | undefined {
+  const options = type.discriminatedOptions;
+  const baseType = type.baseType;
+  if (options?.envelope !== "none" || baseType?.kind !== "model" || type.variants.size === 0) {
+    return undefined;
+  }
+  const variants: [string, SdkModelType][] = [];
+  let propertyName: string | undefined;
+  for (const [tag, model] of type.variants) {
+    if (typeof tag !== "string" || model.kind !== "model") return undefined;
+    let base = model.baseModel;
+    while (base && base !== baseType) base = base.baseModel;
+    if (!base) return undefined;
+    let owner: SdkModelType | undefined = model;
+    let property: SdkModelPropertyType | undefined;
+    while (owner && !property) {
+      property = owner.properties.find((p) => p.__raw?.name === options.discriminatorPropertyName);
+      owner = owner.baseModel;
+    }
+    if (
+      property &&
+      (property.optional || property.type.kind !== "constant" || property.type.value !== tag)
+    ) {
+      return undefined;
+    }
+    const wireName = property
+      ? (property.serializationOptions.json?.name ?? property.name)
+      : options.discriminatorPropertyName;
+    if (propertyName !== undefined && wireName !== propertyName) return undefined;
+    propertyName = wireName;
+    variants.push([tag, model]);
+  }
+  return propertyName !== undefined ? { baseType, propertyName, variants } : undefined;
 }
 
 export function getConstantType(

@@ -762,7 +762,15 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if is_typeddict_only_body:
                 create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
             elif json_serializable(body_param.default_content_type):
-                if hasattr(body_param.type, "encode") and body_param.type.encode:  # type: ignore
+                if isinstance(body_param.type, CombinedType) and body_param.type.discriminator:
+                    annotation = body_param.type.type_annotation(
+                        skip_quote=True, serialize_namespace=self.serialize_namespace
+                    )
+                    create_body_call = (
+                        f"_{body_kwarg_name} = json.dumps({body_param.client_name}, "
+                        f"cls=SdkJSONEncoder, exclude_readonly=True, serialization_type={annotation})"
+                    )
+                elif hasattr(body_param.type, "encode") and body_param.type.encode:  # type: ignore
                     create_body_call = (
                         f"_{body_kwarg_name} = json.dumps({body_param.client_name}, "
                         "cls=SdkJSONEncoder, exclude_readonly=True, "
@@ -863,6 +871,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if same_content_type:
             default_content_type = builder.overloads[0].parameters.body_parameter.default_content_type
             retval.append(f'content_type = content_type or "{default_content_type}"{check_body_suffix}')
+            if (
+                isinstance(builder.parameters.body_parameter.type, CombinedType)
+                and builder.parameters.body_parameter.type.discriminator
+            ):
+                retval.extend(self._create_body_parameter(builder))
+                return retval
         client_names = [
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]

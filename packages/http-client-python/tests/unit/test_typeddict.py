@@ -1060,6 +1060,34 @@ def test_typeddict_inheritance_without_requiredness_change_still_subclasses():
     assert "class Derived(Base):" in output
 
 
+def test_typeddict_literal_override_uses_flat_form():
+    code_model = _make_code_model(models_mode="dpg")
+    str_type = build_type({"type": "string"}, code_model)
+    cat_type = build_type({"type": "constant", "value": "cat", "valueType": {"type": "string"}}, code_model)
+    parent = _make_model_with_usage(code_model, "Mammal", 2, DPGModelType)
+    parent.is_typed_dict_only = True
+    parent.properties = [
+        _make_typed_property(code_model, "kind", str_type, optional=False),
+        _make_typed_property(code_model, "name", str_type, optional=False),
+    ]
+    child = DPGModelType(
+        yaml_data={"name": "Cat", "type": "model", "snakeCaseName": "cat", "usage": 2},
+        code_model=code_model,
+        properties=[
+            _make_typed_property(code_model, "kind", cat_type, optional=False),
+            parent.properties[1],
+        ],
+        parents=[parent],
+    )
+    child.is_typed_dict_only = True
+    code_model.model_types = [parent, child]
+    assert TypesSerializer.needs_flat_typeddict(child)
+    output = TypesSerializer(code_model=code_model, env=_make_env(), models=[parent, child]).serialize()
+    assert "class Cat(TypedDict, total=False):" in output
+    assert 'kind: Required[Literal["cat"]]' in output
+    assert "name: Required[str]" in output
+
+
 # ---------- Bug 1: internal enum reference/import in types.py (issue #11626) ----------
 
 

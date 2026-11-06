@@ -13,7 +13,7 @@
  * from this module.
  */
 
-import { compile, NodeHost } from "@typespec/compiler";
+import { compile, NodeHost, resolveCompilerOptions } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { existsSync, rmSync } from "fs";
 import { access, mkdir, readdir, writeFile } from "fs/promises";
@@ -70,6 +70,9 @@ export interface BuildTaskGroupsOptions {
 // ---- Public constants ----
 
 export const SKIP_SPECS: string[] = ["type/file"];
+
+// Skip this entrypoint, not its supported extends subdirectory.
+const SKIP_SPEC_ENTRYPOINTS = ["type/union/discriminated/main.tsp"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -378,6 +381,10 @@ export const EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptions[]> 
     "package-name": "typetest-discriminatedunion",
     namespace: "typetest.discriminatedunion",
   },
+  "type/union/discriminated/extends": {
+    "package-name": "typetest-discriminatedunion-extends",
+    // Preserve scenario namespaces: flattening would collide Cat, Dog, PetBase, and Pet.
+  },
   "type/file": {
     "package-name": "typetest-file",
     namespace: "typetest.file",
@@ -469,7 +476,10 @@ export async function getSubdirectories(
           .then(() => true)
           .catch(() => false);
 
-        if (mainTspRelativePath.toLowerCase().includes(flags.name || "")) {
+        if (
+          !SKIP_SPEC_ENTRYPOINTS.includes(mainTspRelativePath) &&
+          mainTspRelativePath.toLowerCase().includes(flags.name || "")
+        ) {
           if (mainTspRelativePath.includes("resiliency/srv-driven")) {
             subdirectories.push(resolve(subDirPath, "old.tsp"));
           }
@@ -549,12 +559,20 @@ export async function compileSpec(
   const { spec, outputDir, options } = task;
 
   try {
-    const compilerOptions = {
-      emit: [ctx.pluginDir],
-      options: {
-        [ctx.emitterName]: options,
+    const [compilerOptions, diagnostics] = await resolveCompilerOptions(NodeHost, {
+      entrypoint: spec,
+      cwd: dirname(spec),
+      overrides: {
+        emit: [ctx.pluginDir],
+        options: {
+          [ctx.emitterName]: options,
+        },
       },
-    };
+    });
+    const errors = diagnostics.filter((d) => d.severity === "error");
+    if (errors.length > 0) {
+      return { success: false, error: errors.map((d) => d.message).join("\n") };
+    }
 
     const program = await compile(NodeHost, spec, compilerOptions);
 

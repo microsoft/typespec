@@ -32,6 +32,7 @@ class CombinedType(BaseType):
         self.name = yaml_data.get("name")
         self._is_union_of_literals = all(i.type == "constant" for i in self.types)
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
+        self.discriminator = yaml_data.get("discriminator") if code_model.options["models-mode"] == "dpg" else None
 
     def serialization_type(self, **kwargs: Any) -> str:
         """The tag recognized by 'msrest' as a serialization/deserialization.
@@ -66,6 +67,8 @@ class CombinedType(BaseType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         if self.name:
+            if self.discriminator and (kwargs.get("is_operation_file") or kwargs.get("skip_quote")):
+                return f"_unions.{self.name}"
             return f'"_unions.{self.name}"'
         return self.type_definition(**kwargs)
 
@@ -76,7 +79,7 @@ class CombinedType(BaseType):
         """
         # remove duplicates
         inside_types = list(dict.fromkeys([type.type_annotation(**kwargs) for type in self.types]))
-        if len(inside_types) == 1:
+        if len(inside_types) == 1 and not self.discriminator:
             return inside_types[0]
         if self._is_union_of_literals:
             parsed_values = []
@@ -89,7 +92,23 @@ class CombinedType(BaseType):
 
         # If the inside types has been a Union, peel first and then re-union
         pattern = re.compile(r"Union\[.*\]")
-        return f'Union[{", ".join(map(lambda x: x[6: -1] if pattern.match(x) else x, inside_types))}]'
+        definition = (
+            inside_types[0]
+            if len(inside_types) == 1
+            else f'Union[{", ".join(map(lambda x: x[6: -1] if pattern.match(x) else x, inside_types))}]'
+        )
+        if self.discriminator:
+            from . import build_type
+
+            variants = ", ".join(
+                f"{tag!r}: {build_type(model, self.code_model).type_annotation(**{**kwargs, 'skip_quote': True})}"
+                for tag, model in self.discriminator["variants"].items()
+            )
+            return (
+                f"Annotated[{definition}, "
+                f"_DiscriminatedUnion({self.discriminator['propertyName']!r}, {{{variants}}})]"
+            )
+        return definition
 
     @property
     def is_form_data(self) -> bool:
@@ -121,11 +140,31 @@ class CombinedType(BaseType):
                 self.code_model.get_relative_import_path(serialize_namespace),
                 "_unions",
                 ImportType.LOCAL,
-                TypingSection.TYPING,
+                (
+                    TypingSection.REGULAR
+                    if self.discriminator and serialize_namespace_type != NamespaceType.MODEL
+                    else TypingSection.TYPING
+                ),
             )
             return file_import
         for type in self.types:
-            file_import.merge(type.imports(**kwargs))
+            if self.discriminator and isinstance(type, ModelType):
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(serialize_namespace, type.client_namespace),
+                    "models",
+                    ImportType.LOCAL,
+                    TypingSection.REGULAR,
+                    alias=self.code_model.get_unique_models_alias(serialize_namespace, type.client_namespace),
+                )
+            else:
+                file_import.merge(type.imports(**kwargs))
+        if self.discriminator:
+            file_import.add_submodule_import("typing", "Annotated", ImportType.STDLIB)
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                "_DiscriminatedUnion",
+                ImportType.LOCAL,
+            )
         if not self._is_union_of_literals:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
         return file_import
@@ -134,11 +173,11 @@ class CombinedType(BaseType):
     def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "BaseType":
         from . import build_type
 
-        return cls(
-            yaml_data,
-            code_model,
-            [build_type(t, code_model) for t in yaml_data["types"]],
-        )
+        union = cls(yaml_data, code_model, [])
+        code_model.types_map[id(yaml_data)] = union
+        union.types = [build_type(t, code_model) for t in yaml_data["types"]]
+        union._is_union_of_literals = all(t.type == "constant" for t in union.types)
+        return union
 
     def target_model_subtype(
         self,

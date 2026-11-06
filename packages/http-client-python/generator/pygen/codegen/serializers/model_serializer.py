@@ -460,7 +460,7 @@ class DpgModelSerializer(_ModelSerializer):
             raise ValueError("We do not generate anonymous properties")
         return properties_to_declare
 
-    def declare_property(self, prop: Property) -> str:
+    def declare_property(self, prop: Property, model: Optional[ModelType] = None) -> str:
         args = []
         if prop.client_name != prop.wire_name or prop.is_discriminator:
             args.append(f"name={python_string_literal(prop.wire_name)}")
@@ -499,13 +499,32 @@ class DpgModelSerializer(_ModelSerializer):
         )
         type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
         generated_code = f'{prop.client_name}: {type_annotation} = {field}({", ".join(args)})'
+        if (
+            not type_ignore
+            and prop.constant
+            and model
+            and any(
+                prop.client_name == parent_prop.client_name
+                for parent in model.parents
+                for parent_prop in parent.properties
+            )
+        ):
+            type_ignore = "  # pyright: ignore[reportIncompatibleVariableOverride]"
         return f"{generated_code}{type_ignore}"
 
     def initialize_properties(self, model: ModelType) -> list[str]:
         init_args = []
         for prop in self.get_properties_to_declare(model):
             if prop.constant and not prop.is_base_discriminator:
-                init_args.append(f"self.{prop.client_name}: {prop.type_annotation()} = " f"{prop.get_declaration()}")
+                inherited = any(
+                    prop.client_name == parent_prop.client_name
+                    for parent in model.parents
+                    for parent_prop in parent.properties
+                )
+                type_ignore = "  # pyright: ignore[reportIncompatibleVariableOverride]" if inherited else ""
+                init_args.append(
+                    f"self.{prop.client_name}: {prop.type_annotation()} = {prop.get_declaration()}{type_ignore}"
+                )
         return init_args
 
     @staticmethod

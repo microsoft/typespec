@@ -174,6 +174,13 @@ const libDef = {
   name: "@typespec/http-client-python",
   diagnostics: {
     // error
+    "unsupported-discriminated-union": {
+      severity: "error",
+      messages: {
+        default:
+          'Python currently supports @discriminated only with envelope: "none", an explicit model constraint, and named model variants that nominally extend that constraint. Discriminator properties must be absent or matching required string literals. Object envelopes and default variants are not supported.',
+      },
+    },
     "unknown-error": {
       severity: "error",
       messages: {

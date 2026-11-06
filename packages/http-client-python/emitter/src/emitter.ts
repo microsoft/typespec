@@ -54,6 +54,7 @@ async function createPythonSdkContext(
   const sdkContext = await createSdkContext<PythonEmitterOptions>(
     context,
     "@azure-tools/typespec-python",
+    { convertDiscriminatedUnionsToModels: false },
   );
   context.program.reportDiagnostics(sdkContext.diagnostics);
   return {
