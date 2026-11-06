@@ -10,7 +10,7 @@ parameters:
     type: string
 
 steps:
-  - task: EsrpCodeSigning@5
+  - task: EsrpCodeSigning@6
     displayName: ${{ parameters.displayName }}
     inputs:
       ConnectedServiceName: "Azure SDK PME Managed Identity"

@@ -10,6 +10,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public class PropertyWireInformation : WireInformation
     {
         public bool IsRequired { get; }
+        public bool IsRequiredInConstructor { get; }
         public bool IsReadOnly { get; }
         public bool IsNullable { get; }
         public bool IsDiscriminator { get; }
@@ -32,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             : base(serializationFormat, serializedName)
         {
             IsRequired = isRequired;
+            IsRequiredInConstructor = isRequired;
             IsReadOnly = isReadOnly;
             IsNullable = isNullable;
             IsDiscriminator = isDiscriminator;
@@ -49,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;
             IsRequired = inputProperty.IsRequired;
+            IsRequiredInConstructor = modelProperty?.IsRequiredInConstructor ?? inputProperty.IsRequired;
             IsReadOnly = inputProperty.IsReadOnly;
             IsHttpMetadata = modelProperty != null && modelProperty.IsHttpMetadata;
             IsNullable = inputProperty.Type is InputNullableType;

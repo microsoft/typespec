@@ -47,9 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(true)]
         public async Task CustomPropertyOrFieldAliasRetainsSourceAuthority(bool field)
         {
-            var (model, currentBase) = await CreateModelAsync(customAlias: field
-                ? "[CodeGenMember(\"Location\")] private string? _region;"
-                : "[CodeGenMember(\"Location\")] public string? Region { get; set; }");
+            var (model, currentBase) = await CreateModelAsync(customization: field ? "AliasField" : "AliasProperty");
             Assert.That(model.CustomCodeView, Is.Not.Null);
             Assert.That(model.CustomCodeView!.Properties.Any(property => property.OriginalName == "Location") ||
                 model.CustomCodeView.Fields.Any(value => value.OriginalName == "Location"), Is.True);
@@ -65,25 +63,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var propertyName = suppressesProjectedProperty ? "Location" : "Child";
             var (model, currentBase) = await CreateModelAsync(
-                customizationAttribute: $"[CodeGenSuppress(\"{propertyName}\")]", cachePropertyFirst: cachePropertyFirst);
+                customization: suppressesProjectedProperty ? "SuppressLocation" : "SuppressChild", includeChild: true, cachePropertyFirst: cachePropertyFirst);
             Assert.That(model.CustomCodeView, Is.Not.Null);
             Assert.That(model.BaseType?.AreNamesEqual(currentBase.Type), Is.EqualTo(suppressesProjectedProperty));
             Assert.That(model.CanonicalView.Properties.Select(property => property.Name), Does.Not.Contain(propertyName));
         }
 
-        [TestCase("Location", "[CodeGenSerialization(\"Location\", \"customLocation\")]", true)]
-        [TestCase("Location", "[CodeGenSerialization(\"Location\", SerializationValueHook = \"SerializeLocation\")]", true)]
-        [TestCase("Location", "[CodeGenSerialization(\"Location\", DeserializationValueHook = \"DeserializeLocation\")]", true)]
-        [TestCase("Child", "[CodeGenSerialization(\"Child\", \"customChild\")]", false)]
-        public async Task SerializationCustomizationRetainsSourceAuthority(string propertyName, string attribute, bool preventsRestoration)
+        [TestCase("Location", "SerializeLocationName", true, "customLocation")]
+        [TestCase("Location", "SerializeLocationHook", true, null)]
+        [TestCase("Location", "DeserializeLocationHook", true, null)]
+        [TestCase("Child", "SerializeChildName", false, "customChild")]
+        public async Task SerializationCustomizationRetainsSourceAuthority(string propertyName, string customization, bool preventsRestoration, string? expectedSerializedName)
         {
-            var (model, currentBase) = await CreateModelAsync(customizationAttribute: attribute);
+            var (model, currentBase) = await CreateModelAsync(customization: customization, includeChild: true);
             Assert.That(model.CustomCodeView!.Attributes, Is.Not.Empty);
             Assert.That(model.BaseType?.AreNamesEqual(currentBase.Type), Is.EqualTo(preventsRestoration));
             var property = model.CanonicalView.Properties.Single(value => value.Name == propertyName);
-            if (attribute.Contains("custom", StringComparison.Ordinal))
+            if (expectedSerializedName is not null)
             {
-                Assert.That(property.WireInfo?.SerializedName, Is.EqualTo("custom" + propertyName));
+                Assert.That(property.WireInfo?.SerializedName, Is.EqualTo(expectedSerializedName));
             }
         }
 
@@ -114,8 +112,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         private static async Task<(ModelProvider Model, ModelProvider CurrentBase)> CreateModelAsync(
-            bool requiredName = false, bool registerFrameworkKey = false, string? customAlias = null,
-            string? customizationAttribute = null, bool cachePropertyFirst = false, string locationWireName = "location",
+            bool requiredName = false, bool registerFrameworkKey = false, string? customization = null,
+            bool includeChild = false, bool cachePropertyFirst = false, string locationWireName = "location",
             int mappedCandidateCount = 0, bool equivalentCandidates = true, bool reverseCandidateOrder = false)
         {
             var baselineSource = Helpers.GetExpectedFromFile("Baseline");
@@ -130,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 [InputFactory.Property("name", InputPrimitiveType.String, isRequired: requiredName)]);
             var location = InputFactory.Property("location", InputPrimitiveType.String, serializedName: locationWireName);
             var input = InputFactory.Model("Derived", baseModel: current,
-                properties: customizationAttribute is null ? [location] : [location, InputFactory.Property("child", InputPrimitiveType.String)]);
+                properties: includeChild ? [location, InputFactory.Property("child", InputPrimitiveType.String)] : [location]);
             var mappedInputs = Enumerable.Range(0, mappedCandidateCount)
                 .Select(index => InputFactory.Model($"Mapped{index}", properties: index > 0 && !equivalentCandidates
                     ? [InputFactory.Property("other", InputPrimitiveType.String)] : []))
@@ -163,10 +161,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     MetadataReference.CreateFromFile(typeof(NamedResource).Assembly.Location),
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll")),
                 ],
-                compilation: customAlias is null && customizationAttribute is null ? null : () => Helpers.GetCompilationFromSourceFilesAsync(
-                    [("Derived.cs", Helpers.GetExpectedFromFile("Customization")
-                        .Replace("__CUSTOMIZATION_ATTRIBUTE__", customizationAttribute ?? string.Empty)
-                        .Replace("__CUSTOM_ALIAS__", customAlias ?? string.Empty))]),
+                compilation: customization is null ? null : () => Helpers.GetCompilationFromSourceFilesAsync(
+                    [("Derived.cs", Helpers.GetExpectedFromFile(customization))]),
                 lastContractCompilation: () => Task.FromResult<Compilation>(baseline),
                 createLastContractModelBase: (previous, _) => previous.AreNamesEqual(new CSharpType(typeof(NamedTrackedResource)))
                     ? new CSharpType(typeof(NamedTrackedResource)) : null);

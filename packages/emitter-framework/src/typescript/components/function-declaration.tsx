@@ -1,6 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import type { Model, Operation } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
+import { getDoc } from "../utils/doc.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
@@ -49,7 +50,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     params: props.parameters,
     mode: props.parametersMode,
   });
-  const doc = props.doc ?? $.type.getDoc(props.type);
+  const doc = props.doc ?? getDoc($, props.type);
   return (
     <ts.FunctionDeclaration
       doc={doc}

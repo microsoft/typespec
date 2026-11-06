@@ -585,6 +585,238 @@ namespace SampleTypeSpec
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
+        /// <summary> The ConstructorOverride. </summary>
+        /// <param name="items"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorOverride"/> instance for mocking. </returns>
+        public static ConstructorOverride ConstructorOverride(IEnumerable<string> items = default, string value = default)
+        {
+            items ??= new ChangeTrackingList<string>();
+
+            return new ConstructorOverride("fixed", items.ToList(), additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <param name="items"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorBase"/> instance for mocking. </returns>
+        public static ConstructorBase ConstructorBase(string value = default, IEnumerable<string> items = default)
+        {
+            items ??= new ChangeTrackingList<string>();
+
+            return new ConstructorBase(value, "fixed", items.ToList(), additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ConstructorReadOnlyOverride. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyOverride"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyOverride ConstructorReadOnlyOverride(string value = default)
+        {
+            return new ConstructorReadOnlyOverride(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorReadOnlyBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyBase"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyBase ConstructorReadOnlyBase(string value = default)
+        {
+            return new ConstructorReadOnlyBase(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ConstructorReadOnlyLeaf. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyLeaf"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyLeaf ConstructorReadOnlyLeaf(string value = default)
+        {
+            return new ConstructorReadOnlyLeaf(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The XmlConstructorOverride. </summary>
+        /// <param name="title"></param>
+        /// <param name="note"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlConstructorOverride"/> instance for mocking. </returns>
+        public static XmlConstructorOverride XmlConstructorOverride(string title = default, string note = default, string value = default)
+        {
+            return new XmlConstructorOverride(title, note, value);
+        }
+
+        /// <summary> The XmlConstructorMiddle. </summary>
+        /// <param name="value"></param>
+        /// <param name="title"></param>
+        /// <param name="note"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlConstructorMiddle"/> instance for mocking. </returns>
+        public static XmlConstructorMiddle XmlConstructorMiddle(string value = default, string title = default, string note = default)
+        {
+            return new XmlConstructorMiddle(value, title, note);
+        }
+
+        /// <summary> The XmlConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlConstructorBase"/> instance for mocking. </returns>
+        public static XmlConstructorBase XmlConstructorBase(string value = default, string title = default)
+        {
+            return new XmlConstructorBase(value, title);
+        }
+
+        /// <summary> The ConstructorInheritedLeaf. </summary>
+        /// <param name="items"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorInheritedLeaf"/> instance for mocking. </returns>
+        public static ConstructorInheritedLeaf ConstructorInheritedLeaf(IEnumerable<string> items = default, string value = default)
+        {
+            items ??= new ChangeTrackingList<string>();
+
+            return new ConstructorInheritedLeaf("fixed", items.ToList(), additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The RenamedConstructorOverride. </summary>
+        /// <param name="title"></param>
+        /// <param name="renamedValue"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorOverride"/> instance for mocking. </returns>
+        public static RenamedConstructorOverride RenamedConstructorOverride(string title = default, string renamedValue = default)
+        {
+            return new RenamedConstructorOverride(title, additionalBinaryDataProperties: null, renamedValue);
+        }
+
+        /// <summary> The RenamedConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <param name="title"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorBase"/> instance for mocking. </returns>
+        public static RenamedConstructorBase RenamedConstructorBase(string value = default, string title = default)
+        {
+            return new RenamedConstructorBase(value, title, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RenamedConstructorLeaf. </summary>
+        /// <param name="title"></param>
+        /// <param name="renamedValue"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorLeaf"/> instance for mocking. </returns>
+        public static RenamedConstructorLeaf RenamedConstructorLeaf(string title = default, string renamedValue = default)
+        {
+            return new RenamedConstructorLeaf(title, additionalBinaryDataProperties: null, renamedValue);
+        }
+
+        /// <summary> The ConstructorWritableLeaf. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorWritableLeaf"/> instance for mocking. </returns>
+        public static ConstructorWritableLeaf ConstructorWritableLeaf(string value = default)
+        {
+            return new ConstructorWritableLeaf(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorReadOnlyMiddle. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyMiddle"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyMiddle ConstructorReadOnlyMiddle(string value = default)
+        {
+            return new ConstructorReadOnlyMiddle(additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The ConstructorWritableBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorWritableBase"/> instance for mocking. </returns>
+        public static ConstructorWritableBase ConstructorWritableBase(string value = default)
+        {
+            return new ConstructorWritableBase(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RenamedConstructorReturnedName. </summary>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedConstructorReturnedName"/> instance for mocking. </returns>
+        public static RenamedConstructorReturnedName RenamedConstructorReturnedName(string title = default, string value = default)
+        {
+            return new RenamedConstructorReturnedName(title, additionalBinaryDataProperties: null, value);
+        }
+
+        /// <summary> The RequiredRenamedConstructorOverride. </summary>
+        /// <param name="title"></param>
+        /// <param name="requiredValue"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RequiredRenamedConstructorOverride"/> instance for mocking. </returns>
+        public static RequiredRenamedConstructorOverride RequiredRenamedConstructorOverride(string title = default, string requiredValue = default)
+        {
+            return new RequiredRenamedConstructorOverride(title, additionalBinaryDataProperties: null, requiredValue);
+        }
+
+        /// <summary> The ConstructorReadOnlyCollectionOverride. </summary>
+        /// <param name="renamedItems"></param>
+        /// <param name="renamedValues"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyCollectionOverride"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyCollectionOverride ConstructorReadOnlyCollectionOverride(IEnumerable<string> renamedItems = default, IDictionary<string, string> renamedValues = default)
+        {
+            renamedItems ??= new ChangeTrackingList<string>();
+            renamedValues ??= new ChangeTrackingDictionary<string, string>();
+
+            return new ConstructorReadOnlyCollectionOverride(additionalBinaryDataProperties: null, renamedItems.ToList(), renamedValues);
+        }
+
+        /// <summary> The ConstructorReadOnlyCollectionBase. </summary>
+        /// <param name="items"></param>
+        /// <param name="values"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorReadOnlyCollectionBase"/> instance for mocking. </returns>
+        public static ConstructorReadOnlyCollectionBase ConstructorReadOnlyCollectionBase(IEnumerable<string> items = default, IReadOnlyDictionary<string, string> values = default)
+        {
+            items ??= new ChangeTrackingList<string>();
+            values ??= new ChangeTrackingDictionary<string, string>();
+
+            return new ConstructorReadOnlyCollectionBase(items.ToList(), values, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ConstructorRequiredCollectionOverride. </summary>
+        /// <param name="requiredItems"></param>
+        /// <param name="requiredValues"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorRequiredCollectionOverride"/> instance for mocking. </returns>
+        public static ConstructorRequiredCollectionOverride ConstructorRequiredCollectionOverride(IEnumerable<string> requiredItems = default, IDictionary<string, string> requiredValues = default)
+        {
+            requiredItems ??= new ChangeTrackingList<string>();
+            requiredValues ??= new ChangeTrackingDictionary<string, string>();
+
+            return new ConstructorRequiredCollectionOverride(additionalBinaryDataProperties: null, requiredItems.ToList(), requiredValues);
+        }
+
+        /// <summary> The RenamedLiteralConstructorOverride. </summary>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedLiteralConstructorOverride"/> instance for mocking. </returns>
+        public static RenamedLiteralConstructorOverride RenamedLiteralConstructorOverride()
+        {
+            return new RenamedLiteralConstructorOverride(additionalBinaryDataProperties: null, "fixed");
+        }
+
+        /// <summary> The LiteralConstructorBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LiteralConstructorBase"/> instance for mocking. </returns>
+        public static LiteralConstructorBase LiteralConstructorBase(string value = default)
+        {
+            return new LiteralConstructorBase(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ConstructorClientNameCollisionLeaf. </summary>
+        /// <param name="value"></param>
+        /// <param name="valueProperty"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorClientNameCollisionLeaf"/> instance for mocking. </returns>
+        public static ConstructorClientNameCollisionLeaf ConstructorClientNameCollisionLeaf(string value = default, string valueProperty = default)
+        {
+            return new ConstructorClientNameCollisionLeaf(value, additionalBinaryDataProperties: null, valueProperty);
+        }
+
+        /// <summary> The ConstructorClientNameCollision. </summary>
+        /// <param name="value"></param>
+        /// <param name="valueProperty"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorClientNameCollision"/> instance for mocking. </returns>
+        public static ConstructorClientNameCollision ConstructorClientNameCollision(string value = default, string valueProperty = default)
+        {
+            return new ConstructorClientNameCollision(value, additionalBinaryDataProperties: null, valueProperty);
+        }
+
+        /// <summary> The ConstructorClientNameCollisionBase. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ConstructorClientNameCollisionBase"/> instance for mocking. </returns>
+        public static ConstructorClientNameCollisionBase ConstructorClientNameCollisionBase(string value = default)
+        {
+            return new ConstructorClientNameCollisionBase(value, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

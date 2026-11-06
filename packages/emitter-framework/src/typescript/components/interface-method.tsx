@@ -2,6 +2,7 @@ import { type Children, splitProps } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
+import { getDoc } from "../utils/doc.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 
@@ -44,7 +45,7 @@ export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
     mode: props.parametersMode,
   });
 
-  const doc = props.doc ?? $.type.getDoc(props.type);
+  const doc = props.doc ?? getDoc($, props.type);
 
   return (
     <ts.InterfaceMethod

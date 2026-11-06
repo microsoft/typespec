@@ -5,9 +5,8 @@ using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models
 {
-    __CUSTOMIZATION_ATTRIBUTE__
     public partial class Derived
     {
-        __CUSTOM_ALIAS__
+        [CodeGenMember("Location")] private string? _region;
     }
 }
