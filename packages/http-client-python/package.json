@@ -26,6 +26,7 @@
     }
   },
   "browser": {
+    "./dist/emitter/generator-wheel.js": "./dist/emitter/generator-wheel.browser.js",
     "./dist/emitter/node-runner.js": "./dist/emitter/node-runner.browser.js",
     "./dist/emitter/pyodide-loader.js": "./dist/emitter/pyodide-loader.browser.js"
   },
@@ -82,12 +83,6 @@
     "@typespec/xml": ">=0.87.0 <1.0.0"
   },
   "playgroundConfig": {
-    "assets": [
-      {
-        "path": "generator/dist/pygen-*.whl",
-        "contentType": "application/zip"
-      }
-    ],
     "bundlePeerDependencies": [
       "@azure-tools/typespec-client-generator-core",
       "@azure-tools/typespec-azure-core",
