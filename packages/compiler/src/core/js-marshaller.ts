@@ -76,11 +76,16 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
   const canBeANumber = canNumericConstraintBeJsNumber(valueConstraint);
   if (canBeANumber) {
     const asNumber = type.value.asNumber();
+    if (asNumber !== null) {
+      return asNumber;
+    }
+    if (valueConstraint === undefined || valueConstraint.kind === "Intrinsic") {
+      return type.value;
+    }
     compilerAssert(
-      asNumber !== null,
+      false,
       `Numeric value '${type.value.toString()}' is not able to convert to a number without losing precision.`,
     );
-    return asNumber;
   }
   return type.value;
 }
