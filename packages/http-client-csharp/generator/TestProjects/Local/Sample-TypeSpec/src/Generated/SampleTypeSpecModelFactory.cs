@@ -690,6 +690,35 @@ namespace SampleTypeSpec
             return new ExternalUnionCat(name, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The DirectUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <param name="deserializeDirectPetsUnion"></param>
+        /// <param name="serializeDirectPetsUnion"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DirectUnionPet"/> instance for mocking. </returns>
+        public static DirectUnionPet DirectUnionPet(string name = default, string deserializeDirectPetsUnion = default, string serializeDirectPetsUnion = default)
+        {
+            return new DirectUnionPet(name, deserializeDirectPetsUnion, serializeDirectPetsUnion, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The DirectUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="deserializeDirectPetsUnion"></param>
+        /// <param name="serializeDirectPetsUnion"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DirectUnionCat"/> instance for mocking. </returns>
+        public static DirectUnionCat DirectUnionCat(string name = default, string deserializeDirectPetsUnion = default, string serializeDirectPetsUnion = default, bool meow = default)
+        {
+            return new DirectUnionCat(name, deserializeDirectPetsUnion, serializeDirectPetsUnion, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The DirectUnionPetContainer. </summary>
+        /// <param name="pet"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DirectUnionPetContainer"/> instance for mocking. </returns>
+        public static DirectUnionPetContainer DirectUnionPetContainer(DirectUnionPet pet = default)
+        {
+            return new DirectUnionPetContainer(pet, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The NullableDynamicModel. </summary>
         /// <param name="modelValue"></param>
         /// <param name="children"></param>

@@ -213,6 +213,59 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void StandaloneUnionBaseAndPropertyRoundTrip()
+        {
+            Assert.IsFalse(typeof(DirectUnionPet).IsAbstract);
+            var pet = new DirectUnionPet("Whiskers")
+            {
+                DeserializeDirectPetsUnion = "read",
+                SerializeDirectPetsUnion = "write"
+            };
+            var result = ModelReaderWriter.Read<DirectUnionPet>(ModelReaderWriter.Write(pet))!;
+            Assert.AreEqual("Whiskers", result.Name);
+            Assert.AreEqual("read", result.DeserializeDirectPetsUnion);
+            Assert.AreEqual("write", result.SerializeDirectPetsUnion);
+            var container = new DirectUnionPetContainer(pet);
+            var containerResult = ModelReaderWriter.Read<DirectUnionPetContainer>(ModelReaderWriter.Write(container))!;
+            Assert.AreEqual("Whiskers", containerResult.Pet.Name);
+        }
+
+        [Test]
+        public void HelpersAvoidPropertyNamesAndPreserveUnionEnvelopes()
+        {
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                DirectUnionPet.SerializeDirectPetsUnion1(writer, new DirectUnionCat("Whiskers", true), ModelSerializationExtensions.WireOptions);
+            }
+            using var document = JsonDocument.Parse(stream.ToArray());
+            Assert.AreEqual("cat", document.RootElement.GetProperty("kind").GetString());
+            var result = DirectUnionPet.DeserializeDirectPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions);
+            Assert.IsInstanceOf<DirectUnionCat>(result);
+            Assert.AreEqual("Whiskers", result.Name);
+        }
+
+        [Test]
+        public void ExternallyMappedVariantUsesRawEnvelope()
+        {
+            var data = BinaryData.FromString("{\"kind\":\"cat\",\"value\":{\"name\":\"Whiskers\"}}");
+            var response = new Mock<PipelineResponse>();
+            response.SetupGet(value => value.Content).Returns(data);
+            var client = new Mock<UnionExtends> { CallBase = true };
+            string? requestData = null;
+            client.Setup(value => value.EchoMappedVariant(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>((content, _) =>
+                {
+                    using var stream = new MemoryStream();
+                    content.WriteTo(stream, CancellationToken.None);
+                    requestData = BinaryData.FromBytes(stream.ToArray()).ToString();
+                }).Returns(ClientResult.FromResponse(response.Object));
+            var result = client.Object.EchoMappedVariant(data);
+            Assert.AreEqual(data.ToString(), result.Value.ToString());
+            Assert.AreEqual(data.ToString(), requestData);
+        }
+
+        [Test]
         public void NestedUnionPayloadsRemainConcrete()
         {
             Assert.IsTrue(typeof(CollisionPetsUnion).IsAbstract);

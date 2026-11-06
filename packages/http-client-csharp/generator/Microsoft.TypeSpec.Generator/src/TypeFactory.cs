@@ -178,7 +178,8 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
-                    if (unionType.BaseModel is { External: null })
+                    if (unionType.BaseModel is { External: null } &&
+                        unionType.DiscriminatedSubtypes?.Values.All(model => model.External is null) == true)
                     {
                         type = CreateCSharpType(unionType.BaseModel);
                         break;

@@ -107,6 +107,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(union.BaseModel!)!;
             var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
+            var memberNames = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var inputModel in new[] { union.BaseModel! }.Concat(union.BaseModel!.GetAllBaseModels()))
+            {
+                var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+                memberNames.UnionWith(provider.CanonicalView.Properties.Select(property => property.Name));
+                memberNames.UnionWith(provider.CanonicalView.Fields.Select(field => field.Name));
+                if (provider.CustomCodeView is { } custom)
+                {
+                    memberNames.UnionWith(custom.Properties.Select(property => property.Name));
+                    memberNames.UnionWith(custom.Fields.Select(field => field.Name));
+                    memberNames.UnionWith(custom.Methods.Select(method => method.Signature.Name));
+                }
+            }
             foreach (var baseModel in union.BaseModel!.GetAllBaseModels())
             {
                 reserved.Add(ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)!.Name);
@@ -122,7 +135,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var name = $"{(candidate.IsExactName ? candidate.Name : candidate.Name.ToIdentifierName())}Union";
                 var suffix = name;
                 var index = 0;
-                while (!reserved.Add(suffix))
+                while (memberNames.Contains($"Serialize{suffix}") || memberNames.Contains($"Deserialize{suffix}") ||
+                    !reserved.Add(suffix))
                 {
                     suffix = $"{name}{++index}";
                 }
@@ -136,7 +150,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal static bool RequiresEnvelope(InputType? type) => type switch
         {
-            InputUnionType { External: null, BaseModel: { External: null }, EnvelopePropertyName: not null } => true,
+            InputUnionType { External: null, BaseModel: { External: null }, EnvelopePropertyName: not null } union =>
+                union.DiscriminatedSubtypes is not null && union.DiscriminatedSubtypes.Values.All(model => model.External is null),
             InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type),
             InputArrayType { External: null } array => RequiresEnvelope(array.ValueType),
             InputDictionaryType { External: null } dictionary => RequiresEnvelope(dictionary.ValueType),

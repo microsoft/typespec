@@ -231,6 +231,104 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ExternallyMappedVariantKeepsRawUnionRepresentation()
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model,
+                external: new InputExternalTypeMetadata("System.Text.Json.JsonElement", null, null));
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            LoadUnions([model, cat], [union]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            Assert.IsFalse(DiscriminatedUnionSerialization.RequiresEnvelope(union));
+            Assert.IsTrue(factory.CreateCSharpType(union)!.Equals(typeof(System.BinaryData)));
+            var provider = factory.CreateModel(model)!;
+            Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsFalse(provider.SerializationProviders.SelectMany(serialization => serialization.Methods)
+                .Any(method => method.Signature.Name is "SerializePetsUnion" or "DeserializePetsUnion"));
+        }
+
+        [TestCase("serializePetsUnion", false)]
+        [TestCase("deserializePetsUnion", false)]
+        [TestCase("serializePetsUnion", true)]
+        [TestCase("deserializePetsUnion", true)]
+        public void UnionHelperNamesDoNotCollideWithProperties(string propertyName, bool inherited)
+        {
+            var parent = InputFactory.Model("parent",
+                properties: inherited ? [InputFactory.Property(propertyName, InputPrimitiveType.String)] : []);
+            var model = InputFactory.Model("pet", baseModel: parent,
+                properties: inherited ? [] : [InputFactory.Property(propertyName, InputPrimitiveType.String)]);
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            LoadUnions([parent, model, cat], [union]);
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion1", "DeserializePetsUnion1" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+        }
+
+        [Test]
+        public async Task UnionHelperNamesDoNotCollideWithCustomMembers()
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            var generator = LoadUnions([model, cat], [union]);
+            generator.SetupProperty(input => input.SourceInputModel,
+                new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null));
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion2", "DeserializePetsUnion2" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+        }
+
+        [TestCase("response")]
+        [TestCase("request")]
+        [TestCase("property")]
+        [TestCase("array")]
+        [TestCase("dictionary")]
+        [TestCase("nullable")]
+        [TestCase("stream")]
+        [TestCase("union")]
+        public void StandaloneBaseUsesKeepConcreteJsonDeserialization(string shape)
+        {
+            var model = InputFactory.Model("pet", properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            InputType directType = shape switch
+            {
+                "array" => InputFactory.Array(model),
+                "dictionary" => InputFactory.Dictionary(model),
+                "nullable" => new InputNullableType(model),
+                "stream" => new InputStreamingType("JsonlStream", "Streaming.Jsonl.JsonlStream", model, ["application/jsonl"]),
+                "union" => new InputUnionType("optionalPet", [model, InputPrimitiveType.String]),
+                _ => model
+            };
+            var container = InputFactory.Model("container", properties:
+                shape is "property" or "array" or "dictionary" or "nullable" or "union"
+                    ? [InputFactory.Property("pet", directType)] : []);
+            var responseType = shape == "request" ? null :
+                shape is "property" or "array" or "dictionary" or "nullable" or "union" ? container : directType;
+            var operation = InputFactory.Operation("Read",
+                parameters: shape == "request" ? [InputFactory.BodyParameter("pet", model, isRequired: true)] : [],
+                responses: [InputFactory.OperationResponse([200], responseType)]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation,
+                parameters: shape == "request" ? [InputFactory.MethodParameter("pet", model, location: InputRequestLocation.Body)] : [],
+                response: InputFactory.ServiceMethodResponse(responseType, null));
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            LoadUnions([model, cat, container], [union], [client]);
+            var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+            Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            var serialization = provider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            StringAssert.DoesNotContain("throw", serialization.Methods.Single(method =>
+                method.Signature.Name == "DeserializePet").BodyStatements!.ToDisplayString());
+            Assert.IsTrue(serialization.Methods.Any(method => method.Signature.Name == "DeserializePetsUnion"));
+        }
+
+        [Test]
         public void XmlEnvelopeBaseKeepsConcreteStandaloneDeserialization()
         {
             var model = InputFactory.Model("pet",

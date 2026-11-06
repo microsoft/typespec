@@ -1283,6 +1283,42 @@ union ExternalBasePets extends ExternalUnionBase {
   cat: ExternalUnionCat,
 }
 
+model DirectUnionPet {
+  name: string;
+  deserializeDirectPetsUnion?: string;
+  serializeDirectPetsUnion?: string;
+}
+
+model DirectUnionCat extends DirectUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union DirectPets extends DirectUnionPet {
+  cat: DirectUnionCat,
+}
+
+model DirectUnionPetContainer {
+  pet: DirectUnionPet;
+}
+
+model ExternalVariantBase {}
+
+@alternateType(
+  {
+    identity: "System.Text.Json.JsonElement",
+  },
+  "csharp"
+)
+model ExternalVariantCat extends ExternalVariantBase {
+  name: string;
+}
+
+@discriminated
+union ExternalVariantPets extends ExternalVariantBase {
+  cat: ExternalVariantCat,
+}
+
 @route("/union-extends")
 interface UnionExtends {
   @post
@@ -1326,6 +1362,22 @@ interface UnionExtends {
   @route("/mapped-base")
   @post
   echoMappedBase(@body pet: ExternalBasePets): ExternalBasePets;
+
+  @route("/mapped-variant")
+  @post
+  echoMappedVariant(@body pet: ExternalVariantPets): ExternalVariantPets;
+
+  @route("/direct-base")
+  @post
+  echoDirectBase(@body pet: DirectUnionPet): DirectUnionPet;
+
+  @route("/direct-union")
+  @post
+  echoDirectUnion(@body pet: DirectPets): DirectPets;
+
+  @route("/direct-container")
+  @post
+  echoDirectContainer(@body container: DirectUnionPetContainer): DirectUnionPetContainer;
 
   @route("/jsonl/send")
   @post

@@ -441,7 +441,8 @@ namespace Microsoft.TypeSpec.Generator
 
             discriminatorBaseNames.UnionWith(generatedDiscriminatorBaseNames);
             var unionVariants = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
-                .Where(union => union.External == null && union.BaseModel is { External: null } && union.DiscriminatedSubtypes != null)
+                .Where(union => union.External == null && union.BaseModel is { External: null } &&
+                    union.DiscriminatedSubtypes != null && union.DiscriminatedSubtypes.Values.All(model => model.External == null))
                 .GroupBy(union => union.BaseModel!)
                 .ToDictionary(group => group.Key, group => group
                     .SelectMany(union => union.DiscriminatedSubtypes!.Values).ToHashSet());

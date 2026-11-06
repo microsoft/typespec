@@ -18,6 +18,9 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(CollisionPetsUnion))]
     [ModelReaderWriterBuildable(typeof(CurrentDetails))]
+    [ModelReaderWriterBuildable(typeof(DirectUnionCat))]
+    [ModelReaderWriterBuildable(typeof(DirectUnionPet))]
+    [ModelReaderWriterBuildable(typeof(DirectUnionPetContainer))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
 #pragma warning disable UNION001 // global::SampleTypeSpec.ExperimentalUnionCat is experimental and may change in future versions.
