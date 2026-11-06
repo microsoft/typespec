@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 AssemblyTitle = $"SDK Code Generation {CodeModelGenerator.Instance.Configuration.PackageName}",
                 Version = "1.0.0-beta.1",
                 PackageTags = CodeModelGenerator.Instance.Configuration.PackageName,
-                TargetFrameworks = "netstandard2.0;net8.0",
+                TargetFrameworks = "netstandard2.0;net10.0",
                 LangVersion = "latest",
                 GenerateDocumentationFile = true,
             };
@@ -107,7 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             var builder = new CSharpProjectWriter()
             {
-                TargetFramework = "net8.0",
+                TargetFramework = "net10.0",
                 IsTestProject = true,
                 IsPackable = false,
             };

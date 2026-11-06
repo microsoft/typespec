@@ -222,19 +222,19 @@ TypeSpec libraries are defined using `peerDependencies` to avoid having multiple
 ```jsonc
 {
   "dependencies": {
-    "yaml": "~2.3.1", // This is a regular package this library/emitter will use
+    "yaml": "~2.9.1", // This is a regular package this library/emitter will use
   },
   "peerDependencies": {
     // These are all TypeSpec libraries this library/emitter depends on
-    "@typespec/compiler": "~0.43.0",
-    "@typespec/http": "~0.43.1",
-    "@typespec/openapi": "~0.43.0",
+    "@typespec/compiler": "~1.17.0",
+    "@typespec/http": "~1.17.0",
+    "@typespec/openapi": "~1.17.0",
   },
   "devDependencies": {
     // This TypeSpec library is only used in the tests but is not required to use this library.
-    "@typespec/versioning": "~0.43.0",
+    "@typespec/versioning": "~0.87.0",
     // TypeScript is only used during development
-    "typescript": "~5.0.2",
+    "typescript": "~7.0.2",
   },
 }
 ```

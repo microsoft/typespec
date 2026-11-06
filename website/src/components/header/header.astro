@@ -2,7 +2,7 @@
 import ThemePicker from "@typespec/astro-utils/components/theme-picker.astro";
 import Link from "@typespec/astro-utils/components/link.astro";
 import { Icon } from "@astrojs/starlight/components";
-import Search from "./search.astro";
+import Search from "@typespec/astro-utils/components/search.astro";
 import ReleaseNotification from "../release-notification.astro";
 export interface Props {
   noLinks?: boolean;
@@ -277,7 +277,7 @@ const { noLinks } = Astro.props;
       </div>
     </div>
   </div>
-  <Search />
+  <Search scopes />
   {!noLinks && (
     <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
       <Icon name="bars" />

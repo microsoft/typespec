@@ -151,6 +151,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.AreEqual("System.Collections.Generic.IReadOnlyList`1", name);
         }
 
+        [TestCase("Values", 1, "global::Sample.ExternalValue[]")]
+        [TestCase("Matrix", 2, "global::Sample.ExternalValue[,]")]
+        [TestCase("Jagged", 1, "global::Sample.ExternalValue[][]")]
+        [TestCase("Groups", 1, "global::System.Collections.Generic.List<global::Sample.ExternalValue>[]")]
+        [TestCase("VectorOfMatrices", 1, "global::Sample.ExternalValue[][,]")]
+        [TestCase("MatrixOfVectors", 2, "global::Sample.ExternalValue[,][]")]
+        public async Task SymbolBackedArraysRetainElementAndRank(string propertyName, int rank, string expected)
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = GetPropertySymbol(compilation, "Container", propertyName);
+            var array = symbol.Type.GetCSharpType();
+            Assert.That(array.IsArray, Is.True);
+            Assert.That(array.ArrayRank, Is.EqualTo(rank));
+            Assert.That(array.ToString(), Is.EqualTo(expected));
+            if (propertyName == "Jagged")
+            {
+                Assert.That(array.ElementType.IsArray, Is.True);
+                Assert.That(array.ElementType.ElementType.Name, Is.EqualTo("ExternalValue"));
+            }
+        }
+
         private static IPropertySymbol GetPropertySymbol(Compilation compilation, string containerName, string propertyName)
         {
             var typeSymbol = compilation.GetTypeByMetadataName($"Sample.{containerName}");

@@ -12,6 +12,7 @@ import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { getDoc } from "../utils/doc.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
@@ -53,7 +54,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
-  const doc = props.doc ?? $.type.getDoc(props.type);
+  const doc = props.doc ?? getDoc($, props.type);
 
   return (
     <ts.InterfaceDeclaration

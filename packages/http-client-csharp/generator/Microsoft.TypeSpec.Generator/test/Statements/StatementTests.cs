@@ -97,6 +97,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         }
 
         [Test]
+        public void ForeachStatementInfersObjectForNonGenericEnumerable()
+        {
+            var enumerable = new VariableExpression(typeof(System.Collections.IEnumerable), "values").As<System.Collections.IEnumerable>();
+            var statement = new ForEachStatement("item", enumerable, out var item);
+
+            Assert.IsNull(statement.ItemType);
+            Assert.AreEqual(new CSharpType(typeof(object)), item.Type);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), statement.ToDisplayString());
+        }
+
+        [Test]
         public void ForeachStatementWithAddMethod()
         {
             var foreachStatement = new ForEachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);

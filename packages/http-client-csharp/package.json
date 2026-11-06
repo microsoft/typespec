@@ -21,7 +21,6 @@
   "exports": {
     ".": {
       "types": "./dist/emitter/src/index.d.ts",
-      "typespec": "./emitter/lib/main.tsp",
       "default": "./dist/emitter/src/index.js"
     }
   },
@@ -35,9 +34,7 @@
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "dev:playground": "npm run build:emitter && cd ../../website && npm run dev",
-    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "test:generator": "dotnet test ./generator",
     "test": "npm run test:emitter && npm run test:generator",
@@ -54,12 +51,11 @@
   "files": [
     "dist/emitter/src/**",
     "dist/generated-defs/**",
-    "dist/generator/**",
-    "emitter/lib/*.tsp"
+    "dist/generator/**"
   ],
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.73.0 <0.74.0 || ~0.74.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.73.1 <0.74.0 || ~0.74.0-0",
     "@typespec/compiler": "^1.17.0",
     "@typespec/events": ">=0.87.0 <0.88.0 || ~0.88.0-0",
     "@typespec/http": "^1.17.0",
@@ -73,7 +69,7 @@
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.46",
     "@azure-tools/typespec-azure-core": "0.73.0",
-    "@azure-tools/typespec-client-generator-core": "0.73.0",
+    "@azure-tools/typespec-client-generator-core": "0.73.1",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.12.0",
     "@typespec/compiler": "1.17.0",
@@ -98,6 +94,11 @@
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
     "vitest": "^4.1.11"
+  },
+  "playgroundConfig": {
+    "bundlePeerDependencies": [
+      "@typespec/http-client"
+    ]
   },
   "dependencies": {
     "@azure/identity": "^4.13.0"

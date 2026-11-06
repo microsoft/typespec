@@ -32,6 +32,227 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("Use \"Read\" instead.\nSee C:\\sdk.")]
+        public void DeprecatedOperationsAnnotateAllPublicMethods(string? message)
+        {
+            var operation = InputFactory.Operation("Bar", deprecated: message);
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods.Append(client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                var attribute = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                if (message is null || method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest })
+                {
+                    Assert.IsNull(attribute);
+                }
+                else
+                {
+                    Assert.IsNotNull(attribute);
+                    Assert.AreEqual(Snippet.Literal(message).ToDisplayString(), attribute!.Arguments.Single().ToDisplayString());
+                    Assert.IsEmpty(attribute.PositionalArguments);
+                }
+            }
+        }
+
+        [Test]
+        public async Task DeprecatedCustomizedPartialMethodsKeepExistingAttributes()
+        {
+            var operation = InputFactory.Operation("Bar", deprecated: "Generated message");
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.IsTrue(method.IsPartialMethod);
+                Assert.IsFalse(method.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+            Assert.IsTrue(client.CustomCodeView!.Methods.All(m =>
+                m.Signature.Attributes.Single().Arguments.Single().ToDisplayString() == "\"Custom message\""));
+        }
+
+        [TestCase("Custom", "OBS001", "OBS002")]
+        [TestCase("WithoutMessage", null, null)]
+        [TestCase("Preview", "EXP001", "EXP002")]
+        [TestCase("Combined", "OBS001", "OBS002")]
+        [TestCase("Current", "", "")]
+        public async Task CustomProtocolDiagnosticsAreSuppressedByConvenienceMethods(string name, string? syncId, string? asyncId)
+        {
+            var operation = InputFactory.Operation(name);
+            var serviceMethod = InputFactory.BasicServiceMethod(name, operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var protocol in methods.Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                Assert.IsTrue(protocol.IsPartialMethod);
+                Assert.IsEmpty(protocol.Signature.Attributes);
+            }
+            foreach (var method in methods.Where(method => method.Kind == ScmMethodKind.Convenience))
+            {
+                var isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                var diagnosticId = isAsync ? asyncId : syncId;
+                string[] expected = diagnosticId switch
+                {
+                    null => ["CS0612", "CS0618"],
+                    "" => [],
+                    _ when name == "Combined" => [isAsync ? "EXP002" : "EXP001", diagnosticId],
+                    _ => [diagnosticId]
+                };
+                Assert.IsEmpty(method.Signature.Attributes);
+                CollectionAssert.AreEqual(expected.Select(id => Snippet.Literal(id).ToDisplayString()),
+                    method.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+                Assert.IsFalse(method.IsPartialMethod);
+            }
+        }
+
+        [Test]
+        public async Task DeprecationPreservesLastContractMethods()
+        {
+            var operation = InputFactory.Operation("Bar", deprecated: "Current message");
+            var newOperation = InputFactory.Operation("New", deprecated: "Current message");
+            var previewOperation = InputFactory.Operation("Preview", deprecated: "Current message");
+            var inputClient = InputFactory.Client("TestClient", methods:
+            [
+                InputFactory.BasicServiceMethod("Bar", operation),
+                InputFactory.BasicServiceMethod("New", newOperation),
+                InputFactory.BasicServiceMethod("Preview", previewOperation)
+            ]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+
+            Assert.AreEqual(12, methods.Length);
+            foreach (var method in methods)
+            {
+                bool expected = method.Signature.Name != "Bar" && method.Signature.Name != "BarAsync"
+                    || method.Signature.Name == "Bar" && method.Kind == ScmMethodKind.Protocol
+                    || method.Signature.Name == "BarAsync" && method.Kind == ScmMethodKind.Convenience;
+                Assert.AreEqual(expected, method.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))),
+                    $"{method.Signature.Name} {method.Kind}");
+                if (method.Signature.Name == "Bar" && method.Kind == ScmMethodKind.Convenience)
+                {
+                    Assert.IsTrue(method.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""));
+                }
+            }
+        }
+
+        [TestCase(null)]
+        [TestCase("Generated message")]
+        public async Task VisitorDeprecationPreservesPublishedMethods(string? generatedMessage)
+        {
+            var operation = InputFactory.Operation("Bar", deprecated: generatedMessage);
+            var inputClient = InputFactory.Client("TestClient", methods: [InputFactory.BasicServiceMethod("Bar", operation)]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContractMethods)));
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            client.EnsureBuilt();
+            var visitor = new MethodDeprecationVisitor();
+
+            visitor.VisitLibrary(generator.OutputLibrary);
+            client.ProcessTypeForBackCompatibility();
+
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+            Assert.AreEqual(4, methods.Length);
+            foreach (var method in methods)
+            {
+                Assert.AreSame(visitor.Attribute, method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+        }
+
+        private sealed class MethodDeprecationVisitor : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } = new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")],
+                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("VISITOR001"))]);
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method is ScmMethodProvider { Kind: ScmMethodKind.Protocol or ScmMethodKind.Convenience })
+                {
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !a.Type.Equals(typeof(ObsoleteAttribute))), Attribute]);
+                }
+                return method;
+            }
+        }
+
+        [Test]
+        public async Task DeprecationPreservesObsoleteOverloadsBesideStableSignatures()
+        {
+            var operation = InputFactory.Operation("Read", deprecated: "Current message",
+                parameters:
+                [
+                    InputFactory.QueryParameter("value", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.QueryParameter("added", InputPrimitiveType.Boolean)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
+            [
+                InputFactory.MethodParameter("value", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("added", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)
+            ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(6, client.Methods.Count);
+            Assert.AreEqual(2, client.Methods.Count(method => method.Signature.Parameters.Count == 2));
+            foreach (var method in client.Methods)
+            {
+                var obsolete = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                if (method.Signature.Parameters.Count == 2)
+                {
+                    Assert.IsNotNull(obsolete, method.Signature.Name);
+                    Assert.AreEqual("\"Current message\"", obsolete!.Arguments.Single().ToDisplayString());
+                }
+                else
+                {
+                    Assert.AreEqual(3, method.Signature.Parameters.Count);
+                    Assert.IsNull(obsolete, method.Signature.Name);
+                }
+            }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HeadResponseAsBoolReturnsTypedResults(bool responseAsBool)
+        {
+            var operation = InputFactory.Operation("Exists", httpMethod: "HEAD");
+            operation.Update(responseAsBool: responseAsBool);
+            var serviceMethod = InputFactory.BasicServiceMethod("Exists", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                var isAsync = method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async);
+                CSharpType resultType = responseAsBool ? typeof(ClientResult<bool>) : typeof(ClientResult);
+                var expectedType = isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
+                Assert.AreEqual(expectedType, method.Signature.ReturnType);
+            }
+        }
+
         [Test]
         public void ExperimentalApiHelpersAreSharedInternally()
         {
@@ -2528,6 +2749,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [TestCase(InputPrimitiveTypeKind.Int16)]
+        [TestCase(InputPrimitiveTypeKind.UInt16)]
+        [TestCase(InputPrimitiveTypeKind.UInt32)]
+        [TestCase(InputPrimitiveTypeKind.UInt64)]
+        public void NestedIntegerCollectionRequestsUseBinaryContentHelpers(InputPrimitiveTypeKind kind)
+        {
+            MockHelpers.LoadMockGenerator();
+            using var writer = new CodeWriter();
+            foreach (var isDictionary in new[] { false, true })
+            {
+                var elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
+                var arrayType = InputFactory.Array(elementType);
+                var bodyType = isDictionary ? (InputType)InputFactory.Dictionary(arrayType) : InputFactory.Array(arrayType);
+                var name = isDictionary ? "SendRecord" : "SendNested";
+                var operation = InputFactory.Operation(name, parameters: [InputFactory.BodyParameter("body", bodyType, isRequired: true)]);
+                var serviceMethod = InputFactory.BasicServiceMethod(name, operation,
+                    parameters: [InputFactory.MethodParameter("body", bodyType, location: InputRequestLocation.Body, isRequired: true)]);
+                var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+                var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+                var methods = new ScmMethodProviderCollection(serviceMethod, client);
+                foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+                {
+                    writer.WriteMethod(method);
+                }
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), writer.ToString(false));
+        }
+
+        [TestCase(InputPrimitiveTypeKind.Int16)]
+        [TestCase(InputPrimitiveTypeKind.UInt16)]
+        [TestCase(InputPrimitiveTypeKind.UInt32)]
+        [TestCase(InputPrimitiveTypeKind.UInt64)]
+        public void IntegerCollectionResponsesUseUtf8JsonReader(InputPrimitiveTypeKind kind)
+        {
+            MockHelpers.LoadMockGenerator();
+            using var writer = new CodeWriter();
+            foreach (var isDictionary in new[] { false, true })
+            {
+                foreach (var isNullable in new[] { false, true })
+                {
+                    InputType elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
+                    if (isNullable)
+                    {
+                        elementType = new InputNullableType(elementType);
+                    }
+                    var responseType = isDictionary ? (InputType)InputFactory.Dictionary(elementType) : InputFactory.Array(elementType);
+                    var name = $"Get{(isNullable ? "Nullable" : "")}{(isDictionary ? "Dictionary" : "List")}";
+                    var operation = InputFactory.Operation(name, responses: [InputFactory.OperationResponse([200], responseType)]);
+                    var serviceMethod = InputFactory.BasicServiceMethod(name, operation);
+                    var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+                    var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+                    var methods = new ScmMethodProviderCollection(serviceMethod, client);
+                    foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+                    {
+                        writer.WriteMethod(method);
+                    }
+                }
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), writer.ToString(false));
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(int), true)]
         [TestCase(typeof(int?))]
@@ -2900,6 +3184,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ResponseReplacementUsesMethodResponse(bool isAsync, bool useBytes)
+        {
+            var model = InputFactory.Model("Widget", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+            ]);
+            var response = InputFactory.OperationResponse([200], model, contentTypes: ["application/json"]);
+            var operation = InputFactory.Operation("GetWidget", responses: [response]);
+            var methodResponse = useBytes ? InputPrimitiveType.Base64 : null;
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget", operation, response: InputFactory.ServiceMethodResponse(methodResponse, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            var methodName = isAsync ? "GetWidgetAsync" : "GetWidget";
+            var convenience = methods.Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == methodName);
+            var protocol = methods.Single(m => m.Kind == ScmMethodKind.Protocol && m.Signature.Name == methodName);
+            CSharpType expectedType = useBytes ? typeof(ClientResult<BinaryData>) : typeof(ClientResult);
+            if (isAsync)
+            {
+                expectedType = new CSharpType(typeof(Task<>), expectedType);
+            }
+
+            Assert.AreEqual(expectedType, convenience.Signature.ReturnType);
+            Assert.AreEqual(new CSharpType(isAsync ? typeof(Task<ClientResult>) : typeof(ClientResult)), protocol.Signature.ReturnType);
+            Assert.AreSame(model, response.BodyType);
+            CollectionAssert.AreEqual(new[] { 200 }, response.StatusCodes);
+            CollectionAssert.AreEqual(new[] { "application/json" }, response.ContentTypes);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenience);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isAsync},{useBytes}"), writer.ToString(false));
         }
 
         [Test]

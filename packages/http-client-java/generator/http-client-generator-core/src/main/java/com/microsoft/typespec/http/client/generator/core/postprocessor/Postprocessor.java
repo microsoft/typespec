@@ -196,22 +196,26 @@ public class Postprocessor {
 
     private static void handlePartialUpdate(Map<String, String> fileContents, NewPlugin plugin, Logger logger) {
         logger.info("Begin handle partial update...");
+        // Non-Java batches do not need project metadata. Check before resolving paths, which can require settings
+        // and plugin callbacks that are unavailable or unnecessary when there is nothing to merge.
+        if (fileContents.keySet().stream().noneMatch(path -> path.endsWith(".java"))) {
+            logger.info("Finish handle partial update.");
+            return;
+        }
+        // The output location is invariant across this batch. Resolve it once, including any plugin/readme lookup,
+        // rather than repeating configuration access and directory checks for every generated Java file.
+        String outputFolderPath = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
+        String projectBaseDirectoryPath = Paths.get(outputFolderPath).isAbsolute() ? outputFolderPath : null;
+        if (projectBaseDirectoryPath == null || !(new File(projectBaseDirectoryPath).isDirectory())) {
+            // Preserve the legacy readme-based fallback for relative or nonexistent output folders.
+            projectBaseDirectoryPath = new File(getBaseDirectory(plugin)).getParent();
+        }
+        final String baseDirectory = projectBaseDirectoryPath;
         // handle partial update
         // currently only support add additional interface or overload a generated method in sync and async client
         fileContents.replaceAll((path, generatedFileContent) -> {
             if (path.endsWith(".java")) { // only handle for .java file
-                // get existing file path
-                // use output-folder from autorest, if exists and is absolute path
-                String projectBaseDirectoryPath = null;
-                String outputFolderPath = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
-                if (Paths.get(outputFolderPath).isAbsolute()) {
-                    projectBaseDirectoryPath = outputFolderPath;
-                }
-                if (projectBaseDirectoryPath == null || !(new File(projectBaseDirectoryPath).isDirectory())) {
-                    // use parent directory of swagger/readme.md
-                    projectBaseDirectoryPath = new File(getBaseDirectory(plugin)).getParent();
-                }
-                Path existingFilePath = Paths.get(projectBaseDirectoryPath, path);
+                Path existingFilePath = Paths.get(baseDirectory, path);
                 // check if existingFile exists, if not, no need to handle partial update
                 if (Files.exists(existingFilePath)) {
                     try {

@@ -103,6 +103,14 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
 | `pnpm tsp-integration`      | Run integration tests against external repos using local package changes                                                                                  |
 
+### Test transform caching
+
+The shared Vitest configuration caches transformed modules in `node_modules/.vitest-cache` to speed up subsequent local test runs. The first run populates the cache.
+
+To run without the transform cache, use `pnpm test --fsModuleCache=false`. To clear Vitest's caches, run `pnpm exec vitest --clearCache`.
+
+The cache is disabled by default when `CI` or `TF_BUILD` is set, including GitHub Actions and Azure Pipelines. CI jobs would need to persist the cache directory between runs to benefit from it.
+
 ### Verbose test logging
 
 Tests sometimes log extra info using `logVerboseTestOutput` To see
@@ -519,12 +527,13 @@ Process labels
 
 Misc labels
 
-| Name                | Color   | Description                                        |
-| ------------------- | ------- | -------------------------------------------------- |
-| `agentic-workflows` | #000000 | Issues/PR created by github agentic workflows      |
-| `good first issue`  | #7057ff | Good for newcomers                                 |
-| `mq`                | #0969da | Good candidate for MQ                              |
-| `int:azure-specs`   | #0e8a16 | Run integration tests against azure-rest-api-specs |
+| Name                | Color   | Description                                                      |
+| ------------------- | ------- | ---------------------------------------------------------------- |
+| `agentic-workflows` | #000000 | Issues/PR created by github agentic workflows                    |
+| `auto-merge`        | #0e8a16 | Automatically merge the pull request after all requirements pass |
+| `good first issue`  | #7057ff | Good for newcomers                                               |
+| `mq`                | #0969da | Good candidate for MQ                                            |
+| `int:azure-specs`   | #0e8a16 | Run integration tests against azure-rest-api-specs               |
 
 <!-- LABEL GENERATED REF END -->
 
