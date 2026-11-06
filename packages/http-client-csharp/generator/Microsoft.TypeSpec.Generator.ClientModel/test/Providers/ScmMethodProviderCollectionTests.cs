@@ -1988,7 +1988,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(true)]
         [TestCase(false, true)]
         [TestCase(true, true)]
-        public void NextLinkPagingPreservesContinuationTokenOptionsBag(bool supportsPageResumption, bool standaloneToken = false)
+        [TestCase(true, false, true)]
+        public async Task NextLinkPagingPreservesContinuationTokenOptionsBag(
+            bool supportsPageResumption, bool standaloneToken = false, bool customizeMethods = false)
         {
             var optionsModel = InputFactory.Model("GetItemsOptions", properties:
             [
@@ -2018,12 +2020,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 pagingMetadata: new InputPagingServiceMetadata(["items"],
                     new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
             var inputClient = InputFactory.Client("TestClient", methods: [method]);
-            MockHelpers.LoadMockGenerator(inputModels: () => [optionsModel, item, page], clients: () => [inputClient],
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [optionsModel, item, page], clients: () => [inputClient],
+                compilation: customizeMethods ? () => Helpers.GetCompilationFromDirectoryAsync("CustomMethods") : null,
                 clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methods = new ScmMethodProviderCollection(method, client);
 
             Assert.AreEqual(4, methods.Count);
+            Assert.AreEqual(customizeMethods ? 4 : 0, methods.Count(method => method.IsPartialMethod));
+            Assert.AreEqual(methods.Count, methods.Select(method => method.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
             foreach (var generated in methods)
             {
                 Assert.IsTrue(generated.Signature.Parameters.Any(p => ReferenceEquals(p.InputParameter, options)));
@@ -2039,7 +2044,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 writer.WriteMethod(generated);
             }
-            var baseline = standaloneToken ? supportsPageResumption.ToString() : null;
+            var baseline = customizeMethods ? "CustomMethods" : standaloneToken ? supportsPageResumption.ToString() : null;
             Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), writer.ToString(false));
         }
 

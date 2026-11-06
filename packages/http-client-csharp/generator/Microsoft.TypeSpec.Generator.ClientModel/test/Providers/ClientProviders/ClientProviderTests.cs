@@ -28,6 +28,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq.Protected;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -4426,13 +4427,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     && method.Signature.Parameters.Any(parameter => parameter.Name == "resumeToken")));
             }
             var file = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var retainsToken = supportsPageResumption && (hasPreviousDefaults || newOptionalParameter);
             var baseline = stringFilter ? "StringFilter"
                 : $"{supportsPageResumption},{newOptionalParameter}{(customizeProtocol ? ",CustomProtocol" : hasPreviousDefaults ? "" : ",NoDefaults")}";
             if (!protocolOnly)
             {
                 Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), file.Content);
             }
-            if (!stringFilter)
+            using (var requestWriter = new CodeWriter())
+            {
+                requestWriter.WriteMethod(client.RestClient.GetCreateRequestMethod(method.Operation));
+                var requestBaseline = newOptionalParameter ? stringFilter ? "CreateRequest,StringFilter" : "CreateRequest,Filter" : "CreateRequest";
+                Assert.AreEqual(Helpers.GetExpectedFromFile(requestBaseline), requestWriter.ToString(false));
+            }
+            if (!retainsToken)
             {
                 Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
             }
@@ -4441,13 +4449,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var visible = methods.Where(m => !m.Signature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))).ToArray();
             Assert.AreEqual(protocolOnly ? 2 : 4, visible.Length);
             Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name is "token" or "resumeToken")
-                == (!supportsPageResumption || stringFilter)));
+                == (!supportsPageResumption || retainsToken)));
             var hidden = methods.Except(visible).ToArray();
             Assert.IsTrue(methods.All(m => (m.BodyStatements!.ToDisplayString().Contains("token", StringComparison.Ordinal)
                 || m.BodyStatements!.ToDisplayString().Contains("resumeToken", StringComparison.Ordinal))
                 == m.Signature.Parameters.Any(p => p.Name is "token" or "resumeToken")));
             Assert.AreEqual(methods.Length, methods.Select(m => m.Signature).Distinct(MethodSignature.MethodSignatureComparer).Count());
-            if (stringFilter)
+            if (retainsToken)
             {
                 using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
                 Assert.AreEqual("diagnostic", notification.RootElement.GetProperty("method").GetString());
@@ -4456,13 +4464,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual("warning", warning.GetProperty("severity").GetString());
                 Assert.AreEqual(method.Operation.CrossLanguageDefinitionId, warning.GetProperty("crossLanguageDefinitionId").GetString());
                 StringAssert.Contains("retained", warning.GetProperty("message").GetString());
-                Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name == "filter")));
+                Assert.IsTrue(visible.All(m => m.Signature.Parameters.Any(p => p.Name == "filter") == newOptionalParameter));
                 Assert.IsTrue(visible.Where(m => m.Signature.Parameters[^1].Type.Equals(typeof(System.Threading.CancellationToken)))
                     .All(m => m.Signature.Parameters.All(p => p.DefaultValue != null)));
-                Assert.AreEqual(protocolOnly ? 2 : 4, hidden.Length);
+                Assert.AreEqual(newOptionalParameter ? protocolOnly ? 2 : 4 : 0, hidden.Length);
                 if (protocolOnly)
                 {
                     Assert.IsTrue(visible.All(m => m.Signature.Parameters.All(p => p.DefaultValue != null)));
+                }
+                if (!customizeProtocol)
+                {
+                    var compilation = await CompilePagingApiConsumerAsync(client);
+                    Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity == DiagnosticSeverity.Error).Select(diagnostic => diagnostic.ToString()));
                 }
                 return;
             }
@@ -4487,6 +4501,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     m.Suppressions.Any(suppression => suppression.Code.ToDisplayString() == Literal("AZC0002").ToDisplayString())));
             Assert.IsTrue(hidden.All(m => m.Signature.Attributes.Single(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))
                 .Arguments.Single().ToDisplayString() == FrameworkEnumValue(System.ComponentModel.EditorBrowsableState.Never).ToDisplayString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NextLinkPagingPreservesLiteralArgumentCalls(bool withFilter)
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var compilation = await CompilePagingApiConsumerAsync(client);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
+
+        [Test]
+        public async Task NextLinkPagingUsesBetterLiteralConversion()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter: true, filterType: InputPrimitiveType.Any);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            Moq.Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<CSharpType>("CreateCSharpTypeCore", InputPrimitiveType.Any)
+                .Returns(new CSharpType(typeof(object)));
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var methods = client.Methods.Where(method => method.Signature.Name is "GetItems" or "GetItemsAsync").ToArray();
+            var visible = methods.Where(method => !method.Signature.Attributes.Any(attribute =>
+                attribute.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute)))).ToArray();
+            Assert.AreEqual(4, visible.Length);
+            Assert.IsTrue(visible.All(method => method.Signature.Parameters.All(parameter => parameter.Name != "token")));
+            Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
+            var compilation = await CompilePagingApiConsumerAsync(client);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
+
+        private static async Task<Compilation> CompilePagingApiConsumerAsync(ClientProvider client)
+        {
+            var file = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var syntax = CSharpSyntaxTree.ParseText(file.Content).GetRoot();
+            // Compile real API signatures in isolation; generated request bodies are verified by baselines.
+            var body = (BlockSyntax)SyntaxFactory.ParseStatement(
+                Helpers.GetExpectedFromFile("MethodBody", method: nameof(BackCompatibility_NextLinkContinuationToken)));
+            var api = syntax.ReplaceNodes(syntax.DescendantNodes().OfType<MethodDeclarationSyntax>(),
+                (_, method) => method.WithBody(body));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(
+            [
+                (file.Name, api.ToFullString()),
+                ("Consumer.cs", Helpers.GetExpectedFromFile("Consumer", method: nameof(BackCompatibility_NextLinkContinuationToken)))
+            ]);
+            return compilation.RemoveSyntaxTrees(compilation.SyntaxTrees.Where(tree =>
+                tree.FilePath != file.Name && tree.FilePath != "Consumer.cs"));
         }
 
         [TestCase(false)]
@@ -4567,16 +4648,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsTrue(methods.All(method => method.Signature.Parameters.Any(parameter => parameter.Name == "token")));
             Assert.IsTrue(methods.All(method => method.Signature.Attributes.Any(attribute =>
                 attribute.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))) == !tokenBearingCustomMethod));
+            using (var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray())))
+            {
+                Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+            }
             if (tokenBearingCustomMethod)
             {
-                using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
-                Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
                 Assert.IsTrue(methods.Where(method => method.Signature.Parameters[^1].Type.Equals(typeof(System.ClientModel.Primitives.RequestOptions)))
                     .All(method => method.Signature.Parameters.All(parameter => parameter.DefaultValue == null)));
-            }
-            else
-            {
-                Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
             }
             var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
             var expected = tokenBearingCustomMethod
@@ -4586,13 +4665,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         private static (InputClient Client, InputModelType Item, InputModelType Page, InputPagingServiceMethod Method)
-            CreateContinuationTokenPagingClient(bool withFilter = false, bool stringFilter = false, bool protocolOnly = false)
+            CreateContinuationTokenPagingClient(bool withFilter = false, bool stringFilter = false, bool protocolOnly = false, InputType? filterType = null)
         {
             var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
             var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
             var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
             token.Update(isContinuationToken: true, methodParameterSegments: [methodToken]);
-            var filterType = stringFilter ? InputPrimitiveType.String : InputPrimitiveType.Boolean;
+            filterType ??= stringFilter ? InputPrimitiveType.String : InputPrimitiveType.Boolean;
             var filter = InputFactory.QueryParameter("filter", filterType);
             var item = InputFactory.Model("Item");
             var page = InputFactory.Model("Page", properties:

@@ -1648,7 +1648,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (method.ServiceMethod is { } serviceMethod
                     && method.Signature.Parameters.FirstOrDefault(parameter =>
-                        ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(serviceMethod, parameter)) is { } token)
+                        ScmMethodProviderCollection.IsNextLinkContinuationTokenParameter(serviceMethod, parameter.InputParameter)) is { } token)
                 {
                     (result ??= []).TryAdd(method, token);
                 }
@@ -1826,13 +1826,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Require the token and preceding parameters to avoid ambiguity with the tokenless API,
             // but preserve published defaults after the token so callers can still omit CancellationToken.
-            var hiddenMethods = methods
-                .Where(method => method.Signature.Attributes.Any(attribute => attribute.Type.Equals(typeof(EditorBrowsableAttribute))))
-                .ToLookup(method => method.Signature.Name);
+            var hiddenMethods = new Dictionary<(string Name, int ParameterCount), List<MethodProvider>>();
+            foreach (var method in methods)
+            {
+                if (method.Signature.Attributes.Any(attribute => attribute.Type.Equals(typeof(EditorBrowsableAttribute))))
+                {
+                    var key = (method.Signature.Name, method.Signature.Parameters.Count);
+                    if (!hiddenMethods.TryGetValue(key, out var overloads))
+                    {
+                        overloads = [];
+                        hiddenMethods.TryAdd(key, overloads);
+                    }
+                    overloads.Add(method);
+                }
+            }
             foreach (var (signature, tokenIndex, defaults) in previousDefaults)
             {
-                if (hiddenMethods[signature.Name].FirstOrDefault(method =>
-                    MethodSignature.MethodSignatureComparer.Equals(method.Signature, signature)) is not { } legacyMethod)
+                if (!hiddenMethods.TryGetValue((signature.Name, signature.Parameters.Count), out var overloads)
+                    || overloads.FirstOrDefault(method =>
+                        MethodSignature.MethodSignatureComparer.Equals(method.Signature, signature)) is not { } legacyMethod)
                 {
                     continue;
                 }
