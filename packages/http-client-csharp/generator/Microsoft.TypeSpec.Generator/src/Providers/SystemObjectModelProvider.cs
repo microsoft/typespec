@@ -245,7 +245,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static bool IsRequiredInitializationProperty(PropertyProvider property)
-            => property.WireInfo is { IsRequired: true, IsReadOnly: false } &&
+            => property.WireInfo is { IsRequiredInConstructor: true, IsReadOnly: false } &&
                 !property.Type.IsLiteral;
 
         /// <summary>

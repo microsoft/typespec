@@ -137,6 +137,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             }
         }
 
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task BuildingChildPropertiesPreservesSourceCacheOwnership(bool existingMappedCandidate, bool cacheSourceProperty)
+        {
+            var model = await CreateModelAsync(existingMappedCandidate: existingMappedCandidate, cacheSourceProperty: cacheSourceProperty);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var tags = model.InputModel.Properties.Single(property => property.Name == "tags");
+
+            _ = model.Properties;
+
+            Assert.That(factory.PropertyCache.TryGetValue(tags, out var cached), Is.True);
+            Assert.That(cached!.EnclosingType, Is.SameAs(model));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task SourceOwnerVetoIsNotBypassedByProjection(bool cacheRemoval)
@@ -325,6 +341,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Assert.That(model.CanonicalView.Properties.Single(property => property.Name == "Location").WireInfo?.SerializedName,
                     Is.EqualTo("customLocation"));
             });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task SourceOwnerConstructorRequirednessIsNotDiscardedByProjection(bool cacheSourceProperty)
+        {
+            var visitor = new SourceOwnerConstructorRequirednessChange();
+            var model = await CreateModelAsync(visitor: visitor, cacheSourceProperty: cacheSourceProperty);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(visitor.VisitedSourceOwner, Is.True);
+                Assert.That(model.BaseType?.AreNamesEqual(new CSharpType(typeof(ResourceData))), Is.True);
+                Assert.That(model.Properties.Single(property => property.Name == "Location").WireInfo?.IsRequiredInConstructor, Is.True);
+            });
+        }
+
+        private sealed class SourceOwnerConstructorRequirednessChange : LibraryVisitor
+        {
+            public bool VisitedSourceOwner { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (input.Name == "location" && property?.EnclosingType is ModelProvider owner &&
+                    ReferenceEquals(owner.InputModel, input.EnclosingType))
+                {
+                    VisitedSourceOwner = true;
+                    var copy = InputFactory.Property(input.Name, input.Type);
+                    copy.Update(isRequiredInConstructor: true);
+                    property.Update(wireInfo: new PropertyWireInformation(copy));
+                }
+                return property;
+            }
         }
 
         private sealed class SourceOwnerWireNameChange : LibraryVisitor

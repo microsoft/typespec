@@ -965,10 +965,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                // A projected base can contain inputs owned by another model; probing their names
+                // must not cache providers under the temporary projection's owner.
                 if (EnumerateBaseModelProviders().Any(model =>
                     (model is SystemObjectModelProvider mappedBase ? mappedBase.MappedInputProperties : model._inputModel.Properties)
                         .Any(p => p.OriginalName != property.OriginalName
-                            && CodeModelGenerator.Instance.TypeFactory.CreateProperty(p, model)?.Name == outputProperty.Name))
+                            && (model is SystemObjectModelProvider { HasInputPropertyProjection: true }
+                                ? CodeModelGenerator.Instance.TypeFactory.CreateUncachedProperty(p, model)
+                                : CodeModelGenerator.Instance.TypeFactory.CreateProperty(p, model))?.Name == outputProperty.Name))
                     && EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p =>
                         p.Name == outputProperty.Name && p.InputProperty is InputModelProperty inputProperty
                         && inputProperty.OriginalName != property.OriginalName)))

@@ -23,7 +23,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             => other is not null &&
                 SerializedName == other.SerializedName &&
                 SerializationFormat == other.SerializationFormat &&
-                IsRequired == other.IsRequired && IsReadOnly == other.IsReadOnly &&
+                IsRequired == other.IsRequired && IsRequiredInConstructor == other.IsRequiredInConstructor &&
+                IsReadOnly == other.IsReadOnly &&
                 IsNullable == other.IsNullable && IsDiscriminator == other.IsDiscriminator &&
                 IsHttpMetadata == other.IsHttpMetadata && IsApiVersion == other.IsApiVersion &&
                 Equals(SerializationOptions, other.SerializationOptions) &&
