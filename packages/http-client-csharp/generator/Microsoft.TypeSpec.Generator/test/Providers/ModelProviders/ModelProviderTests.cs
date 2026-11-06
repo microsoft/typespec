@@ -158,72 +158,72 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
         }
 
-        [TestCase("WidgetContent", false, "WidgetRequest")]
-        [TestCase("Content", false, "Request")]
-        [TestCase("widget_content", false, "WidgetRequest")]
-        [TestCase("IpContent", false, "IPRequest")]
-        [TestCase("WidgetContentContent", false, "WidgetContentRequest")]
-        [TestCase("WidgetResponseContent", false, "WidgetResponseRequest")]
-        [TestCase("WidgetContentResponse", false, "WidgetContentResult")]
-        [TestCase("WidgetContent", true, "WidgetContent")]
-        [TestCase("IpContent", true, "IpContent")]
-        [TestCase("WidgetRequest", false, "WidgetRequest")]
-        [TestCase("ContentWidget", false, "ContentWidget")]
-        [TestCase("WidgetContents", false, "WidgetContents")]
-        [TestCase("Widgetcontent", false, "Widgetcontent")]
-        public void TestBuildName_ContentSuffix(string inputName, bool isExactName, string expectedName)
+        [TestCase("WidgetRequest", false, "WidgetContent")]
+        [TestCase("Request", false, "Content")]
+        [TestCase("widget_request", false, "WidgetContent")]
+        [TestCase("IpRequest", false, "IPContent")]
+        [TestCase("WidgetRequestRequest", false, "WidgetRequestContent")]
+        [TestCase("WidgetResponseRequest", false, "WidgetResponseContent")]
+        [TestCase("WidgetRequestResponse", false, "WidgetRequestResult")]
+        [TestCase("WidgetRequest", true, "WidgetRequest")]
+        [TestCase("IpRequest", true, "IpRequest")]
+        [TestCase("WidgetContent", false, "WidgetContent")]
+        [TestCase("RequestWidget", false, "RequestWidget")]
+        [TestCase("WidgetRequests", false, "WidgetRequests")]
+        [TestCase("Widgetrequest", false, "Widgetrequest")]
+        public void TestBuildName_RequestSuffix(string inputName, bool isExactName, string expectedName)
         {
             var inputModel = InputFactory.Model(
                 inputName,
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
                 isExactName: isExactName,
-                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
             var model = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, model.Name);
             Assert.AreEqual(expectedName, model.Type.Name);
             Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
-            Assert.AreEqual("ServiceContent", model.Properties[0].Name);
+            Assert.AreEqual("ServiceRequest", model.Properties[0].Name);
         }
 
-        [TestCase(InputModelTypeUsage.Input, "WidgetRequest")]
+        [TestCase(InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.None, "WidgetContent")]
-        public void TestBuildName_ContentSuffixRequiresInputOnlyUsage(InputModelTypeUsage usage, string expectedName)
+        public void TestBuildName_RequestSuffixAppliesToAllUsages(InputModelTypeUsage usage, string expectedName)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: usage | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: usage | InputModelTypeUsage.Json);
             var model = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, model.Name);
         }
 
-        [TestCase(InputModelTypeUsage.Input, "IPRequest")]
+        [TestCase(InputModelTypeUsage.Input, "IPContent")]
         [TestCase(InputModelTypeUsage.Output, "IPContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "IPContent")]
-        public void TestBuildName_ContentSuffixUsagePreservesAcronymsAndProperties(InputModelTypeUsage usage, string expectedName)
+        public void TestBuildName_RequestSuffixUsagePreservesAcronymsAndProperties(InputModelTypeUsage usage, string expectedName)
         {
-            var inputModel = InputFactory.Model("IpContent",
+            var inputModel = InputFactory.Model("IpRequest",
                 usage: usage | InputModelTypeUsage.Json,
-                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
             var model = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, model.Type.Name);
             Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
-            Assert.AreEqual("ServiceContent", model.Properties[0].Name);
+            Assert.AreEqual("ServiceRequest", model.Properties[0].Name);
         }
 
-        [TestCase("WidgetContent", "WidgetRequest", false, false)]
-        [TestCase("WidgetContent", "WidgetRequest", false, true)]
-        [TestCase("WidgetContent", "WidgetRequest", true, false)]
-        [TestCase("WidgetContent", "WidgetRequest", true, true)]
+        [TestCase("WidgetRequest", "WidgetContent", false, false)]
+        [TestCase("WidgetRequest", "WidgetContent", false, true)]
+        [TestCase("WidgetRequest", "WidgetContent", true, false)]
+        [TestCase("WidgetRequest", "WidgetContent", true, true)]
         [TestCase("WidgetResponse", "WidgetResult", false, false)]
         [TestCase("WidgetResponse", "WidgetResult", false, true)]
-        [TestCase("IpContent", "IPRequest", false, false)]
-        [TestCase("IpContent", "IpRequest", false, true)]
+        [TestCase("IpRequest", "IPContent", false, false)]
+        [TestCase("IpRequest", "IpContent", false, true)]
         [TestCase("IpResponse", "IPResult", false, true)]
         public void TestBuildName_ModelSuffixCollision(
             string inputName, string reservedName, bool exactReservedName, bool reverseOrder)
@@ -232,8 +232,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var reservedModel = InputFactory.Model(reservedName, isExactName: exactReservedName);
             var wrapper = InputFactory.Model("Wrapper", properties:
             [
-                InputFactory.Property("content", inputModel),
-                InputFactory.Property("request", reservedModel)
+                InputFactory.Property("request", inputModel),
+                InputFactory.Property("content", reservedModel)
             ]);
             InputModelType[] models = reverseOrder
                 ? [reservedModel, inputModel, wrapper]
@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesCustomName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var customizedModel = InputFactory.Model("Gadget");
             InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -270,18 +270,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var customized = factory.CreateModel(customizedModel)!;
 
-            Assert.AreEqual("WidgetContent", model.Name);
-            Assert.AreEqual("WidgetRequest", customized.Name);
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("WidgetContent", customized.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(customized.CustomCodeView);
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
             Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
         }
 
-        [TestCase("WidgetContent", "WidgetRequest", "WidgetContent", false)]
-        [TestCase("WidgetContent", "WidgetRequest", "WidgetContent", true)]
-        [TestCase("IpContent", "IpRequest", "IPContent", false)]
-        [TestCase("IpContent", "IpRequest", "IPContent", true)]
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetRequest", false)]
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetRequest", true)]
+        [TestCase("IpRequest", "IpContent", "IPRequest", false)]
+        [TestCase("IpRequest", "IpContent", "IPRequest", true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesContractName(
             string inputName, string contractName, string expectedName, bool reverseOrder)
         {
@@ -305,35 +305,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixDoesNotCollideWithDistinctExactName()
         {
-            var inputModel = InputFactory.Model("IpContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var exactModel = InputFactory.Model("IpRequestModel", isExactName: true);
+            var inputModel = InputFactory.Model("IpRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var exactModel = InputFactory.Model("IpContentModel", isExactName: true);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
 
-            Assert.AreEqual("IPRequest", factory.CreateModel(inputModel)!.Name);
-            Assert.AreEqual("IpRequestModel", factory.CreateModel(exactModel)!.Name);
+            Assert.AreEqual("IPContent", factory.CreateModel(inputModel)!.Name);
+            Assert.AreEqual("IpContentModel", factory.CreateModel(exactModel)!.Name);
         }
 
         [TestCase("Sample.Models")]
         [TestCase("Other.Models")]
         public void TestBuildName_ModelSuffixAvoidsCaseInsensitiveFileCollision(string reservedNamespace)
         {
-            var inputModel = InputFactory.Model("IpContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var exactModel = InputFactory.Model("IpRequest", @namespace: reservedNamespace, isExactName: true);
+            var inputModel = InputFactory.Model("IpRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var exactModel = InputFactory.Model("IpContent", @namespace: reservedNamespace, isExactName: true);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var model = factory.CreateModel(inputModel)!;
             var exact = factory.CreateModel(exactModel)!;
 
-            Assert.AreEqual("IPContent", model.Name);
-            Assert.AreEqual("IpRequest", exact.Name);
+            Assert.AreEqual("IPRequest", model.Name);
+            Assert.AreEqual("IpContent", exact.Name);
             Assert.IsFalse(string.Equals(model.RelativeFilePath, exact.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
         }
 
-        [TestCase("WidgetContent", "WidgetRequest", false)]
-        [TestCase("WidgetContent", "WidgetRequest", true)]
+        [TestCase("WidgetRequest", "WidgetContent", false)]
+        [TestCase("WidgetRequest", "WidgetContent", true)]
         [TestCase("WidgetResponse", "WidgetResult", false)]
-        [TestCase("IpContent", "IpRequest", true)]
+        [TestCase("IpRequest", "IpContent", true)]
         public void TestBuildName_ModelSuffixReservesEnumNames(string modelName, string enumName, bool extensible)
         {
             var inputModel = InputFactory.Model(modelName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
@@ -354,9 +354,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public void TestBuildName_ModelSuffixReservesUnknownDiscriminatorName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("UnknownPetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("UnknownPetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
-            var baseModel = InputFactory.Model("PetRequest", properties: [discriminator]);
+            var baseModel = InputFactory.Model("PetContent", properties: [discriminator]);
             InputModelType[] models = reverseOrder ? [baseModel, inputModel] : [inputModel, baseModel];
             MockHelpers.LoadMockGenerator(inputModelTypes: models);
             var factory = CodeModelGenerator.Instance.TypeFactory;
@@ -364,8 +364,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var unknown = factory.CreateModel(baseModel.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
 
-            Assert.AreEqual("UnknownPetContent", model.Name);
-            Assert.AreEqual("UnknownPetRequest", unknown.Name);
+            Assert.AreEqual("UnknownPetRequest", model.Name);
+            Assert.AreEqual("UnknownPetContent", unknown.Name);
             Assert.Contains(unknown, providers);
             Assert.AreEqual(providers.Count, providers.Select(p => p.RelativeFilePath).Distinct(StringComparer.OrdinalIgnoreCase).Count());
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
@@ -376,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesMappedSuffixName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var customizedModel = InputFactory.Model("GadgetResponse");
             InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -386,8 +386,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var customized = factory.CreateModel(customizedModel)!;
 
-            Assert.AreEqual("WidgetContent", model.Name);
-            Assert.AreEqual("WidgetRequest", customized.Name);
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("WidgetContent", customized.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(customized.CustomCodeView);
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
@@ -398,8 +398,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixMappingBelongsToOriginalInput(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var mappedModel = InputFactory.Model("WidgetRequest");
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var mappedModel = InputFactory.Model("WidgetContent");
             InputModelType[] models = reverseOrder ? [mappedModel, inputModel] : [inputModel, mappedModel];
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: models,
@@ -408,8 +408,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var mapped = factory.CreateModel(mappedModel)!;
 
-            Assert.AreEqual("WidgetContent", model.Name);
-            Assert.AreEqual("CustomizedRequest", mapped.Name);
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("CustomizedContent", mapped.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(mapped.CustomCodeView);
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
@@ -420,7 +420,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixNamesAreCachedForLibrary()
         {
-            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Content", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json)).ToArray();
+            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Request", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json)).ToArray();
             MockHelpers.LoadMockGenerator(inputModelTypes: models);
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var names = factory.ModelNames;
@@ -430,7 +430,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             foreach (var model in models)
             {
                 var provider = factory.CreateModel(model)!;
-                Assert.AreEqual($"{model.Name[..^"Content".Length]}Request", provider.Name);
+                Assert.AreEqual($"{model.Name[..^"Request".Length]}Content", provider.Name);
                 Assert.AreEqual(names[model], provider.Name);
                 Assert.AreSame(names, factory.ModelNames);
             }
@@ -439,23 +439,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixFallbackAvoidsReservedOriginalName()
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
-            var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reserved = InputFactory.Model("WidgetContent", isExactName: true);
+            var inputEnum = InputFactory.StringEnum("WidgetRequest", [("One", "one")]);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, reserved], inputEnumTypes: [inputEnum]);
             var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
 
-            Assert.AreEqual("WidgetContent1", model.Name);
+            Assert.AreEqual("WidgetRequest1", model.Name);
         }
 
         [TestCase(false)]
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixFallbackAvoidsMappedInputName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
-            var mappedModel = InputFactory.Model("WidgetContent1");
-            var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reserved = InputFactory.Model("WidgetContent", isExactName: true);
+            var mappedModel = InputFactory.Model("WidgetRequest1");
+            var inputEnum = InputFactory.StringEnum("WidgetRequest", [("One", "one")]);
             InputModelType[] models = reverseOrder ? [mappedModel, reserved, inputModel] : [inputModel, reserved, mappedModel];
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: models,
@@ -465,8 +465,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var mapped = factory.CreateModel(mappedModel)!;
 
-            Assert.AreEqual("WidgetContent2", model.Name);
-            Assert.AreEqual("CustomizedContent", mapped.Name);
+            Assert.AreEqual("WidgetRequest2", model.Name);
+            Assert.AreEqual("CustomizedRequest", mapped.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(mapped.CustomCodeView);
             Assert.AreNotEqual(model.RelativeFilePath, mapped.RelativeFilePath);
@@ -502,18 +502,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("DbResponse", "DbResponse", true, false)]
         [TestCase("DbResponse", "DbResponse", false, true)]
         [TestCase("DbResponse", "DbResponse", true, true)]
-        [TestCase("WidgetContent", "WidgetContent", false, false)]
-        [TestCase("WidgetContent", "WidgetContent", true, false)]
-        [TestCase("WidgetContent", "WidgetContent", false, true)]
-        [TestCase("WidgetContent", "WidgetContent", true, true)]
-        [TestCase("IpContent", "IPContent", false, false)]
-        [TestCase("IpContent", "IPContent", true, false)]
-        [TestCase("IpContent", "IPContent", false, true)]
-        [TestCase("IpContent", "IPContent", true, true)]
-        [TestCase("DbContent", "DbContent", false, false)]
-        [TestCase("DbContent", "DbContent", true, false)]
-        [TestCase("DbContent", "DbContent", false, true)]
-        [TestCase("DbContent", "DbContent", true, true)]
+        [TestCase("WidgetRequest", "WidgetRequest", false, false)]
+        [TestCase("WidgetRequest", "WidgetRequest", true, false)]
+        [TestCase("WidgetRequest", "WidgetRequest", false, true)]
+        [TestCase("WidgetRequest", "WidgetRequest", true, true)]
+        [TestCase("IpRequest", "IPRequest", false, false)]
+        [TestCase("IpRequest", "IPRequest", true, false)]
+        [TestCase("IpRequest", "IPRequest", false, true)]
+        [TestCase("IpRequest", "IPRequest", true, true)]
+        [TestCase("DbRequest", "DbRequest", false, false)]
+        [TestCase("DbRequest", "DbRequest", true, false)]
+        [TestCase("DbRequest", "DbRequest", false, true)]
+        [TestCase("DbRequest", "DbRequest", true, true)]
         public async Task TestBuildName_ModelSuffixPreservesExistingName(
             string inputName, string expectedName, bool lastContract, bool updateNamespace)
         {
@@ -529,7 +529,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             if (updateNamespace)
             {
-                Assert.That(model.Name, Does.EndWith(inputName.EndsWith("Content", StringComparison.Ordinal) ? "Request" : "Result"));
+                Assert.That(model.Name, Does.EndWith(inputName.EndsWith("Request", StringComparison.Ordinal) ? "Content" : "Result"));
                 model.Update(@namespace: "Sample.Models");
             }
 
@@ -542,11 +542,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("IpResponse", "CustomizedIP", false)]
         [TestCase("IpResponse", "CustomizedIP", true)]
         [TestCase("GadgetResponse", "CustomizedGadget", false)]
-        [TestCase("WidgetContent", "CustomizedContent", false)]
-        [TestCase("WidgetContent", "CustomizedContent", true)]
-        [TestCase("IpContent", "CustomizedIPContent", false)]
-        [TestCase("IpContent", "CustomizedIPContent", true)]
-        [TestCase("GadgetContent", "CustomizedGadgetContent", false)]
+        [TestCase("WidgetRequest", "CustomizedRequest", false)]
+        [TestCase("WidgetRequest", "CustomizedRequest", true)]
+        [TestCase("IpRequest", "CustomizedIPRequest", false)]
+        [TestCase("IpRequest", "CustomizedIPRequest", true)]
+        [TestCase("GadgetRequest", "CustomizedGadgetRequest", false)]
         public async Task TestBuildName_ModelSuffixPreservesCustomName(
             string inputName, string expectedName, bool isError)
         {

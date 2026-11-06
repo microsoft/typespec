@@ -11,7 +11,7 @@ namespace Streaming.Sse
 {
     [ModelReaderWriterBuildable(typeof(Info))]
     [ModelReaderWriterBuildable(typeof(ProtocolInfo))]
-    [ModelReaderWriterBuildable(typeof(RetrievalRequest))]
+    [ModelReaderWriterBuildable(typeof(RetrievalContent))]
     public partial class StreamingSseContext : ModelReaderWriterContext
     {
     }

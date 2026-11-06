@@ -12,15 +12,15 @@ namespace Sample.Models
     {
     }
 
-    public partial class WidgetContent
+    public partial class WidgetRequest
     {
     }
 
-    public partial class IPContent
+    public partial class IPRequest
     {
     }
 
-    public partial class DbContent
+    public partial class DbRequest
     {
     }
 }
