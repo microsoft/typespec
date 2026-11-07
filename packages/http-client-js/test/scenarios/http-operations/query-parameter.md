@@ -24,7 +24,7 @@ export async function headModel(
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {
-      ...(input.foo && { foo: input.foo }),
+      ...(input.foo != undefined && { foo: input.foo }),
     },
     body: jsonVisibilityModelToTransportTransform(input),
   };
