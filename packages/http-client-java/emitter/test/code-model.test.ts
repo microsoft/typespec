@@ -45,6 +45,56 @@ import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
+describe("special headers", () => {
+  it("isolates configured exclusions across consecutive builds", async () => {
+    for (const skipSpecialHeaders of [["X-Custom"], undefined, []]) {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/special-headers.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor: "azure",
+          "skip-special-headers": skipSpecialHeaders,
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      expect(operations).toHaveLength(1);
+      const operation = operations[0];
+      const custom = operation.parameters?.find(
+        (parameter) => parameter.language.default.serializedName === "x-custom",
+      );
+      if (skipSpecialHeaders?.length) {
+        expect(custom).toBeUndefined();
+        expect(operation.specialHeaders).toContain("x-custom");
+      } else {
+        expect(custom).toBeDefined();
+        expect(operation.specialHeaders).not.toContain("x-custom");
+      }
+      expect(operation.specialHeaders).toContain("x-ms-client-request-id");
+      expect(
+        operation.parameters?.some(
+          (parameter) => parameter.language.default.serializedName === "x-ms-client-request-id",
+        ),
+      ).toBe(false);
+    }
+  });
+});
+
 describe("ARM internal access", () => {
   it("preserves internal operations and types while public usage takes precedence", async () => {
     const program = await compile(
