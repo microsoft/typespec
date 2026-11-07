@@ -21,6 +21,7 @@ let server;
 let base;
 let responses;
 let requests;
+let statuses;
 
 async function archive(packageDirectory, version, { name, omit } = {}) {
   const source = await mkdtemp(join(root, "fixture-"));
@@ -47,10 +48,11 @@ beforeEach(async () => {
   root = await mkdtemp(join(tmpdir(), "azure-playground-installer-test-"));
   responses = new Map();
   requests = [];
+  statuses = new Map();
   server = createServer((request, response) => {
     requests.push(request.url);
     const body = responses.get(request.url);
-    response.writeHead(body === undefined ? 404 : 200);
+    response.writeHead(statuses.get(request.url) ?? (body === undefined ? 404 : 200));
     response.end(body);
   });
   server.listen(0, "127.0.0.1");
@@ -94,10 +96,62 @@ test("installs the exact indexed tarball for each independent package", async ()
   assert.ok(requests.every((url) => url.startsWith("/pkgs/@azure-typespec/")));
 });
 
-test("fails when the published index is missing", async () => {
-  responses.delete("/pkgs/@azure-typespec/http-client-csharp/latest.json");
-  await assert.rejects(installAzureGenerators(join(root, "installed"), base), /HTTP 404/);
+for (const [missingDirectory] of packages) {
+  test(`skips unpublished ${missingDirectory} and installs the other generators`, async (t) => {
+    const warning = t.mock.method(process.stderr, "write", () => true);
+    responses.delete(`/pkgs/@azure-typespec/${missingDirectory}/latest.json`);
+    const destination = join(root, "installed");
+    await installAzureGenerators(destination, base);
+    await assert.rejects(readFile(join(destination, missingDirectory, "package.json")), {
+      code: "ENOENT",
+    });
+    for (const [directory, version] of packages) {
+      if (directory === missingDirectory) continue;
+      const metadata = JSON.parse(
+        await readFile(join(destination, directory, "package.json"), "utf8"),
+      );
+      assert.equal(metadata.version, version);
+    }
+    assert.equal(requests.length, 5);
+    const warnings = warning.mock.calls
+      .map((call) => call.arguments[0].toString())
+      .filter((message) => message.startsWith("WARNING:"));
+    assert.equal(warnings.length, 1);
+    assert.match(
+      warnings[0],
+      new RegExp(`WARNING: Skipping @azure-typespec/${missingDirectory}: .* returned HTTP 404\\.`),
+    );
+    assert.ok(
+      !requests.some(
+        (url) =>
+          url.startsWith(`/pkgs/@azure-typespec/${missingDirectory}/`) &&
+          url.endsWith("/runtime.tgz"),
+      ),
+    );
+  });
+}
+
+test("supports an installation with no published Azure generators", async () => {
+  responses.clear();
+  const destination = join(root, "installed");
+  await installAzureGenerators(destination, base);
+  for (const [directory] of packages) {
+    await assert.rejects(readFile(join(destination, directory, "package.json")), {
+      code: "ENOENT",
+    });
+  }
+  assert.equal(requests.length, 3);
 });
+
+for (const status of [403, 429, 500]) {
+  test(`fails when the index request returns HTTP ${status}`, async () => {
+    statuses.set("/pkgs/@azure-typespec/http-client-csharp/latest.json", status);
+    await assert.rejects(
+      installAzureGenerators(join(root, "installed"), base),
+      new RegExp(`HTTP ${status}`),
+    );
+  });
+}
 
 for (const index of [
   { version: "1.2.3" },
