@@ -4,135 +4,30 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._InjectedDiscriminator
 {
-    /// <summary> The InjectedCat. </summary>
     public partial class InjectedCat : InjectedPet, IJsonModel<InjectedCat>
     {
-        /// <summary> Initializes a new instance of <see cref="InjectedCat"/> for deserialization. </summary>
-        internal InjectedCat()
-        {
-        }
+        internal InjectedCat() => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override InjectedPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<InjectedCat>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeInjectedCat(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(InjectedCat)} does not support reading '{options.Format}' format.");
-            }
-        }
+        protected override InjectedPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<InjectedCat>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, _TypeUnionDiscriminatedExtendsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(InjectedCat)} does not support writing '{options.Format}' format.");
-            }
-        }
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<InjectedCat>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<InjectedCat>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        InjectedCat IPersistableModel<InjectedCat>.Create(BinaryData data, ModelReaderWriterOptions options) => (InjectedCat)PersistableModelCreateCore(data, options);
+        InjectedCat IPersistableModel<InjectedCat>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<InjectedCat>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<InjectedCat>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<InjectedCat>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<InjectedCat>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<InjectedCat>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(InjectedCat)} does not support writing '{format}' format.");
-            }
-            base.JsonModelWriteCore(writer, options);
-            writer.WritePropertyName("meow"u8);
-            writer.WriteBooleanValue(Meow);
-        }
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        InjectedCat IJsonModel<InjectedCat>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (InjectedCat)JsonModelCreateCore(ref reader, options);
+        InjectedCat IJsonModel<InjectedCat>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override InjectedPet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<InjectedCat>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(InjectedCat)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeInjectedCat(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static InjectedCat DeserializeInjectedCat(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string kind = "cat";
-            string name = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            bool meow = default;
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("kind"u8))
-                {
-                    kind = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("meow"u8))
-                {
-                    meow = prop.Value.GetBoolean();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
-                }
-            }
-            return new InjectedCat(kind, name, additionalBinaryDataProperties, meow);
-        }
+        protected override InjectedPet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

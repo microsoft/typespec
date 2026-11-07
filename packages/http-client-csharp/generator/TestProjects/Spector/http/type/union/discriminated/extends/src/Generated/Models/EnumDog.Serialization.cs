@@ -4,135 +4,30 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._EnumDiscriminator
 {
-    /// <summary> The EnumDog. </summary>
     public partial class EnumDog : EnumPet, IJsonModel<EnumDog>
     {
-        /// <summary> Initializes a new instance of <see cref="EnumDog"/> for deserialization. </summary>
-        internal EnumDog()
-        {
-        }
+        internal EnumDog() => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override EnumPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EnumDog>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeEnumDog(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(EnumDog)} does not support reading '{options.Format}' format.");
-            }
-        }
+        protected override EnumPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EnumDog>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, _TypeUnionDiscriminatedExtendsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(EnumDog)} does not support writing '{options.Format}' format.");
-            }
-        }
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<EnumDog>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<EnumDog>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EnumDog IPersistableModel<EnumDog>.Create(BinaryData data, ModelReaderWriterOptions options) => (EnumDog)PersistableModelCreateCore(data, options);
+        EnumDog IPersistableModel<EnumDog>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<EnumDog>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<EnumDog>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<EnumDog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<EnumDog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EnumDog>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(EnumDog)} does not support writing '{format}' format.");
-            }
-            base.JsonModelWriteCore(writer, options);
-            writer.WritePropertyName("bark"u8);
-            writer.WriteBooleanValue(Bark);
-        }
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EnumDog IJsonModel<EnumDog>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (EnumDog)JsonModelCreateCore(ref reader, options);
+        EnumDog IJsonModel<EnumDog>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override EnumPet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EnumDog>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(EnumDog)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeEnumDog(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static EnumDog DeserializeEnumDog(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            PetKind kind = default;
-            string name = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            bool bark = default;
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("kind"u8))
-                {
-                    kind = prop.Value.GetString().ToPetKind();
-                    continue;
-                }
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("bark"u8))
-                {
-                    bark = prop.Value.GetBoolean();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
-                }
-            }
-            return new EnumDog(kind, name, additionalBinaryDataProperties, bark);
-        }
+        protected override EnumPet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

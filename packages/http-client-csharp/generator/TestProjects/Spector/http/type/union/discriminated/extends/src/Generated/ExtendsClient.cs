@@ -5,7 +5,6 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using _Type.Union.Discriminated.Extends._CustomDiscriminator;
 using _Type.Union.Discriminated.Extends._EnumDiscriminator;
 using _Type.Union.Discriminated.Extends._ExplicitDiscriminator;
@@ -14,88 +13,27 @@ using _Type.Union.Discriminated.Extends._Recursive;
 
 namespace _Type.Union.Discriminated.Extends
 {
-    /// <summary> Discriminated unions with explicit model constraints and nominally inherited variants. </summary>
     public partial class ExtendsClient
     {
-        private readonly Uri _endpoint;
-        private ExplicitDiscriminator _cachedExplicitDiscriminator;
-        private InjectedDiscriminator _cachedInjectedDiscriminator;
-        private CustomDiscriminator _cachedCustomDiscriminator;
-        private EnumDiscriminator _cachedEnumDiscriminator;
-        private Recursive _cachedRecursive;
+        public ExtendsClient() : this(new Uri("http://localhost:3000"), new ExtendsClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of ExtendsClient. </summary>
-        public ExtendsClient() : this(new Uri("http://localhost:3000"), new ExtendsClientOptions())
-        {
-        }
+        internal ExtendsClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ExtendsClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of ExtendsClient. </summary>
-        /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        internal ExtendsClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ExtendsClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ExtendsClient(Uri endpoint, ExtendsClientOptions options) : this(null, endpoint, options) => throw null;
 
-            options ??= new ExtendsClientOptions();
-
-            _endpoint = endpoint;
-            if (authenticationPolicy != null)
-            {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(ExtendsClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
-            }
-            else
-            {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(ExtendsClient).Assembly) }, Array.Empty<PipelinePolicy>());
-            }
-        }
-
-        /// <summary> Initializes a new instance of ExtendsClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public ExtendsClient(Uri endpoint, ExtendsClientOptions options) : this(null, endpoint, options)
-        {
-        }
-
-        /// <summary> Initializes a new instance of ExtendsClient from a <see cref="ExtendsClientSettings"/>. </summary>
-        /// <param name="settings"> The settings for ExtendsClient. </param>
         [Experimental("SCME0002")]
-        public ExtendsClient(ExtendsClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
-        {
-        }
+        public ExtendsClient(ExtendsClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of ExplicitDiscriminator. </summary>
-        public virtual ExplicitDiscriminator GetExplicitDiscriminatorClient()
-        {
-            return Volatile.Read(ref _cachedExplicitDiscriminator) ?? Interlocked.CompareExchange(ref _cachedExplicitDiscriminator, new ExplicitDiscriminator(Pipeline, _endpoint), null) ?? _cachedExplicitDiscriminator;
-        }
+        public virtual ExplicitDiscriminator GetExplicitDiscriminatorClient() => throw null;
 
-        /// <summary> Initializes a new instance of InjectedDiscriminator. </summary>
-        public virtual InjectedDiscriminator GetInjectedDiscriminatorClient()
-        {
-            return Volatile.Read(ref _cachedInjectedDiscriminator) ?? Interlocked.CompareExchange(ref _cachedInjectedDiscriminator, new InjectedDiscriminator(Pipeline, _endpoint), null) ?? _cachedInjectedDiscriminator;
-        }
+        public virtual InjectedDiscriminator GetInjectedDiscriminatorClient() => throw null;
 
-        /// <summary> Initializes a new instance of CustomDiscriminator. </summary>
-        public virtual CustomDiscriminator GetCustomDiscriminatorClient()
-        {
-            return Volatile.Read(ref _cachedCustomDiscriminator) ?? Interlocked.CompareExchange(ref _cachedCustomDiscriminator, new CustomDiscriminator(Pipeline, _endpoint), null) ?? _cachedCustomDiscriminator;
-        }
+        public virtual CustomDiscriminator GetCustomDiscriminatorClient() => throw null;
 
-        /// <summary> Initializes a new instance of EnumDiscriminator. </summary>
-        public virtual EnumDiscriminator GetEnumDiscriminatorClient()
-        {
-            return Volatile.Read(ref _cachedEnumDiscriminator) ?? Interlocked.CompareExchange(ref _cachedEnumDiscriminator, new EnumDiscriminator(Pipeline, _endpoint), null) ?? _cachedEnumDiscriminator;
-        }
+        public virtual EnumDiscriminator GetEnumDiscriminatorClient() => throw null;
 
-        /// <summary> Initializes a new instance of Recursive. </summary>
-        public virtual Recursive GetRecursiveClient()
-        {
-            return Volatile.Read(ref _cachedRecursive) ?? Interlocked.CompareExchange(ref _cachedRecursive, new Recursive(Pipeline, _endpoint), null) ?? _cachedRecursive;
-        }
+        public virtual Recursive GetRecursiveClient() => throw null;
     }
 }

@@ -7,39 +7,22 @@ using System.Collections.Generic;
 
 namespace _Type.Union.Discriminated.Extends._EnumDiscriminator
 {
-    /// <summary>
-    /// The EnumPet.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EnumCat"/> and <see cref="EnumDog"/>.
-    /// </summary>
     public abstract partial class EnumPet
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected EnumPet(PetKind kind, string name) => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="EnumPet"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        private protected EnumPet(PetKind kind, string name)
+        internal EnumPet(PetKind kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+
+        internal PetKind Kind
         {
-            Kind = kind;
-            Name = name;
+            get => throw null;
+            set => throw null;
         }
 
-        /// <summary> Initializes a new instance of <see cref="EnumPet"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal EnumPet(PetKind kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        public string Name
         {
-            Kind = kind;
-            Name = name;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Gets or sets the Kind. </summary>
-        internal PetKind Kind { get; set; }
-
-        /// <summary> Gets or sets the Name. </summary>
-        public string Name { get; set; }
     }
 }

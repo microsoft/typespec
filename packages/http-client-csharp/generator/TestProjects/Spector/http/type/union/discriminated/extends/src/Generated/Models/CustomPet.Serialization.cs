@@ -6,155 +6,34 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._CustomDiscriminator
 {
-    /// <summary>
-    /// The CustomPet.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="CustomCat"/> and <see cref="CustomDog"/>.
-    /// </summary>
     [PersistableModelProxy(typeof(UnknownCustomPet))]
     public abstract partial class CustomPet : IJsonModel<CustomPet>
     {
-        /// <summary> Initializes a new instance of <see cref="CustomPet"/> for deserialization. </summary>
-        internal CustomPet()
-        {
-        }
+        internal CustomPet() => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual CustomPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<CustomPet>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeCustomPet(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(CustomPet)} does not support reading '{options.Format}' format.");
-            }
-        }
+        protected virtual CustomPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<CustomPet>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, _TypeUnionDiscriminatedExtendsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(CustomPet)} does not support writing '{options.Format}' format.");
-            }
-        }
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<CustomPet>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<CustomPet>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        CustomPet IPersistableModel<CustomPet>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        CustomPet IPersistableModel<CustomPet>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<CustomPet>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<CustomPet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="customPet"> The <see cref="CustomPet"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(CustomPet customPet)
-        {
-            if (customPet == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(customPet, ModelSerializationExtensions.WireOptions);
-        }
+        public static implicit operator BinaryContent(CustomPet customPet) => throw null;
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="CustomPet"/> from. </param>
-        public static explicit operator CustomPet(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeCustomPet(document.RootElement, ModelSerializationExtensions.WireOptions);
-        }
+        public static explicit operator CustomPet(ClientResult result) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<CustomPet>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<CustomPet>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<CustomPet>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(CustomPet)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("petType"u8);
-            writer.WriteStringValue(PetType);
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        CustomPet IJsonModel<CustomPet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        CustomPet IJsonModel<CustomPet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual CustomPet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<CustomPet>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(CustomPet)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeCustomPet(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static CustomPet DeserializeCustomPet(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            if (element.TryGetProperty("petType"u8, out JsonElement discriminator))
-            {
-                switch (discriminator.GetString())
-                {
-                    case "feline":
-                        return CustomCat.DeserializeCustomCat(element, options);
-                    case "canine":
-                        return CustomDog.DeserializeCustomDog(element, options);
-                }
-            }
-            return UnknownCustomPet.DeserializeUnknownCustomPet(element, options);
-        }
+        protected virtual CustomPet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

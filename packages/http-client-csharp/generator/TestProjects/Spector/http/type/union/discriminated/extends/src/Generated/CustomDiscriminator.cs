@@ -4,37 +4,17 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 
 namespace _Type.Union.Discriminated.Extends._CustomDiscriminator
 {
-    /// <summary> The CustomDiscriminator sub-client. </summary>
     public partial class CustomDiscriminator
     {
-        private readonly Uri _endpoint;
-        private CustomDiscriminatorOperations _cachedCustomDiscriminatorOperations;
+        protected CustomDiscriminator() => throw null;
 
-        /// <summary> Initializes a new instance of CustomDiscriminator for mocking. </summary>
-        protected CustomDiscriminator()
-        {
-        }
+        internal CustomDiscriminator(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        /// <summary> Initializes a new instance of CustomDiscriminator. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal CustomDiscriminator(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of CustomDiscriminatorOperations. </summary>
-        public virtual CustomDiscriminatorOperations GetCustomDiscriminatorOperationsClient()
-        {
-            return Volatile.Read(ref _cachedCustomDiscriminatorOperations) ?? Interlocked.CompareExchange(ref _cachedCustomDiscriminatorOperations, new CustomDiscriminatorOperations(Pipeline, _endpoint), null) ?? _cachedCustomDiscriminatorOperations;
-        }
+        public virtual CustomDiscriminatorOperations GetCustomDiscriminatorOperationsClient() => throw null;
     }
 }

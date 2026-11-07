@@ -4,7 +4,6 @@
 
 namespace _Type.Union.Discriminated.Extends._EnumDiscriminator
 {
-    /// <summary></summary>
     internal enum PetKind
     {
         /// <summary> Cat. </summary>

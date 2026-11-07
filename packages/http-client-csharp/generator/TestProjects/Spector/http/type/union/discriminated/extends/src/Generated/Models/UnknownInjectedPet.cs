@@ -9,12 +9,6 @@ namespace _Type.Union.Discriminated.Extends._InjectedDiscriminator
 {
     internal partial class UnknownInjectedPet : InjectedPet
     {
-        /// <summary> Initializes a new instance of <see cref="UnknownInjectedPet"/>. </summary>
-        /// <param name="kind"> Discriminator property for InjectedPet. </param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnknownInjectedPet(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", name, additionalBinaryDataProperties)
-        {
-        }
+        internal UnknownInjectedPet(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", name, additionalBinaryDataProperties) => throw null;
     }
 }

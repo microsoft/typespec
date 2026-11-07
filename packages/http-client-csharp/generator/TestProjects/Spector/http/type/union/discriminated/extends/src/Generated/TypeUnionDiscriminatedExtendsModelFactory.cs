@@ -3,7 +3,6 @@
 #nullable disable
 
 using System.Collections.Generic;
-using System.Linq;
 using _Type.Union.Discriminated.Extends._CustomDiscriminator;
 using _Type.Union.Discriminated.Extends._EnumDiscriminator;
 using _Type.Union.Discriminated.Extends._ExplicitDiscriminator;
@@ -12,204 +11,38 @@ using _Type.Union.Discriminated.Extends._Recursive;
 
 namespace _Type.Union.Discriminated.Extends
 {
-    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class TypeUnionDiscriminatedExtendsModelFactory
     {
-        /// <summary>
-        /// The RecursivePet.
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="_Recursive.RecursiveCat"/> and <see cref="_Recursive.RecursiveDog"/>.
-        /// </summary>
-        /// <param name="kind"> Discriminator property for RecursivePet. </param>
-        /// <param name="name"></param>
-        /// <param name="friend"></param>
-        /// <param name="friends"></param>
-        /// <param name="lookup"></param>
-        /// <returns> A new <see cref="_Recursive.RecursivePet"/> instance for mocking. </returns>
-        public static RecursivePet RecursivePet(string kind = default, string name = default, RecursivePet friend = default, IEnumerable<RecursivePet> friends = default, IDictionary<string, RecursivePet> lookup = default)
-        {
-            friends ??= new ChangeTrackingList<RecursivePet>();
-            lookup ??= new ChangeTrackingDictionary<string, RecursivePet>();
+        public static RecursivePet RecursivePet(string kind = default, string name = default, RecursivePet friend = default, IEnumerable<RecursivePet> friends = default, IDictionary<string, RecursivePet> lookup = default) => throw null;
 
-            return new UnknownRecursivePet(
-                kind,
-                name,
-                friend,
-                friends.ToList(),
-                lookup,
-                additionalBinaryDataProperties: null);
-        }
+        public static RecursiveCat RecursiveCat(string name = default, RecursivePet friend = default, IEnumerable<RecursivePet> friends = default, IDictionary<string, RecursivePet> lookup = default, bool meow = default) => throw null;
 
-        /// <summary> The RecursiveCat. </summary>
-        /// <param name="name"></param>
-        /// <param name="friend"></param>
-        /// <param name="friends"></param>
-        /// <param name="lookup"></param>
-        /// <param name="meow"></param>
-        /// <returns> A new <see cref="_Recursive.RecursiveCat"/> instance for mocking. </returns>
-        public static RecursiveCat RecursiveCat(string name = default, RecursivePet friend = default, IEnumerable<RecursivePet> friends = default, IDictionary<string, RecursivePet> lookup = default, bool meow = default)
-        {
-            friends ??= new ChangeTrackingList<RecursivePet>();
-            lookup ??= new ChangeTrackingDictionary<string, RecursivePet>();
+        public static RecursiveDog RecursiveDog(string name = default, RecursivePet friend = default, IEnumerable<RecursivePet> friends = default, IDictionary<string, RecursivePet> lookup = default, bool bark = default) => throw null;
 
-            return new RecursiveCat(
-                "cat",
-                name,
-                friend,
-                friends.ToList(),
-                lookup,
-                additionalBinaryDataProperties: null,
-                meow);
-        }
+        public static ExplicitPet ExplicitPet(string kind = default, string name = default) => throw null;
 
-        /// <summary> The RecursiveDog. </summary>
-        /// <param name="name"></param>
-        /// <param name="friend"></param>
-        /// <param name="friends"></param>
-        /// <param name="lookup"></param>
-        /// <param name="bark"></param>
-        /// <returns> A new <see cref="_Recursive.RecursiveDog"/> instance for mocking. </returns>
-        public static RecursiveDog RecursiveDog(string name = default, RecursivePet friend = default, IEnumerable<RecursivePet> friends = default, IDictionary<string, RecursivePet> lookup = default, bool bark = default)
-        {
-            friends ??= new ChangeTrackingList<RecursivePet>();
-            lookup ??= new ChangeTrackingDictionary<string, RecursivePet>();
+        public static ExplicitCat ExplicitCat(string name = default, bool meow = default) => throw null;
 
-            return new RecursiveDog(
-                "dog",
-                name,
-                friend,
-                friends.ToList(),
-                lookup,
-                additionalBinaryDataProperties: null,
-                bark);
-        }
+        public static Mammal Mammal(string kind = default, string name = default) => throw null;
 
-        /// <summary>
-        /// The ExplicitPet.
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="_ExplicitDiscriminator.ExplicitCat"/>, <see cref="_ExplicitDiscriminator.ExplicitDog"/>, and <see cref="_ExplicitDiscriminator.Mammal"/>.
-        /// </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="_ExplicitDiscriminator.ExplicitPet"/> instance for mocking. </returns>
-        public static ExplicitPet ExplicitPet(string kind = default, string name = default)
-        {
-            return new UnknownExplicitPet(kind, name, additionalBinaryDataProperties: null);
-        }
+        public static ExplicitDog ExplicitDog(string name = default, bool bark = default) => throw null;
 
-        /// <summary> The ExplicitCat. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <returns> A new <see cref="_ExplicitDiscriminator.ExplicitCat"/> instance for mocking. </returns>
-        public static ExplicitCat ExplicitCat(string name = default, bool meow = default)
-        {
-            return new ExplicitCat(default, name, additionalBinaryDataProperties: null, meow);
-        }
+        public static InjectedPet InjectedPet(string kind = default, string name = default) => throw null;
 
-        /// <summary> The Mammal. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="_ExplicitDiscriminator.Mammal"/> instance for mocking. </returns>
-        public static Mammal Mammal(string kind = default, string name = default)
-        {
-            return new Mammal(kind, name, additionalBinaryDataProperties: null);
-        }
+        public static InjectedCat InjectedCat(string name = default, bool meow = default) => throw null;
 
-        /// <summary> The ExplicitDog. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <returns> A new <see cref="_ExplicitDiscriminator.ExplicitDog"/> instance for mocking. </returns>
-        public static ExplicitDog ExplicitDog(string name = default, bool bark = default)
-        {
-            return new ExplicitDog("dog", name, additionalBinaryDataProperties: null, bark);
-        }
+        public static InjectedDog InjectedDog(string name = default, bool bark = default) => throw null;
 
-        /// <summary>
-        /// The InjectedPet.
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="_InjectedDiscriminator.InjectedCat"/> and <see cref="_InjectedDiscriminator.InjectedDog"/>.
-        /// </summary>
-        /// <param name="kind"> Discriminator property for InjectedPet. </param>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="_InjectedDiscriminator.InjectedPet"/> instance for mocking. </returns>
-        public static InjectedPet InjectedPet(string kind = default, string name = default)
-        {
-            return new UnknownInjectedPet(kind, name, additionalBinaryDataProperties: null);
-        }
+        public static CustomPet CustomPet(string petType = default, string name = default) => throw null;
 
-        /// <summary> The InjectedCat. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <returns> A new <see cref="_InjectedDiscriminator.InjectedCat"/> instance for mocking. </returns>
-        public static InjectedCat InjectedCat(string name = default, bool meow = default)
-        {
-            return new InjectedCat("cat", name, additionalBinaryDataProperties: null, meow);
-        }
+        public static CustomCat CustomCat(string name = default, bool meow = default) => throw null;
 
-        /// <summary> The InjectedDog. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <returns> A new <see cref="_InjectedDiscriminator.InjectedDog"/> instance for mocking. </returns>
-        public static InjectedDog InjectedDog(string name = default, bool bark = default)
-        {
-            return new InjectedDog("dog", name, additionalBinaryDataProperties: null, bark);
-        }
+        public static CustomDog CustomDog(string name = default, bool bark = default) => throw null;
 
-        /// <summary>
-        /// The CustomPet.
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="_CustomDiscriminator.CustomCat"/> and <see cref="_CustomDiscriminator.CustomDog"/>.
-        /// </summary>
-        /// <param name="petType"> Discriminator property for CustomPet. </param>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="_CustomDiscriminator.CustomPet"/> instance for mocking. </returns>
-        public static CustomPet CustomPet(string petType = default, string name = default)
-        {
-            return new UnknownCustomPet(petType, name, additionalBinaryDataProperties: null);
-        }
+        public static EnumPet EnumPet(string kind = default, string name = default) => throw null;
 
-        /// <summary> The CustomCat. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <returns> A new <see cref="_CustomDiscriminator.CustomCat"/> instance for mocking. </returns>
-        public static CustomCat CustomCat(string name = default, bool meow = default)
-        {
-            return new CustomCat("feline", name, additionalBinaryDataProperties: null, meow);
-        }
+        public static EnumCat EnumCat(string name = default, bool meow = default) => throw null;
 
-        /// <summary> The CustomDog. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <returns> A new <see cref="_CustomDiscriminator.CustomDog"/> instance for mocking. </returns>
-        public static CustomDog CustomDog(string name = default, bool bark = default)
-        {
-            return new CustomDog("canine", name, additionalBinaryDataProperties: null, bark);
-        }
-
-        /// <summary>
-        /// The EnumPet.
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="_EnumDiscriminator.EnumCat"/> and <see cref="_EnumDiscriminator.EnumDog"/>.
-        /// </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="_EnumDiscriminator.EnumPet"/> instance for mocking. </returns>
-        public static EnumPet EnumPet(string kind = default, string name = default)
-        {
-            return new UnknownEnumPet(kind.ToPetKind(), name, additionalBinaryDataProperties: null);
-        }
-
-        /// <summary> The EnumCat. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <returns> A new <see cref="_EnumDiscriminator.EnumCat"/> instance for mocking. </returns>
-        public static EnumCat EnumCat(string name = default, bool meow = default)
-        {
-            return new EnumCat(PetKind.Cat, name, additionalBinaryDataProperties: null, meow);
-        }
-
-        /// <summary> The EnumDog. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <returns> A new <see cref="_EnumDiscriminator.EnumDog"/> instance for mocking. </returns>
-        public static EnumDog EnumDog(string name = default, bool bark = default)
-        {
-            return new EnumDog(PetKind.Dog, name, additionalBinaryDataProperties: null, bark);
-        }
+        public static EnumDog EnumDog(string name = default, bool bark = default) => throw null;
     }
 }

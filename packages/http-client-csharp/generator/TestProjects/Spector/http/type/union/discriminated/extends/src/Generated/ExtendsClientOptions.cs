@@ -8,23 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Union.Discriminated.Extends
 {
-    /// <summary> Client options for <see cref="ExtendsClient"/>. </summary>
     public partial class ExtendsClientOptions : ClientPipelineOptions
     {
-        /// <summary> Initializes a new instance of ExtendsClientOptions. </summary>
-        public ExtendsClientOptions()
-        {
-        }
+        public ExtendsClientOptions() => throw null;
 
-        /// <summary> Initializes a new instance of ExtendsClientOptions from configuration. </summary>
-        /// <param name="section"> The configuration section. </param>
         [Experimental("SCME0002")]
-        internal ExtendsClientOptions(IConfigurationSection section) : base(section)
-        {
-            if (section is null || !section.Exists())
-            {
-                return;
-            }
-        }
+        internal ExtendsClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -7,39 +7,22 @@ using System.Collections.Generic;
 
 namespace _Type.Union.Discriminated.Extends._CustomDiscriminator
 {
-    /// <summary>
-    /// The CustomPet.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="CustomCat"/> and <see cref="CustomDog"/>.
-    /// </summary>
     public abstract partial class CustomPet
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected CustomPet(string petType, string name) => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="CustomPet"/>. </summary>
-        /// <param name="petType"> Discriminator property for CustomPet. </param>
-        /// <param name="name"></param>
-        private protected CustomPet(string petType, string name)
+        internal CustomPet(string petType, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+
+        internal string PetType
         {
-            PetType = petType;
-            Name = name;
+            get => throw null;
+            set => throw null;
         }
 
-        /// <summary> Initializes a new instance of <see cref="CustomPet"/>. </summary>
-        /// <param name="petType"> Discriminator property for CustomPet. </param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal CustomPet(string petType, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        public string Name
         {
-            PetType = petType;
-            Name = name;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Discriminator property for CustomPet. </summary>
-        internal string PetType { get; set; }
-
-        /// <summary> Gets or sets the Name. </summary>
-        public string Name { get; set; }
     }
 }

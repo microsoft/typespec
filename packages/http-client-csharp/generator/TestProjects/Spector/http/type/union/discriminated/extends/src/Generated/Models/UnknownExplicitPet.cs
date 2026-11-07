@@ -9,12 +9,6 @@ namespace _Type.Union.Discriminated.Extends._ExplicitDiscriminator
 {
     internal partial class UnknownExplicitPet : ExplicitPet
     {
-        /// <summary> Initializes a new instance of <see cref="UnknownExplicitPet"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnknownExplicitPet(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", name, additionalBinaryDataProperties)
-        {
-        }
+        internal UnknownExplicitPet(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", name, additionalBinaryDataProperties) => throw null;
     }
 }

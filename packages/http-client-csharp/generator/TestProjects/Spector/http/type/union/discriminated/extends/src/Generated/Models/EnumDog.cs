@@ -4,35 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._EnumDiscriminator
 {
-    /// <summary> The EnumDog. </summary>
     public partial class EnumDog : EnumPet
     {
-        /// <summary> Initializes a new instance of <see cref="EnumDog"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public EnumDog(string name, bool bark) : base(PetKind.Dog, name)
+        public EnumDog(string name, bool bark) : base(PetKind.Dog, name) => throw null;
+
+        internal EnumDog(PetKind kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool bark) : base(kind, name, additionalBinaryDataProperties) => throw null;
+
+        public bool Bark
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Bark = bark;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Initializes a new instance of <see cref="EnumDog"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        /// <param name="bark"></param>
-        internal EnumDog(PetKind kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool bark) : base(kind, name, additionalBinaryDataProperties)
-        {
-            Bark = bark;
-        }
-
-        /// <summary> Gets or sets the Bark. </summary>
-        public bool Bark { get; set; }
     }
 }

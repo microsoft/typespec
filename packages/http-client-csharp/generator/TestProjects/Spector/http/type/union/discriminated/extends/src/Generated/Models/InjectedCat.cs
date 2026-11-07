@@ -4,35 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._InjectedDiscriminator
 {
-    /// <summary> The InjectedCat. </summary>
     public partial class InjectedCat : InjectedPet
     {
-        /// <summary> Initializes a new instance of <see cref="InjectedCat"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public InjectedCat(string name, bool meow) : base("cat", name)
+        public InjectedCat(string name, bool meow) : base("cat", name) => throw null;
+
+        internal InjectedCat(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool meow) : base(kind, name, additionalBinaryDataProperties) => throw null;
+
+        public bool Meow
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Meow = meow;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Initializes a new instance of <see cref="InjectedCat"/>. </summary>
-        /// <param name="kind"> Discriminator property for InjectedPet. </param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        /// <param name="meow"></param>
-        internal InjectedCat(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool meow) : base(kind, name, additionalBinaryDataProperties)
-        {
-            Meow = meow;
-        }
-
-        /// <summary> Gets or sets the Meow. </summary>
-        public bool Meow { get; set; }
     }
 }

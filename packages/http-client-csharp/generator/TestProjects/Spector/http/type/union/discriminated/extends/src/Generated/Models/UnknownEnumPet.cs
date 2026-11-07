@@ -9,12 +9,6 @@ namespace _Type.Union.Discriminated.Extends._EnumDiscriminator
 {
     internal partial class UnknownEnumPet : EnumPet
     {
-        /// <summary> Initializes a new instance of <see cref="UnknownEnumPet"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnknownEnumPet(PetKind kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, name, additionalBinaryDataProperties)
-        {
-        }
+        internal UnknownEnumPet(PetKind kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, name, additionalBinaryDataProperties) => throw null;
     }
 }

@@ -4,30 +4,13 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._ExplicitDiscriminator
 {
-    /// <summary> The Mammal. </summary>
     public partial class Mammal : ExplicitPet
     {
-        /// <summary> Initializes a new instance of <see cref="Mammal"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="kind"/> or <paramref name="name"/> is null. </exception>
-        public Mammal(string kind, string name) : base(kind, name)
-        {
-            Argument.AssertNotNull(kind, nameof(kind));
-            Argument.AssertNotNull(name, nameof(name));
+        public Mammal(string kind, string name) : base(kind, name) => throw null;
 
-        }
-
-        /// <summary> Initializes a new instance of <see cref="Mammal"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Mammal(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, name, additionalBinaryDataProperties)
-        {
-        }
+        internal Mammal(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, name, additionalBinaryDataProperties) => throw null;
     }
 }

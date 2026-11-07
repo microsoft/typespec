@@ -4,37 +4,17 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 
 namespace _Type.Union.Discriminated.Extends._ExplicitDiscriminator
 {
-    /// <summary> The ExplicitDiscriminator sub-client. </summary>
     public partial class ExplicitDiscriminator
     {
-        private readonly Uri _endpoint;
-        private ExplicitDiscriminatorOperations _cachedExplicitDiscriminatorOperations;
+        protected ExplicitDiscriminator() => throw null;
 
-        /// <summary> Initializes a new instance of ExplicitDiscriminator for mocking. </summary>
-        protected ExplicitDiscriminator()
-        {
-        }
+        internal ExplicitDiscriminator(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        /// <summary> Initializes a new instance of ExplicitDiscriminator. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal ExplicitDiscriminator(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of ExplicitDiscriminatorOperations. </summary>
-        public virtual ExplicitDiscriminatorOperations GetExplicitDiscriminatorOperationsClient()
-        {
-            return Volatile.Read(ref _cachedExplicitDiscriminatorOperations) ?? Interlocked.CompareExchange(ref _cachedExplicitDiscriminatorOperations, new ExplicitDiscriminatorOperations(Pipeline, _endpoint), null) ?? _cachedExplicitDiscriminatorOperations;
-        }
+        public virtual ExplicitDiscriminatorOperations GetExplicitDiscriminatorOperationsClient() => throw null;
     }
 }

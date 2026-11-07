@@ -4,35 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._CustomDiscriminator
 {
-    /// <summary> The CustomCat. </summary>
     public partial class CustomCat : CustomPet
     {
-        /// <summary> Initializes a new instance of <see cref="CustomCat"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public CustomCat(string name, bool meow) : base("feline", name)
+        public CustomCat(string name, bool meow) : base("feline", name) => throw null;
+
+        internal CustomCat(string petType, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool meow) : base(petType, name, additionalBinaryDataProperties) => throw null;
+
+        public bool Meow
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Meow = meow;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Initializes a new instance of <see cref="CustomCat"/>. </summary>
-        /// <param name="petType"> Discriminator property for CustomPet. </param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        /// <param name="meow"></param>
-        internal CustomCat(string petType, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool meow) : base(petType, name, additionalBinaryDataProperties)
-        {
-            Meow = meow;
-        }
-
-        /// <summary> Gets or sets the Meow. </summary>
-        public bool Meow { get; set; }
     }
 }

@@ -336,7 +336,7 @@
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
     "http-type-union-discriminated-extends": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/type/union/discriminated/extends -g ScmCodeModelGenerator",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/type/union/discriminated/extends -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },

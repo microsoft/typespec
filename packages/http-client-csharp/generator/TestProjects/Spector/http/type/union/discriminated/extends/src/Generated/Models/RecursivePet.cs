@@ -4,60 +4,35 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._Recursive
 {
-    /// <summary>
-    /// The RecursivePet.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="RecursiveCat"/> and <see cref="RecursiveDog"/>.
-    /// </summary>
     public abstract partial class RecursivePet
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected RecursivePet(string kind, string name) => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="RecursivePet"/>. </summary>
-        /// <param name="kind"> Discriminator property for RecursivePet. </param>
-        /// <param name="name"></param>
-        private protected RecursivePet(string kind, string name)
+        internal RecursivePet(string kind, string name, RecursivePet friend, IList<RecursivePet> friends, IDictionary<string, RecursivePet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+
+        internal string Kind
         {
-            Kind = kind;
-            Name = name;
-            Friends = new ChangeTrackingList<RecursivePet>();
-            Lookup = new ChangeTrackingDictionary<string, RecursivePet>();
+            get => throw null;
+            set => throw null;
         }
 
-        /// <summary> Initializes a new instance of <see cref="RecursivePet"/>. </summary>
-        /// <param name="kind"> Discriminator property for RecursivePet. </param>
-        /// <param name="name"></param>
-        /// <param name="friend"></param>
-        /// <param name="friends"></param>
-        /// <param name="lookup"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal RecursivePet(string kind, string name, RecursivePet friend, IList<RecursivePet> friends, IDictionary<string, RecursivePet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        public string Name
         {
-            Kind = kind;
-            Name = name;
-            Friend = friend;
-            Friends = friends;
-            Lookup = lookup;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+            get => throw null;
+            set => throw null;
         }
 
-        /// <summary> Discriminator property for RecursivePet. </summary>
-        internal string Kind { get; set; }
+        public RecursivePet Friend
+        {
+            get => throw null;
+            set => throw null;
+        }
 
-        /// <summary> Gets or sets the Name. </summary>
-        public string Name { get; set; }
+        public IList<RecursivePet> Friends => throw null;
 
-        /// <summary> Gets or sets the Friend. </summary>
-        public RecursivePet Friend { get; set; }
-
-        /// <summary> Gets the Friends. </summary>
-        public IList<RecursivePet> Friends { get; }
-
-        /// <summary> Gets the Lookup. </summary>
-        public IDictionary<string, RecursivePet> Lookup { get; }
+        public IDictionary<string, RecursivePet> Lookup => throw null;
     }
 }

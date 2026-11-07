@@ -4,35 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._ExplicitDiscriminator
 {
-    /// <summary> The ExplicitDog. </summary>
     public partial class ExplicitDog : ExplicitPet
     {
-        /// <summary> Initializes a new instance of <see cref="ExplicitDog"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public ExplicitDog(string name, bool bark) : base("dog", name)
+        public ExplicitDog(string name, bool bark) : base("dog", name) => throw null;
+
+        internal ExplicitDog(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool bark) : base(kind, name, additionalBinaryDataProperties) => throw null;
+
+        public bool Bark
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Bark = bark;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Initializes a new instance of <see cref="ExplicitDog"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        /// <param name="bark"></param>
-        internal ExplicitDog(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool bark) : base(kind, name, additionalBinaryDataProperties)
-        {
-            Bark = bark;
-        }
-
-        /// <summary> Gets or sets the Bark. </summary>
-        public bool Bark { get; set; }
     }
 }

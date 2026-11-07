@@ -4,35 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._ExplicitDiscriminator
 {
-    /// <summary> The ExplicitCat. </summary>
     public partial class ExplicitCat : Mammal
     {
-        /// <summary> Initializes a new instance of <see cref="ExplicitCat"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public ExplicitCat(string name, bool meow) : base("cat", name)
+        public ExplicitCat(string name, bool meow) : base("cat", name) => throw null;
+
+        internal ExplicitCat(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool meow) : base(kind, name, additionalBinaryDataProperties) => throw null;
+
+        public bool Meow
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Meow = meow;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Initializes a new instance of <see cref="ExplicitCat"/>. </summary>
-        /// <param name="kind"></param>
-        /// <param name="name"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        /// <param name="meow"></param>
-        internal ExplicitCat(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool meow) : base(kind, name, additionalBinaryDataProperties)
-        {
-            Meow = meow;
-        }
-
-        /// <summary> Gets or sets the Meow. </summary>
-        public bool Meow { get; set; }
     }
 }

@@ -9,15 +9,6 @@ namespace _Type.Union.Discriminated.Extends._Recursive
 {
     internal partial class UnknownRecursivePet : RecursivePet
     {
-        /// <summary> Initializes a new instance of <see cref="UnknownRecursivePet"/>. </summary>
-        /// <param name="kind"> Discriminator property for RecursivePet. </param>
-        /// <param name="name"></param>
-        /// <param name="friend"></param>
-        /// <param name="friends"></param>
-        /// <param name="lookup"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnknownRecursivePet(string kind, string name, RecursivePet friend, IList<RecursivePet> friends, IDictionary<string, RecursivePet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", name, friend, friends, lookup, additionalBinaryDataProperties)
-        {
-        }
+        internal UnknownRecursivePet(string kind, string name, RecursivePet friend, IList<RecursivePet> friends, IDictionary<string, RecursivePet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", name, friend, friends, lookup, additionalBinaryDataProperties) => throw null;
     }
 }

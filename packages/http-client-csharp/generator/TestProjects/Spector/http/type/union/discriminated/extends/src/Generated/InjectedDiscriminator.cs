@@ -4,37 +4,17 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 
 namespace _Type.Union.Discriminated.Extends._InjectedDiscriminator
 {
-    /// <summary> The InjectedDiscriminator sub-client. </summary>
     public partial class InjectedDiscriminator
     {
-        private readonly Uri _endpoint;
-        private InjectedDiscriminatorOperations _cachedInjectedDiscriminatorOperations;
+        protected InjectedDiscriminator() => throw null;
 
-        /// <summary> Initializes a new instance of InjectedDiscriminator for mocking. </summary>
-        protected InjectedDiscriminator()
-        {
-        }
+        internal InjectedDiscriminator(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        /// <summary> Initializes a new instance of InjectedDiscriminator. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal InjectedDiscriminator(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of InjectedDiscriminatorOperations. </summary>
-        public virtual InjectedDiscriminatorOperations GetInjectedDiscriminatorOperationsClient()
-        {
-            return Volatile.Read(ref _cachedInjectedDiscriminatorOperations) ?? Interlocked.CompareExchange(ref _cachedInjectedDiscriminatorOperations, new InjectedDiscriminatorOperations(Pipeline, _endpoint), null) ?? _cachedInjectedDiscriminatorOperations;
-        }
+        public virtual InjectedDiscriminatorOperations GetInjectedDiscriminatorOperationsClient() => throw null;
     }
 }

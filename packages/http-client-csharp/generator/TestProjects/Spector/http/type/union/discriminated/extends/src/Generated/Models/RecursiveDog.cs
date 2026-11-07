@@ -4,38 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union.Discriminated.Extends;
 
 namespace _Type.Union.Discriminated.Extends._Recursive
 {
-    /// <summary> The RecursiveDog. </summary>
     public partial class RecursiveDog : RecursivePet
     {
-        /// <summary> Initializes a new instance of <see cref="RecursiveDog"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public RecursiveDog(string name, bool bark) : base("dog", name)
+        public RecursiveDog(string name, bool bark) : base("dog", name) => throw null;
+
+        internal RecursiveDog(string kind, string name, RecursivePet friend, IList<RecursivePet> friends, IDictionary<string, RecursivePet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool bark) : base(kind, name, friend, friends, lookup, additionalBinaryDataProperties) => throw null;
+
+        public bool Bark
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Bark = bark;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Initializes a new instance of <see cref="RecursiveDog"/>. </summary>
-        /// <param name="kind"> Discriminator property for RecursivePet. </param>
-        /// <param name="name"></param>
-        /// <param name="friend"></param>
-        /// <param name="friends"></param>
-        /// <param name="lookup"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        /// <param name="bark"></param>
-        internal RecursiveDog(string kind, string name, RecursivePet friend, IList<RecursivePet> friends, IDictionary<string, RecursivePet> lookup, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool bark) : base(kind, name, friend, friends, lookup, additionalBinaryDataProperties)
-        {
-            Bark = bark;
-        }
-
-        /// <summary> Gets or sets the Bark. </summary>
-        public bool Bark { get; set; }
     }
 }

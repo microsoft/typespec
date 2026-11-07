@@ -11,10 +11,6 @@ using _Type.Union.Discriminated.Extends._Recursive;
 
 namespace _Type.Union.Discriminated.Extends
 {
-    /// <summary>
-    /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
-    /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
-    /// </summary>
     [ModelReaderWriterBuildable(typeof(CustomCat))]
     [ModelReaderWriterBuildable(typeof(CustomDog))]
     [ModelReaderWriterBuildable(typeof(CustomPet))]
