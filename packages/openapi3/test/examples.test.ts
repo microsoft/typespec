@@ -34,6 +34,27 @@ describe("schema examples", () => {
     expect(res.components.schemas.Test.example).toEqual({ dob: "2021-01-01" });
   });
 
+  it("serialize a typed const example with @encode(string) on the scalar", async () => {
+    const res = await openApiFor(
+      `
+      using JsonSchema;
+
+      @service
+      @jsonSchema
+      namespace Ns;
+
+      const n: int64 = 123;
+      @encode(string)
+      scalar Id extends int64;
+
+      model Test {
+        @example(n) id: Id;
+      }
+      `,
+    );
+    expect(res.components.schemas.Test.properties.id.example).toEqual("123");
+  });
+
   it("enum in union", async () => {
     const res = await openApiFor(
       `
@@ -1029,5 +1050,53 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     expect((res.components.parameters["Test.encodedHeader"] as OpenAPI3Parameter).example).toEqual(
       "2021-01-01T00:00:00Z",
     );
+  });
+
+  it("serialize typed const operation examples with @encode(string) on the scalar", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      const n: SubId = 123;
+      @encode(string) scalar Id extends int64;
+      scalar SubId extends Id;
+
+      @opExample(#{ parameters: #{ id: n, body: #{ id: n } }, returnType: #{ id: n } })
+      @post op create(@path id: Id, @body body: { id: Id }): { id: Id };
+      `,
+      { "experimental-parameter-examples": "data" },
+    );
+    const operation = res.paths["/{id}"].post;
+    ok(operation);
+    expect((operation.parameters?.[0] as OpenAPI3Parameter).example).toEqual("123");
+    expect(
+      (operation.requestBody as OpenAPI3RequestBody).content["application/json"].example,
+    ).toEqual({ id: "123" });
+    expect((operation.responses as any)["200"].content["application/json"].example).toEqual({
+      id: "123",
+    });
+  });
+
+  it("serialize header parameter examples with the encoding of their scalar", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      const n: SubId = 123;
+      @encode(string) scalar Id extends int64;
+      scalar SubId extends Id;
+
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar UnixDate extends utcDateTime;
+
+      @opExample(#{
+        parameters: #{ literal: 123, typed: n, date: UnixDate.fromISO("2021-01-01T00:00:00Z") },
+      })
+      op read(@header literal: Id, @header typed: Id, @header date: UnixDate): void;
+      `,
+      { "experimental-parameter-examples": "data" },
+    );
+    const parameters = res.paths["/"].get?.parameters as OpenAPI3Parameter[];
+    expect(parameters.map((x) => [x.name, x.example])).toEqual([
+      ["literal", "123"],
+      ["typed", "123"],
+      ["date", 1609459200],
+    ]);
   });
 });

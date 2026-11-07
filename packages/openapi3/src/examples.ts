@@ -255,6 +255,9 @@ function getDefaultHeaderEncodeAs(program: Program, header: ModelProperty): Enco
 
   if (!tk.scalar.is(header.type)) return;
 
+  // A scalar with its own encoding keeps it, as its schema does
+  if (getEncode(program, header.type)) return;
+
   // Use the default encoding for date-time headers
   return {
     encoding: "rfc7231",
