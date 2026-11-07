@@ -11,9 +11,9 @@ namespace Sample
     public static partial class SampleModelFactory
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public static global::Sample.Models.FileRequest FileRequest(global::System.ClientModel.FileBinaryContent profileImage = default)
+        public static global::Sample.Models.FileContent FileContent(global::System.ClientModel.FileBinaryContent profileImage = default)
         {
-            return new global::Sample.Models.FileRequest(profileImage);
+            return new global::Sample.Models.FileContent(profileImage);
         }
 
         public static global::Sample.Models.RegularModel RegularModel(string name = default)

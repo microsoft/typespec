@@ -233,15 +233,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ModelFactoryP
             MockHelpers.LoadMockGenerator(inputModels: () => [fileRequest, regular]);
             var factory = ScmCodeModelGenerator.Instance.TypeFactory.CreateModelFactory([fileRequest, regular]);
 
-            var fileRequestMethod = factory.Methods.Single(m => m.Signature.Name == "FileRequest");
+            var fileRequestMethod = factory.Methods.Single(m => m.Signature.Name == "FileContent");
             var regularMethod = factory.Methods.Single(m => m.Signature.Name == "RegularModel");
 
             Assert.IsTrue(
                 fileRequestMethod.Signature.Parameters.Any(p => p.Type.FrameworkType == typeof(FileBinaryContent)),
-                "FileRequest factory method should contain a FileBinaryContent parameter.");
+                "FileContent factory method should contain a FileBinaryContent parameter.");
             Assert.IsTrue(
                 fileRequestMethod.Signature.Attributes.Any(a => a.Type.FrameworkType == typeof(ExperimentalAttribute)),
-                "FileRequest factory method should carry the ExperimentalAttribute because it has a FileBinaryContent parameter.");
+                "FileContent factory method should carry the ExperimentalAttribute because it has a FileBinaryContent parameter.");
 
             Assert.IsFalse(
                 regularMethod.Signature.Parameters.Any(p => p.Type.FrameworkType == typeof(FileBinaryContent)),

@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
-        private const string ContentSuffix = "Content";
+        private const string RequestSuffix = "Request";
         private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
         internal InputModelType InputModel => _inputModel;
@@ -483,10 +483,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private string RenameModelSuffix(string name)
         {
-            if ((_inputModel.Usage & (InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Error)) == InputModelTypeUsage.Input &&
-                name.EndsWith(ContentSuffix, StringComparison.Ordinal))
+            if (name.EndsWith(RequestSuffix, StringComparison.Ordinal))
             {
-                return $"{name[..^ContentSuffix.Length]}Request";
+                return $"{name[..^RequestSuffix.Length]}Content";
             }
 
             if (!_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) &&

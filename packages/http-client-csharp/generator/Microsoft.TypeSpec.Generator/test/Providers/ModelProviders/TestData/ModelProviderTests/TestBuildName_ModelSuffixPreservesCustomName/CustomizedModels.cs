@@ -17,18 +17,18 @@ namespace Sample.Models
     {
     }
 
-    [CodeGenType("WidgetContent")]
-    public partial class CustomizedContent
+    [CodeGenType("WidgetRequest")]
+    public partial class CustomizedRequest
     {
     }
 
-    [CodeGenType("IPContent")]
-    public partial class CustomizedIPContent
+    [CodeGenType("IPRequest")]
+    public partial class CustomizedIPRequest
     {
     }
 
-    [CodeGenType("GadgetRequest")]
-    public partial class CustomizedGadgetContent
+    [CodeGenType("GadgetContent")]
+    public partial class CustomizedGadgetRequest
     {
     }
 }
