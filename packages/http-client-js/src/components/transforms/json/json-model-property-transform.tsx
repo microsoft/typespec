@@ -12,6 +12,8 @@ export interface JsonModelPropertyTransformProps {
   itemRef: Refkey | Children;
   type: ModelProperty;
   target: "transport" | "application";
+  /** Overrides the transport name, for example with the HTTP wire name of a parameter. */
+  transportName?: string;
 }
 
 export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProps) {
@@ -19,7 +21,7 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
   const transformNamer = useTransformNamePolicy();
   const propertyValueType = unpackProperty(props.type);
 
-  const transportName = transformNamer.getTransportName(props.type);
+  const transportName = props.transportName ?? transformNamer.getTransportName(props.type);
   const applicationName = transformNamer.getApplicationName(props.type);
   const targetName = props.target === "transport" ? transportName : applicationName;
   const sourceName = props.target === "transport" ? applicationName : transportName;
