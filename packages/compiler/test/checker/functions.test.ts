@@ -1965,4 +1965,137 @@ describe("function calls within template declarations", () => {
 
     strictEqual(observed, myProp);
   });
+
+  it("does not call decorator when extern fn argument has invalid reference (#10760)", async () => {
+    let decoratorCalled = false;
+    const localTester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            myFn: (_context: any, target: any) => target,
+          },
+        },
+        $myDec: (_context: any, _target: any, override: any) => {
+          decoratorCalled = true;
+          // If override was passed as Model Operation instead of Operation, this would crash
+          return override.parameters.properties;
+        },
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
+
+    const diagnostics = await localTester.diagnose(`
+      extern fn myFn(target: Reflection.Operation): Reflection.Operation;
+      extern dec myDec(target: Reflection.Operation, override: Reflection.Operation);
+
+      op test(): void;
+
+      @@myDec(test, myFn(invalidref));
+    `);
+
+    expectFunctionDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: "Unknown identifier invalidref",
+      },
+      {
+        code: "unassignable",
+        message: "Type 'ErrorType' is not assignable to type 'Operation'",
+      },
+    ]);
+    strictEqual(decoratorCalled, false);
+  });
+
+  it("does not call decorator when using alias to extern fn with invalid reference (#10760)", async () => {
+    let decoratorCalled = false;
+    const localTester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            myFn: (_context: any, target: any) => target,
+          },
+        },
+        $myDec: (_context: any, _target: any, override: any) => {
+          decoratorCalled = true;
+          return override.parameters.properties;
+        },
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
+
+    const diagnostics = await localTester.diagnose(`
+      extern fn myFn(target: Reflection.Operation): Reflection.Operation;
+      extern dec myDec(target: Reflection.Operation, override: Reflection.Operation);
+
+      op test(): void;
+
+      alias x = myFn(invalidref);
+      @@myDec(test, x);
+    `);
+
+    expectFunctionDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: "Unknown identifier invalidref",
+      },
+      {
+        code: "unassignable",
+        message: "Type 'ErrorType' is not assignable to type 'Operation'",
+      },
+    ]);
+    strictEqual(decoratorCalled, false);
+  });
+
+  it("does not call decorator or outer fn with nested extern fn call with invalid reference (#10760)", async () => {
+    let outerFnCalled = false;
+    let decoratorCalled = false;
+    const localTester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            myFn: (_context: any, target: any) => target,
+            myFn2: (_context: any, target: any) => {
+              outerFnCalled = true;
+              return target;
+            },
+          },
+        },
+        $myDec: (_context: any, _target: any, override: any) => {
+          decoratorCalled = true;
+          return override.parameters.properties;
+        },
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
+
+    const diagnostics = await localTester.diagnose(`
+      extern fn myFn(target: Reflection.Operation): Reflection.Operation;
+      extern fn myFn2(target: Reflection.Operation): Reflection.Operation;
+      extern dec myDec(target: Reflection.Operation, override: Reflection.Operation);
+
+      op test(): void;
+
+      @@myDec(test, myFn2(myFn(invalidref)));
+    `);
+
+    expectFunctionDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: "Unknown identifier invalidref",
+      },
+      {
+        code: "unassignable",
+        message: "Type 'ErrorType' is not assignable to type 'Operation'",
+      },
+      {
+        code: "unassignable",
+        message: "Type 'ErrorType' is not assignable to type 'Operation'",
+      },
+    ]);
+    strictEqual(outerFnCalled, false);
+    strictEqual(decoratorCalled, false);
+  });
 });
