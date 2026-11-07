@@ -15,7 +15,7 @@ namespace _Type._Array
     {
         protected NullableBooleanValue() => throw null;
 
-        internal NullableBooleanValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal NullableBooleanValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

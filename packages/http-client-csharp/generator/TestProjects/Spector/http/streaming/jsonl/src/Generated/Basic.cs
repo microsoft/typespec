@@ -15,7 +15,7 @@ namespace Streaming.Jsonl._Basic
     {
         protected Basic() => throw null;
 
-        internal Basic(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Basic(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

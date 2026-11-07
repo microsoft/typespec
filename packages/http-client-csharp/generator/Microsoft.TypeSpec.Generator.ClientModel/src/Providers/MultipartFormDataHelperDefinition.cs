@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -34,11 +35,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableTType = typeof(IEnumerable<>);
             CSharpType tType = enumerableTType.GetGenericArguments()[0];
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
+            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
             var mediaTypeParameter = new ParameterProvider("mediaType", FormattableStringHelpers.Empty, typeof(string), Null);
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter, mediaTypeParameter],
+                Parameters: [enumerableParameter, optionsParameter, mediaTypeParameter],
                 ReturnType: typeof(BinaryData),
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -53,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteStartArray(),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    writer.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.As(tType), optionsParameter.As<ModelReaderWriterOptions>())
                 },
                 writer.WriteEndArray(),
             ]);
@@ -72,11 +74,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dictionaryTType = typeof(IDictionary<,>);
             CSharpType valueType = dictionaryTType.GetGenericArguments()[1];
             var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, new CSharpType(dictionaryTType, typeof(string), valueType));
+            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
             var mediaTypeParameter = new ParameterProvider("mediaType", FormattableStringHelpers.Empty, typeof(string), Null);
             var signature = new MethodSignature(
                 Name: _fromDictionaryName,
                 Modifiers: _methodModifiers,
-                Parameters: [dictionaryParameter, mediaTypeParameter],
+                Parameters: [dictionaryParameter, optionsParameter, mediaTypeParameter],
                 ReturnType: typeof(BinaryData),
                 GenericArguments: [valueType],
                 GenericParameterConstraints: [Where.NotNull(valueType)],
@@ -92,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
-                    writer.WriteObjectValue(item.Property("Value").As(valueType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.Property("Value").As(valueType), optionsParameter.As<ModelReaderWriterOptions>())
                 },
                 writer.WriteEndObject(),
             ]);

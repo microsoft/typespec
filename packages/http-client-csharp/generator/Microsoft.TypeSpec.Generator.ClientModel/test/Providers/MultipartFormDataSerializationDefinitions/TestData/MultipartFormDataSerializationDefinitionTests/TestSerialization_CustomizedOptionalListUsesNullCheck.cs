@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using Sample;
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -11,13 +12,13 @@ namespace Sample.Models
 {
     public partial class ConcreteListRequest
     {
-        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent()
+        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             global::System.ClientModel.MultiPartFormContent content = new global::System.ClientModel.MultiPartFormContent();
 
             if ((Tags != null))
             {
-                global::System.BinaryData tagsData = global::Sample.MultipartFormDataHelper.FromEnumerable(Tags, "text/plain");
+                global::System.BinaryData tagsData = global::Sample.MultipartFormDataHelper.FromEnumerable(Tags, options, "text/plain");
                 content.Add("tags", tagsData);
             }
 

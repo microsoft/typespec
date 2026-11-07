@@ -15,7 +15,7 @@ namespace Parameters.CollectionFormat._Query
     {
         protected Query() => throw null;
 
-        internal Query(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Query(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

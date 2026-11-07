@@ -32,7 +32,7 @@ namespace Sample
                     {
                         continue;
                     }
-                    cats = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
+                    cats = (options == global::Sample.ModelSerializationExtensions.WireOptions) ? global::Sample.Models.Cat.DeserializeCat(prop.Value, options) : ((global::Sample.Models.Cat)global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(prop.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default));
                     continue;
                 }
                 switch (prop.Value.ValueKind)

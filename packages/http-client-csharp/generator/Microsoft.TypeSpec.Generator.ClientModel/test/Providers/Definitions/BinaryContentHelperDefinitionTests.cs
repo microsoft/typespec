@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -25,6 +26,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(fromObjectMethod);
             Assert.IsNotNull(fromObjectMethod.BodyStatements);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), fromObjectMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void SerializationMethodsAcceptModelReaderWriterOptions()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var binaryContentHelper = new BinaryContentHelperDefinition();
+            var serializationMethods = binaryContentHelper.Methods.Where(m =>
+                m.Signature.GenericArguments?.Count > 0 ||
+                m.Signature.Parameters[0].Type.Equals(typeof(object)));
+
+            foreach (var method in serializationMethods)
+            {
+                var optionsParameter = method.Signature.Parameters.SingleOrDefault(p => p.Name == "options");
+                Assert.IsNotNull(optionsParameter, method.Signature.Name);
+                Assert.AreEqual(typeof(ModelReaderWriterOptions), optionsParameter!.Type.FrameworkType);
+                Assert.That(method.BodyStatements!.ToDisplayString(), Does.Contain("options"));
+                Assert.That(method.BodyStatements!.ToDisplayString(), Does.Not.Contain("ModelSerializationExtensions.WireOptions"));
+            }
         }
 
         [Test]
@@ -54,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var binaryContentHelper = new BinaryContentHelperDefinition();
             Assert.IsNotNull(binaryContentHelper.Methods);
             var method = binaryContentHelper.Methods.Single(m => m.Signature.Name == "FromEnumerable"
-                && m.Signature.Parameters.Count == 3
+                && m.Signature.Parameters.Count == 4
                 && m.Signature.Parameters[1].Name == "rootNameHint");
             Assert.IsNotNull(method);
 
@@ -63,10 +84,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual("FromEnumerable", signature.Name);
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Static, signature.Modifiers);
             Assert.IsNotNull(signature.ReturnType);
-            Assert.AreEqual(3, signature.Parameters.Count);
+            Assert.AreEqual(4, signature.Parameters.Count);
             Assert.AreEqual("enumerable", signature.Parameters[0].Name);
             Assert.AreEqual("rootNameHint", signature.Parameters[1].Name);
             Assert.AreEqual("childNameHint", signature.Parameters[2].Name);
+            Assert.AreEqual("options", signature.Parameters[3].Name);
             Assert.IsNotNull(signature.GenericArguments);
             Assert.AreEqual(1, signature.GenericArguments!.Count);
             Assert.IsNotNull(signature.GenericParameterConstraints);

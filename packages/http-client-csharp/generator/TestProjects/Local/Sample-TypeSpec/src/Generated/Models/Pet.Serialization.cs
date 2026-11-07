@@ -70,6 +70,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(pet, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options to use for serialization. </param>
+        internal new BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Pet"/> from. </param>
         public static explicit operator Pet(ClientResult result)
         {

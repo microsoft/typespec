@@ -19,7 +19,7 @@ namespace Routes._PathParameters
     {
         protected PathParameters() => throw null;
 
-        internal PathParameters(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParameters(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

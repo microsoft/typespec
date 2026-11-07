@@ -14,6 +14,7 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _subscriptionId;
         private readonly string _computeApiVersion;
         private readonly string _keyVaultApiVersion;
@@ -38,6 +39,7 @@ namespace Sample
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
+            _modelReaderWriterOptions = (options.ModelReaderWriterOptions == null) ? global::Sample.ModelSerializationExtensions.WireOptions : new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             _subscriptionId = subscriptionId;
             if ((authenticationPolicy != null))
             {
@@ -60,17 +62,17 @@ namespace Sample
 
         public virtual global::Sample.KeyVault.KeyVault GetKeyVaultClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedKeyVault) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedKeyVault, new global::Sample.KeyVault.KeyVault(Pipeline, _endpoint, _keyVaultApiVersion, _subscriptionId), null) ?? _cachedKeyVault));
+            return (global::System.Threading.Volatile.Read(ref _cachedKeyVault) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedKeyVault, new global::Sample.KeyVault.KeyVault(Pipeline, _modelReaderWriterOptions, _endpoint, _keyVaultApiVersion, _subscriptionId), null) ?? _cachedKeyVault));
         }
 
         public virtual global::Sample.Storage.Storage GetStorageClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedStorage) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedStorage, new global::Sample.Storage.Storage(Pipeline, _endpoint, _storageApiVersion, _subscriptionId), null) ?? _cachedStorage));
+            return (global::System.Threading.Volatile.Read(ref _cachedStorage) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedStorage, new global::Sample.Storage.Storage(Pipeline, _modelReaderWriterOptions, _endpoint, _storageApiVersion, _subscriptionId), null) ?? _cachedStorage));
         }
 
         public virtual global::Sample.Compute.Compute GetComputeClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedCompute) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCompute, new global::Sample.Compute.Compute(Pipeline, _endpoint, _computeApiVersion, _subscriptionId), null) ?? _cachedCompute));
+            return (global::System.Threading.Volatile.Read(ref _cachedCompute) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCompute, new global::Sample.Compute.Compute(Pipeline, _modelReaderWriterOptions, _endpoint, _computeApiVersion, _subscriptionId), null) ?? _cachedCompute));
         }
     }
 }

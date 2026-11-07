@@ -14,7 +14,7 @@ namespace _Type.Property.Nullable
     {
         protected CollectionsModel() => throw null;
 
-        internal CollectionsModel(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal CollectionsModel(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

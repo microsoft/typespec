@@ -17,6 +17,7 @@ namespace SampleTypeSpec
     public partial class PlantOperations
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
 
         /// <summary> Initializes a new instance of PlantOperations for mocking. </summary>
         protected PlantOperations()
@@ -25,11 +26,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of PlantOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal PlantOperations(ClientPipeline pipeline, Uri endpoint)
+        internal PlantOperations(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -75,7 +78,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<Tree> GetTree(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetTree(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -84,7 +88,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<Tree>> GetTreeAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -127,7 +132,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<Tree> GetTreeAsJson(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetTreeAsJson(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -136,7 +142,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<Tree>> GetTreeAsJsonAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -190,9 +197,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("X");
+            using BinaryContent content = tree.ToBinaryContent(_modelReaderWriterOptions);
             ClientResult result = UpdateTree(content, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -204,9 +212,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("X");
+            using BinaryContent content = tree.ToBinaryContent(_modelReaderWriterOptions);
             ClientResult result = await UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -260,9 +269,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("J");
+            using BinaryContent content = tree.ToBinaryContent(_modelReaderWriterOptions);
             ClientResult result = UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -274,9 +284,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("J");
+            using BinaryContent content = tree.ToBinaryContent(_modelReaderWriterOptions);
             ClientResult result = await UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Tree>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
     }
 }

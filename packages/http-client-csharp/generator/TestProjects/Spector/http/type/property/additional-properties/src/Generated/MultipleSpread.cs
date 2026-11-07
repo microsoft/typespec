@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected MultipleSpread() => throw null;
 
-        internal MultipleSpread(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal MultipleSpread(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

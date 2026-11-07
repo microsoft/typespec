@@ -71,6 +71,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options to use for serialization. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
         public static explicit operator RoundTripModel(ClientResult result)
         {
@@ -408,7 +415,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredModel"u8))
                 {
-                    requiredModel = Thing.DeserializeThing(prop.Value, options);
+                    requiredModel = options == ModelSerializationExtensions.WireOptions ? Thing.DeserializeThing(prop.Value, options) : ModelReaderWriter.Read<Thing>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnum"u8))
@@ -622,7 +629,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("modelWithRequiredNullable"u8))
                 {
-                    modelWithRequiredNullable = ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
+                    modelWithRequiredNullable = options == ModelSerializationExtensions.WireOptions ? ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options) : ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("requiredBytes"u8))
