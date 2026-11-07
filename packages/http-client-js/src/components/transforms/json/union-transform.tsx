@@ -29,7 +29,8 @@ export function JsonUnionTransform(props: JsonUnionTransformProps) {
 
   const variantType = props.type.variants.values().next().value!.type;
 
-  if (!$.union.isExtensible(props.type)) {
+  // String variants need no conversion, including nested unions and derived scalars.
+  if (!$.union.isExtensible(props.type) || $.type.isAssignableTo(props.type, $.builtin.string)) {
     return props.itemRef;
   }
 
