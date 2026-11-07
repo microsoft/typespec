@@ -347,6 +347,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void NestedHelperBodyDependenciesAreRetained()
+        {
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            var page = new TestTypeProvider("Page", TypeSignatureModifiers.Internal, ns: "Sample");
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(client, page));
+            var helper = new NestedTestTypeProvider("PagingHelper", TypeSignatureModifiers.Internal, client, "Sample", page.Type);
+            client.NestedTypesInternal = [helper];
+
+            ProviderReferenceMapAnalyzer.Analyze([client, page]);
+
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(helper));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(page));
+        }
+
+        [Test]
         public void NamespaceLessGeneratedGenericBodyDependencyRootsGeneratedTypeInProviderNamespace()
         {
             var genericArgument = CreateNamedType("T", string.Empty);
@@ -1921,14 +1936,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         private sealed class NestedTestTypeProvider : TestTypeProvider
         {
             private readonly TypeProvider _declaringTypeProvider;
+            private readonly CSharpType[] _bodyDependencyTypes;
 
-            public NestedTestTypeProvider(string name, TypeSignatureModifiers declarationModifiers, TypeProvider declaringTypeProvider, string ns)
+            public NestedTestTypeProvider(string name, TypeSignatureModifiers declarationModifiers, TypeProvider declaringTypeProvider, string ns, params CSharpType[] bodyDependencyTypes)
                 : base(name, declarationModifiers, ns: ns)
             {
                 _declaringTypeProvider = declaringTypeProvider;
+                _bodyDependencyTypes = bodyDependencyTypes;
             }
 
             protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+
+            protected internal override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => _bodyDependencyTypes;
         }
 
         private sealed class GeneratedModelTestTypeProvider : TypeProvider

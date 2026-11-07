@@ -10,14 +10,14 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
+    internal partial class GetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
         private readonly global::System.DateTimeOffset _startsOn;
         private readonly string _startsOn0;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.DateTimeOffset startsOn, string startsOn0, global::System.ClientModel.Primitives.RequestOptions options)
+        public GetCatsCollectionResult(global::Sample.CatClient client, global::System.DateTimeOffset startsOn, string startsOn0, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _startsOn = startsOn;

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -21,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
+        private static readonly ConditionalWeakTable<Compilation, string[]> _globalUsingNamespaceCandidates = new();
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
         private string? _metadataName;
@@ -449,7 +451,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var semanticModel = _compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
-                var namespaceCandidates = GetNamespaceCandidates(typeDeclaration);
+                var namespaceCandidates = GetNamespaceCandidates(typeDeclaration, semanticModel);
                 AddPublicTypeSignatureDependencyTypes(typeDeclaration, dependencies, semanticModel, namespaceCandidates);
             }
 
@@ -459,7 +461,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void AddBodyDependencyTypes(SyntaxNode syntax, HashSet<CSharpType> dependencies)
         {
             var semanticModel = _compilation.GetSemanticModel(syntax.SyntaxTree);
-            AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax));
+            AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax, semanticModel));
 
             foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
@@ -479,7 +481,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void AddPublicSignatureDependencyTypes(MemberDeclarationSyntax member, HashSet<CSharpType> dependencies)
         {
             var semanticModel = _compilation.GetSemanticModel(member.SyntaxTree);
-            var namespaceCandidates = GetNamespaceCandidates(member);
+            var namespaceCandidates = GetNamespaceCandidates(member, semanticModel);
             switch (member)
             {
                 case MethodDeclarationSyntax method:
@@ -554,7 +556,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var type in node.DescendantNodesAndSelf().OfType<TypeSyntax>())
             {
-                if (type.IsPartOfStructuredTrivia())
+                if (type.IsPartOfStructuredTrivia() ||
+                    type.Parent is QualifiedNameSyntax or AliasQualifiedNameSyntax)
                 {
                     continue;
                 }
@@ -635,8 +638,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     break;
                 case QualifiedNameSyntax qualifiedName:
-                    AddQualifiedUnresolvedDependencyType(dependencies, qualifiedName);
-                    AddSyntaxTypeReference(qualifiedName.Right, dependencies, semanticModel, namespaceCandidates);
+                    AddQualifiedUnresolvedDependencyType(dependencies, qualifiedName, semanticModel, namespaceCandidates);
+                    if (qualifiedName.Right is GenericNameSyntax qualifiedGenericName)
+                    {
+                        foreach (var argument in qualifiedGenericName.TypeArgumentList.Arguments)
+                        {
+                            AddSyntaxTypeReference(argument, dependencies, semanticModel, namespaceCandidates);
+                        }
+                    }
                     break;
                 case AliasQualifiedNameSyntax aliasQualifiedName:
                     AddSyntaxTypeReference(aliasQualifiedName.Name, dependencies, semanticModel, namespaceCandidates);
@@ -690,16 +699,42 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private static void AddQualifiedUnresolvedDependencyType(HashSet<CSharpType> dependencies, QualifiedNameSyntax qualifiedName)
+        private static void AddQualifiedUnresolvedDependencyType(
+            HashSet<CSharpType> dependencies,
+            QualifiedNameSyntax qualifiedName,
+            SemanticModel semanticModel,
+            IReadOnlyList<string> namespaceCandidates)
         {
-            var fullName = qualifiedName.ToString();
-            var lastDot = fullName.LastIndexOf('.');
-            if (lastDot <= 0 || lastDot == fullName.Length - 1)
+            var name = qualifiedName.Right.Identifier.ValueText;
+            var arity = qualifiedName.Right is GenericNameSyntax genericName ? genericName.Arity : 0;
+            var qualifier = qualifiedName.Left.ToString();
+            const string globalAliasPrefix = "global::";
+            if (qualifier.StartsWith(globalAliasPrefix, StringComparison.Ordinal))
             {
+                dependencies.Add(CreateDependencyType(name, qualifier.Substring(globalAliasPrefix.Length), arity));
                 return;
             }
 
-            dependencies.Add(CreateDependencyType(fullName.Substring(lastDot + 1), fullName.Substring(0, lastDot)));
+            var qualifierSymbol = semanticModel.GetSymbolInfo(qualifiedName.Left).Symbol;
+            if (qualifierSymbol is INamespaceSymbol ||
+                qualifierSymbol is INamedTypeSymbol { TypeKind: not TypeKind.Error })
+            {
+                dependencies.Add(CreateDependencyType(name, qualifierSymbol.ToDisplayString(), arity));
+                return;
+            }
+
+            dependencies.Add(CreateDependencyType(name, qualifier, arity));
+            foreach (var ns in namespaceCandidates)
+            {
+                dependencies.Add(CreateDependencyType(name, $"{ns}.{qualifier}", arity));
+            }
+            for (var scope = semanticModel.GetEnclosingSymbol(qualifiedName.SpanStart); scope != null; scope = scope.ContainingSymbol)
+            {
+                if (scope is INamedTypeSymbol || scope is INamespaceSymbol { IsGlobalNamespace: false })
+                {
+                    dependencies.Add(CreateDependencyType(name, $"{scope.ToDisplayString()}.{qualifier}", arity));
+                }
+            }
         }
 
         private static CSharpType CreateDependencyType(string name, string ns, int genericArgumentCount = 0)
@@ -713,7 +748,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 isPublic: false,
                 isStruct: false);
 
-        private static IReadOnlyList<string> GetNamespaceCandidates(SyntaxNode node)
+        private static IReadOnlyList<string> GetNamespaceCandidates(SyntaxNode node, SemanticModel semanticModel)
         {
             var namespaces = new HashSet<string>(StringComparer.Ordinal);
             for (var current = node; current != null; current = current.Parent)
@@ -724,7 +759,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         namespaces.Add(namespaceDeclaration.Name.ToString());
                         foreach (var usingDirective in namespaceDeclaration.Usings)
                         {
-                            AddUsingNamespace(namespaces, usingDirective);
+                            AddUsingNamespace(namespaces, usingDirective, semanticModel);
                         }
                         break;
                 }
@@ -734,20 +769,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var usingDirective in compilationUnit.Usings)
                 {
-                    AddUsingNamespace(namespaces, usingDirective);
+                    AddUsingNamespace(namespaces, usingDirective, semanticModel);
                 }
             }
 
+            namespaces.UnionWith(GetGlobalUsingNamespaceCandidates(semanticModel.Compilation));
             return [.. namespaces];
         }
 
-        private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective)
+        internal static IReadOnlyList<string> GetGlobalUsingNamespaceCandidates(Compilation compilation)
+            => _globalUsingNamespaceCandidates.GetValue(compilation, static compilation =>
+            {
+                HashSet<string>? namespaces = null;
+                foreach (var syntaxTree in compilation.SyntaxTrees)
+                {
+                    if (syntaxTree.GetRoot() is not CompilationUnitSyntax compilationUnit)
+                    {
+                        continue;
+                    }
+
+                    foreach (var usingDirective in compilationUnit.Usings)
+                    {
+                        if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
+                        {
+                            namespaces ??= new HashSet<string>(StringComparer.Ordinal);
+                            AddUsingNamespace(namespaces, usingDirective, compilation.GetSemanticModel(syntaxTree));
+                        }
+                    }
+                }
+
+                return namespaces is null ? [] : [.. namespaces];
+            });
+
+        private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective, SemanticModel semanticModel)
         {
             if (usingDirective.Alias == null &&
-                !usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) &&
                 usingDirective.Name != null)
             {
-                namespaces.Add(usingDirective.Name.ToString());
+                if (usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) &&
+                    semanticModel.GetSymbolInfo(usingDirective.Name).Symbol is INamedTypeSymbol { TypeKind: not TypeKind.Error } type)
+                {
+                    namespaces.Add(type.ToDisplayString());
+                }
+                else
+                {
+                    namespaces.Add(usingDirective.Name.ToString());
+                }
             }
         }
 

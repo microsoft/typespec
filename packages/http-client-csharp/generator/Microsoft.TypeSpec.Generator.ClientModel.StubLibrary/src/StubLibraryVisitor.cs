@@ -18,7 +18,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
 
         protected override TypeProvider? VisitType(TypeProvider type)
         {
-            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+            if (type is ClientCollectionsProvider ||
+                !type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
                 !type.Name.StartsWith("Unknown", StringComparison.Ordinal) &&
                 !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
             {

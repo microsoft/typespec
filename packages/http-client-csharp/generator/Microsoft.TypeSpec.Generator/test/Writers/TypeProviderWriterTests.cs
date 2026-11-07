@@ -98,6 +98,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void NestedTypeSeparatorRequiresPrecedingMembers(bool hasField)
+        {
+            var provider = new TestTypeProvider(name: "Outer", ns: "Sample",
+                declarationModifiers: TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class);
+            var nested = new TestTypeProvider(name: "Inner", ns: "Sample",
+                declarationModifiers: TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class);
+            provider.Update(nestedTypes: [nested]);
+            if (hasField)
+            {
+                provider.Update(fields: [new FieldProvider(FieldModifiers.Private, typeof(int), "_value", provider)]);
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(hasField.ToString()).ReplaceLineEndings("\n"), new TypeProviderWriter(provider).Write().Content);
+        }
+
         private class TestEnumWithAttributesProvider : TypeProvider
         {
             protected override string BuildRelativeFilePath() => "TestEnum.cs";
