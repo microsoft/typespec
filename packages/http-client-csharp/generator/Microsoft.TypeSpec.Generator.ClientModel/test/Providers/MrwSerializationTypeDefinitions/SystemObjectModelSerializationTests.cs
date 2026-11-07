@@ -566,16 +566,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         // -------------------------------------------------------------------
 
         [Test]
-        public void JsonModelWriteCore_IsOverride_WhenBaseIsSystemObject()
+        public void JsonModelWriteCore_IsVirtual_WhenSystemBaseHasNoWriteCore()
         {
             var (_, serialization) = CreateDerivedModelWithSystemBase();
             var method = serialization.BuildJsonModelWriteCoreMethod();
 
             Assert.IsNotNull(method);
-            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override),
-                "JsonModelWriteCore should be 'override' even with SystemObjectModelProvider base");
-            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual),
-                "JsonModelWriteCore should NOT be 'virtual' when base exists");
+            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override),
+                "A system base without JsonModelWriteCore cannot be overridden");
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
         }
 
         [Test]
@@ -609,9 +608,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 "The generated model type should inherit the base resolved after serialization construction.");
             Assert.AreEqual(derived.BaseModel.Type, serialization.Type.BaseType,
                 "The serialization type should inherit the same resolved base.");
-            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override),
-                "JsonModelWriteCore should evaluate BaseModelProvider when the method is built, not when serialization is constructed");
-            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override),
+                "The resolved system base does not declare JsonModelWriteCore");
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
         }
 
         [Test]

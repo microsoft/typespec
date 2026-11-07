@@ -24,6 +24,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Model } from "@typespec/compiler";
 import { compilerAssert, createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { isEvents } from "@typespec/events";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type {
@@ -470,20 +471,53 @@ function fromUnionType(
 ): [InputUnionType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const variantTypes: InputType[] = [];
+  const inputUnion: InputUnionType = {
+    kind: "union",
+    name: union.name,
+    variantTypes,
+    namespace: union.namespace,
+    decorators: union.decorators,
+    external: fromSdkExternalTypeInfo(union),
+    isExactName: union.isExactName,
+  };
+  sdkContext.__typeCache.updateSdkTypeReferences(union, inputUnion);
+
   for (const value of union.variantTypes) {
     const variantType = diagnostics.pipe(fromSdkType(sdkContext, value));
     variantTypes.push(variantType);
   }
 
-  return diagnostics.wrap({
-    kind: "union",
-    name: union.name,
-    variantTypes: variantTypes,
-    namespace: union.namespace,
-    decorators: union.decorators,
-    external: fromSdkExternalTypeInfo(union),
-    isExactName: union.isExactName,
-  });
+  const base = union.baseType;
+  if (
+    union.discriminatedOptions?.envelope === "object" &&
+    base?.kind === "model" &&
+    base.name &&
+    union.variants.size > 0 &&
+    !(union.__raw?.kind === "Union" && isEvents(sdkContext.program, union.__raw)) &&
+    new Set(union.variants.values()).size === union.variants.size &&
+    [...union.variants].every(([tag, variant]) => {
+      if (typeof tag !== "string" || variant.kind !== "model") return false;
+      for (let ancestor = variant.baseModel; ancestor; ancestor = ancestor.baseModel) {
+        if (ancestor === base) return true;
+      }
+      return false;
+    })
+  ) {
+    inputUnion.baseModel = diagnostics.pipe(fromSdkType(sdkContext, base));
+    inputUnion.discriminatorPropertyName = union.discriminatedOptions.discriminatorPropertyName;
+    inputUnion.envelopePropertyName = union.discriminatedOptions.envelopePropertyName;
+    const subtypes: Record<string, InputModelType> = Object.create(null);
+    for (const [tag, variant] of union.variants) {
+      compilerAssert(
+        typeof tag === "string" && variant.kind === "model",
+        "Expected model variant.",
+      );
+      subtypes[tag] = diagnostics.pipe(fromSdkType(sdkContext, variant));
+    }
+    inputUnion.discriminatedSubtypes = subtypes;
+  }
+
+  return diagnostics.wrap(inputUnion);
 }
 
 function fromSdkConstantType(

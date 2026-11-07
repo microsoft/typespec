@@ -84,7 +84,9 @@ foreach ($specFile in Get-Sorted-Specs) {
         continue
     }
     
-    Invoke (Get-TspCommand $specFile $generationDir $stubbed)
+    # Union-extends Spector tests execute the generated client rather than only checking its API.
+    $generateStub = $Stubbed -and $subPath -ne (Join-Path 'http' 'type' 'union' 'discriminated' 'extends')
+    Invoke (Get-TspCommand $specFile $generationDir $generateStub)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
@@ -112,8 +114,9 @@ if ($null -eq $filter) {
     $launchSettings["profiles"]["Sample-Service"].Add("executablePath", $mtgExe)
 
     foreach ($kvp in $spectorLaunchProjects.GetEnumerator()) {
+        $generatorName = $kvp.Key -eq "http-type-union-discriminated-extends" ? "ScmCodeModelGenerator" : "StubLibraryGenerator"
         $launchSettings["profiles"].Add($kvp.Key, @{})
-        $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -g StubLibraryGenerator")
+        $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -g $generatorName")
         $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
         $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mtgExe)
     }
