@@ -7,6 +7,7 @@ The **Microsoft Java client generator** tool generates client libraries for acce
 - [Prerequisites](#prerequisites)
 - [Build](#build)
 - [Test](#test)
+- [ClientCore generation](CLIENTCORE.md)
 
 ## Prerequisites
 

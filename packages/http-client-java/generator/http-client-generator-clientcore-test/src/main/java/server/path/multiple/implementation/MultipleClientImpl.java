@@ -1,19 +1,21 @@
 package server.path.multiple.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.implementation.utils.UriEscapers;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import server.path.multiple.MultipleServiceVersion;
 
 /**
@@ -98,33 +100,85 @@ public final class MultipleClientImpl {
         this.service = MultipleClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for MultipleClient to be used by the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "MultipleClient", host = "{endpoint}/server/path/multiple/{apiVersion}")
     public interface MultipleClientService {
         static MultipleClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("server.path.multiple.implementation.MultipleClientServiceImpl");
-                return (MultipleClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new MultipleClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> noOperationParams(@HostParam("endpoint") String endpoint,
-            @HostParam("apiVersion") String apiVersion, RequestContext requestContext);
+        Response<Void> noOperationParams(String endpoint, String apiVersion, RequestContext requestContext);
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/{keyword}", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withOperationPathParam(@HostParam("endpoint") String endpoint,
-            @HostParam("apiVersion") String apiVersion, @PathParam("keyword") String keyword,
+        Response<Void> withOperationPathParam(String endpoint, String apiVersion, String keyword,
             RequestContext requestContext);
+    }
+
+    private static final class MultipleClientServiceImpl implements MultipleClientService {
+        private static final ClientLogger LOGGER = new ClientLogger(MultipleClientServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private MultipleClientServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> noOperationParams(String endpoint, String apiVersion, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/server/path/multiple/" + UriEscapers.PATH_ESCAPER.escape(apiVersion) + "/");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, MultipleClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> withOperationPathParam(String endpoint, String apiVersion, String keyword,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/server/path/multiple/" + UriEscapers.PATH_ESCAPER.escape(apiVersion) + "/"
+                    + UriEscapers.PATH_ESCAPER.escape(keyword));
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, MultipleClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -163,4 +217,6 @@ public final class MultipleClientImpl {
                     keyword, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(MultipleClientImpl.class);
 }

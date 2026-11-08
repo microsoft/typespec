@@ -438,13 +438,17 @@ public class ProxyMethod {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        Annotation.HTTP_REQUEST_INFORMATION.addImportsTo(imports);
-        Annotation.UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION.addImportsTo(imports);
+        if (settings.isAzureV1()) {
+            Annotation.HTTP_REQUEST_INFORMATION.addImportsTo(imports);
+            Annotation.UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION.addImportsTo(imports);
+        }
         ClassType.HTTP_RESPONSE_EXCEPTION.addImportsTo(imports, false);
         if (includeImplementationImports) {
             if (getUnexpectedResponseExceptionType() != null) {
-                Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
-                getUnexpectedResponseExceptionType().addImportsTo(imports, includeImplementationImports);
+                if (settings.isAzureV1()) {
+                    Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
+                    getUnexpectedResponseExceptionType().addImportsTo(imports, includeImplementationImports);
+                }
 
                 if (!settings.isAzureV1()) {
                     ClientModel errorModel
@@ -455,9 +459,11 @@ public class ProxyMethod {
                 }
             }
             if (getUnexpectedResponseExceptionTypes() != null) {
-                Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
-                getUnexpectedResponseExceptionTypes().keySet()
-                    .forEach(e -> e.addImportsTo(imports, includeImplementationImports));
+                if (settings.isAzureV1()) {
+                    Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
+                    getUnexpectedResponseExceptionTypes().keySet()
+                        .forEach(e -> e.addImportsTo(imports, includeImplementationImports));
+                }
 
                 if (!settings.isAzureV1()) {
                     for (ClassType exceptionType : getUnexpectedResponseExceptionTypes().keySet()) {
@@ -468,25 +474,28 @@ public class ProxyMethod {
                     }
                 }
             }
-            if (isResumable()) {
+            if (isResumable() && settings.isAzureV1()) {
                 imports.add("com.azure.core.annotation.ResumeOperation");
             }
-            imports.add(String.format("%1$s.annotation.%2$s", ExternalPackage.CORE.getPackageName(),
-                CodeNamer.toPascalCase(getHttpMethod().toString().toLowerCase())));
-
-            if (settings.isFluent()) {
-                Annotation.HEADERS.addImportsTo(imports);
+            if (settings.isAzureV1()) {
+                imports.add(String.format("%1$s.annotation.%2$s", ExternalPackage.CORE.getPackageName(),
+                    CodeNamer.toPascalCase(getHttpMethod().toString().toLowerCase())));
+                if (settings.isFluent()) {
+                    Annotation.HEADERS.addImportsTo(imports);
+                }
+                Annotation.EXPECTED_RESPONSE.addImportsTo(imports);
             }
-            Annotation.EXPECTED_RESPONSE.addImportsTo(imports);
 
             if (getReturnValueWireType() != null) {
-                Annotation.RETURN_VALUE_WIRE_TYPE.addImportsTo(imports);
+                if (settings.isAzureV1()) {
+                    Annotation.RETURN_VALUE_WIRE_TYPE.addImportsTo(imports);
+                }
                 returnValueWireType.addImportsTo(imports, includeImplementationImports);
             }
 
             returnType.addImportsTo(imports, includeImplementationImports);
 
-            if ("application/x-www-form-urlencoded".equals(this.requestContentType)) {
+            if (settings.isAzureV1() && "application/x-www-form-urlencoded".equals(this.requestContentType)) {
                 Annotation.FORM_PARAM.addImportsTo(imports);
             }
 

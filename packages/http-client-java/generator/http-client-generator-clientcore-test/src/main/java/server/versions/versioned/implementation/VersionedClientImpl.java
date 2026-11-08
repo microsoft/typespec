@@ -1,20 +1,22 @@
 package server.versions.versioned.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.implementation.utils.UriEscapers;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import server.versions.versioned.VersionedServiceVersion;
 
 /**
@@ -99,54 +101,149 @@ public final class VersionedClientImpl {
         this.service = VersionedClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for VersionedClient to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "VersionedClient", host = "{endpoint}")
     public interface VersionedClientService {
         static VersionedClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("server.versions.versioned.implementation.VersionedClientServiceImpl");
-                return (VersionedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new VersionedClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/versioned/without-api-version",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withoutApiVersion(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> withoutApiVersion(String endpoint, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/versioned/with-query-api-version",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withQueryApiVersion(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, RequestContext requestContext);
+        Response<Void> withQueryApiVersion(String endpoint, String apiVersion, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/versioned/with-path-api-version/{apiVersion}",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withPathApiVersion(@HostParam("endpoint") String endpoint,
-            @PathParam("apiVersion") String apiVersion, RequestContext requestContext);
+        Response<Void> withPathApiVersion(String endpoint, String apiVersion, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/versioned/with-query-old-api-version",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withQueryOldApiVersion(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, RequestContext requestContext);
+        Response<Void> withQueryOldApiVersion(String endpoint, String apiVersion, RequestContext requestContext);
+    }
+
+    private static final class VersionedClientServiceImpl implements VersionedClientService {
+        private static final ClientLogger LOGGER = new ClientLogger(VersionedClientServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private VersionedClientServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> withoutApiVersion(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD)
+                .setUri(endpoint + "/server/versions/versioned/without-api-version");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, VersionedClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> withQueryApiVersion(String endpoint, String apiVersion, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/server/versions/versioned/with-query-api-version");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "api-version", true, apiVersion, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD).setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, VersionedClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> withPathApiVersion(String endpoint, String apiVersion, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD)
+                .setUri(endpoint + "/server/versions/versioned/with-path-api-version/"
+                    + UriEscapers.PATH_ESCAPER.escape(apiVersion));
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, VersionedClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> withQueryOldApiVersion(String endpoint, String apiVersion,
+            RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/server/versions/versioned/with-query-old-api-version");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "api-version", true, apiVersion, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD).setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, VersionedClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -219,4 +316,6 @@ public final class VersionedClientImpl {
                     updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(VersionedClientImpl.class);
 }
