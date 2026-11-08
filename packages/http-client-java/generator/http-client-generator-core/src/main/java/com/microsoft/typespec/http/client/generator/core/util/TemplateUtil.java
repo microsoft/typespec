@@ -283,7 +283,7 @@ public class TemplateUtil {
                 + "java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String... path)",
             block -> {
                 block.line(
-                    "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {");
+                    "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {");
                 block.indent(() -> {
                     block.line("reader.nextElement();");
                     block.line("return getXmlValues(reader, valueReader, path, 0);");
@@ -311,28 +311,36 @@ public class TemplateUtil {
                 block.line("}");
                 block.line("return values;");
             });
-        classBlock.privateMethod("String getXmlNextLink(BinaryData binaryData, String... path)", block -> {
-            block.line(
-                "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {");
-            block.indent(() -> {
-                block.line("reader.nextElement();");
-                block.line("return getXmlNextLink(reader, path, 0);");
+        classBlock.privateMethod(
+            "String getXmlNextLink(BinaryData binaryData, boolean attribute, String namespace, String... path)",
+            block -> {
+                block.line(
+                    "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {");
+                block.indent(() -> {
+                    block.line("reader.nextElement();");
+                    block.line("return getXmlNextLink(reader, attribute, namespace, path, 0);");
+                });
+                block.line("} catch (javax.xml.stream.XMLStreamException e) {");
+                block.indent(
+                    () -> block.line("throw new IllegalStateException(\"Failed to read XML pageable response.\", e);"));
+                block.line("}");
             });
-            block.line("} catch (javax.xml.stream.XMLStreamException e) {");
-            block.indent(
-                () -> block.line("throw new IllegalStateException(\"Failed to read XML pageable response.\", e);"));
-            block.line("}");
-        });
-        classBlock.privateMethod("String getXmlNextLink(com.azure.xml.XmlReader reader, String[] path, int pathIndex) "
-            + "throws javax.xml.stream.XMLStreamException", block -> {
+        classBlock.privateMethod(
+            "String getXmlNextLink(com.azure.xml.XmlReader reader, boolean attribute, String namespace, String[] path, int pathIndex) "
+                + "throws javax.xml.stream.XMLStreamException",
+            block -> {
+                block.ifBlock("attribute && pathIndex == path.length - 1", attributeBlock -> attributeBlock
+                    .line("return reader.getStringAttribute(namespace, path[pathIndex]);"));
                 block.line("while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {");
                 block.indent(() -> {
-                    block.line("if (!reader.elementNameMatches(path[pathIndex])) {");
+                    block.line(
+                        "if (!reader.elementNameMatches(pathIndex == path.length - 1 ? namespace : null, path[pathIndex])) {");
                     block.indent(() -> block.line("reader.skipElement();"));
                     block.line("} else if (pathIndex == path.length - 1) {");
                     block.indent(() -> block.line("return reader.getStringElement();"));
                     block.line("} else {");
-                    block.indent(() -> block.line("return getXmlNextLink(reader, path, pathIndex + 1);"));
+                    block.indent(
+                        () -> block.line("return getXmlNextLink(reader, attribute, namespace, path, pathIndex + 1);"));
                     block.line("}");
                 });
                 block.line("}");

@@ -22,6 +22,7 @@ import {
   isArrayModelType,
   isNeverType,
   isUnknownType,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { getJsScalar } from "../common/scalar.js";
@@ -566,7 +567,7 @@ function getJsValue(ctx: JsContext, literal: JsLiteralType | EnumMember): Litera
     case "String":
       return literal.value;
     case "EnumMember":
-      return literal.value ?? literal.name;
+      return resolveEncodedEnumMemberValue(ctx.program, literal, "application/json");
     default:
       throw new UnreachableError(
         "getJsValue for " + (literal satisfies never as JsLiteralType).kind,

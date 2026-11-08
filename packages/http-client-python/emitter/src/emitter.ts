@@ -3,12 +3,7 @@ import type { EmitContext } from "@typespec/compiler";
 import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
-import {
-  BLOB_STORAGE_BASE_URL,
-  PACKAGE_NAME,
-  PYGEN_WHEEL_FILENAME,
-  PYODIDE_VERSION,
-} from "./constants.js";
+import { BLOB_STORAGE_BASE_URL, PACKAGE_NAME, PYODIDE_VERSION } from "./constants.js";
 import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
@@ -17,8 +12,21 @@ import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 import { dumpCodeModelToYaml } from "./yaml-utils.js";
 
-function getBrowserPygenWheelUrl(): string {
-  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
+function getBrowserAssetUrl(filename: string): string {
+  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/browser/${filename}`;
+}
+
+function isBrowserWheelManifest(manifest: unknown): manifest is { wheels: string[] } {
+  return (
+    typeof manifest === "object" &&
+    manifest !== null &&
+    "wheels" in manifest &&
+    Array.isArray(manifest.wheels) &&
+    manifest.wheels.length > 0 &&
+    manifest.wheels.every(
+      (name: unknown) => typeof name === "string" && /^[\w.+-]+\.whl$/.test(name),
+    )
+  );
 }
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
@@ -33,6 +41,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     ...sdkContext.emitContext.options,
   };
   const options = sdkContext.emitContext.options;
+  options["enable-sse-reconnect"] ??= false;
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
@@ -305,9 +314,25 @@ async function setupPyodideCallBrowser() {
 
   // use default MEMFS for browser, since NODEFS is not supported
   pyodide.FS.mkdirTree("/generator");
-  await pyodide.loadPackage("micropip");
-  const micropip = pyodide.pyimport("micropip");
-  await micropip.install(getBrowserPygenWheelUrl());
+  const response = await fetch(getBrowserAssetUrl("manifest.json"));
+  if (!response.ok) {
+    throw new Error(`Failed to load Python browser wheel manifest: HTTP ${response.status}`);
+  }
+  const manifest: unknown = await response.json();
+  if (!isBrowserWheelManifest(manifest)) {
+    throw new Error("Invalid Python browser wheel manifest.");
+  }
+  await loadBrowserPackages(pyodide, manifest.wheels.map(getBrowserAssetUrl));
+  await loadBrowserPackages(pyodide, ["pyyaml", "markupsafe"]);
 
   return pyodide;
+}
+
+async function loadBrowserPackages(pyodide: PyodideInterface, packages: string[]): Promise<void> {
+  const errors: string[] = [];
+  // loadPackage can report failed downloads through its callback without rejecting.
+  await pyodide.loadPackage(packages, { errorCallback: (message) => errors.push(message) });
+  if (errors.length > 0) {
+    throw new Error(`Failed to load Python browser packages: ${errors.join("\n")}`);
+  }
 }

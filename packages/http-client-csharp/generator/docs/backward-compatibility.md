@@ -4,6 +4,7 @@
 
 - [Overview](#overview)
 - [How It Works](#how-it-works)
+- [Experimental Types](#experimental-types)
 - [Supported Scenarios](#supported-scenarios)
   - [Model Factory Methods](#model-factory-methods)
     - [New Model Property Added](#scenario-new-model-property-added)
@@ -20,6 +21,7 @@
     - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Base Types](#model-base-types)
   - [Model Constructors](#model-constructors)
     - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
     - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)
@@ -49,6 +51,12 @@ When generating code, the generator can optionally receive a compiled assembly f
 1. Analyzes the current TypeSpec specification and generates types based on the current API
 2. Compares the generated types against the types in the last contract
 3. Automatically generates compatibility methods, properties, or enum members where differences are detected
+
+### Experimental Types
+
+Types in the last released contract marked with `System.Diagnostics.CodeAnalysis.ExperimentalAttribute` are excluded from backward-compatibility lookup. The generator does not preserve their previous type shape or restore their previous members as compatibility shims, allowing those types to change when they graduate to stable or are removed.
+
+This decision uses the attribute on the last released type, including polyfilled definitions of the attribute. Marking a previously stable type experimental in the current generation does not remove its compatibility guarantees. Experimental attributes on individual members in the last released contract also exclude those members from compatibility handling; attributes added only in the current generation do not remove guarantees for previously stable members.
 
 ### ApiCompat Baseline Awareness
 
@@ -1090,6 +1098,18 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
     // contentType stays before content for backward compatibility
 }
 ```
+
+### Model Base Types
+
+The generator can preserve a previously shipped model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to compatible generated root models and mapped `SystemObjectModelProvider` bases. For ordinary generated bases, both the derived model and displaced current base must be memberless. When a current input base exists, it remains the authoritative wire contract for mapped restoration while the shipped CLR property and constructor surface is restored.
+
+When no current provider represents the shipped CLR base, a downstream generator can override `TypeFactory.CreateLastContractModelBaseCore` to supply a mapping for its known inheritable framework types. The returned type is still subject to the standard mapped-base compatibility checks and remains local to the model being restored. A flat current model can also restore a mapped base when the downstream hook explicitly opts in. Restoration partitions its properties against the historical base: uniquely compatible inherited properties form a model-local projection, while unrelated properties remain on the generated model. The source input model, property ownership, and cached mapped providers are not changed. Incompatible CLR-name or known wire-path overlaps and ambiguous property mappings are rejected. An existing mapped provider alone does not bypass the downstream hook for a flat model; ambiguous existing mappings remain unsupported. Downstream generators must reject incompatible aliases known only to them before opting in, since historical CLR contracts do not necessarily carry wire metadata. Restoring inheritance does not add MRW methods to framework bases that do not participate in the existing serialization protocol; downstream mappings must also respect their generator's serialization requirements.
+
+The current base is retained when broader reconciliation would be required, including a conflicting custom base declaration, structs, polymorphic or derived hierarchies, arbitrary referenced types, and constructed generic bases. Unrelated custom members are permitted only for mapped-base restoration; generated-base restoration with custom code remains unsupported.
+
+A derived generator can override `ModelProvider.RequiresParameterlessBaseConstructor` to require a mapped constructor callable without arguments before the restored hierarchy is committed. ClientModel enables this requirement for JSON/XML and multipart-form-data models, because their serialization partials can emit an empty constructor with an implicit `base()` call. The constructor must be public or protected and pass the existing overload and attribute checks. This check does not apply to core providers or ClientModel models without JSON/XML or multipart-form-data serialization; it does not synthesize constructor arguments.
+
+Restoration checks the shipped property/accessor and method contracts, including nullable value types, parameter names, ref modifiers, `params`, optional defaults, and interface assignability. The default mapped input/property check requires matching value-type nullability; intentional downstream shape changes remain explicit compatibility-hook overrides. A selected historical constructor must also match its bound properties' value-type nullability. When a current property visitor removes a property, symbol-backed restoration does not reintroduce its historical declaration and the one-to-one checks reject restoration. Both full and initialization constructor calls must be provably callable on the mapped target; ambiguous overloads and changed omitted defaults are rejected. Generated-base constructors must remain property-backed. Historical generic methods, constants, by-ref returns, indexers, required-member properties, and defaults that cannot be represented losslessly are rejected rather than reconciled. Public or protected historical nested type declarations are also rejected for generated-base and symbol-backed mapped-base restoration; nested type emission and CLR nested-type reconciliation are not supported. These checks do not rediscover the complete CLR surface of an ordinary downstream mapping whose input omits members.
 
 ### Client Methods
 

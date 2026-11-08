@@ -47,6 +47,8 @@ components:
         scopes:
           type: array
           items: {}
+          minItems: 2
+          maxItems: 2
   securitySchemes:
     BearerAuth:
       type: http

@@ -185,36 +185,22 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
+                using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(method.Signature.Attributes), emitDirectives: false);
+                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(method.Suppressions, GetSignatureSuppressions(method.Signature)));
                 if (method.BodyStatements is { } body)
                 {
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
                     using (WriteMethodDeclaration(method.Signature))
                     {
                         body.Write(this);
                     }
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
-                    }
                 }
                 else if (method.BodyExpression is { } expression)
                 {
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
-                    }
-                    foreach (var suppression in method.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
                     }
                 }
                 else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
@@ -234,40 +220,22 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
+                using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(ctor.Signature.Attributes), emitDirectives: false);
+                using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(ctor.Suppressions, GetSignatureSuppressions(ctor.Signature)));
                 if (ctor.BodyStatements is { } body)
                 {
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
-
                     using (WriteMethodDeclaration(ctor.Signature))
                     {
                         body.Write(this);
                     }
-
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
-                    }
                 }
                 else if (ctor.BodyExpression is { } expression)
                 {
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.DisableStatement.Write(this);
-                    }
-
                     using (WriteMethodDeclarationNoScope(ctor.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
-                    }
-
-                    foreach (var suppression in ctor.Suppressions)
-                    {
-                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -321,6 +289,10 @@ namespace Microsoft.TypeSpec.Generator
 
         public void WriteProperty(PropertyProvider property)
         {
+            using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(property.Attributes), emitDirectives: false);
+            using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
+                property.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(property.Type),
+                ExperimentalApiHelpers.GetReferenceSuppressions(property.InputProperty?.Type)));
             WriteXmlDocsNoScope(property.XmlDocs);
 
             if (property.Attributes.Count > 0)
@@ -496,6 +468,9 @@ namespace Microsoft.TypeSpec.Generator
 
         public CodeWriter WriteField(FieldProvider field)
         {
+            using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
+            using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
+                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type, includeFrameworkTypes: true)));
             WriteXmlDocsNoScope(field.XmlDocs);
 
             if (field.Attributes.Count > 0)
@@ -648,10 +623,18 @@ namespace Microsoft.TypeSpec.Generator
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int genericDepth = 0)
         {
-            if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
+            if (type.IsArray)
             {
-                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, genericDepth);
-                AppendRaw("[]");
+                var elementType = type.ElementType;
+                while (elementType.IsArray)
+                {
+                    elementType = elementType.ElementType;
+                }
+                AppendType(elementType, isDeclaration, writeTypeNameOnly, genericDepth + 1);
+                for (var arrayType = type; arrayType.IsArray; arrayType = arrayType.ElementType)
+                {
+                    AppendRaw("[" + new string(',', arrayType.ArrayRank - 1) + "]");
+                }
                 return;
             }
 
@@ -734,7 +717,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
-            if (span.Length == 0 )
+            if (span.Length == 0)
             {
                 return this;
             }

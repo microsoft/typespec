@@ -5,9 +5,17 @@ import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "../components/type-expression.jsx";
 import { efRefkey } from "./refkey.js";
 
+/**
+ * Gets an operation's return type for application code, removing error variants from unions
+ * by default. Non-union return types, including standalone `@error` models, are unchanged.
+ * Requires a TypeSpec render context.
+ */
 export function getReturnType(
   type: Operation,
-  options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false },
+  options: {
+    /** Keep error variants in a union instead of filtering them out; defaults to false. */
+    skipErrorFiltering: boolean;
+  } = { skipErrorFiltering: false },
 ): Type {
   const { $ } = useTsp();
   let returnType = type.returnType;
@@ -19,12 +27,21 @@ export function getReturnType(
   return returnType;
 }
 
+/** Controls explicit/generated parameter ordering and reference identities for a signature. */
 export interface BuildParameterDescriptorsOptions {
+  /** Extra parameters; strings are normalized to descriptors containing only a name. */
   params?: ts.ParameterDescriptor[] | string[] | undefined;
+  /** Explicit parameters precede model parameters by default; append or replace them instead. */
   mode?: "prepend" | "append" | "replace";
+  /** Shared refkey suffix for this signature; a fresh suffix is created when omitted. */
   suffixRefkey?: Refkey;
 }
 
+/**
+ * Builds descriptors in model property order, excluding inherited base-model properties.
+ * Explicit parameters are merged according to `mode`. Default-valued properties are optional;
+ * their default expressions are not emitted. Requires a TypeSpec render context.
+ */
 export function buildParameterDescriptors(
   type: Model,
   options: BuildParameterDescriptorsOptions = {},
@@ -51,6 +68,11 @@ export function buildParameterDescriptors(
   return allParams;
 }
 
+/**
+ * Converts one property to a parameter descriptor using the active TypeScript naming policy.
+ * Preserves source documentation and makes optional or default-valued properties optional.
+ * The suffix distinguishes references to this parameter from other uses of the same property.
+ */
 export function buildParameterDescriptor(
   modelProperty: ModelProperty,
   suffixRefkey: Refkey,

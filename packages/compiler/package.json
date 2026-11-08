@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -130,7 +130,6 @@
     "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/babel__code-frame": "catalog:",
     "@types/mustache": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",

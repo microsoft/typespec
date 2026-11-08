@@ -83,7 +83,10 @@ const props = Astro.props;
         {props.subtitle}
       </DescriptionText>
       <div class="spacer"></div>
-      <Button as="a" appearance="primary" href={props.link}> Get started </Button>
+      <Button as="a" appearance="primary" href={props.link}>
+        {" "}
+        Get started{" "}
+      </Button>
     </div>
 
     <div class="illustration">

@@ -14,5 +14,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static HttpResponseApi ProcessMessage(this ClientPipelineApi pipeline, ValueExpression message, HttpRequestOptionsApi? requestOptions, bool isAsync)
             => pipeline.Invoke(isAsync ? _processMessageAsync : _processMessage, [message, requestOptions ?? Null], isAsync).ToApi<HttpResponseApi>();
+
+        public static ClientResponseApi ProcessHeadAsBoolMessage(this ClientPipelineApi pipeline, ValueExpression message, HttpRequestOptionsApi requestOptions, bool isAsync)
+            => pipeline.Invoke(isAsync ? "ProcessHeadAsBoolMessageAsync" : "ProcessHeadAsBoolMessage", [message, requestOptions], isAsync).ToApi<ClientResponseApi>();
     }
 }

@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? doc = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             bool isExactName = false;
+            InputExperimentalDetails? experimental = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
@@ -42,6 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
                     || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
@@ -79,6 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 InputPrimitiveTypeKind.Decimal128 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
                 _ => throw new JsonException($"Unsupported enum valueType kind '{valueType.Kind}' for enum '{enumType.Name}' value '{name}'.")
             };
+            enumValue.Experimental = experimental;
             if (id != null)
             {
                 resolver.AddReference(id, enumValue);

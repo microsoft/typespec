@@ -21,9 +21,9 @@ namespace Sample.Models
             new_name = newName;
         }
 
-        internal MockInputModel(string oldUnchanged, string newName, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string unchanged, string newName, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            Unchanged = oldUnchanged;
+            Unchanged = unchanged;
             new_name = newName;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }

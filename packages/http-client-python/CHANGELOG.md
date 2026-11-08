@@ -1,5 +1,47 @@
 # Change Log - @typespec/http-client-python
 
+## 0.40.0
+
+### Features
+
+- [#12161](https://github.com/microsoft/typespec/pull/12161) Add Python 3.15 to generated package classifiers.
+
+### Bug Fixes
+
+- [#12326](https://github.com/microsoft/typespec/pull/12326) Preserve raw byte streaming for XML responses using the legacy bytes encoding instead of deserializing them as XML string scalars.
+- [#12281](https://github.com/microsoft/typespec/pull/12281) Prevent Pylint `too-many-statements` errors in generated synchronous and asynchronous structured-stream operations with SSE event dispatch. Scope the suppression to operation implementations, leaving overload declarations and non-structured-stream operations unchanged.
+- [#12342](https://github.com/microsoft/typespec/pull/12342) Escape string literals and wire names in generated Python declarations, discriminator initializers, field metadata, and templates to preserve specification values as data.
+- [#12127](https://github.com/microsoft/typespec/pull/12127) Fix the `:vartype` docstring of constant enum values (such as discriminator properties on polymorphic subclasses) to reference the enum class instead of a non-existent module-level symbol named after the enum member.
+- [#10329](https://github.com/microsoft/typespec/pull/10329) Preserve underscores before numeric enum segments and acronyms such as `A2A` without changing numeric identifiers such as `int32`.
+
+
+## 0.39.0
+
+### Features
+
+- [#12150](https://github.com/microsoft/typespec/pull/12150) Make automatic SSE reconnection opt-in with the `enable-sse-reconnect` emitter option, which defaults to `false`. Without this option, SSE streams end at EOF without reconnect callbacks, retry delays, or `Last-Event-ID` request plumbing. SSE parsing, event ID and retry metadata (including metadata-only blocks), terminal events, and stream cleanup remain available.
+
+  Enable reconnection when generating the client:
+
+  ```yaml
+  emit:
+    - "@typespec/http-client-python"
+  options:
+    "@typespec/http-client-python":
+      enable-sse-reconnect: true
+  ```
+
+### Bug Fixes
+
+- [#11897](https://github.com/microsoft/typespec/pull/11897) Escape quotes in enum and enum member documentation so embedded Python string delimiters remain documentation in generated code.
+
+
+## 0.38.1
+
+### Bump dependencies
+
+- Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
 ## 0.38.0
 
 ### Features

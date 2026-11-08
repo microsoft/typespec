@@ -90,6 +90,24 @@ The name of the package to be used in pretty-printing. Will be the name of the p
 
 Whether to return responses from HEAD requests as boolean. Defaults to `true`.
 
+### `enable-sse-reconnect`
+
+**Type:** `boolean`
+
+**Default:** `false`
+
+Whether to generate automatic reconnection support for Server-Sent Events (SSE). Defaults to `false`: SSE streams end when the response reaches EOF, without sending another request. Set to `true` to generate reconnect callbacks, retry delays, and `Last-Event-ID` resumption. SSE event IDs and retry metadata are parsed in either mode. Transport errors still propagate to the caller.
+
+Enable this generation-time option in `tspconfig.yaml`:
+
+```yaml
+emit:
+  - "@typespec/http-client-python"
+options:
+  "@typespec/http-client-python":
+    enable-sse-reconnect: true
+```
+
 ### `use-pyodide`
 
 **Type:** `boolean`

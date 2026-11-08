@@ -38,7 +38,11 @@ function resolveCatalogVersions(
   const resolved: Record<string, string> = {};
   for (const [name, version] of Object.entries(dependencies)) {
     if (version === "catalog:" || version === "catalog:default") {
-      const catalogVersion = catalog[name];
+      // Generated projects need native tsc, not the workspace's compatibility alias.
+      const catalogVersion =
+        name === "typescript"
+          ? catalog["typescript-native"]?.replace(/^npm:typescript@/, "")
+          : catalog[name];
       if (!catalogVersion) {
         throw new Error(
           `Dependency "${name}" uses catalog: but no version found in pnpm-workspace.yaml catalog`,

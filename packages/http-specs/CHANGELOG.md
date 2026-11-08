@@ -1,5 +1,30 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.45
+
+### Features
+
+- [#12288](https://github.com/microsoft/typespec/pull/12288) Add Spector scenarios for discriminated unions with model constraints, covering explicit and injected discriminators, custom wire tags, enum discriminators, transitive inheritance, and recursive containers.
+
+
+## 0.1.0-alpha.44
+
+### Features
+
+- [#12038](https://github.com/microsoft/typespec/pull/12038) Add named-model query parameter scenarios for standard expansion, standard continuation, and exploded continuation.
+  
+  ```typespec
+  model ExpandParameters {
+    field: string;
+    value: string;
+  }
+  ```
+
+### Bug Fixes
+
+- [#11940](https://github.com/microsoft/typespec/pull/11940) Include smoke test specifications in the published package.
+
+
 ## 0.1.0-alpha.43
 
 ### Bug Fixes

@@ -40,6 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        internal bool IsInitOnly { get; set; }
+        // Preserve the fact that a symbol has accessor/member metadata this provider cannot model.
+        internal bool HasUnsupportedBaseContract { get; init; }
         public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
@@ -50,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
 
         public string? OriginalName { get; internal init; }
 
@@ -96,7 +100,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
-            MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
+            MethodSignatureModifiers setterModifier = !propHasSetter ? MethodSignatureModifiers.None
+                : inputProperty.IsReadOnly && !IsDiscriminatorProperty(inputProperty)
+                    ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
+                    : MethodSignatureModifiers.Public;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
@@ -109,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
-                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes))
                     .ToList();
 
                 // An exact input-identifier match is authoritative: it is the name this property would have had
@@ -143,7 +150,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
-            Attributes = [];
+            Attributes = ExperimentalApiHelpers.BuildAttributes(inputProperty.Experimental);
+            Suppressions = ExperimentalApiHelpers.MergeSuppressions(
+                ExperimentalApiHelpers.GetDependencySuppressions(inputProperty.Experimental),
+                ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.Type),
+                ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.DefaultValue?.Type));
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
@@ -159,7 +170,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
             bool isRef = false,
-            IEnumerable<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null,
+            IEnumerable<SuppressionStatement>? suppressions = null)
         {
             Modifiers = modifiers;
             Type = type;
@@ -171,6 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Suppressions = suppressions?.ToArray() ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
             _customDescription = description;
@@ -327,7 +340,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (inputProperty.IsReadOnly)
             {
-                return false;
+                // Writable descendants share storage without exposing a public setter on the base.
+                return !_isRequiredNonNullableConstant
+                    && type.Equals(type.OutputType)
+                    && inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input)
+                    && !EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly)
+                    && CodeModelGenerator.Instance.TypeFactory.HasRelaxedConstructorOverride(inputProperty, includeBaseModels: false);
             }
 
             if (_isRequiredNonNullableConstant)
@@ -345,7 +363,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // If the property is required and is not on a round-trip model, it doesn't need a setter as it can just be set via
             // constructor.
             // Round-trip models need setters so that a model returned from a service method can be modified.
-            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output))
+            var requiredInConstructor = (inputProperty as InputModelProperty)?.IsRequiredInConstructor ?? inputProperty.IsRequired;
+            if (requiredInConstructor && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output)
+                && !CodeModelGenerator.Instance.TypeFactory.HasRelaxedConstructorOverride(inputProperty))
             {
                 return false;
             }
@@ -391,6 +411,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
+
+        internal void SynchronizePropertyShape()
+        {
+            _asMember?.Update(memberName: Name);
+            AsParameter.SynchronizePropertyShape();
+        }
 
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);

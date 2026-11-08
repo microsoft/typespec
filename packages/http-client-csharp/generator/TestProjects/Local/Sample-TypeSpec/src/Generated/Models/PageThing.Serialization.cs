@@ -155,7 +155,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new PageThing(items, additionalBinaryDataProperties);
+            return new PageThing(items ?? new ChangeTrackingList<Thing>(), additionalBinaryDataProperties);
         }
     }
 }

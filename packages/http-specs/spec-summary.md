@@ -4306,6 +4306,14 @@ Test query continuation expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-continuation/explode/array?fixed=true&param=a&param=b
 
+### Routes_QueryParameters_QueryContinuation_Explode_model
+
+- Endpoint: `get /routes/query/query-continuation/explode/model?fixed=true{&param*}`
+
+Test query continuation expansion with explode: true when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-continuation/explode/model?fixed=true&field=status&value=active
+
 ### Routes_QueryParameters_QueryContinuation_Explode_primitive
 
 - Endpoint: `get /routes/query/query-continuation/explode/primitive?fixed=true{&param*}`
@@ -4329,6 +4337,14 @@ Expected path: /routes/query/query-continuation/explode/record?fixed=true&a=1&b=
 Test query continuation expansion with explode: false when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-continuation/standard/array?fixed=true&param=a,b
+
+### Routes_QueryParameters_QueryContinuation_Standard_model
+
+- Endpoint: `get /routes/query/query-continuation/standard/model?fixed=true{&param}`
+
+Test query continuation expansion with explode: false when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-continuation/standard/model?fixed=true&param=field,status,value,active
 
 ### Routes_QueryParameters_QueryContinuation_Standard_primitive
 
@@ -4388,6 +4404,14 @@ Expected path: /routes/query/query-expansion/explode/record?a=1&b=2
 Test query expansion with explode: false when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/standard/array?param=a,b
+
+### Routes_QueryParameters_QueryExpansion_Standard_model
+
+- Endpoint: `get /routes/query/query-expansion/standard/model{?param}`
+
+Test query expansion with explode: false when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/standard/model?param=field,status,value,active
 
 ### Routes_QueryParameters_QueryExpansion_Standard_primitive
 
@@ -9299,6 +9323,236 @@ Send the union as:
   }
 }
 ```
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/custom-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "petType": "feline", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/custom-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "petType": "canine", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/custom-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "petType": "feline", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/custom-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "petType": "canine", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/enum-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/enum-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/enum-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/enum-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/explicit-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/explicit-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/explicit-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/explicit-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/injected-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/injected-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/injected-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/injected-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_Recursive_get
+
+- Endpoint: `get /type/union/discriminated/extends/recursive`
+
+Receive an inline-discriminated union with recursive model, array, and dictionary properties.
+Expected response body:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true,
+  "friend": { "kind": "dog", "name": "Rex", "bark": false },
+  "friends": [{ "kind": "cat", "name": "Kitten", "meow": false }],
+  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } }
+}
+```
+
+### Type_Union_Discriminated_Extends_Recursive_put
+
+- Endpoint: `put /type/union/discriminated/extends/recursive`
+
+Send an inline-discriminated union with recursive model, array, and dictionary properties.
+Expected request body:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true,
+  "friend": { "kind": "dog", "name": "Rex", "bark": false },
+  "friends": [{ "kind": "cat", "name": "Kitten", "meow": false }],
+  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } }
+}
+```
+
+The response has status 204 and no body.
 
 ### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_get
 

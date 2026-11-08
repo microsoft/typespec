@@ -1,5 +1,6 @@
 export { resolveCompilerOptions } from "./config/index.js";
 export type { ResolveCompilerOptionsOptions } from "./config/index.js";
+export { collectLinterDisables, type LinterDisable } from "./config/linter-disables.js";
 export {
   getAutoDecoratorTargets,
   getAutoDecoratorValue,
@@ -52,6 +53,7 @@ export {
   explainStringTemplateNotSerializable,
   printIdentifier as formatIdentifier,
   getDiscriminatedUnion,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- exporting deprecated overloads for backward compatibility
   getDiscriminatedUnionFromInheritance,
   getEntityName,
   getLocationContext,
@@ -194,6 +196,7 @@ export {
   isService,
   isStringType,
   listServices,
+  resolveEncodedEnumMemberValue,
   resolveEncodedName,
   serializeValueAsJson,
   setMediaTypeHint,

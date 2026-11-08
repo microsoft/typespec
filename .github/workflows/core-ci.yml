@@ -16,6 +16,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         node-version: ["22.x", "24.x", "26.x"]
+        include:
+          - os: ubuntu-latest
+            coverage: --coverage
+          - os: windows-latest
+            coverage: ""
 
     env:
       TYPESPEC_VS_CI_BUILD: true
@@ -47,11 +52,11 @@ jobs:
         run: pnpm run build
 
       - name: Test
-        run: pnpm vitest run --coverage --reporter=default --reporter=github-actions
+        run: pnpm vitest run ${{ matrix.coverage }} --reporter=default --reporter=github-actions
 
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && matrix.coverage != ''
         with:
           name: coverage-${{ matrix.os }}-node${{ matrix.node-version }}
           path: packages/*/coverage/
@@ -117,7 +122,7 @@ jobs:
         run: pnpm run test:e2e
 
       - name: Upload UI test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: uitestresults-e2e
@@ -125,7 +130,7 @@ jobs:
           retention-days: 5
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: screenshots
@@ -133,7 +138,7 @@ jobs:
           retention-days: 5
 
       - name: Upload trace results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: trace-results

@@ -59,6 +59,12 @@ export interface InputNamespace extends DecoratedType {
 
 interface DecoratedType {
   decorators?: DecoratorInfo[];
+  experimental?: InputExperimentalDetails;
+}
+
+export interface InputExperimentalDetails {
+  diagnosticId?: string;
+  dependsOn: string[];
 }
 
 interface InputTypeBase extends DecoratedType {
@@ -193,6 +199,10 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  /** The declaration name before client-side renaming, when different from name. */
+  originalName?: string;
+  /** Overrides constructor requiredness without changing the wire contract. */
+  requiredInConstructor?: boolean;
   apiVersions: string[];
   discriminator: boolean;
   serializedName: string;

@@ -1,5 +1,13 @@
 # Change Log - @typespec/graphql
 
+## 0.4.0
+
+### Bug Fixes
+
+- [#11960](https://github.com/microsoft/typespec/pull/11960) Prevent TypeSpec-authored paths from escaping template and emitter output directories.
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Set the required `expression` field to `false` when creating a replacement scalar so scalars produced by the model mutation engine are valid declaration types.
+
+
 ## 0.3.0
 
 No changes, version bump only.

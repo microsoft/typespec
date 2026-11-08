@@ -39,6 +39,11 @@ export const $route: RouteDecorator = (
   });
 };
 
+/**
+ * Records a route fragment and optionally marks an operation as sharing its route.
+ * Repeated namespace routes must agree; a conflicting namespace fragment reports a diagnostic
+ * and leaves the original fragment unchanged. Passing `shared: false` does not clear an existing shared mark.
+ */
 export function setRoute(
   context: DecoratorContext,
   entity: Operation | Namespace | Interface,

@@ -1,5 +1,16 @@
 # Change Log - @typespec/versioning
 
+## 0.87.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Validate the variants of a keyword-form union expression (`union { ... }`) used in expression position like the variants of a named union, so versioning incompatibilities on decorated variants are reported.
+
+### Bug Fixes
+
+- [#11925](https://github.com/microsoft/typespec/pull/11925) Report references that remain available after their target type is removed.
+
+
 ## 0.86.0
 
 No changes, version bump only.

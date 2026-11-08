@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -49,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                if (customizedBuildableTypes.Contains(GetTypeIdentity(type)))
+                if (!type.FrameworkType.IsVisible || customizedBuildableTypes.Contains(GetTypeIdentity(type)))
                 {
                     continue;
                 }
@@ -68,7 +69,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!ShouldWriteProvider(provider) || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
+                if (!IsPublicApi(provider)
+                    || !ShouldWriteProvider(provider)
+                    || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
                     continue;
                 }
@@ -85,6 +88,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        // Protected-only providers can also have the Public flag added by TypeProvider.
+        private static bool IsPublicApi(TypeProvider provider)
+        {
+            var modifiers = provider.DeclarationModifiers;
+            if (modifiers.HasFlag(TypeSignatureModifiers.Protected))
+            {
+                return modifiers.HasFlag(TypeSignatureModifiers.Internal)
+                    && !modifiers.HasFlag(TypeSignatureModifiers.Private);
+            }
+
+            return modifiers.HasFlag(TypeSignatureModifiers.Public);
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
@@ -602,23 +618,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string key)
         {
-            AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
-                .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
-
-            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
+            var suppressions = new List<SuppressionStatement>();
+            foreach (var attribute in typeProvider.CanonicalView.Attributes)
             {
-                string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
-                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));
+                if (ExperimentalApiHelpers.IsExperimentalAttribute(attribute))
+                {
+                    string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
+                    suppressions.Add(new SuppressionStatement(null, attribute.Arguments[0], justification));
+                }
+                else if (DeprecationApiHelpers.IsObsoleteAttribute(attribute))
+                {
+                    string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
+                    suppressions.Add(new SuppressionStatement(null,
+                        Literal(DeprecationApiHelpers.GetDiagnosticId(attribute) ?? DefaultObsoleteDiagnosticId), justification));
+                }
             }
-            else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
-            {
-                string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), justification));
-            }
-            else
-            {
-                attributes.Add(key, attributeStatement);
-            }
+            attributes.Add(key, ExperimentalApiHelpers.Suppress(attributeStatement, suppressions));
         }
 
         private static void AddAttributeForType(
@@ -629,6 +644,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string obsoleteTypeJustification)
         {
             var key = frameworkType.FullName ?? frameworkType.Name;
+            var suppressions = new List<SuppressionStatement>();
 
             // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
             // target netstandard2.0 polyfill their own System.Diagnostics.CodeAnalysis.ExperimentalAttribute,
@@ -642,8 +658,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var diagnosticId = experimentalData.ConstructorArguments.Count > 0
                     ? experimentalData.ConstructorArguments[0].Value as string
                     : null;
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
-                return;
+                suppressions.Add(new SuppressionStatement(null, Literal(diagnosticId), experimentalTypeJustification));
             }
 
             var obsoleteAttr = frameworkType.GetCustomAttributes(typeof(ObsoleteAttribute), false)
@@ -652,11 +667,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var diagnosticId = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
                     ?? DefaultObsoleteDiagnosticId;
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), obsoleteTypeJustification));
-                return;
+                suppressions.Add(new SuppressionStatement(null, Literal(diagnosticId), obsoleteTypeJustification));
             }
 
-            attributes.Add(key, attributeStatement);
+            attributes.Add(key, ExperimentalApiHelpers.Suppress(attributeStatement, suppressions));
         }
 
         /// <summary>

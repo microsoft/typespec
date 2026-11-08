@@ -46,6 +46,16 @@ export function getClientClassRef(client: cl.Client) {
 function getClientContextFieldRef(client: cl.Client) {
   return refkey(client.type, "client-context");
 }
+
+/**
+ * The client context is only consumed by the client's operations. Clients without operations
+ * must not declare it, otherwise consumers compiling with `noUnusedLocals` get TS6133 for an
+ * unread private field.
+ */
+function clientNeedsContext(client: cl.Client) {
+  return client.operations.length > 0;
+}
+
 export function ClientClass(props: ClientClassProps) {
   const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
@@ -55,15 +65,18 @@ export function ClientClass(props: ClientClassProps) {
   const clientClassRef = getClientClassRef(props.client);
   const subClients = props.client.subClients;
   const operations = props.client.operations;
+  const needsContext = clientNeedsContext(props.client);
   return (
     <ts.ClassDeclaration export name={clientName} refkey={clientClassRef}>
       <List hardline>
-        <ts.ClassField
-          name="context"
-          jsPrivate
-          refkey={contextMemberRef}
-          type={contextDeclarationRef}
-        />
+        {needsContext && (
+          <ts.ClassField
+            name="context"
+            jsPrivate
+            refkey={contextMemberRef}
+            type={contextDeclarationRef}
+          />
+        )}
         <For each={subClients} hardline semicolon>
           {(subClient) => <SubClientClassField client={subClient} />}
         </For>
@@ -134,11 +147,16 @@ function ClientConstructor(props: ClientConstructorProps) {
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
   const constructorParameters = buildClientParameters(props.client, refkey());
   const args = Object.values(constructorParameters).map((p) => p.refkey);
+  const needsContext = clientNeedsContext(props.client);
 
   return (
     <ts.ClassMethod name="constructor" parameters={constructorParameters}>
-      {clientContextFieldRef} ={" "}
-      <ts.FunctionCallExpression target={clientContextFactoryRef} args={args} />;<br />
+      {needsContext && (
+        <>
+          {clientContextFieldRef} ={" "}
+          <ts.FunctionCallExpression target={clientContextFactoryRef} args={args} />;<br />
+        </>
+      )}
       <For each={subClients} joiner=";" hardline>
         {(subClient) => {
           const subClientFieldRef = getSubClientClassFieldRef(subClient);

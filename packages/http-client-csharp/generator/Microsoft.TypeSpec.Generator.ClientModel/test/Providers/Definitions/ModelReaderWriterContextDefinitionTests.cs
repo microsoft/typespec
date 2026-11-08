@@ -75,6 +75,88 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
         }
 
+        [TestCase("public", 1)]
+        [TestCase("internal", 0)]
+        public void BuildableAttributesRespectModelAccessibility(string access, int expectedCount)
+        {
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [InputFactory.Model("TestModel", access: access)]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(expectedCount, GetBuildableAttributes(contextDefinition).Count);
+        }
+
+        [Test]
+        public async Task BuildableAttributesRespectCustomizedAccessibility()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("InternalModel"),
+                    InputFactory.Model("PublicModel", access: "internal")
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(TypeSignatureModifiers.Public, "Public")]
+        [TestCase(TypeSignatureModifiers.Internal, "Internal")]
+        [TestCase(TypeSignatureModifiers.Private, "Private")]
+        [TestCase(TypeSignatureModifiers.Protected, "Protected")]
+        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, "ProtectedInternal")]
+        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, "PrivateProtected")]
+        public void BuildableAttributesRespectUpdatedAccessibility(TypeSignatureModifiers accessibility, string expectedFile)
+        {
+            var provider = new TestMrwSerialization(implementsPersistableModel: true, includeDepModelProperty: true);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
+
+            _ = provider.Type;
+            provider.Update(modifiers: accessibility | TypeSignatureModifiers.Class);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expectedFile), file.Content);
+        }
+
+        [Test]
+        public void ProtectedNestedBuildableTypesDoNotContributeAttributes()
+        {
+            var provider = new TestMrwSerialization(
+                implementsPersistableModel: true,
+                includeDepModelProperty: true,
+                declaringTypeProvider: new TestContainer(),
+                declarationModifiers: TypeSignatureModifiers.Protected | TypeSignatureModifiers.Class);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
+
+            Assert.IsTrue(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void NonPublicFrameworkTypesDoNotContributeBuildableAttributes()
+        {
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [InputFactory.Model("PublicModel")],
+                createCSharpTypeCore: _ => new CSharpType(typeof(TestInternalType)),
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatImplementMRW(bool implementsIPersistable)
@@ -528,6 +610,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ExperimentalObsoleteFrameworkTypesHaveAllSuppressions()
+        {
+            var model = InputFactory.Model("ParentModel", properties:
+                [InputFactory.Property("Value", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model],
+                createCSharpTypeCore: input =>
+                {
+#pragma warning disable FRAMEWORK001, CS0618
+                    return input == InputPrimitiveType.String
+                        ? new CSharpType(typeof(ExperimentalObsoleteFrameworkType))
+                        : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+#pragma warning restore FRAMEWORK001, CS0618
+                });
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
         }
 
         [Test]
@@ -1135,6 +1237,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task CustomObsoleteDiagnosticIdsAreSuppressed()
+        {
+            var model = InputFactory.Model("CustomizedObsoleteModel", deprecation: "Generated message");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [model, InputFactory.Model("RegularModel")],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
+        }
+
+        [Test]
         public void ValidateObsoleteGeneratedTypeHasAttributeSuppression()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
@@ -1198,7 +1313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Experimental("TEST001")]
-        private class ExperimentalDependencyModel : IJsonModel<ExperimentalDependencyModel>
+        public class ExperimentalDependencyModel : IJsonModel<ExperimentalDependencyModel>
         {
             ExperimentalDependencyModel? IJsonModel<ExperimentalDependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             {
@@ -1230,13 +1345,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         {
             private readonly bool _implementsPersistableModel;
             private readonly bool _includeTypeWithDepModelProperty;
-            public TestMrwSerialization(bool implementsPersistableModel, bool includeDepModelProperty) : base()
+            private readonly TypeProvider? _declaringTypeProvider;
+            private readonly TypeSignatureModifiers? _declarationModifiers;
+
+            public TestMrwSerialization(
+                bool implementsPersistableModel,
+                bool includeDepModelProperty,
+                TypeProvider? declaringTypeProvider = null,
+                TypeSignatureModifiers? declarationModifiers = null) : base()
             {
                 _implementsPersistableModel = implementsPersistableModel;
                 _includeTypeWithDepModelProperty = includeDepModelProperty;
+                _declaringTypeProvider = declaringTypeProvider;
+                _declarationModifiers = declarationModifiers;
             }
 
             protected override string BuildName() => "TestMrwSerialization";
+
+            protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => _declarationModifiers ?? TypeSignatureModifiers.None;
 
             protected internal override CSharpType[] BuildImplements()
             {
@@ -1259,6 +1388,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 return Path.Combine("src", "Generated", $"{Name}.cs");
             }
+        }
+
+        private class TestContainer : TypeProvider
+        {
+            protected override string BuildName() => "TestContainer";
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
+
+            protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         }
 
         private class RemovedProviderWithFrameworkDependency : TypeProvider
@@ -1315,6 +1454,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(Sample.Agents.ShadowedModel)), "p1", new AutoPropertyBody(false), this)];
             }
+        }
+
+        [Experimental("FRAMEWORK001")]
+        [Obsolete("Use CurrentModel instead.")]
+        public class ExperimentalObsoleteFrameworkType : IPersistableModel<object>
+        {
+            public object Create(BinaryData data, ModelReaderWriterOptions options) => throw new NotImplementedException();
+            public string GetFormatFromOptions(ModelReaderWriterOptions options) => throw new NotImplementedException();
+            public BinaryData Write(ModelReaderWriterOptions options) => throw new NotImplementedException();
         }
 
         public class FrameworkModelWithMRW : IJsonModel<FrameworkModelWithMRW>, IPersistableModel<FrameworkModelWithMRW>

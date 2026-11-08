@@ -8,6 +8,13 @@ import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.j
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
 const credentialCache = new Map<Refkey, ModelProperty>();
+/**
+ * Creates or reuses the client's synthetic `credential` constructor parameter.
+ * Its type is an authentication-kind string literal, or a union of literals for multiple schemes;
+ * the model-property typekit can recover the attached HTTP authentication metadata.
+ *
+ * @returns Undefined when the client's resolved HTTP service has no authentication schemes.
+ */
 export function getCredentialParameter(
   $: Typekit,
   client: InternalClient,
@@ -51,6 +58,12 @@ function getCredRefkey(credentials: StringLiteral[]): Refkey {
   return refkey(credentials.map((c) => c.value).join());
 }
 
+/**
+ * Builds synthetic constructor operations from the client's inherited servers and authentication.
+ * Currently returns one constructor: without servers it requires an endpoint; one server supplies
+ * an endpoint default and its URL parameters; multiple servers supply endpoint literal alternatives.
+ * A credential parameter is appended when authentication schemes are present.
+ */
 export function getConstructors($: Typekit, client: InternalClient): Operation[] {
   const constructors: Operation[] = [];
   const params: ModelProperty[] = [];
@@ -127,6 +140,12 @@ export function getConstructors($: Typekit, client: InternalClient): Operation[]
   return constructors;
 }
 
+/**
+ * Combines constructor overloads into one synthetic signature, merging parameters by name.
+ * Distinct parameter types become a union. Parameters missing from an overload, or optional in any
+ * overload, become optional. Required parameters precede optional ones; within each group, endpoint
+ * and credential precede the remaining parameters in name order. Parameter defaults are not copied.
+ */
 export function createBaseConstructor(
   $: Typekit,
   client: InternalClient,

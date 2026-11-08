@@ -1,20 +1,29 @@
 import { isArray } from "../../utils/misc.js";
 import type { Enum, Interface, Model, Namespace, Operation, Tuple, Type, Union } from "../types.js";
 
+/** Bit flags describing whether a tracked type occurs in operation inputs, outputs, or both. */
 // prettier-ignore
 export enum UsageFlags {
+  /** Neither input nor output usage. */
   None   = 0,
+  /** Reachable from an operation's parameter model. */
   Input  = 1 << 1,
+  /** Reachable from an operation's return type. */
   Output = 1 << 2,
 }
 
+/** Type kinds for which {@link resolveUsages} records input and output usage. */
 export type TrackableType = Model | Enum | Union | Tuple;
 
+/** Usage information collected from the operations supplied to {@link resolveUsages}. */
 export interface UsageTracker {
+  /** Encountered types in first-discovery order, with each type appearing once. */
   readonly types: readonly TrackableType[];
+  /** Whether a tracked type has any of the requested usage flags; untracked types return false. */
   isUsedAs(type: TrackableType, usage: UsageFlags): boolean;
 }
 
+/** An operation, or a container whose operations can serve as usage-analysis entry points. */
 export type OperationContainer = Namespace | Interface | Operation;
 /**
  * Resolve usage(input, output or both) of various types in the given namespace.

@@ -14,6 +14,8 @@ export function TsDoc(props: TSDocProps) {
       return <TsDocSection node={props.node as DocSection} />;
     case DocNodeKind.PlainText:
       return <TsDocPlainText node={props.node as DocPlainText} />;
+    case DocNodeKind.SoftBreak:
+      return " ";
     default:
       return props.node.kind;
   }

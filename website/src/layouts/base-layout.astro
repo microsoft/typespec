@@ -24,12 +24,18 @@ const initJsIntegrity = computeSriHash("1ds-init.js");
     <script
       src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"
       crossorigin="anonymous"
-      is:inline></script>
-    <script src={import.meta.env.BASE_URL + "1ds-init.js"} integrity={initJsIntegrity} is:inline
+      is:inline
+    ></script>
+    <script
+      src={import.meta.env.BASE_URL + "1ds-init.js"}
+      integrity={initJsIntegrity}
+      is:inline
     ></script>
   </head>
   <body class="body">
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link">
+      Skip to main content
+    </a>
     <header class="header">
       <Header />
     </header>

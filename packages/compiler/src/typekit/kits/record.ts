@@ -26,6 +26,9 @@ export interface RecordKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create and inspect record models with a string indexer and no named properties.
+   */
   record: RecordKit;
 }
 

@@ -1,8 +1,10 @@
 import { type Children, For, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
+import { resolveEncodedEnumMemberValue } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { getDoc } from "../utils/doc.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -28,7 +30,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   const refkeys = declarationRefkeys(props.refkey, props.type);
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
   const members = Array.from(type.members.entries());
-  const doc = props.doc ?? $.type.getDoc(type);
+  const doc = props.doc ?? getDoc($, props.type);
 
   return (
     <ts.EnumDeclaration
@@ -40,16 +42,9 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
     >
       <For each={members} joiner={",\n"}>
         {([key, value]) => {
-          const memberDoc = $.type.getDoc(value);
-          return (
-            <EnumMember
-              doc={memberDoc}
-              type={value}
-              refkey={
-                $.union.is(props.type) ? efRefkey(props.type.variants.get(key)) : efRefkey(value)
-              }
-            />
-          );
+          const source = $.union.is(props.type) ? props.type.variants.get(key)! : value;
+          const memberDoc = getDoc($, source);
+          return <EnumMember doc={memberDoc} type={value} refkey={efRefkey(source)} />;
         }}
       </For>
     </ts.EnumDeclaration>
@@ -63,11 +58,12 @@ export interface EnumMemberProps {
 }
 
 export function EnumMember(props: EnumMemberProps) {
+  const { $ } = useTsp();
   return (
     <ts.EnumMember
-      doc={props.doc}
+      doc={props.doc ?? getDoc($, props.type)}
       name={props.type.name}
-      jsValue={props.type.value ?? props.type.name}
+      jsValue={resolveEncodedEnumMemberValue($.program, props.type, "application/json")}
       refkey={props.refkey}
     />
   );

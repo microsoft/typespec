@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -389,6 +390,17 @@ public final class ClientMethodsReturnDescription {
      * @return the response body type.
      */
     private static IType getResponseBodyType(Operation operation, boolean isProtocolMethod, JavaSettings settings) {
+        if (!isProtocolMethod
+            && operation.getConvenienceApi() != null
+            && operation.getConvenienceApi().getResponse() != null) {
+            Response response = operation.getConvenienceApi().getResponse();
+            if (Boolean.TRUE.equals(response.getBinary())) {
+                return ClassType.BINARY_DATA;
+            }
+            return response.getSchema() == null
+                ? PrimitiveType.VOID
+                : Mappers.getSchemaMapper().map(response.getSchema());
+        }
         if (!isProtocolMethod
             && operation.getConvenienceApi() != null
             && operation.getConvenienceApi().isResponseHeadersAsModel()) {

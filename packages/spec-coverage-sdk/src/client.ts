@@ -14,15 +14,33 @@ import type {
   ScenarioManifest,
 } from "./types.js";
 
+/**
+ * Stores scenario manifests and generator coverage reports in an Azure Blob Storage container.
+ *
+ * Constructing a client does not create the container. Use
+ * {@link SpecCoverageClient.createIfNotExists} before uploading to a new container.
+ * Storage and JSON parsing errors reject the returned promises unless an operation
+ * explicitly documents otherwise.
+ */
 export class SpecCoverageClient {
   #container: ContainerClient;
+  /** Reads and publishes scenario manifests independently of generator coverage reports. */
   manifest: SpecManifestOperations;
+  /** Publishes coverage reports and retrieves the report selected by a generator's index. */
   coverage: SpecCoverageOperations;
 
+  /**
+   * Creates operation clients for `https://<storageAccountName>.blob.core.windows.net`.
+   * No request is made until an operation is called.
+   *
+   * @param storageAccountName - Azure Storage account name, not a URL.
+   */
   constructor(
     storageAccountName: string,
     options?: {
+      /** Credential used for storage requests. Omit for anonymous access to public blobs. */
       credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential;
+      /** Container holding both manifests and reports. Defaults to `"coverages"` when omitted or empty. */
       containerName?: string;
     },
   ) {
@@ -35,6 +53,11 @@ export class SpecCoverageClient {
     this.coverage = new SpecCoverageOperations(this.#container);
   }
 
+  /**
+   * Creates the container if absent, allowing anonymous reads of individual blobs
+   * but not anonymous container listing. Leaves an existing container unchanged.
+   * Requires credentials and account settings that permit the creation request.
+   */
   public async createIfNotExists() {
     await this.#container.createIfNotExists({
       access: "blob",
@@ -42,13 +65,24 @@ export class SpecCoverageClient {
   }
 }
 
+/** Reads and publishes versioned scenario catalogs under `manifests/<name>/` in a container. */
 export class SpecManifestOperations {
   #container: ContainerClient;
 
+  /**
+   * Uses an existing container client, including its endpoint and authentication.
+   * Does not create the container.
+   */
   constructor(container: ContainerClient) {
     this.#container = container;
   }
 
+  /**
+   * Overwrites `manifests/<name>/latest.json`, then the blob for `manifest.version`.
+   * The writes are separate requests: a failure may leave only the latest copy updated.
+   *
+   * @param name - Storage key for the scenario set; independent of the manifest's package name.
+   */
   public async upload(name: string, manifest: ScenarioManifest): Promise<void> {
     await this.#upload(name, "latest", manifest);
     await this.#upload(name, manifest.version, manifest);
@@ -64,6 +98,17 @@ export class SpecManifestOperations {
     });
   }
 
+  /**
+   * Publishes a manifest only if its version blob is absent and its version is newer
+   * than the latest manifest. When both versions are valid semantic versions, uses
+   * semantic-version ordering; otherwise, any different version string qualifies.
+   *
+   * These checks are not atomic with the upload. Storage and parsing errors are
+   * propagated rather than treated as an absent manifest.
+   *
+   * @returns `"uploaded"` after both writes succeed, or `"skipped"` if the version
+   * already exists or does not qualify to replace the latest manifest.
+   */
   public async uploadIfVersionNew(
     name: string,
     manifest: ScenarioManifest,
@@ -81,11 +126,21 @@ export class SpecManifestOperations {
     return "uploaded";
   }
 
+  /**
+   * Downloads and parses the manifest stored under the given scenario-set name.
+   * Omitting `version` selects `latest.json`. Missing blobs and invalid JSON reject
+   * the promise; the parsed value is not checked against the manifest schema.
+   */
   public async get(name: string, version?: string): Promise<ScenarioManifest> {
     const blob = this.#container.getBlockBlobClient(this.#blobName(name, version));
     return readJsonBlob<ScenarioManifest>(blob);
   }
 
+  /**
+   * Reads a manifest like {@link SpecManifestOperations.get}, returning `undefined`
+   * only when Azure reports `BlobNotFound`. Other failures, including a missing
+   * container or invalid JSON, reject.
+   */
   public async tryGet(name: string, version?: string): Promise<ScenarioManifest | undefined> {
     const blob = this.#container.getBlockBlobClient(this.#blobName(name, version));
     try {
@@ -121,13 +176,25 @@ function isVersionNewer(candidate: string, existing: string): boolean {
   return !areVersionsEquivalent(candidate, existing);
 }
 
+/** Publishes generator reports and resolves the version selected by each generator's index. */
 export class SpecCoverageOperations {
   #container: ContainerClient;
 
+  /**
+   * Uses an existing container client, including its endpoint and authentication.
+   * Does not create the container.
+   */
   constructor(container: ContainerClient) {
     this.#container = container;
   }
 
+  /**
+   * Overwrites `<name>/reports/<version>/<mode>.json` with the report and generator
+   * metadata, then updates `<name>/index.json` to that version.
+   *
+   * The index is shared across modes and follows upload order, not version ordering.
+   * A failure updating it can leave the report stored without making it the latest.
+   */
   public async upload(generatorMetadata: GeneratorMetadata, report: CoverageReport): Promise<void> {
     const blob = this.#container.getBlockBlobClient(
       `${generatorMetadata.name}/reports/${generatorMetadata.version}/${generatorMetadata.mode}.json`,
@@ -148,6 +215,18 @@ export class SpecCoverageOperations {
     await this.updateIndex(generatorMetadata.name, generatorMetadata.version);
   }
 
+  /**
+   * Reads the generator's index and downloads the requested mode at its selected version.
+   * A legacy `<name>/reports/<version>.json` blob takes precedence over mode-specific
+   * blobs when present, regardless of the requested mode.
+   *
+   * Report content is parsed from `blobBody` when available. Node.js streaming responses
+   * are not read by this method and currently return only generator metadata.
+   *
+   * @returns Generator metadata with report fields when the body was parsed, or `undefined`
+   * if neither report blob exists. Stored JSON is not normalized or validated against the report schema.
+   * A missing index or storage failure rejects. Invalid report JSON rejects when its body is read.
+   */
   public async getLatestCoverageFor(
     generatorName: string,
     generatorMode: string,

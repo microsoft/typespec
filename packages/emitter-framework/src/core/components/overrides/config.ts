@@ -13,10 +13,13 @@ const getOverrideForTypeKindSym: unique symbol = Symbol.for("ef-ts:getOverrideFo
  */
 export type Experimental_OverrideKind = keyof Experimental_ComponentOverridesConfigBase<any, any>;
 
+/** Callback for one rendering role; absent registrations resolve to `undefined`. */
 type OverrideComponent<K extends Experimental_OverrideKind> =
   Experimental_ComponentOverridesConfigBase<any, any>[K];
 
+/** Mutable override registry accepted by {@link Experimental_ComponentOverrides}. */
 export type Experimental_ComponentOverridesConfig = Experimental_ComponentOverridesClass;
+/** Creates an empty override registry; callable with or without `new`. */
 export const Experimental_ComponentOverridesConfig = function () {
   return new Experimental_ComponentOverridesClass();
 } as {
@@ -24,11 +27,21 @@ export const Experimental_ComponentOverridesConfig = function () {
   (): Experimental_ComponentOverridesClass;
 };
 
+/**
+ * Registers replacement renderers by TypeSpec object identity or type kind.
+ * Type-specific registrations take precedence over kind registrations, independently
+ * for references and declarations. Scalars also inherit registrations from base scalars.
+ */
 export class Experimental_ComponentOverridesClass {
   #typeEmitOptions: Map<Type, Experimental_ComponentOverridesConfigBase<any, any>> = new Map();
   #typeKindEmitOptions: Map<Type["kind"], Experimental_ComponentOverridesConfigBase<any, any>> =
     new Map();
 
+  /**
+   * Replaces the registration for this exact type and returns this registry for chaining.
+   * Supply the language component's declaration props as `TDeclarationProps` to type-check
+   * a declaration override. Unspecified rendering roles fall back during resolution.
+   */
   forType<const T extends Type, TDeclarationProps = Experimental_DefaultDeclarationProps>(
     type: T,
     options: Experimental_ComponentOverridesConfigBase<T, TDeclarationProps>,
@@ -38,6 +51,10 @@ export class Experimental_ComponentOverridesClass {
     return this;
   }
 
+  /**
+   * Replaces the fallback registration for a TypeSpec kind and returns this registry.
+   * Applies only when no type-specific (or inherited scalar) override exists for that role.
+   */
   forTypeKind<
     const TKind extends Type["kind"],
     TDeclarationProps = Experimental_DefaultDeclarationProps,

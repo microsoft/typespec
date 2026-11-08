@@ -4,6 +4,7 @@ import { defineKit } from "@typespec/compiler/typekit";
 import type { AccessKit, NameKit, UsageKit } from "./utils.js";
 import { getAccess, getName, getUsage } from "./utils.js";
 
+/** Model inspection and client-facing naming, visibility, and usage queries added to `$.model`. */
 export interface SdkModelKit extends NameKit<Model>, AccessKit<Model>, UsageKit<Model> {
   /**
    * Get the properties of a model.

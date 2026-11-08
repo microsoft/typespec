@@ -170,7 +170,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ListWithNextLinkResult(things, next, additionalBinaryDataProperties);
+            return new ListWithNextLinkResult(things ?? new ChangeTrackingList<Thing>(), next, additionalBinaryDataProperties);
         }
     }
 }

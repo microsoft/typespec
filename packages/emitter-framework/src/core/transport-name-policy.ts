@@ -6,7 +6,10 @@ import type { Type } from "@typespec/compiler";
  *
  * @template T - The type that extends `Type` and includes a `name` property of type `string | symbol`.
  */
-export type HasName<T extends Type> = T & { name: string | symbol };
+export type HasName<T extends Type> = T & {
+  /** Source name supplied to the policy; unnamed union variants may use a symbol. */
+  name: string | symbol;
+};
 
 /**
  * Interface defining the transformation policy for names.
@@ -40,7 +43,9 @@ export interface TransformNamePolicy {
  * @returns A `TransformNamePolicy` object with the implemented methods for transforming names.
  */
 export function createTransformNamePolicy(namer: {
+  /** Computes the serialized/wire name, independently of the generated identifier. */
   transportNamer: <T extends HasName<Type>>(type: T) => string;
+  /** Computes the identifier used in generated application code, not its wire spelling. */
   applicationNamer: <T extends HasName<Type>>(type: T) => string;
 }): TransformNamePolicy {
   return {

@@ -1,5 +1,30 @@
 # Change Log - @typespec/openapi3
 
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Support `model`, `enum`, `union`, and `scalar` declarations used in expression position. Anonymous declaration expressions are inlined, while named ones are hoisted into a referenced component.
+  
+  ```tsp
+  model Foo {
+    status: enum { active, inactive }; // inlined
+    unit: scalar extends string; // inlined
+    inner: model Inner { x: string }; // hoisted as component `Inner`
+  }
+  ```
+- [#11954](https://github.com/microsoft/typespec/pull/11954) OpenAPI 3.1 and 3.2 now emit `additionalProperties` for a `Record<T>` indexer, unless the model also extends another model or the schema is sealed, which still use `unevaluatedProperties`.
+
+### Bug Fixes
+
+- [#11735](https://github.com/microsoft/typespec/pull/11735) [converter] Emit reusable models under a `Responses` namespace for `#/components/responses/...` references instead of inlining the response at each operation
+- [#12042](https://github.com/microsoft/typespec/pull/12042) [converter] Emit valid #deprecated directives for converted operation parameters.
+- [#12020](https://github.com/microsoft/typespec/pull/12020) Fix duplicate schema emitted for a template instantiation referenced by both an operation and an unreachable derived model
+- [#12016](https://github.com/microsoft/typespec/pull/12016) Fix `@encode` on nullable properties and parameters in OpenAPI 3.1 and 3.2. The encoding is now applied to the `T` member of `anyOf: [T, { type: "null" }]` instead of being written next to `anyOf`. When the encoding changed the emitted type, like `unixTimestamp`, `seconds` or `@encode(string)` on a number, the old schema rejected every value. When the encoded type stayed a string, like `rfc7231` on `utcDateTime` or `base64url` on `bytes`, it only rejected `null`. `bytes | null` now also gets `contentEncoding` instead of `format`.
+- [#12050](https://github.com/microsoft/typespec/pull/12050) [converter] Escape quotes and line breaks in `@tagMetadata` strings generated from OpenAPI tags.
+- [#11915](https://github.com/microsoft/typespec/pull/11915) Emit tuple value referencing a declared model as a `$ref`.
+
+
 ## 1.16.0
 
 ### Bug Fixes

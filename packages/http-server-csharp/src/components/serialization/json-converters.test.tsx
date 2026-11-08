@@ -87,6 +87,7 @@ describe("HttpServiceExceptionFilter", () => {
     expect(content).toBeDefined();
     expect(content).toContain("class HttpServiceExceptionFilter");
     expect(content).toContain("IActionFilter, IOrderedFilter");
+    expect(content).toContain("if (header.Value is not null)");
     expect(content).not.toContain("class HttpServiceException : Exception");
   });
 });

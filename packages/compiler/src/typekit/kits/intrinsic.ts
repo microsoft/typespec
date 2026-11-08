@@ -10,6 +10,8 @@ import type {
 import { defineKit } from "../define-kit.js";
 
 /**
+ * Access the program's intrinsic types and distinguish them from declared types and values.
+ *
  * @typekit intrinsic
  */
 export interface IntrinsicKit {
@@ -31,6 +33,9 @@ export interface IntrinsicKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Access intrinsic types such as `never`, `null`, and `void` from the program's checker.
+   */
   intrinsic: IntrinsicKit;
 }
 

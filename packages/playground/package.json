@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -31,6 +31,10 @@
       "types": "./dist/src/vite/index.d.ts",
       "default": "./dist/vite/index.js"
     },
+    "./vite/workers": {
+      "types": "./dist/src/vite/workers.d.ts",
+      "default": "./dist/vite/workers.js"
+    },
     "./tooling": {
       "types": "./dist/src/tooling/index.d.ts",
       "default": "./dist/tooling/index.js"
@@ -55,8 +59,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "vite build",
-    "watch": "vite build --watch",
+    "build": "vite build && pnpm build:types",
+    "build:types": "tsc -p tsconfig.declaration.json",
+    "watch": "concurrently --kill-others \"vite build --watch --emptyOutDir false\" \"pnpm build:types --watch\"",
     "storybook": "storybook dev",
     "build:storybook": "storybook build",
     "preview": "pnpm build && vite preview",
@@ -102,7 +107,6 @@
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
-    "@types/debounce": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -110,6 +114,7 @@
     "@typespec/bundler": "workspace:^",
     "@typespec/react-components": "workspace:^",
     "@vitejs/plugin-react": "catalog:",
+    "concurrently": "catalog:",
     "cross-env": "catalog:",
     "es-module-shims": "catalog:",
     "rimraf": "catalog:",
@@ -117,7 +122,6 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-checker": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   }
 }

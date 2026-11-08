@@ -12,6 +12,7 @@ public class Metadata {
     private Languages language;
     private Protocols protocol;
     private XmsExtensions extensions;
+    private Experimental experimental;
 
     /**
      * Creates a new instance of the Metadata class.
@@ -71,5 +72,23 @@ public class Metadata {
      */
     public void setExtensions(XmsExtensions extensions) {
         this.extensions = extensions;
+    }
+
+    /**
+     * Gets the experimental API metadata.
+     *
+     * @return the experimental API metadata.
+     */
+    public Experimental getExperimental() {
+        return experimental;
+    }
+
+    /**
+     * Sets the experimental API metadata.
+     *
+     * @param experimental the experimental API metadata.
+     */
+    public void setExperimental(Experimental experimental) {
+        this.experimental = experimental;
     }
 }

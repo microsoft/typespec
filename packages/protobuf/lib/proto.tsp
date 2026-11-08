@@ -66,6 +66,15 @@ namespace WellKnown {
    * This model references `google.type.LatLng` from `google/type/latlng.proto`.
    */
   model LatLng is Extern<"google/type/latlng.proto", "google.type.LatLng">;
+
+  /**
+   * A long-running operation ([AIP-151](https://google.aip.dev/151)).
+   *
+   * This model references `google.longrunning.Operation` from `google/longrunning/operations.proto`. To declare the
+   * types of a long-running operation's response and metadata, return
+   * [`LongRunningOperation`](./data-types#TypeSpec.Protobuf.LongRunningOperation) instead.
+   */
+  model Operation is Extern<"google/longrunning/operations.proto", "google.longrunning.Operation">;
 }
 
 /**
@@ -134,11 +143,49 @@ alias integral = int32 | int64 | uint32 | uint64 | boolean;
  * The key type of a Protobuf `map` must be any integral type or `string`. The value type can be any type other than
  * another `Map`.
  *
+ * An object value fills a map, for example in `@opExample` or a `const`: `#{ team: "storage" }`. Its keys are
+ * strings, as in the Protobuf JSON mapping, so the keys of a map with an integral key type are not checked.
+ *
  * @template Key the key type (any integral type or string)
  * @template Value the value type (any type other than another map)
  */
 @Private._map
-model Map<Key extends integral | string, Value> {}
+model Map<Key extends integral | string, Value> is Record<Value>;
+
+/**
+ * A long-running operation ([AIP-151](https://google.aip.dev/151)) whose `response` is a `Response` and whose
+ * `metadata` is a `Metadata`. Return it from an operation that starts work the client polls until it is done.
+ *
+ * This model references `google.longrunning.Operation` from `google/longrunning/operations.proto`. The emitter writes
+ * both types in the operation's `google.longrunning.operation_info` method option, naming each relative to the
+ * operation's package (or fully qualified when it is declared in another package), and emits and imports them like any
+ * other message the operation refers to.
+ *
+ * @template Response the message in the `response` of a successful operation, such as
+ * [`WellKnown.Empty`](./data-types#TypeSpec.Protobuf.WellKnown.Empty) when there is none
+ * @template Metadata the message in the `metadata` of the operation, describing its progress. AIP-151 asks for a
+ * message of the operation's own, even an empty one, rather than `WellKnown.Empty`
+ *
+ * @example
+ *
+ * ```typespec
+ * op importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+ * ```
+ *
+ * ```protobuf
+ * rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+ *   option (google.longrunning.operation_info) = {
+ *     response_type: "ImportBooksResponse"
+ *     metadata_type: "ImportBooksMetadata"
+ *   };
+ * }
+ * ```
+ */
+@Private.longRunning(Response, Metadata)
+model LongRunningOperation<
+  Response extends Reflection.Model,
+  Metadata extends Reflection.Model
+> is Extern<"google/longrunning/operations.proto", "google.longrunning.Operation">;
 
 /**
  * Declares that a model is a Protobuf message.
@@ -148,18 +195,30 @@ model Map<Key extends integral | string, Value> {}
  * - The model has a `@field` annotation on all of its properties.
  * - The model is referenced by any service operation.
  *
- * This decorator will force the emitter to check and emit a model.
+ * This decorator will force the emitter to check and emit a model. A named union annotated with this decorator is
+ * emitted as a wrapper message containing a `oneof value`.
  */
 extern dec message(target: {});
 
 /**
- * Defines the field index of a model property for conversion to a Protobuf
+ * Defines the field index of a model property or union variant for conversion to a Protobuf
  * message.
+ *
+ * When applied to the variants of a named union, the union can be used as the type of a message field:
+ *
+ *   - If the model property has no `@field` decorator, the union is emitted inline as a `oneof` named after the
+ *     property, and the variant field indices share the field index space of the containing message. The property
+ *     must be optional.
+ *   - If the model property has a `@field` decorator, the union is emitted as a wrapper message (named after the
+ *     union) that contains a `oneof value`, and the variant field indices belong to the wrapper message.
+ *
+ * Union variants used in a `oneof` cannot be arrays or maps.
  *
  * The field index of a Protobuf message must:
  *   - fall between 1 and 2<sup>29</sup> - 1, inclusive.
  *   - not fall within the implementation reserved range of 19000 to 19999, inclusive.
  *   - not fall within any range that was [marked reserved](#%40TypeSpec.Protobuf.reserve).
+ *   - not be used by any other field of the same message, including members of a `oneof`.
  *
  * #### API Compatibility Note
  *
@@ -181,8 +240,27 @@ extern dec message(target: {});
  *   test: string;
  * }
  * ```
+ *
+ * @example
+ *
+ * ```typespec
+ * union Payment {
+ *   @field(10) card: CardPayment,
+ *   @field(11) bank_transfer: BankTransfer,
+ * }
+ *
+ * model Order {
+ *   @field(1) id: string;
+ *
+ *   // Emitted inline as `oneof payment { CardPayment card = 10; BankTransfer bank_transfer = 11; }`
+ *   payment?: Payment;
+ * }
+ * ```
  */
-extern dec field(target: TypeSpec.Reflection.ModelProperty, index: valueof uint32);
+extern dec field(
+  target: TypeSpec.Reflection.ModelProperty | TypeSpec.Reflection.UnionVariant,
+  index: valueof uint32
+);
 
 /**
  * Reserve a field index, range, or name. If a field definition collides with a reservation, the emitter will produce
@@ -316,4 +394,9 @@ extern dec stream(target: TypeSpec.Reflection.Operation, mode: StreamMode);
 namespace Private {
   extern dec externRef(target: Reflection.Model, path: string, name: string);
   extern dec _map(target: Reflection.Model);
+  extern dec longRunning(
+    target: Reflection.Model,
+    response: Reflection.Model,
+    metadata: Reflection.Model
+  );
 }

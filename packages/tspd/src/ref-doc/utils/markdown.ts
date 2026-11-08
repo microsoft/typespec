@@ -40,11 +40,16 @@ export function table([header, ...rows]: string[][]) {
   ].join("\n");
 }
 
+/** A heading and nested content whose heading depth is chosen when the document is flattened. */
 export interface MarkdownSection {
+  /** Distinguishes a section node from strings and arrays of document fragments. */
   kind: "section";
+  /** Heading text, including any inline Markdown or explicit anchor syntax. */
   title: string;
+  /** Content rendered one heading level deeper; nested sections increase the depth again. */
   body: MarkdownDoc;
 }
+/** Recursive renderer output: raw Markdown, a relative-depth section, or an ordered list of fragments. */
 export type MarkdownDoc = string | MarkdownSection | MarkdownDoc[];
 
 export function renderMarkdowDoc(doc: MarkdownDoc, heading = 1) {

@@ -32,7 +32,7 @@ from ..models import (
     ParameterListType,
     ByteArraySchema,
 )
-from ..models.utils import NamespaceType, escape_sphinx_field_name
+from ..models.utils import NamespaceType, escape_sphinx_field_name, python_string_literal
 from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
 from ..models.response import (
@@ -99,7 +99,8 @@ def _escape_str(input_str: str) -> str:
 def _get_polymorphic_subtype_template(polymorphic_subtype: ModelType) -> list[str]:
     retval: list[str] = []
     retval.append("")
-    retval.append(f'# JSON input template for discriminator value "{polymorphic_subtype.discriminator_value}":')
+    discriminator_value = python_string_literal(polymorphic_subtype.discriminator_value)
+    retval.append(f"# JSON input template for discriminator value {discriminator_value}:")
     subtype_template = utils.json_dumps_template(
         polymorphic_subtype.get_json_template_representation(),
     )
@@ -385,7 +386,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             discriminator_name = cast(Property, polymorphic_subtypes[0].discriminator).wire_name
             template.append(
                 "# The input is polymorphic. The following are possible polymorphic "
-                f'inputs based off discriminator "{discriminator_name}":'
+                f"inputs based off discriminator {python_string_literal(discriminator_name)}:"
             )
             for idx in range(
                 min(
@@ -582,7 +583,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append("")
                 retval.append(
                     "# The response is polymorphic. The following are possible polymorphic "
-                    f'responses based off discriminator "{discriminator_name}":'
+                    f"responses based off discriminator {python_string_literal(discriminator_name)}:"
                 )
                 for idx in range(
                     min(
@@ -1043,8 +1044,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
 
     def call_request_builder(self, builder: OperationType, is_paging: bool = False) -> list[str]:
         retval = self._call_request_builder_helper(builder, builder.request_builder, is_paging=is_paging)
-        if builder.has_structured_stream_response and any(
-            response.streaming_kind == "sse" for response in builder.responses
+        if (
+            self.code_model.options["enable-sse-reconnect"]
+            and builder.has_structured_stream_response
+            and any(response.streaming_kind == "sse" for response in builder.responses)
         ):
             retval.insert(0, '_last_event_id = kwargs.pop("last_event_id", None)')
             retval.extend(
@@ -1396,7 +1399,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             stream_kwargs.append(f"terminal_event={terminal_event!r}")
         if terminal_event_names:
             stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
-        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+        if response.streaming_kind == "sse" and self.code_model.options["enable-sse-reconnect"]:
             retval.append("")
             retval.append(
                 "async def _reconnect(_last_event_id, _reconnect_delay):"

@@ -8,11 +8,19 @@ import { parseScopeFilter } from "./scope-cache.js";
 
 const featureLifecycleStateSymbol = createStateSymbol("featureLifecycleState");
 
+/** Lifecycle states that client emitters can surface for APIs marked with a lifecycle decorator. */
 export type FeatureLifecycleStage = "Experimental";
 
+/** Lifecycle metadata from a decorator after applying the querying emitter's scope filter. */
 export interface FeatureLifecycleDetails {
+  /** Lifecycle state to surface for this API; currently only experimental APIs are represented. */
   stage: FeatureLifecycleStage;
+  /** Diagnostic identifier supplied for this API, or undefined when the decorator omits it. */
   diagnosticId?: string;
+  /**
+   * Diagnostic identifiers of experimental features this API depends on; empty when none are supplied.
+   * A dependency becoming generally available does not automatically change this API's stage.
+   */
   dependsOn: readonly string[];
 }
 
@@ -41,7 +49,12 @@ export const $experimental: ExperimentalDecorator = (context, target, options) =
   });
 };
 
+/** Selects which emitter's scoped lifecycle metadata to query. */
 export interface GetFeatureLifecycleOptions {
+  /**
+   * Emitter name matched against the decorator's included or excluded emitter names.
+   * If omitted, unscoped metadata is returned, but scoped metadata yields a warning and undefined.
+   */
   emitterName?: string;
 }
 export function getClientFeatureLifecycle(

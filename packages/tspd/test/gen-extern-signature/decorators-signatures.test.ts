@@ -286,13 +286,42 @@ export type Decorators = {
     it("generate local model as interface", async () => {
       await expectSignatures({
         code: `
-          model Info { name: string, age?: int32} 
+          /**
+           * Information supplied to the decorator.
+           *
+           * @example
+           * #{ name: "Ada" }
+           */
+          model Info {
+            /** Display name used in generated output. */
+            name: string;
+            /**
+             * Age in years, when known.
+             *
+             * Omit this property when the age is unavailable.
+             */
+            age?: int32;
+          }
           extern dec simple(target, arg1: valueof Info);`,
         expected: `
 ${importLine(["Type"])}
 
+/**
+ * Information supplied to the decorator.
+ *
+ * @example
+ * #{ name: "Ada" }
+ */
 export interface Info {
+  /**
+   * Display name used in generated output.
+   */
   readonly name: string;
+  /**
+   * Age in years, when known.
+   *
+   * Omit this property when the age is unavailable.
+   */
   readonly age?: number;
 }
 
@@ -302,6 +331,91 @@ export type Decorators = {
   simple: SimpleDecorator;
 };
     `,
+      });
+    });
+
+    it("preserves documentation on spread and nested anonymous properties without documenting synthetic indexers", async () => {
+      await expectSignatures({
+        code: `
+          model Base {
+            /** Display name used in generated output. */
+            name: string;
+          }
+          extern dec simple(target, arg1: valueof {
+            ...Record<unknown>;
+            ...Base;
+            /** Additional display settings. */
+            settings?: {
+              /** Whether to include the display name. */
+              enabled: boolean;
+            };
+          });`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  arg1: {
+    readonly [key: string]: unknown;
+    /**
+     * Display name used in generated output.
+     */
+    readonly name: string;
+    /**
+     * Additional display settings.
+     */
+    readonly settings?: {
+      /**
+       * Whether to include the display name.
+       */
+      readonly enabled: boolean;
+    };
+  },
+) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+`,
+      });
+    });
+
+    it("preserves anonymous model property documentation in function parameters and return values", async () => {
+      await expectSignatures({
+        code: `
+          #suppress "experimental-feature"
+          extern fn simple(
+            arg: valueof {
+              /** Display name supplied by the caller. */
+              name: string;
+            }
+          ): valueof {
+            /** Whether the name was accepted. */
+            accepted: boolean;
+          };`,
+        expected: `
+import type { FunctionContext } from "@typespec/compiler";
+
+export type SimpleFunctionImplementation = (
+  context: FunctionContext,
+  arg: {
+    /**
+     * Display name supplied by the caller.
+     */
+    readonly name: string;
+  },
+) => {
+  /**
+   * Whether the name was accepted.
+   */
+  readonly accepted: boolean;
+};
+
+export type Functions = {
+  simple: SimpleFunctionImplementation;
+};
+`,
       });
     });
   });

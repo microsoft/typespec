@@ -147,6 +147,9 @@ Scenarios.Routes_QueryParameters_QueryExpansion_Standard_array = createTests(
 Scenarios.Routes_QueryParameters_QueryExpansion_Standard_record = createTests(
   "/routes/query/query-expansion/standard/record?param=a,1,b,2",
 );
+Scenarios.Routes_QueryParameters_QueryExpansion_Standard_model = createTests(
+  "/routes/query/query-expansion/standard/model?param=field,status,value,active",
+);
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_primitive = createTests(
   "/routes/query/query-expansion/explode/primitive?param=a",
 );
@@ -168,6 +171,9 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Standard_array = createTests(
 Scenarios.Routes_QueryParameters_QueryContinuation_Standard_record = createTests(
   "/routes/query/query-continuation/standard/record?fixed=true&param=a,1,b,2",
 );
+Scenarios.Routes_QueryParameters_QueryContinuation_Standard_model = createTests(
+  "/routes/query/query-continuation/standard/model?fixed=true&param=field,status,value,active",
+);
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_primitive = createTests(
   "/routes/query/query-continuation/explode/primitive?fixed=true&param=a",
 );
@@ -176,4 +182,7 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Explode_array = createTests(
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_record = createTests(
   "/routes/query/query-continuation/explode/record?fixed=true&a=1&b=2",
+);
+Scenarios.Routes_QueryParameters_QueryContinuation_Explode_model = createTests(
+  "/routes/query/query-continuation/explode/model?fixed=true&field=status&value=active",
 );

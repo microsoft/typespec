@@ -22,10 +22,15 @@ import {
   RecordSerializerRefkey,
 } from "./static-serializers.jsx";
 
+/** Declaration identity and direction for a model/union conversion function. */
 export interface TypeTransformProps {
+  /** Complete function name override; otherwise a policy-derived type name gets a ToApplication/ToTransport suffix. */
   name?: string;
+  /** Model or union to transform; other kinds, arrays, and records produce no declaration. */
   type: Type;
+  /** `application` consumes wire-shaped input; `transport` consumes application-shaped input. */
   target: "application" | "transport";
+  /** Reference identity override; defaults to {@link getTypeTransformerRefkey} for this type and direction. */
   refkey?: Refkey;
 }
 
@@ -97,7 +102,9 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
 }
 
 /**
- * Component that represents a function declaration that transforms a model to a transport or application model.
+ * Declares an exported function converting a model or discriminated union in one direction.
+ * Referenced model transformers and static serializers must also be rendered in the output.
+ * Non-discriminated unions report a diagnostic rather than gaining an inferred conversion.
  */
 export function TypeTransformDeclaration(props: TypeTransformProps) {
   const { $ } = useTsp();
@@ -180,15 +187,23 @@ export function getTypeTransformerRefkey(type: Type, target: "application" | "tr
   return efRefkey(type, target);
 }
 
+/** Source model, input access path, and conversion direction for an inline object expression. */
 export interface ModelTransformExpressionProps {
+  /** Model whose non-never properties are converted; inheritance/indexers currently report diagnostics. */
   type: Model;
+  /** Dot-joined expression segments locating the input object; defaults to an empty path. */
   itemPath?: string[];
+  /** Converts source property names to application identifiers, or reverses that mapping for transport. */
   target: "application" | "transport";
+  /** Prefix for optional-property accesses, rendered with optional chaining when supplied. */
   optionsBagName?: string;
 }
 
 /**
- * Component that represents an object expression that transforms a model to a transport or application model.
+ * Renders a new object converting property names and values between application and transport shapes.
+ * Transport keys use source TypeSpec property names; application keys use the active TypeScript
+ * interface-member naming policy, not the transform-name-policy context. Nested values delegate
+ * to {@link TypeTransformCall}. Requires a TypeSpec render context.
  */
 export function ModelTransformExpression(props: ModelTransformExpressionProps) {
   const { $ } = useTsp();
@@ -319,13 +334,15 @@ function TransformScalarReference(props: TransformScalarReferenceProps) {
   }
 }
 
+/** Selects the value expression and direction for a generated conversion call or inline conversion. */
 export interface TypeTransformCallProps {
   /**
    * TypeSpec type to be transformed
    */
   type: Type;
   /**
-   *
+   * Adds a TypeScript assertion to the input expression using the source type's reference.
+   * Does not validate the value at runtime.
    */
   castInput?: boolean;
   /**
@@ -351,7 +368,10 @@ function needsTransform($: Typekit, type: Type): boolean {
 }
 
 /**
- * This component represents a function call to transform a type
+ * Emits a conversion expression for a value at `itemPath`.
+ * Arrays and records call the shared serializers, UTC date-times call a date helper,
+ * named models call their transformer, and anonymous models convert inline.
+ * Other types pass through unchanged. Render any referenced helper declarations separately.
  */
 export function TypeTransformCall(props: TypeTransformCallProps): Children {
   const { $ } = useTsp();

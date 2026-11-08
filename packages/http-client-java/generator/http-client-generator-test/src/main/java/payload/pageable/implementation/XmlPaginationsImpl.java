@@ -28,6 +28,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.UrlBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -164,7 +165,7 @@ public final class XmlPaginationsImpl {
                     } catch (javax.xml.stream.XMLStreamException e) {
                         throw new IllegalStateException(e);
                     }
-                }, "Pets", "Pet"), null, null));
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextMarker"), null));
     }
 
     /**
@@ -196,7 +197,35 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> listWithContinuationAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> listWithContinuationSinglePageAsync(requestOptions));
+        return listWithContinuationAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> listWithContinuationAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("marker", initialContinuationToken, false);
+            }
+            return listWithContinuationSinglePageAsync(requestOptionsLocal);
+        }, (marker) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (marker != null) {
+                requestOptionsLocal.addQueryParam("marker", marker, false);
+            }
+            return listWithContinuationSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -238,7 +267,7 @@ public final class XmlPaginationsImpl {
                 } catch (javax.xml.stream.XMLStreamException e) {
                     throw new IllegalStateException(e);
                 }
-            }, "Pets", "Pet"), null, null);
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextMarker"), null);
     }
 
     /**
@@ -270,7 +299,35 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> listWithContinuation(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> listWithContinuationSinglePage(requestOptions));
+        return listWithContinuation(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> listWithContinuation(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("marker", initialContinuationToken, false);
+            }
+            return listWithContinuationSinglePage(requestOptionsLocal);
+        }, (marker) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (marker != null) {
+                requestOptionsLocal.addQueryParam("marker", marker, false);
+            }
+            return listWithContinuationSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -308,7 +365,7 @@ public final class XmlPaginationsImpl {
                     } catch (javax.xml.stream.XMLStreamException e) {
                         throw new IllegalStateException(e);
                     }
-                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null));
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null));
     }
 
     /**
@@ -372,7 +429,7 @@ public final class XmlPaginationsImpl {
                 } catch (javax.xml.stream.XMLStreamException e) {
                     throw new IllegalStateException(e);
                 }
-            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null);
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null);
     }
 
     /**
@@ -441,7 +498,7 @@ public final class XmlPaginationsImpl {
                     } catch (javax.xml.stream.XMLStreamException e) {
                         throw new IllegalStateException(e);
                     }
-                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null));
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null));
     }
 
     /**
@@ -477,7 +534,7 @@ public final class XmlPaginationsImpl {
                 } catch (javax.xml.stream.XMLStreamException e) {
                     throw new IllegalStateException(e);
                 }
-            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null);
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null);
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {
@@ -510,7 +567,7 @@ public final class XmlPaginationsImpl {
 
     private List<BinaryData> getXmlValues(BinaryData binaryData,
         java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String... path) {
-        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
+        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {
             reader.nextElement();
             return getXmlValues(reader, valueReader, path, 0);
         } catch (javax.xml.stream.XMLStreamException e) {
@@ -534,24 +591,27 @@ public final class XmlPaginationsImpl {
         return values;
     }
 
-    private String getXmlNextLink(BinaryData binaryData, String... path) {
-        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
+    private String getXmlNextLink(BinaryData binaryData, boolean attribute, String namespace, String... path) {
+        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {
             reader.nextElement();
-            return getXmlNextLink(reader, path, 0);
+            return getXmlNextLink(reader, attribute, namespace, path, 0);
         } catch (javax.xml.stream.XMLStreamException e) {
             throw new IllegalStateException("Failed to read XML pageable response.", e);
         }
     }
 
-    private String getXmlNextLink(com.azure.xml.XmlReader reader, String[] path, int pathIndex)
-        throws javax.xml.stream.XMLStreamException {
+    private String getXmlNextLink(com.azure.xml.XmlReader reader, boolean attribute, String namespace, String[] path,
+        int pathIndex) throws javax.xml.stream.XMLStreamException {
+        if (attribute && pathIndex == path.length - 1) {
+            return reader.getStringAttribute(namespace, path[pathIndex]);
+        }
         while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {
-            if (!reader.elementNameMatches(path[pathIndex])) {
+            if (!reader.elementNameMatches(pathIndex == path.length - 1 ? namespace : null, path[pathIndex])) {
                 reader.skipElement();
             } else if (pathIndex == path.length - 1) {
                 return reader.getStringElement();
             } else {
-                return getXmlNextLink(reader, path, pathIndex + 1);
+                return getXmlNextLink(reader, attribute, namespace, path, pathIndex + 1);
             }
         }
         return null;

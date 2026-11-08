@@ -249,6 +249,31 @@ describe("status code", () => {
     `);
     expect(response.statusCodes).toEqual(201);
   });
+
+  it("resolve a range from @minValue and @maxValue on the scalar", async () => {
+    const response = await getResponse(`
+      @minValue(400) @maxValue(499) scalar ClientErrorCode extends int32;
+      op test1(): { @statusCode code: ClientErrorCode };
+    `);
+    expect(response.statusCodes).toEqual({ start: 400, end: 499 });
+  });
+
+  it("resolve a range from @minValue and @maxValue on a base scalar", async () => {
+    const response = await getResponse(`
+      @minValue(400) @maxValue(499) scalar ClientErrorCode extends int32;
+      scalar NotFoundLikeCode extends ClientErrorCode;
+      op test1(): { @statusCode code: NotFoundLikeCode };
+    `);
+    expect(response.statusCodes).toEqual({ start: 400, end: 499 });
+  });
+
+  it("resolve a range narrowed by @maxValue on the property", async () => {
+    const response = await getResponse(`
+      @minValue(400) @maxValue(499) scalar ClientErrorCode extends int32;
+      op test1(): { @statusCode @maxValue(451) code: ClientErrorCode };
+    `);
+    expect(response.statusCodes).toEqual({ start: 400, end: 451 });
+  });
 });
 
 describe("union of unannotated return types", () => {

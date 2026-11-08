@@ -37,6 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? streamKind = null;
             string? terminalEventType = null;
             string? terminalEventValue = null;
+            InputExperimentalDetails? experimental = null;
 
             if (id == null)
             {
@@ -56,7 +57,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("contentTypes", options, ref contentTypes)
                     || reader.TryReadString("streamKind", ref streamKind)
                     || reader.TryReadString("terminalEventType", ref terminalEventType)
-                    || reader.TryReadString("terminalEventValue", ref terminalEventValue);
+                    || reader.TryReadString("terminalEventValue", ref terminalEventValue)
+                    || reader.TryReadComplexType("experimental", options, ref experimental);
 
                 if (!isKnownProperty)
                 {
@@ -71,6 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             streamingType.StreamKind = streamKind ?? InputStreamingType.JsonLinesStreamKind;
             streamingType.TerminalEventType = terminalEventType;
             streamingType.TerminalEventValue = terminalEventValue;
+            streamingType.Experimental = experimental;
             return streamingType;
         }
     }

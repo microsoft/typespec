@@ -39,7 +39,7 @@ When making changes to the TypeSpec HTTP Client C# generator, it may be helpful 
 
 ## Prerequisites
 
-- **PowerShell 7.0 or later** (cross-platform: Windows, Linux, macOS)
+- **A supported [PowerShell 7 release](https://learn.microsoft.com/powershell/scripting/install/powershell-support-lifecycle)** (cross-platform: Windows, Linux, macOS)
 - Node.js and npm installed
 - .NET SDK installed
 - Local clone of the `typespec` repository (unbranded generator)

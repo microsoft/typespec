@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.SourceInput
 {
@@ -67,9 +68,13 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return FindTypeInCompilation(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
         }
 
+        internal bool HasTypeMapping(string ns, string name, string? declaringTypeName = null)
+            => _nameMap.Value.TryGetValue(name, out var type) && IsContainingTypeMatch(type, ns, declaringTypeName);
+
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
+            var type = FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
+            return type is NamedTypeSymbolProvider { IsExperimental: true } ? null : type;
         }
 
         private IReadOnlyList<TypeProvider> PopulateCustomizationTypeProviders()

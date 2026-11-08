@@ -43,6 +43,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly FieldProvider _valueField;
 
+        private protected override bool IsCustomizedValueName(string name)
+        {
+            var fieldName = name + "Value";
+            return base.IsCustomizedValueName(name) || base.IsCustomizedValueName(fieldName) ||
+                CustomCodeView?.Properties.Any(p => p.Name == name || p.OriginalName == name) == true ||
+                CustomCodeView?.Fields.Any(f => f.Name == fieldName || f.OriginalName == fieldName) == true;
+        }
+
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
         private readonly TypeProvider? _declaringType;
 
@@ -51,9 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
-            var generatedNames = _allowedValues
-                .Select(v => GetGeneratedValueName(v, lastContractNames))
-                .ToArray();
+            var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames);
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)
@@ -74,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc),
                     initializationValue);
 
-                values[i] = new EnumTypeMember(valueName, field, inputValue.Value);
+                values[i] = new EnumTypeMember(valueName, field, inputValue.Value) { Experimental = inputValue.Experimental };
             }
 
             return values;
@@ -101,7 +107,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     type: Type,
                     name: name,
                     body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)),
-                    this);
+                    this,
+                    attributes: ExperimentalApiHelpers.BuildAttributes(enumValue.Experimental),
+                    suppressions: ExperimentalApiHelpers.GetDependencySuppressions(enumValue.Experimental));
             }
 
             return properties;
@@ -280,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
         {
             var lastContractProperties = LastContractView?.Properties
-                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers));
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes));
 
             if (lastContractProperties == null || !lastContractProperties.Any())
             {

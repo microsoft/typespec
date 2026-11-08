@@ -18,7 +18,7 @@ public final class TopLevelArmResourcesGetByResourceGroupSamples {
      */
     public static void topLevelArmResourcesGet(tsptest.armversioned.ArmVersionedManager manager) {
         manager.topLevelArmResources()
-            .getByResourceGroupWithResponse("resource-group-name", "resource-name", "parameter-value",
-                "new-parameter-value", com.azure.core.util.Context.NONE);
+            .getByResourceGroupWithResponse("resource-group-name", "resource-name", "new-parameter-value",
+                "new-header-value", com.azure.core.util.Context.NONE);
     }
 }

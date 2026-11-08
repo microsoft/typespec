@@ -1,5 +1,40 @@
 # Change Log - @typespec/protobuf
 
+## 0.87.0
+
+### Features
+
+- [#12103](https://github.com/microsoft/typespec/pull/12103) Add an opt-in `enum-value-prefix: enum-name` emitter option to prefix enum values with the enum name in `UPPER_SNAKE_CASE`, without repeating the prefix in TypeSpec members.
+  
+  ```yaml
+  options:
+    "@typespec/protobuf":
+      enum-value-prefix: enum-name
+  ```
+  
+  For example, the `Shipped: 2` member of `OrderState` emits `ORDER_STATE_SHIPPED = 2`. Already-prefixed names are preserved, and collisions in the emitted package scope are reported as errors identifying the original conflicting symbol.
+  
+  Existing output remains unchanged by default. Enum members and numeric values remain explicit; this option does not add an `Unspecified` member or infer numbers.
+- [#12106](https://github.com/microsoft/typespec/pull/12106) Support `oneof` from named unions. `@field` can now be applied to union variants. An optional property of a named union type without `@field` is emitted inline as a `oneof` that shares the containing message's field indices; a property with `@field` refers to a wrapper message containing a `oneof value`.
+  
+  ```tsp
+  union Payment {
+    @field(10) card: CardPayment,
+    @field(11) bank_transfer: BankTransfer,
+  }
+  
+  model Order {
+    @field(1) id: string;
+    payment?: Payment; // oneof payment { CardPayment card = 10; BankTransfer bank_transfer = 11; }
+  }
+  ```
+
+### Bug Fixes
+
+- [#11960](https://github.com/microsoft/typespec/pull/11960) Prevent TypeSpec-authored paths from escaping template and emitter output directories.
+- [#12106](https://github.com/microsoft/typespec/pull/12106) Report an error when two fields of the same message use the same field index or name, instead of emitting an invalid Protobuf file.
+
+
 ## 0.86.0
 
 ### Bug Fixes

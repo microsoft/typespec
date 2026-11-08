@@ -7,6 +7,7 @@ import { clientOperationCache } from "./client.js";
 import type { AccessKit, NameKit } from "./utils.js";
 import { getAccess, getName } from "./utils.js";
 
+/** Client signature, ownership, and success/error return-type queries added to `$.operation`. */
 export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation> {
   /**
    * Get the overloads for an operation
@@ -16,7 +17,8 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
    */
   getOverloads(client: Client, operation: Operation): Operation[];
   /**
-   * Get parameters. This will take into account any parameters listed on the client
+   * Lists the operation's parameters in declaration order.
+   * Currently does not remove parameters that also appear on the client constructor.
    */
   getClientSignature(client: Client, operation: Operation): ModelProperty[];
 
@@ -30,8 +32,8 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
    */
   getExceptionReturnType(operation: Operation): Type | undefined;
   /**
-   * Gets the client in which the operation is defined
-   * @param operation operation to find out which client it belongs to
+   * Finds the cached client whose HTTP operation list contains this operation object.
+   * Returns undefined until that list has been populated by `$.client.listHttpOperations`.
    */
   getClient(operation: HttpOperation): Client | undefined;
 }

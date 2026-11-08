@@ -16,6 +16,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -51,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         endpointType.WithNullable(true),
                         inputEndpointParam.Name.ToIdentifierName(),
                         new AutoPropertyBody(true),
-                        this);
+                        this,
+                        suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(inputEndpointParam.Type));
                 }
             }
 
@@ -104,7 +106,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     param.Type.WithNullable(true),
                     param.Name.ToIdentifierName(),
                     new AutoPropertyBody(true),
-                    this));
+                    this,
+                    suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(param.InputParameter?.Type)));
             }
 
             // Include custom constructor parameters from custom code (e.g., hand-written constructors
@@ -165,13 +168,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (EndpointProperty != null)
             {
-                AppendBindingForProperty(body, sectionParam, GetSettingPropertyName(EndpointProperty.Name), EndpointProperty.Name.ToVariableName(), EndpointProperty.Type, EndpointProperty.Name);
+                AppendBindingForProperty(body, sectionParam, GetSettingPropertyName(EndpointProperty.Name), EndpointProperty.Name.ToVariableName(), EndpointProperty.Type, EndpointProperty.Name,
+                    EndpointProperty.Suppressions);
             }
 
             foreach (var param in OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
-                AppendBindingForProperty(body, sectionParam, GetSettingPropertyName(propName), param.Name.ToVariableName(), param.Type, propName);
+                AppendBindingForProperty(body, sectionParam, GetSettingPropertyName(propName), param.Name.ToVariableName(), param.Type, propName,
+                    ExperimentalApiHelpers.GetReferenceSuppressions(param.InputParameter?.Type));
             }
 
             // Bind custom constructor parameters from custom code.
@@ -258,8 +263,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string propName,
             string varName,
             CSharpType type,
-            string? configKey = null)
+            string? configKey = null,
+            IReadOnlyList<SuppressionStatement>? suppressions = null)
         {
+            if (suppressions is { Count: > 0 })
+            {
+                var statements = new List<MethodBodyStatement>();
+                AppendBindingForProperty(statements, sectionParam, propName, varName, type, configKey);
+                body.Add(ExperimentalApiHelpers.Suppress(statements, suppressions));
+                return;
+            }
+
             configKey ??= propName;
 
             // Handle non-framework types (enums, complex objects)

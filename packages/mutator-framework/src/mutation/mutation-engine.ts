@@ -16,58 +16,90 @@ import { ScalarMutation } from "./scalar.js";
 import { UnionVariantMutation } from "./union-variant.js";
 import { UnionMutation } from "./union.js";
 
+/** Associates compiler type kinds with mutation instance types, not constructors. */
 export type MutationRegistry = Record<Type["kind"], Mutation<Type, any, any>>;
 
+/** Built-in traversal strategy types used for kinds not customized by a consumer. */
 export interface DefaultMutationClasses<
   TCustomMutations extends CustomMutationClasses,
 > extends MutationRegistry {
+  /** Traverses the parameter model and return type of an operation. */
   Operation: OperationMutation<MutationOptions, TCustomMutations>;
+  /** Traverses operations belonging to an interface. */
   Interface: InterfaceMutation<MutationOptions, TCustomMutations>;
+  /** Traverses a model's base, properties, and indexer. */
   Model: ModelMutation<TCustomMutations, MutationOptions>;
+  /** Traverses a scalar's base scalar, when present. */
   Scalar: ScalarMutation<MutationOptions, TCustomMutations>;
+  /** Resolves a property's reference chain to its underlying type. */
   ModelProperty: ModelPropertyMutation<TCustomMutations, MutationOptions>;
+  /** Traverses the variants declared by a union. */
   Union: UnionMutation<MutationOptions, TCustomMutations>;
+  /** Resolves a variant's reference chain to its underlying type. */
   UnionVariant: UnionVariantMutation<MutationOptions, TCustomMutations>;
+  /** Traverses the members declared by an enum. */
   Enum: EnumMutation<MutationOptions, TCustomMutations>;
+  /** Leaf strategy for an enum member. */
   EnumMember: EnumMemberMutation<MutationOptions, TCustomMutations>;
+  /** Leaf strategy for a string literal. */
   String: LiteralMutation<MutationOptions, TCustomMutations>;
+  /** Leaf strategy for a numeric literal. */
   Number: LiteralMutation<MutationOptions, TCustomMutations>;
+  /** Leaf strategy for a boolean literal. */
   Boolean: LiteralMutation<MutationOptions, TCustomMutations>;
+  /** Leaf strategy for compiler intrinsic types such as `null` and `never`. */
   Intrinsic: IntrinsicMutation<MutationOptions, TCustomMutations>;
 }
 
+/** Consumer-supplied mutation instance types for any subset of compiler kinds. */
 export type CustomMutationClasses = Partial<MutationRegistry>;
 
+/** Combines custom strategy types with the built-in strategy map for typed lookup. */
 export type WithDefaultMutations<TCustomMutationClasses extends CustomMutationClasses> =
   TCustomMutationClasses & DefaultMutationClasses<TCustomMutationClasses>;
 
+/** Resolves the mutation instance type returned for a compiler type kind. */
 export type MutationFor<
   TCustomMutations extends CustomMutationClasses,
   TKind extends Type["kind"] = Type["kind"],
 > = WithDefaultMutations<TCustomMutations>[TKind];
 
+/** Constructor producing an instance of `T`, with arguments supplied by the caller. */
 export type Constructor<T = object> = new (...args: any[]) => T;
+/** Converts an instance-type registry to the constructors accepted by an engine. */
 export type ConstructorsFor<T> = { [K in keyof T]: Constructor<T[K]> };
+/** Recovers instance types from a registry of mutation constructors. */
 export type InstancesFor<T extends Record<string, new (...args: any[]) => any>> = {
   [K in keyof T]: InstanceType<T[K]>;
 };
 
+/** Inputs describing a mutation before its cache key has been selected. */
 export interface InitialMutationContext<
   TSourceType extends Type,
   TCustomMutations extends CustomMutationClasses,
   TOptions extends MutationOptions = MutationOptions,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
 > {
+  /** Engine used to resolve related mutations. */
   engine: TEngine;
+  /** Type being traversed, before any node-level transformation. */
   sourceType: TSourceType;
+  /** Member reference chain, ordered from the outermost reference inward. */
   referenceTypes: MemberType[];
+  /** Consumer configuration used to select and execute the strategy. */
   options: TOptions;
 }
 
+/** Cache identity added after selecting a mutation for a source type. */
 export interface CreateMutationContext {
+  /** Key distinguishing strategies for the same source type. */
   mutationKey: string;
 }
 
+/**
+ * Mutation inputs together with the selected cache identity.
+ * Describes the combined context; constructors receive these values positionally.
+ */
 export interface MutationContext<
   TSourceType extends Type,
   TCustomMutations extends CustomMutationClasses,
@@ -78,7 +110,9 @@ export interface MutationContext<
     InitialMutationContext<TSourceType, TCustomMutations, TOptions, TEngine>,
     CreateMutationContext {}
 
+/** Additional metadata supplied when resolving a mutation. */
 export interface MutationTraits {
+  /** Indicates a type introduced by a transformation, propagated through mutation info. */
   isSynthetic?: boolean;
 }
 
@@ -122,8 +156,11 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
 
   /**
    * Gets or creates a mutation node for the given type and key.
+   *
+   * Nodes are shared by source type identity and key, independently of strategy
+   * caching. Options only affect a node when it is first created.
    * @param type - Source type
-   * @param mutationKey - Cache key for the node
+   * @param options - Node metadata or a key string; the default key is empty
    * @returns Mutation node for the type
    */
   getMutationNode<T extends Type>(
@@ -342,7 +379,16 @@ function resolveReference(reference: MemberType) {
   };
 }
 
+/**
+ * Configuration shared with related mutations during traversal.
+ * Derive from this class to carry custom options and distinguish their cache keys.
+ */
 export class MutationOptions {
+  /**
+   * Cache key used by the default {@link Mutation.mutationInfo} implementation.
+   * The empty default shares one strategy per source type. Include all options
+   * that affect a transformation when overriding this getter.
+   */
   get mutationKey(): string {
     return "";
   }
@@ -367,12 +413,20 @@ export class MutationHalfEdge<
   THead extends Mutation<any, any> = any,
   TTail extends Mutation<any, any> = any,
 > {
+  /** Strategy that initiated this relationship. */
   head: THead;
+  /** Resolved related strategy, or `undefined` until {@link setTail} is called. */
   tail: TTail | undefined;
+  /** Relationship label chosen by the head, such as `"property"` or `"type"`. */
   readonly kind: string;
+  /** Expected member slot kind for synthetic wrapping, or any kind when absent. */
   readonly expectedTailKind?: Type["kind"];
   #onTailCreation: (tail: TTail) => void;
 
+  /**
+   * Creates a deferred strategy connection.
+   * `onTailCreation` connects the strategies' nodes when the engine resolves a tail.
+   */
   constructor(
     kind: string,
     head: THead,
@@ -385,6 +439,7 @@ export class MutationHalfEdge<
     this.expectedTailKind = expectedTailKind;
   }
 
+  /** Stores the resolved strategy and invokes the connection callback immediately. */
   setTail(tail: TTail) {
     this.tail = tail;
     this.#onTailCreation(tail);

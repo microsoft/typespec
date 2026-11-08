@@ -155,6 +155,12 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
   diagnostics: {
+    "invalid-prefix-items": {
+      severity: "error",
+      messages: {
+        default: "@prefixItems requires a tuple of types.",
+      },
+    },
     "invalid-default": {
       severity: "error",
       messages: {

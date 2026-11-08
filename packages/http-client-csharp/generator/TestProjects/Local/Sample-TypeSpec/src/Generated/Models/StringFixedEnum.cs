@@ -15,6 +15,16 @@ namespace SampleTypeSpec
         /// <summary> Two. </summary>
         Two,
         /// <summary> Four. </summary>
-        Four
+        Four,
+        /// <summary> IP. </summary>
+        IP,
+        /// <summary> DB. </summary>
+        DB,
+        /// <summary> OS. </summary>
+        OS,
+        /// <summary> IPv4. </summary>
+        IPv4,
+        /// <summary> IPv6. </summary>
+        IPv6
     }
 }
