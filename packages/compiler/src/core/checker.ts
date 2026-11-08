@@ -7012,7 +7012,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // And as interating with the template declaration is not a supported feature we can just drop it.
       return null;
     } else {
-      return { ...defaultValue, type };
+      // Keep the exact type, which tells serializers the union variant a default matches.
+      return copyValue(defaultValue, { type });
     }
   }
 

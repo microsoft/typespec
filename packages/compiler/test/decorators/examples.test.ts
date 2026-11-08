@@ -722,6 +722,63 @@ describe("json serialization of examples", () => {
     expect(serializeValueAsJson(program, pair.defaultValue, pair)).toEqual(["1", "2"]);
   });
 
+  it("serialize an array default with the variant that accepts its length", async () => {
+    const { max, min, one, program } = (await Tester.compile(`
+      @encode(string) scalar Id extends int64;
+      @maxItems(1) model Limited is Id[];
+      @minItems(3) model AtLeastThree is Id[];
+
+      model Test {
+        /*max*/max?: Limited | int32[] = #[1, 2];
+        /*min*/min?: AtLeastThree | int32[] = #[1, 2];
+        /*one*/one?: Limited | int32[] = #[1];
+      }
+    `)) as any;
+
+    expect(serializeValueAsJson(program, max.defaultValue, max)).toEqual([1, 2]);
+    expect(serializeValueAsJson(program, min.defaultValue, min)).toEqual([1, 2]);
+    expect(serializeValueAsJson(program, one.defaultValue, one)).toEqual(["1"]);
+  });
+
+  it("serialize object items of tuples and nullable arrays with the encoded names and encodings of their model", async () => {
+    const { tuple, array, program } = (await Tester.compile(`
+      model Item {
+        @encodedName("application/json", "item_id") @encode(string) id: int64;
+        @encode(DateTimeKnownEncoding.unixTimestamp, int32) at: utcDateTime;
+      }
+      const at = utcDateTime.fromISO("2024-01-01T00:00:00Z");
+
+      model Test {
+        @example(#[#{ id: 1, at: at }]) /*tuple*/tuple?: [Item] = #[#{ id: 2, at: at }];
+        @example(#[#{ id: 1, at: at }]) /*array*/array?: Item[] | null = #[#{ id: 2, at: at }];
+      }
+    `)) as any;
+
+    for (const prop of [tuple, array]) {
+      expect(serializeValueAsJson(program, prop.defaultValue, prop)).toEqual([
+        { item_id: "2", at: 1704067200 },
+      ]);
+      const examples = getExamples(program, prop);
+      expect(serializeValueAsJson(program, examples[0].value, prop)).toEqual([
+        { item_id: "1", at: 1704067200 },
+      ]);
+    }
+  });
+
+  it("serialize an object default behind a nullable union", async () => {
+    const { test, program } = (await Tester.compile(`
+      model Pet {
+        @encodedName("application/json", "pet_name") name: string;
+      }
+
+      model Test {
+        /*test*/test?: Pet | null = #{ name: "a" };
+      }
+    `)) as any;
+
+    expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual({ pet_name: "a" });
+  });
+
   describe("recursive unions", () => {
     it("serialize a numeric example", async () => {
       const result = await getJsonValueOfExample(`
@@ -763,6 +820,19 @@ describe("json serialization of examples", () => {
         }
       `);
       expect(result).toEqual({ name: "a" });
+    });
+
+    it("serialize an object default", async () => {
+      const { test, program } = (await Tester.compile(`
+        model Pet { name: string }
+        union Loop { self: Loop, pet: Pet, n: int64 }
+
+        model Test {
+          /*test*/test?: Loop = #{ name: "a" };
+        }
+      `)) as any;
+
+      expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual({ name: "a" });
     });
   });
 

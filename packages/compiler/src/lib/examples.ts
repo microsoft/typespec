@@ -184,15 +184,16 @@ function getPropertyOfType(type: Type, name: string): Type | undefined {
 }
 
 /**
- * Resolve the union variant a value is serialized as: the first variant the value is assignable to,
- * looking through nested unions. Unions already visited are skipped, so a recursive union such as
- * `union Loop { self: Loop, n: int64 }` resolves to `int64`.
+ * Resolve the union variant a value is serialized as: the first variant the exact type of the value
+ * is assignable to, looking through nested unions. Unions already visited are skipped, so a recursive
+ * union such as `union Loop { self: Loop, n: int64 }` resolves to `int64`.
  * Returns the type itself when it is not a union, and undefined when no variant matches.
  */
 function resolveUnions(program: Program, value: Value, type: Type): Type | undefined {
   if (type.kind !== "Union") {
     return type;
   }
+  const source = program.checker.getValueExactType(value) ?? value.type;
   const visited = new Set<Union>();
   const resolve = (union: Union): Type | undefined => {
     visited.add(union);
@@ -202,38 +203,15 @@ function resolveUnions(program: Program, value: Value, type: Type): Type | undef
         if (resolved) {
           return resolved;
         }
-      } else if (isValueAssignableTo(program, value, variant.type)) {
+      } else if (
+        ignoreDiagnostics(program.checker.isTypeAssignableTo(source, variant.type, value))
+      ) {
         return variant.type;
       }
     }
     return undefined;
   };
   return resolve(type);
-}
-
-/**
- * Check a value against a type it may be serialized as.
- * Default values don't keep their exact type, so a numeric value falls back to its scalar
- * and an array value to its items.
- */
-function isValueAssignableTo(program: Program, value: Value, target: Type): boolean {
-  const exactType = program.checker.getValueExactType(value);
-  if (exactType === undefined && value.valueKind === "ArrayValue") {
-    if (target.kind === "Model" && isArrayModelType(target)) {
-      return value.values.every((x) => isValueAssignableTo(program, x, target.indexer.value));
-    }
-    if (target.kind === "Tuple") {
-      return (
-        target.values.length === value.values.length &&
-        value.values.every((x, index) => isValueAssignableTo(program, x, target.values[index]))
-      );
-    }
-  }
-  const source = exactType ?? (value.valueKind === "NumericValue" ? value.scalar : value.type);
-  return (
-    source !== undefined &&
-    ignoreDiagnostics(program.checker.isTypeAssignableTo(source, target, value))
-  );
 }
 
 function serializeObjectValueAsJson(
