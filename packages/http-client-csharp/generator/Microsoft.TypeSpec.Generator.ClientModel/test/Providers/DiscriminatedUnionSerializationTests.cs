@@ -698,6 +698,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 serialization.Methods.Select(method => method.Signature.Name).ToArray());
         }
 
+        [Test]
+        public void UnionHelpersIgnoreOmittedUnrelatedModels()
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var omitted = InputFactory.Model("omitted");
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            var library = new Mock<InputLibrary>(string.Empty);
+            library.SetupGet(input => input.InputNamespace).Returns(new InputNamespace
+            {
+                Name = "Sample", Models = [model, cat, omitted], Unions = [union]
+            });
+            MockHelpers.LoadMockGenerator(inputModels: () => [model, cat, omitted],
+                createInputLibrary: () => library.Object,
+                createModelCore: input => input == omitted ? null : new ClientModel.Providers.ScmModelProvider(input));
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion", "DeserializePetsUnion" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+        }
+
+        [TestCase("application/json", true)]
+        [TestCase("application/problem+json; charset=utf-8", true)]
+        [TestCase("application/xml", false)]
+        [TestCase("text/xml; charset=utf-8", false)]
+        [TestCase("application/custom+xml", false)]
+        [TestCase("text/plain", false)]
+        [TestCase("application/octet-stream", false)]
+        [TestCase("application/xml", false, true)]
+        [TestCase("application/json", true, true)]
+        [TestCase("application/json,application/xml", false)]
+        public void UnionRequestSerializationFollowsContentType(string contentType, bool json, bool collection = false)
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            InputType bodyType = collection ? InputFactory.Array(new InputNullableType(union)) : union;
+            var operation = InputFactory.Operation("Send", httpMethod: "POST",
+                parameters: [InputFactory.BodyParameter("pet", bodyType, isRequired: true)],
+                requestMediaTypes: contentType.Split(','));
+            var serviceMethod = InputFactory.BasicServiceMethod("Send", operation,
+                parameters: [InputFactory.MethodParameter("pet", bodyType, location: InputRequestLocation.Body, isRequired: true)]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            LoadUnions([model, cat], [union], [client]);
+            var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, provider)
+                .Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                Assert.AreEqual(!json, method.Signature.Parameters[0].Type.Equals(typeof(System.BinaryData)));
+                var code = method.BodyStatements!.ToDisplayString();
+                if (json)
+                {
+                    StringAssert.Contains("SerializePetsUnion", code);
+                }
+                else
+                {
+                    StringAssert.DoesNotContain("SerializePetsUnion", code);
+                    StringAssert.DoesNotContain("Utf8JsonBinaryContent", code);
+                    StringAssert.Contains("BinaryContent.Create(pet)", code);
+                }
+            }
+        }
+
         [TestCase("application/json", true)]
         [TestCase("application/problem+json; charset=utf-8", true)]
         [TestCase("application/xml", false)]

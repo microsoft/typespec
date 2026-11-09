@@ -121,12 +121,16 @@ namespace SampleTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ReadXmlUnion(RequestOptions options)
+        public virtual ClientResult ReadXmlUnion(BinaryContent content, RequestOptions options = null)
         {
-            using PipelineMessage message = CreateReadXmlUnionRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateReadXmlUnionRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
@@ -138,30 +142,42 @@ namespace SampleTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ReadXmlUnionAsync(RequestOptions options)
+        public virtual async Task<ClientResult> ReadXmlUnionAsync(BinaryContent content, RequestOptions options = null)
         {
-            using PipelineMessage message = CreateReadXmlUnionRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateReadXmlUnionRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> ReadXmlUnion. </summary>
+        /// <param name="pet"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<BinaryData> ReadXmlUnion(CancellationToken cancellationToken = default)
+        public virtual ClientResult<BinaryData> ReadXmlUnion(BinaryData pet, CancellationToken cancellationToken = default)
         {
-            ClientResult result = ReadXmlUnion(cancellationToken.ToRequestOptions());
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            ClientResult result = ReadXmlUnion(BinaryContent.Create(pet), cancellationToken.ToRequestOptions());
             return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
         }
 
         /// <summary> ReadXmlUnion. </summary>
+        /// <param name="pet"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="pet"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<BinaryData>> ReadXmlUnionAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<BinaryData>> ReadXmlUnionAsync(BinaryData pet, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ReadXmlUnionAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            Argument.AssertNotNull(pet, nameof(pet));
+
+            ClientResult result = await ReadXmlUnionAsync(BinaryContent.Create(pet), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
         }
 

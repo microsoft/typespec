@@ -140,7 +140,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException($"Unable to create the base model for union '{union.Name}'.");
             var baseTypes = GetTypeHierarchy(model.Type).Skip(1).ToHashSet();
             var baseModels = inputs.Models.Where(candidate => candidate != union.BaseModel &&
-                baseTypes.Contains(GetModelType(candidate))).ToArray();
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(candidate) is { } type &&
+                baseTypes.Contains(type)).ToArray();
             var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
             var memberNames = new HashSet<string>(StringComparer.Ordinal) { model.Name };
             foreach (var type in baseTypes)
@@ -157,10 +158,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var inputModel in new[] { inputBase }.Concat(baseModels)
                 .Concat(inputBase.GetAllDerivedModels())
                 .Concat(inputs.Models.Where(candidate =>
-                    GetTypeHierarchy(GetModelType(candidate)).Skip(1).Contains(model.Type))).Distinct())
+                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(candidate) is { } type &&
+                    GetTypeHierarchy(type).Skip(1).Contains(model.Type))).Distinct())
             {
-                var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) ??
-                    throw new InvalidOperationException($"Unable to create model '{inputModel.Name}' while naming union '{union.Name}'.");
+                var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+                if (provider is null)
+                {
+                    continue;
+                }
                 reserved.Add(provider.Name);
                 memberNames.UnionWith(provider.CanonicalView.Properties.Select(property => property.Name));
                 memberNames.UnionWith(provider.CanonicalView.Fields.Select(field => field.Name));
@@ -212,6 +217,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : valueType.IsDictionary && RequiresEnvelope(dictionary.ValueType, valueType.ElementType),
             _ => false
         };
+
+        internal static bool UsesJsonRequest(InputOperation operation) =>
+            operation.RequestMediaTypes?.All(IsJsonMediaType) != false;
+
+        internal static bool IsJsonMediaType(string contentType)
+        {
+            var mediaType = contentType.Split(';', 2)[0].Trim();
+            return mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase) ||
+                mediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
+        }
 
         private static InputModelType GetBaseModel(InputUnionType union) => union.BaseModel ??
             throw new InvalidOperationException($"Union '{union.Name}' has no declared base model.");

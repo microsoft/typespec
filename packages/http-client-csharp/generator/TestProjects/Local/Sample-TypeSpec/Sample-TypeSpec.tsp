@@ -1367,7 +1367,7 @@ interface UnionExtends {
 
   @route("/xml-response")
   @post
-  readXmlUnion(): {
+  readXmlUnion(@body pet: XmlUnionPets, @header contentType: "application/xml"): {
     @header contentType: "application/xml";
     @body pet: XmlUnionPets;
   };

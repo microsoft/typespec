@@ -570,18 +570,28 @@ namespace TestProjects.Local.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        public async Task NonJsonUnionResponsesRemainRaw(bool isAsync)
+        public async Task NonJsonUnionRequestsAndResponsesRemainRaw(bool isAsync)
         {
             var data = BinaryData.FromString("<pet><name>Whiskers</name></pet>");
             var response = new Mock<PipelineResponse>();
             response.SetupGet(r => r.Content).Returns(data);
             var protocolResult = ClientResult.FromResponse(response.Object);
             var client = new Mock<UnionExtends> { CallBase = true };
-            client.Setup(c => c.ReadXmlUnion(It.IsAny<RequestOptions>())).Returns(protocolResult);
-            client.Setup(c => c.ReadXmlUnionAsync(It.IsAny<RequestOptions>())).ReturnsAsync(protocolResult);
+            BinaryData? requestData = null;
+            void Capture(BinaryContent content, RequestOptions options)
+            {
+                using var stream = new MemoryStream();
+                content.WriteTo(stream, CancellationToken.None);
+                requestData = BinaryData.FromBytes(stream.ToArray());
+            }
+            client.Setup(c => c.ReadXmlUnion(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).Returns(protocolResult);
+            client.Setup(c => c.ReadXmlUnionAsync(It.IsAny<BinaryContent>(), It.IsAny<RequestOptions>()))
+                .Callback<BinaryContent, RequestOptions>(Capture).ReturnsAsync(protocolResult);
 
-            var result = isAsync ? await client.Object.ReadXmlUnionAsync() : client.Object.ReadXmlUnion();
+            var result = isAsync ? await client.Object.ReadXmlUnionAsync(data) : client.Object.ReadXmlUnion(data);
 
+            Assert.AreEqual(data.ToString(), requestData!.ToString());
             Assert.AreSame(data, result.Value);
             Assert.AreSame(response.Object, result.GetRawResponse());
         }
