@@ -1640,7 +1640,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new SuppressionStatement(
                             inner: null,
                             code: Literal("AZC0002"),
-                            justification: "Keep CancellationToken required to avoid ambiguous compatibility overloads.")
+                            justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
                     ]));
                 }
             }

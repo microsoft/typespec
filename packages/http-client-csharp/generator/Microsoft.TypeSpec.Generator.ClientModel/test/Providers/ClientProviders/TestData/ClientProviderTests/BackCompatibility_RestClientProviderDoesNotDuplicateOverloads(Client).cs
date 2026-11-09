@@ -25,22 +25,22 @@ namespace Sample
             return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-#pragma warning disable AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
+#pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.ClientResult<string> GetData(global::Sample.Models.FileFormatType? @type = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
             global::Sample.Argument.AssertNotNull(@type, nameof(@type));
             return this.GetData(@type: @type.Value, cancellationToken: cancellationToken);
         }
-#pragma warning restore AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
+#pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
 
-#pragma warning disable AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
+#pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(global::Sample.Models.FileFormatType? @type = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
             global::Sample.Argument.AssertNotNull(@type, nameof(@type));
             return this.GetDataAsync(@type: @type.Value, cancellationToken: cancellationToken);
         }
-#pragma warning restore AZC0002 // Keep CancellationToken required to avoid ambiguous compatibility overloads.
+#pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
     }
 }
