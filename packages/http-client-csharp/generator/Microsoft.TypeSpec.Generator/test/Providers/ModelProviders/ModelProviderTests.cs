@@ -5662,6 +5662,169 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task BackCompat_ConstructorRelaxedCollectionIsRestored(bool dictionary, bool keepNameRequired)
+        {
+            var name = InputFactory.Property("name", InputPrimitiveType.String, isRequired: true);
+            name.Update(isRequiredInConstructor: keepNameRequired);
+            var resources = InputFactory.Property("resources",
+                dictionary ? InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String),
+                isRequired: true);
+            resources.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    name,
+                    resources,
+                    InputFactory.Property("metadata", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ]);
+            var collectionKind = dictionary ? "Dictionary" : "List";
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(collectionKind));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var currentConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(currentConstructor.Signature.Parameters.Count, Is.EqualTo(keepNameRequired ? 1 : 0));
+            Assert.That(modelProvider.Properties.Single(p => p.Name == "Resources").Body.HasSetter, Is.False);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor, Is.Not.Null);
+            Assert.That(restoredConstructor!.Signature.Parameters[1].Type.AreNamesEqual(
+                new CSharpType(dictionary ? typeof(IDictionary<string, string>) : typeof(IEnumerable<string>))), Is.True);
+            Assert.That(restoredConstructor.Signature.Parameters[1].Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments.Count, Is.EqualTo(keepNameRequired ? 1 : 0));
+            Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(),
+                Does.Contain(dictionary ? "Resources = resources" : "Resources = resources.ToList()"));
+            Assert.That(new TypeProviderWriter(modelProvider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{collectionKind},{keepNameRequired}")));
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorRelaxedEnumCollectionPreservesBaseInitialization()
+        {
+            var riskCategory = InputFactory.StringEnum("RiskCategory", [("Safety", "safety")]);
+            var targetModel = InputFactory.Model("EvaluationTarget", properties: []);
+            var baseModel = InputFactory.Model("EvaluationTaxonomyInput", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)]);
+            var target = InputFactory.Property("target", targetModel, isRequired: true);
+            target.Update(isRequiredInConstructor: false);
+            var riskCategories = InputFactory.Property("riskCategories", InputFactory.Array(riskCategory), isRequired: true);
+            riskCategories.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("AgentTaxonomyInput",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [target, riskCategories],
+                baseModel: baseModel,
+                discriminatedKind: "agent");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel, targetModel],
+                inputEnumTypes: [riskCategory],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "AgentTaxonomyInput");
+            var currentConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(currentConstructor.Signature.Parameters, Is.Empty);
+            Assert.That(currentConstructor.Signature.Initializer!.IsBase, Is.True);
+            Assert.That(currentConstructor.Signature.Initializer.Arguments.Single().ToDisplayString(), Does.Contain("agent"));
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
+            using var writer = new CodeWriter();
+            writer.WriteConstructor(restoredConstructor);
+            Assert.That(writer.ToString(false), Is.EqualTo(Helpers.GetExpectedFromFile()));
+        }
+
+        [TestCase("generatedAuto", true)]
+        [TestCase("localBacking", true)]
+        [TestCase("trackingStorage", true)]
+        [TestCase("inheritedAuto", false)]
+        [TestCase("customGetter", false)]
+        [TestCase("methodGetter", false)]
+        [TestCase("changedElement", false)]
+        [TestCase("incompatibleBacking", false)]
+        [TestCase("unassignableBacking", false)]
+        public async Task BackCompat_CollectionConstructorRestoredOnlyWhenAssignable(string change, bool shouldRestore)
+        {
+            var resources = InputFactory.Property("resources", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            resources.Update(isRequiredInConstructor: false);
+            var baseModel = change == "inheritedAuto"
+                ? InputFactory.Model("BaseModel", properties: [resources])
+                : null;
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: baseModel is null
+                    ? [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true), resources]
+                    : [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: baseModel is null ? [inputModel] : [baseModel, inputModel],
+                compilation: change == "customGetter" ? async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("MockInputModel.cs", """
+                        namespace Sample.Models
+                        {
+                            public partial class MockInputModel
+                            {
+                                public System.Collections.Generic.IList<string> Resources => new System.Collections.Generic.List<string>();
+                            }
+                        }
+                        """)]) : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("List",
+                    method: nameof(BackCompat_ConstructorRelaxedCollectionIsRestored)));
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var property = (baseModel is null ? modelProvider : modelProvider.BaseModelProvider!)
+                .CanonicalView.Properties.Single(p => p.Name == "Resources");
+            if (change == "changedElement")
+            {
+                property.Update(type: new CSharpType(typeof(IList<int>)));
+                property.SynchronizePropertyShape();
+            }
+            if (change is "methodGetter" or "localBacking" or "trackingStorage")
+            {
+                property.Update(body: new MethodPropertyBody(Snippet.Return(Snippet.Null)));
+            }
+            if (change is "localBacking" or "trackingStorage" or "incompatibleBacking" or "unassignableBacking")
+            {
+                var fieldType = change switch
+                {
+                    "trackingStorage" => property.Type.PropertyInitializationType,
+                    "incompatibleBacking" => new CSharpType(typeof(IList<int>)),
+                    "unassignableBacking" => new CSharpType(typeof(HashSet<string>)),
+                    _ => property.Type,
+                };
+                property.BackingField = new FieldProvider(FieldModifiers.Private, fieldType, "_resources", modelProvider);
+            }
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.AreNamesEqual(new CSharpType(typeof(IEnumerable<string>))), Is.True);
+                var body = restoredConstructor.BodyStatements!.ToDisplayString();
+                Assert.That(body, change == "trackingStorage"
+                    ? Does.Contain("_resources =").And.Contain("new global::Sample.ChangeTrackingList<string>")
+                    : Does.Contain(change == "localBacking" ? "_resources = resources.ToList()" : "Resources = resources.ToList()"));
+            }
+        }
+
         [TestCase("FileDataset", "file", false)]
         [TestCase("FolderDataset", "folder", false)]
         [TestCase("FileDataset", "file", true)]

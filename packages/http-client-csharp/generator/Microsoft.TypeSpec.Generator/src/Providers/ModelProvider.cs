@@ -1254,10 +1254,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// drop. The primary scenario is a previously required property becoming optional: the corresponding
         /// parameter is removed from the initialization constructor, which is a source-breaking change for
         /// callers that construct the model positionally. When the previous public constructor can be safely
-        /// reconstructed - i.e. every one of its extra parameters still maps to a settable property whose
-        /// name and type are unchanged (or a property renamed via a codegen customization but keeping the
-        /// same type) - a back-compat overload is added that chains to the current public constructor and
-        /// assigns the extra properties.
+        /// reconstructed - i.e. every one of its extra parameters still maps to a constructor-assignable
+        /// property with a compatible type (including collection input types and renamed properties) -
+        /// a back-compat overload is added that chains to the current public constructor and assigns the
+        /// extra properties.
         /// </summary>
         protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
         {
@@ -1485,23 +1485,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Each extra parameter (not consumed by the chain target) must map to a settable, wire-backed
+                // Each extra parameter (not consumed by the chain target) must map to an assignable, wire-backed
                 // property assigned in the restored constructor's body.
-                var property = restorablePropertyLookup.TryGetValue(previousParameter.Name, out var chained)
-                    && ModelBaseMemberCompatibility.AreClrTypesEqual(
-                        chained.Type.WithNullable(false), previousParameter.Type.WithNullable(false))
-                    ? chained
-                    : null;
-
-                if (property is null || extraAssignments.Any(a => a.Property == property))
+                if (!restorablePropertyLookup.TryGetValue(previousParameter.Name, out var property)
+                    || extraAssignments.Any(a => a.Property == property))
                 {
                     return false;
+                }
+
+                var parameterType = property.AsParameter.Type;
+                if (!ModelBaseMemberCompatibility.AreClrTypesEqual(
+                    parameterType.WithNullable(false), previousParameter.Type.WithNullable(false)))
+                {
+                    if (!CSharpType.RequiresToList(previousParameter.Type, property.Type)
+                        || !ModelBaseMemberCompatibility.AreClrTypesEqual(
+                            parameterType.InputType.WithNullable(false), previousParameter.Type.WithNullable(false)))
+                    {
+                        return false;
+                    }
+
+                    parameterType = parameterType.InputType;
                 }
 
                 var restoredParameter = new ParameterProvider(
                     previousParameter.Name,
                     property.AsParameter.Description,
-                    property.AsParameter.Type.WithNullable(previousParameter.Type.IsNullable),
+                    parameterType.WithNullable(previousParameter.Type.IsNullable),
                     property: property,
                     validation: previousParameter.DefaultValue is null
                         && previousParameter.Type is { IsValueType: false, IsNullable: false }
@@ -1542,8 +1551,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
+                var usesCollectionStorage = property.BackingField is not null
+                    && property.Type.IsCollection
+                    && assignmentType.Equals(property.Type.PropertyInitializationType, ignoreNullable: true);
+                var requiresToList = CSharpType.RequiresToList(parameter.Type, assignmentType);
+                if (!usesCollectionStorage && !requiresToList
+                    && !ModelBaseMemberCompatibility.AreClrTypesEqual(
+                        parameter.Type.WithNullable(false), assignmentType.WithNullable(false)))
+                {
+                    return false;
+                }
+
                 ValueExpression value = parameter;
-                if (CSharpType.RequiresToList(parameter.Type, property.Type))
+                if (usesCollectionStorage)
+                {
+                    value = GetConversion(property, source: parameter, sourceParameter: parameter);
+                }
+                else if (requiresToList)
                 {
                     value = parameter.Type.IsNullable ? value.NullConditional().ToList() : value.ToList();
                 }
@@ -1639,7 +1663,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 foreach (var property in model.CanonicalView.Properties)
                 {
                     if (!memberNames.Add(property.Name)
-                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || property.WireInfo == null)
+                    {
+                        continue;
+                    }
+
+                    // Only generated auto-properties are known to be assignable without a setter.
+                    // A custom getter may be computed even though its symbol-backed body looks automatic.
+                    var hasLocalStorage = property.BackingField is { } backingField
+                        && (backingField.EnclosingType == this || backingField.EnclosingType == CustomCodeView)
+                        && !backingField.Modifiers.HasFlag(FieldModifiers.Static)
+                        && !backingField.Modifiers.HasFlag(FieldModifiers.Const);
+                    if (!property.Body.HasSetter
+                        && !(model == this && (property.EnclosingType == this && property.Body is AutoPropertyBody || hasLocalStorage)))
                     {
                         continue;
                     }
