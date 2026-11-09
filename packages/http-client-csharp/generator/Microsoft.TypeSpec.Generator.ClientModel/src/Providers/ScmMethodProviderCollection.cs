@@ -270,7 +270,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
                 ];
             }
-            else if (DiscriminatedUnionSerialization.RequiresEnvelope(ServiceMethod.Response.Type))
+            else if (DiscriminatedUnionSerialization.RequiresEnvelope(ServiceMethod.Response.Type) && UsesJsonUnionResponse())
             {
                 methodBody =
                 [
@@ -370,11 +370,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
-            var requestMediaType = ServiceMethod.Operation.RequestMediaTypes?.FirstOrDefault()?.Split(';', 2)[0].Trim();
-            var isXmlRequest = requestMediaType is not null &&
-                (requestMediaType.Equals(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                 requestMediaType.Equals("text/xml", StringComparison.OrdinalIgnoreCase) ||
-                 requestMediaType.EndsWith("+xml", StringComparison.OrdinalIgnoreCase));
+            var isXmlRequest = IsXmlMediaType(ServiceMethod.Operation.RequestMediaTypes?.FirstOrDefault());
 
             // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
             void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value, InputType? inputType = null)
@@ -2097,6 +2093,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(responseType) && !UsesJsonUnionResponse())
+            {
+                return typeof(BinaryData);
+            }
+
             if (_pagingServiceMethod != null)
             {
                 var modelType = responseType as InputModelType;
@@ -2137,6 +2138,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(responseType);
+        }
+
+        private bool UsesJsonUnionResponse() => ServiceMethod.Operation.Responses
+            .Where(response => !response.IsErrorResponse && response.BodyType is not null)
+            .SelectMany(response => response.ContentTypes)
+            .All(contentType =>
+            {
+                var mediaType = contentType.Split(';', 2)[0].Trim();
+                return mediaType.Equals(JsonMediaType, StringComparison.OrdinalIgnoreCase) ||
+                    mediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
+            });
+
+        private static bool IsXmlMediaType(string? contentType)
+        {
+            var mediaType = contentType?.Split(';', 2)[0].Trim();
+            return mediaType is not null &&
+                (mediaType.Equals(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                 mediaType.Equals("text/xml", StringComparison.OrdinalIgnoreCase) ||
+                 mediaType.EndsWith("+xml", StringComparison.OrdinalIgnoreCase));
         }
 
         private static CSharpType CreateRequiredCSharpType(

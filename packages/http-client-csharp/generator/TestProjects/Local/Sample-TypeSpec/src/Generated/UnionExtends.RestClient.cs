@@ -34,6 +34,18 @@ namespace SampleTypeSpec
             return message;
         }
 
+        internal PipelineMessage CreateReadXmlUnionRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/union-extends/xml-response", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/xml");
+            message.Apply(options);
+            return message;
+        }
+
         internal PipelineMessage CreateEchoContainerRequest(BinaryContent content, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();

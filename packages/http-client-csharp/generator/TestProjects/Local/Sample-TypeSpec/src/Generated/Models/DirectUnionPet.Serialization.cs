@@ -14,7 +14,7 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The DirectUnionPet. </summary>
-    public partial class DirectUnionPet : IJsonModel<DirectUnionPet>
+    public partial class DirectUnionPet : DirectUnionCustomBase, IJsonModel<DirectUnionPet>
     {
         /// <summary> Initializes a new instance of <see cref="DirectUnionPet"/> for deserialization. </summary>
         internal DirectUnionPet()
@@ -180,10 +180,10 @@ namespace SampleTypeSpec
             return new DirectUnionPet(name, deserializeDirectPetsUnion, serializeDirectPetsUnion, additionalBinaryDataProperties);
         }
 
-        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="writer"></param>
         /// <param name="value"> The union variant to serialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static void SerializeDirectPetsUnion1(Utf8JsonWriter writer, DirectUnionPet value, ModelReaderWriterOptions options)
+        /// <param name="options"></param>
+        internal static void SerializeDirectPetsUnion3(Utf8JsonWriter writer, DirectUnionPet value, ModelReaderWriterOptions options)
         {
             if (value == null)
             {
@@ -203,9 +203,9 @@ namespace SampleTypeSpec
             throw new ArgumentException("The value is not a variant of union 'DirectPets'.", nameof(value));
         }
 
-        /// <param name="element"> The JSON envelope to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static DirectUnionPet DeserializeDirectPetsUnion1(JsonElement element, ModelReaderWriterOptions options)
+        /// <param name="element"></param>
+        /// <param name="options"></param>
+        internal static DirectUnionPet DeserializeDirectPetsUnion3(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {

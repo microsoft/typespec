@@ -603,6 +603,23 @@ namespace SampleTypeSpec
             return new UnionDog(name, additionalBinaryDataProperties: null, bark);
         }
 
+        /// <summary> The XmlUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionCat"/> instance for mocking. </returns>
+        public static XmlUnionCat XmlUnionCat(string name = default, bool meow = default)
+        {
+            return new XmlUnionCat(name, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The XmlUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionPet"/> instance for mocking. </returns>
+        public static XmlUnionPet XmlUnionPet(string name = default)
+        {
+            return new XmlUnionPet(name, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The UnionPetContainer. </summary>
         /// <param name="pet"></param>
         /// <param name="nullablePet"></param>
@@ -663,23 +680,6 @@ namespace SampleTypeSpec
         public static ExperimentalUnionCat ExperimentalUnionCat(string name = default, bool meow = default)
         {
             return new ExperimentalUnionCat(name, additionalBinaryDataProperties: null, meow);
-        }
-
-        /// <summary> The XmlUnionCat. </summary>
-        /// <param name="name"></param>
-        /// <param name="meow"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionCat"/> instance for mocking. </returns>
-        public static XmlUnionCat XmlUnionCat(string name = default, bool meow = default)
-        {
-            return new XmlUnionCat(name, additionalBinaryDataProperties: null, meow);
-        }
-
-        /// <summary> The XmlUnionPet. </summary>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionPet"/> instance for mocking. </returns>
-        public static XmlUnionPet XmlUnionPet(string name = default)
-        {
-            return new XmlUnionPet(name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ExternalUnionCat. </summary>

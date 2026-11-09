@@ -561,8 +561,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         // -------------------------------------------------------------------
-        // JsonModelWriteCore: always 'override' for both system and regular base
-        // (the framework base type defines JsonModelWriteCore, so we override it)
+        // JsonModelWriteCore only overrides bases that provide a compatible method.
         // -------------------------------------------------------------------
 
         [Test]

@@ -124,9 +124,9 @@ namespace SampleTypeSpec
             throw new JsonException("Cannot deserialize abstract model 'RebasedUnionPet' without a discriminator.");
         }
 
-        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="writer"></param>
         /// <param name="value"> The union variant to serialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="options"></param>
         internal static void SerializeRebasedPetsUnion(Utf8JsonWriter writer, RebasedUnionPet value, ModelReaderWriterOptions options)
         {
             if (value == null)
@@ -157,8 +157,8 @@ namespace SampleTypeSpec
             throw new ArgumentException("The value is not a variant of union 'RebasedPets'.", nameof(value));
         }
 
-        /// <param name="element"> The JSON envelope to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="element"></param>
+        /// <param name="options"></param>
         internal static RebasedUnionPet DeserializeRebasedPetsUnion(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)

@@ -683,6 +683,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task UnionHelpersReserveCustomAncestorMembers()
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            var generator = LoadUnions([model, cat], [union]);
+            generator.SetupProperty(input => input.SourceInputModel,
+                new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null));
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!
+                .SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            CollectionAssert.IsSubsetOf(new[] { "SerializePetsUnion3", "DeserializePetsUnion3" },
+                serialization.Methods.Select(method => method.Signature.Name).ToArray());
+        }
+
+        [TestCase("application/json", true)]
+        [TestCase("application/problem+json; charset=utf-8", true)]
+        [TestCase("application/xml", false)]
+        [TestCase("text/plain", false)]
+        [TestCase("application/octet-stream", false)]
+        [TestCase("text/xml; charset=utf-8", false)]
+        [TestCase("application/custom+xml", false)]
+        [TestCase("application/xml", false, true)]
+        [TestCase("application/json", true, true)]
+        [TestCase("application/json,application/xml", false)]
+        public void UnionResponseSerializationFollowsContentType(string contentType, bool json, bool collection = false)
+        {
+            var model = InputFactory.Model("pet");
+            var cat = InputFactory.Model("cat", baseModel: model);
+            var union = new InputUnionType("pets", [cat], model, "kind", "value",
+                new Dictionary<string, InputModelType> { ["cat"] = cat });
+            InputType bodyType = collection ? InputFactory.Array(new InputNullableType(union)) : union;
+            var operation = InputFactory.Operation("Read",
+                responses: [InputFactory.OperationResponse([200], bodyType, contentTypes: contentType.Split(','))]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation,
+                response: InputFactory.ServiceMethodResponse(bodyType, null));
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            LoadUnions([model, cat], [union], [client]);
+            var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, provider)
+                .Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                var returnType = method.Signature.ReturnType!;
+                if (method.Signature.Name.EndsWith("Async", System.StringComparison.Ordinal))
+                {
+                    returnType = returnType.Arguments[0];
+                }
+                Assert.AreEqual(!json, returnType.Arguments[0].Equals(typeof(System.BinaryData)));
+                var code = method.BodyStatements!.ToDisplayString();
+                if (json)
+                {
+                    StringAssert.Contains("DeserializePetsUnion", code);
+                }
+                else
+                {
+                    StringAssert.DoesNotContain("JsonDocument.Parse", code);
+                    StringAssert.DoesNotContain("DeserializePetsUnion", code);
+                }
+            }
+        }
+
+        [Test]
         public void OrdinaryUnionKeepsBinaryDataRepresentation()
         {
             MockHelpers.LoadMockGenerator();

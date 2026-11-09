@@ -132,9 +132,9 @@ namespace SampleTypeSpec
             return new NestedMammal(name, additionalBinaryDataProperties);
         }
 
-        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="writer"></param>
         /// <param name="value"> The union variant to serialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="options"></param>
 #pragma warning disable UNION001 // This generated code depends on experimental functionality.
         internal static void SerializeNestedPetsUnion(Utf8JsonWriter writer, NestedMammal value, ModelReaderWriterOptions options)
         {
@@ -157,8 +157,8 @@ namespace SampleTypeSpec
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
-        /// <param name="element"> The JSON envelope to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="element"></param>
+        /// <param name="options"></param>
 #pragma warning disable UNION001 // This generated code depends on experimental functionality.
         internal static NestedMammal DeserializeNestedPetsUnion(JsonElement element, ModelReaderWriterOptions options)
         {
@@ -180,9 +180,9 @@ namespace SampleTypeSpec
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
-        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="writer"></param>
         /// <param name="value"> The union variant to serialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="options"></param>
 #pragma warning disable UNION001 // This generated code depends on experimental functionality.
         internal static void SerializeCollisionPetsUnion2(Utf8JsonWriter writer, NestedMammal value, ModelReaderWriterOptions options)
         {
@@ -205,8 +205,8 @@ namespace SampleTypeSpec
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
-        /// <param name="element"> The JSON envelope to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="element"></param>
+        /// <param name="options"></param>
 #pragma warning disable UNION001 // This generated code depends on experimental functionality.
         internal static NestedMammal DeserializeCollisionPetsUnion2(JsonElement element, ModelReaderWriterOptions options)
         {

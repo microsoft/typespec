@@ -132,9 +132,9 @@ namespace SampleTypeSpec
             return new RebasedUnionA(name, additionalBinaryDataProperties);
         }
 
-        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="writer"></param>
         /// <param name="value"> The union variant to serialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="options"></param>
         internal static void SerializePetsUnion(Utf8JsonWriter writer, RebasedUnionA value, ModelReaderWriterOptions options)
         {
             if (value == null)
@@ -155,8 +155,8 @@ namespace SampleTypeSpec
             throw new ArgumentException("The value is not a variant of union 'Pets'.", nameof(value));
         }
 
-        /// <param name="element"> The JSON envelope to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="element"></param>
+        /// <param name="options"></param>
         internal static RebasedUnionA DeserializePetsUnion(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)

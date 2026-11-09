@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> The DirectUnionPet. </summary>
-    public partial class DirectUnionPet
+    public partial class DirectUnionPet : DirectUnionCustomBase
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;

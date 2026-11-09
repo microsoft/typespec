@@ -487,37 +487,46 @@ function fromUnionType(
     variantTypes.push(variantType);
   }
 
-  const base = union.baseType;
-  if (
-    union.discriminatedOptions?.envelope === "object" &&
-    base?.kind === "model" &&
-    base.name &&
-    union.variants.size > 0 &&
-    !(union.__raw?.kind === "Union" && isEvents(sdkContext.program, union.__raw)) &&
-    new Set(union.variants.values()).size === union.variants.size &&
-    [...union.variants].every(([tag, variant]) => {
-      if (typeof tag !== "string" || variant.kind !== "model") return false;
-      for (let ancestor = variant.baseModel; ancestor; ancestor = ancestor.baseModel) {
-        if (ancestor === base) return true;
-      }
-      return false;
-    })
-  ) {
-    inputUnion.baseModel = diagnostics.pipe(fromSdkType(sdkContext, base));
-    inputUnion.discriminatorPropertyName = union.discriminatedOptions.discriminatorPropertyName;
-    inputUnion.envelopePropertyName = union.discriminatedOptions.envelopePropertyName;
+  const envelope = getDiscriminatedUnionEnvelope(sdkContext, union);
+  if (envelope) {
+    inputUnion.baseModel = diagnostics.pipe(fromSdkType(sdkContext, envelope.base));
+    inputUnion.discriminatorPropertyName = envelope.options.discriminatorPropertyName;
+    inputUnion.envelopePropertyName = envelope.options.envelopePropertyName;
     const subtypes: Record<string, InputModelType> = Object.create(null);
-    for (const [tag, variant] of union.variants) {
-      compilerAssert(
-        typeof tag === "string" && variant.kind === "model",
-        "Expected model variant.",
-      );
+    for (const [tag, variant] of envelope.variants) {
       subtypes[tag] = diagnostics.pipe(fromSdkType(sdkContext, variant));
     }
     inputUnion.discriminatedSubtypes = subtypes;
   }
 
   return diagnostics.wrap(inputUnion);
+}
+
+function getDiscriminatedUnionEnvelope(sdkContext: CSharpEmitterContext, union: SdkUnionType) {
+  const base = union.baseType;
+  const options = union.discriminatedOptions;
+  if (
+    options?.envelope !== "object" ||
+    base?.kind !== "model" ||
+    !base.name ||
+    union.variants.size === 0 ||
+    (union.__raw?.kind === "Union" && isEvents(sdkContext.program, union.__raw)) ||
+    new Set(union.variants.values()).size !== union.variants.size
+  ) {
+    return undefined;
+  }
+
+  const variants = new Map<string, SdkModelType>();
+  for (const [tag, variant] of union.variants) {
+    if (typeof tag !== "string" || variant.kind !== "model") return undefined;
+    let ancestor = variant.baseModel;
+    while (ancestor && ancestor !== base) {
+      ancestor = ancestor.baseModel;
+    }
+    if (!ancestor) return undefined;
+    variants.set(tag, variant);
+  }
+  return { base, options, variants };
 }
 
 function fromSdkConstantType(

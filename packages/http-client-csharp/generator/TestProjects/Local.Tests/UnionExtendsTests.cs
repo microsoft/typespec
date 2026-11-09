@@ -312,11 +312,11 @@ namespace TestProjects.Local.Tests
             using var stream = new MemoryStream();
             using (var writer = new Utf8JsonWriter(stream))
             {
-                DirectUnionPet.SerializeDirectPetsUnion1(writer, new DirectUnionCat("Whiskers", true), ModelSerializationExtensions.WireOptions);
+                DirectUnionPet.SerializeDirectPetsUnion3(writer, new DirectUnionCat("Whiskers", true), ModelSerializationExtensions.WireOptions);
             }
             using var document = JsonDocument.Parse(stream.ToArray());
             Assert.AreEqual("cat", document.RootElement.GetProperty("kind").GetString());
-            var result = DirectUnionPet.DeserializeDirectPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions);
+            var result = DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, ModelSerializationExtensions.WireOptions);
             Assert.IsInstanceOf<DirectUnionCat>(result);
             Assert.AreEqual("Whiskers", result.Name);
         }
@@ -565,6 +565,24 @@ namespace TestProjects.Local.Tests
             Assert.IsTrue(request.RootElement.GetProperty("value").GetProperty("meow").GetBoolean());
             Assert.IsInstanceOf<UnionDog>(result.Value);
             Assert.AreEqual("Rex", result.Value.Name);
+            Assert.AreSame(response.Object, result.GetRawResponse());
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NonJsonUnionResponsesRemainRaw(bool isAsync)
+        {
+            var data = BinaryData.FromString("<pet><name>Whiskers</name></pet>");
+            var response = new Mock<PipelineResponse>();
+            response.SetupGet(r => r.Content).Returns(data);
+            var protocolResult = ClientResult.FromResponse(response.Object);
+            var client = new Mock<UnionExtends> { CallBase = true };
+            client.Setup(c => c.ReadXmlUnion(It.IsAny<RequestOptions>())).Returns(protocolResult);
+            client.Setup(c => c.ReadXmlUnionAsync(It.IsAny<RequestOptions>())).ReturnsAsync(protocolResult);
+
+            var result = isAsync ? await client.Object.ReadXmlUnionAsync() : client.Object.ReadXmlUnion();
+
+            Assert.AreSame(data, result.Value);
             Assert.AreSame(response.Object, result.GetRawResponse());
         }
 

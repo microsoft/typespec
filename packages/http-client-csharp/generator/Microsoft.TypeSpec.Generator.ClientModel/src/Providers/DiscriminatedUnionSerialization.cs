@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -23,11 +24,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         internal static MethodProvider[] BuildMethods(InputUnionType union, TypeProvider serialization)
         {
-            var writer = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
+            var writer = ScmKnownParameters.Utf8JsonWriter;
             var value = new ParameterProvider("value", $"The union variant to serialize.",
-                ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!);
-            var element = new ParameterProvider("element", $"The JSON envelope to deserialize.", typeof(JsonElement));
-            var options = new ParameterProvider("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
+                GetModelType(GetBaseModel(union)));
+            var element = ScmKnownParameters.JsonElement;
+            var options = ScmKnownParameters.Options;
+            var subtypes = union.DiscriminatedSubtypes ??
+                throw new InvalidOperationException($"Union '{union.Name}' has no discriminated payloads.");
             var jsonWriter = writer.As<Utf8JsonWriter>();
             var jsonElement = element.As<JsonElement>();
 
@@ -35,10 +38,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 new IfStatement(value.Equal(Null)) { jsonWriter.WriteNullValue(), Return() }
             ];
-            foreach (var (tag, model) in union.DiscriminatedSubtypes!.OrderByDescending(entry =>
-                GetTypeHierarchy(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(entry.Value)!).Count()))
+            // Derived variants must match before their ancestors, including customized CLR bases.
+            foreach (var (tag, model) in subtypes.OrderByDescending(entry =>
+                GetTypeHierarchy(GetModelType(entry.Value)).Count()))
             {
-                var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model)!;
+                var type = GetModelType(model);
                 var matches = value.Is(new DeclarationExpression(type, "variant", out var variant));
                 serialize.Add(new IfStatement(matches)
                 {
@@ -61,10 +65,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .Or(Not(discriminator.ValueKindEqualsString()))
                 .Or(Not(hasPayload))
                 .Or(payload.ValueKind().NotEqual(FrameworkEnumValue(JsonValueKind.Object)));
-            var cases = union.DiscriminatedSubtypes!.Select(entry => new SwitchCaseStatement(
+            var cases = subtypes.Select(entry => new SwitchCaseStatement(
                 Literal(entry.Key),
                 Return(MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
-                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(entry.Value)!,
+                    GetModelType(entry.Value),
                     payload, payload.GetUtf8Bytes(), options)))).ToList();
             cases.Add(SwitchCaseStatement.Default(Throw(New.Instance<JsonException>(
                 Literal($"Unknown discriminator value for union '{union.Name}'.")))));
@@ -90,9 +94,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
             var suppressions = ExperimentalApiHelpers.MergeSuppressions(
                 ExperimentalApiHelpers.GetReferenceSuppressions(union.BaseModel),
-                union.DiscriminatedSubtypes!.Values.SelectMany(model => ExperimentalApiHelpers.GetReferenceSuppressions(model)),
-                union.DiscriminatedSubtypes!.Values.SelectMany(model => ExperimentalApiHelpers.GetReferenceSuppressions(
-                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model))));
+                subtypes.Values.SelectMany(model => ExperimentalApiHelpers.GetReferenceSuppressions(model)),
+                subtypes.Values.SelectMany(model => ExperimentalApiHelpers.GetReferenceSuppressions(GetModelType(model))));
             foreach (var method in methods)
             {
                 method.Update(suppressions: suppressions);
@@ -103,16 +106,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static IEnumerable<CSharpType> GetTypeHierarchy(CSharpType type)
         {
             var visited = new HashSet<CSharpType>();
-            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
             for (CSharpType? current = type; current is not null && visited.Add(current);)
             {
-                if (factory.CSharpTypeMap.TryGetValue(current, out var provider) && provider is ModelProvider model)
+                if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(current, out var provider) && provider is ModelProvider model)
                 {
                     yield return model.Type;
                     current = model.BaseType;
                 }
                 else if (string.IsNullOrEmpty(current.Namespace) &&
-                    factory.CSharpTypeMap.Values.OfType<ModelProvider>().FirstOrDefault(model => model.Name == current.Name) is { } generated)
+                    ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>().FirstOrDefault(model => model.Name == current.Name) is { } generated)
                 {
                     yield return generated.Type;
                     current = generated.BaseType;
@@ -132,20 +134,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetMethodSuffix(InputUnionType union)
         {
-            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
             var inputs = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            var model = factory.CreateModel(union.BaseModel!)!;
+            var inputBase = GetBaseModel(union);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase) ??
+                throw new InvalidOperationException($"Unable to create the base model for union '{union.Name}'.");
             var baseTypes = GetTypeHierarchy(model.Type).Skip(1).ToHashSet();
             var baseModels = inputs.Models.Where(candidate => candidate != union.BaseModel &&
-                baseTypes.Contains(factory.CreateCSharpType(candidate)!)).ToArray();
+                baseTypes.Contains(GetModelType(candidate))).ToArray();
             var reserved = new HashSet<string>(StringComparer.Ordinal) { model.Name };
             var memberNames = new HashSet<string>(StringComparer.Ordinal) { model.Name };
-            foreach (var inputModel in new[] { union.BaseModel! }.Concat(baseModels)
-                .Concat(union.BaseModel!.GetAllDerivedModels())
-                .Concat(inputs.Models.Where(candidate =>
-                    GetTypeHierarchy(factory.CreateCSharpType(candidate)!).Skip(1).Contains(model.Type))).Distinct())
+            foreach (var type in baseTypes)
             {
-                var provider = factory.CreateModel(inputModel)!;
+                var custom = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                    type.Namespace, type.Name, type.DeclaringType?.Name, includeReferencedAssemblies: true);
+                if (custom is not null)
+                {
+                    memberNames.UnionWith(custom.Properties.Select(property => property.Name));
+                    memberNames.UnionWith(custom.Fields.Select(field => field.Name));
+                    memberNames.UnionWith(custom.Methods.Select(method => method.Signature.Name));
+                }
+            }
+            foreach (var inputModel in new[] { inputBase }.Concat(baseModels)
+                .Concat(inputBase.GetAllDerivedModels())
+                .Concat(inputs.Models.Where(candidate =>
+                    GetTypeHierarchy(GetModelType(candidate)).Skip(1).Contains(model.Type))).Distinct())
+            {
+                var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) ??
+                    throw new InvalidOperationException($"Unable to create model '{inputModel.Name}' while naming union '{union.Name}'.");
                 reserved.Add(provider.Name);
                 memberNames.UnionWith(provider.CanonicalView.Properties.Select(property => property.Name));
                 memberNames.UnionWith(provider.CanonicalView.Fields.Select(field => field.Name));
@@ -183,26 +198,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Union '{union.Name}' is not registered in the input library.");
         }
 
-        internal static bool RequiresEnvelope(InputType? type) => type switch
+        internal static bool RequiresEnvelope(InputType? type, CSharpType? valueType = null) => type switch
         {
-            InputUnionType { External: null, BaseModel: { External: null }, EnvelopePropertyName: not null } union =>
-                ScmCodeModelGenerator.Instance.TypeFactory.HasCompatibleDiscriminatedUnionBase(union),
-            InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type),
-            InputArrayType { External: null } array => RequiresEnvelope(array.ValueType),
-            InputDictionaryType { External: null } dictionary => RequiresEnvelope(dictionary.ValueType),
+            InputUnionType { External: null, BaseModel: { External: null } model, EnvelopePropertyName: not null } union =>
+                ScmCodeModelGenerator.Instance.TypeFactory.HasCompatibleDiscriminatedUnionBase(union) &&
+                (valueType is null || valueType.WithNullable(false).Equals(GetModelType(model))),
+            InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type, valueType),
+            InputArrayType { External: null } array => valueType is null
+                ? RequiresEnvelope(array.ValueType)
+                : valueType.IsList && !valueType.IsReadOnlyMemory && RequiresEnvelope(array.ValueType, valueType.ElementType),
+            InputDictionaryType { External: null } dictionary => valueType is null
+                ? RequiresEnvelope(dictionary.ValueType)
+                : valueType.IsDictionary && RequiresEnvelope(dictionary.ValueType, valueType.ElementType),
             _ => false
         };
 
-        internal static bool RequiresEnvelope(InputType? type, CSharpType valueType) => type switch
-        {
-            InputUnionType union when RequiresEnvelope(union) =>
-                valueType.WithNullable(false).Equals(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!),
-            InputNullableType { External: null } nullable => RequiresEnvelope(nullable.Type, valueType),
-            InputArrayType { External: null } array => valueType.IsList && !valueType.IsReadOnlyMemory &&
-                RequiresEnvelope(array.ValueType, valueType.ElementType),
-            InputDictionaryType { External: null } dictionary => valueType.IsDictionary && RequiresEnvelope(dictionary.ValueType, valueType.ElementType),
-            _ => false
-        };
+        private static InputModelType GetBaseModel(InputUnionType union) => union.BaseModel ??
+            throw new InvalidOperationException($"Union '{union.Name}' has no declared base model.");
+
+        private static CSharpType GetModelType(InputModelType model) =>
+            ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model) ??
+            throw new InvalidOperationException($"Unable to resolve C# type for union model '{model.Name}'.");
 
         internal static MethodBodyStatement SerializeValue(
             InputType inputType,
@@ -217,7 +233,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (inputType is InputUnionType union)
             {
-                return Static(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!)
+                return Static(GetModelType(GetBaseModel(union)))
                     .Invoke(GetSerializeMethodName(union), [writer, value, options]).Terminate();
             }
 
@@ -267,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (inputType is InputUnionType union)
             {
-                value = Static(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union.BaseModel!)!)
+                value = Static(GetModelType(GetBaseModel(union)))
                     .Invoke(GetDeserializeMethodName(union), [element, options]);
                 return MethodBodyStatement.Empty;
             }

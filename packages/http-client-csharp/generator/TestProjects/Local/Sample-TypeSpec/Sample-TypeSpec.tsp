@@ -1365,6 +1365,13 @@ interface UnionExtends {
   @post
   echo(@body pet: UnionPets): UnionPets;
 
+  @route("/xml-response")
+  @post
+  readXmlUnion(): {
+    @header contentType: "application/xml";
+    @body pet: XmlUnionPets;
+  };
+
   @route("/container")
   @post
   echoContainer(@body container: UnionPetContainer): UnionPetContainer;

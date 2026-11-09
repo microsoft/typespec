@@ -9,7 +9,10 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
@@ -33,6 +36,11 @@ namespace SampleTypeSpec
                     {
                         return DeserializeXmlUnionCat(document.RootElement, options);
                     }
+                case "X":
+                    using (Stream dataStream = data.ToStream())
+                    {
+                        return DeserializeXmlUnionCat(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                    }
                 default:
                     throw new FormatException($"The model {nameof(XmlUnionCat)} does not support reading '{options.Format}' format.");
             }
@@ -46,6 +54,22 @@ namespace SampleTypeSpec
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                case "X":
+                    using (MemoryStream stream = new MemoryStream(256))
+                    {
+                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
+                        {
+                            WriteXml(writer, options, "XmlUnionCat");
+                        }
+                        if (stream.Position > int.MaxValue)
+                        {
+                            return BinaryData.FromStream(stream);
+                        }
+                        else
+                        {
+                            return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
+                        }
+                    }
                 default:
                     throw new FormatException($"The model {nameof(XmlUnionCat)} does not support writing '{options.Format}' format.");
             }
@@ -64,9 +88,21 @@ namespace SampleTypeSpec
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="XmlUnionCat"/> from. </param>
         public static explicit operator XmlUnionCat(ClientResult result)
         {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeXmlUnionCat(document.RootElement, ModelSerializationExtensions.WireOptions);
+            using PipelineResponse response = result.GetRawResponse();
+
+            if (response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+                return DeserializeXmlUnionCat(document.RootElement, ModelSerializationExtensions.WireOptions);
+            }
+
+            using Stream stream = response.ContentStream;
+            if (stream == null)
+            {
+                return default;
+            }
+
+            return DeserializeXmlUnionCat(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -135,6 +171,70 @@ namespace SampleTypeSpec
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
+                }
+            }
+            return new XmlUnionCat(name, additionalBinaryDataProperties, meow);
+        }
+
+        /// <param name="writer"> The XML writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        /// <param name="nameHint"> An optional name hint. </param>
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        {
+            if (nameHint != null)
+            {
+                writer.WriteStartElement(nameHint);
+            }
+
+            XmlModelWriteCore(writer, options);
+
+            if (nameHint != null)
+            {
+                writer.WriteEndElement();
+            }
+        }
+
+        /// <param name="writer"> The XML writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal override void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<XmlUnionCat>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "X")
+            {
+                throw new FormatException($"The model {nameof(XmlUnionCat)} does not support writing '{format}' format.");
+            }
+
+            base.XmlModelWriteCore(writer, options);
+            writer.WriteStartElement("meow");
+            writer.WriteValue(Meow);
+            writer.WriteEndElement();
+        }
+
+        /// <param name="element"> The xml element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static XmlUnionCat DeserializeXmlUnionCat(XElement element, ModelReaderWriterOptions options)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            string name = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            bool meow = default;
+
+            foreach (var child in element.Elements())
+            {
+                string localName = child.Name.LocalName;
+                if (localName == "name")
+                {
+                    name = (string)child;
+                    continue;
+                }
+                if (localName == "meow")
+                {
+                    meow = (bool)child;
+                    continue;
                 }
             }
             return new XmlUnionCat(name, additionalBinaryDataProperties, meow);

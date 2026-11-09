@@ -261,9 +261,9 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
-                    if (HasCompatibleUnionBase(unionType))
+                    if (unionType.BaseModel is { } baseModel && HasCompatibleUnionBase(unionType))
                     {
-                        type = CreateCSharpType(unionType.BaseModel!);
+                        type = CreateCSharpType(baseModel);
                         break;
                     }
                     var unionInputs = new List<CSharpType>();

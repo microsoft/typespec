@@ -114,6 +114,58 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] ReadXmlUnion
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ReadXmlUnion(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReadXmlUnionRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReadXmlUnion
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ReadXmlUnionAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReadXmlUnionRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReadXmlUnion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> ReadXmlUnion(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = ReadXmlUnion(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
+
+        /// <summary> ReadXmlUnion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> ReadXmlUnionAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await ReadXmlUnionAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
+
+        /// <summary>
         /// [Protocol Method] EchoContainer
         /// <list type="bullet">
         /// <item>
@@ -967,11 +1019,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DirectUnionPet.SerializeDirectPetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DirectUnionPet.SerializeDirectPetsUnion3(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
             ClientResult result = EchoDirectUnion(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoDirectUnion. </summary>
@@ -984,11 +1036,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DirectUnionPet.SerializeDirectPetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DirectUnionPet.SerializeDirectPetsUnion3(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
             ClientResult result = await EchoDirectUnionAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
         }
 
         /// <summary>
