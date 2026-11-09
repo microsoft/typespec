@@ -158,72 +158,72 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
         }
 
-        [TestCase("WidgetContent", false, "WidgetRequest")]
-        [TestCase("Content", false, "Request")]
-        [TestCase("widget_content", false, "WidgetRequest")]
-        [TestCase("IpContent", false, "IPRequest")]
-        [TestCase("WidgetContentContent", false, "WidgetContentRequest")]
-        [TestCase("WidgetResponseContent", false, "WidgetResponseRequest")]
-        [TestCase("WidgetContentResponse", false, "WidgetContentResult")]
-        [TestCase("WidgetContent", true, "WidgetContent")]
-        [TestCase("IpContent", true, "IpContent")]
-        [TestCase("WidgetRequest", false, "WidgetRequest")]
-        [TestCase("ContentWidget", false, "ContentWidget")]
-        [TestCase("WidgetContents", false, "WidgetContents")]
-        [TestCase("Widgetcontent", false, "Widgetcontent")]
-        public void TestBuildName_ContentSuffix(string inputName, bool isExactName, string expectedName)
+        [TestCase("WidgetRequest", false, "WidgetContent")]
+        [TestCase("Request", false, "Content")]
+        [TestCase("widget_request", false, "WidgetContent")]
+        [TestCase("IpRequest", false, "IPContent")]
+        [TestCase("WidgetRequestRequest", false, "WidgetRequestContent")]
+        [TestCase("WidgetResponseRequest", false, "WidgetResponseContent")]
+        [TestCase("WidgetRequestResponse", false, "WidgetRequestResult")]
+        [TestCase("WidgetRequest", true, "WidgetRequest")]
+        [TestCase("IpRequest", true, "IpRequest")]
+        [TestCase("WidgetContent", false, "WidgetContent")]
+        [TestCase("RequestWidget", false, "RequestWidget")]
+        [TestCase("WidgetRequests", false, "WidgetRequests")]
+        [TestCase("Widgetrequest", false, "Widgetrequest")]
+        public void TestBuildName_RequestSuffix(string inputName, bool isExactName, string expectedName)
         {
             var inputModel = InputFactory.Model(
                 inputName,
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
                 isExactName: isExactName,
-                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
             var model = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, model.Name);
             Assert.AreEqual(expectedName, model.Type.Name);
             Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
-            Assert.AreEqual("ServiceContent", model.Properties[0].Name);
+            Assert.AreEqual("ServiceRequest", model.Properties[0].Name);
         }
 
-        [TestCase(InputModelTypeUsage.Input, "WidgetRequest")]
+        [TestCase(InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.None, "WidgetContent")]
-        public void TestBuildName_ContentSuffixRequiresInputOnlyUsage(InputModelTypeUsage usage, string expectedName)
+        public void TestBuildName_RequestSuffixAppliesToAllUsages(InputModelTypeUsage usage, string expectedName)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: usage | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: usage | InputModelTypeUsage.Json);
             var model = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, model.Name);
         }
 
-        [TestCase(InputModelTypeUsage.Input, "IPRequest")]
+        [TestCase(InputModelTypeUsage.Input, "IPContent")]
         [TestCase(InputModelTypeUsage.Output, "IPContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "IPContent")]
-        public void TestBuildName_ContentSuffixUsagePreservesAcronymsAndProperties(InputModelTypeUsage usage, string expectedName)
+        public void TestBuildName_RequestSuffixUsagePreservesAcronymsAndProperties(InputModelTypeUsage usage, string expectedName)
         {
-            var inputModel = InputFactory.Model("IpContent",
+            var inputModel = InputFactory.Model("IpRequest",
                 usage: usage | InputModelTypeUsage.Json,
-                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
             var model = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, model.Type.Name);
             Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
-            Assert.AreEqual("ServiceContent", model.Properties[0].Name);
+            Assert.AreEqual("ServiceRequest", model.Properties[0].Name);
         }
 
-        [TestCase("WidgetContent", "WidgetRequest", false, false)]
-        [TestCase("WidgetContent", "WidgetRequest", false, true)]
-        [TestCase("WidgetContent", "WidgetRequest", true, false)]
-        [TestCase("WidgetContent", "WidgetRequest", true, true)]
+        [TestCase("WidgetRequest", "WidgetContent", false, false)]
+        [TestCase("WidgetRequest", "WidgetContent", false, true)]
+        [TestCase("WidgetRequest", "WidgetContent", true, false)]
+        [TestCase("WidgetRequest", "WidgetContent", true, true)]
         [TestCase("WidgetResponse", "WidgetResult", false, false)]
         [TestCase("WidgetResponse", "WidgetResult", false, true)]
-        [TestCase("IpContent", "IPRequest", false, false)]
-        [TestCase("IpContent", "IpRequest", false, true)]
+        [TestCase("IpRequest", "IPContent", false, false)]
+        [TestCase("IpRequest", "IpContent", false, true)]
         [TestCase("IpResponse", "IPResult", false, true)]
         public void TestBuildName_ModelSuffixCollision(
             string inputName, string reservedName, bool exactReservedName, bool reverseOrder)
@@ -232,8 +232,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var reservedModel = InputFactory.Model(reservedName, isExactName: exactReservedName);
             var wrapper = InputFactory.Model("Wrapper", properties:
             [
-                InputFactory.Property("content", inputModel),
-                InputFactory.Property("request", reservedModel)
+                InputFactory.Property("request", inputModel),
+                InputFactory.Property("content", reservedModel)
             ]);
             InputModelType[] models = reverseOrder
                 ? [reservedModel, inputModel, wrapper]
@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesCustomName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var customizedModel = InputFactory.Model("Gadget");
             InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -270,18 +270,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var customized = factory.CreateModel(customizedModel)!;
 
-            Assert.AreEqual("WidgetContent", model.Name);
-            Assert.AreEqual("WidgetRequest", customized.Name);
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("WidgetContent", customized.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(customized.CustomCodeView);
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
             Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
         }
 
-        [TestCase("WidgetContent", "WidgetRequest", "WidgetContent", false)]
-        [TestCase("WidgetContent", "WidgetRequest", "WidgetContent", true)]
-        [TestCase("IpContent", "IpRequest", "IPContent", false)]
-        [TestCase("IpContent", "IpRequest", "IPContent", true)]
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetRequest", false)]
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetRequest", true)]
+        [TestCase("IpRequest", "IpContent", "IPRequest", false)]
+        [TestCase("IpRequest", "IpContent", "IPRequest", true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesContractName(
             string inputName, string contractName, string expectedName, bool reverseOrder)
         {
@@ -305,35 +305,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixDoesNotCollideWithDistinctExactName()
         {
-            var inputModel = InputFactory.Model("IpContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var exactModel = InputFactory.Model("IpRequestModel", isExactName: true);
+            var inputModel = InputFactory.Model("IpRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var exactModel = InputFactory.Model("IpContentModel", isExactName: true);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
 
-            Assert.AreEqual("IPRequest", factory.CreateModel(inputModel)!.Name);
-            Assert.AreEqual("IpRequestModel", factory.CreateModel(exactModel)!.Name);
+            Assert.AreEqual("IPContent", factory.CreateModel(inputModel)!.Name);
+            Assert.AreEqual("IpContentModel", factory.CreateModel(exactModel)!.Name);
         }
 
         [TestCase("Sample.Models")]
         [TestCase("Other.Models")]
         public void TestBuildName_ModelSuffixAvoidsCaseInsensitiveFileCollision(string reservedNamespace)
         {
-            var inputModel = InputFactory.Model("IpContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var exactModel = InputFactory.Model("IpRequest", @namespace: reservedNamespace, isExactName: true);
+            var inputModel = InputFactory.Model("IpRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var exactModel = InputFactory.Model("IpContent", @namespace: reservedNamespace, isExactName: true);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var model = factory.CreateModel(inputModel)!;
             var exact = factory.CreateModel(exactModel)!;
 
-            Assert.AreEqual("IPContent", model.Name);
-            Assert.AreEqual("IpRequest", exact.Name);
+            Assert.AreEqual("IPRequest", model.Name);
+            Assert.AreEqual("IpContent", exact.Name);
             Assert.IsFalse(string.Equals(model.RelativeFilePath, exact.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
         }
 
-        [TestCase("WidgetContent", "WidgetRequest", false)]
-        [TestCase("WidgetContent", "WidgetRequest", true)]
+        [TestCase("WidgetRequest", "WidgetContent", false)]
+        [TestCase("WidgetRequest", "WidgetContent", true)]
         [TestCase("WidgetResponse", "WidgetResult", false)]
-        [TestCase("IpContent", "IpRequest", true)]
+        [TestCase("IpRequest", "IpContent", true)]
         public void TestBuildName_ModelSuffixReservesEnumNames(string modelName, string enumName, bool extensible)
         {
             var inputModel = InputFactory.Model(modelName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
@@ -354,9 +354,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public void TestBuildName_ModelSuffixReservesUnknownDiscriminatorName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("UnknownPetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("UnknownPetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
-            var baseModel = InputFactory.Model("PetRequest", properties: [discriminator]);
+            var baseModel = InputFactory.Model("PetContent", properties: [discriminator]);
             InputModelType[] models = reverseOrder ? [baseModel, inputModel] : [inputModel, baseModel];
             MockHelpers.LoadMockGenerator(inputModelTypes: models);
             var factory = CodeModelGenerator.Instance.TypeFactory;
@@ -364,8 +364,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var unknown = factory.CreateModel(baseModel.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
 
-            Assert.AreEqual("UnknownPetContent", model.Name);
-            Assert.AreEqual("UnknownPetRequest", unknown.Name);
+            Assert.AreEqual("UnknownPetRequest", model.Name);
+            Assert.AreEqual("UnknownPetContent", unknown.Name);
             Assert.Contains(unknown, providers);
             Assert.AreEqual(providers.Count, providers.Select(p => p.RelativeFilePath).Distinct(StringComparer.OrdinalIgnoreCase).Count());
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
@@ -376,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixCollisionPreservesMappedSuffixName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var customizedModel = InputFactory.Model("GadgetResponse");
             InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
             await MockHelpers.LoadMockGeneratorAsync(
@@ -386,8 +386,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var customized = factory.CreateModel(customizedModel)!;
 
-            Assert.AreEqual("WidgetContent", model.Name);
-            Assert.AreEqual("WidgetRequest", customized.Name);
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("WidgetContent", customized.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(customized.CustomCodeView);
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
@@ -398,8 +398,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixMappingBelongsToOriginalInput(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var mappedModel = InputFactory.Model("WidgetRequest");
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var mappedModel = InputFactory.Model("WidgetContent");
             InputModelType[] models = reverseOrder ? [mappedModel, inputModel] : [inputModel, mappedModel];
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: models,
@@ -408,8 +408,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var mapped = factory.CreateModel(mappedModel)!;
 
-            Assert.AreEqual("WidgetContent", model.Name);
-            Assert.AreEqual("CustomizedRequest", mapped.Name);
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("CustomizedContent", mapped.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(mapped.CustomCodeView);
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
@@ -420,7 +420,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixNamesAreCachedForLibrary()
         {
-            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Content", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json)).ToArray();
+            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Request", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json)).ToArray();
             MockHelpers.LoadMockGenerator(inputModelTypes: models);
             var factory = CodeModelGenerator.Instance.TypeFactory;
             var names = factory.ModelNames;
@@ -430,7 +430,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             foreach (var model in models)
             {
                 var provider = factory.CreateModel(model)!;
-                Assert.AreEqual($"{model.Name[..^"Content".Length]}Request", provider.Name);
+                Assert.AreEqual($"{model.Name[..^"Request".Length]}Content", provider.Name);
                 Assert.AreEqual(names[model], provider.Name);
                 Assert.AreSame(names, factory.ModelNames);
             }
@@ -439,23 +439,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildName_ModelSuffixFallbackAvoidsReservedOriginalName()
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
-            var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reserved = InputFactory.Model("WidgetContent", isExactName: true);
+            var inputEnum = InputFactory.StringEnum("WidgetRequest", [("One", "one")]);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, reserved], inputEnumTypes: [inputEnum]);
             var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
 
-            Assert.AreEqual("WidgetContent1", model.Name);
+            Assert.AreEqual("WidgetRequest1", model.Name);
         }
 
         [TestCase(false)]
         [TestCase(true)]
         public async Task TestBuildName_ModelSuffixFallbackAvoidsMappedInputName(bool reverseOrder)
         {
-            var inputModel = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var reserved = InputFactory.Model("WidgetRequest", isExactName: true);
-            var mappedModel = InputFactory.Model("WidgetContent1");
-            var inputEnum = InputFactory.StringEnum("WidgetContent", [("One", "one")]);
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reserved = InputFactory.Model("WidgetContent", isExactName: true);
+            var mappedModel = InputFactory.Model("WidgetRequest1");
+            var inputEnum = InputFactory.StringEnum("WidgetRequest", [("One", "one")]);
             InputModelType[] models = reverseOrder ? [mappedModel, reserved, inputModel] : [inputModel, reserved, mappedModel];
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: models,
@@ -465,8 +465,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var model = factory.CreateModel(inputModel)!;
             var mapped = factory.CreateModel(mappedModel)!;
 
-            Assert.AreEqual("WidgetContent2", model.Name);
-            Assert.AreEqual("CustomizedContent", mapped.Name);
+            Assert.AreEqual("WidgetRequest2", model.Name);
+            Assert.AreEqual("CustomizedRequest", mapped.Name);
             Assert.IsNull(model.CustomCodeView);
             Assert.IsNotNull(mapped.CustomCodeView);
             Assert.AreNotEqual(model.RelativeFilePath, mapped.RelativeFilePath);
@@ -502,18 +502,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("DbResponse", "DbResponse", true, false)]
         [TestCase("DbResponse", "DbResponse", false, true)]
         [TestCase("DbResponse", "DbResponse", true, true)]
-        [TestCase("WidgetContent", "WidgetContent", false, false)]
-        [TestCase("WidgetContent", "WidgetContent", true, false)]
-        [TestCase("WidgetContent", "WidgetContent", false, true)]
-        [TestCase("WidgetContent", "WidgetContent", true, true)]
-        [TestCase("IpContent", "IPContent", false, false)]
-        [TestCase("IpContent", "IPContent", true, false)]
-        [TestCase("IpContent", "IPContent", false, true)]
-        [TestCase("IpContent", "IPContent", true, true)]
-        [TestCase("DbContent", "DbContent", false, false)]
-        [TestCase("DbContent", "DbContent", true, false)]
-        [TestCase("DbContent", "DbContent", false, true)]
-        [TestCase("DbContent", "DbContent", true, true)]
+        [TestCase("WidgetRequest", "WidgetRequest", false, false)]
+        [TestCase("WidgetRequest", "WidgetRequest", true, false)]
+        [TestCase("WidgetRequest", "WidgetRequest", false, true)]
+        [TestCase("WidgetRequest", "WidgetRequest", true, true)]
+        [TestCase("IpRequest", "IPRequest", false, false)]
+        [TestCase("IpRequest", "IPRequest", true, false)]
+        [TestCase("IpRequest", "IPRequest", false, true)]
+        [TestCase("IpRequest", "IPRequest", true, true)]
+        [TestCase("DbRequest", "DbRequest", false, false)]
+        [TestCase("DbRequest", "DbRequest", true, false)]
+        [TestCase("DbRequest", "DbRequest", false, true)]
+        [TestCase("DbRequest", "DbRequest", true, true)]
         public async Task TestBuildName_ModelSuffixPreservesExistingName(
             string inputName, string expectedName, bool lastContract, bool updateNamespace)
         {
@@ -529,7 +529,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             if (updateNamespace)
             {
-                Assert.That(model.Name, Does.EndWith(inputName.EndsWith("Content", StringComparison.Ordinal) ? "Request" : "Result"));
+                Assert.That(model.Name, Does.EndWith(inputName.EndsWith("Request", StringComparison.Ordinal) ? "Content" : "Result"));
                 model.Update(@namespace: "Sample.Models");
             }
 
@@ -542,11 +542,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("IpResponse", "CustomizedIP", false)]
         [TestCase("IpResponse", "CustomizedIP", true)]
         [TestCase("GadgetResponse", "CustomizedGadget", false)]
-        [TestCase("WidgetContent", "CustomizedContent", false)]
-        [TestCase("WidgetContent", "CustomizedContent", true)]
-        [TestCase("IpContent", "CustomizedIPContent", false)]
-        [TestCase("IpContent", "CustomizedIPContent", true)]
-        [TestCase("GadgetContent", "CustomizedGadgetContent", false)]
+        [TestCase("WidgetRequest", "CustomizedRequest", false)]
+        [TestCase("WidgetRequest", "CustomizedRequest", true)]
+        [TestCase("IpRequest", "CustomizedIPRequest", false)]
+        [TestCase("IpRequest", "CustomizedIPRequest", true)]
+        [TestCase("GadgetRequest", "CustomizedGadgetRequest", false)]
         public async Task TestBuildName_ModelSuffixPreservesCustomName(
             string inputName, string expectedName, bool isError)
         {
@@ -810,6 +810,375 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             InputDictionaryType => typeof(IDictionary<string, string>),
             _ => throw new ArgumentException("Unsupported input type.")
         };
+
+        [Test]
+        public void ConstructorRequirementsDoNotChangeWireRequirements()
+        {
+            var title = InputFactory.Property("title", InputPrimitiveType.String, isRequired: true);
+            var state = InputFactory.Property("state", InputPrimitiveType.String, isRequired: true);
+            state.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("Resource", properties: [title, state], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var provider = new ModelProvider(inputModel);
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(new[] { "title", "state", "additionalBinaryDataProperties" }, provider.FullConstructor.Signature.Parameters.Select(p => p.Name));
+            var stateProperty = provider.Properties.Single(p => p.Name == "State");
+            Assert.IsTrue(stateProperty.WireInfo!.IsRequired);
+            Assert.IsFalse(stateProperty.Type.IsNullable);
+            Assert.IsTrue(stateProperty.Body.HasSetter);
+            Assert.IsFalse(provider.Properties.Single(p => p.Name == "Title").Body.HasSetter);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [Test]
+        public void PartialRequestAllowsEmptyConstructionAndInheritedSetters()
+        {
+            var baseProperty = InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true);
+            baseProperty.Update(isRequiredInConstructor: false);
+            var property = InputFactory.Property("value", InputPrimitiveType.Int32, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = new ModelProvider(inputModel);
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsEmpty(constructor.Signature.Parameters);
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.BaseModelProvider!.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.Properties.Single().WireInfo!.IsRequired);
+        }
+
+        [Test]
+        public void RelaxedOverridePreservesRequiredBaseConstructor()
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsEmpty(constructor.Signature.Parameters);
+            Assert.AreEqual("value", provider.BaseModelProvider!.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Single().Name);
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.Properties.Single().Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsTrue(provider.BaseModelProvider.Properties.Single().Body.HasSetter);
+            Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+        }
+
+        [Test]
+        public void RelaxedOverridePreservesFullBaseArguments()
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    baseProperty,
+                    InputFactory.Property("mode", InputFactory.Literal.String("fixed"), isRequired: true),
+                    InputFactory.Property("enabled", InputFactory.Literal.Bool(true), isRequired: true),
+                    InputFactory.Property("version", InputFactory.Literal.Int32(3), isRequired: true),
+                    InputFactory.Property("optionalMode", InputFactory.Literal.String("optional")),
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true)
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RelaxedOverrideKeepsReadOnlyBaseNonPubliclyWritable(bool relaxRequirement)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, isReadOnly: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            if (relaxRequirement)
+            {
+                property.Update(isRequiredInConstructor: false);
+            }
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var partialProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            partialProperty.Update(isRequiredInConstructor: false);
+            var partialModel = InputFactory.Model("Partial", properties: [partialProperty], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel, partialModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.IsTrue(provider.Properties.Single().Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.BaseModelProvider!.Properties.Single().WireInfo!.IsReadOnly);
+            Assert.That(new TypeProviderWriter(provider.BaseModelProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Base")).NoClip);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(relaxRequirement ? "Resource" : "RequiredResource")).NoClip);
+        }
+
+        [TestCase(InputModelTypeUsage.Xml, false)]
+        [TestCase(InputModelTypeUsage.Xml, true)]
+        [TestCase(InputModelTypeUsage.MultipartFormData, false)]
+        [TestCase(InputModelTypeUsage.MultipartFormData, true)]
+        public void RelaxedOverrideUsesNonValidatingNonJsonBase(InputModelTypeUsage format, bool includeIntermediate)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var usage = InputModelTypeUsage.Input | format;
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: usage);
+            var middle = includeIntermediate
+                ? InputFactory.Model("Middle", baseModel: baseModel, properties: [InputFactory.Property("note", InputPrimitiveType.String)], usage: usage)
+                : baseModel;
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: includeIntermediate ? [baseModel, middle, inputModel] : [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)!;
+
+            Assert.IsTrue(baseProvider.Constructors.Any(c => c.Signature.Modifiers == (MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected)));
+            Assert.That(new TypeProviderWriter(baseProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Base")).NoClip);
+            if (includeIntermediate)
+            {
+                Assert.That(new TypeProviderWriter(provider.BaseModelProvider!).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Middle")).NoClip);
+            }
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(includeIntermediate ? "ResourceWithMiddle" : "Resource")).NoClip);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RequiredOverrideInitializesRelaxedBaseProperty(bool rename)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            baseProperty.Update(isRequiredInConstructor: false);
+            var property = InputFactory.Property(rename ? "renamedValue" : "value", InputPrimitiveType.String, isRequired: true);
+            property.Update(originalName: "value");
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(rename ? "Renamed" : null)).NoClip);
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void RenamedNarrowedLiteralPreservesInitialization(bool baseRequired, bool includeMiddle)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: baseRequired)], usage: usage);
+            var middle = includeMiddle ? InputFactory.Model("Middle", properties: [], baseModel: baseModel, usage: usage) : baseModel;
+            var property = InputFactory.Property("renamedValue", InputFactory.Literal.String("fixed"), isRequired: true);
+            property.Update(originalName: "value");
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: includeMiddle ? [baseModel, middle, inputModel] : [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var output = provider.Properties.Single();
+
+            Assert.IsFalse(output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsInstanceOf<AutoPropertyBody>(output.Body);
+            Assert.IsEmpty(provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{(baseRequired ? "Required" : "Optional")}{(includeMiddle ? "Middle" : null)}")).NoClip);
+        }
+
+        [TestCase(false, false, false, "Resource")]
+        [TestCase(true, false, false, "Resource")]
+        [TestCase(true, true, false, "Resource")]
+        [TestCase(true, false, true, "Resource")]
+        [TestCase(true, false, false, "ValueProperty")]
+        public void DifferentDeclarationsWithSameClientNameRemainDistinct(bool collide, bool reserveSuffix, bool renameBase, string modelName)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json;
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, serializedName: "original");
+            baseProperty.Update(originalName: "original");
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: usage);
+            var middleProperty = InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true, serializedName: "original");
+            middleProperty.Update(originalName: "original");
+            var middle = renameBase ? InputFactory.Model("Middle", properties: [middleProperty], baseModel: baseModel, usage: usage) : baseModel;
+            var property = InputFactory.Property(collide ? "value" : "other", InputPrimitiveType.String, isRequired: true, serializedName: "other");
+            property.Update(originalName: "other");
+            var reservedProperty = InputFactory.Property("valueProperty", InputPrimitiveType.String, isRequired: true);
+            var inputModel = InputFactory.Model(modelName, properties: reserveSuffix ? [property, reservedProperty] : [property],
+                baseModel: middle, usage: usage);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: inputModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: renameBase ? [baseModel, middle, inputModel, leaf] : [baseModel, inputModel, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var output = provider.Properties.Single(p => p.InputProperty == property);
+            var expectedName = collide ? reserveSuffix || modelName == "ValueProperty" ? "ValueProperty1" : "ValueProperty" : "Other";
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.AreEqual(expectedName, output.Name);
+            Assert.IsNull(output.BaseProperty);
+            Assert.AreEqual("other", ((InputModelProperty)output.InputProperty!).OriginalName);
+            Assert.AreEqual("other", output.WireInfo!.SerializedName);
+            Assert.AreEqual(renameBase ? "BaseValue" : "Value", provider.BaseModelProvider!.Properties.Single().Name);
+            var expectedParameters = reserveSuffix ? new[] { "value", "valueProperty1", "valueProperty" }
+                : new[] { "value", expectedName.ToVariableName() };
+            if (renameBase)
+            {
+                expectedParameters[0] = "baseValue";
+            }
+            CollectionAssert.AreEqual(expectedParameters, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(expectedParameters, CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Constructors
+                .Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(modelName == "ValueProperty" ? "ModelName" : renameBase ? "RenamedBase" : reserveSuffix ? "Reserved" : collide ? "Collision" : "Distinct")).NoClip);
+        }
+
+        [TestCase("value", true)]
+        [TestCase("anotherValue", false)]
+        public void RenamedOverridesRespectGrandparentMemberNames(string name, bool hidesGrandparent)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)], usage: usage);
+            var middleProperty = InputFactory.Property("renamedValue", InputPrimitiveType.String, isRequired: true);
+            middleProperty.Update(originalName: "value", isRequiredInConstructor: false);
+            var middle = InputFactory.Model("Middle", properties: [middleProperty], baseModel: baseModel, usage: usage);
+            var property = InputFactory.Property(name, InputPrimitiveType.String, isRequired: true);
+            property.Update(originalName: "value", isRequiredInConstructor: false);
+            var leaf = InputFactory.Model("Leaf", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var output = CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Properties.Single();
+
+            Assert.AreEqual(hidesGrandparent, output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(output.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ReadOnlyCollectionOverridesShareCompatibleStorage(bool dictionary, bool rename)
+        {
+            var type = dictionary ? (InputType)InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String);
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("items", type, isRequired: true, isReadOnly: true)], usage: usage);
+            var property = InputFactory.Property(rename ? "renamedItems" : "items", type, isRequired: true);
+            property.Update(originalName: "items", isRequiredInConstructor: false);
+            var model = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, model]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+            var output = provider.Properties.Single();
+            var baseOutput = provider.BaseModelProvider!.Properties.Single();
+
+            Assert.AreNotEqual(baseOutput.Type, output.Type);
+            Assert.IsNotNull(baseOutput.BackingField);
+            Assert.AreSame(baseOutput.BackingField, output.BackingField);
+            Assert.IsFalse(baseOutput.Body.HasSetter);
+            Assert.AreEqual(!rename, output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+        }
+
+        [TestCase(InputModelTypeUsage.Json)]
+        [TestCase(InputModelTypeUsage.Xml)]
+        public void InheritedRelaxedOverrideReplacesAncestorConstructorRequirement(InputModelTypeUsage format)
+        {
+            var usage = InputModelTypeUsage.Input | format;
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("title", InputPrimitiveType.String, isRequired: true)
+                ], usage: usage);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var middle = InputFactory.Model("Middle", properties: [property], baseModel: baseModel, usage: usage);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Initializer!.Arguments.Select(a => a.ToDisplayString()));
+            CollectionAssert.AreEqual(new[] { "value", "title" },
+                provider.BaseModelProvider!.BaseModelProvider!.Constructors
+                    .Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+        }
+
+        [Test]
+        public void ForwardedReadOnlyIntermediatePreservesSetterAccessibility()
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)], usage: usage);
+            var middle = InputFactory.Model("Middle", baseModel: baseModel,
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, isReadOnly: true)], usage: usage);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var leaf = InputFactory.Model("Leaf", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(middle)!;
+            var outputProperty = provider.Properties.Single();
+            var setterModifiers = outputProperty.Body switch
+            {
+                AutoPropertyBody body => body.SetterModifiers,
+                MethodPropertyBody body => body.SetterModifiers,
+                _ => MethodSignatureModifiers.None
+            };
+
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected, setterModifiers);
+            Assert.IsTrue(outputProperty.WireInfo!.IsReadOnly);
+            Assert.IsTrue(CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Properties.Single().Body.HasSetter);
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public void RenamedOverridesMatchDeclarationIdentity(bool requiredInConstructor, bool isOverride)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("title", InputPrimitiveType.String, isRequired: true)
+                ], usage: usage);
+            var property = InputFactory.Property("renamedValue", InputPrimitiveType.String, isRequired: true, wireName: "value");
+            property.Update(isRequiredInConstructor: requiredInConstructor, originalName: isOverride ? "value" : "other");
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(isOverride
+                ? requiredInConstructor ? new[] { "title", "renamedValue" } : new[] { "title" }
+                : new[] { "value", "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual(isOverride, provider.Properties.Single().BaseProperty is not null);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(isOverride ? requiredInConstructor ? "Required" : "Relaxed" : "Unrelated")).NoClip);
+        }
+
+        [Test]
+        public async Task ConstructorRequirementsPreservePublishedOverload()
+        {
+            var title = InputFactory.Property("title", InputPrimitiveType.String, isRequired: true);
+            var state = InputFactory.Property("state", InputPrimitiveType.String, isRequired: true);
+            state.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("Resource", properties: [title, state], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = (ModelProvider)CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(t => t.Name == "Resource");
+
+            provider.ProcessTypeForBackCompatibility();
+
+            var constructors = provider.Constructors.Where(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            Assert.AreEqual(2, constructors.Length);
+            Assert.AreEqual(1, constructors[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, constructors[1].Signature.Parameters.Count);
+            Assert.AreEqual("title", constructors[1].Signature.Initializer!.Arguments.Single().ToDisplayString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
 
         [Test]
         public void TestBuildConstructor_ValidateConstructors()

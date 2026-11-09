@@ -10,10 +10,10 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class BinaryArrayPartsRequest
+    public partial class BinaryArrayPartsContent
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public BinaryArrayPartsRequest(global::System.Collections.Generic.IEnumerable<global::System.ClientModel.FileBinaryContent> pictures)
+        public BinaryArrayPartsContent(global::System.Collections.Generic.IEnumerable<global::System.ClientModel.FileBinaryContent> pictures)
         {
             global::Sample.Argument.AssertNotNull(pictures, nameof(pictures));
 
@@ -21,7 +21,7 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal BinaryArrayPartsRequest(global::System.Collections.Generic.IList<global::System.ClientModel.FileBinaryContent> pictures)
+        internal BinaryArrayPartsContent(global::System.Collections.Generic.IList<global::System.ClientModel.FileBinaryContent> pictures)
         {
             Pictures = pictures;
         }

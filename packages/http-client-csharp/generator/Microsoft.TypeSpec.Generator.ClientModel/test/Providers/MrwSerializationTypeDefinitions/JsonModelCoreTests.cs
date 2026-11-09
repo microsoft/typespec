@@ -35,16 +35,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             protected override ConstructorProvider[] BuildConstructors() => [];
         }
 
-        [Test]
-        public void KebabCaseSerializedName()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void KebabCaseSerializedName(bool relaxedConstructor)
         {
             var inputModelProperty = InputFactory.Property("kebab-case", InputPrimitiveType.String, wireName: "kebab-case", isRequired: true);
+            if (relaxedConstructor)
+            {
+                inputModelProperty.Update(isRequiredInConstructor: false);
+            }
             var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ConstructorOverrideDoesNotChangeSerialization(bool relaxedConstructor)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            if (relaxedConstructor)
+            {
+                property.Update(isRequiredInConstructor: false);
+            }
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("TestModel", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            Assert.That(new TypeProviderWriter(mrwProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
         }
 
         [Test]

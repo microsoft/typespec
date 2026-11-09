@@ -25,14 +25,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
-        [TestCase(InputModelTypeUsage.Input, "WidgetRequest")]
+        [TestCase(InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
-        public void ContentSuffixUsageIsReflectedInGeneratedCode(InputModelTypeUsage usage, string expectedName)
+        public void RequestSuffixUsageIsReflectedInGeneratedCode(InputModelTypeUsage usage, string expectedName)
         {
-            var input = InputFactory.Model("WidgetContent",
+            var input = InputFactory.Model("WidgetRequest",
                 usage: usage | InputModelTypeUsage.Json,
-                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
             MockHelpers.LoadMockGenerator(inputModels: () => [input]);
             var factory = ScmCodeModelGenerator.Instance.TypeFactory;
             var model = factory.CreateModel(input)!;
@@ -43,16 +43,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
         }
 
-        [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", false)]
-        [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", true)]
-        [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", false)]
-        [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", true)]
-        [TestCase("IpRequest", "Sample.Models", false, "IPContent", false)]
-        [TestCase("IpRequest", "Sample.Models", true, "IPRequest", true)]
+        [TestCase("WidgetContent", "Sample.Models", true, "WidgetRequest", false)]
+        [TestCase("WidgetContent", "Sample.Models", true, "WidgetRequest", true)]
+        [TestCase("WidgetContent", "Other.Models", true, "WidgetContent", false)]
+        [TestCase("WidgetContent", "Other.Models", true, "WidgetContent", true)]
+        [TestCase("IpContent", "Sample.Models", false, "IPRequest", false)]
+        [TestCase("IpContent", "Sample.Models", true, "IPContent", true)]
         public void ModelSuffixDoesNotCollideWithClient(
             string clientName, string clientNamespace, bool exactName, string expectedName, bool clientFirst)
         {
-            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpContent" : "WidgetContent",
+            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpRequest" : "WidgetRequest",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var inputClient = InputFactory.Client(clientName, clientNamespace: clientNamespace, isExactName: exactName);
             MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () => [inputClient]);
@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [TestCase("GadgetClient", "WidgetResponse", "WidgetResponse", "WidgetResult")]
-        [TestCase("WidgetRequest", "WidgetContent", "WidgetContent", "CustomizedRequest")]
+        [TestCase("WidgetContent", "WidgetRequest", "WidgetRequest", "CustomizedContent")]
         public async Task ModelSuffixDoesNotCollideWithCustomizedClient(
             string clientName, string modelName, string expectedName, string expectedClientName)
         {
@@ -92,16 +92,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         [Test]
         public void ModelSuffixFallbackDoesNotCollideWithClient()
         {
-            var input = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var input = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () =>
             [
-                InputFactory.Client("WidgetRequest", clientNamespace: "Sample.Models", isExactName: true),
-                InputFactory.Client("WidgetContent", clientNamespace: "Sample.Models", isExactName: true)
+                InputFactory.Client("WidgetContent", clientNamespace: "Sample.Models", isExactName: true),
+                InputFactory.Client("WidgetRequest", clientNamespace: "Sample.Models", isExactName: true)
             ]);
 
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
 
-            Assert.AreEqual("WidgetContent1", model.Name);
+            Assert.AreEqual("WidgetRequest1", model.Name);
         }
 
         [TestCase(false, "json")]
