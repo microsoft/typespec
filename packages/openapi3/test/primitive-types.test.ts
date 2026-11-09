@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { OpenAPI3Schema } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
@@ -425,5 +425,17 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
       contentMediaType: "text/plain",
       contentEncoding: "base64url",
     });
+  });
+});
+
+worksFor(supportedVersions, ({ oapiForModel }) => {
+  it("represents compile-time type references as having no JSON values", async () => {
+    const result = await oapiForModel(
+      "Registration",
+      `
+      model Registration { type: TypeRef<string>; }
+    `,
+    );
+    expect(result.schemas.Registration.properties.type).toEqual({ not: {} });
   });
 });

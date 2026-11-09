@@ -23,7 +23,7 @@ export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
     "@typespec/sse",
     "@typespec/openapi3",
   ],
-  features: ["declaration-expressions"],
+  features: ["declaration-expressions", "typeref"],
 });
 
 export const SimpleTester = ApiTester.import(
