@@ -8,9 +8,9 @@ import com.azure.core.annotation.Generated;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import tsptest.sse.implementation.TestStreamEventSerializer;
 import tsptest.sse.models.CompletedPayload;
 import tsptest.sse.models.StartedPayload;
+import tsptest.sse.stream.implementation.TestStreamEventSerializer;
 
 /**
  * Base for polymorphic events emitted by a streaming test.

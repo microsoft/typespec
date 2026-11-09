@@ -97,7 +97,41 @@ public class TypeSpecPluginSseTests extends JavaSettingsTestBase {
         Assertions.assertEquals(1L, generatedPaths.get("src/main/java/com/azure/events/models/SecondEvent.java"));
         Assertions.assertEquals(1L, generatedPaths.get("src/main/java/com/azure/shared/models/SharedEvent.java"));
         Assertions.assertEquals(1L,
-            generatedPaths.get("src/main/java/com/azure/mock/implementation/FirstEventSerializer.java"));
+            generatedPaths.get("src/main/java/com/azure/events/implementation/FirstEventSerializer.java"));
+        Assertions.assertEquals(1L,
+            generatedPaths.get("src/main/java/com/azure/events/implementation/SecondEventSerializer.java"));
+        Assertions.assertEquals(1L,
+            generatedPaths.get("src/main/java/com/azure/shared/implementation/SharedEventSerializer.java"));
+        Assertions.assertEquals(1L,
+            generatedPaths.get("src/main/java/com/azure/mock/implementation/ServerSentEventStreamHelper.java"));
+        Assertions.assertEquals(1L,
+            generatedPaths.get("src/main/java/com/azure/mock/implementation/ServerSentEventStreamResponse.java"));
+        Assertions
+            .assertTrue(generatedPaths.keySet().stream().noneMatch(path -> path.contains("/models/implementation/")));
+        Assertions.assertFalse(moduleSource.contains("exports com.azure.mock.implementation;"));
+        Assertions.assertFalse(moduleSource.contains("exports com.azure.events.implementation;"));
+        Assertions.assertFalse(moduleSource.contains("exports com.azure.shared.implementation;"));
+    }
+
+    @Test
+    public void rejectsModelsAtSharedRuntimeSourcePaths() {
+        for (String name : List.of("ServerSentEventStreamHelper", "ServerSentEventStreamResponse")) {
+            ClientModels.getInstance().clear();
+            TypeSpecPlugin plugin = new TypeSpecPlugin(new EmitterOptions().setNamespace("com.azure.mock"), false);
+            Map<String, String> settings = new LinkedHashMap<>(sseSettings("all", false, true));
+            settings.put("models-subpackage", "");
+            configureJavaSettings(settings);
+            CodeModel model = codeModel(
+                List.of(group("", operation("read", metadata("events", "Events", "com.azure.mock"), false, true))));
+            model.getSchemas().getObjects().add(0, ordinarySchema(name, "com.azure.mock.implementation"));
+
+            IllegalStateException exception
+                = Assertions.assertThrows(IllegalStateException.class, () -> plugin.processClient(model));
+
+            Assertions.assertTrue(
+                exception.getMessage().contains("src/main/java/com/azure/mock/implementation/" + name + ".java"),
+                exception.getMessage());
+        }
     }
 
     @Test

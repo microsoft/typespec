@@ -19,10 +19,10 @@ import com.azure.core.util.BinaryData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.sse.implementation.RetrievalStreamEventSerializer;
+import tsptest.sse.implementation.ServerSentEventStreamHelper;
 import tsptest.sse.implementation.StreamOperationsImpl;
-import tsptest.sse.implementation.TestStreamEventSerializer;
 import tsptest.sse.models.RetrievalStreamEvent;
-import tsptest.sse.models.implementation.sse.ServerSentEventStreamHelper;
+import tsptest.sse.stream.implementation.TestStreamEventSerializer;
 import tsptest.sse.stream.models.TestStreamEvent;
 
 /**

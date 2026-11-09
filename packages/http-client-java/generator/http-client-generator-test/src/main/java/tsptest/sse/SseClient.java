@@ -18,10 +18,10 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
 import tsptest.sse.implementation.RetrievalStreamEventSerializer;
+import tsptest.sse.implementation.ServerSentEventStreamHelper;
 import tsptest.sse.implementation.StreamOperationsImpl;
-import tsptest.sse.implementation.TestStreamEventSerializer;
 import tsptest.sse.models.RetrievalStreamEvent;
-import tsptest.sse.models.implementation.sse.ServerSentEventStreamHelper;
+import tsptest.sse.stream.implementation.TestStreamEventSerializer;
 import tsptest.sse.stream.models.TestStreamEvent;
 
 /**

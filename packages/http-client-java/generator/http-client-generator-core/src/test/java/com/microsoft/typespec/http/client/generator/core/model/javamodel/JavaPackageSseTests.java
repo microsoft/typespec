@@ -30,6 +30,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -223,7 +224,7 @@ public class JavaPackageSseTests {
         Assertions.assertEquals(List.of(
             "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStreamEvent.java",
             "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStartedStreamEvent.java",
-            "src/main/java/com/azure/mock/implementation/KnowledgeBaseRetrievalStreamEventSerializer.java"),
+            "src/main/java/com/azure/search/documents/knowledgebases/implementation/KnowledgeBaseRetrievalStreamEventSerializer.java"),
             javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath).collect(Collectors.toList()));
         String baseEventSource = javaPackage.getJavaFiles().get(0).getContents().toString();
         String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
@@ -248,6 +249,55 @@ public class JavaPackageSseTests {
         Assertions.assertTrue(serializerSource.contains("reader.nextToken();"));
         Assertions.assertFalse(serializerSource.contains("BinaryData.fromString"));
         Assertions.assertFalse(serializerSource.contains("public static boolean isTerminal"));
+        Assertions.assertTrue(baseEventSource.contains(
+            "import com.azure.search.documents.knowledgebases.implementation.KnowledgeBaseRetrievalStreamEventSerializer;"));
+    }
+
+    @Test
+    public void preservesSemanticSerializerNamespacesWithCustomModelPackages() {
+        for (String namespace : List.of("com.azure.mock", "com.contoso.models.knowledgebases", "")) {
+            for (String modelsSubpackage : List.of("models", "shapes.events", "")) {
+                for (boolean internal : List.of(false, true)) {
+                    JavaSettings.clear();
+                    ClientModels.getInstance().clear();
+                    MockUnitJavagen host = new MockUnitJavagen() {
+                        @Override
+                        @SuppressWarnings("unchecked")
+                        public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                            if ("models-subpackage".equals(key)) {
+                                return (T) modelsSubpackage;
+                            } else if ("implementation-subpackage".equals(key)) {
+                                return (T) "hidden";
+                            } else if ("data-plane".equals(key)) {
+                                return (T) Boolean.TRUE;
+                            }
+                            return super.getValue(key, converter);
+                        }
+                    };
+                    SseMetadata metadata = metadata();
+                    configureSchemas(metadata, metadata.getStreamName(), namespace);
+                    prepareSseFamily(metadata);
+                    if (internal) {
+                        metadata.getBaseSchema()
+                            .setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.INTERNAL, SchemaContext.SSE));
+                        metadata.getEvents()
+                            .forEach(event -> event.getEventSchema()
+                                .setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.INTERNAL, SchemaContext.SSE)));
+                    }
+                    ClientModel model = ModelMapper.getInstance().map(metadata.getBaseSchema());
+                    String semanticNamespace = namespace.isEmpty() ? "com.azure.mock" : namespace;
+                    Assertions.assertEquals(semanticNamespace + ".hidden",
+                        model.getSseMetadata().getSerializerType().getPackage());
+                    Assertions.assertEquals("com.azure.mock.hidden", SseUtil.getRuntimePackage());
+                    JavaPackage javaPackage = new JavaPackage(host);
+                    javaPackage.addSseEventSerializer(model);
+                    Assertions.assertEquals(
+                        "src/main/java/" + semanticNamespace.replace('.', '/')
+                            + "/hidden/RetrievalStreamEventSerializer.java",
+                        javaPackage.getJavaFiles().get(0).getFilePath());
+                }
+            }
+        }
     }
 
     @Test
@@ -603,9 +653,9 @@ public class JavaPackageSseTests {
         Path classes = compileGeneratedSources(javaPackage, tempDir);
         try (URLClassLoader loader
             = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
-            Method firstDeserialize = loader.loadClass("com.azure.mock.implementation.FirstEventSerializer")
+            Method firstDeserialize = loader.loadClass("com.azure.first.implementation.FirstEventSerializer")
                 .getMethod("deserialize", String.class, String.class);
-            Method secondDeserialize = loader.loadClass("com.azure.mock.implementation.SecondEventSerializer")
+            Method secondDeserialize = loader.loadClass("com.azure.second.implementation.SecondEventSerializer")
                 .getMethod("deserialize", String.class, String.class);
             Object firstEnvelope = firstDeserialize.invoke(null, "message", "\"first\"");
             Assertions.assertEquals("com.azure.first.models.FirstEventMessageStreamEvent",

@@ -475,7 +475,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
         }
         ClassType baseEventType = Mappers.getObjectMapper().map(baseSchema);
         return new SseModelMetadata(metadata.getStreamName(), metadata.getEventName(), metadata.isTerminal(),
-            baseEventType, SseUtil.getSerializerType(baseEventType));
+            baseEventType, SseUtil.getSerializerType(baseSchema));
     }
 
     private static class ParentSchemaInfo {

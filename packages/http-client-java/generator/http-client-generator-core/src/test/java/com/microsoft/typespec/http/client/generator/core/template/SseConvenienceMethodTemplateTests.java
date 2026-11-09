@@ -222,7 +222,7 @@ public class SseConvenienceMethodTemplateTests {
                 .append(eventType(metadata).getPackage())
                 .append(".Event;\n")
                 .append("import ")
-                .append(SseUtil.getSerializerPackage())
+                .append(SseUtil.getSerializerType(metadata.getBaseSchema()).getPackage())
                 .append(".EventSerializer;\n")
                 .append("import ")
                 .append(SseUtil.getRuntimePackage())
@@ -379,7 +379,7 @@ public class SseConvenienceMethodTemplateTests {
 
     private static ClientMethodSseMetadata clientMetadata(SseMetadata metadata) {
         ClassType eventType = eventType(metadata);
-        return new ClientMethodSseMetadata(eventType, SseUtil.getSerializerType(eventType),
+        return new ClientMethodSseMetadata(eventType, SseUtil.getSerializerType(metadata.getBaseSchema()),
             metadata.getEvents()
                 .stream()
                 .filter(SseEventMetadata::isTerminal)

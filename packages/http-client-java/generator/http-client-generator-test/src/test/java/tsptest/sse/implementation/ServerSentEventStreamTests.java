@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package tsptest.sse.models.implementation.sse;
+package tsptest.sse.implementation;
 
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
@@ -30,12 +30,11 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import tsptest.sse.SseAsyncClient;
 import tsptest.sse.SseClient;
-import tsptest.sse.implementation.RetrievalStreamEventSerializer;
-import tsptest.sse.implementation.TestStreamEventSerializer;
 import tsptest.sse.models.ActivityCompletedRetrievalStreamEvent;
 import tsptest.sse.models.OneTwoThreeDoneRetrievalStreamEvent;
 import tsptest.sse.models.RetrievalStartedRetrievalStreamEvent;
 import tsptest.sse.models.RetrievalStreamEvent;
+import tsptest.sse.stream.implementation.TestStreamEventSerializer;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
 import tsptest.sse.stream.models.TestDurationStreamEvent;

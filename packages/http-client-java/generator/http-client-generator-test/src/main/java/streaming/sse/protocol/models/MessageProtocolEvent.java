@@ -14,7 +14,7 @@ import com.azure.core.annotation.Immutable;
  * @see ProtocolEvent
  */
 @Immutable
-public final class ProtocolEventMessageStreamEvent extends ProtocolEvent {
+public final class MessageProtocolEvent extends ProtocolEvent {
     @Generated
     private final ProtocolInfo value;
 
@@ -24,7 +24,7 @@ public final class ProtocolEventMessageStreamEvent extends ProtocolEvent {
      * @param value The event payload.
      */
     @Generated
-    ProtocolEventMessageStreamEvent(ProtocolInfo value) {
+    MessageProtocolEvent(ProtocolInfo value) {
         super("message");
         this.value = value;
     }

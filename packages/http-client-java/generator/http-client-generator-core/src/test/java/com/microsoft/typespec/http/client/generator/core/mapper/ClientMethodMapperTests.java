@@ -153,7 +153,7 @@ public class ClientMethodMapperTests {
                     .forEach(method -> {
                         Assertions.assertEquals(Mappers.getObjectMapper().map(metadata.getBaseSchema()),
                             method.getSseMetadata().getEventType());
-                        Assertions.assertEquals(SseUtil.getSerializerType(method.getSseMetadata().getEventType()),
+                        Assertions.assertEquals(SseUtil.getSerializerType(metadata.getBaseSchema()),
                             method.getSseMetadata().getSerializerType());
                         Assertions.assertEquals(SseUtil.getTerminalEventNames(metadata),
                             method.getSseMetadata().getTerminalEventNames());

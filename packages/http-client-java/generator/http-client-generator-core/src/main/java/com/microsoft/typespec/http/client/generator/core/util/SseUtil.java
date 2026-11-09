@@ -130,9 +130,12 @@ public final class SseUtil {
             + "' with stream ID '" + operation.getSseMetadata().getSseStreamId() + "': " + reason + ".");
     }
 
-    public static String getSerializerPackage() {
+    public static String getSerializerPackage(ObjectSchema baseSchema) {
         JavaSettings settings = JavaSettings.getInstance();
-        return settings.getPackage(settings.getImplementationSubpackage());
+        String namespace = baseSchema.getLanguage().getJava().getNamespace();
+        return namespace == null || namespace.isEmpty()
+            ? settings.getPackage(settings.getImplementationSubpackage())
+            : settings.getPackageName(namespace, settings.getImplementationSubpackage());
     }
 
     public static Set<ObjectSchema> getSseSchemas(Collection<Client> clients, List<EnumType> enums,
@@ -155,6 +158,13 @@ public final class SseUtil {
         for (ClientModel model : ClientModels.getInstance().getModels()) {
             simpleNames.add(model.getName());
             sourcePaths.add(sourcePath(model.getPackage(), model.getName()));
+        }
+        for (String runtimeName : List.of(SERVER_SENT_EVENT_STREAM_HELPER, "ServerSentEventStreamResponse")) {
+            String path = sourcePath(getRuntimePackage(), runtimeName);
+            if (!sourcePaths.add(path)) {
+                throw new IllegalStateException(
+                    "SSE generated source file '" + path + "' conflicts with another source file.");
+            }
         }
         Set<ObjectSchema> bases = Collections.newSetFromMap(new IdentityHashMap<>());
         for (SseMetadata stream : streams) {
@@ -183,7 +193,7 @@ public final class SseUtil {
                 }
                 schemas.add(schema);
             }
-            ClassType serializer = getSerializerType(baseEventType);
+            ClassType serializer = getSerializerType(stream.getBaseSchema());
             if (!sourcePaths.add(sourcePath(serializer.getPackage(), serializer.getName()))) {
                 throw new IllegalStateException(
                     "SSE generated source file '" + sourcePath(serializer.getPackage(), serializer.getName())
@@ -199,11 +209,12 @@ public final class SseUtil {
 
     public static String getRuntimePackage() {
         JavaSettings settings = JavaSettings.getInstance();
-        return settings.getPackage(settings.getModelsSubpackage(), settings.getImplementationSubpackage(), "sse");
+        return settings.getPackage(settings.getImplementationSubpackage());
     }
 
-    public static ClassType getSerializerType(ClassType baseEventType) {
-        return new ClassType.Builder().packageName(getSerializerPackage())
+    public static ClassType getSerializerType(ObjectSchema baseSchema) {
+        ClassType baseEventType = Mappers.getObjectMapper().map(baseSchema);
+        return new ClassType.Builder().packageName(getSerializerPackage(baseSchema))
             .name(baseEventType.getName() + "Serializer")
             .build();
     }

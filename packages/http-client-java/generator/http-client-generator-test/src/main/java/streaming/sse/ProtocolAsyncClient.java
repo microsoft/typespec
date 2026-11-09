@@ -17,9 +17,9 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import streaming.sse.implementation.ProtocolEventSerializer;
 import streaming.sse.implementation.ProtocolsImpl;
-import streaming.sse.models.implementation.sse.ServerSentEventStreamHelper;
+import streaming.sse.implementation.ServerSentEventStreamHelper;
+import streaming.sse.protocol.implementation.ProtocolEventSerializer;
 import streaming.sse.protocol.models.ProtocolEvent;
 
 /**

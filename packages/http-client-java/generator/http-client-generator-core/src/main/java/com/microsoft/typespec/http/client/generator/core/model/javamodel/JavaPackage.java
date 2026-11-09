@@ -129,8 +129,9 @@ public class JavaPackage {
     }
 
     public final void addSseEventSerializer(ClientModel baseModel) {
-        JavaFile serializerFile = javaFileFactory.createSourceFile(SseUtil.getSerializerPackage(),
-            SseUtil.requireSseMetadata(baseModel).getSerializerType().getName());
+        var serializerType = SseUtil.requireSseMetadata(baseModel).getSerializerType();
+        JavaFile serializerFile
+            = javaFileFactory.createSourceFile(serializerType.getPackage(), serializerType.getName());
         if (filePaths.contains(serializerFile.getFilePath())) {
             throw new IllegalStateException("SSE generated source file '" + serializerFile.getFilePath()
                 + "' conflicts with another generated source file.");

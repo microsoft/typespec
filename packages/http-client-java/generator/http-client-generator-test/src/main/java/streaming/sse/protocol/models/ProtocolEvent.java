@@ -5,7 +5,7 @@
 package streaming.sse.protocol.models;
 
 import com.azure.core.annotation.Generated;
-import streaming.sse.implementation.ProtocolEventSerializer;
+import streaming.sse.protocol.implementation.ProtocolEventSerializer;
 
 /**
  * Base for polymorphic events emitted by a streaming protocol event.
@@ -14,7 +14,7 @@ import streaming.sse.implementation.ProtocolEventSerializer;
  * {@link #getEventName()}; their payloads are not available and they are not terminal.
  * Stream events are envelopes, not JSON payload models; serialize the typed payload instead.
  * 
- * @see ProtocolEventMessageStreamEvent
+ * @see MessageProtocolEvent
  */
 public abstract class ProtocolEvent {
     @Generated
@@ -59,8 +59,8 @@ public abstract class ProtocolEvent {
             }
 
             @Override
-            public ProtocolEventMessageStreamEvent createMessage(ProtocolInfo value) {
-                return new ProtocolEventMessageStreamEvent(value);
+            public MessageProtocolEvent createMessage(ProtocolInfo value) {
+                return new MessageProtocolEvent(value);
             }
         });
     }
