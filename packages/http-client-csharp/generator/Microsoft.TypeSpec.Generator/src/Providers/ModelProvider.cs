@@ -1663,7 +1663,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 foreach (var property in model.CanonicalView.Properties)
                 {
                     if (!memberNames.Add(property.Name)
-                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || property.WireInfo == null)
+                        || !MethodSignatureHelper.IsPublicApi(property.Modifiers) || property.WireInfo == null
+                        || property is { WireInfo.IsRequired: true, Type: { IsLiteral: true, IsNullable: false } })
                     {
                         continue;
                     }

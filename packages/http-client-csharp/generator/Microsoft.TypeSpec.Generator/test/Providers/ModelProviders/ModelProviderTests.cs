@@ -5749,6 +5749,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(writer.ToString(false), Is.EqualTo(Helpers.GetExpectedFromFile()));
         }
 
+        [TestCase("StringModel")]
+        [TestCase("BoolModel")]
+        [TestCase("IntModel")]
+        public async Task BackCompat_ConstructorNotRestoredForRequiredLiteral(string modelName)
+        {
+            var literalType = modelName switch
+            {
+                "BoolModel" => InputFactory.Literal.Bool(true),
+                "IntModel" => InputFactory.Literal.Int32(3),
+                _ => InputFactory.Literal.String("fixed"),
+            };
+            var inputModel = InputFactory.Model(modelName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("value", literalType, isRequired: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            var property = modelProvider.Properties.Single();
+            Assert.That(property.Type.IsLiteral, Is.True);
+            Assert.That(property.Body.HasSetter, Is.False);
+            Assert.That(((AutoPropertyBody)property.Body).InitializationExpression, Is.Not.Null);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
         [TestCase("generatedAuto", true)]
         [TestCase("localBacking", true)]
         [TestCase("trackingStorage", true)]
@@ -5773,16 +5803,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 baseModel: baseModel);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: baseModel is null ? [inputModel] : [baseModel, inputModel],
-                compilation: change == "customGetter" ? async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("MockInputModel.cs", """
-                        namespace Sample.Models
-                        {
-                            public partial class MockInputModel
-                            {
-                                public System.Collections.Generic.IList<string> Resources => new System.Collections.Generic.List<string>();
-                            }
-                        }
-                        """)]) : null,
+                compilation: change == "customGetter" ? async () => await Helpers.GetCompilationFromDirectoryAsync() : null,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("List",
                     method: nameof(BackCompat_ConstructorRelaxedCollectionIsRestored)));
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
