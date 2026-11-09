@@ -499,8 +499,16 @@ namespace SseEnvelopeNaming {
     },
   }
 
+  @events
+  union RetrievalStreamEvents {
+    `retrieval.started`: {
+      @data value: string,
+    },
+  }
+
   @route("/envelopes") @get op envelopes(): SSEStream<EnvelopeEvents>;
   @route("/fallbacks") @get op fallbacks(): SSEStream<FallbackEvents>;
+  @route("/repeated-words") @get op repeatedWords(): SSEStream<RetrievalStreamEvents>;
 }
 
 namespace SseEnvelopeReuse {

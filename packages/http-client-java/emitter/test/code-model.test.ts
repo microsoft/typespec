@@ -1079,7 +1079,11 @@ describe("code model characterization", () => {
     expect(metadata.envelopes.events[2].eventSchema.language.java?.name).toBe("XMLStreamEvent");
     expect(
       metadata.fallbacks.events.map((event) => event.eventSchema.language.default.name),
-    ).toEqual(["FallbackEventDirectStreamEvent", "FallbackEventAnonymousStreamEvent"]);
+    ).toEqual(["DirectFallbackEvent", "AnonymousFallbackEvent"]);
+    expect(metadata.repeatedWords.baseSchema.language.default.name).toBe("RetrievalStreamEvent");
+    expect(metadata.repeatedWords.events[0].eventSchema.language.default.name).toBe(
+      "RetrievalStartedRetrievalStreamEvent",
+    );
     expect(
       metadata.fallbacks.events.map(
         (event) => event.eventSchema.properties?.[0].schema.language.default.name,
@@ -1135,7 +1139,7 @@ describe("code model characterization", () => {
         },
       }).build(),
     ).rejects.toThrow(
-      "SSE union 'RetrievalStreamEvents' event wrapper name 'RetrievalStartedStreamEvent' is requested by wire events 'retrieval.started' and 'retrieval-started'.",
+      "SSE union 'RetrievalStreamEvents' event wrapper name 'RetrievalStartedRetrievalStreamEvent' is requested by wire events 'retrieval.started' and 'retrieval-started'.",
     );
   });
 

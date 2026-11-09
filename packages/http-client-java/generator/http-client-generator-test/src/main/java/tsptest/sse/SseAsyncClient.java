@@ -18,8 +18,10 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tsptest.sse.implementation.RetrievalStreamEventSerializer;
 import tsptest.sse.implementation.StreamOperationsImpl;
 import tsptest.sse.implementation.TestStreamEventSerializer;
+import tsptest.sse.models.RetrievalStreamEvent;
 import tsptest.sse.models.implementation.sse.ServerSentEventStreamHelper;
 import tsptest.sse.stream.models.TestStreamEvent;
 
@@ -69,6 +71,29 @@ public final class SseAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> readWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.readWithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The readFallback operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> readFallbackWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.readFallbackWithResponseAsync(requestOptions);
     }
 
     /**
@@ -136,5 +161,25 @@ public final class SseAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return readWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
             TestStreamEventSerializer::deserialize, TestStreamEvent::isTerminal));
+    }
+
+    /**
+     * The readFallback operation.
+     * 
+     * Events are polymorphic: see {@link RetrievalStreamEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link RetrievalStreamEvent#getEventName()}; their payloads are not available.
+     * 
+     * If received, the terminal {@code activity.completed} event is emitted before the stream completes. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are propagated through the reactive
+     * error path. The client does not reconnect automatically.
+     * 
+     * @return A stream of typed retrieval events.
+     */
+    @Generated
+    public Flux<RetrievalStreamEvent> readFallback() {
+        RequestOptions requestOptions = new RequestOptions();
+        return readFallbackWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
+            .toFlux(response, RetrievalStreamEventSerializer::deserialize, RetrievalStreamEvent::isTerminal));
     }
 }

@@ -108,11 +108,26 @@ union ProtocolOnlyStreamEvents {
   message: ProtocolOnlyMessageStreamEvent,
 }
 
+@events
+union RetrievalStreamEvents {
+  `retrieval.started`: StartedPayload,
+  `123.done`: string,
+
+  @terminalEvent
+  `activity.completed`: {
+    @data payload: CompletedPayload,
+  },
+}
+
 @clientNamespace("TspTest.Sse.Stream", "java")
 interface Stream {
   @route("/stream")
   @get
   read(@header authorization?: string): SSEStream<TestStreamEvents>;
+
+  @route("/fallback")
+  @get
+  readFallback(): SSEStream<RetrievalStreamEvents>;
 
   @route("/protocol-only")
   @get

@@ -17,8 +17,10 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
+import tsptest.sse.implementation.RetrievalStreamEventSerializer;
 import tsptest.sse.implementation.StreamOperationsImpl;
 import tsptest.sse.implementation.TestStreamEventSerializer;
+import tsptest.sse.models.RetrievalStreamEvent;
 import tsptest.sse.models.implementation.sse.ServerSentEventStreamHelper;
 import tsptest.sse.stream.models.TestStreamEvent;
 
@@ -68,6 +70,29 @@ public final class SseClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> readWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.readWithResponse(requestOptions);
+    }
+
+    /**
+     * The readFallback operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> readFallbackWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.readFallbackWithResponse(requestOptions);
     }
 
     /**
@@ -145,5 +170,30 @@ public final class SseClient {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreamHelper.toIterableStream(readWithResponse(requestOptions),
             TestStreamEventSerializer::deserialize, TestStreamEvent::isTerminal);
+    }
+
+    /**
+     * The readFallback operation.
+     * 
+     * Events are polymorphic: see {@link RetrievalStreamEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
+     * {@link RetrievalStreamEvent#getEventName()}; their payloads are not available.
+     * 
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     * 
+     * If received, the terminal {@code activity.completed} event is emitted before iteration ends. A failure while
+     * closing after a terminal event is reported by the next iterator access or explicit close, after the terminal
+     * event is delivered. End-of-stream without a terminal event completes normally. Transport and decoding failures
+     * are thrown during iteration. The client does not reconnect automatically.
+     * 
+     * @return A closeable stream of typed retrieval events.
+     */
+    @Generated
+    public CloseableIterableStream<RetrievalStreamEvent> readFallback() {
+        RequestOptions requestOptions = new RequestOptions();
+        return ServerSentEventStreamHelper.toIterableStream(readFallbackWithResponse(requestOptions),
+            RetrievalStreamEventSerializer::deserialize, RetrievalStreamEvent::isTerminal);
     }
 }

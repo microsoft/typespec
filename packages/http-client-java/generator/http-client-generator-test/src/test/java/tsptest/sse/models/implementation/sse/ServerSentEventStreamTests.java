@@ -30,7 +30,12 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import tsptest.sse.SseAsyncClient;
 import tsptest.sse.SseClient;
+import tsptest.sse.implementation.RetrievalStreamEventSerializer;
 import tsptest.sse.implementation.TestStreamEventSerializer;
+import tsptest.sse.models.ActivityCompletedRetrievalStreamEvent;
+import tsptest.sse.models.OneTwoThreeDoneRetrievalStreamEvent;
+import tsptest.sse.models.RetrievalStartedRetrievalStreamEvent;
+import tsptest.sse.models.RetrievalStreamEvent;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
 import tsptest.sse.stream.models.TestDurationStreamEvent;
@@ -45,6 +50,8 @@ import tsptest.sse.stream.models.TestTextStreamEvent;
 public class ServerSentEventStreamTests {
     private static final BiFunction<String, String, TestStreamEvent> DESERIALIZER
         = TestStreamEventSerializer::deserialize;
+    private static final BiFunction<String, String, RetrievalStreamEvent> FALLBACK_DESERIALIZER
+        = RetrievalStreamEventSerializer::deserialize;
 
     @Test
     public void decodesFragmentedUtf8AndCrLfUntilInclusiveTerminalEvent() {
@@ -173,6 +180,8 @@ public class ServerSentEventStreamTests {
     public void generatedClientsPreserveProtocolAndReplaceRawConvenienceMethods() {
         assertSseApiShape(SseClient.class, CloseableIterableStream.class);
         assertSseApiShape(SseAsyncClient.class, Flux.class);
+        assertFallbackApiShape(SseClient.class, CloseableIterableStream.class);
+        assertFallbackApiShape(SseAsyncClient.class, Flux.class);
         assertProtocolOnlyApiShape(SseClient.class);
         assertProtocolOnlyApiShape(SseAsyncClient.class);
         Assertions.assertThrows(ClassNotFoundException.class,
@@ -180,9 +189,29 @@ public class ServerSentEventStreamTests {
     }
 
     @Test
+    public void generatedFallbackWrappersUseLiteralPrefixNames() {
+        RetrievalStartedRetrievalStreamEvent started
+            = Assertions.assertInstanceOf(RetrievalStartedRetrievalStreamEvent.class,
+                FALLBACK_DESERIALIZER.apply("retrieval.started", "{\"message\":\"started\"}"));
+        Assertions.assertEquals("started", started.getValue().getMessage());
+
+        OneTwoThreeDoneRetrievalStreamEvent digitLeading = Assertions.assertInstanceOf(
+            OneTwoThreeDoneRetrievalStreamEvent.class, FALLBACK_DESERIALIZER.apply("123.done", "\"done\""));
+        Assertions.assertEquals("done", digitLeading.getValue());
+
+        ActivityCompletedRetrievalStreamEvent completed
+            = Assertions.assertInstanceOf(ActivityCompletedRetrievalStreamEvent.class,
+                FALLBACK_DESERIALIZER.apply("activity.completed", "{\"result\":[\"complete\"]}"));
+        Assertions.assertEquals(List.of("complete"), completed.getValue().getResult());
+        Assertions.assertTrue(completed.isTerminal());
+    }
+
+    @Test
     public void generatedEventWrappersKeepSdkOnlyConstructors() {
         for (Class<?> type : List.of(TestStreamEvent.class, TestStartedStreamEvent.class,
-            TestCompletedStreamEvent.class, TestTextStreamEvent.class)) {
+            TestCompletedStreamEvent.class, TestTextStreamEvent.class, RetrievalStreamEvent.class,
+            RetrievalStartedRetrievalStreamEvent.class, OneTwoThreeDoneRetrievalStreamEvent.class,
+            ActivityCompletedRetrievalStreamEvent.class)) {
             Assertions.assertTrue(Arrays.stream(type.getDeclaredConstructors())
                 .noneMatch(constructor -> Modifier.isPublic(constructor.getModifiers())
                     || Modifier.isProtected(constructor.getModifiers())));
@@ -207,6 +236,24 @@ public class ServerSentEventStreamTests {
             .anyMatch(method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == String.class));
         Assertions.assertFalse(Arrays.stream(clientType.getDeclaredMethods())
             .anyMatch(method -> method.getName().startsWith("hiddenGenerated")));
+    }
+
+    private static void assertFallbackApiShape(Class<?> clientType, Class<?> typedReturnType) {
+        Method protocolMethod = Arrays.stream(clientType.getDeclaredMethods())
+            .filter(method -> method.getName().equals("readFallbackWithResponse"))
+            .filter(method -> Arrays.equals(method.getParameterTypes(), new Class<?>[] { RequestOptions.class }))
+            .findFirst()
+            .orElseThrow();
+        Method convenienceMethod = Arrays.stream(clientType.getDeclaredMethods())
+            .filter(method -> method.getName().equals("readFallback"))
+            .filter(method -> method.getParameterCount() == 0)
+            .findFirst()
+            .orElseThrow();
+
+        Assertions.assertTrue(Modifier.isPublic(protocolMethod.getModifiers()));
+        Assertions.assertEquals(typedReturnType, convenienceMethod.getReturnType());
+        Assertions.assertTrue(
+            convenienceMethod.getGenericReturnType().getTypeName().contains(RetrievalStreamEvent.class.getName()));
     }
 
     private static void assertProtocolOnlyApiShape(Class<?> clientType) {

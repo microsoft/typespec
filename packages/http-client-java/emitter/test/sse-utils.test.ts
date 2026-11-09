@@ -78,7 +78,7 @@ describe("SSE schema construction", () => {
     expect(started.properties?.[0].schema).toBe(payload);
     expect(payload).toEqual(originalPayload);
     expect(schemas.eventSchemas.get("response.completed")!.language.default.name).toBe(
-      "RetrievalResponseCompletedStreamEvent",
+      "ResponseCompletedRetrievalStreamEvent",
     );
     expect(schemas.eventSchemas.get("response.completed")).toMatchObject({
       sseMetadata: {
@@ -87,6 +87,24 @@ describe("SSE schema construction", () => {
         terminal: true,
       },
     });
+  });
+
+  it.each([
+    ["RetrievalStreamEvents", "retrieval.started", "RetrievalStartedRetrievalStreamEvent"],
+    ["SearchEvents", "activity.started", "ActivityStartedSearchEvent"],
+    ["SearchEvents", "activity_started", "ActivityStartedSearchEvent"],
+    ["SearchEvents", "activity-started", "ActivityStartedSearchEvent"],
+    ["123StreamEvents", "123", "123123StreamEvent"],
+  ])("prefixes the full event name onto %s for %s", (streamName, name, expectedName) => {
+    const schemas = createSseSchemas({
+      streamName,
+      sourceNamespace: "SseNaming",
+      javaNamespace: "com.azure.sse",
+      events: [{ name, payload: createStringSchema("string", ""), terminal: false }],
+    });
+
+    expect(schemas.eventSchemas.get(name)!.language.default.name).toBe(expectedName);
+    expect(schemas.eventSchemas.get(name)!.language.java?.name).toBeUndefined();
   });
 
   it("keeps raw digit patterns and leaves Java names unset", () => {
@@ -155,13 +173,70 @@ describe("SSE schema construction", () => {
     );
   });
 
-  it("reports exact pattern conflicts as duplicate schema names", () => {
+  it("rejects normalized fallback name collisions", () => {
+    expect(() =>
+      createSseSchemas({
+        streamName: "SearchEvents",
+        sourceNamespace: "SseNaming",
+        javaNamespace: "com.azure.sse",
+        events: ["activity.started", "activity-started"].map((name) => ({
+          name,
+          payload: createStringSchema("string", ""),
+          terminal: false,
+        })),
+      }),
+    ).toThrow(
+      "SSE union 'SearchEvents' event wrapper name 'ActivityStartedSearchEvent' is requested by wire events 'activity.started' and 'activity-started'.",
+    );
+  });
+
+  it.each([false, true])(
+    "rejects authored/fallback collisions with reversed order %s",
+    (reverse) => {
+      const events = [
+        {
+          name: "authored",
+          payload: createStringSchema("string", ""),
+          terminal: false,
+          schemaName: "UpdatedSearchEvent",
+        },
+        {
+          name: "updated",
+          payload: createStringSchema("string", ""),
+          terminal: false,
+        },
+      ];
+      if (reverse) {
+        events.reverse();
+      }
+
+      expect(() =>
+        createSseSchemas({
+          streamName: "SearchEvents",
+          sourceNamespace: "SseNaming",
+          javaNamespace: "com.azure.sse",
+          events,
+        }),
+      ).toThrow(
+        `SSE union 'SearchEvents' event wrapper name 'UpdatedSearchEvent' is requested by wire events '${events[0].name}' and '${events[1].name}'.`,
+      );
+    },
+  );
+
+  it("rejects requested wrapper names that conflict with the base", () => {
     expect(() =>
       createSseSchemas({
         streamName: "123StreamEvents",
         sourceNamespace: "SseNaming",
         javaNamespace: "com.azure.sse",
-        events: [{ name: "123", payload: createStringSchema("string", ""), terminal: false }],
+        events: [
+          {
+            name: "123",
+            payload: createStringSchema("string", ""),
+            terminal: false,
+            schemaName: "123StreamEvent",
+          },
+        ],
       }),
     ).toThrow(
       "SSE union '123StreamEvents' event wrapper name '123StreamEvent' for wire event '123' conflicts with the stream base schema.",

@@ -8,8 +8,6 @@ import {
 } from "./common/schemas/model.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 
-const SSE_STREAM_EVENT_SUFFIX = "StreamEvent";
-
 export interface SseSchemas {
   baseSchema: ObjectSchema;
   eventSchemas: Map<string, ObjectSchema>;
@@ -106,27 +104,15 @@ function resolveSseSchemaNames(
   const baseName = normalizedStreamName.endsWith("Events")
     ? normalizedStreamName.slice(0, -1)
     : `${normalizedStreamName}Event`;
-  const baseStem = baseName.endsWith(SSE_STREAM_EVENT_SUFFIX)
-    ? baseName.slice(0, -SSE_STREAM_EVENT_SUFFIX.length)
-    : baseName;
   const resolvedEventNames = new Map<string, string>();
   const wireNamesBySchemaName = new Map<string, string>();
   for (const { name: eventName, schemaName: requestedSchemaName } of events) {
-    let prefix = baseStem;
-    const firstSegment = eventName
-      .split(/[^A-Za-z0-9]+/)
-      .filter((segment) => segment.length > 0)
-      .map(javaToPascalCase)[0];
-    if (firstSegment && baseStem.endsWith(firstSegment)) {
-      prefix = baseStem.slice(0, -firstSegment.length);
-    }
     const normalizedEventName = eventName
       .split(/[^A-Za-z0-9]+/)
       .filter((segment) => segment.length > 0)
       .map(javaToPascalCase)
       .join("");
-    const schemaName =
-      requestedSchemaName ?? `${prefix}${normalizedEventName}${SSE_STREAM_EVENT_SUFFIX}`;
+    const schemaName = requestedSchemaName ?? `${normalizedEventName}${baseName}`;
     const collidingWireName = wireNamesBySchemaName.get(schemaName);
     if (schemaName === baseName) {
       throw new Error(
