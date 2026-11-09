@@ -444,7 +444,8 @@ export type Value =
   | ArrayValue
   | EnumValue
   | NullValue
-  | FunctionValue;
+  | FunctionValue
+  | TypeRefValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -4121,4 +4122,24 @@ export interface Tracer {
    * separated by a dot. Child tracers share the parent's filtering and log destination.
    */
   sub(subarea: string): Tracer;
+}
+
+/**
+ * The native generic scalar used to store a compile-time type reference.
+ * Its template argument constrains the referenced type.
+ */
+export interface TypeRefType extends Scalar {
+  /** The name of the standard type-reference declaration. */
+  name: "TypeRef";
+}
+
+/**
+ * A value referencing an existing compiler type without copying it.
+ * Its inferred storage type is `TypeRef<T>`; the precise referenced type is available through `target`.
+ */
+export interface TypeRefValue extends BaseValue {
+  /** Identifies this value as a reference to a compiler type. */
+  valueKind: "TypeRefValue";
+  /** The referenced compiler type, preserving its original identity. */
+  target: Type;
 }

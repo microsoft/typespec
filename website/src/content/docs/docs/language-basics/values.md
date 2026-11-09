@@ -11,7 +11,7 @@ Values cannot be used as types, and types cannot be used as values, they are com
 
 ## Value kinds
 
-There are four kinds of values: objects, arrays, scalars, and null. These values can be created with object values, array values, scalar values and constructors, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
+Values can be objects, arrays, scalars, null, or type references. These values can be created with object values, array values, scalar values and constructors, the null literal, and `typeref` respectively. Additionally, values can result from referencing enum members and union variants.
 
 ### Object values
 
@@ -188,3 +188,37 @@ union Color {
 @setColorType(Color.red) // passes the string literal type `"red"`
 model A {}
 ```
+
+## Type-reference values
+
+:::warning
+`typeref` is experimental and requires the `typeref` compiler feature. Its API and behavior may change in future releases. Enable it in the `tspconfig.yaml` of the project or library that calls the function:
+
+```yaml
+kind: project
+features:
+  - typeref
+```
+
+:::
+
+A library may need metadata that combines ordinary values with references to TypeSpec types. For example, a model registration can contain a name and the model it describes. Use `typeref(Widget)` to include the `Widget` model in that value:
+
+```typespec
+model Widget {
+  id: string;
+}
+
+model ModelRegistration {
+  name: string;
+  type: TypeRef;
+}
+
+const registration: ModelRegistration = #{ name: "widget", type: typeref(Widget) };
+```
+
+Here, `name` is a string value and `type` contains an opaque reference to the actual `Widget` model, not its name or an instance of it. `typeref(Widget)` has type `TypeRef<Widget>`. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to require a reference to a type assignable to `T`. Ordinary values such as strings and numbers cannot be assigned to `TypeRef`.
+
+The argument to `typeref` must be a type, such as a model, namespace, instantiated template, union, or tuple, not a value. For example, `typeref("Widget")` references a string literal type; it does not look up the model named `Widget`.
+
+JavaScript implementations receive each reference as a `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler `Type`. References preserve type identity and can be nested in objects and arrays, but are not implicitly converted back into types. They are compilation metadata and cannot be serialized as JSON.
