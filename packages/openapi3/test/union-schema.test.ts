@@ -183,9 +183,11 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
       });
     });
 
-    it("envelope none", async () => {
-      const res = await openApiFor(
-        `
+    it.each([false, true])(
+      "injects a required discriminator without an envelope (sealed: %s)",
+      async (sealObjectSchemas) => {
+        const res = await openApiFor(
+          `
         model A {
           a: string;
         }
@@ -200,19 +202,151 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
           b: B
         }
         `,
-      );
+          { "seal-object-schemas": sealObjectSchemas },
+        );
 
-      deepStrictEqual(res.components.schemas.AorB, {
+        deepStrictEqual(res.components.schemas.AorB, {
+          type: "object",
+          oneOf: [{ $ref: "#/components/schemas/AorBA" }, { $ref: "#/components/schemas/AorBB" }],
+          discriminator: {
+            propertyName: "kind",
+            mapping: {
+              a: "#/components/schemas/AorBA",
+              b: "#/components/schemas/AorBB",
+            },
+          },
+        });
+        const indexer = res.openapi === "3.0.0" ? "additionalProperties" : "unevaluatedProperties";
+        const sealed = sealObjectSchemas ? { [indexer]: { not: {} } } : {};
+        deepStrictEqual(res.components.schemas.AorBA, {
+          type: "object",
+          properties: {
+            kind: { type: "string", enum: ["a"] },
+            a: { type: "string" },
+          },
+          required: ["kind", "a"],
+          ...sealed,
+        });
+        deepStrictEqual(res.components.schemas.AorBB, {
+          type: "object",
+          properties: {
+            kind: { type: "string", enum: ["b"] },
+            b: { type: "string" },
+          },
+          required: ["kind", "b"],
+          ...sealed,
+        });
+        deepStrictEqual(res.components.schemas.A, {
+          type: "object",
+          properties: { a: { type: "string" } },
+          required: ["a"],
+          ...sealed,
+        });
+        deepStrictEqual(res.components.schemas.B, {
+          type: "object",
+          properties: { b: { type: "string" } },
+          required: ["b"],
+          ...sealed,
+        });
+      },
+    );
+
+    it("keeps envelope-free variants distinct when they share an inherited payload", async () => {
+      const res = await openApiFor(`
+        @service namespace Example;
+
+        model Base {
+          name: string;
+          ...Record<string>;
+        }
+
+        model Payload extends Base {
+          value: string;
+        }
+
+        @discriminated(#{ envelope: "none", discriminatorPropertyName: "tag" })
+        union Limit {
+          daily: Payload,
+          weekly: Payload,
+        }
+
+        @route("/limit") @get op read(): Limit;
+        @route("/payload") @get op readPayload(): Payload;
+      `);
+
+      deepStrictEqual(res.components.schemas.Limit, {
         type: "object",
-        oneOf: [{ $ref: "#/components/schemas/A" }, { $ref: "#/components/schemas/B" }],
+        oneOf: [
+          { $ref: "#/components/schemas/LimitDaily" },
+          { $ref: "#/components/schemas/LimitWeekly" },
+        ],
         discriminator: {
-          propertyName: "kind",
+          propertyName: "tag",
           mapping: {
-            a: "#/components/schemas/A",
-            b: "#/components/schemas/B",
+            daily: "#/components/schemas/LimitDaily",
+            weekly: "#/components/schemas/LimitWeekly",
           },
         },
       });
+      for (const [name, tag] of [
+        ["LimitDaily", "daily"],
+        ["LimitWeekly", "weekly"],
+      ]) {
+        deepStrictEqual(res.components.schemas[name], {
+          type: "object",
+          properties: {
+            tag: { type: "string", enum: [tag] },
+            value: { type: "string" },
+            name: { type: "string" },
+          },
+          required: ["tag", "value", "name"],
+          additionalProperties: { type: "string" },
+        });
+      }
+      deepStrictEqual(res.components.schemas.Payload, {
+        type: "object",
+        properties: { value: { type: "string" } },
+        required: ["value"],
+        allOf: [{ $ref: "#/components/schemas/Base" }],
+      });
+      deepStrictEqual(
+        res.paths["/payload"].get.responses["200"].content["application/json"].schema,
+        {
+          $ref: "#/components/schemas/Payload",
+        },
+      );
+    });
+
+    it.each([
+      { name: "missing", discriminator: "" },
+      { name: "optional", discriminator: 'kind?: "a";' },
+    ])("requires $name discriminators with legacy PATCH optionality", async ({ discriminator }) => {
+      const res = await openApiFor(`
+        model Payload {
+          ${discriminator}
+          value: string;
+        }
+
+        @discriminated(#{ envelope: "none" })
+        union U {
+          a: Payload,
+        }
+
+        #suppress "@typespec/http/deprecated-implicit-optionality" "testing legacy behavior"
+        @patch(#{ implicitOptionality: true }) op update(@body data: U): U;
+        @route("/payload") @get op readPayload(): Payload;
+      `);
+
+      const schemas = res.components.schemas;
+      const requestRef = res.paths["/"].patch.requestBody.content["application/json"].schema.$ref;
+      const requestUnion = schemas[requestRef.split("/").at(-1)];
+      const requestVariant = schemas[requestUnion.discriminator.mapping.a.split("/").at(-1)];
+      deepStrictEqual(requestVariant.properties.kind, { type: "string", enum: ["a"] });
+      deepStrictEqual(requestVariant.required, ["kind"]);
+
+      const responseVariant = schemas[schemas.U.discriminator.mapping.a.split("/").at(-1)];
+      deepStrictEqual(responseVariant.required, ["kind", "value"]);
+      deepStrictEqual(schemas.Payload.required, ["value"]);
     });
 
     it("apply name suffixes to synthetic envelope types", async () => {
@@ -644,38 +778,55 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     deepStrictEqual(res.components.schemas.AorB, {
       oneOf: [
         {
-          $ref: "#/components/schemas/A",
+          $ref: "#/components/schemas/AorBA",
         },
         {
-          $ref: "#/components/schemas/B",
+          $ref: "#/components/schemas/AorBB",
         },
       ],
       type: "object",
       discriminator: {
         propertyName: "kind",
         mapping: {
-          a: "#/components/schemas/A",
-          b: "#/components/schemas/B",
+          a: "#/components/schemas/AorBA",
+          b: "#/components/schemas/AorBB",
         },
       },
     });
     deepStrictEqual(res.components.schemas.AorBCreate, {
       oneOf: [
         {
-          $ref: "#/components/schemas/ACreate",
+          $ref: "#/components/schemas/AorBACreate",
         },
         {
-          $ref: "#/components/schemas/BCreate",
+          $ref: "#/components/schemas/AorBBCreate",
         },
       ],
       type: "object",
       discriminator: {
         propertyName: "kind",
         mapping: {
-          a: "#/components/schemas/ACreate",
-          b: "#/components/schemas/BCreate",
+          a: "#/components/schemas/AorBACreate",
+          b: "#/components/schemas/AorBBCreate",
         },
       },
+    });
+    deepStrictEqual(res.components.schemas.AorBA, {
+      type: "object",
+      properties: {
+        kind: { type: "string", enum: ["a"] },
+        a: { type: "string" },
+      },
+      required: ["kind", "a"],
+    });
+    deepStrictEqual(res.components.schemas.AorBACreate, {
+      type: "object",
+      properties: {
+        kind: { type: "string", enum: ["a"] },
+        a: { type: "string" },
+        onACreate: { type: "string" },
+      },
+      required: ["kind", "a", "onACreate"],
     });
   });
 

@@ -57,6 +57,7 @@ import {
   isTypeRefType,
   resolveEncodedEnumMemberValue,
   resolveEncodedName,
+  walkPropertiesInherited,
 } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
 import { $ } from "@typespec/compiler/typekit";
@@ -376,11 +377,14 @@ export class OpenAPI3SchemaEmitterBase<
       }
     }
 
-    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
-    if (discriminator) {
-      if (!requiredProps.includes(discriminator.propertyName)) {
-        requiredProps.push(discriminator.propertyName);
-      }
+    const discriminatorPropertyName =
+      this.#syntheticDiscriminatorProperties.get(model) ??
+      getDiscriminator(this.emitter.getProgram(), model)?.propertyName;
+    if (
+      discriminatorPropertyName !== undefined &&
+      !requiredProps.includes(discriminatorPropertyName)
+    ) {
+      requiredProps.push(discriminatorPropertyName);
     }
 
     return requiredProps.length > 0 ? requiredProps : undefined;
@@ -581,15 +585,42 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   /**
-   * Envelope models are keyed by variant name, since variants can share a payload type.
+   * Synthetic models are keyed by variant name, since variants can share a payload type.
    */
-  #unionVariantEnvelopeVisibilityMap: WeakMap<
+  #unionVariantVisibilityMap: WeakMap<
     Union,
     Map<string, { default: Model; byVisibility: Map<Visibility, Model> }>
   > = new WeakMap();
 
+  #syntheticDiscriminatorProperties = new WeakMap<Model, string>();
+
+  protected getDiscriminatedUnionVariants(union: DiscriminatedUnion): Map<string, Type> {
+    const variants = new Map<string, Type>();
+    const visibility = this.#getVisibilityContext();
+    for (const [name, variant] of union.variants) {
+      const hasDiscriminator =
+        union.options.envelope === "none" &&
+        variant.kind === "Model" &&
+        [...walkPropertiesInherited(variant)].some(
+          (prop) =>
+            prop.name === union.options.discriminatorPropertyName &&
+            !this._metadataInfo.isOptional(prop, visibility) &&
+            this._metadataInfo.isPayloadProperty(
+              prop,
+              visibility,
+              this.#ignoreMetadataAnnotations(),
+            ),
+        );
+      variants.set(
+        name,
+        hasDiscriminator ? variant : this.#getOrCreateVariantModel(union, name, variant),
+      );
+    }
+    return variants;
+  }
+
   /**
-   * Get or create an envelope model for a given discriminated union variant.
+   * Get or create a synthetic model for a given discriminated union variant.
    *
    * This method is cached and will return the same model for the same variant according to visibility transforms,
    * in order to prevent duplicate schema declarations.
@@ -597,28 +628,24 @@ export class OpenAPI3SchemaEmitterBase<
    * @param union - The discriminated union containing the variant.
    * @param variantName - The name of the variant.
    * @param variant - The type of the variant.
-   * @returns The envelope model for the variant.
+   * @returns The synthetic model for the variant.
    */
-  #getOrCreateVariantEnvelopeModel(
-    union: DiscriminatedUnion,
-    variantName: string,
-    variant: Type,
-  ): Model {
+  #getOrCreateVariantModel(union: DiscriminatedUnion, variantName: string, variant: Type): Model {
     const tk = $(this.emitter.getProgram());
 
     const usage = this._visibilityUsage.getUsage(union.type);
 
-    let map = this.#unionVariantEnvelopeVisibilityMap.get(union.type);
+    let map = this.#unionVariantVisibilityMap.get(union.type);
 
     if (!map) {
       map = new Map();
-      this.#unionVariantEnvelopeVisibilityMap.set(union.type, map);
+      this.#unionVariantVisibilityMap.set(union.type, map);
     }
 
     let entry = map.get(variantName);
     if (!entry) {
       // Initialize entry
-      entry = { default: createEnvelopeModel(), byVisibility: new Map() };
+      entry = { default: createVariantModel(), byVisibility: new Map() };
       map.set(variantName, entry);
 
       // Manually track the model's usage according to the union's usage.
@@ -627,13 +654,13 @@ export class OpenAPI3SchemaEmitterBase<
 
     const visibility = this.#getVisibilityContext();
 
-    // We only create envelope models per visibility if the variant type is transformed in that visibility.
-    // Otherwise, we will just use the default envelope model.
+    // Only create models per visibility if the variant type is transformed in that visibility.
+    let model = entry.default;
     if (this._metadataInfo.isTransformed(variant, visibility)) {
       let byVis = entry.byVisibility.get(visibility);
 
       if (!byVis) {
-        byVis = createEnvelopeModel();
+        byVis = createVariantModel();
 
         // Manually track the model's usage according to the union's usage.
         if (usage) this._visibilityUsage.manuallyTrack(byVis, usage);
@@ -641,35 +668,59 @@ export class OpenAPI3SchemaEmitterBase<
         entry.byVisibility.set(visibility, byVis);
       }
 
-      return byVis;
-    } else {
-      return entry.default;
+      model = byVis;
     }
 
-    function createEnvelopeModel(): Model {
-      return tk.model.create({
-        name: union.type.name + capitalize(variantName),
-        properties: {
-          [union.options.discriminatorPropertyName]: tk.modelProperty.create({
-            name: union.options.discriminatorPropertyName,
-            type: tk.literal.createString(variantName),
-          }),
-          [union.options.envelopePropertyName]: tk.modelProperty.create({
-            name: union.options.envelopePropertyName,
-            type: variant,
-          }),
-        },
+    if (union.options.envelope === "none") {
+      this.#syntheticDiscriminatorProperties.set(model, union.options.discriminatorPropertyName);
+    }
+    return model;
+
+    function createVariantModel(): Model {
+      const properties: Record<string, ModelProperty> = Object.create(null);
+      properties[union.options.discriminatorPropertyName] = tk.modelProperty.create({
+        name: union.options.discriminatorPropertyName,
+        type: tk.literal.createString(variantName),
       });
+      let indexer: Model["indexer"];
+      if (union.options.envelope === "none") {
+        compilerAssert(variant.kind === "Model", "Envelope-free variants must be models.");
+        // Spread the payload so sealed schemas admit the injected discriminator.
+        for (const prop of walkPropertiesInherited(variant)) {
+          if (prop.name !== union.options.discriminatorPropertyName) {
+            properties[prop.name] = prop;
+          }
+        }
+        for (let current: Model | undefined = variant; current; current = current.baseModel) {
+          indexer ??= current.indexer;
+        }
+      } else {
+        properties[union.options.envelopePropertyName] = tk.modelProperty.create({
+          name: union.options.envelopePropertyName,
+          type: variant,
+        });
+      }
+
+      const model = tk.model.create({
+        name: union.type.name + capitalize(variantName),
+        properties,
+        indexer,
+      });
+      if (union.options.envelope === "none") {
+        model.namespace = union.type.namespace;
+      }
+      return model;
     }
   }
 
   discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+    const variants = this.getDiscriminatedUnionVariants(union);
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
 
       // Add named variants to the oneOf array
-      for (const variant of union.variants.values()) {
+      for (const variant of variants.values()) {
         items.push(this.emitter.emitTypeReference(variant));
       }
 
@@ -679,7 +730,7 @@ export class OpenAPI3SchemaEmitterBase<
       }
 
       // Build discriminator mapping
-      const mapping = this.getDiscriminatorMapping(union.variants);
+      const mapping = this.getDiscriminatorMapping(variants);
 
       // For default variant in versions < 3.2, add it to the mapping with its discriminator value
       if (union.defaultVariant) {
@@ -695,17 +746,8 @@ export class OpenAPI3SchemaEmitterBase<
         },
       };
     } else {
-      const envelopeVariants = new Map<string, Model>();
-
-      for (const [variantName, variant] of union.variants) {
-        envelopeVariants.set(
-          variantName,
-          this.#getOrCreateVariantEnvelopeModel(union, variantName, variant),
-        );
-      }
-
       const items = new ArrayBuilder();
-      for (const variant of envelopeVariants.values()) {
+      for (const variant of variants.values()) {
         items.push(this.emitter.emitTypeReference(variant));
       }
       schema = {
@@ -713,7 +755,7 @@ export class OpenAPI3SchemaEmitterBase<
         oneOf: items,
         discriminator: {
           propertyName: union.options.discriminatorPropertyName,
-          mapping: this.getDiscriminatorMapping(envelopeVariants),
+          mapping: this.getDiscriminatorMapping(variants),
         },
       };
     }
