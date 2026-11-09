@@ -1927,6 +1927,109 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void NextLinkPagingOmitsOnlyContinuationToken(
+            [Values] bool supportsPageResumption,
+            [Values] bool hasNextLink,
+            [Values] bool isHeader,
+            [Values] bool isContinuationToken,
+            [Values] bool emptyTokenSegments)
+        {
+            InputParameter token = isHeader
+                ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
+                : InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String,
+                location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query);
+            token.Update(isContinuationToken: isContinuationToken,
+                methodParameterSegments: emptyTokenSegments ? [] : [methodToken]);
+            if (emptyTokenSegments)
+            {
+                methodToken.Update(isContinuationToken: isContinuationToken);
+            }
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url),
+                InputFactory.Property("nextToken", InputPrimitiveType.String)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters:
+            [
+                methodToken,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, location: InputRequestLocation.Query)
+            ], pagingMetadata: new InputPagingServiceMetadata(
+                ["items"],
+                hasNextLink ? new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null) : null,
+                hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body)));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient],
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+            var omitToken = supportsPageResumption && hasNextLink && isContinuationToken;
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(omitToken.ToString()), writer.ToString(false));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(true, false, true)]
+        public async Task NextLinkPagingPreservesContinuationTokenOptionsBag(
+            bool supportsPageResumption, bool standaloneToken = false, bool customizeMethods = false)
+        {
+            var optionsModel = InputFactory.Model("GetItemsOptions", properties:
+            [
+                InputFactory.Property("token", InputPrimitiveType.String, isHttpMetadata: true),
+                InputFactory.Property("filter", InputPrimitiveType.String, isHttpMetadata: true)
+            ]);
+            var options = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
+            token.Update(isContinuationToken: true, methodParameterSegments: standaloneToken
+                ? [methodToken]
+                : [options, methodToken]);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            filter.Update(methodParameterSegments:
+            [
+                options, InputFactory.MethodParameter("filter", InputPrimitiveType.String)
+            ]);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters: standaloneToken ? [options, methodToken] : [options],
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [optionsModel, item, page], clients: () => [inputClient],
+                compilation: customizeMethods ? () => Helpers.GetCompilationFromDirectoryAsync("CustomMethods") : null,
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            var baseline = customizeMethods ? "CustomMethods" : standaloneToken ? supportsPageResumption.ToString() : null;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), writer.ToString(false));
+        }
+
+        [Test]
         public void ListMethodWithInheritedPageItems()
         {
             var pagingMetadata = InputFactory.PagingMetadata(
