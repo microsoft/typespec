@@ -5,9 +5,38 @@ steps:
   # Copy mirror settings to default Maven location so all requests go through CFS
   - pwsh: |
       $m2Dir = if ($env:USERPROFILE) { "$env:USERPROFILE\.m2" } else { "$HOME/.m2" }
-      New-Item -ItemType Directory -Force -Path $m2Dir | Out-Null
+      $mavenRepositoryPath = Join-Path $m2Dir "repository"
+      New-Item -ItemType Directory -Force -Path $mavenRepositoryPath | Out-Null
+      Write-Host "##vso[task.setvariable variable=MavenRepositoryPath]$mavenRepositoryPath"
       Copy-Item -Path "${{ parameters.SourceDirectory }}/eng/settings.xml" -Destination "$m2Dir/settings.xml"
+
+      # Hash tracked POMs to avoid circular npm links and keep the cache key bounded.
+      $pomFiles = git -C "${{ parameters.SourceDirectory }}" ls-files -- "**/pom.xml"
+      if ($LASTEXITCODE -ne 0) {
+        throw "Failed to list tracked Maven POM files."
+      }
+      if (-not $pomFiles) {
+        throw "No tracked Maven POM files found."
+      }
+      $pomHashes = $pomFiles | ForEach-Object {
+        $path = Join-Path "${{ parameters.SourceDirectory }}" $_
+        "$_=$((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash)"
+      }
+      $pomHashInput = [System.Text.Encoding]::UTF8.GetBytes($pomHashes -join "`n")
+      $pomHash = [Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData($pomHashInput))
+      Write-Host "##vso[task.setvariable variable=MavenPomHash]$pomHash"
     displayName: "Setup Maven mirror settings"
+
+  # Cache artifacts only; settings.xml contains feed credentials.
+  # Include the stage so test jobs can save dependencies absent from build caches.
+  - task: Cache@2
+    displayName: "Cache Maven repository"
+    inputs:
+      key: '"maven" | "$(Agent.OS)" | "$(System.StageName)" | "$(MavenPomHash)"'
+      restoreKeys: |
+        "maven" | "$(Agent.OS)" | "$(System.StageName)"
+        "maven" | "$(Agent.OS)"
+      path: $(MavenRepositoryPath)
 
   # Authenticate with Azure Artifacts feeds
   # MavenAuthenticate adds <server> entries to ~/.m2/settings.xml matching mirror id 'azure-sdk-for-java'

@@ -61,7 +61,7 @@ try {
     Invoke-LoggedCommand "mvn -version"
 
     # check code format, before package
-    Invoke-LoggedCommand "mvn spotless:check --activate-profiles test"
+    Invoke-LoggedCommand "mvn spotless:check --no-transfer-progress --activate-profiles test"
 
     Invoke-LoggedCommand "mvn clean install --no-transfer-progress -T 1C -f ./pom.xml"
 }
