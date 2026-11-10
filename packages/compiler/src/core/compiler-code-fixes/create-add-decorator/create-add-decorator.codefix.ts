@@ -19,9 +19,12 @@ export function createAddDecoratorCodeFix(
     fix: (context) => {
       const location = getSourceLocation(diagnosticTarget);
       const { lineStart, indent } = findLineStartAndIndent(location);
+      const decorator = `@${args ? `${name}(${args.join(", ")})` : name}`;
+      if (location.file.text.slice(lineStart, location.pos).trim() !== "") {
+        return context.prependText(location, `${decorator} `);
+      }
       const updatedLocation = { ...location, pos: lineStart };
-      const decText = args ? `${name}(${args.join(", ")})\n` : `${name}\n`;
-      return context.prependText(updatedLocation, `${indent}@${decText}`);
+      return context.prependText(updatedLocation, `${indent}${decorator}\n`);
     },
   });
 }
