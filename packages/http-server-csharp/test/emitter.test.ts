@@ -218,6 +218,49 @@ it("emits members from nested provisioning-state unions", async () => {
   expect(provisioningState).toMatch(/Cancelled,?\r?\n}/);
 });
 
+it("emits shared nested-union members once in diamond-shaped union graphs", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      union SharedStates {
+        Shared: "shared",
+      }
+
+      union LeftStates {
+        Left: "left",
+        SharedStates,
+      }
+
+      union RightStates {
+        Right: "right",
+        SharedStates,
+      }
+
+      union DiamondState {
+        LeftStates,
+        RightStates,
+        string,
+      }
+
+      model Resource {
+        state: DiamondState;
+      }
+
+      op read(): Resource;
+    `),
+    { "skip-format": true },
+  );
+  const diamondState = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/DiamondState.cs"),
+  )?.[1];
+
+  expect(diamondState).toContain("public enum DiamondState");
+  expect(diamondState).toContain(`[JsonStringEnumMemberName("left")]`);
+  expect(diamondState).toContain(`[JsonStringEnumMemberName("right")]`);
+  expect(diamondState).toContain(`[JsonStringEnumMemberName("shared")]`);
+  expect(diamondState?.match(/JsonStringEnumMemberName\("shared"\)/g)).toHaveLength(1);
+});
+
 it("terminates safely for recursive string unions without emitting enums", async () => {
   const [result] = await compileAndDiagnose(
     tester,
