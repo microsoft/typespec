@@ -23,7 +23,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputConstant? defaultValue,
             InputSerializationOptions serializationOptions,
             ArrayKnownEncoding? encode = null,
-            IReadOnlyList<string>? apiVersions = null)
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -38,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             SerializationOptions = serializationOptions;
             Encode = encode;
             ApiVersions = apiVersions ?? [];
+            Deprecation = deprecation;
         }
 
         public bool IsDiscriminator { get; internal set; }

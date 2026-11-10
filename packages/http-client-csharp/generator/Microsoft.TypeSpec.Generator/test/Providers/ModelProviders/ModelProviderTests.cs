@@ -94,6 +94,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, derivedModel2Provider.Properties[0].Modifiers);
         }
 
+        [TestCase(true, false, "CS0672")]
+        [TestCase(false, true, "CS0809")]
+        public void DeprecatedOverrideSuppressesDeclarationWarning(
+            bool baseDeprecated,
+            bool derivedDeprecated,
+            string expectedDiagnostic)
+        {
+            var baseProperty = InputFactory.Property(
+                "value",
+                InputPrimitiveType.String,
+                deprecation: baseDeprecated ? "Base message" : null);
+            var baseModel = InputFactory.Model("BaseModel", properties: [baseProperty]);
+            var derivedProperty = InputFactory.Property(
+                "value",
+                InputPrimitiveType.String,
+                deprecation: derivedDeprecated ? "Derived message" : null);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [derivedProperty], baseModel: baseModel);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+
+            var provider = new ModelProvider(derivedModel);
+            var property = provider.Properties.Single();
+
+            CollectionAssert.Contains(
+                property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                $"\"{expectedDiagnostic}\"");
+            Assert.IsEmpty(property.Suppressions, "Declaration-only diagnostics must not be propagated to property accesses.");
+            StringAssert.Contains($"#pragma warning disable {expectedDiagnostic}", new TypeProviderWriter(provider).Write().Content);
+        }
+
         [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithNew()
         {

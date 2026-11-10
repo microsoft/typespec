@@ -223,6 +223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
+            List<PropertyProvider> accessedProperties = [];
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
@@ -233,7 +234,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection,
                         createRequestSignature,
                         convenienceBodyParameters,
-                        methodSignature.Parameters[^1])
+                        methodSignature.Parameters[^1],
+                        accessedProperties)
                 ];
             }
             else if (streamingResponse != null)
@@ -241,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var conversionStatements = GetStackVariablesForProtocolParamConversion(
                     convenienceBodyParameters,
                     out var declarations);
-                var protocolArguments = GetMethodArguments(_createRequestMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1]);
+                var protocolArguments = GetMethodArguments(_createRequestMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1], accessedProperties);
                 var requestOptions = protocolArguments[^1];
                 methodBody =
                 [
@@ -267,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1], accessedProperties)], isAsync))
                 ];
             }
             else
@@ -275,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1], accessedProperties)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
                         || GetPlainTextParseType(responseBodyType, out _) is not null
@@ -300,6 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
+            AddPropertyAccessSuppressions(convenienceMethod, accessedProperties);
             var customProtocol = client.CustomCodeView?.Methods.FirstOrDefault(method =>
                 MethodSignatureBase.SignatureComparer.Equals(method.Signature, protocolMethod.Signature));
             var declarationSuppressions = ExperimentalApiHelpers.GetAttributeSuppressions(
@@ -1191,7 +1194,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature signature,
             Dictionary<string, ValueExpression> declarations,
             IReadOnlyList<ParameterProvider> convenienceMethodParameters,
-            ParameterProvider cancellationToken)
+            ParameterProvider cancellationToken,
+            ICollection<PropertyProvider>? accessedProperties = null)
         {
             List<ValueExpression> conversions = [];
             bool addedSpreadSource = false;
@@ -1254,7 +1258,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
                         typeProvider is ModelProvider paramModel)
                     {
-                        var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments, out var leafProperty);
+                        var propertyExpression = paramModel.GetPropertyExpression(
+                            convenienceParam,
+                            propertySegments,
+                            out var leafProperty,
+                            out var properties);
+                        foreach (var property in properties)
+                        {
+                            accessedProperties?.Add(property);
+                        }
 
                         // When the options property is an enum but the protocol method flattens it to its
                         // serialized (string/number) form, serialize it before forwarding, mirroring the
@@ -1398,6 +1410,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     nonBodyProperties.TryGetValue(protocolParam.Name, out nonBodyProperty))
                 {
                     conversion = bodyParamProvider.Property(nonBodyProperty.Name);
+                    accessedProperties?.Add(nonBodyProperty);
                     return true;
                 }
 
@@ -1533,11 +1546,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ApplyDeprecationAttribute(methodSignature, customSignature);
 
             TypeProvider? collection = null;
+            List<PropertyProvider> accessedProperties = [];
             MethodBodyStatement[] methodBody;
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, createRequestMethod.Signature, bodyParameters)];
+                methodBody = [.. GetPagingMethodBody(
+                    collection,
+                    createRequestMethod.Signature,
+                    bodyParameters,
+                    accessedProperties: accessedProperties)];
             }
             else
             {
@@ -1546,7 +1564,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(createRequestMethod.Signature,
-                            BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
+                            BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters, accessedProperties)), out var message),
                     .. ServiceMethod.Operation.BufferResponse
                         ? []
                         : new MethodBodyStatement[] { message.ToApi<HttpMessageApi>().BufferResponse().Assign(False).Terminate() },
@@ -1575,6 +1593,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Protocol, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(protocolMethod, ServiceMethod.Operation);
+            AddPropertyAccessSuppressions(protocolMethod, accessedProperties);
 
             if (protocolMethod.XmlDocs != null)
             {
@@ -1635,7 +1654,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // customization changes its name. If they cannot be reconciled, retain positional behavior.
         private ValueExpression[] BuildCreateRequestArguments(
             MethodSignature createRequestSignature,
-            IReadOnlyList<ParameterProvider> bodyParameters)
+            IReadOnlyList<ParameterProvider> bodyParameters,
+            ICollection<PropertyProvider>? accessedProperties = null)
         {
             var createRequestParameters = createRequestSignature.Parameters;
 
@@ -1644,7 +1664,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // the bag (e.g. `options.Top`) so CreateRequest still receives the individual values.
             if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
             {
-                var groupedArguments = BuildGroupedCreateRequestArguments(createRequestParameters, bodyParameters);
+                var groupedArguments = BuildGroupedCreateRequestArguments(createRequestParameters, bodyParameters, accessedProperties);
                 if (groupedArguments is not null)
                 {
                     return groupedArguments;
@@ -1678,7 +1698,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static ValueExpression[]? BuildGroupedCreateRequestArguments(
             IReadOnlyList<ParameterProvider> createRequestParameters,
-            IReadOnlyList<ParameterProvider> protocolParameters)
+            IReadOnlyList<ParameterProvider> protocolParameters,
+            ICollection<PropertyProvider>? accessedProperties)
         {
             var arguments = new ValueExpression[createRequestParameters.Count];
 
@@ -1710,7 +1731,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var propertySegments = segments.Skip(1).Select(s => s.Name).ToList();
-                var propertyExpression = groupModel.GetPropertyExpression(groupParameter, propertySegments, out var leafProperty);
+                var propertyExpression = groupModel.GetPropertyExpression(
+                    groupParameter,
+                    propertySegments,
+                    out var leafProperty,
+                    out var properties);
+                foreach (var property in properties)
+                {
+                    accessedProperties?.Add(property);
+                }
 
                 // CreateRequest takes the serialized (string/number) form of an enum, so convert before forwarding.
                 if (leafProperty.Type.IsEnum && !createRequestParameter.Type.IsEnum)
@@ -1777,12 +1806,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider collection,
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> parameters,
-            ParameterProvider? cancellationToken = null)
+            ParameterProvider? cancellationToken = null,
+            ICollection<PropertyProvider>? accessedProperties = null)
         {
             if (cancellationToken != null)
             {
                 var conversionStatements = GetStackVariablesForProtocolParamConversion(parameters, out var declarations);
-                var constructorArguments = GetMethodArguments(createRequestSignature, declarations, parameters, cancellationToken);
+                var constructorArguments = GetMethodArguments(createRequestSignature, declarations, parameters, cancellationToken, accessedProperties);
 
                 return
                     [
@@ -1800,8 +1830,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 collection.Type,
                 [
                     This,
-                    .. BuildCreateRequestArguments(createRequestSignature, parameters)
+                    .. BuildCreateRequestArguments(createRequestSignature, parameters, accessedProperties)
                 ]));
+        }
+
+        private static void AddPropertyAccessSuppressions(MethodProvider method, IEnumerable<PropertyProvider> properties)
+        {
+            method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                method.Suppressions,
+                properties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions)));
         }
 
         private CSharpType GetResponseType(IReadOnlyList<InputOperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)

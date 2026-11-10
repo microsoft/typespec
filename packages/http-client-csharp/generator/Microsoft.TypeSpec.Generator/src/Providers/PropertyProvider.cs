@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
+        internal IReadOnlyList<SuppressionStatement> DeclarationSuppressions { get; private set; } = [];
 
         public string? OriginalName { get; internal init; }
 
@@ -437,7 +438,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyWireInformation? wireInfo = null,
             bool? isRef = null,
             XmlDocProvider? xmlDocs = null,
-            IEnumerable<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null,
+            IEnumerable<SuppressionStatement>? suppressions = null,
+            IEnumerable<SuppressionStatement>? declarationSuppressions = null)
         {
             if (description != null)
             {
@@ -482,6 +485,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            }
+            if (suppressions != null)
+            {
+                Suppressions = ExperimentalApiHelpers.MergeSuppressions(Suppressions, suppressions);
+            }
+            if (declarationSuppressions != null)
+            {
+                DeclarationSuppressions = ExperimentalApiHelpers.MergeSuppressions(DeclarationSuppressions, declarationSuppressions);
             }
             if (isRef is not null)
             {

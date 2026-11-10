@@ -3861,12 +3861,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // https://github.com/microsoft/typespec/issues/11214
             // When @@override groups an operation's parameters into an options bag, the protocol
             // method should adopt the same grouped shape instead of listing every parameter.
+            var filterProperty = InputFactory.Property(
+                "filter",
+                InputPrimitiveType.String,
+                isRequired: false,
+                isHttpMetadata: true,
+                wireName: "filter",
+                deprecation: "Use another filter.");
             var optionsModel = InputFactory.Model(
                 "GetWidgetOptions",
                 properties:
                 [
                     InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
-                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                    filterProperty,
                     InputFactory.Property("top", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "top"),
                 ]);
 
@@ -3920,6 +3927,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Expected shape: (GetWidgetOptions options, RequestOptions <requestOptions>)
             Assert.AreEqual(2, parameters.Count, $"protocol method should take the options bag, but was: ({actual})");
             Assert.AreEqual("GetWidgetOptions", parameters[0].Type.Name, $"actual: ({actual})");
+            CollectionAssert.Contains(
+                protocolMethod!.Suppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                "\"CS0618\"");
 
             // The trailing request options parameter must not collide with the options bag name.
             Assert.AreNotEqual(parameters[0].Name, parameters[1].Name, $"actual: ({actual})");
@@ -4485,12 +4495,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public async Task CombinedMissingOperationParamsAndNonBodyModelParams()
         {
             // Create a body model with HTTP metadata properties (header/query params)
+            var deprecatedHeader = InputFactory.Property(
+                "x-custom-header",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isHttpMetadata: true,
+                wireName: "x-custom-header",
+                deprecation: "Use another header.");
             var requestModel = InputFactory.Model(
                 "RequestModel",
                 properties:
                 [
                     InputFactory.Property("data", InputPrimitiveType.String, isRequired: true, isHttpMetadata: false),
-                    InputFactory.Property("x-custom-header", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "x-custom-header"),
+                    deprecatedHeader,
                     InputFactory.Property("queryParam", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "queryParam"),
                 ]);
 
@@ -4537,8 +4554,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 => m.Signature.Parameters.All(p => p.Name != "options")
                    && m.Signature.Name == "TestOp");
             Assert.IsNotNull(convenienceMethod);
+            CollectionAssert.Contains(
+                convenienceMethod!.Suppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                "\"CS0618\"");
 
-            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var methodBody = convenienceMethod.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 

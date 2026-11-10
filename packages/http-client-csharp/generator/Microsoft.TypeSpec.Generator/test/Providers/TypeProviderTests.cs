@@ -214,6 +214,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(obsolete, provider.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
         }
 
+        [TestCase("previouslyStable", false)]
+        [TestCase("previouslyObsolete", true)]
+        [TestCase("newProperty", true)]
+        public async Task PropertyDeprecationPreservesLastContract(string propertyName, bool obsolete)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var property = InputFactory.Property(propertyName, InputPrimitiveType.String, deprecation: "Current message");
+            var model = InputFactory.Model("StableModel", properties: [property]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.AreEqual(obsolete,
+                provider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+        }
+
         [Test]
         public async Task DeprecationFollowsUpdatedTypeIdentity(
             [Values("model", "fixed", "extensible")] string kind,

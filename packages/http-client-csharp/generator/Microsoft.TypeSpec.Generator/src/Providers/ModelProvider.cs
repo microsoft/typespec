@@ -1019,6 +1019,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
+                PropertyProvider? baseOutputProperty = null;
                 if (!isDiscriminator)
                 {
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.OriginalName)).Value?[property.OriginalName];
@@ -1036,7 +1037,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (baseProperties.TryGetValue(property.OriginalName, out var baseProperty))
                     {
-                        var baseOutputProperty = outputProperty.Type.IsCollection
+                        baseOutputProperty = outputProperty.Type.IsCollection
                             ? EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)
                                 .FirstOrDefault(candidate => candidate.InputProperty == baseProperty)
                             : CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
@@ -1103,6 +1104,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         outputProperty.BaseProperty = baseOutputProperty;
                     }
                 }
+
+                if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers, outputProperty.Attributes) &&
+                    outputProperty.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) &&
+                    LastContractView?.Properties.FirstOrDefault(p =>
+                        p.Name == outputProperty.Name &&
+                        MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes)) is { } lastContractProperty &&
+                    !lastContractProperty.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute))
+                {
+                    outputProperty.Update(attributes:
+                        outputProperty.Attributes.Where(attribute => !DeprecationApiHelpers.IsObsoleteAttribute(attribute)));
+                }
+
+                if (outputProperty.Modifiers.HasFlag(MethodSignatureModifiers.Override) && baseOutputProperty is not null)
+                {
+                    var baseIsObsolete = baseOutputProperty.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+                    var currentIsObsolete = outputProperty.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+                    if (baseIsObsolete != currentIsObsolete)
+                    {
+                        var diagnosticId = baseIsObsolete ? "CS0672" : "CS0809";
+                        outputProperty.Update(declarationSuppressions:
+                        [
+                            new(null, Snippet.Literal(diagnosticId), "This generated property redeclares a member with a different deprecation status.")
+                        ]);
+                    }
+                }
+
                 if (outputProperty.BackingField is { } sharedField && outputProperty.Type.IsCollection
                     && sharedField.Type.Equals(outputProperty.Type.PropertyInitializationType, ignoreNullable: true))
                 {
