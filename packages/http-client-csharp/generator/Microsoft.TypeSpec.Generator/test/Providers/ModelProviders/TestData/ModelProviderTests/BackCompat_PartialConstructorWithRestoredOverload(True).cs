@@ -36,11 +36,11 @@ namespace Sample.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.MockInputModel"/>. </summary>
-        /// <param name="resourceName"> Description for name. </param>
-        /// <param name="resourceCount"> Description for count. </param>
-        public partial MockInputModel(string resourceName, int resourceCount) : this(resourceName)
+        /// <param name="name"> Description for name. </param>
+        /// <param name="count"> Description for count. </param>
+        public partial MockInputModel(string name, int count) : this(name)
         {
-            Count = resourceCount;
+            Count = count;
         }
 
         /// <summary> Description for name. </summary>

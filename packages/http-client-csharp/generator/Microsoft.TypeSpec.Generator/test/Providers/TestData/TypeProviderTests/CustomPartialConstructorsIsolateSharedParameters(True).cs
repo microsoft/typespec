@@ -7,11 +7,11 @@ namespace Test
     /// <summary></summary>
     public partial class CustomPartialConstructorType
     {
-        /// <param name="bicepIdentifier"> The identifier. </param>
-        /// <param name="resourceVersion"> The resource version. </param>
-        public partial CustomPartialConstructorType(string bicepIdentifier, string resourceVersion) : base(bicepIdentifier, resourceVersion)
+        /// <param name="identifier"> The identifier. </param>
+        /// <param name="version"> The resource version. </param>
+        public partial CustomPartialConstructorType(string identifier, string version) : base(identifier, version)
         {
-            resourceVersion.ToString();
+            version.ToString();
         }
 
         /// <param name="version"> The resource version. </param>

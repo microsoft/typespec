@@ -738,13 +738,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static ConstructorProvider CreatePartialConstructorFromCustomSignature(ConstructorSignature customSignature, ConstructorProvider generatedConstructor)
         {
             var generatedSignature = generatedConstructor.Signature;
-            var parameters = PartialMethodCustomization.RenameAndCloneParameters(
-                generatedSignature.Parameters, customSignature.Parameters, removeDefaults: true);
             var signature = new ConstructorSignature(
                 generatedSignature.Type,
                 generatedSignature.Description,
                 customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                parameters,
+                generatedSignature.Parameters,
                 generatedSignature.Attributes,
                 generatedSignature.Initializer);
             signature.Update(nonDocumentComment: generatedSignature.NonDocumentComment);

@@ -15,16 +15,16 @@ namespace Sample.Models
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.MockInputModel"/>. </summary>
-        /// <param name="first_name"> Description for identifier. </param>
-        /// <param name="firstName"> Description for version. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="first_name"/> or <paramref name="firstName"/> is null. </exception>
-        public partial MockInputModel(string first_name, string firstName)
+        /// <param name="identifier"> Description for identifier. </param>
+        /// <param name="version"> Description for version. </param>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="identifier"/> or <paramref name="version"/> is null. </exception>
+        public partial MockInputModel(string identifier, string version)
         {
-            global::Sample.Argument.AssertNotNull(first_name, nameof(first_name));
-            global::Sample.Argument.AssertNotNull(firstName, nameof(firstName));
+            global::Sample.Argument.AssertNotNull(identifier, nameof(identifier));
+            global::Sample.Argument.AssertNotNull(version, nameof(version));
 
-            Identifier = first_name;
-            Version = firstName;
+            Identifier = identifier;
+            Version = version;
         }
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.MockInputModel"/>. </summary>

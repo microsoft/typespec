@@ -218,19 +218,6 @@ namespace Microsoft.TypeSpec.Generator
         {
             ArgumentNullException.ThrowIfNull(ctor, nameof(ctor));
 
-            using var parameterScope = AmbientScope();
-            if (ctor.OriginalParameters is { } originalParameters)
-            {
-                // Bind shared body declarations in this scope without renaming parameters on other constructors.
-                for (int i = 0; i < originalParameters.Count; i++)
-                {
-                    var declaration = ctor.Signature.Parameters[i].AsVariable().Declaration;
-                    var name = ctor.Signature.Parameters[i].Name;
-                    declaration.SetActualName(name, parameterScope);
-                    originalParameters[i].AsVariable().Declaration.SetActualName(name, parameterScope);
-                }
-            }
-
             using (WriteXmlDocs(ctor.XmlDocs))
             {
                 using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(ctor.Signature.Attributes), emitDirectives: false);
@@ -452,6 +439,9 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         public void WriteParameter(ParameterProvider parameter)
+            => WriteParameter(parameter, includeDefault: true);
+
+        private void WriteParameter(ParameterProvider parameter, bool includeDefault)
         {
             for (int i = 0; i < parameter.Attributes.Count; i++)
             {
@@ -471,8 +461,8 @@ namespace Microsoft.TypeSpec.Generator
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 
-            Append($"{parameter.Type} {parameter.AsVariable().Declaration:D}");
-            if (parameter.DefaultValue != null)
+            Append($"{parameter.Type} {parameter.AsVariable().Declaration}");
+            if (includeDefault && parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
                 parameter.DefaultValue.Write(this);
@@ -907,7 +897,8 @@ namespace Microsoft.TypeSpec.Generator
 
             for (int i = 0; i < methodBase.Parameters.Count; i++)
             {
-                WriteParameter(methodBase.Parameters[i]);
+                WriteParameter(methodBase.Parameters[i],
+                    includeDefault: methodBase is not ConstructorSignature || !methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
                 if (i != methodBase.Parameters.Count - 1)
                 {
                     AppendRaw(", ");

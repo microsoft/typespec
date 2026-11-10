@@ -2348,9 +2348,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreSame(constructor.BodyStatements, customized.BodyStatements);
             Assert.AreSame(constructor.BodyExpression, customized.BodyExpression);
             Assert.AreSame(constructor.XmlDocs, customized.XmlDocs);
-            Assert.AreEqual("bicepIdentifier", customized.Signature.Parameters[0].Name);
-            Assert.AreEqual("resourceVersion", customized.Signature.Parameters[1].Name);
-            Assert.IsTrue(customized.Signature.Parameters.All(p => p.DefaultValue == null));
+            Assert.AreSame(signature.Parameters, customized.Signature.Parameters);
+            Assert.AreSame(identifier, customized.Signature.Parameters[0]);
+            Assert.AreSame(version, customized.Signature.Parameters[1]);
             Assert.AreEqual("identifier", identifier.Name);
             Assert.AreEqual("version", version.Name);
             Assert.IsNotNull(version.DefaultValue);
@@ -2403,6 +2403,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 version.Invoke("ToString").Terminate(), typeProvider);
             typeProvider.Update(constructors: customizedFirst ? [customized, ordinary] : [ordinary, customized]);
 
+            Assert.AreSame(customized.Signature.Parameters,
+                typeProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)).Signature.Parameters);
             Assert.AreEqual(Helpers.GetExpectedFromFile(customizedFirst.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
             Assert.AreEqual("version", version.Name);
             Assert.IsNotNull(version.DefaultValue);
