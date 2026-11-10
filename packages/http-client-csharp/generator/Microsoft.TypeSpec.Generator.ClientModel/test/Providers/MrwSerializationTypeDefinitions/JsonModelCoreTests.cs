@@ -69,6 +69,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.That(new TypeProviderWriter(mrwProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SerializationSuppressesInheritedObsoletePropertyWarning(bool baseDeprecated)
+        {
+            var valueType = new InputNullableType(InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("Base", properties:
+                [InputFactory.Property("value", valueType, deprecation: baseDeprecated ? "Base message" : null)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("TestModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", valueType)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var model = new ModelProvider(inputModel);
+            var serialization = model.SerializationProviders.First();
+            var code = new TypeProviderWriter(serialization).Write().Content;
+
+            Assert.That(code.Contains("#pragma warning disable CS0618"), Is.EqualTo(baseDeprecated));
+            Assert.That(code, Does.Not.Contain("CS0672"));
+            if (baseDeprecated)
+            {
+                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), code);
+            }
+        }
+
         [Test]
         public void SnakeCaseSerializedName()
         {

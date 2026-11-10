@@ -210,7 +210,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _nullablePropertyPresence[property] = basePresence;
                         property.Update(body: new MethodPropertyBody(
                             Return(Base.Property(baseProperty.Name)),
-                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null));
+                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null),
+                            declarationSuppressions: ExperimentalApiHelpers.GetMemberSuppressions(baseProperty));
                     }
                     continue;
                 }

@@ -793,7 +793,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     appendStatement = BuildQueryOrHeaderOrPathParameterNullCheck(propertyType, propertyAccess, appendStatement);
                 }
 
-                statements.Add(appendStatement);
+                statements.Add(ExperimentalApiHelpers.Suppress(
+                    appendStatement, ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
             return statements;

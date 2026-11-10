@@ -188,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
-            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes?.ToArray() ?? [];
             Suppressions = suppressions?.ToArray() ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
@@ -484,7 +484,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes.ToArray();
             }
             if (suppressions != null)
             {

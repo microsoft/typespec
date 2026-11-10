@@ -219,8 +219,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("newProperty", true)]
         public async Task PropertyDeprecationPreservesLastContract(string propertyName, bool obsolete)
         {
-            await MockHelpers.LoadMockGeneratorAsync(
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var visitor = new PropertyAttributeVisitor();
+            generator.Object.AddVisitor(visitor);
             var property = InputFactory.Property(propertyName, InputPrimitiveType.String, deprecation: "Current message");
             var model = InputFactory.Model("StableModel", properties: [property]);
 
@@ -228,6 +230,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.AreEqual(obsolete,
                 provider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.That(provider.Properties.Single().Attributes.Any(a => ReferenceEquals(a, visitor.Attribute)), Is.True);
+        }
+
+        [Test]
+        public async Task OverrideReferencesHonorPreservedBaseProperty()
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var baseModel = InputFactory.Model("StableModel", properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Current message")]);
+            var derived = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String)]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString());
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0618\""));
+            Assert.That(property.BaseProperty!.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute), Is.False);
+            Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                Does.Not.Contain("\"CS0672\""));
+        }
+
+        [Test]
+        public async Task DeprecatedOverrideHonorsPreservedBaseProperty()
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var baseModel = InputFactory.Model("StableModel", properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Current message")]);
+            var derived = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Derived message")]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                Does.Contain("\"CS0809\""));
+        }
+
+        private sealed class PropertyAttributeVisitor : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } =
+                new(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Advanced));
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property is not null)
+                {
+                    property.Update(attributes: [.. property.Attributes, Attribute]);
+                }
+                return property;
+            }
         }
 
         [Test]

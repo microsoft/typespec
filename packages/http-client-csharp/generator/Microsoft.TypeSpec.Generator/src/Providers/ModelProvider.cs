@@ -1079,6 +1079,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                     && setterModifiers != MethodSignatureModifiers.None && setterModifiers != MethodSignatureModifiers.Public
                                     ? new MethodPropertyBody(Return(getter), setter?.Terminate(), setterModifiers)
                                     : new ExpressionPropertyBody(getter, setter);
+                                DeprecationApiHelpers.EnsurePropertyInitialized(baseOutputProperty);
+                                outputProperty.Update(declarationSuppressions:
+                                    ExperimentalApiHelpers.GetMemberSuppressions(baseOutputProperty));
                             }
                             else
                             {
@@ -1118,7 +1121,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (outputProperty.Modifiers.HasFlag(MethodSignatureModifiers.Override) && baseOutputProperty is not null)
                 {
-                    var baseIsObsolete = baseOutputProperty.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+                    DeprecationApiHelpers.EnsurePropertyInitialized(baseOutputProperty);
+                    var baseIsObsolete = DeprecationApiHelpers.GetEffectiveObsoleteAttribute(baseOutputProperty) is not null;
                     var currentIsObsolete = outputProperty.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
                     if (baseIsObsolete != currentIsObsolete)
                     {
