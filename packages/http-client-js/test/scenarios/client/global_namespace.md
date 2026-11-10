@@ -42,7 +42,7 @@ export class Client {
   constructor(endpoint: string, options?: ClientOptions) {
     this.#context = createClientContext(endpoint, options);
   }
-  async foo(options?: FooOptions) {
+  async foo(options?: FooOptions): Promise<void> {
     return foo(this.#context, options);
   }
 }
