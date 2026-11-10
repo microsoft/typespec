@@ -83,6 +83,7 @@
       <artifactId>javaparser-core</artifactId>
       <version>3.27.0</version>
     </dependency>
+<<<<<<< HEAD
     <!-- 1.24.0 is the last version that supports Java 11 -->
     <dependency>
       <groupId>com.google.googlejavaformat</groupId>
@@ -91,6 +92,10 @@
     </dependency>
     <!-- 3.27.0 aligns with the version used when Spotless uses Eclipse 4.21 / 4.21.0. -->
     <!-- In the future when this is upgraded it might slightly change code formatting. -->
+=======
+    <!-- Keep Eclipse formatter dependencies pinned to releases compatible with Java 17. -->
+    <!-- Upgrading the formatter may change generated code formatting. -->
+>>>>>>> 4393b81d4b (Remove Google Java Format)
     <dependency>
       <groupId>org.eclipse.jdt</groupId>
       <artifactId>org.eclipse.jdt.core</artifactId>

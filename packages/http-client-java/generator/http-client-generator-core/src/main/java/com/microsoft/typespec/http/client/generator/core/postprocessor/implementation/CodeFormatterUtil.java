@@ -4,23 +4,45 @@
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.Position;
+import com.github.javaparser.Problem;
 import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
+import com.github.javaparser.ast.expr.SuperExpr;
+import com.github.javaparser.ast.expr.ThisExpr;
+import com.github.javaparser.ast.modules.ModuleProvidesDirective;
+import com.github.javaparser.ast.modules.ModuleUsesDirective;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.javadoc.Javadoc;
+import com.github.javaparser.javadoc.JavadocBlockTag;
+import com.github.javaparser.javadoc.description.JavadocDescription;
+import com.github.javaparser.javadoc.description.JavadocDescriptionElement;
+import com.github.javaparser.javadoc.description.JavadocInlineTag;
 import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
 import com.github.javaparser.printer.configuration.imports.DefaultImportOrderingStrategy;
-import com.google.googlejavaformat.FormatterDiagnostic;
-import com.google.googlejavaformat.java.FormatterException;
-import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,12 +53,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 import org.slf4j.Logger;
-import org.w3c.dom.NodeList;
 
 /**
  * Utility class that handles code formatting.
  */
 public final class CodeFormatterUtil {
+    private static final ImportUsageVisitor IMPORT_USAGE_VISITOR = new ImportUsageVisitor();
 
     /**
      * Formats the given files by removing unused imports and applying Eclipse code formatting.
@@ -73,33 +95,60 @@ public final class CodeFormatterUtil {
         DefaultImportOrderingStrategy orderingStrategy = new DefaultImportOrderingStrategy();
         orderingStrategy.setSortImportsAlphabetically(true);
 
-        // Keep unused-import validation eager: collect errors across the whole batch before emitting any files,
-        // rather than interleaving writes with validation and reporting only the first invalid file.
-        return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
+        // Prepare the whole batch before writing files, without retaining every compilation unit in memory.
+        return prepareFiles(files, javaParser, orderingStrategy, logger).stream().map(file -> {
             try {
-                ParseResult<CompilationUnit> parsed = javaParser.parse(entry.getValue());
-                if (!parsed.isSuccessful()) {
-                    throw new ParseProblemException(parsed.getProblems());
-                }
-                CompilationUnit compilationUnit = parsed.getResult().orElseThrow();
-                String file = reorderImports(entry.getValue(), compilationUnit, orderingStrategy);
-                // Reordering imports cannot change whether a module is declared, so reuse this parse. The name
-                // alone is insufficient: some module-info.java inputs are only comments or ordinary Java source.
-                boolean isModuleInfo
-                    = entry.getKey().endsWith("module-info.java") && compilationUnit.getModule().isPresent();
-                file = formatCode(file, isModuleInfo, codeFormatter);
-                return Map.entry(entry.getKey(), file);
+                return Map.entry(file.name, formatCode(file.content, file.moduleInfo, codeFormatter));
             } catch (Exception e) {
-                // print file content
-                String errorMessage
-                    = "Failed to format file: " + entry.getKey() + ". File content: \n" + entry.getValue();
-                if (logger != null) {
-                    logger.error(errorMessage);
-                }
-
-                throw new RuntimeException(errorMessage, e);
+                throw formattingFailure(file.name, file.content, e, logger);
             }
         });
+    }
+
+    private static List<PreparedJavaFile> prepareFiles(Map<String, String> files, JavaParser parser,
+        ImportOrderingStrategy orderingStrategy, Logger logger) {
+        List<PreparedJavaFile> prepared = new ArrayList<>(files.size());
+        StringBuilder errors = new StringBuilder();
+        for (Map.Entry<String, String> file : files.entrySet()) {
+            ParseResult<CompilationUnit> parsed = parser.parse(file.getValue());
+            if (!parsed.isSuccessful()) {
+                for (Problem problem : parsed.getProblems()) {
+                    appendDiagnosticError(errors, problem, file.getKey(), file.getValue(), logger);
+                }
+                if (parsed.getProblems().isEmpty()) {
+                    throw new IllegalStateException("JavaParser produced no compilation unit for " + file.getKey());
+                }
+                continue;
+            }
+
+            try {
+                CompilationUnit compilationUnit = parsed.getResult().orElseThrow();
+                Set<String> usedNames = new HashSet<>();
+                compilationUnit.accept(IMPORT_USAGE_VISITOR, usedNames);
+                parsed.getCommentsCollection().ifPresent(comments -> {
+                    for (Comment comment : comments.getComments()) {
+                        // Without attribution information, retain Javadoc-only imports conservatively.
+                        if (comment instanceof JavadocComment
+                            && (comment.getCommentedNode().isPresent()
+                                || !parser.getParserConfiguration().isAttributeComments())) {
+                            collectJavadocReferences(((JavadocComment) comment).parse(), parser, usedNames);
+                        }
+                    }
+                });
+                String content = reorderImports(file.getValue(), compilationUnit, usedNames, orderingStrategy,
+                    parser.getParserConfiguration().getTabSize());
+                boolean moduleInfo
+                    = file.getKey().endsWith("module-info.java") && compilationUnit.getModule().isPresent();
+                prepared.add(new PreparedJavaFile(file.getKey(), content, moduleInfo));
+            } catch (Exception e) {
+                throw formattingFailure(file.getKey(), file.getValue(), e, logger);
+            }
+        }
+
+        if (errors.length() > 0) {
+            throw new IllegalStateException("JavaParser encountered errors:\n" + errors);
+        }
+        return prepared;
     }
 
     /**
@@ -114,7 +163,7 @@ public final class CodeFormatterUtil {
             org.w3c.dom.Document document = documentBuilder.parse(
                 CodeFormatterUtil.class.getClassLoader().getResourceAsStream("eclipse-format-azure-sdk-for-java.xml"));
 
-            NodeList formatterSettingXml = document.getElementsByTagName("setting");
+            org.w3c.dom.NodeList formatterSettingXml = document.getElementsByTagName("setting");
             Map<String, String> formatterSettings = new LinkedHashMap<>();
             for (int i = 0; i < formatterSettingXml.getLength(); i++) {
                 org.w3c.dom.Node node = formatterSettingXml.item(i);
@@ -129,7 +178,7 @@ public final class CodeFormatterUtil {
     }
 
     /**
-     * Reorders the imports in alphabetical ordering.
+     * Removes unused imports and reorders the remaining imports.
      * <p>
      * This helper method performs many tasks manually to maintain the original formatting of the file as much as
      * possible. Using {@link CompilationUnit} to manipulate the imports and then printing the entire file back
@@ -137,53 +186,98 @@ public final class CodeFormatterUtil {
      *
      * @param file The Java file to reorder imports for.
      * @param compilationUnit The parsed Java file.
+     * @param usedNames The unqualified names referenced by code or Javadoc.
      * @param orderingStrategy The import ordering strategy to use.
-     * @return The Java file with reordered imports, or if the file has no imports the file as-is.
+     * @param tabSize The parser's tab width used by source positions.
+     * @return The Java file with unused imports removed and the remaining imports reordered.
      */
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private static String reorderImports(String file, CompilationUnit compilationUnit,
-        ImportOrderingStrategy orderingStrategy) {
-        com.github.javaparser.ast.NodeList<ImportDeclaration> imports = compilationUnit.getImports();
+    private static String reorderImports(String file, CompilationUnit compilationUnit, Set<String> usedNames,
+        ImportOrderingStrategy orderingStrategy, int tabSize) {
+        NodeList<ImportDeclaration> imports = compilationUnit.getImports();
         if (imports.isEmpty()) {
-            // File has no imports, nothing to reorder.
             return file;
         }
 
-        // Positions of the existing imports in the file.
-        // Position uses 1-based indexing, so when we replace imports later we need to adjust this to 0-based indexing
-        // for Java's List.
-        int importStartLine = imports.stream().mapToInt(i -> i.getBegin().get().line).min().getAsInt();
-        int importEndLine = imports.stream().mapToInt(i -> i.getEnd().get().line).max().getAsInt();
-
-        // Using DefaultImportOrderingStrategy which returns a single NodeList after sorting.
-        // If this strategy is changed, inspect the orderer used for how many NodeLists are returned.
-        // For example, a made up SplitInstanceAndStaticImportOrderingStrategy could return two NodeLists,
-        // one for sorted instance imports and one for sorted static imports.
-        imports = orderingStrategy.sortImports(imports).get(0);
-
-        List<String> lines = file.lines().collect(Collectors.toList());
-
-        int lastLineReplaced = importStartLine - 1;
-        for (ImportDeclaration importDeclaration : distinctImports(imports)) {
-            lines.set(lastLineReplaced, importToString(importDeclaration));
-            lastLineReplaced++;
+        String packageName = compilationUnit.getPackageDeclaration().map(p -> p.getNameAsString()).orElse("");
+        boolean[] retained = new boolean[imports.size()];
+        Set<String> distinct = new HashSet<>();
+        NodeList<ImportDeclaration> sorted = new NodeList<>();
+        for (int i = 0; i < imports.size(); i++) {
+            ImportDeclaration declaration = imports.get(i);
+            String name = declaration.getNameAsString();
+            int separator = name.lastIndexOf('.');
+            String qualifier = declaration.isAsterisk() ? name : name.substring(0, Math.max(0, separator));
+            String simpleName = name.substring(separator + 1);
+            boolean implicit = qualifier.equals("java.lang") || qualifier.equals(packageName);
+            if (!implicit
+                && (declaration.isAsterisk() || usedNames.contains(simpleName))
+                && distinct.add(importToString(declaration))) {
+                retained[i] = true;
+                sorted.add(declaration);
+            }
         }
 
-        // Remove any remaining old import lines if the new import list is shorter.
-        if (importEndLine >= lastLineReplaced) {
-            // Use importLineEnd as-is since Position is 1-based and subList's end index is exclusive.
-            lines.subList(lastLineReplaced, importEndLine).clear();
+        if (!sorted.isEmpty()) {
+            sorted = orderingStrategy.sortImports(sorted).get(0);
         }
-
-        return String.join("\n", lines);
+        List<Integer> lineStarts = lineStarts(file);
+        StringBuilder updated = new StringBuilder(file);
+        int nextImport = sorted.size() - 1;
+        // Edit individual import ranges backwards so comments and declarations sharing a line remain intact.
+        for (int i = imports.size() - 1; i >= 0; i--) {
+            ImportDeclaration declaration = imports.get(i);
+            int start = sourceOffset(file, lineStarts, declaration.getBegin().orElseThrow(), tabSize);
+            int end = sourceOffset(file, lineStarts, declaration.getEnd().orElseThrow(), tabSize) + 1;
+            if (retained[i]) {
+                updated.replace(start, end, importToString(sorted.get(nextImport--)));
+            } else {
+                updated.delete(start, unusedImportEnd(file, end));
+            }
+        }
+        return updated.toString();
     }
 
-    private static List<ImportDeclaration> distinctImports(List<ImportDeclaration> imports) {
-        Map<String, ImportDeclaration> importMap = new LinkedHashMap<>();
-        for (ImportDeclaration importDecl : imports) {
-            importMap.putIfAbsent(importDecl.toString(), importDecl);
+    private static List<Integer> lineStarts(String source) {
+        List<Integer> starts = new ArrayList<>();
+        starts.add(0);
+        for (int i = 0; i < source.length(); i++) {
+            char character = source.charAt(i);
+            if (character == '\r' || character == '\n') {
+                if (character == '\r' && i + 1 < source.length() && source.charAt(i + 1) == '\n') {
+                    i++;
+                }
+                starts.add(i + 1);
+            }
         }
-        return new ArrayList<>(importMap.values());
+        return starts;
+    }
+
+    private static int sourceOffset(String source, List<Integer> lineStarts, Position position, int tabSize) {
+        int offset = lineStarts.get(position.line - 1);
+        int column = 1;
+        while (column < position.column) {
+            char character = source.charAt(offset++);
+            column += character == '\t' ? tabSize - (column - 1) % tabSize : 1;
+        }
+        if (column != position.column) {
+            throw new IllegalStateException("Source position does not identify a character: " + position);
+        }
+        return offset;
+    }
+
+    private static int unusedImportEnd(String source, int end) {
+        int next = end;
+        while (next < source.length() && (source.charAt(next) == ' ' || source.charAt(next) == '\t')) {
+            next++;
+        }
+        if (next == source.length()) {
+            return end;
+        }
+        int separator = source.charAt(next) == '\n' ? 1 : source.charAt(next) == '\r' ? 1 : 0;
+        if (source.charAt(next) == '\r' && next + 1 < source.length() && source.charAt(next + 1) == '\n') {
+            separator = 2;
+        }
+        return separator > 0 && next + separator < source.length() ? next + separator : next;
     }
 
     /**
@@ -220,70 +314,144 @@ public final class CodeFormatterUtil {
         return doc.get();
     }
 
-    /*
-     * In previous iterations of code formatting, we let Spotless use Google Java Formatter to remove unused imports.
-     * This worked well when code was valid, but when there were errors Spotless would halt processing on the first
-     * issue found. This meant that resolving issues were difficult, as it could take many iterations to resolve the
-     * regressions introduced.
-     *
-     * This then resulted in a new design where when Spotless failed on the entire fileset we would run Spotless
-     * individually on each file, and log the error message with the file content. This worked, but was tremendously
-     * slow as it required running many Maven processes, one for each file.
-     *
-     * This new implementation takes a dependency on google-java-format to run Google Java Formatter ourselves. This
-     * allows us to control error handling by processing all files, in-memory (much faster than letting Spotless run
-     * Google Java Formatter), and capturing all issues before attempting Spotless formatting (which now excludes
-     * unused import removal).
-     */
-    private static List<Map.Entry<String, String>> removeUnusedImports(Collection<Map.Entry<String, String>> files,
-        Logger logger) {
-        List<Map.Entry<String, String>> updatedFiles = new ArrayList<>(files.size());
+    private static void collectJavadocReferences(Javadoc javadoc, JavaParser parser, Set<String> usedNames) {
+        collectInlineReferences(javadoc.getDescription(), parser, usedNames);
+        for (JavadocBlockTag tag : javadoc.getBlockTags()) {
+            if (tag.getType() == JavadocBlockTag.Type.THROWS || tag.getType() == JavadocBlockTag.Type.EXCEPTION) {
+                tag.getName().ifPresent(name -> collectReference(name, parser, usedNames));
+            } else if (tag.getType() == JavadocBlockTag.Type.SEE
+                || tag.getTagName().equals("uses")
+                || tag.getTagName().equals("provides")) {
+                collectReference(tag.getContent().toText(), parser, usedNames);
+            } else if (tag.getType() == JavadocBlockTag.Type.SERIAL_FIELD) {
+                String content = tag.getContent().toText().trim();
+                int nameEnd = 0;
+                while (nameEnd < content.length() && !Character.isWhitespace(content.charAt(nameEnd))) {
+                    nameEnd++;
+                }
+                collectReference(content.substring(nameEnd), parser, usedNames);
+            }
+            collectInlineReferences(tag.getContent(), parser, usedNames);
+        }
+    }
 
-        // Tracker for errors encountered while running Google Java Formatter.
-        StringBuilder errorCapture = new StringBuilder();
-
-        for (Map.Entry<String, String> file : files) {
-            String content = file.getValue();
-            try {
-                // Use Google Java Formatter to remove unused imports.
-                updatedFiles.add(Map.entry(file.getKey(), RemoveUnusedImports.removeUnusedImports(content)));
-            } catch (FormatterException ex) {
-                String[] fileLines = content.split("\n");
-                // Capture the error message and continue processing other files.
-                for (FormatterDiagnostic diagnostic : ex.diagnostics()) {
-                    appendDiagnosticError(errorCapture, diagnostic, file.getKey(), fileLines, logger);
+    private static void collectInlineReferences(JavadocDescription description, JavaParser parser,
+        Set<String> usedNames) {
+        for (JavadocDescriptionElement element : description.getElements()) {
+            if (element instanceof JavadocInlineTag) {
+                JavadocInlineTag tag = (JavadocInlineTag) element;
+                if (tag.getType() == JavadocInlineTag.Type.LINK
+                    || tag.getType() == JavadocInlineTag.Type.LINKPLAIN
+                    || tag.getType() == JavadocInlineTag.Type.VALUE) {
+                    collectReference(tag.getContent(), parser, usedNames);
                 }
             }
         }
-
-        if (errorCapture.length() > 0) {
-            throw new IllegalStateException("Google Java Formatter encountered errors:\n" + errorCapture);
-        }
-
-        return updatedFiles;
     }
 
-    private static void appendDiagnosticError(StringBuilder errorCapture, FormatterDiagnostic diagnostic,
-        String fileName, String[] fileLines, Logger logger) {
-        int lineNumber = diagnostic.line();
-        int columnNumber = diagnostic.column();
-        int startLine = Math.max(0, lineNumber - 3);
-        int endLine = Math.min(fileLines.length - 1, lineNumber + 2);
+    private static void collectReference(String content, JavaParser parser, Set<String> usedNames) {
+        String text = content.trim();
+        if (text.isEmpty() || text.startsWith("\"") || text.startsWith("<")) {
+            return;
+        }
+        int parentheses = 0;
+        int generics = 0;
+        int end = 0;
+        for (; end < text.length(); end++) {
+            char character = text.charAt(end);
+            if (Character.isWhitespace(character) && parentheses == 0 && generics == 0) {
+                break;
+            }
+            if (character == '(') {
+                parentheses++;
+            } else if (character == ')') {
+                parentheses--;
+            } else if (character == '<') {
+                generics++;
+            } else if (character == '>') {
+                generics--;
+            }
+        }
+        String reference = text.substring(0, end);
+        int member = reference.indexOf('#');
+        int parameters = reference.indexOf('(');
+        String qualifier = member >= 0
+            ? reference.substring(0, member)
+            : parameters >= 0 ? reference.substring(0, parameters) : reference;
+        int module = qualifier.indexOf('/');
+        if (module >= 0) {
+            qualifier = qualifier.substring(module + 1);
+        }
+        Set<String> referencedNames = new HashSet<>();
+        if (!qualifier.isEmpty()) {
+            ParseResult<Type> type = parser.parseType(qualifier);
+            // Javadoc can contain non-Java references; these are comments, not source syntax errors.
+            if (!type.isSuccessful()) {
+                return;
+            }
+            type.getResult().orElseThrow().accept(IMPORT_USAGE_VISITOR, referencedNames);
+        }
+        if (parameters >= 0) {
+            if (!reference.endsWith(")")) {
+                return;
+            }
+            String arguments = reference.substring(parameters + 1, reference.length() - 1);
+            for (String argument : referenceParameters(arguments)) {
+                ParseResult<Parameter> parameter = parser.parseParameter(argument);
+                if (!parameter.isSuccessful() || parameter.getResult().orElseThrow().getType().isUnknownType()) {
+                    parameter = parser.parseParameter(argument + " __javadocParameter");
+                }
+                if (!parameter.isSuccessful()) {
+                    return;
+                }
+                parameter.getResult().orElseThrow().accept(IMPORT_USAGE_VISITOR, referencedNames);
+            }
+        }
+        usedNames.addAll(referencedNames);
+    }
 
+    private static List<String> referenceParameters(String parameters) {
+        List<String> result = new ArrayList<>();
+        if (parameters.trim().isEmpty()) {
+            return result;
+        }
+        int nesting = 0;
+        int start = 0;
+        for (int i = 0; i < parameters.length(); i++) {
+            char character = parameters.charAt(i);
+            if (character == '<' || character == '(') {
+                nesting++;
+            } else if (character == '>' || character == ')') {
+                nesting--;
+            } else if (character == ',' && nesting == 0) {
+                result.add(parameters.substring(start, i).trim());
+                start = i + 1;
+            }
+        }
+        result.add(parameters.substring(start).trim());
+        return result;
+    }
+
+    private static void appendDiagnosticError(StringBuilder errorCapture, Problem diagnostic, String fileName,
+        String content, Logger logger) {
         StringBuilder diagnosticMessageBuilder = new StringBuilder();
         diagnosticMessageBuilder.append("Error in file '")
             .append(fileName)
             .append("', ")
-            .append(diagnostic)
+            .append(diagnostic.getVerboseMessage())
             .append(":\n");
-
-        for (int i = startLine; i <= endLine; i++) {
-            String prefix = (i + 1) + ": ";
-            diagnosticMessageBuilder.append(prefix).append(fileLines[i]).append("\n");
-            if (i == lineNumber - 1) {
-                diagnosticMessageBuilder.append(" ".repeat(columnNumber + prefix.length() - 1)).append("^\n");
+        diagnostic.getLocation().flatMap(TokenRange::toRange).ifPresent(range -> {
+            String[] lines = content.split("\r\n|\r|\n", -1);
+            int start = Math.max(0, range.begin.line - 3);
+            int end = Math.min(lines.length - 1, range.begin.line + 2);
+            for (int i = start; i <= end; i++) {
+                String prefix = (i + 1) + ": ";
+                diagnosticMessageBuilder.append(prefix).append(lines[i]).append("\n");
+                if (i == range.begin.line - 1) {
+                    diagnosticMessageBuilder.append(" ".repeat(range.begin.column + prefix.length() - 1)).append("^\n");
+                }
             }
-        }
+        });
 
         String diagnosticMessage = diagnosticMessageBuilder.toString();
         if (logger != null) {
@@ -292,4 +460,102 @@ public final class CodeFormatterUtil {
         errorCapture.append(diagnosticMessage);
     }
 
+    private static RuntimeException formattingFailure(String name, String content, Exception cause, Logger logger) {
+        String message = "Failed to format file: " + name + ". File content: \n" + content;
+        if (logger != null) {
+            logger.error(message);
+        }
+        return new RuntimeException(message, cause);
+    }
+
+    private static final class PreparedJavaFile {
+        private final String name;
+        private final String content;
+        private final boolean moduleInfo;
+
+        private PreparedJavaFile(String name, String content, boolean moduleInfo) {
+            this.name = name;
+            this.content = content;
+            this.moduleInfo = moduleInfo;
+        }
+    }
+
+    private static final class ImportUsageVisitor extends VoidVisitorAdapter<Set<String>> {
+        @Override
+        public void visit(ImportDeclaration declaration, Set<String> usedNames) {
+            // Imports themselves do not establish usage.
+        }
+
+        @Override
+        public void visit(NameExpr expression, Set<String> usedNames) {
+            usedNames.add(expression.getNameAsString());
+            super.visit(expression, usedNames);
+        }
+
+        @Override
+        public void visit(ClassOrInterfaceType type, Set<String> usedNames) {
+            if (type.getScope().isEmpty()) {
+                usedNames.add(type.getNameAsString());
+            }
+            super.visit(type, usedNames);
+        }
+
+        @Override
+        public void visit(MethodCallExpr expression, Set<String> usedNames) {
+            if (expression.getScope().isEmpty()) {
+                usedNames.add(expression.getNameAsString());
+            }
+            super.visit(expression, usedNames);
+        }
+
+        @Override
+        public void visit(MarkerAnnotationExpr annotation, Set<String> usedNames) {
+            addName(annotation.getName(), usedNames);
+            super.visit(annotation, usedNames);
+        }
+
+        @Override
+        public void visit(NormalAnnotationExpr annotation, Set<String> usedNames) {
+            addName(annotation.getName(), usedNames);
+            super.visit(annotation, usedNames);
+        }
+
+        @Override
+        public void visit(SingleMemberAnnotationExpr annotation, Set<String> usedNames) {
+            addName(annotation.getName(), usedNames);
+            super.visit(annotation, usedNames);
+        }
+
+        @Override
+        public void visit(ThisExpr expression, Set<String> usedNames) {
+            expression.getTypeName().ifPresent(name -> addName(name, usedNames));
+            super.visit(expression, usedNames);
+        }
+
+        @Override
+        public void visit(SuperExpr expression, Set<String> usedNames) {
+            expression.getTypeName().ifPresent(name -> addName(name, usedNames));
+            super.visit(expression, usedNames);
+        }
+
+        @Override
+        public void visit(ModuleUsesDirective directive, Set<String> usedNames) {
+            addName(directive.getName(), usedNames);
+            super.visit(directive, usedNames);
+        }
+
+        @Override
+        public void visit(ModuleProvidesDirective directive, Set<String> usedNames) {
+            addName(directive.getName(), usedNames);
+            directive.getWith().forEach(name -> addName(name, usedNames));
+            super.visit(directive, usedNames);
+        }
+
+        private static void addName(Name name, Set<String> usedNames) {
+            while (name.getQualifier().isPresent()) {
+                name = name.getQualifier().get();
+            }
+            usedNames.add(name.getIdentifier());
+        }
+    }
 }
