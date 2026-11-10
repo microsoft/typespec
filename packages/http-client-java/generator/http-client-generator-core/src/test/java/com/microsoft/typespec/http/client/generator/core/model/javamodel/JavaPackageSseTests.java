@@ -11,6 +11,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BooleanSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DurationSchema;
@@ -208,6 +209,33 @@ public class JavaPackageSseTests {
                 modelSources);
             Assertions.assertFalse(modelSources.contains("toJson("), modelSources);
             Assertions.assertFalse(modelSources.contains("fromJson("), modelSources);
+        }
+    }
+
+    @Test
+    public void usesUniformValueAccessorForBooleanPayloads(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        BooleanSchema payload = new BooleanSchema();
+        payload.setType(Schema.AllSchemaTypes.BOOLEAN);
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("enabled", payload)));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
+        Assertions.assertTrue(wrapperSource.contains("public boolean getValue()"), wrapperSource);
+        Assertions.assertFalse(wrapperSource.contains("boolean isValue()"), wrapperSource);
+
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Method deserialize = loader.loadClass("com.azure.mock.implementation.RetrievalStreamEventSerializer")
+                .getMethod("deserialize", String.class, String.class);
+            Object envelope = deserialize.invoke(null, "enabled", "true");
+            Assertions.assertEquals(true, envelope.getClass().getMethod("getValue").invoke(envelope));
+            Assertions.assertThrows(NoSuchMethodException.class, () -> envelope.getClass().getMethod("isValue"));
         }
     }
 

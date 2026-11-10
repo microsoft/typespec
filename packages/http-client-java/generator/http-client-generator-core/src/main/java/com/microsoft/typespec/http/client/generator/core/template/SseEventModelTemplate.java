@@ -148,8 +148,7 @@ public final class SseEventModelTemplate {
                 comment.methodReturns("The event payload.");
             });
             javaClass.annotation(Annotation.GENERATED.getName());
-            javaClass.publicMethod(payloadType + " " + value.getGetterName() + "()",
-                method -> method.methodReturn(value.getName()));
+            javaClass.publicMethod(payloadType + " getValue()", method -> method.methodReturn(value.getName()));
             if (metadata.isTerminal()) {
                 javaClass.annotation(Annotation.GENERATED.getName());
                 javaClass.annotation("Override");
