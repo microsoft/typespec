@@ -711,8 +711,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
+            var partialDeclarations = CustomCodeView?.Constructors
+                .Where(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial))
+                .ToArray();
             foreach (var constructor in specConstructors)
             {
+                var matchingPartial = constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
+                    ? null
+                    : partialDeclarations?.FirstOrDefault(partial =>
+                        MethodSignatureBase.SignatureComparer.Equals(partial.Signature, constructor.Signature));
+                if (matchingPartial != null)
+                {
+                    // Keep the parameter instances referenced by the initializer, body, and XML docs.
+                    for (int i = 0; i < constructor.Signature.Parameters.Count; i++)
+                    {
+                        var parameter = constructor.Signature.Parameters[i];
+                        parameter.Update(name: matchingPartial.Signature.Parameters[i].Name);
+                        parameter.DefaultValue = null;
+                    }
+                    constructor.Signature.Update(modifiers: matchingPartial.Signature.Modifiers | MethodSignatureModifiers.Partial);
+                    constructors.Add(constructor);
+                    continue;
+                }
+
                 if (ShouldGenerate(constructor))
                 {
                     constructors.Add(constructor);

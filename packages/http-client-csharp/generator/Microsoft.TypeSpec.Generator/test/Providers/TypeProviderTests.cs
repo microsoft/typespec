@@ -2319,6 +2319,65 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Method3", specView.Methods[2].Signature.Name);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomPartialConstructorsPreserveImplementation(bool expressionBody)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
+            var identifier = new ParameterProvider("identifier", $"The identifier.", typeof(string));
+            var version = new ParameterProvider("version", $"The resource version.", typeof(string), defaultValue: Snippet.Null);
+            var initializer = new ConstructorInitializer(true,
+                [identifier.AsVariable(), version.AsVariable().NullCoalesce(Snippet.Literal("2026-03-01"))]);
+            var signature = new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal,
+                [identifier, version], initializer: initializer);
+            var constructor = expressionBody
+                ? new ConstructorProvider(signature, identifier.Invoke("ToString"), typeProvider)
+                : new ConstructorProvider(signature, identifier.Invoke("ToString").Terminate(), typeProvider);
+            var chainedConstructor = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal, [],
+                    initializer: new ConstructorInitializer(false, [Snippet.Literal("generated"), Snippet.Null])),
+                MethodBodyStatement.Empty, typeProvider);
+            typeProvider.Update(constructors: [constructor, chainedConstructor]);
+
+            Assert.AreEqual(2, typeProvider.Constructors.Count);
+            var customized = typeProvider.Constructors[0];
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Partial, customized.Signature.Modifiers);
+            Assert.AreSame(initializer, customized.Signature.Initializer);
+            Assert.AreSame(constructor.BodyStatements, customized.BodyStatements);
+            Assert.AreSame(constructor.BodyExpression, customized.BodyExpression);
+            Assert.AreSame(constructor.XmlDocs, customized.XmlDocs);
+            Assert.AreEqual("bicepIdentifier", customized.Signature.Parameters[0].Name);
+            Assert.AreEqual("resourceVersion", customized.Signature.Parameters[1].Name);
+            Assert.IsTrue(customized.Signature.Parameters.All(p => p.DefaultValue == null));
+            Assert.IsNotNull(typeProvider.CustomCodeView!.Constructors.Single(c => c.Signature.Parameters.Count == 2).Signature.Parameters[1].DefaultValue);
+            Assert.AreEqual(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Partial, typeProvider.Constructors[1].Signature.Modifiers);
+            Assert.AreSame(chainedConstructor.Signature.Initializer, typeProvider.Constructors[1].Signature.Initializer);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
+        }
+
+        [TestCase(typeof(string), 1)]
+        [TestCase(typeof(int), 0)]
+        [TestCase(typeof(bool), 0)]
+        [TestCase(typeof(double), 0)]
+        [TestCase(typeof(float), 1)]
+        public async Task CustomPartialConstructorsOnlyMergeMatchingDeclarations(Type parameterType, int expectedCount)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal,
+                    [new ParameterProvider("value", $"The value.", parameterType)]),
+                MethodBodyStatement.Empty, typeProvider);
+            typeProvider.Update(constructors: [constructor]);
+
+            Assert.AreEqual(expectedCount, typeProvider.Constructors.Count);
+            if (expectedCount > 0)
+            {
+                Assert.AreEqual(MethodSignatureModifiers.Internal, typeProvider.Constructors.Single().Signature.Modifiers);
+            }
+        }
+
         [Test]
         public async Task CustomPartialMethodImplementationKeepsParameterNames()
         {

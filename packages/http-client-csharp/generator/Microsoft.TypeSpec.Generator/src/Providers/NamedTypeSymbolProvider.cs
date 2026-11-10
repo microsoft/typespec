@@ -332,10 +332,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var initializer = ExtractConstructorInitializer(constructorSymbol);
+                var modifiers = GetAccessModifier(constructorSymbol.DeclaredAccessibility);
+                if (constructorSymbol.MethodKind == MethodKind.Constructor && IsPartialDeclaration(constructorSymbol))
+                {
+                    modifiers |= MethodSignatureModifiers.Partial;
+                }
                 var signature = new ConstructorSignature(
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
-                    GetAccessModifier(constructorSymbol.DeclaredAccessibility),
+                    modifiers,
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
                     attributes: [.. constructorSymbol.GetAttributes()
                         .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
@@ -372,7 +377,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
 
-                bool isPartialDeclaration = IsPartialMethodDeclaration(methodSymbol);
+                bool isPartialDeclaration = IsPartialDeclaration(methodSymbol);
                 if (isPartialDeclaration)
                 {
                     modifiers |= MethodSignatureModifiers.Partial;
@@ -832,11 +837,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ => null
             };
 
-        private static bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
+        private static bool IsPartialDeclaration(IMethodSymbol methodSymbol)
         {
             foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
             {
-                if (syntaxReference.GetSyntax() is MethodDeclarationSyntax methodSyntax)
+                if (syntaxReference.GetSyntax() is BaseMethodDeclarationSyntax methodSyntax)
                 {
                     bool hasPartialModifier = methodSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
                     bool hasNoBody = methodSyntax.Body == null && methodSyntax.ExpressionBody == null;
