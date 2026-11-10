@@ -3,6 +3,11 @@ import * as ts from "@alloy-js/typescript";
 import { type Children, code, For, type Refkey, refkey } from "@alloy-js/core";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import {
+  getModelTransformRefkey,
+  getSerializerTransformFunctionPrefix,
+  type SerializerTransformKind,
+} from "../../../utils/serializer-transform.js";
 import { JsonAdditionalPropertiesTransform } from "./json-model-additional-properties-transform.jsx";
 import { JsonModelPropertyTransform } from "./json-model-property-transform.jsx";
 import { JsonRecordTransformDeclaration } from "./json-record-transform.jsx";
@@ -15,6 +20,7 @@ export interface JsonModelTransformProps {
   itemRef: Refkey | Children;
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonModelTransform(props: JsonModelTransformProps) {
@@ -27,6 +33,8 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
   const discriminator = $.model.getDiscriminatedUnion(props.type);
 
   const discriminate = getJsonTransformDiscriminatorRefkey(props.type, props.target);
+  const serializationMediaType =
+    props.serializerKind === "form_urlencoded" ? "application/x-www-form-urlencoded" : undefined;
 
   return (
     <ts.ObjectExpression>
@@ -34,6 +42,7 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
         itemRef={props.itemRef}
         target={props.target}
         type={props.type}
+        serializerKind={props.serializerKind}
       />
       {discriminator ? (
         <>
@@ -47,6 +56,7 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
               itemRef={props.itemRef}
               type={property}
               target={props.target}
+              serializationMediaType={serializationMediaType}
             />
           );
         }}
@@ -58,20 +68,23 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
 export function getJsonModelTransformRefkey(
   type: Model,
   target: "transport" | "application",
+  kind: SerializerTransformKind = "json",
 ): Refkey {
-  return refkey(type, "json_model_transform", target);
+  return getModelTransformRefkey(type, target, kind);
 }
 
 export interface JsonModelTransformDeclarationProps {
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonModelTransformDeclaration(props: JsonModelTransformDeclarationProps): Children {
   const { $ } = useTsp();
+  const serializerKind = props.serializerKind ?? "json";
   const namePolicy = ts.useTSNamePolicy();
   const transformName = namePolicy.getName(
-    `json_${props.type.name}_to_${props.target}_transform`,
+    `${getSerializerTransformFunctionPrefix(serializerKind)}_${props.type.name}_to_${props.target}_transform`,
     "function",
   );
 
@@ -87,11 +100,15 @@ export function JsonModelTransformDeclaration(props: JsonModelTransformDeclarati
   const indexType = $.model.getIndexType(props.type);
   const hasAdditionalProperties = indexType && $.record.is(indexType);
 
-  const declarationRefkey = getJsonModelTransformRefkey(props.type, props.target);
+  const declarationRefkey = getJsonModelTransformRefkey(props.type, props.target, serializerKind);
   return (
     <>
       {hasAdditionalProperties ? (
-        <JsonRecordTransformDeclaration target={props.target} type={indexType} />
+        <JsonRecordTransformDeclaration
+          target={props.target}
+          type={indexType}
+          serializerKind={serializerKind}
+        />
       ) : null}
       <JsonTransformDiscriminatorDeclaration type={props.type} target={props.target} />
       <ts.FunctionDeclaration
@@ -107,7 +124,7 @@ export function JsonModelTransformDeclaration(props: JsonModelTransformDeclarati
       }
         
       `}
-        return <JsonModelTransform {...props} itemRef={inputRef} />
+        return <JsonModelTransform {...props} itemRef={inputRef} serializerKind={serializerKind} />
         !;
       </ts.FunctionDeclaration>
     </>
