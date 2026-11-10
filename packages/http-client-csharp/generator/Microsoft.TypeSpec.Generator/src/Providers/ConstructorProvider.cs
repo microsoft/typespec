@@ -29,6 +29,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
+        internal ConstructorProvider(ConstructorSignature signature, ConstructorProvider original)
+        {
+            Signature = signature;
+            BodyStatements = original.BodyStatements;
+            BodyExpression = original.BodyExpression;
+            XmlDocs = original.XmlDocs;
+            EnclosingType = original.EnclosingType;
+            Suppressions = original.Suppressions;
+            OriginalParameters = original.OriginalParameters ?? original.Signature.Parameters;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorProvider"/> class with a body statement and method signature.
         /// </summary>

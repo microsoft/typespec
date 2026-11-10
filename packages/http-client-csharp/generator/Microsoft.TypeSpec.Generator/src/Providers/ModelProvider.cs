@@ -1369,7 +1369,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var currentConstructor = currentConstructors.FirstOrDefault(c =>
-                    (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)
+                    !c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
+                    && (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)
                         || (c.Signature.Modifiers & privateProtected) == privateProtected)
                     && MethodSignatureBase.SignatureComparer.Equals(c.Signature, previousConstructor.Signature));
                 if (currentConstructor is null)

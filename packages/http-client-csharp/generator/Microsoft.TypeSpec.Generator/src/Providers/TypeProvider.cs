@@ -749,15 +749,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 generatedSignature.Initializer);
             signature.Update(nonDocumentComment: generatedSignature.NonDocumentComment);
 
-            var constructor = generatedConstructor.BodyExpression != null
-                ? new ConstructorProvider(signature, generatedConstructor.BodyExpression, generatedConstructor.EnclosingType, generatedConstructor.XmlDocs, generatedConstructor.Suppressions)
-                : new ConstructorProvider(signature, MethodBodyStatement.Empty, generatedConstructor.EnclosingType, generatedConstructor.XmlDocs, generatedConstructor.Suppressions);
-            if (generatedConstructor.BodyStatements is { } body)
-            {
-                constructor.Update(bodyStatements: body);
-            }
-            constructor.OriginalParameters = generatedConstructor.OriginalParameters ?? generatedSignature.Parameters;
-            return constructor;
+            return new ConstructorProvider(signature, generatedConstructor);
         }
 
         private TypeProvider[] BuildNestedTypesInternal()

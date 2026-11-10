@@ -2379,6 +2379,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var result = typeProvider.BuildConstructorsForBackCompatibility([constructor]);
 
             Assert.AreEqual(modifiers, result.Single().Signature.Modifiers);
+            typeProvider.Update(constructors: result);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(typeProvider).Write().Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomPartialConstructorsIsolateSharedParameters(bool customizedFirst)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(CustomPartialConstructorsPreserveImplementation)),
+                includeXmlDocs: true);
+            var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
+            var identifier = new ParameterProvider("identifier", $"The identifier.", typeof(string));
+            var version = new ParameterProvider("version", $"The resource version.", typeof(string), defaultValue: Snippet.Null);
+            var customized = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal, [identifier, version],
+                    initializer: new ConstructorInitializer(true, [identifier, version])),
+                version.Invoke("ToString").Terminate(), typeProvider);
+            var ordinary = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal, [version],
+                    initializer: new ConstructorInitializer(true, [version])),
+                version.Invoke("ToString").Terminate(), typeProvider);
+            typeProvider.Update(constructors: customizedFirst ? [customized, ordinary] : [ordinary, customized]);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(customizedFirst.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
+            Assert.AreEqual("version", version.Name);
+            Assert.IsNotNull(version.DefaultValue);
         }
 
         [TestCase(typeof(string), 1)]
@@ -2401,6 +2428,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             {
                 Assert.AreEqual(MethodSignatureModifiers.Internal, typeProvider.Constructors.Single().Signature.Modifiers);
             }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expectedCount == 0 ? "Empty" : parameterType.Name), new TypeProviderWriter(typeProvider).Write().Content);
         }
 
         [Test]
