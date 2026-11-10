@@ -11,7 +11,8 @@ namespace Test
         /// <param name="resourceVersion"> The resource version. </param>
         public partial CustomPartialConstructorType(string bicepIdentifier, string resourceVersion) : base(bicepIdentifier, (resourceVersion ?? "2026-03-01"))
         {
-            bicepIdentifier.ToString();
+            string bicepIdentifier0 = bicepIdentifier;
+            bicepIdentifier0.ToString();
         }
 
         protected partial CustomPartialConstructorType() : this("generated", null)

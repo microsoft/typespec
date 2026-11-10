@@ -470,7 +470,7 @@ namespace Microsoft.TypeSpec.Generator
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 
-            Append($"{parameter.Type} {parameter.AsVariable().Declaration}");
+            Append($"{parameter.Type} {parameter.AsVariable().Declaration:D}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");

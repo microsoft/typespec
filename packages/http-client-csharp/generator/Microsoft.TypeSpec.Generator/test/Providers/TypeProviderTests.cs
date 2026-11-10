@@ -2331,9 +2331,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 [identifier.AsVariable(), version.AsVariable().NullCoalesce(Snippet.Literal("2026-03-01"))]);
             var signature = new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal,
                 [identifier, version], initializer: initializer);
+            var declaration = Snippet.Declare("bicepIdentifier", typeof(string), identifier, out var local);
             var constructor = expressionBody
                 ? new ConstructorProvider(signature, identifier.Invoke("ToString"), typeProvider)
-                : new ConstructorProvider(signature, identifier.Invoke("ToString").Terminate(), typeProvider);
+                : new ConstructorProvider(signature, new MethodBodyStatement[] { declaration, local.Invoke("ToString").Terminate() }, typeProvider);
             var chainedConstructor = new ConstructorProvider(
                 new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal, [],
                     initializer: new ConstructorInitializer(false, [Snippet.Literal("generated"), Snippet.Null])),
