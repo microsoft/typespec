@@ -23,11 +23,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputConstant? defaultValue,
             InputSerializationOptions serializationOptions,
             ArrayKnownEncoding? encode = null,
-            IReadOnlyList<string>? apiVersions = null,
-            InputVisibility visibility = InputVisibility.All)
+            IReadOnlyList<string>? apiVersions = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
+            OriginalName = name;
             Summary = summary;
             Doc = doc;
             Type = type;
@@ -38,11 +38,17 @@ namespace Microsoft.TypeSpec.Generator.Input
             SerializationOptions = serializationOptions;
             Encode = encode;
             ApiVersions = apiVersions ?? [];
-            Visibility = visibility;
         }
 
         public bool IsDiscriminator { get; internal set; }
-        public InputVisibility Visibility { get; internal set; }
+        /// <summary>
+        /// The property declaration name before client-side renaming.
+        /// </summary>
+        public string OriginalName { get; internal set; }
+        /// <summary>
+        /// Overrides constructor requiredness without changing the wire contract.
+        /// </summary>
+        public bool? IsRequiredInConstructor { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
         public ArrayKnownEncoding? Encode { get; internal set; }
@@ -62,7 +68,8 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <param name="serializedName">The new serialized name for the property.</param>
         /// <param name="serializationOptions">The new serialization options for the property.</param>
         /// <param name="apiVersions">The new API versions for the property.</param>
-        /// <param name="visibility">The new lifecycle visibility for the property.</param>
+        /// <param name="isRequiredInConstructor">The new constructor requiredness override.</param>
+        /// <param name="originalName">The property declaration name before client-side renaming.</param>
         public void Update(
             string? name = null,
             string? summary = null,
@@ -76,11 +83,17 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? isHttpMetadata = null,
             InputSerializationOptions? serializationOptions = null,
             IEnumerable<string>? apiVersions = null,
-            InputVisibility? visibility = null)
+            bool? isRequiredInConstructor = null,
+            string? originalName = null)
         {
             if (name != null)
             {
                 Name = name;
+            }
+
+            if (originalName != null)
+            {
+                OriginalName = originalName;
             }
 
             if (summary != null)
@@ -101,6 +114,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (isRequired.HasValue)
             {
                 IsRequired = isRequired.Value;
+            }
+
+            if (isRequiredInConstructor.HasValue)
+            {
+                IsRequiredInConstructor = isRequiredInConstructor.Value;
             }
 
             if (isReadOnly.HasValue)
@@ -136,10 +154,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (apiVersions != null)
             {
                 ApiVersions = [.. apiVersions];
-            }
-            if (visibility.HasValue)
-            {
-                Visibility = visibility.Value;
             }
         }
     }

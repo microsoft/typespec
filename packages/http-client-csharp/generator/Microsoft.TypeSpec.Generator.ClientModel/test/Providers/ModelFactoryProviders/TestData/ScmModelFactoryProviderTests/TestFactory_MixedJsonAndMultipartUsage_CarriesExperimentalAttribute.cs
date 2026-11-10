@@ -11,9 +11,9 @@ namespace Sample
     public static partial class SampleModelFactory
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public static global::Sample.Models.DualUsageRequest DualUsageRequest(global::System.ClientModel.FileBinaryContent profileImage = default)
+        public static global::Sample.Models.DualUsageContent DualUsageContent(global::System.ClientModel.FileBinaryContent profileImage = default)
         {
-            return new global::Sample.Models.DualUsageRequest(profileImage, additionalBinaryDataProperties: null);
+            return new global::Sample.Models.DualUsageContent(profileImage, additionalBinaryDataProperties: null);
         }
     }
 }

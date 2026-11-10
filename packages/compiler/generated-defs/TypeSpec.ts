@@ -13,6 +13,7 @@ import type {
   Scalar,
   ScalarValue,
   Type,
+  TypeRefValue,
   Union,
   UnionVariant,
 } from "../src/index.js";
@@ -1286,6 +1287,24 @@ export type TypeSpecDecorators = {
   withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };
 
+/**
+ * Creates an opaque value referencing an existing type.
+ * The reference preserves the type's identity and can be stored in object and array values.
+ * The result has type `TypeRef<target>`; JavaScript implementations receive a `TypeRefValue`.
+ * Requires the `typeref` compiler feature.
+ *
+ * @param target The type to reference.
+ * @example
+ * ```tsp
+ * model Item { id: string; }
+ * const entry = #{ name: "item", type: typeref(Item) };
+ * ```
+ */
+export type TyperefFunctionImplementation = (
+  context: FunctionContext,
+  target: Type,
+) => TypeRefValue;
+
 export type ApplyVisibilityFilterFunctionImplementation = (
   context: FunctionContext,
   input: Model,
@@ -1300,6 +1319,7 @@ export type ApplyLifecycleUpdateFunctionImplementation = (
 ) => Model;
 
 export type TypeSpecFunctions = {
+  typeref: TyperefFunctionImplementation;
   applyVisibilityFilter: ApplyVisibilityFilterFunctionImplementation;
   applyLifecycleUpdate: ApplyLifecycleUpdateFunctionImplementation;
 };

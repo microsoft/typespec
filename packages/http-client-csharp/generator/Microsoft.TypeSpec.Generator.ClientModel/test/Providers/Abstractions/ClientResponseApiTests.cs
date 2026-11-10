@@ -20,6 +20,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
     internal class ClientResponseApiTests
     {
         [Test]
+        public void PageResumptionIsDisabledByDefault()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption);
+            Assert.IsFalse(TestClientResponseApi.Instance.SupportsPageResumption);
+            Assert.IsFalse(((IClientResponseApi)TestClientResponseApi.Instance).SupportsPageResumption);
+        }
+
+        [Test]
+        public void PageResumptionCanBeEnabled()
+        {
+            ClientResponseApi api = new ResumableClientResultProvider();
+
+            Assert.IsTrue(api.SupportsPageResumption);
+            Assert.IsTrue(((IClientResponseApi)api).SupportsPageResumption);
+        }
+
+        [Test]
         public void ValidateReturnTypeIsOverridden()
         {
             (ClientProvider clientProvider, _) = CreateMockClientProvider();

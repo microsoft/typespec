@@ -5,7 +5,6 @@ import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
 import "@typespec/http-client";
-import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -25,7 +24,6 @@ namespace SampleTypeSpec;
 using TypeSpec.Http;
 using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
-using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
 using TypeSpec.Events;
 using TypeSpec.SSE;
@@ -388,7 +386,7 @@ model RoundTripModel {
 }
 
 @doc("A sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model DynamicModel {
   name: string;
   optionalUnknown?: unknown;
@@ -408,12 +406,12 @@ model DynamicModel {
 }
 
 @doc("Another sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model AnotherDynamicModel {
   bar: string;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.json)
 @access(Access.public)
 model NullableDynamicModel {
@@ -432,7 +430,7 @@ model OptionalNullableBase {
   inheritedNullable?: string | null;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.output | Usage.json)
 @access(Access.public)
 model OptionalNullableDynamicProperties extends OptionalNullableBase {}
@@ -1169,229 +1167,191 @@ interface DeprecationSamples {
   read(): CurrentDetails;
 }
 
-enum ChatTopicState {
-  active,
-  archived,
+model ConstructorBase {
+  value: string;
+  mode: "fixed";
+  items: string[];
 }
 
-model ChatTopic {
-  title: string;
-
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state: ChatTopicState;
-
+model ConstructorOverride extends ConstructorBase {
   @visibility(Lifecycle.Create)
-  createOnly?: string;
-
-  @visibility(Lifecycle.Read)
-  id: string;
+  value: string;
 }
 
-model ChatTopicEnvelope {
-  topic: ChatTopic;
-  topics: ChatTopic[];
-  lookup: Record<ChatTopic>;
-}
-
-model LifecycleMultipart {
-  title: HttpPart<string>;
-
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state?: HttpPart<string>;
-
-  topic: HttpPart<ChatTopic>;
-
-  @visibility(Lifecycle.Read)
-  id?: HttpPart<string>;
-}
-
-model LifecycleReadOnlyMultipart {
-  title: HttpPart<string>;
-
-  @visibility(Lifecycle.Read)
-  id?: HttpPart<string>;
-}
-
-model LifecycleReadOnlyXmlTopic {
-  title: string;
-
-  @visibility(Lifecycle.Read)
-  id: string;
-}
-
-model LifecycleXmlOnlyTopic {
-  title: string;
-
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state?: string;
-}
-
-model LifecycleXmlChild {
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state?: string;
-}
-
-model LifecycleXmlEnvelope {
-  child: LifecycleXmlChild;
-  children: LifecycleXmlChild[];
-}
-
-model LifecycleBase {
-  title: string;
-}
-
-model LifecycleDerived extends LifecycleBase {
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state: string;
-}
-
-interface VisibilitySamples {
-  @route("/visibility/read-xml-topic")
-  @get
-  readXmlTopic(): LifecycleReadOnlyXmlTopic;
-
-  @route("/visibility/read-only-xml")
-  @post
-  readOnlyXml(@body topic: LifecycleReadOnlyXmlTopic, @header contentType: "application/xml"): void;
-
-  @route("/visibility/text-xml")
-  @post
-  textXml(@body topic: LifecycleXmlOnlyTopic, @header contentType: "text/xml"): void;
-
-  @route("/visibility/vendor-xml")
-  @post
-  vendorXml(
-    @body topic: LifecycleXmlOnlyTopic,
-    @header contentType: "application/vnd.typespec+xml",
-  ): void;
-
-  @route("/visibility/create")
-  @post
-  create(@body topic: ChatTopic): void;
-
-  @route("/visibility/update")
+interface ConstructorRequirements {
+  @route("/constructor-override")
   @put
-  @parameterVisibility(Lifecycle.Update)
-  update(@body topic: ChatTopic): void;
+  send(@body body: ConstructorOverride): void;
 
-  @route("/visibility/replace")
+  @route("/constructor-read-only-override")
   @put
-  @parameterVisibility(Lifecycle.Create)
-  replace(@body topic: ChatTopic): void;
+  sendReadOnly(@body body: ConstructorReadOnlyOverride): void;
 
-  @route("/visibility/patch")
-  @patch
-  patch(@body topic: ChatTopic): void;
+  @route("/constructor-read-only-leaf")
+  @put
+  sendReadOnlyLeaf(@body body: ConstructorReadOnlyLeaf): void;
 
-  @route("/visibility/nested")
+  @route("/constructor-xml-override")
+  @put
+  sendXml(@body body: XmlConstructorOverride, @header contentType: "application/xml"): void;
+
+  @route("/constructor-inherited-leaf")
+  @put
+  sendInheritedLeaf(@body body: ConstructorInheritedLeaf): void;
+
+  @route("/constructor-renamed-override")
+  @put
+  sendRenamed(@body body: RenamedConstructorOverride): void;
+
+  @route("/constructor-renamed-leaf")
+  @put
+  sendRenamedLeaf(@body body: RenamedConstructorLeaf): void;
+
+  @route("/constructor-writable-leaf")
+  @put
+  sendWritableLeaf(@body body: ConstructorWritableLeaf): void;
+
+  @route("/constructor-returned-name")
+  @put
+  sendReturnedName(@body body: RenamedConstructorReturnedName): void;
+
+  @route("/constructor-required-renamed")
+  @put
+  sendRequiredRenamed(@body body: RequiredRenamedConstructorOverride): void;
+
+  @route("/constructor-read-only-collections")
+  @put
+  sendReadOnlyCollections(@body body: ConstructorReadOnlyCollectionOverride): void;
+
+  @route("/constructor-required-collections")
+  @put
+  sendRequiredCollections(@body body: ConstructorRequiredCollectionOverride): void;
+
+  @route("/constructor-renamed-literal")
   @post
-  nested(@body envelope: ChatTopicEnvelope): void;
+  sendRenamedLiteral(
+    @body body: RenamedLiteralConstructorOverride,
+  ): RenamedLiteralConstructorOverride;
 
-  @route("/visibility/list")
+  @route("/constructor-client-name-collision")
   @post
-  sendList(@body topics: ChatTopic[]): void;
-
-  @route("/visibility/dictionary")
-  @post
-  dictionary(@body topics: Record<ChatTopic>): void;
-
-  @route("/visibility/union-list")
-  @post
-  unionList(@body topics: (ChatTopic | string)[]): void;
-
-  @route("/visibility/union-dictionary")
-  @post
-  unionDictionary(@body topics: Record<ChatTopic | string>): void;
-
-  @route("/visibility/union")
-  @post
-  unionBody(@body topic: ChatTopic | string): void;
-
-  @route("/visibility/paged")
-  @post
-  @list
-  paged(@body topic: ChatTopic): {
-    @pageItems items: ChatTopic[];
-    @nextLink next?: url;
-  };
-
-  @route("/visibility/paged-list")
-  @post
-  @list
-  pagedList(@body topics: ChatTopic[]): Page<ChatTopic>;
-
-  @route("/visibility/paged-dictionary")
-  @post
-  @list
-  pagedDictionary(@body topics: Record<ChatTopic>): Page<ChatTopic>;
-
-  @route("/visibility/optional")
-  @post
-  optional(@body topic?: ChatTopic): void;
-
-  @route("/visibility/optional-dictionary")
-  @post
-  optionalDictionary(@body topics?: Record<ChatTopic>): void;
-
-  @route("/visibility/optional-list")
-  @post
-  optionalList(@body topics?: ChatTopic[]): void;
-
-  @route("/visibility/optional-xml")
-  @post
-  optionalXml(@body topic?: ChatTopic, @header contentType: "application/xml"): void;
-
-  @route("/visibility/optional-xml-list")
-  @post
-  optionalXmlList(@body topics?: ChatTopic[], @header contentType: "application/xml"): void;
-
-  @route("/visibility/spread")
-  @post
-  spread(...ChatTopicEnvelope): void;
-
-  @route("/visibility/spread-xml")
-  @post
-  spreadXml(...ChatTopicEnvelope, @header contentType: "application/xml"): void;
-
-  @route("/visibility/xml")
-  @post
-  xml(@body topic: ChatTopic, @header contentType: "application/xml"): void;
-
-  @route("/visibility/xml-list")
-  @post
-  xmlList(@body topics: ChatTopic[], @header contentType: "application/xml"): void;
-
-  @route("/visibility/jsonl")
-  @post
-  jsonLines(stream: JsonlStream<ChatTopic>): NoContentResponse;
-
-  @route("/visibility/multipart")
-  @post
-  multipart(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: LifecycleMultipart,
-  ): void;
-
-  @route("/visibility/read-only-multipart")
-  @post
-  readOnlyMultipart(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: LifecycleReadOnlyMultipart,
-  ): void;
-
-  @route("/visibility/empty-xml")
-  @post
-  emptyXml(@body envelope: LifecycleXmlEnvelope, @header contentType: "application/xml"): void;
-
-  @route("/visibility/empty-xml-list")
-  @post
-  emptyXmlList(@body children: LifecycleXmlChild[], @header contentType: "application/xml"): void;
-
-  @route("/visibility/base")
-  @post
-  createBase(@body topic: LifecycleBase): void;
-
-  @route("/visibility/derived")
-  @get
-  readDerived(): LifecycleDerived;
+  sendClientNameCollision(
+    @body body: ConstructorClientNameCollisionLeaf,
+  ): ConstructorClientNameCollisionLeaf;
 }
+
+model ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorReadOnlyOverride extends ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorReadOnlyLeaf extends ConstructorReadOnlyOverride {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model XmlConstructorBase {
+  value: string;
+  title: string;
+}
+
+model XmlConstructorMiddle extends XmlConstructorBase {
+  note?: string;
+}
+
+model XmlConstructorOverride extends XmlConstructorMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorInheritedLeaf extends ConstructorOverride {}
+
+model RenamedConstructorBase {
+  value: string;
+  title: string;
+}
+
+model RenamedConstructorOverride extends RenamedConstructorBase {
+  @clientName("renamedValue", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorLeaf extends RenamedConstructorOverride {}
+
+model ConstructorWritableBase {
+  value: string;
+}
+
+model ConstructorReadOnlyMiddle extends ConstructorWritableBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorWritableLeaf extends ConstructorReadOnlyMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorReturnedName extends RenamedConstructorOverride {
+  @clientName("value", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RequiredRenamedConstructorOverride extends RenamedConstructorOverride {
+  @clientName("requiredValue", "csharp")
+  value: string;
+}
+
+model ConstructorReadOnlyCollectionBase {
+  @visibility(Lifecycle.Read)
+  items: string[];
+
+  @visibility(Lifecycle.Read)
+  values: Record<string>;
+}
+
+model ConstructorReadOnlyCollectionOverride extends ConstructorReadOnlyCollectionBase {
+  @clientName("renamedItems", "csharp")
+  @visibility(Lifecycle.Create)
+  items: string[];
+
+  @clientName("renamedValues", "csharp")
+  @visibility(Lifecycle.Create)
+  values: Record<string>;
+}
+
+model ConstructorRequiredCollectionOverride extends ConstructorReadOnlyCollectionOverride {
+  @clientName("requiredItems", "csharp")
+  items: string[];
+
+  @clientName("requiredValues", "csharp")
+  values: Record<string>;
+}
+
+model LiteralConstructorBase {
+  value: string;
+}
+
+model RenamedLiteralConstructorOverride extends LiteralConstructorBase {
+  @clientName("renamedValue", "csharp")
+  value: "fixed";
+}
+
+model ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  original: string;
+}
+
+model ConstructorClientNameCollision extends ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  other: string;
+}
+
+model ConstructorClientNameCollisionLeaf extends ConstructorClientNameCollision {}

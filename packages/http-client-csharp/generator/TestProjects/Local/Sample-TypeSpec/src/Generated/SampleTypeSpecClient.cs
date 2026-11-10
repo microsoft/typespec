@@ -42,7 +42,7 @@ namespace SampleTypeSpec
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
         private DeprecationSamples _cachedDeprecationSamples;
-        private VisibilitySamples _cachedVisibilitySamples;
+        private ConstructorRequirements _cachedConstructorRequirements;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -2316,10 +2316,10 @@ namespace SampleTypeSpec
             return Volatile.Read(ref _cachedDeprecationSamples) ?? Interlocked.CompareExchange(ref _cachedDeprecationSamples, new DeprecationSamples(Pipeline, _endpoint), null) ?? _cachedDeprecationSamples;
         }
 
-        /// <summary> Initializes a new instance of VisibilitySamples. </summary>
-        public virtual VisibilitySamples GetVisibilitySamplesClient()
+        /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
+        public virtual ConstructorRequirements GetConstructorRequirementsClient()
         {
-            return Volatile.Read(ref _cachedVisibilitySamples) ?? Interlocked.CompareExchange(ref _cachedVisibilitySamples, new VisibilitySamples(Pipeline, _endpoint), null) ?? _cachedVisibilitySamples;
+            return Volatile.Read(ref _cachedConstructorRequirements) ?? Interlocked.CompareExchange(ref _cachedConstructorRequirements, new ConstructorRequirements(Pipeline, _endpoint), null) ?? _cachedConstructorRequirements;
         }
     }
 }

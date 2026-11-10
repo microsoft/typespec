@@ -1,11 +1,13 @@
 import * as ts from "@alloy-js/typescript";
 import type { Operation } from "@typespec/compiler";
+import { useTsp } from "../../core/index.js";
+import { getDoc } from "../utils/doc.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 
-/** Operation-backed class method options; the operation determines the generated signature. */
+/** Operation-backed class method options; the operation determines the generated signature and default documentation. */
 export interface ClassMethodPropsWithType extends Omit<ts.ClassMethodProps, "name"> {
-  /** Operation supplying parameters and return type, filtering error variants only from unions. */
+  /** Operation supplying documentation, parameters, and return type, filtering error variants only from unions. */
   type: Operation;
   /** Method name override; otherwise the operation name uses the TypeScript function naming policy. */
   name?: string;
@@ -26,12 +28,14 @@ export function ClassMethod(props: ClassMethodProps) {
     return <ts.ClassMethod {...props} />;
   }
 
+  const { $ } = useTsp();
   const name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
   const returnType =
     props.returnType === null ? undefined : <TypeExpression type={getReturnType(props.type)} />;
 
   return (
     <ts.ClassMethod
+      doc={props.doc ?? getDoc($, props.type)}
       refkey={props.refkey}
       name={name}
       async={props.async}

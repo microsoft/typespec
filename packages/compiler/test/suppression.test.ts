@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
-import { SyntaxKind } from "../src/ast/index.js";
+import { getSuppressions, SyntaxKind } from "../src/ast/index.js";
 import { navigateProgram } from "../src/core/semantic-walker.js";
 import { createRemoveUnusedSuppressionCodeFix } from "../src/core/suppression-tracking.js";
 import { expectCodeFixOnAst } from "../src/testing/code-fix-testing.js";
@@ -217,6 +217,7 @@ it("does not report unused suppression for errors as replacement for suppress-er
   );
 
   expectDiagnostics(diagnostics, [{ code: "suppress-error" }, { code: "invalid-ref" }]);
+  strictEqual(getSuppressions(program)[0].used, true);
   // The suppression for an error should not appear as "unused" since it was explicitly rejected
   const unused = program.suppressionTracker?.getUnusedSuppressions() ?? [];
   strictEqual(unused.length, 0);
