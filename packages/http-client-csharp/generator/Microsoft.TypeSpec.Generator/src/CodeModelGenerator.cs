@@ -73,6 +73,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         internal bool IsNewProject { get; set; }
+        internal bool IsHosted { get; set; }
         private InputLibrary _inputLibrary;
 
         public virtual Emitter Emitter { get; }
@@ -228,7 +229,7 @@ namespace Microsoft.TypeSpec.Generator
             var result = new HashSet<string>(info.TypeNames);
             foreach (var provider in info.TypeProviders)
             {
-                result.Add(provider.Type.FullyQualifiedName);
+                result.Add(ProviderReferenceMapAnalyzer.GetProviderTypeName(provider.Type));
             }
             return result;
         }

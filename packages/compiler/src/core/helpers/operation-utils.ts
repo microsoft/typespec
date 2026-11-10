@@ -1,6 +1,7 @@
 import { isTemplateDeclaration, isTemplateDeclarationOrInstance } from "../type-utils.js";
-import { Interface, Namespace, Operation } from "../types.js";
+import type { Interface, Namespace, Operation } from "../types.js";
 
+/** Control whether operation listing includes a namespace's nested namespaces. */
 export interface ListOperationOptions {
   /**
    * If the container is a namespace look for operation in sub namespaces.

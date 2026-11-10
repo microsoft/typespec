@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegmen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,37 +43,73 @@ public class FluentConstructorByInner extends FluentMethod {
                 block.line(String.format("this.%1$s = %2$s;", ModelNaming.MODEL_PROPERTY_MANAGER,
                     ModelNaming.MODEL_PROPERTY_MANAGER));
 
-                List<UrlPathSegments.ParameterSegment> segments = urlPathSegments.getReverseParameterSegments();
-                Collections.reverse(segments);
-                Map<String, String> urlSegmentNameByParameterName = urlPathSegments.getReverseParameterSegments()
-                    .stream()
-                    .collect(Collectors.toMap(UrlPathSegments.ParameterSegment::getParameterName,
-                        UrlPathSegments.ParameterSegment::getSegmentName));
-
                 // init from resource id
                 pathParameters.forEach(p -> {
-                    String valueFromIdText;
-                    if (urlPathSegments.hasScope()) {
-                        valueFromIdText
-                            = String.format("%1$s.getValueFromIdByParameterName(%2$s.id(), \"%3$s\", \"%4$s\")",
-                                ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.MODEL_PROPERTY_INNER,
-                                urlPathSegments.getPath(), p.getSerializedName());
-                    } else {
-                        valueFromIdText = String.format("%1$s.getValueFromIdByName(%2$s.id(), \"%3$s\")",
+                    String variableName
+                        = resourceLocalVariables.getLocalVariableByMethodParameter(p.getClientMethodParameter())
+                            .getName();
+                    boolean needsConversion = p.getClientMethodParameter().getClientType() != ClassType.STRING;
+                    Map<UrlPathSegments, String> alternatives = new LinkedHashMap<>();
+                    for (UrlPathSegments path : model.getResourceIdPaths()) {
+                        if (!path.equals(urlPathSegments)) {
+                            String parameterName = getParameterName(urlPathSegments, path, p.getSerializedName());
+                            if (parameterName != null) {
+                                alternatives.put(path, parameterName);
+                            }
+                        }
+                    }
+                    String valueFromIdText
+                        = String.format("%1$s.getValueFromIdByParameterName(%2$s.id(), \"%3$s\", \"%4$s\")",
                             ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.MODEL_PROPERTY_INNER,
-                            urlSegmentNameByParameterName.get(p.getSerializedName()));
+                            urlPathSegments.getPath(), p.getSerializedName());
+                    if (alternatives.isEmpty()) {
+                        if (needsConversion) {
+                            valueFromIdText = String.format("%1$s.fromString(%2$s)",
+                                p.getClientMethodParameter().getClientType(), valueFromIdText);
+                        }
+                        block.line(String.format("this.%1$s = %2$s;", variableName, valueFromIdText));
+                        return;
                     }
-                    if (p.getClientMethodParameter().getClientType() != ClassType.STRING) {
-                        valueFromIdText = String.format("%1$s.fromString(%2$s)",
-                            p.getClientMethodParameter().getClientType().toString(), valueFromIdText);
-                    }
-                    block.line(String.format("this.%1$s = %2$s;",
-                        resourceLocalVariables.getLocalVariableByMethodParameter(p.getClientMethodParameter())
-                            .getName(),
+                    String valueVariable = needsConversion ? variableName + "Local" : "this." + variableName;
+                    block.line(String.format("%1$s%2$s = %3$s;", needsConversion ? "String " : "", valueVariable,
                         valueFromIdText));
+                    alternatives
+                        .forEach((path, parameterName) -> block.ifBlock(valueVariable + " == null",
+                            ifBlock -> ifBlock.line(String.format(
+                                "%1$s = %2$s.getValueFromIdByParameterName(%3$s.id(), \"%4$s\", \"%5$s\");",
+                                valueVariable, ModelNaming.CLASS_RESOURCE_MANAGER_UTILS,
+                                ModelNaming.MODEL_PROPERTY_INNER, path.getPath(), parameterName))));
+                    if (needsConversion) {
+                        block.line(String.format("this.%1$s = %2$s.fromString(%3$s);", variableName,
+                            p.getClientMethodParameter().getClientType(), valueVariable));
+                    }
                 });
             })
             .build();
+    }
+
+    private static String getParameterName(UrlPathSegments primaryPath, UrlPathSegments path, String parameterName) {
+        UrlPathSegments.ParameterSegment primary = primaryPath.getReverseParameterSegments()
+            .stream()
+            .filter(segment -> segment.getParameterName().equals(parameterName))
+            .findFirst()
+            .orElse(null);
+        if (primary == null) {
+            return null;
+        }
+        List<UrlPathSegments.ParameterSegment> candidates = path.getReverseParameterSegments()
+            .stream()
+            .filter(segment -> segment.getSegmentName().equalsIgnoreCase(primary.getSegmentName()))
+            .collect(Collectors.toList());
+        if (parameterName.equals(primaryPath.getReverseParameterSegments().get(0).getParameterName())
+            && !candidates.isEmpty()) {
+            return candidates.get(0).getParameterName();
+        }
+        return candidates.stream()
+            .filter(segment -> segment.getParameterName().equals(parameterName))
+            .map(UrlPathSegments.ParameterSegment::getParameterName)
+            .findFirst()
+            .orElse(candidates.size() == 1 ? candidates.get(0).getParameterName() : null);
     }
 
     @Override

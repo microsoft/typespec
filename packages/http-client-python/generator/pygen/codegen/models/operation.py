@@ -105,6 +105,11 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         )
 
     @property
+    def has_structured_stream_response(self) -> bool:
+        """Whether any success response is a structured (JSONL / SSE) stream returning Stream[T]."""
+        return any(getattr(r, "is_structured_stream", False) for r in self.responses)
+
+    @property
     def has_form_data_body(self):
         return self.parameters.has_form_data_body
 
@@ -153,6 +158,8 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             retval = add_to_pylint_disable(retval, "too-many-locals")
         elif not self.is_overload and len(method_params) > (LOCALS_LENGTH_LIMIT - OPERATION_BODY_VARIABLES_LENGTH):
             retval = add_to_pylint_disable(retval, "too-many-locals")
+        if not self.is_overload and self.has_structured_stream_response:
+            retval = add_to_pylint_disable(retval, "too-many-statements")
 
         return retval
 
@@ -334,7 +341,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.merge(
                 response.imports(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs)
             )
-        if self.code_model.options["models-mode"]:
+        if self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only:
             for exception in self.exceptions:
                 file_import.merge(exception.imports(async_mode=async_mode, **kwargs))
 
@@ -506,7 +513,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def has_stream_response(self) -> bool:
-        return any(r.is_stream_response for r in self.responses)
+        return any(r.is_stream_response or r.is_structured_stream for r in self.responses)
 
     @classmethod
     def get_request_builder(cls, yaml_data: dict[str, Any], client: "Client"):
@@ -552,7 +559,12 @@ class Operation(OperationBase[Response]):
                 "distributed_trace_async",
                 ImportType.SDKCORE,
             )
-        if self.has_response_body and not self.has_optional_return_type and not self.code_model.options["models-mode"]:
+        if (
+            self.has_response_body
+            and not self.has_optional_return_type
+            and not self.code_model.options["models-mode"]
+            and not self.code_model.generate_typeddict_only
+        ):
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
 
         return file_import

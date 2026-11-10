@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
@@ -60,7 +61,7 @@ public final class MapperUtils {
             String[] packageSuffixes;
             if (settings.isCustomType(enumTypeName)) {
                 packageSuffixes = new String[] { settings.getCustomTypesSubpackage() };
-            } else if (settings.isDataPlaneClient()
+            } else if ((settings.isDataPlaneClient() || settings.isFluent())
                 && (enumType.getUsage() != null && enumType.getUsage().contains(SchemaContext.INTERNAL))) {
                 // internal type, which is not exposed to user
                 packageSuffixes
@@ -91,7 +92,10 @@ public final class MapperUtils {
                 .implementationDetails(
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
                         .build())
-                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                .apiMetadata(new ApiMetadata.Builder()
+                    .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                    .experimental(SchemaUtil.getExperimental(enumType))
+                    .build())
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)
                 .build();
@@ -123,9 +127,11 @@ public final class MapperUtils {
             final String memberName = useExactJavaName ? enumName : CodeNamer.getEnumMemberName(enumName);
             long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
             if (counter > 0) {
-                enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));
+                enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription,
+                    new ApiMetadata.Builder().experimental(enumValue.getExperimental()).build()));
             } else {
-                enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription));
+                enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription,
+                    new ApiMetadata.Builder().experimental(enumValue.getExperimental()).build()));
             }
         }
         return enumValues;

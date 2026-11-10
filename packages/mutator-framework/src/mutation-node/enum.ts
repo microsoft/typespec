@@ -2,9 +2,16 @@ import type { Enum, EnumMember } from "@typespec/compiler";
 import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 
+/** Maintains an enum's member map through explicit member connections. */
 export class EnumMutationNode extends MutationNode<Enum> {
+  /** Selects enum-specific member connections. */
   readonly kind = "Enum";
 
+  /**
+   * Starts a member reference and establishes the member's enum back-reference.
+   * Renames replace source-name entries, deletion removes them, and replacements
+   * must remain enum members. The enum is cloned when its map needs updating.
+   */
   startMemberEdge() {
     return new HalfEdge<Enum, EnumMember>(this, {
       onTailCreation: ({ tail }) => {
@@ -33,6 +40,7 @@ export class EnumMutationNode extends MutationNode<Enum> {
     });
   }
 
+  /** Connects a member and its enum back-reference via {@link startMemberEdge}. */
   connectMember(memberNode: MutationNode<EnumMember>) {
     this.startMemberEdge().setTail(memberNode);
   }

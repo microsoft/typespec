@@ -3,7 +3,8 @@ import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { inspect } from "util";
-import vscode, { QuickInputButton, Uri } from "vscode";
+import type { QuickInputButton } from "vscode";
+import vscode, { Uri } from "vscode";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
 import { tspLanguageClient } from "../../extension-context.js";
@@ -11,9 +12,9 @@ import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import telemetryClient from "../../telemetry/telemetry-client.js";
-import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
+import type { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
-import { TspLanguageClient } from "../../tsp-language-client.js";
+import type { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
 import {
   formatDiagnostic,
@@ -21,16 +22,11 @@ import {
   loadEmitterOptions,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
+import type { ExecOutput } from "../../utils.js";
+import { getVscodeUriFromPath, isFile, tryParseYaml, tryReadFile } from "../../utils.js";
+import type { EmitQuickPickItem } from "./emit-quick-pick-item.js";
+import type { Emitter } from "./emitter.js";
 import {
-  ExecOutput,
-  getVscodeUriFromPath,
-  isFile,
-  tryParseYaml,
-  tryReadFile,
-} from "../../utils.js";
-import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
-import {
-  Emitter,
   EmitterKind,
   getLanguageAlias,
   getRegisterEmitters,

@@ -14,7 +14,9 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.ResponseBase;
 import payload.head.implementation.HeadClientImpl;
+import payload.head.models.ContentTypeHeaderInResponseHeaders;
 
 /**
  * Initializes a new instance of the synchronous HeadClient type.
@@ -36,6 +38,13 @@ public final class HeadClient {
 
     /**
      * The contentTypeHeaderInResponse operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>Content-type.</td></tr>
+     * <tr><td>x-ms-meta</td><td>String</td><td>The metadata headers.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -46,8 +55,32 @@ public final class HeadClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> contentTypeHeaderInResponseWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.contentTypeHeaderInResponseWithResponse(requestOptions);
+    Response<Void> contentTypeHeaderInResponseWithResponseInternal(RequestOptions requestOptions) {
+        return this.serviceClient.contentTypeHeaderInResponseWithResponseInternal(requestOptions);
+    }
+
+    /**
+     * The contentTypeHeaderInResponse operation.
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link ResponseBase}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ResponseBase<ContentTypeHeaderInResponseHeaders, Void>
+        contentTypeHeaderInResponseWithResponse(RequestOptions requestOptions) {
+        // Generated convenience method for contentTypeHeaderInResponseWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<Void> protocolMethodResponse = contentTypeHeaderInResponseWithResponseInternal(requestOptions);
+        return new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(),
+            protocolMethodResponse.getHeaders(), null,
+            new ContentTypeHeaderInResponseHeaders(protocolMethodResponse.getHeaders()));
     }
 
     /**
@@ -62,8 +95,8 @@ public final class HeadClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void contentTypeHeaderInResponse() {
-        // Generated convenience method for contentTypeHeaderInResponseWithResponse
+        // Generated convenience method for contentTypeHeaderInResponseWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        contentTypeHeaderInResponseWithResponse(requestOptions).getValue();
+        contentTypeHeaderInResponseWithResponseInternal(requestOptions).getValue();
     }
 }

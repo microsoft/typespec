@@ -1,9 +1,10 @@
-import { Fail, KeyedMockResponse, MockResponse, PassByKeyScenario,  ScenarioMockApi } from "@typespec/spec-api";
+import type { KeyedMockResponse, MockResponse, PassByKeyScenario,  ScenarioMockApi } from "@typespec/spec-api";
+import { Fail } from "@typespec/spec-api";
 import { logger } from "../logger.js";
-import { CoverageReport, ScenariosMetadata, ScenarioStatus } from "@typespec/spec-coverage-sdk";
+import type { CoverageReport, ScenariosMetadata, ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { mkdirSync, writeFileSync } from "fs";
 import { dirname } from "path";
-import { ScenariosAndScenariosMetadata } from "../app/app.js";
+import type { ScenariosAndScenariosMetadata } from "../app/app.js";
 
 export class CoverageTracker {
   private scenarios: Record<string, ScenarioMockApi> = {};

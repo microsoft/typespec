@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createTypeSpecLibrary,
-  DiagnosticDefinition,
-  DiagnosticMessages,
-  paramMessage,
-} from "@typespec/compiler";
+import type { DiagnosticDefinition, DiagnosticMessages } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { CSharpEmitterOptionsSchema } from "../options.js";
 
 export type DiagnosticMessagesMap = {
@@ -14,6 +10,19 @@ export type DiagnosticMessagesMap = {
 };
 
 const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
+  "invalid-experimental-diagnostic-id": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Experimental diagnostic ID ${"diagnosticId"} must be a single C# warning identifier (ASCII letters, digits, or underscores, not starting with a digit) or a decimal warning number.`,
+    },
+  },
+  "experimental-target-not-supported": {
+    severity: "error",
+    messages: {
+      default:
+        "This experimental declaration does not produce a C# type or member that supports ExperimentalAttribute. Apply @experimental to an emitted model, enum, property, enum member, operation, or client instead.",
+    },
+  },
   "no-apiVersion": {
     severity: "error",
     messages: {
@@ -54,6 +63,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     },
   },
   "client-namespace-conflict": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`${"message"}`,
+    },
+  },
+  "signature-collision": {
     severity: "warning",
     messages: {
       default: paramMessage`${"message"}`,

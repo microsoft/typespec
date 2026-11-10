@@ -27,6 +27,7 @@ extends:
   parameters:
     settings:
       skipBuildTagsForGitHubPullRequests: true
+      networkIsolationPolicy: Permissive, CFSClean
     sdl:
       codeql:
         compiled:

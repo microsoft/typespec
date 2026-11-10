@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -98,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
+                .. GetJsonLinesTypes(),
                 new BinaryContentHelperDefinition(),
                 ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
                 new CancellationTokenExtensionsDefinition(),
@@ -105,6 +107,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 .. GetMultipartFormDataTypes(),
                 new ModelReaderWriterContextDefinition()
             ];
+        }
+
+        private static IEnumerable<TypeProvider> GetJsonLinesTypes()
+        {
+            var hasJsonLinesRequestOperation = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients
+                .SelectMany(client => client.Methods)
+                .Any(method => method.Parameters.Any(parameter =>
+                    parameter.Type is InputStreamingType
+                    {
+                        StreamKind: InputStreamingType.JsonLinesStreamKind
+                    }));
+
+            if (hasJsonLinesRequestOperation)
+            {
+                yield return new JsonLinesBinaryContentDefinition();
+            }
         }
 
         private IEnumerable<TypeProvider> GetMultipartFormDataTypes()

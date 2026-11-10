@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
@@ -19,20 +20,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
+            using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
 
-            foreach (var suppression in _provider.DisabledFileWarnings)
+            using (writer.SuppressWarnings(_provider.DisabledFileWarnings))
             {
-                suppression.DisableStatement.Write(writer);
-            }
-
-            using (var ns = writer.SetNamespace(_provider.Type.Namespace))
-            {
-                WriteType(writer);
-            }
-
-            foreach (var suppression in _provider.DisabledFileWarnings)
-            {
-                suppression.RestoreStatement.Write(writer);
+                using (var ns = writer.SetNamespace(_provider.Type.Namespace))
+                {
+                    WriteType(writer);
+                }
             }
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }
@@ -45,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteType(CodeWriter writer)
         {
+            using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
             if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
@@ -97,6 +93,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
+        private SuppressionStatement[] GetExperimentalContextSuppressions()
+        {
+            var provider = _provider.SerializationProviderOwner is { } owner && owner.Type.Equals(_provider.Type)
+                ? owner
+                : _provider;
+            return ExperimentalApiHelpers.GetAttributeSuppressions(
+                provider.Attributes.Concat(provider.CustomCodeView?.Attributes ?? []));
+        }
+
         private void WriteClassOrStructContent(CodeWriter writer)
         {
             using (writer.Scope())
@@ -143,6 +148,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
+                    using var warnings = writer.SuppressWarnings(_provider.Fields[i].Suppressions);
                     writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
                     foreach (var attr in _provider.Fields[i].Attributes)
                     {
@@ -227,7 +233,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             for (int i = 0; i < _provider.NestedTypes.Count; i++)
             {
                 var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i]);
-                nestedWriter.WriteType(writer);
+                using (writer.SuppressWarnings(_provider.NestedTypes[i].DisabledFileWarnings))
+                {
+                    nestedWriter.WriteType(writer);
+                }
                 if (i < _provider.NestedTypes.Count - 1)
                 {
                     writer.WriteLine();

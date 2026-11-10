@@ -7,11 +7,17 @@ import { TypeExpression } from "../type-expression/type-expression.js";
 import { Method } from "./class-method.js";
 import { PrimitiveInitializer } from "./primitive-initializer.js";
 
+/** Source and per-member overrides for a Python field or operation-backed method. */
 export interface ClassMemberProps {
+  /** Property to render as a variable declaration, or operation to delegate to {@link Method}. */
   type: ModelProperty | Operation;
+  /** Documentation override; otherwise uses the source member's TypeSpec documentation. */
   doc?: Children;
+  /** Property optionality override, controlling Optional[T] and whether None can be emitted. */
   optional?: boolean;
+  /** Method kind forwarded for operations; omitted values use the surrounding method context. */
   methodType?: "method" | "class" | "static";
+  /** Requests an abstract method for operation members; ignored for properties. */
   abstract?: boolean;
 }
 

@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -11,23 +13,135 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
+@Isolated
 public class ClientMethodMapperTests {
+
+    @AfterEach
+    public void restoreSettings() {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+    }
+
+    @Test
+    public void testFirstOptionalParameterSignatures() {
+        ClientMethodParameter required
+            = new ClientMethodParameter.Builder().name("name").wireType(ClassType.STRING).required(true).build();
+        ClientMethodParameter optional = new ClientMethodParameter.Builder().name("option")
+            .wireType(ClassType.STRING)
+            .versioning(new Versioning.Builder().added(Arrays.asList("v2", "v3")).build())
+            .build();
+
+        Assertions.assertEquals(List.of(List.of(required)),
+            ClientMethodMapper.findOverloadedSignatures(List.of(required, optional)));
+        Assertions.assertEquals(List.of(List.of()), ClientMethodMapper.findOverloadedSignatures(List.of(optional)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ClientMethodType.class, names = { "SimpleSyncRestResponse", "PagingSync", "LongRunningSync" })
+    public void testRequiredOnlyVersioningOverloadWithContext(ClientMethodType type) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("flavor".equals(key)) {
+                    return (T) "azure";
+                }
+                if ("data-plane".equals(key)) {
+                    return (T) Boolean.FALSE;
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        ClientMethodParameter required = new ClientMethodParameter.Builder().name("name")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .required(true)
+            .build();
+        ClientMethodParameter optional = new ClientMethodParameter.Builder().name("option")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .versioning(new Versioning.Builder().added(Arrays.asList("v2")).build())
+            .build();
+        ClientMethod baseMethod = new ClientMethod.Builder().name("operation")
+            .type(type)
+            .parameters(List.of(required, optional))
+            .methodVisibility(JavaVisibility.Public)
+            .build();
+        List<ClientMethod> methods = new ArrayList<>();
+        methods.add(baseMethod.newBuilder().onlyRequiredParameters(true).build());
+        ClientMethodMapper mapper = new ClientMethodMapper();
+        ClientMethod withContext = mapper.addClientMethodWithContext(methods, baseMethod, JavaVisibility.Public, false);
+
+        mapper.createOverloadForVersioning(methods, baseMethod, withContext, JavaVisibility.Public, null, false, true);
+        Assertions.assertEquals(3, methods.size());
+        ClientMethod historical = methods.get(2);
+        Assertions.assertEquals(List.of("name", "context"),
+            historical.getMethodInputParameters().stream().map(MethodParameter::getName).collect(Collectors.toList()));
+        Assertions.assertSame(withContext, historical.getOverloadedClientMethod());
+
+        mapper.createOverloadForVersioning(methods, baseMethod, baseMethod, JavaVisibility.Public, null, false, false);
+        Assertions.assertEquals(3, methods.size(), "Do not duplicate the existing required-only overload");
+    }
+
+    @Test
+    public void testConvenienceResponseReplacement() {
+        Operation operation = operationWithNoDesc();
+        operation.getRequests().get(0).getProtocol().getHttp().setMethod(HttpMethod.GET.name());
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        operation.getResponses().get(0).setSchema(schema);
+        ConvenienceApi convenienceApi = new ConvenienceApi();
+        operation.setConvenienceApi(convenienceApi);
+        Response response = new Response();
+        convenienceApi.setResponse(response);
+
+        Assertions.assertEquals(PrimitiveType.VOID,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, true, true).getSyncReturnType());
+
+        response.setBinary(true);
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, true, true).getSyncReturnType());
+
+        response.setBinary(false);
+        response.setSchema(schema);
+        Assertions.assertEquals(ClassType.STRING,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+
+        convenienceApi.setResponse(null);
+        Assertions.assertEquals(ClassType.STRING,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+    }
 
     @Test
     public void testOverloadedSignatures() {

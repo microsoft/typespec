@@ -1,11 +1,17 @@
-import { type Program } from "../core/program.js";
-import { Realm } from "../experimental/realm.js";
+import type { Program } from "../core/program.js";
+import type { Realm } from "../experimental/realm.js";
 
 /**
  * A Typekit is a collection of utility functions and namespaces that allow you to work with TypeSpec types.
  */
 export interface Typekit {
+  /**
+   * The program backing this typekit's realm, used for type checking and access to compiler state.
+   */
   readonly program: Program;
+  /**
+   * The realm that owns clones created by this typekit and supplies their isolated state maps.
+   */
   readonly realm: Realm;
 }
 

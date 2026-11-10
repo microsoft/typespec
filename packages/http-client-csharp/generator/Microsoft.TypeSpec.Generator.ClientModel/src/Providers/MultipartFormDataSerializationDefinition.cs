@@ -16,6 +16,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 #pragma warning disable SCME0004 // MultiPartFormContent is evaluation-only.
@@ -91,14 +92,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine
             };
 
-            foreach (var prop in _model.CanonicalView.Properties)
+            IEnumerable<PropertyProvider> properties = _model.CanonicalView.Properties;
+            if (_inputModel.BaseModel is null && _model.CustomCodeView?.BaseType is null &&
+                _model.BaseModelProvider is SystemObjectModelProvider mappedBase)
+            {
+                // Flat restoration moves wire properties onto a model-local mapped base.
+                // Multipart has no base-writer delegation, so emit those projected parts here.
+                properties = mappedBase.CanonicalView.Properties.Concat(properties);
+            }
+
+            foreach (var prop in properties)
             {
                 if (prop.WireInfo is null)
                 {
                     continue;
                 }
 
-                statements.Add(BuildAddPartStatement(contentVar, prop));
+                statements.Add(ExperimentalApiHelpers.Suppress(BuildAddPartStatement(contentVar, prop),
+                    ExperimentalApiHelpers.GetMemberSuppressions(prop)));
             }
 
             statements.AddRange(
@@ -141,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.Type is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop)
+                ? OptionalSnippets.IsCollectionDefined(prop, prop.Type)
                 : OptionalSnippets.IsDefined(prop);
 
             return new IfStatement(isDefinedCondition) { addStatement };
@@ -218,9 +229,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else
             {
                 // Model element collection: round-trip through ModelReaderWriter and tag the resulting BinaryData.
-                writeCall = Static(typeof(ModelReaderWriter)).Invoke(
-                    nameof(ModelReaderWriter.Write),
-                    [((MemberExpression)prop).CastTo(prop.Type), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default])
+                writeCall = ModelReaderWriterSnippets.Write(
+                    ((MemberExpression)prop).CastTo(prop.Type),
+                    ModelSerializationExtensionsSnippets.Wire)
                     .As<BinaryData>()
                     .WithMediaType(Literal(contentType ?? "application/json"));
             }

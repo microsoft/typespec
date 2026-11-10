@@ -52,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         private const string EnumKind = "enum";
         private const string EnumValueKind = "enumvalue";
         private const string ArrayKind = "array";
+        private const string StreamingKind = "streaming";
         private const string DictionaryKind = "dict";
         private const string NullableKind = "nullable";
         private const string UtcDateTimeKind = "utcDateTime";
@@ -67,6 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             EnumKind => InputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, resolver),
             EnumValueKind => InputEnumTypeValueConverter.CreateEnumTypeValue(ref reader, id, name, options, resolver),
             ArrayKind => InputArrayTypeConverter.CreateListType(ref reader, id, name, options, resolver),
+            StreamingKind => InputStreamingTypeConverter.CreateStreamingType(ref reader, id, name, options, resolver),
             DictionaryKind => InputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, options, resolver),
             UtcDateTimeKind or OffsetDateTimeKind => InputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, name, options, resolver),
             DurationKind => InputDurationTypeConverter.CreateDurationType(ref reader, id, name, options, resolver),

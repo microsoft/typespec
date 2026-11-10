@@ -7,7 +7,6 @@
     "target": "es2022",
     "skipLibCheck": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true,
     "jsx": "preserve",
     "jsxImportSource": "@alloy-js/core",
     "emitDeclarationOnly": true,

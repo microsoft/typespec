@@ -1,12 +1,20 @@
-import { Namespace, Program, Type } from "@typespec/compiler";
+import type { Namespace, Program, Type } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { reportDiagnostic } from "./lib.js";
+import { validateDocumentation } from "./validate-docs.js";
 
+/**
+ * Checks a library's namespace placement, decorator declarations, and documentation.
+ *
+ * The compiler invokes this hook when the library linter is imported. Validation
+ * failures are reported through the program's diagnostics.
+ */
 export function $onValidate(program: Program) {
   const root = program.getGlobalNamespaceType();
 
   validateNoExportAtRoot(program, root);
   validateDecoratorSignature(program);
+  validateDocumentation(program);
 }
 
 function validateNoExportAtRoot(program: Program, root: Namespace) {

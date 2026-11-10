@@ -34,9 +34,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
-    "build-samples": "node ./samples/build.js",
+    "build-samples": "node ./samples/build.ts",
     "build": "pnpm build-samples && pnpm build:lib && vite build 2>&1",
-    "build:lib": "vite build --config vite.lib.config.ts",
+    "build:lib": "vite build --config vite.lib.config.ts && pnpm build:types",
+    "build:types": "tsc -p tsconfig.declaration.json",
     "preview": "pnpm build && vite preview",
     "start": "vite",
     "test": "vitest run",
@@ -60,6 +61,7 @@
     "@typespec/html-program-viewer": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/http-client-js": "workspace:^",
+    "@typespec/http-server-csharp": "workspace:^",
     "@typespec/http-server-js": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
@@ -69,6 +71,7 @@
     "@typespec/playground": "workspace:^",
     "@typespec/protobuf": "workspace:^",
     "@typespec/rest": "workspace:^",
+    "@typespec/samples": "workspace:^",
     "@typespec/sse": "workspace:^",
     "@typespec/streams": "workspace:^",
     "@typespec/versioning": "workspace:^",
@@ -80,7 +83,6 @@
   "devDependencies": {
     "@babel/core": "catalog:",
     "@playwright/test": "catalog:",
-    "@types/debounce": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -93,7 +95,6 @@
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   }
 }

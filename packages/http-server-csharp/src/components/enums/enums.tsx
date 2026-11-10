@@ -2,15 +2,18 @@ import type { Refkey } from "@alloy-js/core";
 import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
+  resolveEncodedEnumMemberValue,
   type Enum,
+  type EnumMember,
+  type Program,
   type Namespace as TspNamespace,
   type Type,
   type Union,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { JsonSerialization } from "../../utils/csharp-libs.jsx";
-import { getDocComments } from "../../utils/doc-comments.jsx";
+import { getDocComments } from "@typespec/emitter-framework/csharp";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import { efRefkey } from "../type-expression/type-expression.jsx";
@@ -31,17 +34,26 @@ interface EnumInfo {
   members: EnumMemberInfo[];
 }
 
-function normalizeEnum(en: Enum): EnumInfo {
+function normalizeEnum(program: Program, en: Enum): EnumInfo {
   return {
     name: en.name,
     type: en,
     namespace: en.namespace,
     members: Array.from(en.members.entries()).map(([key, value]) => ({
       name: key,
-      serializedValue: typeof value.value === "string" ? value.value : key,
+      serializedValue: serializedEnumMemberValue(program, value, key),
       docSource: value,
     })),
   };
+}
+
+/**
+ * Value a member serializes to in json. A numeric member without an encoded name keeps its name,
+ * as the enum is emitted with a string converter.
+ */
+function serializedEnumMemberValue(program: Program, member: EnumMember, key: string): string {
+  const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+  return typeof value === "string" ? value : key;
 }
 
 function normalizeUnionEnum(union: Union): EnumInfo {
@@ -75,7 +87,7 @@ export function Enums(props: EnumsProps): Children {
   const { $ } = useTsp();
 
   const allEnums: EnumInfo[] = [
-    ...props.enums.map(normalizeEnum),
+    ...props.enums.map((en) => normalizeEnum($.program, en)),
     ...props.unionEnums.map(normalizeUnionEnum),
   ];
 
@@ -83,17 +95,18 @@ export function Enums(props: EnumsProps): Children {
     <For each={allEnums}>
       {(info) => {
         const namePolicy = cs.useCSharpNamePolicy();
+        const enumName = namePolicy.getName(info.name, "enum");
         const subNsParts = getSubNamespaceParts(info.namespace, props.serviceNamespace);
 
         const enumDecl = (
           <>
             <Attribute
-              name={JsonSerialization.JsonConverterAttribute}
+              name={Serialization.JsonConverterAttribute}
               args={["typeof(JsonStringEnumConverter)"]}
             />
             <hbr />
             <cs.EnumDeclaration
-              name={namePolicy.getName(info.name, "enum")}
+              name={enumName}
               public
               refkey={efRefkey(info.type)}
               doc={getDocComments($, info.type)}
@@ -103,7 +116,7 @@ export function Enums(props: EnumsProps): Children {
                   <>
                     <cs.DocWhen doc={getDocComments($, member.docSource)} />
                     <Attribute
-                      name={JsonSerialization.JsonStringEnumMemberNameAttribute}
+                      name={Serialization.JsonStringEnumMemberNameAttribute}
                       args={[`"${member.serializedValue}"`]}
                     />
                     <hbr />
@@ -124,7 +137,7 @@ export function Enums(props: EnumsProps): Children {
         );
 
         return (
-          <CSharpFile path={`${info.name}.cs`} using={["System.Text.Json"]}>
+          <CSharpFile path={`${enumName}.cs`} using={["System.Text.Json"]}>
             {wrappedContent}
           </CSharpFile>
         );

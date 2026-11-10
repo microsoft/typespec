@@ -1,4 +1,4 @@
-import { PackageJson } from "@typespec/compiler";
+import type { PackageJson } from "@typespec/compiler";
 import vscode from "vscode";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isPathAbsolute } from "./path-utils.js";

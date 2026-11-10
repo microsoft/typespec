@@ -121,6 +121,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task ValidateAttributes()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization!;
+            var symbol = compilation.GetTypeByMetadataName("Sample.ExperimentalType");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var constructor = provider.Constructors.Single();
+
+            Assert.IsTrue(provider.IsExperimental);
+            Assert.AreEqual(
+                Literal("TYPE001").ToDisplayString(),
+                provider.Attributes.Single(attribute => attribute.Type.Equals(typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute)))
+                    .Arguments.Single().ToDisplayString());
+            Assert.AreEqual(
+                Literal("CTOR001").ToDisplayString(),
+                constructor.Signature.Attributes.Single(attribute => attribute.Type.Equals(typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute)))
+                    .Arguments.Single().ToDisplayString());
+
+            var stableSymbol = compilation.GetTypeByMetadataName("Sample.StableType");
+            Assert.IsNotNull(stableSymbol);
+            Assert.IsFalse(new NamedTypeSymbolProvider(stableSymbol!, compilation).IsExperimental);
+        }
+
+        [Test]
         public void ValidateNamespaceNestedType()
         {
             // Get all members, including nested types
@@ -163,6 +190,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
                 Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
             }
+        }
+
+        [Test]
+        public void ValidatePropertyCompatibilityMetadata()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample
+                    {
+                        public class PropertyMetadata
+                        {
+                            public virtual string VirtualValue { get; set; } = string.Empty;
+                            public string InitValue { get; init; } = string.Empty;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.PropertyMetadata");
+            Assert.IsNotNull(symbol);
+
+            var properties = new NamedTypeSymbolProvider(symbol!, compilation).Properties
+                .ToDictionary(property => property.Name);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(properties["VirtualValue"].Modifiers.HasFlag(MethodSignatureModifiers.Virtual), Is.True);
+                Assert.That(properties["InitValue"].IsInitOnly, Is.True);
+            });
         }
 
         [TestCase(typeof(int))]
@@ -397,6 +453,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
         }
 
+        // Validates that reading a symbol maps the 'abstract' modifier onto the method signature so
+        // downstream consumers (e.g. the back-compat overload pass) can faithfully detect abstract methods.
+        [Test]
+        public async Task ValidateAbstractMethodModifierIsDetected()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithAbstract")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var abstractMethod = provider.Methods.Single(m => m.Signature.Name == "AbstractMethod");
+            Assert.IsTrue(abstractMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract), "Expected AbstractMethod to carry the Abstract modifier.");
+
+            var virtualMethod = provider.Methods.Single(m => m.Signature.Name == "VirtualMethod");
+            Assert.IsFalse(virtualMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract), "Expected VirtualMethod to not carry the Abstract modifier.");
+            Assert.IsTrue(virtualMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual), "Expected VirtualMethod to carry the Virtual modifier.");
+        }
+
         [Test]
         public async Task BodyDependenciesIncludeUsingNamespaceCandidatesForUnresolvedTypeSyntax()
         {
@@ -443,7 +520,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
             var sourceInputModel = new SourceInputModel(compilation, lastContract: null);
 
-            var nestedType = sourceInputModel.FindForTypeInCustomization("Sample", "Target", "Outer+Middle");
+            var nestedType = sourceInputModel.FindForTypeInCurrentCompilation("Sample", "Target", "Outer+Middle");
 
             Assert.IsNotNull(nestedType);
             Assert.AreEqual("Sample.Outer+Middle+Target", ((NamedTypeSymbolProvider)nestedType!).MetadataName);
@@ -643,6 +720,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsInstanceOf<LiteralExpression>(v74Field.InitializationValue);
             var v74Literal = v74Field.InitializationValue as LiteralExpression;
             Assert.AreEqual(3, v74Literal!.Literal);
+        }
+
+        // Validates that the constant value of a const field on a non-enum type (here a struct,
+        // mirroring the private `<Member>Value` backing constants an extensible enum uses) is
+        // recovered as the field's initialization value. This is what lets back-compat processing
+        // read a previously shipped member's wire value from the last contract's metadata.
+        [Test]
+        public void ValidateConstFieldInitializerIsRecovered()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public readonly partial struct MockInputEnum
+                        {
+                            private const string RecoverValue = "recover";
+                            private const int Answer = 42;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.Models.MockInputEnum");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var fields = provider.Fields.ToDictionary(f => f.Name);
+
+            Assert.IsTrue(fields.ContainsKey("RecoverValue"));
+            var recoverValue = fields["RecoverValue"];
+            Assert.IsInstanceOf<LiteralExpression>(recoverValue.InitializationValue);
+            Assert.AreEqual("recover", (recoverValue.InitializationValue as LiteralExpression)!.Literal);
+
+            Assert.IsTrue(fields.ContainsKey("Answer"));
+            var answer = fields["Answer"];
+            Assert.IsInstanceOf<LiteralExpression>(answer.InitializationValue);
+            Assert.AreEqual(42, (answer.InitializationValue as LiteralExpression)!.Literal);
+        }
+
+        // Validates that a non-const field carries no recovered initialization value.
+        [Test]
+        public void ValidateNonConstFieldHasNoInitializer()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public readonly partial struct MockInputEnum
+                        {
+                            private readonly string _value;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.Models.MockInputEnum");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var field = provider.Fields.Single(f => f.Name == "_value");
+            Assert.IsNull(field.InitializationValue);
         }
 
         public enum SomeEnum

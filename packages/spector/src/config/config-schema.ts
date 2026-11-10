@@ -1,5 +1,5 @@
-import { JSONSchemaType } from "ajv";
-import { SpecConfig } from "./types.js";
+import type { JSONSchemaType } from "ajv";
+import type { SpecConfig } from "./types.js";
 
 export const SpecConfigJsonSchema: JSONSchemaType<SpecConfig> = {
   type: "object",

@@ -1,5 +1,5 @@
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
-import { Diagnostic, NoTarget, SourceFile } from "../index.js";
+import type { Diagnostic, NoTarget, SourceFile } from "../index.js";
 import { InitTemplateSchema } from "./init-template.js";
 
 export type ValidationResult = {

@@ -1,11 +1,11 @@
 vi.resetModules();
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputEnumType, InputNullableType } from "../../src/type/input-type.js";
+import type { InputEnumType, InputNullableType } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

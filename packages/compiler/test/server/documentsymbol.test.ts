@@ -1,6 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { DocumentSymbol, SymbolKind } from "vscode-languageserver";
+import type { DocumentSymbol } from "vscode-languageserver";
+import { SymbolKind } from "vscode-languageserver";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 type SimplifiedSymbol = {

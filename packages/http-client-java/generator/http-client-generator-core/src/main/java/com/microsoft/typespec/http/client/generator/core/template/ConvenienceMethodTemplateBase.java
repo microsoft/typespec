@@ -43,6 +43,7 @@ import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemp
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
@@ -199,6 +200,79 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     /**
+     * Whether the convenience method returns the significant response headers as a strongly-typed model (opt-in via
+     * the "responseHeadersAsModel" client option). In this case the model has no serialization and is constructed
+     * directly from the response headers.
+     *
+     * @param method the convenience method.
+     * @return whether the convenience method returns response headers as a strongly-typed model.
+     */
+    protected static boolean isResponseHeadersAsModel(ClientMethod method) {
+        final IType bodyType = getConvenienceResponseBodyType(method);
+        if (bodyType instanceof ClassType) {
+            final ClientModel model = ClientModelUtil.getClientModel(((ClassType) bodyType).getName());
+            return model != null && model.isStronglyTypedHeader();
+        }
+        return false;
+    }
+
+    protected static boolean isResponseBase(IType type) {
+        return type instanceof GenericType && ClassType.RESPONSE_BASE.getName().equals(((GenericType) type).getName());
+    }
+
+    protected static GenericType getResponseBaseType(IType type) {
+        if (type instanceof GenericType && ClassType.MONO.getName().equals(((GenericType) type).getName())) {
+            type = ((GenericType) type).getTypeArguments()[0];
+        }
+        return isResponseBase(type) ? (GenericType) type : null;
+    }
+
+    protected static String expressionConvertFromBinaryData(IType responseBodyType, IType rawType,
+        String invocationExpression, Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
+        if (responseBodyType == ClassType.BINARY_DATA) {
+            return invocationExpression;
+        }
+        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
+        switch (mimeType) {
+            case TEXT:
+                if (responseBodyType == ArrayType.BYTE_ARRAY) {
+                    return invocationExpression + ".toBytes()";
+                }
+                String basicText = invocationExpression + ".toString()";
+                if (!rawType.isNullable()) {
+                    return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
+                }
+                return basicText;
+
+            case BINARY:
+                return invocationExpression;
+
+            default:
+                if (responseBodyType instanceof EnumType) {
+                    IType elementType = ((EnumType) responseBodyType).getElementType();
+                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class%4$s))", responseBodyType, elementType,
+                        invocationExpression, serializerArgument);
+                } else if (responseBodyType instanceof GenericType) {
+                    typeReferenceStaticClasses.add((GenericType) responseBodyType);
+                    return String.format("%2$s.toObject(%1$s%3$s)",
+                        TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
+                        serializerArgument);
+                } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
+                    if (rawType == ClassType.BASE_64_URL) {
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
+                            + serializerArgument + ").decodedBytes()";
+                    } else {
+                        return invocationExpression + ".toObject(byte[].class" + serializerArgument + ")";
+                    }
+                } else {
+                    return String.format("%2$s.toObject(%1$s.class%3$s)", responseBodyType.asNullable(),
+                        invocationExpression, serializerArgument);
+                }
+        }
+    }
+
+    /**
      * Gets the client type of the request body (BODY location) parameter of a convenience method, or {@code null} if
      * the method has no request body.
      *
@@ -230,6 +304,7 @@ abstract class ConvenienceMethodTemplateBase {
                     convenienceMethod.getProxyMethod(), false));
 
                 addGeneratedAnnotation(classBlock);
+                ExperimentalAnnotationUtil.write(classBlock, convenienceMethod.getApiMetadata());
                 TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
 
                 JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
@@ -262,7 +337,27 @@ abstract class ConvenienceMethodTemplateBase {
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
 
         // RequestOptions
-        createEmptyRequestOptions(methodBlock);
+        boolean hasRequestOptionsParameter = convenienceMethod.getMethodInputParameters()
+            .stream()
+            .anyMatch(parameter -> parameter.getClientType() == ClassType.REQUEST_OPTIONS);
+        if (hasRequestOptionsParameter) {
+            methodBlock.line("requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;");
+        } else {
+            createEmptyRequestOptions(methodBlock);
+        }
+        boolean hasHeaderCollectionParameter = parametersMap.keySet()
+            .stream()
+            .map(MethodParameter::getProxyMethodParameter)
+            .filter(Objects::nonNull)
+            .anyMatch(parameter -> parameter.getRequestParameterLocation() == RequestParameterLocation.HEADER
+                && parameter.getHeaderCollectionPrefix() != null
+                && !parameter.getHeaderCollectionPrefix().isEmpty()
+                && parameter.getClientType() instanceof MapType);
+        String requestOptionsForHeaders = "requestOptions";
+        if (hasRequestOptionsParameter && hasHeaderCollectionParameter) {
+            requestOptionsForHeaders = "requestOptionsLocal";
+            methodBlock.line("RequestOptions requestOptionsLocal = requestOptions;");
+        }
 
         // parameter transformation
         final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
@@ -283,11 +378,17 @@ abstract class ConvenienceMethodTemplateBase {
             && protocolMethod.getProxyMethod() != null
             && "application/merge-patch+json".equalsIgnoreCase(protocolMethod.getProxyMethod().getRequestContentType());
         Map<String, String> parameterExpressionsMap = new LinkedHashMap<>();
+        boolean hasInitialContinuationToken = needsInitialContinuationToken(protocolMethod);
+        String initialTokenExpression = "null";
         for (Map.Entry<MethodParameter, MethodParameter> entry : parametersMap.entrySet()) {
             MethodParameter parameter = entry.getKey();
             MethodParameter protocolParameter = entry.getValue();
 
-            if (parameter.getProxyMethodParameter() != null
+            if (hasInitialContinuationToken
+                && ClientMethodTemplateBase.isContinuationTokenParameter(protocolMethod,
+                    parameter.getProxyMethodParameter())) {
+                initialTokenExpression = parameter.getName();
+            } else if (parameter.getProxyMethodParameter() != null
                 && parameter.getProxyMethodParameter().getOrigin() == ParameterSynthesizedOrigin.CONTEXT) {
                 // Context
                 methodBlock.line(String.format("requestOptions.setContext(%s);", parameter.getName()));
@@ -300,7 +401,7 @@ abstract class ConvenienceMethodTemplateBase {
                 // protocol method parameter does not exist, set the parameter via RequestOptions
                 switch (parameter.getProxyMethodParameter().getRequestParameterLocation()) {
                     case HEADER:
-                        writeHeader(parameter, methodBlock);
+                        writeHeader(parameter, requestOptionsForHeaders, methodBlock);
                         break;
 
                     case QUERY:
@@ -337,27 +438,35 @@ abstract class ConvenienceMethodTemplateBase {
         }
 
         // invocation with protocol method parameters and RequestOptions
-        String invocationExpression = protocolMethod.getMethodInputParameters().stream().map(p -> {
-            String parameterName = p.getName();
-            String expression = parameterExpressionsMap.get(parameterName);
-            IType parameterRawType = p.getRawType();
-            if (isJsonMergePatchOperation
-                && ClientModelUtil.isClientModel(parameterRawType)
-                && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
-                && ClientModelUtil.isJsonMergePatchModel(
-                    ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
-                    JavaSettings.getInstance())) {
-                ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
-                // If it is polymorphic model, we need to enable json merge patch through root parent model
-                ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
-                IType rootParentModelType = rootParentModel.getType();
+        String invocationExpression = protocolMethod.getMethodInputParameters()
+            .stream()
+            .filter(p -> !protocolMethod.isPageStreamingType()
+                || !protocolMethod.getMethodPageDetails().shouldHideParameter(p))
+            .map(p -> {
+                String parameterName = p.getName();
+                String expression = parameterExpressionsMap.get(parameterName);
+                IType parameterRawType = p.getRawType();
+                if (isJsonMergePatchOperation
+                    && ClientModelUtil.isClientModel(parameterRawType)
+                    && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
+                    && ClientModelUtil.isJsonMergePatchModel(
+                        ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
+                        JavaSettings.getInstance())) {
+                    ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
+                    // If it is polymorphic model, we need to enable json merge patch through root parent model
+                    ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
+                    IType rootParentModelType = rootParentModel.getType();
 
-                return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
-                    rootParentModelType.toString(), parameterName, expression);
-            } else {
-                return expression == null ? parameterName : expression;
-            }
-        }).collect(Collectors.joining(", "));
+                    return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
+                        rootParentModelType.toString(), parameterName, expression);
+                } else {
+                    return expression == null ? parameterName : expression;
+                }
+            })
+            .collect(Collectors.joining(", "));
+        if (hasInitialContinuationToken) {
+            invocationExpression = initialTokenExpression + ", " + invocationExpression;
+        }
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
@@ -564,6 +673,7 @@ abstract class ConvenienceMethodTemplateBase {
         ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
         ClassType.BINARY_DATA.addImportsTo(imports, false);
         ClassType.REQUEST_OPTIONS.addImportsTo(imports, false);
+        ClassType.SIMPLE_RESPONSE.addImportsTo(imports, false);
         ClassType.REQUEST_CONTEXT.addImportsTo((imports), false);
         imports.add(Collectors.class.getName());
         imports.add(Objects.class.getName());
@@ -637,6 +747,18 @@ abstract class ConvenienceMethodTemplateBase {
         } else {
             return method.getName();
         }
+    }
+
+    protected String getProtocolMethodInvocationName(ClientMethod method) {
+        return needsInitialContinuationToken(method) ? "serviceClient." + method.getName() : getMethodName(method);
+    }
+
+    private static boolean needsInitialContinuationToken(ClientMethod method) {
+        return JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
+            && method.isPageStreamingType()
+            && method.getMethodPageDetails().getContinuationToken() != null
+            && method.getMethodPageDetails().getContinuationToken().getClientMethodParameter() == null;
     }
 
     /**
@@ -736,12 +858,29 @@ abstract class ConvenienceMethodTemplateBase {
         }
     }
 
-    private static void writeHeader(MethodParameter parameter, JavaBlock methodBlock) {
-        Consumer<JavaBlock> writeLine
-            = javaBlock -> javaBlock.line(String.format("requestOptions.setHeader(%1$s, %2$s);",
+    private static void writeHeader(MethodParameter parameter, String requestOptionsName, JavaBlock methodBlock) {
+        ProxyMethodParameter proxyMethodParameter = parameter.getProxyMethodParameter();
+        String headerCollectionPrefix = proxyMethodParameter.getHeaderCollectionPrefix();
+        Consumer<JavaBlock> writeLine;
+        if (headerCollectionPrefix != null
+            && !headerCollectionPrefix.isEmpty()
+            && parameter.getClientMethodParameter().getWireType() instanceof MapType) {
+            IType valueType = ((MapType) parameter.getClientMethodParameter().getWireType()).getValueType();
+            String valueExpression = expressionConvertToString("value", valueType, proxyMethodParameter);
+            writeLine = javaBlock -> {
+                javaBlock.line("%s.forEach((key, value) -> {", parameter.getName());
+                javaBlock.indent(() -> javaBlock.ifBlock("key != null && value != null",
+                    ifBlock -> ifBlock.line("%s.setHeader(HttpHeaderName.fromString(%s + key), %s);",
+                        requestOptionsName, ClassType.STRING.defaultValueExpression(headerCollectionPrefix),
+                        valueExpression)));
+                javaBlock.line("});");
+            };
+        } else {
+            writeLine = javaBlock -> javaBlock.line(String.format("%1$s.setHeader(%2$s, %3$s);", requestOptionsName,
                 ModelTemplateHeaderHelper.getHttpHeaderNameInstanceExpression(parameter.getSerializedName()),
                 expressionConvertToString(parameter.getName(), parameter.getClientMethodParameter().getWireType(),
-                    parameter.getProxyMethodParameter())));
+                    proxyMethodParameter)));
+        }
         if (!parameter.getClientMethodParameter().isRequired()) {
             methodBlock.ifBlock(String.format("%s != null", parameter.getName()), writeLine);
         } else {
@@ -951,7 +1090,9 @@ abstract class ConvenienceMethodTemplateBase {
                     if (property.getWireType() instanceof PrimitiveType) {
                         stringExpression = String.format("String.valueOf(%s)", stringExpression);
                     } else if (property.getWireType() != ClassType.STRING) {
-                        stringExpression = String.format("Objects.toString(%s)", stringExpression);
+                        stringExpression = String.format(
+                            property.isRequired() ? "Objects.toString(%s)" : "Objects.toString(%s, null)",
+                            stringExpression);
                     }
                     builder.append(String.format(".serializeTextField(%1$s, %2$s)",
                         ClassType.STRING.defaultValueExpression(property.getSerializedName()), stringExpression));

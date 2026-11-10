@@ -24,7 +24,7 @@ public final class LossyClient {
 
     /**
      * Initializes an instance of LossyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +36,7 @@ public final class LossyClient {
 
     /**
      * The intSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +53,7 @@ public final class LossyClient {
 
     /**
      * The intSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +67,7 @@ public final class LossyClient {
 
     /**
      * The intMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +84,7 @@ public final class LossyClient {
 
     /**
      * The intMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

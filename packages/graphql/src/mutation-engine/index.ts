@@ -1,3 +1,4 @@
+export { resolveTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 export { GraphQLMutationEngine, createGraphQLMutationEngine } from "./engine.js";
 export {
   GraphQLEnumMemberMutation,

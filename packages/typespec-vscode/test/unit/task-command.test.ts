@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Executable } from "vscode-languageclient/node";
+import type { Executable } from "vscode-languageclient/node";
 import { resolveTaskCommand } from "../../src/task-command.js";
 
 describe("resolveTaskCommand", () => {

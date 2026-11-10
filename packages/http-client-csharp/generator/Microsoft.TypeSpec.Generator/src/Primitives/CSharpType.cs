@@ -42,20 +42,23 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private bool? _isIAsyncEnumerableOfT;
         private bool? _containsBinaryData;
         private int? _hashCode;
+        private string? _clrMetadataName;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
+        private int? _arrayRank;
         private CSharpType? _inputType;
         private CSharpType? _outputType;
         public bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
         public bool IsList => _isList ??= TypeIsList();
         public bool IsArray => _isArray ??= TypeIsArray();
+        internal int ArrayRank => _arrayRank ?? FrameworkType.GetArrayRank();
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
         public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
         public bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
-        internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
+        public bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
         internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
 
         /// <summary>
@@ -181,6 +184,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             ? $"{Namespace}.{Name}"
             : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
+
+        /// <summary>
+        /// Gets the CLR metadata name for this type, including the arity suffix for generic types
+        /// (e.g., <c>Type`1</c>) and the <c>+</c>-separated declaring-type chain for nested types
+        /// (e.g., <c>Outer`1+Inner</c>). This format is compatible with
+        /// <see cref="Microsoft.CodeAnalysis.Compilation.GetTypeByMetadataName"/>.
+        /// </summary>
+        public string ClrMetadataName => _clrMetadataName ??= BuildClrMetadataName();
+
+        private string BuildClrMetadataName()
+        {
+            var simpleName = Arguments.Count > 0 ? $"{Name}`{Arguments.Count}" : Name;
+            return DeclaringType is null
+                ? simpleName
+                : $"{DeclaringType.ClrMetadataName}+{simpleName}";
+        }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
         public bool IsLiteral => _literal is not null;
@@ -243,7 +262,27 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             => IsReadOnlyList || IsReadWriteList || IsReadOnlyMemory;
 
         private bool TypeIsArray()
-            => IsFrameworkType && FrameworkType.IsArray;
+            => _arrayRank.HasValue || IsFrameworkType && FrameworkType.IsArray;
+
+        internal CSharpType MakeArrayType(int rank = 1)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(rank, 1);
+            if (IsFrameworkType && Arguments.Count == 0)
+            {
+                var elementType = IsValueType && IsNullable
+                    ? typeof(Nullable<>).MakeGenericType(FrameworkType)
+                    : FrameworkType;
+                return new CSharpType(rank == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType(rank));
+            }
+
+            return new CSharpType(
+                Name + "[" + new string(',', rank - 1) + "]", Namespace, false, false,
+                null, [], IsPublic, false, typeof(Array))
+            {
+                _arrayRank = rank,
+                _elementType = this
+            };
+        }
 
         private bool TypeIsReadOnlyDictionary()
             => IsFrameworkType && _type == typeof(IReadOnlyDictionary<,>);
@@ -472,6 +511,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 IsPublic == other.IsPublic &&
                 _underlyingType == other._underlyingType &&
                 Equals(DeclaringType, other.DeclaringType) &&
+                IsArray == other.IsArray &&
+                (!IsArray || ArrayRank == other.ArrayRank && ElementType.Equals(other.ElementType)) &&
                 (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -536,6 +577,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 hashCode.Add(arg);
             }
+            if (IsArray)
+            {
+                hashCode.Add(ArrayRank);
+                hashCode.Add(ElementType);
+            }
             _hashCode = HashCode.Combine(Name, Namespace, IsValueType, _type, hashCode.ToHashCode(), IsNullable);
 
             return _hashCode.Value;
@@ -568,6 +614,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
             type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
+            type._arrayRank = _arrayRank;
+            if (IsArray)
+            {
+                type._elementType = ElementType;
+            }
 
             return type;
         }
@@ -620,6 +671,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <param name="other">The instance to compare to.</param>
         /// <returns><c>true</c> if the instance are equal. <c>false</c> otherwise.</returns>
         public bool AreNamesEqual(CSharpType? other)
+            => AreNamesEqual(other, compareValueTypeNullability: false);
+
+        private bool AreNamesEqual(CSharpType? other, bool compareValueTypeNullability)
         {
             if (ReferenceEquals(this, other))
             {
@@ -631,7 +685,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 return false;
             }
 
-            if (!IsNameMatch(other))
+            if (IsArray || other.IsArray)
+            {
+                return IsArray && other.IsArray && ArrayRank == other.ArrayRank &&
+                    ElementType.AreNamesEqual(other.ElementType, compareValueTypeNullability: true);
+            }
+
+            if (!IsNameMatch(other) ||
+                compareValueTypeNullability && (IsValueType || other.IsValueType) && IsNullable != other.IsNullable)
             {
                 return false;
             }
@@ -643,7 +704,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             for (int i = 0; i < Arguments.Count; i++)
             {
-                if (!Arguments[i].AreNamesEqual(other.Arguments[i]))
+                if (!Arguments[i].AreNamesEqual(other.Arguments[i], compareValueTypeNullability))
                 {
                     return false;
                 }

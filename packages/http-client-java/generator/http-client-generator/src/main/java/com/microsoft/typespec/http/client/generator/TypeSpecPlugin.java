@@ -55,7 +55,7 @@ public class TypeSpecPlugin extends Javagen {
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(ClientModelUtil.getArtifactId())
@@ -103,6 +103,10 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
+        if (settings.getExperimentalAnnotation() != null) {
+            javaPackage.addExperimentalAnnotation();
+        }
+
         // JsonMergePatchHelper
         List<ClientModel> jsonMergePatchModels = client.getModels()
             .stream()
@@ -215,6 +219,11 @@ public class TypeSpecPlugin extends Javagen {
         this.emitterOptions = options;
 
         SETTINGS_MAP.put("namespace", options.getNamespace());
+        if (options.getExperimentalAnnotation() == null) {
+            SETTINGS_MAP.remove("experimental-annotation");
+        } else {
+            SETTINGS_MAP.put("experimental-annotation", options.getExperimentalAnnotation());
+        }
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
         }
@@ -238,6 +247,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getEnableSyncStack() != null) {
             SETTINGS_MAP.put("enable-sync-stack", options.getEnableSyncStack());
+        }
+        if (options.getMaxOverload() != null) {
+            SETTINGS_MAP.put("max-overload", options.getMaxOverload());
         }
         if (options.getStreamStyleSerialization() != null) {
             SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
@@ -374,17 +386,17 @@ public class TypeSpecPlugin extends Javagen {
         client.getAsyncClients()
             .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
                 asyncClient.getPackageName() + "." + asyncClient.getClassName(),
-                asyncClient.getCrossLanguageDefinitionId()));
+                asyncClient.getApiMetadata().getCrossLanguageDefinitionId()));
 
         client.getSyncClients()
             .forEach(syncClient -> crossLanguageDefinitionsMap.put(
                 syncClient.getPackageName() + "." + syncClient.getClassName(),
-                syncClient.getCrossLanguageDefinitionId()));
+                syncClient.getApiMetadata().getCrossLanguageDefinitionId()));
 
         client.getClientBuilders()
             .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
                 clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
-                clientBuilder.getCrossLanguageDefinitionId()));
+                clientBuilder.getApiMetadata().getCrossLanguageDefinitionId()));
 
         // Method
         for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
@@ -395,13 +407,13 @@ public class TypeSpecPlugin extends Javagen {
                     .filter(method -> !method.getName().endsWith("Async"))
                     .forEach(method -> crossLanguageDefinitionsMap.put(
                         asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
+                        method.getApiMetadata().getCrossLanguageDefinitionId()));
 
                 if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
                     crossLanguageDefinitionsMap.put(
                         asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
                             + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                        convenienceMethod.getProtocolMethod().getApiMetadata().getCrossLanguageDefinitionId());
                 }
             }
         }
@@ -414,13 +426,13 @@ public class TypeSpecPlugin extends Javagen {
                     .filter(method -> !method.getName().endsWith("Async"))
                     .forEach(method -> crossLanguageDefinitionsMap.put(
                         syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
+                        method.getApiMetadata().getCrossLanguageDefinitionId()));
 
                 if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
                     crossLanguageDefinitionsMap.put(
                         syncClient.getPackageName() + "." + syncClient.getClassName() + "."
                             + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                        convenienceMethod.getProtocolMethod().getApiMetadata().getCrossLanguageDefinitionId());
                 }
             }
         }
@@ -428,13 +440,13 @@ public class TypeSpecPlugin extends Javagen {
         // Client model
         client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
+                model.getApiMetadata().getCrossLanguageDefinitionId());
         });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
+                model.getApiMetadata().getCrossLanguageDefinitionId());
         });
 
         return crossLanguageDefinitionsMap;

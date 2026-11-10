@@ -1,6 +1,7 @@
 import type { Entity, Type, Union, UnionVariant } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
-import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import type { DecoratorArgs } from "../utils.js";
+import { decoratorApplication } from "../utils.js";
 
 /**
  * A descriptor for a union variant.

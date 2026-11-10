@@ -41,7 +41,7 @@ public final class QueryParametersQueryExpansionExplodesImpl {
 
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     QueryParametersQueryExpansionExplodesImpl(RoutesClientImpl client) {
@@ -105,7 +105,7 @@ public final class QueryParametersQueryExpansionExplodesImpl {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -123,7 +123,7 @@ public final class QueryParametersQueryExpansionExplodesImpl {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -143,7 +143,7 @@ public final class QueryParametersQueryExpansionExplodesImpl {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -161,7 +161,7 @@ public final class QueryParametersQueryExpansionExplodesImpl {
 
     /**
      * The model operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

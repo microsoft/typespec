@@ -7,9 +7,16 @@ import { Atom } from "../components/atom/atom.js";
 import { TypeExpression } from "../components/type-expression/type-expression.js";
 import { efRefkey } from "./refkey.js";
 
+/**
+ * Gets an operation's application return type, excluding error variants from unions by default.
+ * Non-union return types are unchanged. Requires a TypeSpec render context.
+ */
 export function getReturnType(
   type: Operation,
-  options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false },
+  options: {
+    /** Keeps error variants when true; defaults to false. */
+    skipErrorFiltering: boolean;
+  } = { skipErrorFiltering: false },
 ): Type {
   const { $ } = useTsp();
   let returnType = type.returnType;
@@ -21,8 +28,11 @@ export function getReturnType(
   return returnType;
 }
 
+/** Explicit parameter additions/replacements and reference scoping for a Python signature. */
 export interface BuildParameterDescriptorsOptions {
+  /** Explicit descriptors or names, normalized and grouped according to their default values. */
   params?: (py.ParameterDescriptor | string)[];
+  /** Shared suffix distinguishing parameter references in this signature; a fresh key is created if omitted. */
   suffixRefkey?: Refkey;
   /** If true, params replaces operation parameters instead of adding to them */
   replaceParameters?: boolean;
@@ -34,8 +44,11 @@ export interface BuildParameterDescriptorsOptions {
  * Parameter ordering (unless replaceParameters is true):
  * - Operation params without defaults: positional (e.g., URL path params)
  * - "*" marker (if any keyword-only params exist)
- * - Operation params with defaults: keyword-only (e.g., query params)
- * - Additional params: keyword-only
+ * - Additional params without defaults, then operation params with defaults,
+ *   then additional params with defaults: keyword-only
+ *
+ * If there are no operation parameters, additional parameters without defaults are positional.
+ * Replacement mode makes all explicit parameters keyword-only. Ordering within each group is preserved.
  */
 export function buildParameterDescriptors(
   type: Model,

@@ -56,6 +56,7 @@ export class IntrinsicHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /** Supplies option-based cache identity for an intrinsic such as `null`, with no codec. */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: IntrinsicType,
@@ -71,6 +72,7 @@ export class IntrinsicHttpCanonicalization
     };
   }
 
+  /** Initializes language and wire nodes that retain the intrinsic's source semantics. */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: IntrinsicType,

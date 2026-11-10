@@ -65,6 +65,7 @@ export class GraphQLMutationEngine {
   // generic expects instance types, not constructor types.
   private engine;
 
+  /** Creates a mutation cache tied to the given program and its GraphQL decorator state. */
   constructor(program: Program) {
     const tk = $(program);
     this.engine = new MutationEngine(tk, graphqlMutationRegistry);
@@ -74,6 +75,11 @@ export class GraphQLMutationEngine {
    * Mutate a model with explicit input/output context and optional visibility filter.
    * Models mutated with different contexts produce separate cached mutations,
    * allowing the same source model to have both an input and output variant.
+   *
+   * Cache identity uses the source model, context, and operation kind, not the
+   * visibility filter or naming qualifier. Use consistent options for each key.
+   * Fieldless models can be replaced by scalars; inspect the mutation node's
+   * replacement rather than relying solely on the model-typed `mutatedType`.
    */
   mutateModel(
     model: Model,
@@ -114,8 +120,10 @@ export class GraphQLMutationEngine {
   /**
    * Mutate a union with explicit input/output context.
    * In output context: creates wrapper types for scalar variants. mutatedType is a Union.
-   * In input context: replaces the union with a @oneOf input Model in the type graph,
+   * In input context: replaces the union with a `@oneOf` input Model in the type graph,
    *   since GraphQL unions are output-only. mutatedType is a Model.
+   * Nullable unions of the form `T | null`, and output unions reduced to one
+   * distinct variant, instead resolve to the mutated inner type.
    */
   mutateUnion(
     union: Union,

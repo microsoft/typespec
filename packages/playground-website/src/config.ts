@@ -17,7 +17,9 @@ export const TypeSpecPlaygroundConfig = {
     "@typespec/sse",
     "@typespec/xml",
     "@typespec/http-client-js",
+    "@typespec/http-server-csharp",
     "@typespec/http-server-js",
   ],
+  deferredEmitters: ["@typespec/http-server-csharp"],
   samples,
 } as const;

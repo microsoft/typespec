@@ -1,6 +1,7 @@
-import { RequestExt } from "@typespec/spec-api";
-import express, { ErrorRequestHandler, RequestHandler, Response } from "express";
-import { Server, ServerResponse } from "http";
+import type { RequestExt } from "@typespec/spec-api";
+import type { ErrorRequestHandler, RequestHandler, Response } from "express";
+import express from "express";
+import type { Server, ServerResponse } from "http";
 import morgan from "morgan";
 import multer from "multer";
 import { logger } from "../logger.js";

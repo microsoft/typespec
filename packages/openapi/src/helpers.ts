@@ -1,14 +1,6 @@
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
-  getFriendlyName,
-  getLifecycleVisibilityEnum,
-  getProperty,
-  getTypeName,
-  getVisibilityForClass,
-  isGlobalNamespace,
-  isService,
-  isTemplateInstance,
   Model,
   ModelProperty,
   Operation,
@@ -17,13 +9,23 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 import {
+  getFriendlyName,
+  getLifecycleVisibilityEnum,
+  getProperty,
+  getTypeName,
+  getVisibilityForClass,
+  isGlobalNamespace,
+  isService,
+  isTemplateInstance,
+} from "@typespec/compiler";
+import {
   SyntaxKind,
   type ObjectLiteralNode,
   type ObjectLiteralPropertyNode,
 } from "@typespec/compiler/ast";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import { ExtensionKey } from "./types.js";
+import type { ExtensionKey } from "./types.js";
 
 /**
  * Determines whether a type will be inlined in OpenAPI rather than defined
@@ -35,6 +37,12 @@ import { ExtensionKey } from "./types.js";
  *
  * A friendly name can be provided by the user using `@friendlyName`
  * decorator, or chosen by default in simple cases.
+ *
+ * Anonymous declaration expressions (e.g. an inline `enum { ... }` or
+ * `scalar extends string` used as a property type) have no name and are
+ * inlined. A *named* declaration expression (e.g. `model Inner { ... }` used as a
+ * property type) keeps its name and is hoisted into a schema like a regular
+ * declaration.
  */
 export function shouldInline(program: Program, type: Type): boolean {
   if (getFriendlyName(program, type)) {
@@ -44,7 +52,7 @@ export function shouldInline(program: Program, type: Type): boolean {
     case "Model":
       return !type.name || isTemplateInstance(type);
     case "Scalar":
-      return program.checker.isStdType(type) || isTemplateInstance(type);
+      return !type.name || program.checker.isStdType(type) || isTemplateInstance(type);
     case "Enum":
     case "Union":
       return !type.name;

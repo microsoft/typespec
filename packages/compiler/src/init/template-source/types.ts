@@ -1,3 +1,4 @@
+import { isPathAbsolute, normalizePath } from "../../core/path-utils.js";
 import type { SourceFile } from "../../core/types.js";
 import type { InitTemplate } from "../init-template.js";
 
@@ -17,6 +18,20 @@ export interface LoadedTemplateIndex {
  * {@link InMemoryTemplateSource} for a bundle addressed through the `internal:` scheme.
  */
 export interface TemplateSource {
+  /** Load the available template definitions together with their index source and base location. */
   loadIndex(): Promise<LoadedTemplateIndex>;
+  /** Read one template file relative to this source, preserving its path for diagnostics. */
   readFile(relativePath: string): Promise<SourceFile>;
+}
+
+export function validateTemplateRelativePath(path: string, kind: "path" | "destination"): string {
+  const normalizedPath = normalizePath(path);
+  if (
+    isPathAbsolute(normalizedPath) ||
+    normalizedPath === ".." ||
+    normalizedPath.startsWith("../")
+  ) {
+    throw new Error(`Template file ${kind} must be a relative path: "${path}"`);
+  }
+  return normalizedPath;
 }

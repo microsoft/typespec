@@ -5,13 +5,19 @@ dictionaries:
   - node
   - typescript
 words:
+  - aclose
+  - aclosing
   - Ablack
   - Adoptium
+  - aenter
+  - aexit
   - agentic
   - agentics
   - aiohttp
+  - aiter
   - alzimmer
   - amqp
+  - anext
   - AQID
   - Arize
   - arizeaiobservabilityeval
@@ -34,6 +40,7 @@ words:
   - blib
   - blockful
   - blockless
+  - bodyornocontent
   - buongiorno
   - cadl
   - cadleditor
@@ -56,12 +63,14 @@ words:
   - CRUDL
   - ctxt
   - dbaeumer
+  - Dbase
   - Dcodegen
   - debouncer
   - debugpy
   - Declipse
   - dedented
   - dedup
+  - dedupe
   - Dedupes
   - deps
   - deser
@@ -120,6 +129,8 @@ words:
   - intrinsics
   - ints
   - IOHTTP
+  - IPIPDBDBOSOS
+  - isascii
   - isdigit
   - isinstance
   - issecret
@@ -229,6 +240,7 @@ words:
   - pylint
   - pylintrc
   - pyodide
+  - pypi
   - pyproject
   - pyright
   - pyrightconfig
@@ -239,6 +251,7 @@ words:
   - reactivex
   - recase
   - recorda
+  - redef
   - regen
   - rehype
   - reinjected
@@ -268,11 +281,13 @@ words:
   - srnagar
   - ssdlrs
   - sses
+  - ssenoreconnect
   - ssvs
   - statment
   - strs
   - stubbed
   - swaggerui
+  - tabular-nums
   - TCGC
   - TEAMPROJECTID
   - terlson
@@ -327,6 +342,7 @@ words:
   - Vsts
   - vswhere
   - wday
+  - WCAG
   - weidxu
   - westus
   - WHATWG

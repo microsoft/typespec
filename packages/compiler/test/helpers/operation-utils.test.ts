@@ -1,6 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
-import { Interface, ListOperationOptions, Namespace, listOperationsIn } from "../../src/index.js";
+import type { Interface, ListOperationOptions, Namespace } from "../../src/index.js";
+import { listOperationsIn } from "../../src/index.js";
 import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

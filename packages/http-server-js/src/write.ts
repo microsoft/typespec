@@ -2,10 +2,12 @@
 // Licensed under the MIT license.
 
 import { getDirectoryPath, resolvePath } from "@typespec/compiler";
-import { JsContext, Module, isModule } from "./ctx.js";
+import type { JsContext, Module } from "./ctx.js";
+import { isModule } from "./ctx.js";
 
 import { emitModuleBody } from "./common/namespace.js";
-import { OnceQueue, createOnceQueue } from "./util/once-queue.js";
+import type { OnceQueue } from "./util/once-queue.js";
+import { createOnceQueue } from "./util/once-queue.js";
 
 import estreePlugin from "prettier/plugins/estree";
 import tsPlugin from "prettier/plugins/typescript";

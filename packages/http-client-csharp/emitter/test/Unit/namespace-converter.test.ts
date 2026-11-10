@@ -1,8 +1,8 @@
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { fromSdkNamespaces } from "../../src/lib/namespace-converter.js";
-import { InputNamespace } from "../../src/type/input-type.js";
+import type { InputNamespace } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

@@ -1,16 +1,32 @@
-import { createDiagnosticCollector, DiagnosticResult, Program, Type } from "@typespec/compiler";
+import type { DiagnosticResult, Program, Type } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
+import type { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
 import { createStateSymbol } from "../lib.js";
-import { parseScopeFilter, ScopedValue } from "./scope-cache.js";
+import type { ScopedValue } from "./scope-cache.js";
+import { parseScopeFilter } from "./scope-cache.js";
 
 const featureLifecycleStateSymbol = createStateSymbol("featureLifecycleState");
 
+/** Lifecycle states that client emitters can surface for APIs marked with a lifecycle decorator. */
 export type FeatureLifecycleStage = "Experimental";
+
+/** Lifecycle metadata from a decorator after applying the querying emitter's scope filter. */
+export interface FeatureLifecycleDetails {
+  /** Lifecycle state to surface for this API; currently only experimental APIs are represented. */
+  stage: FeatureLifecycleStage;
+  /** Diagnostic identifier supplied for this API, or undefined when the decorator omits it. */
+  diagnosticId?: string;
+  /**
+   * Diagnostic identifiers of experimental features this API depends on; empty when none are supplied.
+   * A dependency becoming generally available does not automatically change this API's stage.
+   */
+  dependsOn: readonly string[];
+}
 
 const [getFeatureLifecycleState, setFeatureLifecycleState] = useStateMap<
   Type,
-  ScopedValue<FeatureLifecycleStage>
+  ScopedValue<FeatureLifecycleDetails>
 >(featureLifecycleStateSymbol);
 
 export const $experimental: ExperimentalDecorator = (context, target, options) => {
@@ -25,11 +41,20 @@ export const $experimental: ExperimentalDecorator = (context, target, options) =
   }
   setFeatureLifecycleState(context.program, target, {
     emitterFilter: scopeFilter,
-    value: "Experimental",
+    value: {
+      stage: "Experimental",
+      diagnosticId: options?.diagnosticId,
+      dependsOn: options?.dependsOn ?? [],
+    },
   });
 };
 
+/** Selects which emitter's scoped lifecycle metadata to query. */
 export interface GetFeatureLifecycleOptions {
+  /**
+   * Emitter name matched against the decorator's included or excluded emitter names.
+   * If omitted, unscoped metadata is returned, but scoped metadata yields a warning and undefined.
+   */
   emitterName?: string;
 }
 export function getClientFeatureLifecycle(
@@ -37,6 +62,15 @@ export function getClientFeatureLifecycle(
   target: Type,
   options: GetFeatureLifecycleOptions = {},
 ): DiagnosticResult<FeatureLifecycleStage | undefined> {
+  const [details, diagnostics] = getClientFeatureLifecycleDetails(program, target, options);
+  return [details?.stage, diagnostics];
+}
+
+export function getClientFeatureLifecycleDetails(
+  program: Program,
+  target: Type,
+  options: GetFeatureLifecycleOptions = {},
+): DiagnosticResult<FeatureLifecycleDetails | undefined> {
   const diagnostics = createDiagnosticCollector();
 
   const lifecycle = getFeatureLifecycleState(program, target);

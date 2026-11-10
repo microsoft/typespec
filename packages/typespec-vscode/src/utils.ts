@@ -1,13 +1,15 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
-import { SpawnOptions } from "child_process";
+import type { SpawnOptions } from "child_process";
 import { spawn } from "cross-spawn";
 import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
-import vscode, { CancellationToken } from "vscode";
-import { Executable } from "vscode-languageclient/node";
+import type { CancellationToken } from "vscode";
+import vscode from "vscode";
+import type { Executable } from "vscode-languageclient/node";
 import which from "which";
 import { parseDocument } from "yaml";
-import logger, { LogItem } from "./log/logger.js";
+import type { LogItem } from "./log/logger.js";
+import logger from "./log/logger.js";
 import { getDirectoryPath, isUrl, joinPaths } from "./path-utils.js";
 import { ResultCode } from "./types.js";
 

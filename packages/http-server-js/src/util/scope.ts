@@ -1,5 +1,6 @@
-import { DiagnosticTarget, NoTarget } from "@typespec/compiler";
-import { JsContext } from "../ctx.js";
+import type { DiagnosticTarget } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
+import type { JsContext } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { UnreachableError } from "./error.js";
 

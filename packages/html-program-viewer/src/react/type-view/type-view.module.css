@@ -20,12 +20,15 @@
   display: flex;
   align-items: center;
   width: 100%;
+  gap: 10px;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .header-spacer {

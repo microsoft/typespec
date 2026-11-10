@@ -1,9 +1,10 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { CheckOptions, removeFile, syncFile } from "../utils/common.js";
-import { expandFolder } from "../utils/find-area-changed.js";
+import type { CheckOptions } from "../utils/common.ts";
+import { removeFile, syncFile } from "../utils/common.ts";
+import { expandFolder } from "../utils/find-area-changed.ts";
+import type { PolicyServiceConfig } from "./policy.ts";
 import {
-  PolicyServiceConfig,
   addLabel,
   addReply,
   and,
@@ -16,8 +17,8 @@ import {
   not,
   or,
   payloadType,
-} from "./policy.js";
-import type { RepoConfig } from "./types.js";
+} from "./policy.ts";
+import type { RepoConfig } from "./types.ts";
 
 const policyFolder = resolve(process.cwd(), ".github", "policies");
 

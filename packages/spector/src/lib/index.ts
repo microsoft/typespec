@@ -2,8 +2,6 @@ export {
   $scenario,
   $scenarioDoc,
   $scenarioService,
-  Scenario,
-  ScenarioEndpoint,
   getScenarioDoc,
   getScenarioEndpoints,
   getScenarioName,
@@ -11,6 +9,7 @@ export {
   listScenarioIn,
   listScenarios,
 } from "./decorators.js";
+export type { Scenario, ScenarioEndpoint } from "./decorators.js";
 export { $lib, reportDiagnostic } from "./lib.js";
 export { $onValidate } from "./validate.js";
 

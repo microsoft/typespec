@@ -6,12 +6,14 @@ import type {
   InterfaceStatementNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
+  NamespaceStatementNode,
+  Node,
   Statement,
   StringLiteralNode,
   TypeSpecScriptNode,
   UnionStatementNode,
 } from "../core/types.js";
-import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
+import { SyntaxKind } from "../core/types.js";
 import { isArray, isDefined } from "../utils/misc.js";
 
 export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {

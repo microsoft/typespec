@@ -1,22 +1,11 @@
-import {
-  compile,
-  compilerAssert,
-  createDiagnosticCollector,
+import type {
   Decorator,
   Diagnostic,
   DiagnosticDefinition,
   DocContent,
   Enum,
   EnumMember,
-  getDeprecated,
-  getDoc,
-  getLocationContext,
-  getSourceLocation,
-  getTypeName,
   Interface,
-  isDeclaredType,
-  isTemplateDeclaration,
-  joinPaths,
   JSONSchemaType,
   LinterResolvedDefinition,
   LinterRuleDefinition,
@@ -24,28 +13,42 @@ import {
   Model,
   ModelProperty,
   Namespace,
-  navigateProgram,
-  navigateTypesInNamespace,
-  NodeHost,
-  NoTarget,
   Operation,
   Program,
-  resolveLinterDefinition,
-  resolvePath,
   Scalar,
   TemplatedType,
   Type,
   TypeSpecLibrary,
   Union,
   UnionVariant,
+} from "@typespec/compiler";
+import {
+  compile,
+  compilerAssert,
+  createDiagnosticCollector,
+  getDeprecated,
+  getDoc,
+  getLocationContext,
+  getSourceLocation,
+  getTypeName,
+  isDeclaredType,
+  isTemplateDeclaration,
+  joinPaths,
+  navigateProgram,
+  navigateTypesInNamespace,
+  NodeHost,
+  NoTarget,
+  resolveLinterDefinition,
+  resolvePath,
   type FileRef,
   type PackageJson,
 } from "@typespec/compiler";
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
+import { resolveLibraryCompilerOptions } from "../utils/library-config.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import {
+import type {
   DecoratorRefDoc,
   DeprecationNotice,
   DiagnosticRefDoc,
@@ -90,6 +93,17 @@ function getExport(pkgJson: PackageJson, path: string, condition: string) {
   return (pkgJson as any).exports?.[path]?.[condition];
 }
 
+/**
+ * Loads a package's reference model from its TypeSpec exports and JavaScript library metadata.
+ * Compiles the main `typespec` export with documentation parsing enabled and imports the main
+ * `import` or `default` export to inspect `$lib` and `$linter`. Either surface may be absent.
+ *
+ * TypeSpec sub-exports omit files already loaded by the main export. Empty results and
+ * thrown processing failures are skipped; compiler diagnostics alone do not prevent extraction.
+ * Returns the model with collected compilation and metadata diagnostics.
+ * Missing declaration documentation is also reported on the compiled programs.
+ * @param libraryPath Directory containing the package.json and built JavaScript entry points.
+ */
 export async function extractLibraryRefDocs(
   libraryPath: string,
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
@@ -107,6 +121,7 @@ export async function extractLibraryRefDocs(
   if (tspMain) {
     const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
+      ...(await resolveLibraryCompilerOptions(NodeHost, main)),
       parseOptions: { comments: true, docs: true },
     });
     mainSourceFiles = new Set(program.sourceFiles.keys());
@@ -201,6 +216,7 @@ async function extractSubExports(
     const main = resolvePath(libraryPath, tspEntry);
     try {
       const program = await compile(NodeHost, main, {
+        ...(await resolveLibraryCompilerOptions(NodeHost, main)),
         parseOptions: { comments: true, docs: true },
       });
       const subRefDoc = diagnostics.pipe(
@@ -228,14 +244,26 @@ async function extractSubExports(
   return subExports;
 }
 
+/** Selection controls for extracting declarations from an already compiled program. */
 export interface ExtractRefDocOptions {
+  /** Qualified namespace-name controls; see the individual fields for current selection behavior. */
   namespaces?: {
+    /**
+     * Namespace references to resolve and add before normal project namespace discovery.
+     * This does not restrict discovery to these names or deduplicate namespaces.
+     */
     include?: string[];
+    /**
+     * Currently retains only namespaces whose qualified names occur in this list,
+     * despite the field name. An empty list therefore selects no namespaces.
+     */
     exclude?: string[];
   };
   /**
    * Filter to restrict which types are included based on their source file path.
-   * When provided, only types declared in files for which this returns true will be included.
+   * Applied to namespace declarations and collected top-level types with non-synthetic locations.
+   * Synthetic locations bypass this check; members of an included declaration are not
+   * independently filtered. A namespace rejected here is not visited for collection.
    */
   sourceFilter?: (sourcePath: string) => boolean;
 }
@@ -279,6 +307,15 @@ function resolveNamespaces(
   return diagnostics.wrap(namespaceTypes);
 }
 
+/**
+ * Extracts reference records without recompiling the program or writing files.
+ * Discovers project namespaces other than those named `Private`, omits internal declarations,
+ * and removes empty namespace records. Namespaces and their declaration lists are sorted by ID.
+ *
+ * Parse the program with comments and docs enabled to retain source tags and examples.
+ * Returns namespace-resolution diagnostics alongside the model; missing-documentation
+ * diagnostics are reported directly to `program`.
+ */
 export function extractRefDocs(
   program: Program,
   options: ExtractRefDocOptions = {},

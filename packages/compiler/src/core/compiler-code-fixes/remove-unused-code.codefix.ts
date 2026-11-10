@@ -1,5 +1,5 @@
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import { type ImportStatementNode, type UsingStatementNode } from "../types.js";
+import type { ImportStatementNode, UsingStatementNode } from "../types.js";
 
 /**
  * Quick fix that remove unused code.

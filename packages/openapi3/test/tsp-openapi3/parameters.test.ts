@@ -542,40 +542,41 @@ describe("query", () => {
       expectDecorators(fooProperty.decorators, [{ name: "query" }]);
     });
 
-    it.each([{ style: "spaceDelimited" }, { style: "pipeDelimited" }])(
-      "sets explode when style: $style",
-      async ({ style }) => {
-        const { namespace: serviceNamespace } = await compileForOpenAPI3({
-          parameters: {
-            Foo: {
-              name: "foo",
-              in: "query",
-              schema: {
-                type: "array",
-                items: {
-                  type: "string",
-                },
+    it.each([
+      { style: "spaceDelimited", encoding: "spaceDelimited" },
+      { style: "pipeDelimited", encoding: "pipeDelimited" },
+    ])("sets @encode(ArrayEncoding.$encoding) when style: $style", async ({ style, encoding }) => {
+      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
+        parameters: {
+          Foo: {
+            name: "foo",
+            in: "query",
+            schema: {
+              type: "array",
+              items: {
+                type: "string",
               },
-              style: style as any,
-              explode,
             },
+            style: style as any,
+            explode,
           },
-        });
+        },
+      });
+      expectDiagnosticEmpty(diagnostics);
 
-        const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-        assert(parametersNamespace, "Parameters namespace not found");
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
 
-        const models = parametersNamespace.models;
+      const models = parametersNamespace.models;
 
-        /* model Foo { @query(#{explode: false}) foo: string[], } */
-        const Foo = models.get("Foo");
-        assert(Foo, "Foo model not found");
-        expect(Foo.properties.size).toBe(1);
-        const fooProperty = Foo.properties.get("foo");
-        assert(fooProperty, "foo property not found");
-        expectDecorators(fooProperty.decorators, []);
-      },
-    );
+      /* model Foo { @query @encode(ArrayEncoding.$encoding) foo: string[], } */
+      const Foo = models.get("Foo");
+      assert(Foo, "Foo model not found");
+      expect(Foo.properties.size).toBe(1);
+      const fooProperty = Foo.properties.get("foo");
+      assert(fooProperty, "foo property not found");
+      expectDecorators(fooProperty.decorators, [{ name: "query" }, { name: "encode" }]);
+    });
   });
 
   describe("explicit explode: true", () => {
@@ -612,41 +613,47 @@ describe("query", () => {
       expectDecorators(fooProperty.decorators, [{ name: "query", args: [{ explode }] }]);
     });
 
-    // TODO: Converter should handle proper format with @encoding with explode: true.
-    it.skip.each([
-      { style: "spaceDelimited", format: "ssv" },
-      { style: "pipeDelimited", format: "pipes" },
-    ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const { namespace: serviceNamespace } = await compileForOpenAPI3({
-        parameters: {
-          Foo: {
-            name: "foo",
-            in: "query",
-            schema: {
-              type: "array",
-              items: {
-                type: "string",
+    it.each([
+      { style: "spaceDelimited", encoding: "spaceDelimited" },
+      { style: "pipeDelimited", encoding: "pipeDelimited" },
+    ])(
+      "sets explode and @encode(ArrayEncoding.$encoding) when style: $style",
+      async ({ style, encoding }) => {
+        const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
+          parameters: {
+            Foo: {
+              name: "foo",
+              in: "query",
+              schema: {
+                type: "array",
+                items: {
+                  type: "string",
+                },
               },
+              style: style as any,
+              explode,
             },
-            style: style as any,
-            explode,
           },
-        },
-      });
+        });
+        expectDiagnosticEmpty(diagnostics);
 
-      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-      assert(parametersNamespace, "Parameters namespace not found");
+        const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+        assert(parametersNamespace, "Parameters namespace not found");
 
-      const models = parametersNamespace.models;
+        const models = parametersNamespace.models;
 
-      /* model Foo { @query(#{explode: false, format: $format}) foo: string[], } */
-      const Foo = models.get("Foo");
-      assert(Foo, "Foo model not found");
-      expect(Foo.properties.size).toBe(1);
-      const fooProperty = Foo.properties.get("foo");
-      assert(fooProperty, "foo property not found");
-      expectDecorators(fooProperty.decorators, []);
-    });
+        /* model Foo { @query(#{explode: true}) @encode(ArrayEncoding.$encoding) foo: string[], } */
+        const Foo = models.get("Foo");
+        assert(Foo, "Foo model not found");
+        expect(Foo.properties.size).toBe(1);
+        const fooProperty = Foo.properties.get("foo");
+        assert(fooProperty, "foo property not found");
+        expectDecorators(fooProperty.decorators, [
+          { name: "query", args: [{ explode }] },
+          { name: "encode" },
+        ]);
+      },
+    );
   });
 
   describe("x-ms-list-page-index extension", () => {

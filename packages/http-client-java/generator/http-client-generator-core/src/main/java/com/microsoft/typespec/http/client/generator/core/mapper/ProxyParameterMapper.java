@@ -67,8 +67,8 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         IType clientType = wireType.getClientType();
 
-        if (isRemoveModelFromParameter(parameter, clientType)) {
-            clientType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, clientType);
+        if (isRemoveModelFromClientType(parameter, clientType)) {
+            clientType = SchemaUtil.removeModelFromClientType(parameterRequestLocation, clientType);
         }
 
         builder.clientType(clientType);
@@ -90,8 +90,8 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             if (parameterRequestLocation
                 != RequestParameterLocation.BODY /* && parameterRequestLocation != RequestParameterLocation.FormData */) {
                 wireType = ClassType.STRING;
-            } else if (isRemoveModelFromParameter(parameter, wireType)) {
-                wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
+            } else if (isRemoveModelFromClientType(parameter, wireType)) {
+                wireType = SchemaUtil.removeModelFromClientType(parameterRequestLocation, wireType);
             }
         } else if (wireType instanceof IterableType
             && parameter.getProtocol().getHttp().getIn()
@@ -104,8 +104,8 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             } else {
                 wireType = ClassType.STRING;
             }
-        } else if (isRemoveModelFromParameter(parameter, wireType)) {
-            wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
+        } else if (isRemoveModelFromClientType(parameter, wireType)) {
+            wireType = SchemaUtil.removeModelFromClientType(parameterRequestLocation, wireType);
         }
         builder.wireType(wireType);
 
@@ -184,7 +184,11 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
         return builder.build();
     }
 
-    protected boolean isRemoveModelFromParameter(Parameter parameter, IType clientType) {
+    protected boolean isRemoveModelFromClientType(Parameter parameter, IType clientType) {
+        return isRemoveModelFromClientType(clientType);
+    }
+
+    protected boolean isRemoveModelFromClientType(IType clientType) {
         return JavaSettings.getInstance().isDataPlaneClient();
     }
 }

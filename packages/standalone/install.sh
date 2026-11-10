@@ -74,11 +74,12 @@ case $platform in
 esac
 
 if [[ $target = darwin-x64 ]]; then
-  # Is this process running in Rosetta?
-  # redirect stderr to devnull to avoid error message when not running in Rosetta
+  # Is this process running in Rosetta? (redirect stderr to avoid an error when not in Rosetta)
   if [[ $(sysctl -n sysctl.proc_translated 2> /dev/null) = 1 ]]; then
-    target=darwin-aarch64
+    target=darwin-arm64
     info "Your shell is running in Rosetta 2. Downloading tsp for $target instead"
+  else
+    error "The standalone tsp executable is not available for Intel (x64) macOS because Node.js does not support single-executable applications on this platform (nodejs/node#62893).\nInstall the TypeSpec compiler from npm instead: npm install -g @typespec/compiler"
   fi
 fi
 
@@ -94,7 +95,7 @@ parse_args() {
       #   shift # past value
       #   ;;
       -s | --skip-shell)
-        SKIP_SHELL="true"
+        skip_shell="true"
         shift # past argument
         ;;
       --version)
@@ -187,6 +188,10 @@ setup_shell() {
   if [ "$CURRENT_SHELL" = "zsh" ]; then
     CONF_FILE=${ZDOTDIR:-$HOME}/.zshrc
     ensure_containing_dir_exists "$CONF_FILE"
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2> /dev/null; then
+      info "TypeSpec path already configured in $CONF_FILE, skipping."
+      return
+    fi
     echo "Installing for Zsh. Appending the following to $CONF_FILE:"
     {
       echo ''
@@ -200,6 +205,10 @@ setup_shell() {
   elif [ "$CURRENT_SHELL" = "fish" ]; then
     CONF_FILE=$HOME/.config/fish/conf.d/tsp.fish
     ensure_containing_dir_exists "$CONF_FILE"
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2> /dev/null; then
+      info "TypeSpec path already configured in $CONF_FILE, skipping."
+      return
+    fi
     echo "Installing for Fish. Appending the following to $CONF_FILE:"
     {
       echo ''
@@ -217,6 +226,10 @@ setup_shell() {
       CONF_FILE=$HOME/.bashrc
     fi
     ensure_containing_dir_exists "$CONF_FILE"
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2> /dev/null; then
+      info "TypeSpec path already configured in $CONF_FILE, skipping."
+      return
+    fi
     echo "Installing for Bash. Appending the following to $CONF_FILE:"
     {
       echo ''

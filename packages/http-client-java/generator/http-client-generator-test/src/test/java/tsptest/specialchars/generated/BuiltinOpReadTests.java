@@ -15,7 +15,7 @@ public final class BuiltinOpReadTests extends SpecialCharsClientTestBase {
     @Disabled
     public void testBuiltinOpReadTests() {
         // method invocation
-        Resource response = specialCharsClient.read(null);
+        Resource response = specialCharsClient.read((String) null);
 
         // response assertion
         Assertions.assertNotNull(response);

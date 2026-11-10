@@ -163,9 +163,32 @@ public final class TopLevelArmResourceImpl
         tsptest.armresourceprovider.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.topLevelArmResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelArmResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}",
+            "resourceGroupName");
+        if (this.resourceGroupName == null) {
+            this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/resourceGroups/{group}/providers/TspTest.ArmResourceProvider/accounts/{accountName}/topLevelArmResources/{resourceName}",
+                "group");
+        }
+        if (this.resourceGroupName == null) {
+            this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/resourceGroups/{group}/providers/TspTest.ArmResourceProvider/labs/{labName}/machines/{machineName}/topLevelArmResources/{resourceName}",
+                "group");
+        }
+        this.topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}",
+            "topLevelArmResourceName");
+        if (this.topLevelArmResourceName == null) {
+            this.topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/resourceGroups/{group}/providers/TspTest.ArmResourceProvider/accounts/{accountName}/topLevelArmResources/{resourceName}",
+                "resourceName");
+        }
+        if (this.topLevelArmResourceName == null) {
+            this.topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/resourceGroups/{group}/providers/TspTest.ArmResourceProvider/labs/{labName}/machines/{machineName}/topLevelArmResources/{resourceName}",
+                "resourceName");
+        }
     }
 
     public TopLevelArmResource refresh() {

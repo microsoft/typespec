@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,13 +13,14 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using NuGet.Configuration;
+using NuGet.Versioning;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
     /// <summary>
     /// Resolves <see cref="InputExternalTypeMetadata"/> entries to <see cref="Type"/> instances by
-    /// looking up the package in the NuGet global cache (or downloading it from configured feeds when
-    /// missing) and loading the assembly via reflection. Used by <c>TypeFactory.CreateExternalType</c>
+    /// looking up the package in the NuGet global cache and loading the assembly via reflection.
+    /// Used by <c>TypeFactory.CreateExternalType</c>
     /// as a fallback after <c>CreateFrameworkType</c> returns <c>null</c>.
     /// </summary>
     /// <remarks>
@@ -38,17 +40,45 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         // the entries are released when the generator is collected.
         private static readonly ConditionalWeakTable<CodeModelGenerator, CacheState> _cacheStates = new();
 
+        /// <summary>
+        /// Outcome of a single resolution attempt. <see cref="Type"/> is null when resolution failed, in
+        /// which case <see cref="FailureReason"/> explains why so callers can report an accurate diagnostic
+        /// (a missing package and an unloadable type are very different problems to debug).
+        /// </summary>
+        private sealed record ResolutionResult(Type? Type, string? FailureReason)
+        {
+            public static readonly ResolutionResult NotAttempted = new(null, null);
+        }
+
         private sealed class CacheState
         {
-            // Cached resolution per (Package, Identity, MinVersion) key. Value is the loaded Type, or
-            // null if resolution was attempted and failed (so we don't keep re-trying).
-            public readonly ConcurrentDictionary<string, Lazy<Type?>> Resolved =
+            // Cached resolution per (Package, Identity, MinVersion) key. Value carries the loaded Type, or
+            // the reason resolution failed (so we don't keep re-trying).
+            public readonly ConcurrentDictionary<string, Lazy<ResolutionResult>> Resolved =
                 new(StringComparer.Ordinal);
 
             // Tracks assembly file paths that have already been added as Roslyn metadata references, so
             // the same dll isn't registered twice when it contains multiple referenced types.
             public readonly ConcurrentDictionary<string, byte> AddedAssemblyRefs =
                 new(StringComparer.OrdinalIgnoreCase);
+
+            private readonly object _assemblyResolverLock = new();
+            private NugetAssemblyResolver? _assemblyResolver;
+
+            /// <summary>
+            /// The dependency resolver for this generation run, created on first use and reused for every
+            /// external type resolved by the same generator.
+            /// </summary>
+            public NugetAssemblyResolver GetAssemblyResolver(string globalPackagesFolder, CodeModelGenerator generator)
+            {
+                lock (_assemblyResolverLock)
+                {
+                    return _assemblyResolver ??= new NugetAssemblyResolver(
+                        globalPackagesFolder,
+                        message => generator.Emitter?.Debug(message),
+                        generator.AddMetadataReference);
+                }
+            }
         }
 
         private static CacheState GetState(CodeModelGenerator generator) =>
@@ -118,10 +148,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             var state = GetState(CodeModelGenerator.Instance);
             var key = MakeKey(external);
-            var lazy = state.Resolved.GetOrAdd(key, _ => new Lazy<Type?>(
-                () => Task.Run(() => ResolveAsync(external)).GetAwaiter().GetResult(),
+            var lazy = state.Resolved.GetOrAdd(key, _ => new Lazy<ResolutionResult>(
+                () => Task.Run(() => ResolveResultAsync(external)).GetAwaiter().GetResult(),
                 LazyThreadSafetyMode.ExecutionAndPublication));
-            return lazy.Value;
+            return lazy.Value.Type;
+        }
+
+        /// <summary>
+        /// Returns the reason the most recent resolution attempt for <paramref name="external"/> failed, or
+        /// <c>null</c> when it succeeded or was never attempted.
+        /// </summary>
+        public static string? GetFailureReason(InputExternalTypeMetadata? external)
+        {
+            if (external == null)
+            {
+                return null;
+            }
+
+            var state = GetState(CodeModelGenerator.Instance);
+            return state.Resolved.TryGetValue(MakeKey(external), out var lazy) && lazy.IsValueCreated
+                ? lazy.Value.FailureReason
+                : null;
         }
 
         /// <summary>
@@ -129,14 +176,29 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// </summary>
         internal static void Reset()
         {
-            // Drop the entry entirely; the next call rebuilds a fresh CacheState on demand.
-            _cacheStates.Remove(CodeModelGenerator.Instance);
+            try
+            {
+                // Drop the entry entirely; the next call rebuilds a fresh CacheState on demand.
+                _cacheStates.Remove(CodeModelGenerator.Instance);
+            }
+            catch (InvalidOperationException)
+            {
+                // No generator is installed yet, so there is no per-generator state to drop. This happens
+                // when Reset runs before the first generator is loaded (e.g. a test fixture's SetUp).
+            }
+
+            // The dropped CacheState owned the dependency resolver, so stop routing loads to it. Assemblies
+            // it already loaded stay in the default context; they cannot be unloaded.
+            NugetAssemblyResolver.Deactivate();
         }
 
         private static string MakeKey(InputExternalTypeMetadata external) =>
             $"{external.Package}|{external.Identity}|{external.MinVersion ?? string.Empty}";
 
         private static async Task<Type?> ResolveAsync(InputExternalTypeMetadata external)
+            => (await ResolveResultAsync(external)).Type;
+
+        private static async Task<ResolutionResult> ResolveResultAsync(InputExternalTypeMetadata external)
         {
             var generator = CodeModelGenerator.Instance;
             var state = GetState(generator);
@@ -162,56 +224,70 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             catch (Exception ex)
             {
                 generator.Emitter?.Debug($"Could not load NuGet settings while resolving '{external.Identity}': {ex.Message}");
-                CacheResult(state, key, null);
-                return null;
+                return CacheResult(state, key, new ResolutionResult(null, $"NuGet settings could not be loaded ({ex.Message})"));
             }
 
-            string? assemblyPath = NugetPackageResolver.FindPackageAssembly(
-                globalPackagesFolder, external.Package!, external.MinVersion);
+            // The external assembly is loaded into the default AssemblyLoadContext, which cannot see the
+            // package's own dependencies. Activate this run's NuGet probing resolver before loading
+            // anything so that base types and interfaces declared in dependency packages can be resolved.
+            var assemblyResolver = state.GetAssemblyResolver(globalPackagesFolder, generator);
+            assemblyResolver.Activate();
 
-            if (assemblyPath == null)
+            // We have already resolved packages, now we will search for package and its version path in metadata.
+            string packageFolder = $"{Path.DirectorySeparatorChar}{external.Package!}{Path.DirectorySeparatorChar}";
+            (string AssemblyPath, string PackageVersion) packageInfo = CodeModelGenerator.Instance.AdditionalMetadataReferences
+                .Where(x => x.Properties.Kind == MetadataImageKind.Assembly
+                            && x.Display is not null
+                            && x.Display.Contains(packageFolder, StringComparison.InvariantCultureIgnoreCase)
+                            && x.Display.Substring(x.Display.LastIndexOf(packageFolder, StringComparison.InvariantCultureIgnoreCase)).Split(Path.DirectorySeparatorChar).Length > 2)
+                .Select(x => x.Display ?? "")
+                .Select(x => (AssemblyPath: x, PackageVersion: x.Substring(x.LastIndexOf(packageFolder, StringComparison.InvariantCultureIgnoreCase)).Split(Path.DirectorySeparatorChar)[2]))
+                .FirstOrDefault();
+            // If we have a min version, we must check if our package is compliant.
+            bool versionAcceptable = true;
+            if (!string.IsNullOrEmpty(external.MinVersion) && !string.IsNullOrEmpty(packageInfo.PackageVersion))
             {
-                try
-                {
-                    var resolvedVersion = !string.IsNullOrEmpty(external.MinVersion)
-                        ? external.MinVersion!
-                        : await NugetPackageResolver.ResolveLatestPackageVersion(external.Package!, nugetSettings);
-
-                    if (!string.IsNullOrEmpty(resolvedVersion))
-                    {
-                        var downloader = new NugetPackageDownloader(external.Package!, resolvedVersion!, null, nugetSettings);
-                        var downloadedPath = await downloader.DownloadAndInstallPackage();
-                        var downloadedAssembly = Path.Combine(downloadedPath, $"{external.Package}.dll");
-                        if (File.Exists(downloadedAssembly))
-                        {
-                            assemblyPath = downloadedAssembly;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    generator.Emitter?.Debug(
-                        $"Could not download package '{external.Package}' for external type '{external.Identity}': {ex.Message}");
-                }
+                NuGetVersion existingVersion = new(packageInfo.PackageVersion);
+                NuGetVersion targetVersion = new(external.MinVersion);
+                versionAcceptable = existingVersion >= targetVersion;
             }
-
-            if (assemblyPath == null || !File.Exists(assemblyPath))
+            if (!versionAcceptable)
             {
-                CacheResult(state, key, null);
-                return null;
+                var versionQualifier = string.IsNullOrEmpty(external.MinVersion)
+                    ? string.Empty
+                    : $"(>= {external.MinVersion})";
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"The package '{external.Package}' minimal version declared in a typespec {versionQualifier} is higher than the one defined in project dependencies \"{packageInfo.PackageVersion}\"."));
             }
+
+            if (packageInfo.AssemblyPath == null || !File.Exists(packageInfo.AssemblyPath) || !versionAcceptable)
+            {
+                var versionQualifier = string.IsNullOrEmpty(external.MinVersion)
+                    ? string.Empty
+                    : $" (>= {external.MinVersion})";
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"package '{external.Package}'{versionQualifier} is not present in package dependencies."));
+            }
+
+            // Pin every package in this package's dependency closure before loading it, so the resolving
+            // hook binds dependencies to the versions NuGet selected rather than guessing from assembly
+            // versions (which are routinely lower than the package versions that ship them).
+            assemblyResolver.RegisterPackageClosure(packageInfo.AssemblyPath);
 
             byte[] assemblyBytes;
             try
             {
-                assemblyBytes = await File.ReadAllBytesAsync(assemblyPath).ConfigureAwait(false);
+                assemblyBytes = await File.ReadAllBytesAsync(packageInfo.AssemblyPath).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 generator.Emitter?.Debug(
-                    $"Failed to read assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
-                CacheResult(state, key, null);
-                return null;
+                    $"Failed to read assembly '{packageInfo.AssemblyPath}' for external type '{external.Identity}': {ex.Message}");
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"assembly '{packageInfo.AssemblyPath}' could not be read ({ex.Message})"));
             }
 
             Type? loadedType;
@@ -225,41 +301,37 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             catch (Exception ex)
             {
                 generator.Emitter?.Debug(
-                    $"Failed to load assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
-                CacheResult(state, key, null);
-                return null;
+                    $"Failed to load assembly '{packageInfo.AssemblyPath}' for external type '{external.Identity}': {ex.Message}");
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"assembly '{packageInfo.AssemblyPath}' could not be loaded ({ex.Message})" +
+                    assemblyResolver.DescribeDowngradedDependencies()));
             }
 
             if (loadedType == null)
             {
+                // Either the type genuinely isn't in the assembly, or one of its dependencies could not be
+                // satisfied even with the NuGet probing hook installed - GetType reports both as null.
                 generator.Emitter?.Debug(
-                    $"Assembly '{assemblyPath}' does not contain external type '{external.Identity}'.");
-                CacheResult(state, key, null);
-                return null;
+                    $"Assembly '{packageInfo.AssemblyPath}' does not declare external type '{external.Identity}', or one of its dependencies could not be resolved.");
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"assembly '{packageInfo.AssemblyPath}' was loaded but does not declare the type, or one of the type's dependencies could not be resolved" +
+                    assemblyResolver.DescribeDowngradedDependencies()));
             }
 
-            // Register the dll as a Roslyn metadata reference exactly once per assembly path so that
-            // generated and custom code that uses the type compiles inside the workspace.
-            // Use CreateFromImage with the in-memory bytes to avoid holding the dll open.
-            if (state.AddedAssemblyRefs.TryAdd(assemblyPath, 0))
-            {
-                generator.AddMetadataReference(MetadataReference.CreateFromImage(assemblyBytes));
-                generator.Emitter?.Debug(
-                    $"Added metadata reference for external type '{external.Identity}' from {assemblyPath}");
-            }
-
-            CacheResult(state, key, loadedType);
-            return loadedType;
+            return CacheResult(state, key, new ResolutionResult(loadedType, null));
         }
 
-        private static void CacheResult(CacheState state, string key, Type? result)
+        private static ResolutionResult CacheResult(CacheState state, string key, ResolutionResult result)
         {
             // Replace whatever Lazy is in the slot with one that already has the computed value.
             // AddOrUpdate ensures we don't lose a concurrent write.
-            var precomputed = new Lazy<Type?>(() => result, LazyThreadSafetyMode.PublicationOnly);
+            var precomputed = new Lazy<ResolutionResult>(() => result, LazyThreadSafetyMode.PublicationOnly);
             // Force the value to be materialized so IsValueCreated is true.
             _ = precomputed.Value;
             state.Resolved.AddOrUpdate(key, precomputed, (_, _) => precomputed);
+            return result;
         }
 
         private static void CollectExternalTypes(InputLibrary library, IDictionary<string, InputExternalTypeMetadata> collected)
@@ -311,68 +383,80 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static void VisitType(InputType? type, HashSet<InputType> visited, IDictionary<string, InputExternalTypeMetadata> collected)
         {
-            if (type == null || !visited.Add(type))
+            while (true)
             {
-                return;
-            }
-
-            if (type.External != null
-                && !string.IsNullOrEmpty(type.External.Identity)
-                && !string.IsNullOrEmpty(type.External.Package))
-            {
-                var key = $"{type.External.Package}|{type.External.Identity}|{type.External.MinVersion ?? string.Empty}";
-                if (!collected.ContainsKey(key))
+                if (type == null || !visited.Add(type))
                 {
-                    collected[key] = type.External;
+                    return;
                 }
-            }
 
-            switch (type)
-            {
-                case InputModelType model:
-                    foreach (var prop in model.Properties)
+                if (type.External != null && !string.IsNullOrEmpty(type.External.Identity) && !string.IsNullOrEmpty(type.External.Package))
+                {
+                    var key = $"{type.External.Package}|{type.External.Identity}|{type.External.MinVersion ?? string.Empty}";
+                    if (!collected.ContainsKey(key))
                     {
-                        VisitType(prop.Type, visited, collected);
+                        collected[key] = type.External;
                     }
-                    if (model.AdditionalProperties != null)
-                    {
-                        VisitType(model.AdditionalProperties, visited, collected);
-                    }
-                    if (model.BaseModel != null)
-                    {
-                        VisitType(model.BaseModel, visited, collected);
-                    }
-                    foreach (var derived in model.DerivedModels)
-                    {
-                        VisitType(derived, visited, collected);
-                    }
-                    foreach (var subtype in model.DiscriminatedSubtypes.Values)
-                    {
-                        VisitType(subtype, visited, collected);
-                    }
-                    break;
-                case InputArrayType array:
-                    VisitType(array.ValueType, visited, collected);
-                    break;
-                case InputDictionaryType dictionary:
-                    VisitType(dictionary.KeyType, visited, collected);
-                    VisitType(dictionary.ValueType, visited, collected);
-                    break;
-                case InputUnionType union:
-                    foreach (var variant in union.VariantTypes)
-                    {
-                        VisitType(variant, visited, collected);
-                    }
-                    break;
-                case InputNullableType nullable:
-                    VisitType(nullable.Type, visited, collected);
-                    break;
-                case InputLiteralType literal:
-                    VisitType(literal.ValueType, visited, collected);
-                    break;
-                case InputEnumType enumType:
-                    VisitType(enumType.ValueType, visited, collected);
-                    break;
+                }
+
+                switch (type)
+                {
+                    case InputModelType model:
+                        foreach (var prop in model.Properties)
+                        {
+                            VisitType(prop.Type, visited, collected);
+                        }
+
+                        if (model.AdditionalProperties != null)
+                        {
+                            VisitType(model.AdditionalProperties, visited, collected);
+                        }
+
+                        if (model.BaseModel != null)
+                        {
+                            VisitType(model.BaseModel, visited, collected);
+                        }
+
+                        foreach (var derived in model.DerivedModels)
+                        {
+                            VisitType(derived, visited, collected);
+                        }
+
+                        foreach (var subtype in model.DiscriminatedSubtypes.Values)
+                        {
+                            VisitType(subtype, visited, collected);
+                        }
+
+                        break;
+                    case InputArrayType array:
+                        type = array.ValueType;
+                        continue;
+                    case InputStreamingType streaming:
+                        type = streaming.ValueType;
+                        continue;
+                    case InputDictionaryType dictionary:
+                        VisitType(dictionary.KeyType, visited, collected);
+                        type = dictionary.ValueType;
+                        continue;
+                    case InputUnionType union:
+                        foreach (var variant in union.VariantTypes)
+                        {
+                            VisitType(variant, visited, collected);
+                        }
+
+                        break;
+                    case InputNullableType nullable:
+                        type = nullable.Type;
+                        continue;
+                    case InputLiteralType literal:
+                        type = literal.ValueType;
+                        continue;
+                    case InputEnumType enumType:
+                        type = enumType.ValueType;
+                        continue;
+                }
+
+                break;
             }
         }
     }

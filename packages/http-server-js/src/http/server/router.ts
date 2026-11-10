@@ -1,26 +1,21 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Operation, Type } from "@typespec/compiler";
-import {
-  HttpOperation,
-  HttpService,
-  HttpVerb,
-  OperationContainer,
-  getHeaderFieldName,
-  getHttpOperation,
-  isHeader,
-} from "@typespec/http";
+import type { Operation, Type } from "@typespec/compiler";
+import type { HttpOperation, HttpService, HttpVerb, OperationContainer } from "@typespec/http";
+import { getHeaderFieldName, getHttpOperation, isHeader } from "@typespec/http";
 import {
   createOrGetModuleForNamespace,
   emitNamespaceInterfaceReference,
 } from "../../common/namespace.js";
 import { emitTypeReference } from "../../common/reference.js";
-import { Module, createModule } from "../../ctx.js";
-import { ReCase, parseCase } from "../../util/case.js";
+import type { Module } from "../../ctx.js";
+import { createModule } from "../../ctx.js";
+import type { ReCase } from "../../util/case.js";
+import { parseCase } from "../../util/case.js";
 import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
-import { HttpContext } from "../index.js";
+import type { HttpContext } from "../index.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as routerHelper } from "../../../generated-defs/helpers/router.js";

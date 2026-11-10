@@ -1,5 +1,6 @@
-import { type Children } from "@alloy-js/core";
+import { code, type Children } from "@alloy-js/core";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   getEncode,
   getMaxItems,
@@ -19,7 +20,6 @@ import {
   type Type,
 } from "@typespec/compiler";
 import { isUnionEnum } from "../components/enums/enums.jsx";
-import { JsonSerialization } from "./csharp-libs.jsx";
 
 /**
  * Maps a TypeSpec scalar name to the C# type name used in attributes.
@@ -86,7 +86,7 @@ function getScalarEncoding(
  * Returns an array of attribute strings like `[JsonConverter(typeof(TimeSpanDurationConverter))]`
  */
 export function getPropertyAttributes(program: Program, property: ModelProperty): Children[] {
-  const attrs: Children[] = [];
+  const attrs: Children[] = [getJsonPropertyNameAttribute(program, property)];
 
   // Encoding attributes (JsonConverter)
   const encodingAttrs = getEncodingAttributes(program, property);
@@ -99,8 +99,8 @@ export function getPropertyAttributes(program: Program, property: ModelProperty)
   ) {
     attrs.push(
       <Attribute
-        name={JsonSerialization.JsonConverterAttribute}
-        args={["typeof(JsonStringEnumConverter)"]}
+        name={Serialization.JsonConverterAttribute}
+        args={[code`typeof(${Serialization.JsonStringEnumConverter})`]}
       />,
     );
   }
@@ -114,10 +114,6 @@ export function getPropertyAttributes(program: Program, property: ModelProperty)
 
   const arrayAttr = getArrayConstraintAttribute(program, property);
   if (arrayAttr) attrs.push(arrayAttr);
-
-  // JsonPropertyName (only when encoded name differs)
-  const nameAttr = getEncodedNameAttribute(program, property);
-  if (nameAttr) attrs.push(nameAttr);
 
   // SafeInt constraint
   if (property.type.kind === "Scalar") {
@@ -141,7 +137,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
     case "duration":
       result.push(
         <Attribute
-          name={JsonSerialization.JsonConverterAttribute}
+          name={Serialization.JsonConverterAttribute}
           args={["typeof(TimeSpanDurationConverter)"]}
         />,
       );
@@ -149,7 +145,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
     case "unixTimestamp32":
       result.push(
         <Attribute
-          name={JsonSerialization.JsonConverterAttribute}
+          name={Serialization.JsonConverterAttribute}
           args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
         />,
       );
@@ -158,7 +154,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
       if (encoding && encoding.encoding.toLowerCase() === "base64url") {
         result.push(
           <Attribute
-            name={JsonSerialization.JsonConverterAttribute}
+            name={Serialization.JsonConverterAttribute}
             args={["typeof(Base64UrlJsonConverter)"]}
           />,
         );
@@ -169,7 +165,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
       if (encoding && encoding.encoding.toLowerCase() === "unixtimestamp") {
         result.push(
           <Attribute
-            name={JsonSerialization.JsonConverterAttribute}
+            name={Serialization.JsonConverterAttribute}
             args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
           />,
         );
@@ -256,14 +252,16 @@ function getArrayConstraintAttribute(
   return <Attribute name={`ArrayConstraint<${csharpType}>`} args={params} />;
 }
 
-function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
-  const encodedName = resolveEncodedName(program, property, "application/json");
-  if (encodedName !== property.name) {
-    return (
-      <Attribute name={JsonSerialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />
-    );
-  }
-  return undefined;
+/**
+ * `[JsonPropertyName]` with a property's json name, its `application/json` encoded name when it has
+ * one. Written for every property, as the emitter-framework C# `Property` does, so the name does not
+ * depend on the serializer's naming policy (camelCase in the generated `JsonSerializationProvider`).
+ */
+export function getJsonPropertyNameAttribute(program: Program, property: ModelProperty): Children {
+  const jsonName = resolveEncodedName(program, property, "application/json");
+  return (
+    <Attribute name={Serialization.JsonPropertyNameAttribute} args={[JSON.stringify(jsonName)]} />
+  );
 }
 
 function getSafeIntAttribute(program: Program, scalar: Scalar): Children | undefined {

@@ -297,7 +297,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="property">The original <see cref="PropertyProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider? VisitProperty(PropertyProvider property)
+        protected internal virtual PropertyProvider? VisitProperty(PropertyProvider property)
         {
             return property;
         }

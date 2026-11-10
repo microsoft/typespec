@@ -1,6 +1,6 @@
 import { capitalize } from "../../casing/index.js";
 import { isTemplateInstance } from "../../core/type-utils.js";
-import { Enum, Interface, Model, Scalar, Union } from "../../core/types.js";
+import type { Enum, Interface, Model, Scalar, Union } from "../../core/types.js";
 
 /**
  * Get a plausible name for the given type.

@@ -1,7 +1,7 @@
-import { Operation, Program } from "@typespec/compiler";
+import type { Operation, Program } from "@typespec/compiler";
 import { deepEquals } from "@typespec/compiler/utils";
 import { getAuthentication } from "./decorators.js";
-import {
+import type {
   Authentication,
   AuthenticationOptionReference,
   AuthenticationReference,

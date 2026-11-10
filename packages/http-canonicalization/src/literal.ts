@@ -64,6 +64,7 @@ export class LiteralHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /** Supplies option-based cache identity for a literal without selecting an encoding codec. */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: StringLiteral | NumericLiteral | BooleanLiteral,
@@ -79,6 +80,7 @@ export class LiteralHttpCanonicalization
     };
   }
 
+  /** Initializes separate projection nodes while preserving the source literal value. */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: StringLiteral | NumericLiteral | BooleanLiteral,

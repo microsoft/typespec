@@ -1,4 +1,4 @@
-import * as cl from "@typespec/http-client";
+import type * as cl from "@typespec/http-client";
 
 const flattenCache: WeakMap<cl.Client, cl.Client[]> = new WeakMap();
 /**

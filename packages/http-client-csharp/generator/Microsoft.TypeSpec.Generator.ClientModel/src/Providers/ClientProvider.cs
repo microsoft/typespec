@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -43,9 +44,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string CredentialParamName = "credential";
         private const string SettingsParamName = "settings";
         private const string ClientSuffix = "Client";
-        private readonly FormattableString _publicCtorDescription;
+        private FormattableString PublicCtorDescription => $"Initializes a new instance of {Name}.";
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+            => CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
+                ? []
+                : ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
+
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
         private readonly ParameterProvider _subClientEndpointParameter;
@@ -53,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// This field is not one of the fields in this client, but the field in my parent client to get myself.
         /// </summary>
         private readonly FieldProvider? _clientCachingField;
+        private ScmMethodProvider? _clientFactoryMethod;
 
         private readonly ApiKeyFields? _apiKeyAuthFields;
         private readonly OAuth2Fields? _oauth2Fields;
@@ -104,21 +114,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider(InputClient inputClient)
         {
+            _inputClient = inputClient;
+            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
             CleanOperationNames(inputClient);
 
-            _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
-            _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
-            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
-
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
             if (apiKey != null && keyCredentialType != null)
@@ -207,24 +215,161 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _allClientParameters = GetAllClientParameters();
         }
 
-        private static void CleanOperationNames(InputClient inputClient)
+        private void CleanOperationNames(InputClient inputClient)
         {
-            foreach (var serviceMethod in inputClient.Methods)
+            var projectedNames = inputClient.Methods.Select(serviceMethod => (
+                ServiceMethod: serviceMethod,
+                OriginalName: GetOperationName(serviceMethod, normalizePublicName: false),
+                UpdatedName: GetOperationName(serviceMethod))).ToArray();
+
+            foreach (var projectedName in projectedNames)
             {
-                var updatedOperationName = GetCleanOperationName(serviceMethod);
-                serviceMethod.Update(name: updatedOperationName);
-                serviceMethod.Operation.Update(name: updatedOperationName);
+                var updatedOperationName = projectedName.UpdatedName;
+                if (updatedOperationName != projectedName.OriginalName &&
+                    projectedNames.Any(other =>
+                        other.OriginalName != projectedName.OriginalName &&
+                        OperationNamesCollide(other.UpdatedName, updatedOperationName)))
+                {
+                    updatedOperationName = projectedName.OriginalName;
+                }
+
+                projectedName.ServiceMethod.Update(name: updatedOperationName);
+                projectedName.ServiceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        private static bool OperationNamesCollide(string firstName, string secondName)
+            => firstName == secondName || firstName == $"{secondName}Async" || $"{firstName}Async" == secondName;
+
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizePublicName = true)
         {
             if (serviceMethod.IsExactName)
             {
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            var operationName = TryNormalizeListOperationName(serviceMethod, originalName, out var listNormalizedName)
+                ? listNormalizedName
+                : originalName;
+
+            if (!normalizePublicName)
+            {
+                return operationName;
+            }
+
+            return ProjectPublicName(serviceMethod, operationName);
+        }
+
+        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName)
+        {
+            if (serviceMethod.IsExactName)
+            {
+                return operationName;
+            }
+
+            var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
+            if (normalizedName == operationName)
+            {
+                return operationName;
+            }
+
+            if (HasExistingName(operationName))
+            {
+                return operationName;
+            }
+
+            // Previous generators may already have normalized Url to Uri without normalizing acronyms.
+            if (urlNormalizedName != operationName && HasExistingName(urlNormalizedName))
+            {
+                return urlNormalizedName;
+            }
+
+            return normalizedName;
+        }
+
+        private bool TryNormalizeListOperationName(
+            InputServiceMethod serviceMethod,
+            string originalName,
+            out string normalizedName,
+            bool checkPublicCollisions = true)
+        {
+            normalizedName = NormalizeName(originalName);
+            if (normalizedName == originalName)
+            {
+                return false;
+            }
+
+            // Keep distinct input operations distinct before public names and request builders are projected.
+            foreach (var other in _inputClient.Methods)
+            {
+                if (ReferenceEquals(serviceMethod, other))
+                {
+                    continue;
+                }
+
+                var otherInputName = other.IsExactName
+                    ? other.Operation.Name
+                    : (other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
+                if (otherInputName == originalName)
+                {
+                    continue;
+                }
+
+                var candidateRestName = normalizedName.ToIdentifierName();
+                var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
+                var candidateBuilderNames = GetRestRequestBuilderNames(serviceMethod, candidateRestName);
+                var otherBuilderNames = GetRestRequestBuilderNames(other, otherRestName);
+                if (candidateBuilderNames.Intersect(otherBuilderNames, StringComparer.Ordinal).Any())
+                {
+                    return false;
+                }
+
+                if (!checkPublicCollisions)
+                {
+                    continue;
+                }
+
+                var otherName = other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName);
+                var candidatePublicNames = GetProtocolMethodNames(serviceMethod, ProjectPublicName(serviceMethod, normalizedName));
+                var otherPublicNames = GetProtocolMethodNames(other, ProjectPublicName(other, otherName));
+                var candidateNamesBeforeProjection = GetProtocolMethodNames(serviceMethod, normalizedName);
+                var otherNamesBeforeProjection = GetProtocolMethodNames(other, otherName);
+                if (candidatePublicNames.Intersect(otherPublicNames, StringComparer.Ordinal).Any() &&
+                    candidateNamesBeforeProjection.Intersect(otherNamesBeforeProjection, StringComparer.Ordinal).Any())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static string[] GetRestRequestBuilderNames(InputServiceMethod serviceMethod, string operationName)
+        {
+            var hasNextLink = serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null };
+            var names = new string[hasNextLink ? 2 : 1];
+            names[0] = $"Create{operationName}Request";
+            if (hasNextLink)
+            {
+                names[1] = $"CreateNext{operationName}Request";
+            }
+
+            return names;
+        }
+
+        private static string[] GetProtocolMethodNames(InputServiceMethod method, string operationName)
+        {
+            bool hasStreamingResponse = method.Operation.Responses
+                .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
+            return hasStreamingResponse
+                ? [$"{operationName}Async"]
+                : [operationName, $"{operationName}Async"];
+        }
+
+        private static string NormalizeName(string operationName)
+        {
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
             {
@@ -233,11 +378,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (operationName.StartsWith("List", StringComparison.Ordinal) &&
                 operationName.Length > 4 && char.IsUpper(operationName[4]))
             {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
                 return $"Get{operationName.Substring(4)}";
             }
 
             return operationName;
+        }
+
+        private bool HasExistingName(string name)
+        {
+            var asyncName = $"{name}Async";
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            foreach (var method in lastContractMethods ?? [])
+            {
+                if (MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers) &&
+                    (method.Signature.Name == name || method.Signature.Name == asyncName))
+                {
+                    return true;
+                }
+            }
+
+            var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
+            foreach (var method in customMethods ?? [])
+            {
+                if (method.Signature.Name == name || method.Signature.Name == asyncName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            // Request builders use the stable input operation identity rather than the mutable public method name.
+            // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
+            // and newer projections with normalized public names continue to reference the same request builder.
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name.ToIdentifierName();
+            }
+
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            return TryNormalizeListOperationName(
+                serviceMethod,
+                originalName,
+                out var normalizedName,
+                checkPublicCollisions: false)
+                ? normalizedName.ToIdentifierName()
+                : originalName.ToIdentifierName();
         }
 
         private string? _namespace;
@@ -260,6 +449,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
+        }
+
+        internal static (string Name, string Namespace, string OriginalName) GetNameForCollisionCheck(InputClient inputClient)
+        {
+            // Constructing a client here can resolve parameter models and reenter the model-name index.
+            var typeNamespace = string.IsNullOrEmpty(inputClient.Namespace)
+                ? ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                : ScmCodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputClient.Namespace);
+            var name = inputClient.IsExactName ? inputClient.Name : NormalizeTypeNameForNewContract(
+                inputClient.Name.ToIdentifierName(), typeNamespace, null, static name => name.NormalizeCSharpAcronyms());
+            var customType = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, name);
+            return (customType?.Name ?? name, customType?.Type.Namespace ?? typeNamespace, name);
         }
 
         /// <summary>
@@ -427,7 +628,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => _inputClient.IsExactName
+            ? _inputClient.Name
+            : NormalizeTypeNameForNewContract(_inputClient.Name.ToIdentifierName());
+
+        protected override string? BuildOriginalName() => _inputClient.IsExactName ? null : _inputClient.Name.ToIdentifierName();
+
+        protected override void OnIdentityUpdated(string previousName, string previousNamespace)
+        {
+            base.OnIdentityUpdated(previousName, previousNamespace);
+            var previousOptionsType = ClientOptions?.Type.WithNullable(true);
+            UpdateDependentIdentity(_restClient, string.Empty);
+            UpdateDependentIdentity(ClientOptions, "Options");
+            UpdateDependentIdentity(ClientSettings, "Settings");
+            if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
+            {
+                UpdateOptionsReferences(this);
+            }
+
+            if (_clientFactoryMethod?.Signature.Name == GetClientAccessorName(previousName))
+            {
+                _clientFactoryMethod.Signature.Update(
+                    name: GetClientAccessorName(Name),
+                    description: $"Initializes a new instance of {Name}");
+            }
+
+            void UpdateDependentIdentity(TypeProvider? provider, string suffix)
+            {
+                // Do not rename shared options or explicitly customized dependent types.
+                if (provider?.Name == $"{previousName}{suffix}" && provider.Type.Namespace == previousNamespace)
+                {
+                    var constructors = provider.Constructors;
+                    provider.Update(name: $"{Name}{suffix}", @namespace: Type.Namespace);
+                    foreach (var constructor in constructors)
+                    {
+                        constructor.Signature.Update(name: provider.Name);
+                        var previousDescription = constructor.Signature.Description?.ToString();
+                        FormattableString? description = previousDescription switch
+                        {
+                            var value when value == $"Initializes a new instance of {previousName}{suffix}."
+                                => $"Initializes a new instance of {provider.Name}.",
+                            var value when value == $"Initializes a new instance of {previousName}{suffix} from configuration."
+                                => $"Initializes a new instance of {provider.Name} from configuration.",
+                            _ => null
+                        };
+                        if (description != null)
+                        {
+                            constructor.Signature.Update(description: description);
+                            if (constructor.XmlDocs.Summary is { Lines.Count: 1, InnerStatements.Count: 0 } summary &&
+                                summary.Lines[0].ToString() == previousDescription)
+                            {
+                                constructor.XmlDocs.Update(summary: new XmlDocSummaryStatement([description]));
+                            }
+                        }
+                    }
+                    // Identity updates reset constructors; retain changes from earlier visitors.
+                    provider.Update(constructors: constructors);
+                }
+            }
+
+            void UpdateOptionsReferences(ClientProvider client)
+            {
+                foreach (var property in client.ClientSettings?.Properties ?? [])
+                {
+                    if (CSharpType.IgnoreNullableComparer.Equals(property.Type, previousOptionsType))
+                    {
+                        property.Update(type: ClientOptions!.Type.WithNullable(property.Type.IsNullable));
+                    }
+                }
+                if (client._subClients.IsValueCreated)
+                {
+                    foreach (var subClient in client._subClients.Value)
+                    {
+                        UpdateOptionsReferences(subClient);
+                    }
+                }
+            }
+        }
+
+        private static string GetClientAccessorName(string name) => name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
+            ? $"Get{name}"
+            : $"Get{name}{ClientSuffix}";
 
         protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
         {
@@ -547,6 +828,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             "_" + p.Name.ToVariableName(),
                             this,
                             wireInfo: wireInfo);
+                        field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(p.Type));
                         fields.Add(field);
                     }
                 }
@@ -624,7 +906,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                     }
                     var subClientConstructor = new ConstructorProvider(
-                        new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
+                        new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
                         body,
                         this);
                     constructors.Add(subClientConstructor);
@@ -664,7 +946,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Use the first available auth fields to determine pipeline auth type
                 AuthFields? firstAuthFields = _apiKeyAuthFields as AuthFields ?? _oauth2Fields;
                 var internalConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                    new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
                     BuildPrimaryConstructorBody(internalConstructorParameters, firstAuthFields, authPolicyParam, ClientOptions, ClientOptionsParameter, addExplicitValidation: true),
                     this);
                 primaryConstructors.Add(internalConstructor);
@@ -725,7 +1007,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializerArgs.Add(ClientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                    new ConstructorSignature(Type, PublicCtorDescription, constructorModifier, primaryConstructorParameters,
                         initializer: new ConstructorInitializer(false, initializerArgs)),
                     MethodBodyStatement.Empty,
                     this);
@@ -806,7 +1088,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     attributes: [experimentalAttr],
                     initializer: new ConstructorInitializer(false, args)),
                 MethodBodyStatement.Empty,
-                this);
+                this,
+                suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    ClientSettings.EndpointProperty.Suppressions,
+                    ClientSettings.OtherRequiredParams.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.InputParameter?.Type))));
 
             yield return settingsConstructor;
         }
@@ -837,7 +1122,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, clientOptionsParameter];
 
             var internalConstructor = new ConstructorProvider(
-                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
                 BuildPrimaryConstructorBody(internalConstructorParameters, null, authPolicyParam, clientOptionsProvider, clientOptionsParameter, addExplicitValidation: true),
                 this);
             primaryConstructors.Add(internalConstructor);
@@ -894,7 +1179,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializerArgs.Add(clientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                    new ConstructorSignature(Type, PublicCtorDescription, constructorModifier, primaryConstructorParameters,
                         initializer: new ConstructorInitializer(false, initializerArgs)),
                     MethodBodyStatement.Empty,
                     this);
@@ -1141,7 +1426,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
              ]);
             var constructorSignature = new ConstructorSignature(
                 Type,
-                _publicCtorDescription,
+                PublicCtorDescription,
                 modifier,
                 secondaryConstructorParameters,
                 initializer: primaryCtorInitializer);
@@ -1159,6 +1444,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_backCompatProvider != backCompatProvider)
                 {
                     _backCompatProvider = backCompatProvider;
+                    CleanOperationNames(_inputClient);
                     // Only reset the cached methods (and the underlying RestClient methods)
                     // so they are rebuilt with the new backcompat provider. Do NOT call full
                     // Reset() — that would discard properties/constructors/fields applied by
@@ -1172,6 +1458,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (_backCompatProvider != null)
             {
                 _backCompatProvider = null;
+                CleanOperationNames(_inputClient);
                 ResetMethods();
                 _restClient?.ResetMethods();
                 _methodCache = null;
@@ -1251,9 +1538,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                var factoryMethodName = subClient.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
-                    ? $"Get{subClient.Name}"
-                    : $"Get{subClient.Name}{ClientSuffix}";
+                var factoryMethodName = GetClientAccessorName(subClient.Name);
 
                 ScmMethodProvider factoryMethod;
                 if (accessorMethodParams.Count > 0)
@@ -1294,6 +1579,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         this,
                         ScmMethodKind.Convenience);
                 }
+                subClient._clientFactoryMethod = factoryMethod;
                 methods.Add(factoryMethod);
             }
 
@@ -1314,8 +1600,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 originalSignatures.TryAdd(method, method.Signature);
             }
-
-            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods)];
+            var continuationTokenMethods = GetNextLinkContinuationTokenMethods(originalSignatures.Keys);
+            var result = BuildNextLinkMethodsForBackCompatibility(originalSignatures.Keys, continuationTokenMethods);
 
             // Determine which existing methods had their parameters reordered by the base and fix up
             // convenience method bodies that call the reordered protocol methods.
@@ -1324,7 +1610,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var (method, originalSignature) in originalSignatures)
             {
                 if (method.Signature.Name.Equals(originalSignature.Name)
-                    && !MethodSignatureHelper.HaveSameParametersInSameOrder(method.Signature, originalSignature))
+                    && !method.Signature.Parameters.SequenceEqual(originalSignature.Parameters, ReferenceEqualityComparer.Instance))
                 {
                     updatedSignatureToOriginal.TryAdd(method.Signature, originalSignature);
                     methodsWithReorderedParams.Add(method);
@@ -1340,21 +1626,245 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Where such an overload preserves a previous signature whose trailing parameter was a
             // CancellationToken, suppress AZC0002: making that parameter optional would create an
             // ambiguous call with the current method.
+            // Retained nextLink implementations are original methods, not new shims, so they also
+            // need this suppression when their CancellationToken remains required.
             foreach (var method in result)
             {
-                if (!originalSignatures.ContainsKey(method) && PreviousSignatureEndsWithCancellationToken(method.Signature))
+                if ((!originalSignatures.ContainsKey(method)
+                        || method is ScmMethodProvider scmMethod && continuationTokenMethods?.ContainsKey(scmMethod) == true
+                            && method.Signature.Parameters[^1].DefaultValue == null)
+                    && PreviousSignatureEndsWithCancellationToken(method.Signature))
                 {
-                    method.Update(suppressions:
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                     [
                         new SuppressionStatement(
                             inner: null,
                             code: Literal("AZC0002"),
                             justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
-                    ]);
+                    ]));
                 }
             }
 
             return result;
+        }
+
+        private static Dictionary<ScmMethodProvider, ParameterProvider>? GetNextLinkContinuationTokenMethods(IEnumerable<MethodProvider> methods)
+        {
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption)
+            {
+                return null;
+            }
+
+            Dictionary<ScmMethodProvider, ParameterProvider>? result = null;
+            foreach (var method in methods.OfType<ScmMethodProvider>())
+            {
+                if (method.ServiceMethod is { } serviceMethod
+                    && method.Signature.Parameters.FirstOrDefault(parameter =>
+                        ScmMethodProviderCollection.ShouldOmitContinuationTokenParameter(serviceMethod, parameter.InputParameter)) is { } token)
+                {
+                    (result ??= []).TryAdd(method, token);
+                }
+            }
+            return result;
+        }
+
+        private IReadOnlyList<MethodProvider> BuildNextLinkMethodsForBackCompatibility(
+            IEnumerable<MethodProvider> originalMethods,
+            Dictionary<ScmMethodProvider, ParameterProvider>? continuationTokenMethods)
+        {
+            if (continuationTokenMethods == null)
+            {
+                return base.BuildMethodsForBackCompatibility(originalMethods);
+            }
+
+            var tokenBearingSignatures = continuationTokenMethods.Keys
+                .Select(method => (method.ServiceMethod, method.Kind, method.Signature.Name)).ToHashSet();
+
+            var tokenlessMethods = originalMethods.OfType<ScmMethodProvider>()
+                .Where(method => !continuationTokenMethods.ContainsKey(method)
+                    && tokenBearingSignatures.Contains((method.ServiceMethod, method.Kind, method.Signature.Name)))
+                .ToArray();
+            var tokenlessSignatures = tokenlessMethods
+                .Select(method => (method.ServiceMethod, method.Kind, method.Signature.Name)).ToHashSet();
+            Dictionary<ScmMethodProvider, ParameterProvider>? hiddenTokenMethods = null;
+            foreach (var method in continuationTokenMethods)
+            {
+                if (tokenlessSignatures.Contains((method.Key.ServiceMethod, method.Key.Kind, method.Key.Signature.Name))
+                    || HasCustomTokenlessMethod(method.Key, method.Value))
+                {
+                    (hiddenTokenMethods ??= []).TryAdd(method.Key, method.Value);
+                }
+            }
+            // Snapshot defaults before the base pass builds shims, and keep published tokenless methods
+            // in the match set so regeneration does not replace them with required-parameter shims.
+            var previousDefaults = GetContinuationTokenDefaults(hiddenTokenMethods);
+            var compatibleMethods = base.BuildMethodsForBackCompatibility(originalMethods);
+            var result = new List<MethodProvider>(compatibleMethods.Count);
+            foreach (var method in compatibleMethods)
+            {
+                if (method is ScmMethodProvider scmMethod && !continuationTokenMethods.ContainsKey(scmMethod)
+                    && tokenlessSignatures.Contains((scmMethod.ServiceMethod, scmMethod.Kind, scmMethod.Signature.Name)))
+                {
+                    continue;
+                }
+                result.Add(method);
+            }
+            result.AddRange(tokenlessMethods);
+
+            foreach (var method in result.OfType<ScmMethodProvider>())
+            {
+                if (!continuationTokenMethods.ContainsKey(method))
+                {
+                    continue;
+                }
+
+                if (hiddenTokenMethods?.ContainsKey(method) != true)
+                {
+                    // A signature collision retains the ordinary token-bearing API. Protocol parameters
+                    // become required only after the base pass has used their defaults to restore old overloads.
+                    if (method.Kind == ScmMethodKind.Protocol && !method.IsPartialMethod
+                        && method.ServiceMethod is { Operation.GenerateConvenienceMethod: true })
+                    {
+                        foreach (var parameter in method.Signature.Parameters)
+                        {
+                            parameter.DefaultValue = null;
+                        }
+                    }
+                    continue;
+                }
+
+                method.Signature.Update(attributes:
+                [
+                    .. method.Signature.Attributes.Where(attribute => !attribute.Type.Equals(typeof(EditorBrowsableAttribute))),
+                    new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))
+                ]);
+                foreach (var parameter in method.Signature.Parameters)
+                {
+                    parameter.DefaultValue = null;
+                }
+            }
+
+            RestoreContinuationTokenDefaults(result, previousDefaults);
+            return result;
+        }
+
+        private bool HasCustomTokenlessMethod(ScmMethodProvider method, ParameterProvider token)
+        {
+            foreach (var custom in CustomCodeView?.Methods ?? [])
+            {
+                if (custom.IsPartialMethod || !MethodSignatureHelper.IsPublicApi(custom.Signature)
+                    || custom.Signature.Name != method.Signature.Name
+                    || custom.Signature.ReturnType?.AreNamesEqual(method.Signature.ReturnType) != true
+                    || custom.Signature.Parameters.Count != method.Signature.Parameters.Count - 1
+                    || ScmMethodProviderCollection.FindContinuationTokenParameterIndex(custom.Signature, token) >= 0)
+                {
+                    continue;
+                }
+
+                int customIndex = 0;
+                bool matches = true;
+                foreach (var parameter in method.Signature.Parameters)
+                {
+                    if (ReferenceEquals(parameter, token))
+                    {
+                        continue;
+                    }
+                    var customType = custom.Signature.Parameters[customIndex++].Type;
+                    if (!parameter.Type.AreNamesEqual(customType)
+                        || parameter.Type.IsNullable != customType.IsNullable && (parameter.Type.IsValueType || customType.IsValueType))
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (matches)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private IReadOnlyList<(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults)> GetContinuationTokenDefaults(
+            Dictionary<ScmMethodProvider, ParameterProvider>? continuationTokenMethods)
+        {
+            if (continuationTokenMethods == null || LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return [];
+            }
+
+            var methodsByName = continuationTokenMethods.ToLookup(method => method.Key.Signature.Name);
+            List<(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults)>? result = null;
+            foreach (var previous in previousMethods)
+            {
+                var signature = previous.Signature;
+                if (!signature.Parameters.Any(parameter => parameter.DefaultValue != null))
+                {
+                    continue;
+                }
+                foreach (var method in methodsByName[signature.Name])
+                {
+                    if (method.Key.Signature.ReturnType?.AreNamesEqual(signature.ReturnType) != true)
+                    {
+                        continue;
+                    }
+                    int tokenIndex = ScmMethodProviderCollection.FindContinuationTokenParameterIndex(signature, method.Value);
+                    if (tokenIndex < 0)
+                    {
+                        continue;
+                    }
+
+                    if (signature.Parameters.Skip(tokenIndex + 1).Any(parameter => parameter.DefaultValue != null))
+                    {
+                        (result ??= []).Add((signature, tokenIndex, signature.Parameters.Select(parameter => parameter.DefaultValue).ToArray()));
+                    }
+                    break;
+                }
+            }
+            if (result == null)
+            {
+                return [];
+            }
+            return result;
+        }
+
+        private static void RestoreContinuationTokenDefaults(IReadOnlyList<MethodProvider> methods,
+            IReadOnlyList<(MethodSignature Signature, int TokenIndex, ValueExpression?[] Defaults)> previousDefaults)
+        {
+            if (previousDefaults.Count == 0)
+            {
+                return;
+            }
+
+            // Require the token and preceding parameters to avoid ambiguity with the tokenless API,
+            // but preserve published defaults after the token so callers can still omit CancellationToken.
+            var hiddenMethods = new Dictionary<(string Name, int ParameterCount), List<MethodProvider>>();
+            foreach (var method in methods)
+            {
+                if (method.Signature.Attributes.Any(attribute => attribute.Type.Equals(typeof(EditorBrowsableAttribute))))
+                {
+                    var key = (method.Signature.Name, method.Signature.Parameters.Count);
+                    if (!hiddenMethods.TryGetValue(key, out var overloads))
+                    {
+                        overloads = [];
+                        hiddenMethods.TryAdd(key, overloads);
+                    }
+                    overloads.Add(method);
+                }
+            }
+            foreach (var (signature, tokenIndex, defaults) in previousDefaults)
+            {
+                if (!hiddenMethods.TryGetValue((signature.Name, signature.Parameters.Count), out var overloads)
+                    || overloads.FirstOrDefault(method =>
+                        MethodSignature.MethodSignatureComparer.Equals(method.Signature, signature)) is not { } legacyMethod)
+                {
+                    continue;
+                }
+                for (int i = tokenIndex + 1; i < signature.Parameters.Count; i++)
+                {
+                    legacyMethod.Signature.Parameters[i].DefaultValue = defaults[i];
+                }
+            }
         }
 
         private ParameterProvider BuildClientEndpointParameter()
@@ -1695,7 +2205,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature updatedSignature)
         {
             var argumentCount = invocation.Arguments.Count;
-            if (argumentCount != originalSignature.Parameters.Count)
+            if (argumentCount > originalSignature.Parameters.Count)
             {
                 return;
             }
@@ -1703,15 +2213,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var argumentsByName = new Dictionary<string, ValueExpression>(argumentCount);
             for (int i = 0; i < argumentCount; i++)
             {
-                argumentsByName.TryAdd(originalSignature.Parameters[i].Name, invocation.Arguments[i]);
+                var argument = invocation.Arguments[i];
+                var parameterName = argument is PositionalParameterReferenceExpression named
+                    ? named.ParameterName
+                    : originalSignature.Parameters[i].Name;
+                argumentsByName.Add(parameterName, argument);
             }
 
             var reorderedArgs = new List<ValueExpression>(updatedSignature.Parameters.Count);
+            bool requireNamedArgs = false;
             foreach (var param in updatedSignature.Parameters)
             {
                 if (argumentsByName.TryGetValue(param.Name, out var arg))
                 {
-                    reorderedArgs.Add(arg);
+                    reorderedArgs.Add(requireNamedArgs && arg is not PositionalParameterReferenceExpression
+                        ? param.PositionalReference(arg)
+                        : arg);
+                }
+                else
+                {
+                    requireNamedArgs = true;
                 }
             }
 

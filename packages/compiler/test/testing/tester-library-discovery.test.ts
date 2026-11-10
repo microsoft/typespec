@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
-import { CompilerHost } from "../../src/core/types.js";
+import type { CompilerHost } from "../../src/core/types.js";
 import { createTestFileSystem, mockFile } from "../../src/testing/fs.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 import { createTester } from "../../src/testing/tester.js";
-import { MockFile } from "../../src/testing/types.js";
+import type { MockFile } from "../../src/testing/types.js";
 
 function mkFs(files: Record<string, string | MockFile>): CompilerHost {
   const fs = createTestFileSystem();
@@ -12,6 +12,35 @@ function mkFs(files: Record<string, string | MockFile>): CompilerHost {
   }
   return fs.compilerHost;
 }
+
+it("explains that the tester base must be a library root containing package.json", async () => {
+  const base = resolveVirtualPath("not-a-library");
+  const tester = createTester(base, { host: mkFs({}), libraries: [] });
+
+  await expect(tester.compile("")).rejects.toThrow(
+    `Cannot find package.json in "${base}". The first argument to createTester must be the library root directory.`,
+  );
+});
+
+it("preserves filesystem errors other than a missing package.json", async () => {
+  const error = Object.assign(new Error("Permission denied"), { code: "EACCES" });
+  const host = mkFs({});
+  host.readFile = async () => {
+    throw error;
+  };
+  const tester = createTester(resolveVirtualPath(""), { host, libraries: [] });
+
+  await expect(tester.compile("")).rejects.toBe(error);
+});
+
+it("preserves invalid package.json errors", async () => {
+  const tester = createTester(resolveVirtualPath(""), {
+    host: mkFs({ "package.json": "{" }),
+    libraries: [],
+  });
+
+  await expect(tester.compile("")).rejects.toThrow(SyntaxError);
+});
 
 it("add library base export", async () => {
   const fs = mkFs({

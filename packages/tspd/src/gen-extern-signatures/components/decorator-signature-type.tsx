@@ -1,19 +1,24 @@
-import { code, For, join, List, Refkey, refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { code, For, join, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  getSourceLocation,
+import type {
   IntrinsicScalarName,
-  isArrayModelType,
-  isUnknownType,
   MixedParameterConstraint,
   Model,
   Program,
   Scalar,
+} from "@typespec/compiler";
+import {
+  getSourceLocation,
+  isArrayModelType,
+  isTypeRefType,
+  isUnknownType,
   type Type,
 } from "@typespec/compiler";
-import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import type { DocTag } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature } from "../types.js";
+import type { DecoratorSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
 
 export interface DecoratorSignatureProps {
@@ -236,7 +241,7 @@ function ValueOfModelTsType({ model }: { model: Model }) {
 
 export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
   return (
-    <List joiner=";" enderPunctuation>
+    <List semicolon hardline enderPunctuation>
       {model.indexer?.value && (
         <ts.InterfaceMember
           readonly
@@ -248,6 +253,7 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
         {(x) => (
           <ts.InterfaceMember
             readonly
+            doc={getDocComment(x)}
             name={x.name}
             optional={x.optional}
             type={<ValueTsType type={x.type} />}
@@ -260,10 +266,13 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
 
 function ScalarTsType({ scalar }: { scalar: Scalar }) {
   const { program } = useTspd();
+  if (isTypeRefType(program, scalar)) {
+    return typespecCompiler.TypeRefValue;
+  }
   const isStd = program.checker.isStdType(scalar);
   if (isStd) {
     return getStdScalarTSType(scalar);
-  } else if (scalar.baseScalar) {
+  } else if (scalar.baseScalar && !isTypeRefType(program, scalar.baseScalar)) {
     return <ScalarTsType scalar={scalar.baseScalar} />;
   } else {
     return "unknown";
@@ -328,7 +337,7 @@ function getValueOfReflectionType(type: Model) {
   }
 }
 
-function getDocComment(type: Type): string {
+export function getDocComment(type: Type): string {
   const docs = type.node?.docs;
   if (docs === undefined || docs.length === 0) {
     return "";

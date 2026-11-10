@@ -60,8 +60,31 @@ public final class ImplicitBodyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> simpleWithResponse(BinaryData simpleRequest, RequestOptions requestOptions) {
-        return this.serviceClient.simpleWithResponseAsync(simpleRequest, requestOptions);
+    Mono<Response<Void>> simpleWithResponseInternal(BinaryData simpleRequest, RequestOptions requestOptions) {
+        return this.serviceClient.simpleWithResponseInternalAsync(simpleRequest, requestOptions);
+    }
+
+    /**
+     * The simple operation.
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> simpleWithResponse(String name, RequestOptions requestOptions) {
+        // Generated convenience method for simpleWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        SimpleRequest simpleRequestObj = new SimpleRequest(name);
+        BinaryData simpleRequest = BinaryData.fromObject(simpleRequestObj);
+        return simpleWithResponseInternal(simpleRequest, requestOptions);
     }
 
     /**
@@ -79,10 +102,10 @@ public final class ImplicitBodyAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> simple(String name) {
-        // Generated convenience method for simpleWithResponse
+        // Generated convenience method for simpleWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         SimpleRequest simpleRequestObj = new SimpleRequest(name);
         BinaryData simpleRequest = BinaryData.fromObject(simpleRequestObj);
-        return simpleWithResponse(simpleRequest, requestOptions).flatMap(FluxUtil::toMono);
+        return simpleWithResponseInternal(simpleRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

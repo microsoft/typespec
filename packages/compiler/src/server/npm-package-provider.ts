@@ -1,8 +1,10 @@
-import { FileEvent } from "vscode-languageserver";
+import type { FileEvent } from "vscode-languageserver";
 import { getDirectoryPath, joinPaths, normalizePath } from "../core/path-utils.js";
 import { loadJsFile } from "../core/source-loader.js";
-import { CompilerHost, NoTarget } from "../core/types.js";
-import { PackageJson, resolveModule } from "../index.js";
+import type { CompilerHost } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
+import type { PackageJson } from "../index.js";
+import { resolveModule } from "../index.js";
 import { distinctArray, isWhitespaceStringOrUndefined, tryParseJson } from "../utils/misc.js";
 export class NpmPackageProvider {
   private pkgCache = new Map<string, NpmPackage>();

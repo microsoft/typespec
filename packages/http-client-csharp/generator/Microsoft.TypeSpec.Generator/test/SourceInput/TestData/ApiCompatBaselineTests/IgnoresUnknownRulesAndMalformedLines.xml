@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Suppressions>
+  <Suppression>
+    <DiagnosticId>CP0014</DiagnosticId>
+    <Target>T:Ns.Foo</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+  </Suppression>
+  <Suppression>
+    <Target>M:Ns.Foo.Reset</Target>
+  </Suppression>
+</Suppressions>

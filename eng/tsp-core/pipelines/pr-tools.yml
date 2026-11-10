@@ -28,6 +28,7 @@ extends:
             displayName: Setup Try It
             variables:
               TYPESPEC_WEBSITE_BASE_PATH: "/prs/$(System.PullRequest.PullRequestNumber)/"
+              TYPESPEC_SKIP_VS_BUILD: true
             steps:
               - checkout: self
                 persistCredentials: true
@@ -80,6 +81,8 @@ extends:
             displayName: Create TryIt comment
             dependsOn: tryit
             steps:
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - pwsh: |
                   $curlCommand = 'curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension"'
                   $response = Invoke-Expression $curlCommand
@@ -95,7 +98,7 @@ extends:
                   TokenOwners:
                     - microsoft
 
-              - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
+              - script: node eng/tsp-core/scripts/create-tryit-comment.ts
                 displayName: Check already commented
                 env:
                   GH_TOKEN: $(GH_TOKEN)

@@ -1,7 +1,7 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Interface, Model, Type } from "../../src/core/types.js";
+import type { Interface, Model, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";

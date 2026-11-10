@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -19,6 +22,91 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void ProviderLookupFollowsIdentityUpdates(
+            [Values("model", "fixed", "extensible")] string kind,
+            [Values] bool changeNamespace)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            TypeProvider provider = kind == "model"
+                ? factory.CreateModel(InputFactory.Model("Original"))!
+                : factory.CreateEnum(InputFactory.StringEnum("Original", [("One", "one")], isExtensible: kind == "extensible"))!;
+            var unrelated = factory.CreateModel(InputFactory.Model("Unrelated"))!;
+            var originalIdentity = provider.Type.WithNullable(true);
+            var count = factory.CSharpTypeMap.Count;
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type]);
+
+            provider.Update(
+                name: changeNamespace ? null : "Renamed",
+                @namespace: changeNamespace ? "Renamed.Models" : null);
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type]);
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type.WithNullable(true)]);
+            Assert.AreSame(provider, factory.TypeProvidersByName[provider.Name]);
+            Assert.AreSame(unrelated, factory.CSharpTypeMap[unrelated.Type]);
+            Assert.AreSame(unrelated, factory.TypeProvidersByName[unrelated.Name]);
+            if (!changeNamespace)
+            {
+                Assert.IsFalse(factory.TypeProvidersByName.ContainsKey("Original"));
+            }
+
+            provider.Update(name: "Final", @namespace: "Final.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type.WithNullable(true)]);
+            Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(changeNamespace ? "Original" : "Renamed"));
+            Assert.AreSame(provider, factory.TypeProvidersByName["Final"]);
+        }
+
+        [Test]
+        public void UnregisteredIdentityUpdatesDoNotReplaceMappedProviders()
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var registered = factory.CreateModel(InputFactory.Model("Original", @namespace: "Test"))!;
+            var unregistered = new TestTypeProvider(name: "Original");
+            var count = factory.CSharpTypeMap.Count;
+
+            unregistered.Update(name: "Renamed", @namespace: "Renamed.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(registered, factory.CSharpTypeMap[registered.Type]);
+            Assert.AreSame(registered, factory.TypeProvidersByName[registered.Name]);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(unregistered.Type));
+            Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(unregistered.Name));
+        }
+
+        [TestCase("model")]
+        [TestCase("fixed")]
+        [TestCase("extensible")]
+        public void CombinedIdentityUpdateDoesNotReplaceIntermediateProvider(string kind)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            TypeProvider CreateProvider(string name) => kind == "model"
+                ? factory.CreateModel(InputFactory.Model(name, @namespace: "Alpha.Models", deprecation: "Use Current instead."))!
+                : factory.CreateEnum(InputFactory.StringEnum(name, [("One", "one")],
+                    clientNamespace: "Alpha.Models", isExtensible: kind == "extensible", deprecation: "Use Current instead."))!;
+            var moving = CreateProvider("Original");
+            var untouched = CreateProvider("Existing");
+            var originalIdentity = moving.Type.WithNullable(true);
+            var untouchedIdentity = untouched.Type.WithNullable(true);
+            var count = factory.CSharpTypeMap.Count;
+
+            moving.Update(name: "Existing", @namespace: "Beta.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(moving, factory.CSharpTypeMap[moving.Type.WithNullable(true)]);
+            Assert.AreSame(untouched, factory.CSharpTypeMap[untouchedIdentity]);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreEqual("Alpha.Models", untouched.Type.Namespace);
+            Assert.AreEqual("Existing", untouched.Name);
+            CollectionAssert.AreEqual(new[] { "\"CS0612\"", "\"CS0618\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(untouchedIdentity).Select(suppression => suppression.Code.ToDisplayString()));
+            CollectionAssert.AreEqual(new[] { "\"CS0612\"", "\"CS0618\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(moving.Type).Select(suppression => suppression.Code.ToDisplayString()));
         }
 
         [Test]
@@ -129,6 +217,35 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsTrue(ReferenceEquals(expected3, actual3));
             Assert.IsFalse(ReferenceEquals(actual3, actual));
             Assert.IsFalse(ReferenceEquals(actual3, actual2));
+        }
+
+        [TestCase(InputPrimitiveTypeKind.Int8, typeof(sbyte))]
+        [TestCase(InputPrimitiveTypeKind.Int16, typeof(short))]
+        [TestCase(InputPrimitiveTypeKind.Int32, typeof(int))]
+        [TestCase(InputPrimitiveTypeKind.Int64, typeof(long))]
+        [TestCase(InputPrimitiveTypeKind.UInt8, typeof(byte))]
+        [TestCase(InputPrimitiveTypeKind.UInt16, typeof(ushort))]
+        [TestCase(InputPrimitiveTypeKind.UInt32, typeof(uint))]
+        [TestCase(InputPrimitiveTypeKind.UInt64, typeof(ulong))]
+        [TestCase(InputPrimitiveTypeKind.String, typeof(string))]
+        [TestCase(InputPrimitiveTypeKind.Boolean, typeof(bool))]
+        [TestCase(InputPrimitiveTypeKind.Unknown, typeof(BinaryData))]
+        public void CreateCSharpType_PrimitiveAndCollections(InputPrimitiveTypeKind kind, Type expectedType)
+        {
+            var name = kind.ToString().ToLowerInvariant();
+            var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}");
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(new CSharpType(expectedType), factory.CreateCSharpType(input));
+                Assert.AreEqual(new CSharpType(expectedType, isNullable: true),
+                    factory.CreateCSharpType(new InputNullableType(input)));
+                Assert.AreEqual(new CSharpType(typeof(IList<>), expectedType),
+                    factory.CreateCSharpType(new InputArrayType("Array", "TypeSpec.Array", input)));
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<,>), typeof(string), expectedType),
+                    factory.CreateCSharpType(new InputDictionaryType("Record", InputPrimitiveType.String, input)));
+            });
         }
 
         [Test]

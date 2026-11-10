@@ -1,10 +1,10 @@
 import { dereference } from "@scalar/openapi-parser";
-import { OpenAPI } from "@scalar/openapi-types";
+import type { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
-import { TypeSpecModel } from "../../src/cli/actions/convert/interfaces.js";
+import type { TypeSpecModel } from "../../src/cli/actions/convert/interfaces.js";
 import { transformComponentSchemas } from "../../src/cli/actions/convert/transforms/transform-component-schemas.js";
 import { createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document } from "../../src/types.js";
+import type { OpenAPI3Document } from "../../src/types.js";
 
 describe("tsp-openapi: transform component schemas", () => {
   let doc: OpenAPI.Document<{}>;

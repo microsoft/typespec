@@ -5,12 +5,13 @@ $failingSpecs = @(
   Join-Path 'http' 'type' 'model' 'templated'
   Join-Path 'http' 'type' 'file'
   Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
-  Join-Path 'http' 'streaming' 'jsonl'
   Join-Path 'http' 'type' 'union' 'discriminated' # pending design
   Join-Path 'http' 'authentication' 'noauth' 'union' # pending design
 )
 
 $azureAllowSpecs = @(
+  Join-Path 'http' 'azure' 'client-generator-core' 'response-as-bool'
+  Join-Path 'http' 'azure' 'client-generator-core' 'response-replacement'
   Join-Path 'http' 'client' 'structure' 'client-operation-group'
   Join-Path 'http' 'client' 'structure' 'default'
   Join-Path 'http' 'client' 'structure' 'multi-client'

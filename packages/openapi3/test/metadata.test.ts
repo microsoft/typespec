@@ -1148,6 +1148,64 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     });
   });
 
+  it("named array model referenced by collection and direct operations is emitted once", async () => {
+    const res = await openApiFor(`
+      model Range is int32[][] {}
+
+      model Item {
+        range: Range,
+      }
+
+      @route("/items")
+      interface Items {
+        @get @route("/") list(): Item[];
+        @get @route("/{id}") read(@path id: string): Item;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Item", "Range"]);
+    deepStrictEqual(res.components.schemas.Item.properties.range, {
+      $ref: "#/components/schemas/Range",
+    });
+  });
+
+  it("model instantiation shared with an unreachable derived model is emitted once", async () => {
+    const res = await openApiFor(`
+      model Widget {
+        id: string;
+      }
+
+      @friendlyName("{name}Page", T)
+      model Page<T> {
+        items: T[];
+      }
+
+      @route("/widgets")
+      @get
+      op listWidgets(): Page<Widget>;
+
+      @discriminator("kind")
+      model Event {
+        kind: string;
+      }
+
+      model WidgetsEvent extends Event {
+        kind: "widgets";
+        widgets: Page<Widget>;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), [
+      "Event",
+      "Widget",
+      "WidgetPage",
+      "WidgetsEvent",
+    ]);
+    deepStrictEqual(res.components.schemas.WidgetsEvent.properties.widgets, {
+      $ref: "#/components/schemas/WidgetPage",
+    });
+  });
+
   it("base models used in different visibility gets distinct names", async () => {
     const res = await openApiFor(`
       model Widget {
@@ -1196,6 +1254,33 @@ worksFor(supportedVersions, ({ openApiFor }) => {
 
       model Child extends Base {
         @path name: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Base", "Child"]);
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Base",
+        },
+      ],
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("inheritance tree unreachable with @visibility(Create, Update) property doesn't get conflicts", async () => {
+    const res = await openApiFor(`
+      model Base {
+      }
+
+      model Child extends Base {
+        @visibility(Lifecycle.Create, Lifecycle.Update) name: string;
       }
     `);
 

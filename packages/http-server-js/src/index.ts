@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { EmitContext, joinPaths } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { joinPaths } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
 import { createInitialContext } from "./ctx.js";
-import { JsEmitterOptions } from "./lib.js";
+import type { JsEmitterOptions } from "./lib.js";
 import { writeModuleTree } from "./write.js";
 
 // #region features
@@ -16,6 +17,18 @@ import { emitHttp } from "./http/index.js";
 
 export { $lib } from "./lib.js";
 
+/**
+ * TypeSpec emitter entry point that generates TypeScript server bindings for a single service.
+ *
+ * Replaces `src/generated` beneath the emitter output directory with server, model, and
+ * serialization modules. In a compiler dry run, builds the module tree without deleting or
+ * writing files. A program without a service produces a warning and no output; HTTP service
+ * errors disable HTTP bindings but do not stop model emission.
+ *
+ * @param context - Compiler-provided program, emitter options, and output directory.
+ * @throws If the program defines multiple services or encounters an unsupported emission
+ * feature. File-writing and formatting failures also reject the returned promise.
+ */
 export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
   const jsCtx = await createInitialContext(context.program, context.options);
 

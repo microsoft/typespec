@@ -20,7 +20,7 @@ public class Shark extends Fish {
      * Discriminator property for Fish.
      */
     @Generated
-    private String kind = "shark";
+    private final String kind = "shark";
 
     /*
      * The sharktype property.

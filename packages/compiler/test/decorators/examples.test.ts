@@ -1,11 +1,12 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { Operation, getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
-import { expectDiagnostics } from "../../src/testing/index.js";
+import type { Operation } from "../../src/index.js";
+import { getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
+import { expectDiagnostics, type TestCompileOptions } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
-async function getExamplesFor(code: string) {
-  const { test, program } = (await Tester.compile(code)) as any;
+async function getExamplesFor(code: string, options?: TestCompileOptions) {
+  const { test, program } = (await Tester.compile(code, options)) as any;
 
   ok(test, "Expect to have /*test*/ marker in code.");
   return {
@@ -399,6 +400,28 @@ describe("json serialization of examples", () => {
     expect(result).toEqual({ exp: 1 });
   });
 
+  it("respect json encodedName of enum members", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{
+        status: Status.active,
+        explicit: Status.enabled,
+      })
+      model /*test*/test {
+        status: Status;
+        explicit: Status;
+      }
+
+      enum Status {
+        @encodedName("application/json", "on")
+        active,
+        @encodedName("application/json", "off")
+        enabled: "enabled",
+      }
+    `);
+
+    expect(result).toEqual({ status: "on", explicit: "off" });
+  });
+
   describe("scalar encoding", () => {
     const allCases: [
       string,
@@ -475,6 +498,16 @@ describe("json serialization of examples", () => {
             value: `duration.fromISO("PT0.5S")`,
             expect: 0.5,
             encode: `@encode("seconds", float32)`,
+          },
+          {
+            value: `duration.fromISO("PT5M")`,
+            expect: 300000,
+            encode: `@encode("milliseconds", int32)`,
+          },
+          {
+            value: `duration.fromISO("PT0.5S")`,
+            expect: 500,
+            encode: `@encode("milliseconds", float32)`,
           },
         ],
       ],
@@ -599,4 +632,28 @@ describe("json serialization of examples", () => {
 
     expect(result).toEqual({ a: { name: "one", other: 123 } });
   });
+});
+
+it("rejects serializing a type-reference value as JSON", async () => {
+  const { program, examples, target } = await getExamplesFor(
+    `
+    model Item {}
+    @example(#{ itemType: typeref(Item) })
+    model /*test*/test { itemType: TypeRef; }
+  `,
+    {
+      compilerOptions: {
+        configFile: {
+          projectRoot: ".",
+          kind: "project",
+          features: ["typeref"],
+          diagnostics: [],
+          outputDir: "tsp-output",
+        },
+      },
+    },
+  );
+  expect(() => serializeValueAsJson(program, examples[0].value, target)).toThrow(
+    "Cannot serialize a type reference value as JSON.",
+  );
 });

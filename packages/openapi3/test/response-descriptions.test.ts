@@ -87,6 +87,22 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     strictEqual(res.paths["/"].get.responses["409"].description, "Foo");
   });
 
+  it("uses union variant descriptions", async () => {
+    const res = await openApiFor(
+      `
+      model PetCreated { @statusCode code: 201 }
+      model PetAccepted { @statusCode code: 202 }
+      union CreatedResponses {
+        @doc("Pet Created") created: PetCreated,
+        @doc("Pet Accepted") accepted: PetAccepted,
+      }
+      op created(): CreatedResponses;
+      `,
+    );
+    strictEqual(res.paths["/"].get.responses["201"].description, "Pet Created");
+    strictEqual(res.paths["/"].get.responses["202"].description, "Pet Accepted");
+  });
+
   it("recursively expands deeply nested unions", async () => {
     const res = await openApiFor(
       `

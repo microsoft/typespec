@@ -21,11 +21,20 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import tsptest.enumservice.implementation.EnumServiceClientImpl;
+import tsptest.enumservice.models.Color;
 import tsptest.enumservice.models.ColorModel;
 import tsptest.enumservice.models.Priority;
 import tsptest.enumservice.models.PriorityModel;
 
 public class EnumTests {
+
+    @Test
+    public void testCommentTerminatorEnumValues() {
+        Assertions.assertEquals("*/", Color.COMMENT_TERMINATOR.toString());
+        Assertions.assertSame(Color.COMMENT_TERMINATOR, Color.fromString("*/"));
+        Assertions.assertEquals("*/", ColorModel.COMMENT_TERMINATOR.toString());
+        Assertions.assertSame(ColorModel.COMMENT_TERMINATOR, ColorModel.fromString("*/"));
+    }
 
     @SuppressWarnings("unchecked")
     @Test

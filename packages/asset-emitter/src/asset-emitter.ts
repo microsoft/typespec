@@ -8,6 +8,7 @@ import {
   getTypeName,
   isTemplateDeclaration,
   joinPaths,
+  sanitizePathSegment,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { CustomKeyMap } from "./custom-key-map.js";
@@ -44,6 +45,14 @@ interface ReferenceChainEntry {
   context: ContextState;
 }
 
+/**
+ * Create a traversal coordinator and instantiate the supplied TypeEmitter subclass.
+ * Emission starts only when an emit method is called; output is written separately
+ * through `writeOutput`. Each coordinator owns its result cache and source-file list.
+ * @param program - Compiler program to traverse.
+ * @param TypeEmitterClass - Subclass implementing the output representation and context hooks.
+ * @param emitContext - Output directory and emitter-specific options for this invocation.
+ */
 export function createAssetEmitter<T, TOptions extends object>(
   program: Program,
   TypeEmitterClass: typeof TypeEmitter<T, TOptions>,
@@ -198,7 +207,7 @@ export function createAssetEmitter<T, TOptions extends object>(
       const basePath = options.emitterOutputDir;
       const sourceFile = {
         globalScope: undefined as any,
-        path: joinPaths(basePath, path),
+        path: joinPaths(basePath, resolveContainedPath(path)),
         imports: new Map(),
         meta: {},
       };
@@ -975,4 +984,17 @@ function resolveReferenceCycle(
   throw new Error(
     `Couldn't resolve the circular reference stack for ${getTypeName(entity.emitEntityKey[1])}`,
   );
+}
+
+/**
+ * Resolve the given source file path as a path relative to the emitter output dir.
+ * Any component that could take the file outside of the emitter output dir(absolute root, `..`, drive letter) is dropped or sanitized.
+ * This makes sure a name coming from a TypeSpec spec(e.g. a model name) cannot be used to write outside of the emitter output dir.
+ */
+function resolveContainedPath(path: string): string {
+  return path
+    .split(/[/\\]/)
+    .filter((segment) => segment !== "" && segment !== "." && segment !== "..")
+    .map(sanitizePathSegment)
+    .join("/");
 }

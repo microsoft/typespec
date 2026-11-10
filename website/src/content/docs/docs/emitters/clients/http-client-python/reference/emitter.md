@@ -90,6 +90,24 @@ The name of the package to be used in pretty-printing. Will be the name of the p
 
 Whether to return responses from HEAD requests as boolean. Defaults to `true`.
 
+### `enable-sse-reconnect`
+
+**Type:** `boolean`
+
+**Default:** `false`
+
+Whether to generate automatic reconnection support for Server-Sent Events (SSE). Defaults to `false`: SSE streams end when the response reaches EOF, without sending another request. Set to `true` to generate reconnect callbacks, retry delays, and `Last-Event-ID` resumption. SSE event IDs and retry metadata are parsed in either mode. Transport errors still propagate to the caller.
+
+Enable this generation-time option in `tspconfig.yaml`:
+
+```yaml
+emit:
+  - "@typespec/http-client-python"
+options:
+  "@typespec/http-client-python":
+    enable-sse-reconnect: true
+```
+
 ### `use-pyodide`
 
 **Type:** `boolean`
@@ -123,6 +141,12 @@ options:
 **Type:** `boolean`
 
 Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.
+
+### `generate-typeddict`
+
+**Type:** `boolean`
+
+Whether to add TypedDict typing for JSON dictionary input in `models-mode: dpg`, instead of accepting only generic JSON. This enriches the typing on the existing overloads rather than adding another request-body overload. Defaults to `true`.
 
 ### `keep-pyproject-fields`
 

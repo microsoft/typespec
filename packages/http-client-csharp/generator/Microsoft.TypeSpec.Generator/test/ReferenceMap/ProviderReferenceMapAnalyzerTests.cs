@@ -65,6 +65,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void KeptProvidersDistinguishGenericArity(
+            [Values(false, true)] bool isRoot,
+            [Values(0, 1, 2)] int keptArity,
+            [Values("Sample", "Sample.Nested.Models")] string ns)
+        {
+            var argument = CreateNamedType("T", string.Empty);
+            TypeProvider[] providers =
+            [
+                new TestTypeProvider("ErrorResult", TypeSignatureModifiers.Public, ns: ns),
+                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, ns, argument),
+                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, ns, argument, CreateNamedType("U", string.Empty))
+            ];
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(providers));
+            CodeModelGenerator.Instance.AddTypeToKeep(providers[keptArity], isRoot);
+
+            var expectedName = keptArity == 0 ? $"{ns}.ErrorResult" : $"{ns}.ErrorResult`{keptArity}";
+            var keepSet = isRoot ? CodeModelGenerator.Instance.AdditionalRootTypes : CodeModelGenerator.Instance.NonRootTypes;
+            Assert.That(keepSet, Contains.Item(expectedName));
+            if (keptArity == 0)
+            {
+                Assert.AreEqual(providers[keptArity].Type.FullyQualifiedName, expectedName);
+            }
+            else
+            {
+                Assert.That(keepSet, Does.Not.Contain(providers[keptArity].Type.FullyQualifiedName));
+            }
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
+
+            for (var i = 0; i < providers.Length; i++)
+            {
+                Assert.AreEqual(i == keptArity, session.ShouldWriteProvider(providers[i]), $"Arity {i}");
+            }
+            if (!isRoot && keptArity > 0)
+            {
+                Assert.IsTrue(providers[keptArity].DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+                Assert.IsFalse(providers[keptArity].DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
         public void ProviderNamedClientProviderIsNotTreatedAsClientWithoutCapability()
         {
             var sameNamedProvider = new ClientProvider();

@@ -1,6 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { TypeNameOptions, getTypeName } from "../../src/index.js";
+import type { TypeNameOptions } from "../../src/index.js";
+import { getTypeName } from "../../src/index.js";
 import { Tester } from "../tester.js";
 
 async function getNameFor(code: string, options: TypeNameOptions = {}) {
@@ -41,6 +42,41 @@ describe("union", () => {
   it("simple named union", () => assertNameFor(`union /*target*/Pet {}`, "Pet"));
   it("include namespace qualifier", () =>
     assertNameFor(`namespace Foo { union /*target*/Pet {} }`, "Foo.Pet"));
+});
+
+describe("operation parameters", () => {
+  it("names a parameter with the operation meta property", async () => {
+    const { program } = await Tester.compile(`
+      namespace Foo;
+      model Bar {}
+      op test(param: Bar): void;
+    `);
+    const [op] = program.resolveTypeReference("Foo.test");
+    const param = (op as any).parameters.properties.get("param");
+    strictEqual(getTypeName(param), "Foo.test::parameters.param");
+  });
+
+  it("includes the interface name", async () => {
+    const { program } = await Tester.compile(`
+      namespace Foo;
+      interface Bar {
+        test(param: string): void;
+      }
+    `);
+    const [op] = program.resolveTypeReference("Foo.Bar.test");
+    const param = (op as any).parameters.properties.get("param");
+    strictEqual(getTypeName(param), "Foo.Bar.test::parameters.param");
+  });
+
+  it("respects nameOnly", async () => {
+    const { program } = await Tester.compile(`
+      namespace Foo;
+      op test(param: string): void;
+    `);
+    const [op] = program.resolveTypeReference("Foo.test");
+    const param = (op as any).parameters.properties.get("param");
+    strictEqual(getTypeName(param, { nameOnly: true }), "param");
+  });
 });
 
 describe("Standard library", () => {

@@ -1,5 +1,129 @@
 # Change Log - @typespec/http-client-python
 
+## 0.40.0
+
+### Features
+
+- [#12161](https://github.com/microsoft/typespec/pull/12161) Add Python 3.15 to generated package classifiers.
+
+### Bug Fixes
+
+- [#12326](https://github.com/microsoft/typespec/pull/12326) Preserve raw byte streaming for XML responses using the legacy bytes encoding instead of deserializing them as XML string scalars.
+- [#12281](https://github.com/microsoft/typespec/pull/12281) Prevent Pylint `too-many-statements` errors in generated synchronous and asynchronous structured-stream operations with SSE event dispatch. Scope the suppression to operation implementations, leaving overload declarations and non-structured-stream operations unchanged.
+- [#12342](https://github.com/microsoft/typespec/pull/12342) Escape string literals and wire names in generated Python declarations, discriminator initializers, field metadata, and templates to preserve specification values as data.
+- [#12127](https://github.com/microsoft/typespec/pull/12127) Fix the `:vartype` docstring of constant enum values (such as discriminator properties on polymorphic subclasses) to reference the enum class instead of a non-existent module-level symbol named after the enum member.
+- [#10329](https://github.com/microsoft/typespec/pull/10329) Preserve underscores before numeric enum segments and acronyms such as `A2A` without changing numeric identifiers such as `int32`.
+
+
+## 0.39.0
+
+### Features
+
+- [#12150](https://github.com/microsoft/typespec/pull/12150) Make automatic SSE reconnection opt-in with the `enable-sse-reconnect` emitter option, which defaults to `false`. Without this option, SSE streams end at EOF without reconnect callbacks, retry delays, or `Last-Event-ID` request plumbing. SSE parsing, event ID and retry metadata (including metadata-only blocks), terminal events, and stream cleanup remain available.
+
+  Enable reconnection when generating the client:
+
+  ```yaml
+  emit:
+    - "@typespec/http-client-python"
+  options:
+    "@typespec/http-client-python":
+      enable-sse-reconnect: true
+  ```
+
+### Bug Fixes
+
+- [#11897](https://github.com/microsoft/typespec/pull/11897) Escape quotes in enum and enum member documentation so embedded Python string delimiters remain documentation in generated code.
+
+
+## 0.38.1
+
+### Bump dependencies
+
+- Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.38.0
+
+### Features
+
+- [#11904](https://github.com/microsoft/typespec/pull/11904) Automatically reconnect SSE streams after an unexpected disconnect, honoring server-provided retry delays and resuming with the latest event ID.
+
+  ```python
+  with client.events.stream() as stream:
+      for event in stream:
+          print(event)
+  ```
+
+### Bug Fixes
+
+- [#12024](https://github.com/microsoft/typespec/pull/12024) Return long-running operation response bodies when generating TypedDict-only models.
+- [#12017](https://github.com/microsoft/typespec/pull/12017) Prevent duplicate named union aliases, and preserve parameter types in generated body overloads when a flattened parameter is filtered out.
+
+### Bump dependencies
+
+- [#12023](https://github.com/microsoft/typespec/pull/12023) Update transitive development dependencies `morgan` to 1.12.1 and `multer` to 2.3.0 to address log forging, denial of service, and file size limit bypass vulnerabilities.
+
+
+## 0.37.3
+
+### Bug Fixes
+
+- [#11964](https://github.com/microsoft/typespec/pull/11964) Generate complete ETag handling for operations in nested operation groups.
+- [#11946](https://github.com/microsoft/typespec/pull/11946) Fix named single-member unions to emit valid Python type aliases without generating lone overloads.
+
+
+## 0.37.2
+
+### Bump dependencies
+
+- [#11919](https://github.com/microsoft/typespec/pull/11919) Update dependencies for TypeSpec 1.16.0.
+
+## 0.37.1
+
+### Bug Fixes
+
+- [#11823](https://github.com/microsoft/typespec/pull/11823) Allow `no-sdk-clients` warnings to be suppressed by reporting them on the TypeSpec service namespace.
+- [#11811](https://github.com/microsoft/typespec/pull/11811) Fix playground bundle publish failing with esbuild errors ("Could not resolve child_process/crypto/fs/promises/os") by moving the browser-safe YAML serialization helper out of a module that also contains Node-only code
+
+## 0.37.0
+
+### Features
+
+- [#11594](https://github.com/microsoft/typespec/pull/11594) Generate structured streaming client methods: operations whose HTTP response is a JSONL (`application/jsonl`) or SSE (`text/event-stream`) stream now return `Stream[T]` / `AsyncStream[T]`, yielding deserialized model instances instead of raw bytes.
+
+### Bug Fixes
+
+- [#11638](https://github.com/microsoft/typespec/pull/11638) Fix invalid Python type annotations generated in `types.py` files. Internal enums used as TypedDict fields are now imported (as a bare symbol) from their private `_enums` submodule so the annotation resolves; duplicate runtime + `TYPE_CHECKING` imports of the same symbol are deduplicated to avoid `no-redef`; and TypedDicts that change an inherited field's requiredness are emitted as a flat (non-inheriting) TypedDict to satisfy PEP 589.
+- [#11300](https://github.com/microsoft/typespec/pull/11300) Forward package index and Python mirror environment variables to tox test environments so tests can install dependencies from configured feeds.
+- [#11250](https://github.com/microsoft/typespec/pull/11250) Always populate the operation `error_map` with the standard azure-core error types (401 → `ClientAuthenticationError`, 404 → `ResourceNotFoundError`, 409 → `ResourceExistsError`, 304 → `ResourceNotModifiedError`), even when a customized error model covers those status codes. Previously, a standard status code covered by a customized ranged or default error model fell back to a generic `HttpResponseError`; it now raises its dedicated error type via `map_error`. The customized error body continues to be deserialized and attached to the `HttpResponseError` raised for other (non-standard) status codes.
+
+
+## 0.36.0
+
+### Features
+
+- [#11372](https://github.com/microsoft/typespec/pull/11372) Add a `generate-typeddict` emitter option (default `true`) that controls `TypedDict` generation independently of `models-mode`. `models-mode` now toggles just `dpg` and `none`; the `typeddict` value is deprecated.
+
+### Bug Fixes
+
+- [#11622](https://github.com/microsoft/typespec/pull/11622) Wrap wire names containing `@` (e.g. `@search.facets`) in double backticks when they are used as Sphinx docstring field targets (`:ivar`/`:vartype`/`:keyword`/`:paramtype`/`:param`/`:type`) across models, TypedDicts, operations, and clients, so the generated docstrings render correctly without introducing an invalid escape sequence in the generated code.
+- [#11637](https://github.com/microsoft/typespec/pull/11637) Preserve Python boolean, integer, and bytes client types when using supported string, base64, or base64url wire encodings.
+- [#11507](https://github.com/microsoft/typespec/pull/11507) Only boot the Pyodide runtime in the browser on the first emit instead of when the emitter module is imported. Hosts such as the TypeSpec playground import every available emitter up front, so the eager bootstrap downloaded a full CPython WebAssembly runtime and its wheels on every page load, which prevented the page from loading on mobile browsers.
+- [#11639](https://github.com/microsoft/typespec/pull/11639) Only generate `TypedDict` definitions in `types.py` when they are referenced by operation inputs or required by those input models, omitting unused response-only models.
+
+
+## 0.35.1
+
+### Bug Fixes
+
+- [#11371](https://github.com/microsoft/typespec/pull/11371) Use wire names in TypedDict docstrings
+- [#11392](https://github.com/microsoft/typespec/pull/11392) Fix the generated `_validation.py` `@api_version_validation` decorator so it reads the correct client config attribute for the API version. It previously hardcoded `client._config.api_version`, but the attribute name is derived from the API-version parameter's `client_name`. For specs that name the versioning parameter something other than `apiVersion` (e.g. `self.version`), the lookup raised `AttributeError` that the decorator silently swallowed, disabling all API-version validation for those clients. The emitter now bakes the real attribute name into the generated decorator so it reads `config.<name>` directly.
+- [#11272](https://github.com/microsoft/typespec/pull/11272) Fix generated request builders serializing a `None` `content-type` header for an
+  operation with an optional body whose content-type is required/constant. The
+  `content-type` kwarg is now declared `Optional[str]` and the header is omitted
+  when it is `None`, instead of raising `ValueError: No value for given attribute`.
+
+
 ## 0.35.0
 
 ### Features

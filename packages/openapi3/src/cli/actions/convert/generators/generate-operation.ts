@@ -1,10 +1,10 @@
-import { Refable } from "../../../../types.js";
-import {
+import type { Refable } from "../../../../types.js";
+import type {
   TypeSpecOperation,
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
 } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { Context } from "../utils/context.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators, generateDirectives } from "./generate-decorators.js";
 import { generateOperationReturnType } from "./generate-response-expressions.js";
@@ -53,20 +53,14 @@ function generateOperationParameter(
     return `...${context.getRefName(parameter.$ref, operation.scope)}`;
   }
 
+  const preamble: string[] = [];
   const definitions: string[] = [];
 
   if (parameter.doc) {
-    definitions.push(generateDocs(parameter.doc));
+    preamble.push(generateDocs(parameter.doc));
   }
 
-  // Directives come before decorators
-  if (parameter.directives && parameter.directives.length > 0) {
-    definitions.push(
-      ...parameter.directives.map((d) => {
-        return `#${d.name}`;
-      }),
-    );
-  }
+  preamble.push(...generateDirectives(parameter.directives));
 
   definitions.push(...generateDecorators(parameter.decorators));
 
@@ -74,7 +68,10 @@ function generateOperationParameter(
     `${parameter.name}${parameter.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(parameter.schema, operation.scope)}`,
   );
 
-  return definitions.join(" ");
+  const preambleStr = preamble.join("\n");
+  const parameterStr = definitions.join(" ");
+
+  return preambleStr ? `${preambleStr}\n${parameterStr}` : parameterStr;
 }
 
 function generateRequestBodyParameters(

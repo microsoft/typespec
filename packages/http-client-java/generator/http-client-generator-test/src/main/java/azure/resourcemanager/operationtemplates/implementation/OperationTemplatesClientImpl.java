@@ -5,11 +5,13 @@
 package azure.resourcemanager.operationtemplates.implementation;
 
 import azure.resourcemanager.operationtemplates.fluent.CheckNameAvailabilitiesClient;
+import azure.resourcemanager.operationtemplates.fluent.LegaciesClient;
 import azure.resourcemanager.operationtemplates.fluent.LroPagingsClient;
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationsClient;
 import azure.resourcemanager.operationtemplates.fluent.OptionalBodiesClient;
+import azure.resourcemanager.operationtemplates.fluent.PagingsClient;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
@@ -187,6 +189,20 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
     }
 
     /**
+     * The LegaciesClient object to access its operations.
+     */
+    private final LegaciesClient legacies;
+
+    /**
+     * Gets the LegaciesClient object to access its operations.
+     * 
+     * @return the LegaciesClient object.
+     */
+    public LegaciesClient getLegacies() {
+        return this.legacies;
+    }
+
+    /**
      * The OptionalBodiesClient object to access its operations.
      */
     private final OptionalBodiesClient optionalBodies;
@@ -198,6 +214,20 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
      */
     public OptionalBodiesClient getOptionalBodies() {
         return this.optionalBodies;
+    }
+
+    /**
+     * The PagingsClient object to access its operations.
+     */
+    private final PagingsClient pagings;
+
+    /**
+     * Gets the PagingsClient object to access its operations.
+     * 
+     * @return the PagingsClient object.
+     */
+    public PagingsClient getPagings() {
+        return this.pagings;
     }
 
     /**
@@ -222,7 +252,9 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
         this.checkNameAvailabilities = new CheckNameAvailabilitiesClientImpl(this);
         this.lroes = new LroesClientImpl(this);
         this.lroPagings = new LroPagingsClientImpl(this);
+        this.legacies = new LegaciesClientImpl(this);
         this.optionalBodies = new OptionalBodiesClientImpl(this);
+        this.pagings = new PagingsClientImpl(this);
     }
 
     /**

@@ -4,7 +4,7 @@ import { startServer, testRouterOptions } from "../../../helpers.js";
 import { runScenario } from "../../../spector.js";
 
 import { Temporal } from "temporal-polyfill";
-import { HttpContext } from "../../../../../src/http/index.js";
+import type { HttpContext } from "../../../../../src/http/index.js";
 
 class ArrayImpl<T> {
   #assert: (l: T, r: T) => void;

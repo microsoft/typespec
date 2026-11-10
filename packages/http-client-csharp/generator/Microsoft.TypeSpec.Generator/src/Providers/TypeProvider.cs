@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -23,7 +24,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private Lazy<TypeProvider> _specView;
         private Lazy<string?> _declaringTypeName;
+        private protected string? DeclaringTypeName => _declaringTypeName.Value;
         private readonly InputType? _inputType;
+        private readonly Dictionary<string, PropertyProvider> _generatedPropertiesBySpecName = new(StringComparer.Ordinal);
 
         protected TypeProvider(InputType? inputType = default)
         {
@@ -43,16 +46,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                generatedTypeNamespace ?? BuildNamespace(),
-                generatedTypeName ?? BuildName(),
+        {
+            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? BuildName();
+            var customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                typeName,
                 _declaringTypeName.Value);
+            var originalName = BuildOriginalName();
+            if (customCodeView is not null || originalName is null ||
+                typeName == originalName || typeName != originalName.NormalizeCSharpAcronyms())
+            {
+                return customCodeView;
+            }
+
+            // Namespace updates can reveal custom code after the generated name was normalized.
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
-                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                typeName,
                 _declaringTypeName.Value);
+            var originalName = BuildOriginalName();
+            if (lastContractView is not null || originalName is null)
+            {
+                return lastContractView;
+            }
+
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
 
         private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
         {
@@ -170,11 +209,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public string? Deprecated
         {
-            get => _deprecated;
+            get => _deprecated ??= _inputType switch
+            {
+                InputModelType model => model.Deprecation,
+                InputEnumType enumType => enumType.Deprecation,
+                _ => null
+            };
             private set => _deprecated = value;
         }
 
         private CSharpType? _type;
+
+        // Returns the already-materialized type without invoking the lazy Type builder. This is used
+        // during provider discovery, where building Type would also build BaseType and could re-enter
+        // the discovery operation or mutate provider caches while they are being inspected.
+        internal CSharpType? CachedType => _type;
+
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(
@@ -264,7 +314,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual CSharpType? BuildBaseType() => null;
 
         private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;
-        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??= BuildDisabledFileWarnings();
+        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??=
+            ExperimentalApiHelpers.MergeSuppressions(
+                BuildDisabledFileWarnings(),
+                ExperimentalApiHelpers.GetTypeSuppressions(_inputType ?? SerializationProviderOwner?._inputType));
 
         private protected virtual bool FilterCustomizedMembers => true;
 
@@ -288,7 +341,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= ApplyCustomizationFilter(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
+        private HashSet<AttributeStatement>? _generatedMethodDeprecationAttributes;
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethodsWithDeprecationTracking());
+
+        private MethodProvider[] BuildMethodsWithDeprecationTracking()
+        {
+            var methods = BuildMethods();
+            // Track instances before library visitors add or replace attributes.
+            foreach (var attribute in methods.SelectMany(method => method.Signature.Attributes).Where(DeprecationApiHelpers.IsObsoleteAttribute))
+            {
+                (_generatedMethodDeprecationAttributes ??= []).Add(attribute);
+            }
+            return methods;
+        }
+
+        internal bool IsGeneratedMethodDeprecationAttribute(AttributeStatement attribute)
+            => _generatedMethodDeprecationAttributes?.Contains(attribute) == true;
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
@@ -343,6 +411,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
+        // Snapshot before visitor updates, used to distinguish generated attributes from visitor changes.
+        private HashSet<MethodBodyStatement>? _originalAttributes;
+        private AttributeStatement? _generatedDeprecationAttribute;
+
         public IReadOnlyList<AttributeStatement> Attributes
         {
             get
@@ -360,20 +432,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
-
-        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite() => BuildAttributesForWrite();
-
         /// <summary>
-        /// Builds the attributes emitted by the writer. Providers whose generated attributes depend on final
-        /// generation decisions can override this without replacing attributes updated by visitors.
-        /// </summary>
-        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite() => GetAttributes();
-
-        /// <summary>
-        /// Indicates whether this provider's attributes should contribute to reference-map analysis.
+        /// Indicates whether this provider's attributes are stable enough to be cached and analyzed by the
+        /// reference map. Providers whose generated attributes depend on final generation decisions return
+        /// <c>false</c> so their attributes are rebuilt at write time.
         /// </summary>
         protected internal virtual bool ShouldAnalyzeAttributesInReferenceMap => true;
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite()
+        {
+            if (ShouldAnalyzeAttributesInReferenceMap)
+            {
+                return _attributes ??= BuildAttributes();
+            }
+
+            return RebuildAttributes();
+        }
+
+        // Rebuilds the generated attributes (including any back-compatibility additions) from the finalized
+        // generation state and re-attaches the attributes a visitor contributed on top of the previously
+        // generated set. Providers whose attributes depend on final generation decisions may have cached a
+        // value during reference-map analysis, so the generated portion is always recomputed here.
+        private IReadOnlyList<MethodBodyStatement> RebuildAttributes()
+        {
+            var visitorAdditions = _attributes is null || _originalAttributes is null
+                ? []
+                : _attributes.Where(a => !_originalAttributes.Contains(a)).ToList();
+
+            var result = BuildAttributesForBackCompatibility([.. BuildAttributes(), .. visitorAdditions]);
+
+            // Exclude the visitor additions from the snapshot so they stay identifiable when the generated set is rebuilt.
+            var visitorSet = new HashSet<MethodBodyStatement>(visitorAdditions);
+            _originalAttributes = [.. result.Where(a => !visitorSet.Contains(a))];
+            return _attributes = result;
+        }
 
         /// <summary>
         /// Determines whether a provider remains in the generated output after reference-map analysis.
@@ -389,30 +481,82 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
+        internal PropertyProvider[] FilterCustomizedProperties(
+            IEnumerable<PropertyProvider> specProperties,
+            IReadOnlyDictionary<string, PropertyProvider>? knownSpecProperties = null)
         {
+            var propertiesToFilter = specProperties as IReadOnlyList<PropertyProvider> ?? [.. specProperties];
+            var activeProperties = new HashSet<PropertyProvider>(
+                propertiesToFilter,
+                ReferenceEqualityComparer.Instance);
+
+            if (knownSpecProperties is not null)
+            {
+                // The supplied map came from the complete generated property set and already resolved exact-name
+                // precedence. Do not rebuild it from this potentially filtered subset.
+                foreach (var (name, property) in knownSpecProperties)
+                {
+                    _generatedPropertiesBySpecName[name] = property;
+                }
+            }
+            else
+            {
+                var exactNames = new HashSet<string>(StringComparer.Ordinal);
+                var normalizedNames = new List<(string Name, PropertyProvider Property)>();
+                foreach (var specProperty in propertiesToFilter)
+                {
+                    var inputProperty = specProperty.InputProperty;
+                    if (inputProperty is null)
+                    {
+                        continue;
+                    }
+
+                    if (inputProperty.IsExactName)
+                    {
+                        AddExactName(inputProperty.Name, specProperty);
+                        continue;
+                    }
+
+                    var identifierName = inputProperty.Name.ToIdentifierName();
+                    // The first exact identity in this pass replaces any stale alias, while a later exact
+                    // collision keeps the established first-wins behavior.
+                    AddExactName(inputProperty.Name, specProperty);
+                    AddExactName(identifierName, specProperty);
+                    normalizedNames.Add((
+                        identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
+                        specProperty));
+                }
+
+                // Canonical names are aliases. Add them only after all exact names have been registered so an
+                // alias such as startTime -> StartsOn cannot shadow a separate startsOn property.
+                foreach (var (name, property) in normalizedNames)
+                {
+                    _generatedPropertiesBySpecName.TryAdd(name, property);
+                }
+
+                void AddExactName(string name, PropertyProvider property)
+                {
+                    if (exactNames.Add(name))
+                    {
+                        _generatedPropertiesBySpecName[name] = property;
+                    }
+                }
+            }
+
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                customProperties.Add(customProperty.Name);
-                if (customProperty.OriginalName != null)
-                {
-                    customProperties.Add(customProperty.OriginalName);
-                }
+                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, _generatedPropertiesBySpecName, activeProperties);
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                customProperties.Add(customField.Name);
-                if (customField.OriginalName != null)
-                {
-                    customProperties.Add(customField.OriginalName);
-                }
+                AddCustomName(customProperties, customField.Name, customField.OriginalName, _generatedPropertiesBySpecName, activeProperties);
             }
 
-            foreach (var property in specProperties)
+            foreach (var property in propertiesToFilter)
             {
                 if (ShouldGenerate(property, customProperties))
                 {
@@ -422,6 +566,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. properties];
         }
+
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            string? originalName,
+            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName,
+            IReadOnlySet<PropertyProvider> activeProperties)
+        {
+            if (originalName is null)
+            {
+                AddCustomName(customNames, name, generatedPropertiesBySpecName, activeProperties);
+                return;
+            }
+
+            customNames.Add(name);
+            AddCustomName(customNames, originalName, generatedPropertiesBySpecName, activeProperties);
+        }
+
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName,
+            IReadOnlySet<PropertyProvider> activeProperties)
+        {
+            customNames.Add(name);
+            if (generatedPropertiesBySpecName.TryGetValue(name, out var generatedProperty) &&
+                activeProperties.Contains(generatedProperty))
+            {
+                customNames.Add(generatedProperty.Name);
+            }
+        }
+
+        /// <summary>
+        /// Maps the spec names a customization can reference to the property the generator built from that spec
+        /// property, as captured by <see cref="FilterCustomizedProperties"/> before the properties replaced by
+        /// custom code were filtered out. Callers must build <see cref="Properties"/> before reading this map.
+        /// </summary>
+        internal IReadOnlyDictionary<string, PropertyProvider> GeneratedPropertiesBySpecName => _generatedPropertiesBySpecName;
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
@@ -560,6 +742,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual CSharpType[] BuildImplements() => [];
 
+        /// <summary>
+        /// Determines whether a symbol-backed method contains signature metadata that the provider
+        /// model cannot represent, such as a by-reference return. Emitters should not use such a
+        /// signature as evidence that a generated method preserves a last-contract API.
+        /// </summary>
+        /// <param name="signature">The method signature to inspect.</param>
+        protected static bool HasUnsupportedSignature(MethodSignature signature)
+            => signature.HasUnsupportedBaseContract ||
+                signature.Parameters.Any(parameter => parameter.HasUnsupportedParameterModifiers);
+
         protected internal virtual MethodProvider[] BuildMethods() => [];
 
         protected internal virtual ConstructorProvider[] BuildConstructors() => [];
@@ -585,7 +777,56 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            var attributes = new List<MethodBodyStatement>();
+            var attribute = ExperimentalApiHelpers.BuildAttribute(_inputType?.Experimental);
+            if (attribute is not null && CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true)
+            {
+                attributes.Add(attribute);
+            }
+            _generatedDeprecationAttribute ??= DeprecationApiHelpers.BuildAttribute(Deprecated);
+            if (_generatedDeprecationAttribute is not null && ShouldEmitDeprecationAttribute())
+            {
+                attributes.Add(_generatedDeprecationAttribute);
+            }
+            return attributes;
+        }
+
+        private bool ShouldEmitDeprecationAttribute()
+            => CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
+                && (LastContractView is null || LastContractView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+
+        private void RefreshGeneratedDeprecationAttribute()
+        {
+            if (_attributes is null || _generatedDeprecationAttribute is not { } attribute)
+            {
+                return;
+            }
+            bool included = _attributes.Contains(attribute);
+            if (!included && _originalAttributes?.Contains(attribute) == true)
+            {
+                // A visitor explicitly removed or replaced the generated attribute.
+                return;
+            }
+            bool shouldInclude = ShouldEmitDeprecationAttribute()
+                && !_attributes.OfType<AttributeStatement>().Any(a =>
+                    !ReferenceEquals(a, attribute) && DeprecationApiHelpers.IsObsoleteAttribute(a));
+            if (included == shouldInclude)
+            {
+                return;
+            }
+            if (shouldInclude)
+            {
+                _attributes = [.. _attributes, attribute];
+                _originalAttributes?.Add(attribute);
+            }
+            else
+            {
+                _attributes = [.. _attributes.Where(a => !ReferenceEquals(a, attribute))];
+                _originalAttributes?.Remove(attribute);
+            }
+        }
 
         private CSharpType? _enumUnderlyingType;
 
@@ -602,6 +843,48 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildName();
 
         /// <summary>
+        /// Gets the original identifier for compatibility lookup before acronym normalization,
+        /// or null when the name must be used exactly as specified.
+        /// </summary>
+        protected virtual string? BuildOriginalName() => _inputType is { IsExactName: false } ? _inputType.Name.ToIdentifierName() : null;
+
+        protected string NormalizeTypeNameForNewContract(string name)
+            => NormalizeTypeNameForNewContract(name, BuildNamespace(), _declaringTypeName.Value, NormalizeTypeName);
+
+        protected static string NormalizeTypeNameForNewContract(
+            string name, string typeNamespace, string? declaringTypeName, Func<string, string> normalizeTypeName)
+        {
+            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                declaringTypeName);
+            if (currentType is not null)
+            {
+                return name;
+            }
+
+            var normalizedName = normalizeTypeName(name);
+            if (normalizedName == name)
+            {
+                return name;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace, normalizedName, declaringTypeName) is not null)
+            {
+                return normalizedName;
+            }
+
+            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                name,
+                declaringTypeName);
+            return lastContractType is null ? normalizedName : name;
+        }
+
+        private protected virtual string NormalizeTypeName(string name) => name.NormalizeCSharpAcronyms();
+
+        /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
         /// Use this instead of <see cref="Reset"/> when you need to force a method
         /// rebuild without discarding visitor-applied state on properties, fields,
@@ -610,6 +893,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public void ResetMethods()
         {
             _methods = null;
+            _generatedMethodDeprecationAttributes = null;
         }
 
         /// <summary>
@@ -619,9 +903,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public virtual void Reset()
         {
             _methods = null;
+            _generatedMethodDeprecationAttributes = null;
             _properties = null;
+            _generatedPropertiesBySpecName.Clear();
             _fields = null;
-            _constructors = null;
+            ResetConstructors();
             _implements = null;
             _serializationProviders = null;
             _nestedTypes = null;
@@ -636,10 +922,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
+            _originalAttributes = null;
+            _generatedDeprecationAttribute = null;
             _deprecated = null;
             _description = null;
             _type = null;
             _arguments = null;
+        }
+
+        private protected virtual void ResetConstructors()
+        {
+            _constructors = null;
         }
 
         /// <summary>
@@ -722,18 +1015,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
+                // Preserve visitor changes when generated attributes are refreshed after identity changes or at write time.
+                if (!ShouldAnalyzeAttributesInReferenceMap || Deprecated is not null)
+                {
+                    _originalAttributes ??= [.. Attributes];
+                }
                 _attributes = [.. attributes];
             }
 
-            if (name != null)
+            if (name != null || @namespace != null)
             {
-                ResetMembersBasedOnIdentityChange(name);
+                ResetMembersBasedOnIdentityChange(name, @namespace);
             }
 
-            if (@namespace != null)
-            {
-                ResetMembersBasedOnIdentityChange(@namespace: @namespace);
-            }
+            RefreshGeneratedDeprecationAttribute();
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
@@ -741,22 +1036,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            var previousName = Type.Name;
+            var previousNamespace = Type.Namespace;
             _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;
             @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
-            _lastContractView = new(BuildLastContractView(
+            var lastContractView = BuildLastContractView(
                 name,
-                @namespace));
+                @namespace);
+            _lastContractView = new(lastContractView);
+            name = _customCodeView.Value?.Name ?? lastContractView?.Name ?? name;
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
-            _constructors = null;
+            ResetConstructors();
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
-            Type.Update(name: name, @namespace: @namespace);
+            CodeModelGenerator.Instance.TypeFactory.UpdateTypeIdentity(this, _inputType, name, @namespace);
+            if (Type.Name != previousName || Type.Namespace != previousNamespace)
+            {
+                OnIdentityUpdated(previousName, previousNamespace);
+            }
         }
+
+        /// <summary>
+        /// Updates generated dependencies after a name or namespace change has resolved
+        /// the type's final identity from custom code and the last contract.
+        /// </summary>
+        protected virtual void OnIdentityUpdated(string previousName, string previousNamespace) { }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
@@ -768,7 +1077,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Filtering is deferred to CSharpGen.ExecuteAsync after visitors have had a chance
             // to transform members (e.g., merging parameters). This ensures visitors see the
             // full set of members before customization filtering is applied.
-            _methods ??= BuildMethods();
+            _methods ??= BuildMethodsWithDeprecationTracking();
             _constructors ??= BuildConstructors();
             _properties ??= BuildProperties();
             _fields ??= BuildFields();
@@ -795,7 +1104,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
-            if (this is EnumProvider)
+            IEnumerable<PropertyProvider>? newProperties = null;
+            if (this is EnumProvider enumProvider)
             {
                 var hasFields = LastContractView?.Fields != null && LastContractView.Fields.Count > 0;
                 if (hasFields)
@@ -818,7 +1128,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             updatedEnumValues = newEnumValues;
                         }
 
-                        newFields = filteredFields;
+                        // Sync the enum values before rebuilding the member collections from them.
+                        if (updatedEnumValues != null)
+                        {
+                            _enumValues = updatedEnumValues;
+                        }
+
+                        if (enumProvider.IsExtensible)
+                        {
+                            // Extensible enums carry an extra backing `_value` field and surface members
+                            // as properties, so rebuild both from the updated members. Reuse the
+                            // already-visited field and property instances for members that still exist so
+                            // any visitor mutations are preserved and only the restored members are
+                            // (re)visited below.
+                            var existingFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
+                            foreach (var field in Fields)
+                            {
+                                existingFields.TryAdd(field.Name, field);
+                            }
+                            newFields = ApplyCustomizationFilter(
+                                BuildFields().Select(f => existingFields.TryGetValue(f.Name, out var existing) ? existing : f));
+
+                            var existingProperties = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
+                            foreach (var property in Properties)
+                            {
+                                existingProperties.TryAdd(property.Name, property);
+                            }
+                            newProperties = ApplyCustomizationFilter(
+                                BuildProperties().Select(p => existingProperties.TryGetValue(p.Name, out var existing) ? existing : p));
+                        }
+                        else
+                        {
+                            newFields = filteredFields;
+                        }
                     }
                 }
             }
@@ -826,13 +1168,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
-            if (newFields != null || newMethods != null || newConstructors != null)
+            if (newFields != null || newProperties != null || newMethods != null || newConstructors != null)
             {
-                if (updatedEnumValues != null)
-                {
-                    _enumValues = updatedEnumValues;
-                }
-
                 // Back-compatibility processing intentionally runs after the library visitor pass so
                 // that the contract comparison uses the final, post-visitor member signatures (otherwise
                 // we could incorrectly decide whether a back-compat member is needed). As a result, any
@@ -847,12 +1184,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     newConstructors = VisitNewMembers(newConstructors, Constructors, static (member, visitor) => visitor.VisitConstructor(member));
                 }
+                if (newProperties != null)
+                {
+                    newProperties = VisitNewMembers(newProperties, Properties, static (member, visitor) => visitor.VisitProperty(member));
+                }
                 if (newFields != null)
                 {
                     newFields = VisitNewMembers(newFields, Fields, static (member, visitor) => visitor.VisitField(member));
                 }
 
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+                Update(fields: newFields, properties: newProperties, methods: newMethods, constructors: newConstructors);
+            }
+
+            // Providers whose attributes depend on final generation decisions build their attributes at write
+            // time; materialize them here (applying attribute back-compatibility) so reads before the write
+            // reflect the result. The generated portion is refreshed again at write against the final state.
+            if (!ShouldAnalyzeAttributesInReferenceMap)
+            {
+                RebuildAttributes();
             }
         }
 
@@ -905,6 +1254,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => null;
 
         /// <summary>
+        /// Returns this type's attributes with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation applies no back-compatibility and
+        /// returns the attributes unchanged. Override to restore attributes that were present in the last contract.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
+            => originalAttributes;
+
+        /// <summary>
         /// Returns this type's methods with backward compatibility applied against
         /// <see cref="LastContractView"/>. The default implementation restores the previous
         /// parameter order on a current method when it matches a last-contract method by name and
@@ -926,7 +1283,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in previousMethods)
             {
-                if (!BackCompatHelper.ShouldApplyMethodBackCompatibility(previousMethod.Signature, currentMethodSignatures)
+                if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;
@@ -942,7 +1300,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
-            BackCompatHelper.AddOverloadsForNewOptionalParameters(this, methods);
+            BackCompatHelper.AddBackCompatOverloads(this, methods);
+
+            foreach (var method in methods)
+            {
+                if (method.Signature.Attributes.Any(IsGeneratedMethodDeprecationAttribute)
+                    && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
+                        && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, method.Signature)
+                        && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
+                {
+                    var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
+                        generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
+                }
+            }
 
             return methods;
         }
@@ -991,7 +1363,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Check if the last contract had a public constructor with matching parameters
             foreach (var previousConstructor in LastContractView.Constructors)
             {
-                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                    !MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
+                {
+                    continue;
+                }
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }
@@ -1075,7 +1453,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
+                // A custom method suppresses the generated one when their signatures match — treating
+                // optional value-type parameters that differ only by nullability as equal, since emitting
+                // both would be a CS0121-ambiguous coexistence.
+                if (MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }
@@ -1083,6 +1464,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return true;
         }
+
+        internal bool IsPropertySuppressed(PropertyProvider property)
+            => GetMemberSuppressionAttributes().Any(attribute => IsMatch(property, attribute));
 
         private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)
         {

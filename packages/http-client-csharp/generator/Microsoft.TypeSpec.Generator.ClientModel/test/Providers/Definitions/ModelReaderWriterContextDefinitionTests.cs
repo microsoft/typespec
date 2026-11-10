@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -72,6 +73,88 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Check that exactly one ModelReaderWriterBuildableAttribute exists since TestModel has only primitive properties
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
+        }
+
+        [TestCase("public", 1)]
+        [TestCase("internal", 0)]
+        public void BuildableAttributesRespectModelAccessibility(string access, int expectedCount)
+        {
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [InputFactory.Model("TestModel", access: access)]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(expectedCount, GetBuildableAttributes(contextDefinition).Count);
+        }
+
+        [Test]
+        public async Task BuildableAttributesRespectCustomizedAccessibility()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("InternalModel"),
+                    InputFactory.Model("PublicModel", access: "internal")
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(TypeSignatureModifiers.Public, "Public")]
+        [TestCase(TypeSignatureModifiers.Internal, "Internal")]
+        [TestCase(TypeSignatureModifiers.Private, "Private")]
+        [TestCase(TypeSignatureModifiers.Protected, "Protected")]
+        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, "ProtectedInternal")]
+        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, "PrivateProtected")]
+        public void BuildableAttributesRespectUpdatedAccessibility(TypeSignatureModifiers accessibility, string expectedFile)
+        {
+            var provider = new TestMrwSerialization(implementsPersistableModel: true, includeDepModelProperty: true);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
+
+            _ = provider.Type;
+            provider.Update(modifiers: accessibility | TypeSignatureModifiers.Class);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expectedFile), file.Content);
+        }
+
+        [Test]
+        public void ProtectedNestedBuildableTypesDoNotContributeAttributes()
+        {
+            var provider = new TestMrwSerialization(
+                implementsPersistableModel: true,
+                includeDepModelProperty: true,
+                declaringTypeProvider: new TestContainer(),
+                declarationModifiers: TypeSignatureModifiers.Protected | TypeSignatureModifiers.Class);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
+
+            Assert.IsTrue(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void NonPublicFrameworkTypesDoNotContributeBuildableAttributes()
+        {
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [InputFactory.Model("PublicModel")],
+                createCSharpTypeCore: _ => new CSharpType(typeof(TestInternalType)),
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [TestCase(true)]
@@ -143,6 +226,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 Assert.IsFalse(
                     buildableAttributes.Contains("typeof(global::Sample.RemovedProviderWithFrameworkDependency)"),
                     "Removed providers should not get standalone context entries.");
+            }
+            finally
+            {
+                ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
+            }
+        }
+
+        [Test]
+        public async Task RemovedProvidersAreNotRestoredFromLastContract()
+        {
+            // A provider can exist in the output library but be pruned by the reference map
+            // (ShouldWriteProvider == false), so it is never emitted. A last-contract buildable attribute for
+            // such a type must not be restored, otherwise the context would reference typeof(<missing>) and
+            // break compilation.
+            var keptProvider = new TestMrwSerialization(implementsPersistableModel: true, includeDepModelProperty: false);
+            var removedProvider = new RemovedProviderWithFrameworkDependency();
+            var outputLibrary = new TestOutputLibrary([keptProvider, removedProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+            mockGenerator.SetupProperty(
+                p => p.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            try
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(keptProvider);
+                ProviderReferenceMapAnalyzer.Analyze(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders);
+
+                var contextDefinition = new ModelReaderWriterContextDefinition();
+                var writer = new TypeProviderWriter(contextDefinition);
+                var file = writer.Write();
+                Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
             }
             finally
             {
@@ -496,6 +610,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ExperimentalObsoleteFrameworkTypesHaveAllSuppressions()
+        {
+            var model = InputFactory.Model("ParentModel", properties:
+                [InputFactory.Property("Value", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model],
+                createCSharpTypeCore: input =>
+                {
+#pragma warning disable FRAMEWORK001, CS0618
+                    return input == InputPrimitiveType.String
+                        ? new CSharpType(typeof(ExperimentalObsoleteFrameworkType))
+                        : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+#pragma warning restore FRAMEWORK001, CS0618
+                });
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
         }
 
         [Test]
@@ -1103,6 +1237,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task CustomObsoleteDiagnosticIdsAreSuppressed()
+        {
+            var model = InputFactory.Model("CustomizedObsoleteModel", deprecation: "Generated message");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [model, InputFactory.Model("RegularModel")],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
+        }
+
+        [Test]
         public void ValidateObsoleteGeneratedTypeHasAttributeSuppression()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
@@ -1166,7 +1313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Experimental("TEST001")]
-        private class ExperimentalDependencyModel : IJsonModel<ExperimentalDependencyModel>
+        public class ExperimentalDependencyModel : IJsonModel<ExperimentalDependencyModel>
         {
             ExperimentalDependencyModel? IJsonModel<ExperimentalDependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             {
@@ -1198,13 +1345,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         {
             private readonly bool _implementsPersistableModel;
             private readonly bool _includeTypeWithDepModelProperty;
-            public TestMrwSerialization(bool implementsPersistableModel, bool includeDepModelProperty) : base()
+            private readonly TypeProvider? _declaringTypeProvider;
+            private readonly TypeSignatureModifiers? _declarationModifiers;
+
+            public TestMrwSerialization(
+                bool implementsPersistableModel,
+                bool includeDepModelProperty,
+                TypeProvider? declaringTypeProvider = null,
+                TypeSignatureModifiers? declarationModifiers = null) : base()
             {
                 _implementsPersistableModel = implementsPersistableModel;
                 _includeTypeWithDepModelProperty = includeDepModelProperty;
+                _declaringTypeProvider = declaringTypeProvider;
+                _declarationModifiers = declarationModifiers;
             }
 
             protected override string BuildName() => "TestMrwSerialization";
+
+            protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => _declarationModifiers ?? TypeSignatureModifiers.None;
 
             protected internal override CSharpType[] BuildImplements()
             {
@@ -1227,6 +1388,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 return Path.Combine("src", "Generated", $"{Name}.cs");
             }
+        }
+
+        private class TestContainer : TypeProvider
+        {
+            protected override string BuildName() => "TestContainer";
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
+
+            protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         }
 
         private class RemovedProviderWithFrameworkDependency : TypeProvider
@@ -1283,6 +1454,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(Sample.Agents.ShadowedModel)), "p1", new AutoPropertyBody(false), this)];
             }
+        }
+
+        [Experimental("FRAMEWORK001")]
+        [Obsolete("Use CurrentModel instead.")]
+        public class ExperimentalObsoleteFrameworkType : IPersistableModel<object>
+        {
+            public object Create(BinaryData data, ModelReaderWriterOptions options) => throw new NotImplementedException();
+            public string GetFormatFromOptions(ModelReaderWriterOptions options) => throw new NotImplementedException();
+            public BinaryData Write(ModelReaderWriterOptions options) => throw new NotImplementedException();
         }
 
         public class FrameworkModelWithMRW : IJsonModel<FrameworkModelWithMRW>, IPersistableModel<FrameworkModelWithMRW>
@@ -1838,6 +2018,410 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             Assert.IsFalse(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ResponseError")),
                 "Buildable attributes supplied by a customized context should not be regenerated");
+        }
+
+        [Test]
+        public async Task ResetRecalculatesCustomizedBuildableTypes()
+        {
+            var clientProvider = new TestClientProviderWithResponseErrorReturnType();
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            // The initial customization declares a buildable attribute for Azure.ResponseError, so the generated
+            // buildable attribute for that type is suppressed.
+            var suppressedCompilation = await Helpers.GetCompilationFromDirectoryAsync("Suppressed");
+            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(suppressedCompilation, null));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var suppressedContent = new TypeProviderWriter(contextDefinition).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Suppressed"), suppressedContent);
+
+            // Change the customization view so it no longer suppresses the buildable attribute, then reset the
+            // provider. Reset must clear the customized buildable types so they are recalculated from the current
+            // customization view instead of reusing the stale suppression.
+            var emptyCompilation = await Helpers.GetCompilationFromDirectoryAsync("Empty");
+            mockGenerator.Object.SourceInputModel = new SourceInputModel(emptyCompilation, null);
+
+            contextDefinition.Reset();
+
+            var recalculatedContent = new TypeProviderWriter(contextDefinition).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Empty"), recalculatedContent);
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesAreRestoredWhenMissing()
+        {
+            // The last contract declared buildable attributes for RegularModel, RestoredType, and RemovedModel.
+            // RegularModel is emitted by the current generation. RestoredType still exists in the output library
+            // but is not itself emitted as a buildable attribute (an enum here), so it must be restored for
+            // back-compat. RemovedModel no longer exists in the output library and must not be restored, since
+            // restoring it would emit typeof(<missing>) and break compilation.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                inputEnums: () => [InputFactory.Int32Enum("RestoredType", [("Value1", 1)])],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            var regularModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel"));
+            var restoredTypeCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RestoredType"));
+            var removedModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModel"));
+
+            Assert.AreEqual(1, regularModelCount,
+                "RegularModel is produced by the current generation and must not be duplicated by the last contract entry");
+            Assert.AreEqual(1, restoredTypeCount,
+                "RestoredType is still part of the output library and must be restored for back-compat");
+            Assert.AreEqual(0, removedModelCount,
+                "RemovedModel is no longer part of the output library and must not be restored");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task VisitorTypeValuedAttributeDoesNotOverwriteBuildableAttribute()
+        {
+            // The last contract declares a buildable attribute for RegularModel (so back-compat re-keying runs),
+            // RegularModel is emitted by the current generation, and a visitor appends a non-buildable attribute
+            // that carries a typeof(RegularModel) argument. Back-compat re-keying must key by the buildable
+            // attribute's target type only, so the visitor attribute cannot displace the generated buildable entry
+            // and is instead preserved alongside it in the final generated context.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            // Reuse the exact CSharpType from the generated buildable attribute so the visitor attribute shares the
+            // same type identity as the buildable attribute it must not overwrite.
+            var modelType = contextDefinition.Attributes
+                .Where(a => string.Equals(
+                    a.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                .SelectMany(a => a.Arguments.OfType<TypeOfExpression>())
+                .Select(argument => argument.Type)
+                .First(t => t.Name == "RegularModel");
+
+            // Simulate a library visitor appending [TypeConverter(typeof(RegularModel))] after the generated
+            // attributes, mirroring how visitor additions are attached on top of the generated set.
+            var visitorAttribute = new AttributeStatement(
+                new CSharpType(typeof(System.ComponentModel.TypeConverterAttribute)),
+                Snippet.TypeOf(modelType));
+            contextDefinition.Update(attributes: [.. contextDefinition.Attributes, visitorAttribute]);
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDeduplicatesAcrossGeneratedCustomAndLastContractBuildableAttributes()
+        {
+            // RegularModel is produced by the current generation, CustomModel is supplied by customized code, and
+            // the last contract declares buildable attributes for RegularModel, CustomModel, RestoredType, and
+            // RemovedModel. RestoredType is still in the output library but not emitted as a buildable attribute,
+            // so it is restored. RemovedModel is no longer in the output library and must not be restored, while
+            // the entries already produced by the generation or customized code must not be duplicated.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                inputEnums: () => [InputFactory.Int32Enum("RestoredType", [("Value1", 1)])],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            var regularModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel"));
+            var customModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("CustomModel"));
+            var restoredTypeCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RestoredType"));
+            var removedModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModel"));
+
+            Assert.AreEqual(1, regularModelCount,
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, customModelCount,
+                "CustomModel is supplied by customized code and must not be regenerated from the last contract");
+            Assert.AreEqual(1, restoredTypeCount,
+                "RestoredType is still part of the output library and must be restored for back-compat");
+            Assert.AreEqual(0, removedModelCount,
+                "RemovedModel is no longer part of the output library and must not be restored");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityIncludesGeneratedCustomAndRestoredLastContractBuildableAttributes()
+        {
+            // GeneratedModelA and GeneratedModelB are produced by the current generation, CustomModel is supplied
+            // by customized code, and the last contract additionally declares RestoredTypeA, RestoredTypeB,
+            // RemovedModelA, and RemovedModelB. The generated entries are emitted, the customized entry is left to
+            // the customized code, the restored types are still in the output library and are restored, and the
+            // removed types are no longer in the output library and must not be restored.
+            var generatedModelA = InputFactory.Model("GeneratedModelA", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+            var generatedModelB = InputFactory.Model("GeneratedModelB", properties:
+            [
+                InputFactory.Property("Property2", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [generatedModelA, generatedModelB],
+                inputEnums: () =>
+                [
+                    InputFactory.Int32Enum("RestoredTypeA", [("Value1", 1)]),
+                    InputFactory.Int32Enum("RestoredTypeB", [("Value1", 1)])
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("GeneratedModelA")),
+                "GeneratedModelA is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("GeneratedModelB")),
+                "GeneratedModelB is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("CustomModel")),
+                "CustomModel is supplied by customized code and must not be regenerated from the last contract");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RestoredTypeA")),
+                "RestoredTypeA is still part of the output library and must be restored for back-compat");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RestoredTypeB")),
+                "RestoredTypeB is still part of the output library and must be restored for back-compat");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModelA")),
+                "RemovedModelA is no longer part of the output library and must not be restored");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModelB")),
+                "RemovedModelB is no longer part of the output library and must not be restored");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForReferencedAssemblyTypesAreRestored()
+        {
+            // The last contract declared a buildable attribute for BinaryData, which lives in a referenced
+            // assembly rather than the generated output. Because the type still resolves through the generated
+            // code's references, its attribute must be restored for back-compat
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("BinaryData")),
+                "BinaryData lives in a referenced assembly and must be restored for back-compat");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForTypesNotInAssemblyAreNotRestored()
+        {
+            // The last contract declared a buildable attribute for RemovedModel, which is not produced by the
+            // current generation and does not resolve through the generated code's references. It must not be
+            // restored, since emitting typeof(<missing>) would break compilation.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModel")),
+                "RemovedModel is not part of the generated assembly and must not be restored");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForObsoleteTypesAreNotRestored()
+        {
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ActiveCustomModel")),
+                "The active model remains available and must be restored for back-compat");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ObsoleteCustomModel")),
+                "The obsolete model must not be restored from the last contract");
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForObsoleteCustomTypeAreNotRestored()
+        {
+            // The last contract declared a buildable attribute for ObsoleteCustomModel. The type is defined
+            // only in the customization layer (not produced by the current generation) with [Obsolete].
+            // Obsolete types have been intentionally retired and must not be restored.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ObsoleteCustomModel")),
+                "ObsoleteCustomModel must not be restored from the last contract");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForExperimentalCustomTypeHaveSuppression()
+        {
+            // The last contract declared a buildable attribute for ExperimentalCustomModel. The type is defined
+            // only in the customization layer (not produced by the current generation) with [Experimental].
+            // The restored attribute must be wrapped in #pragma warning disable suppressions.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ExperimentalCustomModel")),
+                "ExperimentalCustomModel is in the customization layer and must be restored for back-compat");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForExperimentalAndObsoleteCustomTypeAreNotRestored()
+        {
+            // The last contract declared a buildable attribute for ExperimentalObsoleteModel. The type is defined
+            // only in the customization layer with both [Experimental] and [Obsolete].
+            // Obsolete types must not be restored even when [Experimental] appears first.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ExperimentalObsoleteModel")),
+                "ExperimentalObsoleteModel must not be restored from the last contract");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Buildable attributes restored from the last contract are symbol-based (IsFrameworkType == false), so
+        // match by fully qualified name to cover both generated and restored entries.
+        private static List<AttributeStatement> GetBuildableAttributes(ModelReaderWriterContextDefinition contextDefinition)
+        {
+            contextDefinition.ProcessTypeForBackCompatibility();
+            return contextDefinition.Attributes
+                .Where(a => string.Equals(
+                    a.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                .ToList();
         }
 
         [Test]

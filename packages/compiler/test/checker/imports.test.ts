@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import {
+import type {
   LibraryLocationContext,
   LocationContext,
   ModuleLibraryMetadata,
@@ -8,7 +8,7 @@ import {
   ProjectLocationContext,
 } from "../../src/index.js";
 import { expectDiagnostics, mockFile, resolveVirtualPath } from "../../src/testing/index.js";
-import { PackageJson } from "../../src/types/package-json.js";
+import type { PackageJson } from "../../src/types/package-json.js";
 import { Tester } from "../tester.js";
 
 function expectFileLoaded(program: Program, files: { typespec?: string[]; js?: string[] }) {

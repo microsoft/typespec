@@ -1,5 +1,9 @@
 import { createTypeSpecLibrary, paramMessage, type JSONSchemaType } from "@typespec/compiler";
 
+/**
+ * Controls the GraphQL SDL output location, line endings, and inclusion of
+ * types not referenced by operations. Omitted options use the emitter defaults.
+ */
 export interface GraphQLEmitterOptions {
   /**
    * Name of the output file.
@@ -94,6 +98,12 @@ export const libDef = {
         default: paramMessage`Operation \`${"operation"}\` is defined multiple times on \`${"model"}\`.`,
       },
     },
+    "output-file-collision": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple GraphQL schemas resolve to the output file "${"path"}".`,
+      },
+    },
     "invalid-interface": {
       severity: "error",
       messages: {
@@ -180,6 +190,12 @@ export const libDef = {
         default: paramMessage`Type "${"type"}" has no GraphQL equivalent. Using String as fallback.`,
       },
     },
+    "type-reference-not-supported": {
+      severity: "error",
+      messages: {
+        default: "Type references cannot be represented in a GraphQL schema.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
@@ -201,6 +217,7 @@ export const libDef = {
   },
 } as const;
 
+/** TypeSpec library registration providing GraphQL diagnostics, state keys, and emitter options. */
 export const $lib = createTypeSpecLibrary(libDef);
 
 export const { reportDiagnostic, createDiagnostic, stateKeys: GraphQLKeys } = $lib;

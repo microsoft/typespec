@@ -1,7 +1,8 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Model, SyntaxKind, Type } from "../../src/core/types.js";
+import type { Model, Type } from "../../src/core/types.js";
+import { SyntaxKind } from "../../src/core/types.js";
 import { Numeric, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
@@ -695,6 +696,43 @@ describe("with is", () => {
     const diagnostics = await Tester.diagnose(`
         model A extends Array<string> {
           prop: string;
+        }
+        `);
+    expectDiagnostics(diagnostics, {
+      code: "no-array-properties",
+      message: "Array models cannot have any properties.",
+    });
+  });
+
+  it("model is/extends array cannot spread record properties", async () => {
+    const diagnosticsIs = await Tester.diagnose(`
+        model A is Array<string> {
+          ...Record<int32>;
+        }
+        `);
+    const diagnosticsExtends = await Tester.diagnose(`
+        model A extends Array<string> {
+          ...Record<int32>;
+        }
+        `);
+    expectDiagnostics(diagnosticsIs, {
+      code: "no-array-properties",
+      message: "Array models cannot have any properties.",
+    });
+    expectDiagnostics(diagnosticsExtends, {
+      code: "no-array-properties",
+      message: "Array models cannot have any properties.",
+    });
+  });
+
+  it("model extends array cannot spread model properties", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Source {
+          name: string;
+        }
+
+        model A extends Array<string> {
+          ...Source;
         }
         `);
     expectDiagnostics(diagnostics, {

@@ -37,6 +37,32 @@ worksFor(supportedVersions, ({ checkFor, openApiFor }) => {
     deepStrictEqual(openApi.components.schemas.Dog.allOf, [{ $ref: "#/components/schemas/Pet" }]);
   });
 
+  it("discriminator can be an enum member with an encoded name", async () => {
+    const openApi = await openApiFor(`
+      @discriminator("kind")
+      model Pet { kind: PetKind }
+      enum PetKind {
+        @encodedName("application/json", "feline")
+        cat,
+        dog,
+      }
+      model Cat extends Pet {
+        kind: PetKind.cat;
+      }
+      model Dog extends Pet {
+        kind: PetKind.dog;
+      }
+      `);
+    deepStrictEqual(openApi.components.schemas.Pet.discriminator, {
+      propertyName: "kind",
+      mapping: {
+        feline: "#/components/schemas/Cat",
+        dog: "#/components/schemas/Dog",
+      },
+    });
+    deepStrictEqual(openApi.components.schemas.PetKind.enum, ["feline", "dog"]);
+  });
+
   it("discriminator can be a union", async () => {
     const openApi = await openApiFor(`
       union PetKind {cat: "cat-kind", dog: "dog-kind" }

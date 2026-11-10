@@ -1,8 +1,9 @@
-import { Diagnostic, resolvePath } from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
+import { resolvePath } from "@typespec/compiler";
 import { createTester, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { MarkdownRenderer } from "../src/ref-doc/emitters/markdown.js";
 import { extractRefDocs } from "../src/ref-doc/extractor.js";
-import { TypeSpecRefDocBase } from "../src/ref-doc/types.js";
+import type { TypeSpecRefDocBase } from "../src/ref-doc/types.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: [],

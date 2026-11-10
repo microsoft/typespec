@@ -1,9 +1,10 @@
 vi.resetModules();
 
-import { Diagnostic, Program } from "@typespec/compiler";
-import { TestHost } from "@typespec/compiler/testing";
+import type { Diagnostic, Program } from "@typespec/compiler";
+import type { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import type { Mock } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { execAsync } from "../../src/lib/exec-utils.js";
 import {
   createCSharpSdkContext,

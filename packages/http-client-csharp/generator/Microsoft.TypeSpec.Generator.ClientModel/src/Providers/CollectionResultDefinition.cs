@@ -18,6 +18,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -183,6 +184,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
 
         protected override string BuildNamespace() => Client.Type.Namespace;
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetReferenceSuppressions(ItemModelType);
 
         protected override string BuildName()
         {
@@ -354,6 +358,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             methods.Add(BuildGetNextResponseMethod());
 
+            foreach (var method in methods)
+            {
+                method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    method.Suppressions,
+                    ExperimentalApiHelpers.GetOperationSuppressions(Operation),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(Client.Type),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(ResponseModelType),
+                    ResponseModel.CanonicalView.Properties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions)));
+            }
             return methods.ToArray();
         }
 
@@ -597,12 +610,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
         {
-            var createNextLinkRequestMethodName =
-                Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
+            var createNextLinkRequestMethod =
+                Client.RestClient.GetCreateNextLinkRequestMethod(Operation);
+            var arguments = createNextLinkRequestMethod.Signature.Parameters
+                .Skip(1)
+                .Select(parameter => GetRequestField(parameter).AsValueExpression);
             return ClientField.Invoke(
-                    createNextLinkRequestMethodName,
-                    [nextPageUri, .. RequestFields])
+                    createNextLinkRequestMethod.Signature.Name,
+                    [nextPageUri, .. arguments])
                 .As<PipelineMessage>();
+        }
+
+        private FieldProvider GetRequestField(ParameterProvider parameter)
+        {
+            for (int i = 0; i < CreateRequestParameters.Count; i++)
+            {
+                var createRequestParameter = CreateRequestParameters[i];
+                if (parameter.InputParameter is { } inputParameter)
+                {
+                    if (ReferenceEquals(inputParameter, createRequestParameter.InputParameter) ||
+                        createRequestParameter.InputParameter is { } createRequestInputParameter &&
+                        string.Equals(inputParameter.OriginalName, createRequestInputParameter.OriginalName, StringComparison.Ordinal))
+                    {
+                        return RequestFields[i];
+                    }
+                }
+                else if (createRequestParameter.InputParameter is null &&
+                    string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.Ordinal))
+                {
+                    return RequestFields[i];
+                }
+            }
+
+            throw new InvalidOperationException($"No initial request field matches next-link parameter '{parameter.Name}'.");
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)

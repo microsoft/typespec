@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { RequestExpectation } from "../src/expectation.js";
-import { RequestExt } from "../src/types.js";
+import type { RequestExt } from "../src/types.js";
 
 it("should validate successfully with correct input of multi collection", () => {
   const requestExt = { query: { letter: ["a", "b", "c"] } } as unknown as RequestExt;

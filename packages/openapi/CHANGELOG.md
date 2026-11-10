@@ -1,5 +1,41 @@
 # Change Log - @typespec/openapi
 
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Support `model`, `enum`, `union`, and `scalar` declarations used in expression position. Anonymous declaration expressions are inlined, while named ones are hoisted into a referenced component.
+  
+  ```tsp
+  model Foo {
+    status: enum { active, inactive }; // inlined
+    unit: scalar extends string; // inlined
+    inner: model Inner { x: string }; // hoisted as component `Inner`
+  }
+  ```
+
+
+## 1.16.0
+
+### Bug Fixes
+
+- [#11744](https://github.com/microsoft/typespec/pull/11744) Fix `@extension` dropping object members with special names like `__proto__`. All members are now kept as plain own properties.
+
+
+## 1.15.0
+
+### Features
+
+- [#11309](https://github.com/microsoft/typespec/pull/11309) Add `identifier` field to the `License` model in `@typespec/openapi`. This is an SPDX license expression for the API (e.g. `"MIT"`, `"Apache-2.0"`). The `identifier` and `url` fields are mutually exclusive. For OpenAPI 3.1+, `identifier` is emitted as-is; for OpenAPI 3.0, it is emitted as the `x-oai-license-identifier` extension. Importing an OpenAPI document also supports reading back `identifier` (or `x-oai-license-identifier` for 3.0 documents).
+  
+  ```typespec
+  @info(#{
+    license: #{ name: "MIT", identifier: "MIT" },
+  })
+  namespace MyService;
+  ```
+
+
 ## 1.14.0
 
 ### Deprecations

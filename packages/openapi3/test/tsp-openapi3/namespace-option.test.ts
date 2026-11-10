@@ -2,7 +2,7 @@ import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
 import { convertOpenAPI3Document } from "../../src/index.js";
-import { OpenAPI3Document } from "../../src/types.js";
+import type { OpenAPI3Document } from "../../src/types.js";
 
 describe("namespace option", () => {
   const testDocument: OpenAPI3Document = {

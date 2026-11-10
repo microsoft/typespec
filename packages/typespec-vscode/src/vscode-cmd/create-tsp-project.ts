@@ -1,7 +1,7 @@
-import {
-  type InitProjectConfig,
-  type InitProjectTemplate,
-  type InitProjectTemplateEmitterTemplate,
+import type {
+  InitProjectConfig,
+  InitProjectTemplate,
+  InitProjectTemplateEmitterTemplate,
 } from "@typespec/compiler";
 import {
   InitTemplateSchema,
@@ -13,26 +13,28 @@ import {
 import { Ajv } from "ajv";
 import * as semver from "semver";
 import { inspect } from "util";
-import vscode, { ExtensionContext, QuickPickItem } from "vscode";
+import type { ExtensionContext, QuickPickItem } from "vscode";
+import vscode from "vscode";
 import pkgJson from "../../package.json" with { type: "json" };
-import { ExtensionStateManager } from "../extension-state-manager.js";
+import type { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
 import { getBaseFileName, joinPaths, normalizePath } from "../path-utils.js";
 import telemetryClient from "../telemetry/telemetry-client.js";
 import { TelemetryEventName } from "../telemetry/telemetry-event.js";
-import { Result, ResultCode, SettingName } from "../types.js";
+import type { Result } from "../types.js";
+import { ResultCode, SettingName } from "../types.js";
 import {
   checkAndConfirmEmptyFolder,
   confirm,
   selectFolder,
   tryExecuteWithUi,
 } from "../ui-utils.js";
+import type { ExecOutput } from "../utils.js";
 import {
   checkInstalledNpm,
   checkInstalledTspCli,
   createPromiseWithCancelAndTimeout,
   distinctArray,
-  ExecOutput,
   isFile,
   isWhitespaceStringOrUndefined,
   spawnExecutionAndLogToOutput,

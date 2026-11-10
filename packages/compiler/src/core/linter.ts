@@ -1,17 +1,25 @@
 import { isPromise } from "../utils/misc.js";
-import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import type { YamlScript } from "../yaml/types.js";
+import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
+import { formatShortNameCandidates } from "./diagnostic-code.js";
+import type { DiagnosticCollector } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
+import { linterRuleSetFilePrefix, loadLinterRuleSetFile } from "./linter-ruleset-file.js";
 import { createDiagnostic } from "./messages.js";
+import { getDirectoryPath, resolvePath } from "./path-utils.js";
 import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
-import {
+import type {
   Diagnostic,
   DiagnosticMessages,
+  DiagnosticTarget,
   LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
@@ -19,15 +27,50 @@ import {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
-  NoTarget,
   RuleRef,
   SemanticNodeListener,
 } from "./types.js";
+import { NoTarget } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
+/**
+ * Where a ruleset came from. `file:` references need a directory to resolve against, so they are
+ * only supported for rulesets anchored to a location on disk (the project config or another ruleset
+ * file, or a CLI invocation). Rulesets defined by a library are not anchored anywhere and cannot use them.
+ */
+type RuleSetOrigin =
+  | {
+      readonly kind: "local";
+      /** Directory relative `file:` references are resolved against. */
+      readonly baseDir: string;
+      /** Yaml this ruleset was parsed from, used to locate diagnostics on the offending entry. */
+      readonly source?: RuleSetYamlSource;
+    }
+  | { readonly kind: "library"; readonly ruleSetId: string };
+
+/** Yaml a ruleset was defined in, used to locate diagnostics on the offending entry. */
+export interface RuleSetYamlSource {
+  readonly script: YamlScript;
+  /** Path of the ruleset within the yaml. Empty in a ruleset file, `["linter"]` in `tspconfig.yaml`. */
+  readonly path: readonly string[];
+}
+
+export interface ExtendRuleSetOptions {
+  /** Directory used to resolve relative `file:` ruleset references. Defaults to the program project root. */
+  readonly baseDir?: string;
+  /** Yaml the ruleset was defined in. */
+  readonly source?: RuleSetYamlSource;
+  /** Canonical rule IDs supplied by a higher-precedence layer, skipped throughout inheritance. */
+  readonly excludeRules?: ReadonlySet<string>;
+}
+
 export interface Linter {
-  extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
+  /** Extend the current set of enabled rules with the given ruleset. */
+  extendRuleSet(
+    ruleSet: LinterRuleSet,
+    options?: ExtendRuleSetOptions,
+  ): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
   lint(): Promise<LinterResult>;
 }
@@ -74,8 +117,33 @@ export function resolveLinterDefinition(
 export function createLinter(
   program: Program,
   loadLibrary: (name: string) => Promise<LinterLibraryInstance | undefined>,
+  codeResolver?: DiagnosticCodeResolver,
 ): Linter {
   const tracer = program.tracer.sub("linter");
+
+  const resolveCode = (ref: string): string => (codeResolver ? codeResolver.resolveCode(ref) : ref);
+
+  /**
+   * Report a warning when `ref` uses an ambiguous short name. Returns `true` if it was
+   * ambiguous so the caller can skip processing that entry.
+   */
+  const reportIfAmbiguous = (ref: string, diagnostics: DiagnosticCollector): boolean => {
+    const conflict = codeResolver?.getAmbiguousShortName(ref);
+    if (conflict) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: {
+            shortName: conflict.shortName,
+            candidates: formatShortNameCandidates(conflict.candidates),
+          },
+          target: NoTarget,
+        }),
+      );
+      return true;
+    }
+    return false;
+  };
 
   const ruleMap = new Map<string, LinterRule<string, any, any>>();
   const enabledRules = new Map<
@@ -90,18 +158,79 @@ export function createLinter(
     lint,
   };
 
-  async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
+  async function extendRuleSet(
+    ruleSet: LinterRuleSet,
+    options?: ExtendRuleSetOptions,
+  ): Promise<readonly Diagnostic[]> {
+    const origin: RuleSetOrigin = {
+      kind: "local",
+      baseDir: options?.baseDir ?? program.projectRoot,
+      source: options?.source,
+    };
+    return extendRuleSetInternal(ruleSet, origin, [], options?.excludeRules);
+  }
+
+  async function extendRuleSetInternal(
+    ruleSet: LinterRuleSet,
+    origin: RuleSetOrigin,
+    fileStack: readonly string[],
+    excludeRules: ReadonlySet<string> | undefined,
+  ): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
-      for (const extendingRuleSetName of ruleSet.extends) {
-        const ref = diagnostics.pipe(parseRuleReference(extendingRuleSetName));
+      for (const [index, extendingRuleSetName] of ruleSet.extends.entries()) {
+        if (extendingRuleSetName.startsWith(linterRuleSetFilePrefix)) {
+          if (origin.kind === "library") {
+            // A library ruleset is not anchored to a directory, so there is nothing to resolve against.
+            diagnostics.add(
+              createDiagnostic({
+                code: "ruleset-file-in-library",
+                format: { ruleSetName: origin.ruleSetId, ref: extendingRuleSetName },
+                target: NoTarget,
+              }),
+            );
+            continue;
+          }
+          // Blame the `extends` entry that referenced the file when we know where it came from.
+          // Looked up by index because config loading rewrites `file:` refs to absolute paths.
+          const target = origin.source
+            ? getLocationInYamlScript(origin.source.script, [
+                ...origin.source.path,
+                "extends",
+                String(index),
+              ])
+            : NoTarget;
+          for (const diagnostic of await extendRuleSetFile(
+            extendingRuleSetName.slice(linterRuleSetFilePrefix.length),
+            origin.baseDir,
+            fileStack,
+            target,
+            excludeRules,
+          )) {
+            diagnostics.add(diagnostic);
+          }
+          continue;
+        }
+        if (reportIfAmbiguous(extendingRuleSetName, diagnostics)) {
+          continue;
+        }
+        const ref = diagnostics.pipe(
+          parseRuleReference(resolveCode(extendingRuleSetName) as RuleRef),
+        );
         if (ref) {
           const library = await resolveLibrary(ref.libraryName);
           const libLinterDefinition = library?.linter;
           const extendingRuleSet = libLinterDefinition?.ruleSets?.[ref.name];
           if (extendingRuleSet) {
-            await extendRuleSet(extendingRuleSet);
+            for (const diagnostic of await extendRuleSetInternal(
+              extendingRuleSet,
+              { kind: "library", ruleSetId: `${ref.libraryName}/${ref.name}` },
+              fileStack,
+              excludeRules,
+            )) {
+              diagnostics.add(diagnostic);
+            }
           } else {
             diagnostics.add(
               createDiagnostic({
@@ -117,10 +246,14 @@ export function createLinter(
 
     const enabledInThisRuleSet = new Set<string>();
     if (ruleSet.enable) {
-      for (const [ruleName, enableValue] of Object.entries(ruleSet.enable)) {
-        if (enableValue === false) {
+      for (const [rawRuleName, enableValue] of Object.entries(ruleSet.enable)) {
+        if (enableValue === false || excludeRules?.has(resolveCode(rawRuleName))) {
           continue;
         }
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
+        const ruleName = resolveCode(rawRuleName);
         const ref = diagnostics.pipe(parseRuleReference(ruleName as RuleRef));
         if (ref) {
           await resolveLibrary(ref.libraryName);
@@ -148,7 +281,14 @@ export function createLinter(
     }
 
     if (ruleSet.disable) {
-      for (const ruleName of Object.keys(ruleSet.disable)) {
+      for (const rawRuleName of Object.keys(ruleSet.disable)) {
+        if (excludeRules?.has(resolveCode(rawRuleName))) {
+          continue;
+        }
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
+        const ruleName = resolveCode(rawRuleName);
         if (enabledInThisRuleSet.has(ruleName)) {
           diagnostics.add(
             createDiagnostic({
@@ -256,6 +396,45 @@ export function createLinter(
 
     stats.runtime.total = timer.end();
     return { diagnostics: diagnostics.diagnostics, stats };
+  }
+
+  /** Load and apply a ruleset defined in a yaml file. */
+  async function extendRuleSetFile(
+    path: string,
+    baseDir: string,
+    fileStack: readonly string[],
+    target: DiagnosticTarget | typeof NoTarget,
+    excludeRules: ReadonlySet<string> | undefined,
+  ): Promise<readonly Diagnostic[]> {
+    const resolvedPath = resolvePath(baseDir, path);
+    tracer.trace("extend-rule-set.file", resolvedPath);
+    if (fileStack.includes(resolvedPath)) {
+      return [
+        createDiagnostic({
+          code: "circular-ruleset-file",
+          format: { path: resolvedPath },
+          target,
+        }),
+      ];
+    }
+
+    const [loaded, diagnostics] = await loadLinterRuleSetFile(program.host, resolvedPath, target);
+    if (loaded === undefined) {
+      return diagnostics;
+    }
+    return [
+      ...diagnostics,
+      ...(await extendRuleSetInternal(
+        loaded.ruleSet,
+        {
+          kind: "local",
+          baseDir: getDirectoryPath(resolvedPath),
+          source: { script: loaded.script, path: [] },
+        },
+        [...fileStack, resolvedPath],
+        excludeRules,
+      )),
+    ];
   }
 
   async function resolveLibrary(name: string): Promise<LinterLibraryInstance | undefined> {

@@ -10,4 +10,5 @@ export {
   type RouteProducerResult as unsafe_RouteProducerResult,
   type RouteResolutionOptions as unsafe_RouteResolutionOptions,
 } from "../types.js";
-export { StreamMetadata, getStreamMetadata } from "./streams.js";
+export { getStreamMetadata } from "./streams.js";
+export type { StreamMetadata } from "./streams.js";

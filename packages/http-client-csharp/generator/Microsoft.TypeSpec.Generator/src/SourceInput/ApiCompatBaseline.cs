@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.SourceInput
@@ -12,6 +13,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
     /// <summary>
     /// Represents the set of intentional, already-accepted breaking changes recorded in an
     /// <c>ApiCompat</c> baseline (suppression) file (for example the files under
+    /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.xml</c> or
     /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c>).
     /// <para>
     /// The backward-compatibility system resurrects any public member that exists in the previous
@@ -28,6 +30,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         private const string TypesMustExist = "TypesMustExist";
         private const string MembersMustExist = "MembersMustExist";
         private const string EnumValuesMustMatch = "EnumValuesMustMatch";
+        private const string TypeMustExistDiagnostic = "CP0001";
+        private const string MemberMustExistDiagnostic = "CP0002";
+        private const string EnumValueMustMatchDiagnostic = "CP0011";
 
         private readonly HashSet<string> _suppressedTypes;
         private readonly HashSet<MemberKey> _suppressedMembers;
@@ -62,7 +67,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 return Empty;
             }
 
-            return Parse(File.ReadAllLines(path));
+            return string.Equals(Path.GetExtension(path), ".xml", StringComparison.OrdinalIgnoreCase)
+                ? ParseXml(XDocument.Load(path))
+                : Parse(File.ReadAllLines(path));
         }
 
         /// <summary>
@@ -122,6 +129,64 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                     // Other rule ids (e.g. CannotRemoveAttribute) do not describe a removed
                     // member/type that the back-compat system would resurrect, so they are ignored.
                     default:
+                        break;
+                }
+            }
+
+            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods);
+        }
+
+        private static ApiCompatBaseline ParseXml(XDocument document)
+        {
+            var suppressedTypes = new HashSet<string>(StringComparer.Ordinal);
+            var suppressedMembers = new HashSet<MemberKey>();
+            var suppressedMethods = new HashSet<MethodKey>();
+
+            foreach (var suppression in document.Descendants())
+            {
+                if (suppression.Name.LocalName != "Suppression")
+                {
+                    continue;
+                }
+
+                string? diagnosticId = null;
+                string? target = null;
+                foreach (var element in suppression.Elements())
+                {
+                    switch (element.Name.LocalName)
+                    {
+                        case "DiagnosticId":
+                            diagnosticId = element.Value.Trim();
+                            break;
+                        case "Target":
+                            target = element.Value.Trim();
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(target))
+                {
+                    continue;
+                }
+
+                switch (diagnosticId)
+                {
+                    case TypeMustExistDiagnostic:
+                        if (target.StartsWith("T:", StringComparison.Ordinal))
+                        {
+                            suppressedTypes.Add(RemoveGenericArity(target.Substring(2)));
+                        }
+                        break;
+                    case MemberMustExistDiagnostic:
+                    case EnumValueMustMatchDiagnostic:
+                        if (TryParseXmlMember(target, out var memberKey, out var methodKey))
+                        {
+                            suppressedMembers.Add(memberKey);
+                            if (methodKey.HasValue)
+                            {
+                                suppressedMethods.Add(methodKey.Value);
+                            }
+                        }
                         break;
                 }
             }
@@ -333,6 +398,116 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return true;
         }
 
+        private static bool TryParseXmlMember(string target, out MemberKey memberKey, out MethodKey? methodKey)
+        {
+            memberKey = default;
+            methodKey = null;
+
+            if (target.Length < 3 || target[1] != ':')
+            {
+                return false;
+            }
+
+            var symbolKind = target[0];
+            var symbol = target.Substring(2);
+            if (symbolKind == 'M')
+            {
+                var parenIndex = symbol.IndexOf('(');
+                if (parenIndex >= 0 && !symbol.EndsWith(")", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                var memberPath = parenIndex >= 0 ? symbol.Substring(0, parenIndex) : symbol;
+                var parameterList = parenIndex >= 0
+                    ? symbol.Substring(parenIndex + 1, symbol.Length - parenIndex - 2)
+                    : string.Empty;
+
+                if (!TrySplitXmlMemberPath(memberPath, out var declaringTypeFullName, out var memberName))
+                {
+                    return false;
+                }
+
+                memberName = NormalizeXmlMemberName(memberName);
+                var normalizedParameters = NormalizeXmlParameterList(parameterList);
+                memberKey = new MemberKey(declaringTypeFullName, memberName, CountParameters(normalizedParameters));
+                methodKey = new MethodKey(declaringTypeFullName, memberName, normalizedParameters);
+                return true;
+            }
+
+            if (symbolKind is 'F' or 'P' or 'E'
+                && TrySplitXmlMemberPath(symbol, out var declaringType, out var name))
+            {
+                memberKey = new MemberKey(declaringType, NormalizeXmlMemberName(name), 0);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TrySplitXmlMemberPath(
+            string memberPath,
+            out string declaringTypeFullName,
+            out string memberName)
+        {
+            declaringTypeFullName = string.Empty;
+            memberName = string.Empty;
+
+            var lastDot = memberPath.LastIndexOf('.');
+            if (lastDot <= 0 || lastDot == memberPath.Length - 1)
+            {
+                return false;
+            }
+
+            declaringTypeFullName = RemoveGenericArity(memberPath.Substring(0, lastDot));
+            memberName = memberPath.Substring(lastDot + 1);
+            return true;
+        }
+
+        private static string NormalizeXmlMemberName(string memberName)
+        {
+            if (memberName.StartsWith('#'))
+            {
+                memberName = $".{memberName.Substring(1)}";
+            }
+
+            if (memberName.StartsWith("get_", StringComparison.Ordinal)
+                || memberName.StartsWith("set_", StringComparison.Ordinal)
+                || memberName.StartsWith("add_", StringComparison.Ordinal)
+                || memberName.StartsWith("remove_", StringComparison.Ordinal))
+            {
+                memberName = memberName.Substring(memberName.IndexOf('_') + 1);
+            }
+
+            return RemoveGenericArity(memberName);
+        }
+
+        private static string NormalizeXmlParameterList(string parameterList)
+            => NormalizeParameterList(parameterList)
+                .Replace('{', '<')
+                .Replace('}', '>')
+                .Replace('+', '.');
+
+        private static string RemoveGenericArity(string name)
+        {
+            var builder = new StringBuilder(name.Length);
+            for (int i = 0; i < name.Length; i++)
+            {
+                if (name[i] == '`')
+                {
+                    while (i + 1 < name.Length && char.IsDigit(name[i + 1]))
+                    {
+                        i++;
+                    }
+                    continue;
+                }
+
+                builder.Append(name[i] == '+' ? '.' : name[i]);
+            }
+
+            return builder.ToString();
+        }
+
         private static int CountParameters(string parameterList)
         {
             var trimmed = parameterList.Trim();
@@ -415,6 +590,13 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         private static void AppendTypeName(StringBuilder builder, CSharpType type)
         {
+            if (type.IsFrameworkType && type.FrameworkType.IsGenericParameter)
+            {
+                builder.Append('`');
+                builder.Append(type.FrameworkType.GenericParameterPosition);
+                return;
+            }
+
             // Nullable value types are rendered by ApiCompat as System.Nullable<T>.
             if (type.IsNullable && type.IsValueType)
             {

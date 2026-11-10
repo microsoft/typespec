@@ -23,6 +23,17 @@ export function useMonacoSync({
   // to avoid the sync effect resetting the model during typing
   const isModelDrivenChangeRef = useRef(false);
 
+  // Keep the listener's view of React state current before syncing an external
+  // content change into Monaco. `setValue` fires `onDidChangeContent`
+  // synchronously, so updating these refs after the sync effect would let that
+  // event call a stale callback with stale content.
+  const contentRef = useRef(content);
+  const onContentChangeRef = useRef(onContentChange);
+  useEffect(() => {
+    contentRef.current = content;
+    onContentChangeRef.current = onContentChange;
+  }, [content, onContentChange]);
+
   // Sync external content changes → Monaco model
   useEffect(() => {
     if (isModelDrivenChangeRef.current) {
@@ -33,16 +44,6 @@ export function useMonacoSync({
       typespecModel.setValue(content ?? "");
     }
   }, [content, typespecModel]);
-
-  // Use refs to avoid re-subscribing to onDidChangeContent on every keystroke
-  const contentRef = useRef(content);
-  const onContentChangeRef = useRef(onContentChange);
-  useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
-  useEffect(() => {
-    onContentChangeRef.current = onContentChange;
-  }, [onContentChange]);
 
   // Sync Monaco model changes → React state
   useEffect(() => {

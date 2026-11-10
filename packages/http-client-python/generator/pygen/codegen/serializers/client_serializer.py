@@ -8,6 +8,7 @@ from typing import cast
 from . import utils
 from ..models import Client, ParameterMethodLocation, Parameter, ParameterLocation
 from .parameter_serializer import ParameterSerializer, PopKwargType
+from ..models.utils import escape_sphinx_field_name
 from ...utils import build_policies
 
 
@@ -61,21 +62,22 @@ class ClientSerializer:
         retval: list[str] = []
         operations_folder = ".aio.operations." if async_mode else ".operations."
         for og in [og for og in self.client.operation_groups if not og.is_mixin]:
-            retval.append(f":ivar {og.property_name}: {og.class_name} operations")
+            retval.append(f":ivar {escape_sphinx_field_name(og.property_name)}: {og.class_name} operations")
             property_type = f"{self.client.code_model.namespace}{operations_folder}{og.class_name}"
-            retval.append(f":vartype {og.property_name}: {property_type}")
+            retval.append(f":vartype {escape_sphinx_field_name(og.property_name)}: {property_type}")
         for param in self.client.parameters.method:
-            retval.append(f":{param.description_keyword} {param.client_name}: {param.description}")
             retval.append(
-                f":{param.docstring_type_keyword} {param.client_name}: {param.docstring_type(async_mode=async_mode)}"
+                f":{param.description_keyword} {escape_sphinx_field_name(param.client_name)}: {param.description}"
+            )
+            retval.append(
+                f":{param.docstring_type_keyword} {escape_sphinx_field_name(param.client_name)}: "
+                f"{param.docstring_type(async_mode=async_mode)}"
             )
         if self.client.has_public_lro_operations:
             retval.append(
                 ":keyword int polling_interval: Default waiting time between two polls for LRO operations "
                 "if no Retry-After header is present."
             )
-        retval = [s.replace("\\", "\\\\") for s in retval]
-        retval.append('"""')
         return retval
 
     def initialize_config(self) -> list[str]:
@@ -315,7 +317,9 @@ class ConfigSerializer:
     def property_descriptions(self, async_mode: bool) -> list[str]:
         retval: list[str] = []
         for p in self.client.config.parameters.method:
-            retval.append(f":{p.description_keyword} {p.client_name}: {p.description}")
-            retval.append(f":{p.docstring_type_keyword} {p.client_name}: {p.docstring_type(async_mode=async_mode)}")
-        retval.append('"""')
+            retval.append(f":{p.description_keyword} {escape_sphinx_field_name(p.client_name)}: {p.description}")
+            retval.append(
+                f":{p.docstring_type_keyword} {escape_sphinx_field_name(p.client_name)}: "
+                f"{p.docstring_type(async_mode=async_mode)}"
+            )
         return retval

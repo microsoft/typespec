@@ -1,4 +1,4 @@
-import { HttpVerb } from "@typespec/http";
+import type { HttpVerb } from "@typespec/http";
 
 export const supportedHttpMethods = new Set<HttpVerb>([
   "delete",

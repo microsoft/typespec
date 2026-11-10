@@ -52,6 +52,7 @@ def _single_dir_pylint(mod):
     # narrow as possible: only this package, only the offending check.
     per_package_disables = {
         "azure-client-generator-core-exact-name": ["client-incorrect-naming-convention"],
+        "azure-resource-manager-operation-templates": ["too-many-statements"],
     }
     extra_disables = per_package_disables.get(mod.name)
     if extra_disables:

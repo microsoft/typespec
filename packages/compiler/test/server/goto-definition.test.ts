@@ -1,6 +1,6 @@
 import { pathToFileURL } from "url";
 import { expect, it } from "vitest";
-import { Location } from "vscode-languageserver";
+import type { Location } from "vscode-languageserver";
 import { extractCursor, resolveVirtualPath } from "../../src/testing/index.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 

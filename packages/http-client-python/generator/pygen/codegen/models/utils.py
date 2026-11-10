@@ -13,6 +13,15 @@ T = TypeVar("T")
 OrderedSet = dict[T, None]
 
 
+def python_string_literal(value: str, *, quote: str = '"') -> str:
+    literal = repr(value)
+    if literal[0] == quote:
+        return literal
+    # Change delimiter escaping without changing the escaped value.
+    body = literal[1:-1].replace("\\" + literal[0], literal[0])
+    return quote + body.replace(quote, "\\" + quote) + quote
+
+
 def add_to_description(description: str, entry: str) -> str:
     if not description:
         return entry
@@ -32,6 +41,20 @@ def add_to_pylint_disable(curr_str: str, entry: str) -> str:
     if curr_str:
         return f"{curr_str},{entry}"
     return f"  # pylint: disable={entry}"
+
+
+def escape_sphinx_field_name(name: str) -> str:
+    """Escape a name used as the target of a Sphinx info field (``:ivar``, ``:vartype``,
+    ``:keyword``, ``:paramtype``, ``:param``, ``:type``).
+
+    A name containing ``@`` (e.g. a wire name such as ``@search.facets``) is wrapped in
+    double backticks so it is treated as an inline literal. This renders cleanly in Sphinx
+    without a leading ``@`` being misinterpreted, and — unlike a ``\\@`` escape — introduces
+    no invalid escape sequence into the generated Python docstring.
+    """
+    if "@" in name:
+        return f"``{name}``"
+    return name
 
 
 class NamespaceType(str, Enum):

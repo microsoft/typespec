@@ -7,9 +7,9 @@ using System.ClientModel;
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Sample.Models
 {
-    public partial class BinaryArrayPartsRequest
+    public partial class BinaryArrayPartsContent
     {
-        internal BinaryArrayPartsRequest()
+        internal BinaryArrayPartsContent()
         {
         }
 

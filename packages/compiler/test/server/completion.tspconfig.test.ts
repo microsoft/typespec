@@ -1,6 +1,6 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
-import { CompletionList } from "vscode-languageserver";
+import type { CompletionList } from "vscode-languageserver";
 import { joinPaths } from "../../src/index.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
@@ -134,19 +134,46 @@ describe("Test completion items for features", () => {
   it.each([
     {
       config: `features:\n  - ┆`,
-      expected: ['"auto-decorators"', '"function-declarations"'],
+      expected: [
+        '"auto-decorators"',
+        '"declaration-expressions"',
+        '"function-declarations"',
+        '"type-info-provider"',
+        '"typeref"',
+        '"union-extends"',
+      ],
     },
     {
       config: `features:\n  - "┆"`,
-      expected: ["auto-decorators", "function-declarations"],
+      expected: [
+        "auto-decorators",
+        "declaration-expressions",
+        "function-declarations",
+        "type-info-provider",
+        "typeref",
+        "union-extends",
+      ],
     },
     {
       config: `features:\n  - "function┆"`,
-      expected: ["auto-decorators", "function-declarations"],
+      expected: [
+        "auto-decorators",
+        "declaration-expressions",
+        "function-declarations",
+        "type-info-provider",
+        "typeref",
+        "union-extends",
+      ],
     },
     {
       config: `features:\n  - function-declarations\n  - ┆`,
-      expected: ['"auto-decorators"'],
+      expected: [
+        '"auto-decorators"',
+        '"declaration-expressions"',
+        '"type-info-provider"',
+        '"typeref"',
+        '"union-extends"',
+      ],
     },
   ])("#%# Test features: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -158,7 +185,11 @@ describe("Test completion items for features", () => {
       true,
       [
         "Allows use of auto decorator declarations without experimental warnings in project code.",
+        "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
         "Allows use of function declarations without experimental warnings in project code.",
+        "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+        "Enables experimental union `extends` clauses in project code.",
+        "Enables the typeref function for creating type-reference values.",
       ],
       true,
     );

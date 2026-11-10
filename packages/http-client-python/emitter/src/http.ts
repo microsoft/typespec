@@ -1,7 +1,6 @@
 import { getNamespaceFullName, NoTarget } from "@typespec/compiler";
 
-import {
-  getHttpOperationParameter,
+import type {
   SdkBasicServiceMethod,
   SdkBodyParameter,
   SdkClientType,
@@ -19,11 +18,13 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkSseEventMetadata,
   SdkType,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { HttpStatusCodeRange } from "@typespec/http";
-import { PythonSdkContext, reportDiagnostic } from "./lib.js";
+import { getHttpOperationParameter, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import type { HttpStatusCodeRange } from "@typespec/http";
+import type { PythonSdkContext } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { getType, KnownTypes } from "./types.js";
 import {
   emitParamBase,
@@ -40,6 +41,158 @@ export enum ReferredByOperationTypes {
   Default = 0,
   PagingOnly = 1,
   NonPagingOnly = 2,
+}
+
+type StructuredStreamKind = "jsonl" | "sse";
+type EmittedType = ReturnType<typeof getType>;
+
+interface StructuredStreamEvent {
+  eventType: string | undefined;
+  /**
+   * Payload type for this one SSE event. For an event envelope, this is the type of the property
+   * marked `@Events.data`. Together with {@link eventType} these form the
+   * runtime dispatch table (wire event name -> model to deserialize) inside the generated
+   * `_callback`. This is a narrower type than {@link StructuredStreamingInfo.itemType}.
+   */
+  payloadType: EmittedType;
+  /**
+   * True when this event is a `@terminalEvent` that carries a payload (a named / model event,
+   * not a bare string-constant sentinel). Such events are deserialized and yielded like any
+   * other event, and iteration stops immediately after one is yielded. Contrast with
+   * {@link StructuredStreamingInfo.terminalEvent}, the sentinel that stops without yielding.
+   */
+  isTerminal?: boolean;
+  /** Content type of the payload, not the enclosing event. */
+  payloadContentType?: string;
+}
+
+interface StructuredStreamingInfo {
+  kind: StructuredStreamKind;
+  /**
+   * The aggregate stream element type used for the `Stream[T]` / `AsyncStream[T]` return
+   * annotation (a single type expression). For homogeneous JSONL this is the one model; for
+   * heterogeneous SSE this is the union of every event payload.
+   *
+   * Note the deliberate overlap with the per-event {@link StructuredStreamEvent.payloadType}: for
+   * heterogeneous SSE this union is exactly the sum of the `events[]` payload types. Both are
+   * carried because the union alone cannot recover the wire-name -> member mapping needed for
+   * dispatch, and the events list alone is not a single valid type expression for the annotation.
+   */
+  itemType: EmittedType;
+  events?: StructuredStreamEvent[];
+  /**
+   * A bare string-constant `@terminalEvent` with no event name (e.g. `"[DONE]"`). Iteration
+   * stops when an event's `data` equals this value, and the sentinel is NOT yielded. Named /
+   * model terminal events are carried in {@link events} with `isTerminal: true` instead.
+   */
+  terminalEvent?: string;
+}
+
+/** Whether pygen can deserialize the stream item type. */
+export function isStructuredStreamType(type: SdkType): boolean {
+  switch (type.kind) {
+    case "model":
+    case "union":
+      return true;
+    case "nullable":
+      return isStructuredStreamType(type.type);
+    default:
+      return false;
+  }
+}
+
+export function getStructuredStreamKind(
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): StructuredStreamKind | undefined {
+  if (response.sseMetadata) return "sse";
+
+  const contentTypes = response.streamMetadata?.contentTypes ?? response.contentTypes ?? [];
+  for (const contentType of contentTypes) {
+    const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+    if (mediaType === "text/event-stream") return "sse";
+    if (mediaType === "application/jsonl") return "jsonl";
+  }
+  return undefined;
+}
+
+function getStringConstantValue(type: SdkType): string | undefined {
+  if (type.kind === "nullable") return getStringConstantValue(type.type);
+  return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
+}
+
+/**
+ * Split the SSE events into the runtime dispatch table and a bare string-constant sentinel.
+ *
+ * A `@terminalEvent` comes in two shapes:
+ *   * a nameless string constant (e.g. `"[DONE]"`) -> a pure sentinel: iteration stops when an
+ *     event's `data` equals this value and the event is NOT yielded. Returned as `terminalEvent`.
+ *   * a named / model event (e.g. `error`, `response.completed`) -> carries a payload the consumer
+ *     needs, so it is deserialized and yielded like any other event, then iteration stops. Returned
+ *     in `events` with `isTerminal: true`.
+ *
+ * `toPayloadType` maps event payloads to emitted types; it is injected so this partitioning stays
+ * a pure function that can be unit-tested without a full emitter context.
+ */
+export function partitionSSEEvents(
+  events: readonly SdkSseEventMetadata[],
+  toPayloadType: (type: SdkType) => EmittedType,
+): { events: StructuredStreamEvent[]; terminalEvent?: string } {
+  const dispatch: StructuredStreamEvent[] = [];
+  let terminalEvent: string | undefined;
+  for (const event of events) {
+    if (event.isTerminalEvent) {
+      const sentinelValue =
+        event.eventType === undefined
+          ? (getStringConstantValue(event.payloadType) ?? getStringConstantValue(event.type))
+          : undefined;
+      if (sentinelValue !== undefined) {
+        // Keep the first sentinel; no current spec defines more than one.
+        terminalEvent ??= sentinelValue;
+        continue;
+      }
+      dispatch.push({
+        eventType: event.eventType,
+        payloadType: toPayloadType(event.payloadType),
+        isTerminal: true,
+        payloadContentType: event.payloadContentType,
+      });
+      continue;
+    }
+    dispatch.push({
+      eventType: event.eventType,
+      payloadType: toPayloadType(event.payloadType),
+      payloadContentType: event.payloadContentType,
+    });
+  }
+  return terminalEvent !== undefined ? { events: dispatch, terminalEvent } : { events: dispatch };
+}
+
+function emitStructuredStreamingInfo(
+  context: PythonSdkContext,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): StructuredStreamingInfo | undefined {
+  const streamMetadata = response.streamMetadata;
+  if (!streamMetadata || !isStructuredStreamType(streamMetadata.streamType)) return undefined;
+
+  const kind = getStructuredStreamKind(response);
+  if (!kind) return undefined;
+
+  const streaming: StructuredStreamingInfo = {
+    kind,
+    itemType: getType(context, streamMetadata.streamType),
+  };
+  if (kind !== "sse") return streaming;
+
+  const sseMetadata = response.sseMetadata;
+  if (!sseMetadata || sseMetadata.events.length === 0) return undefined;
+
+  const { events, terminalEvent } = partitionSSEEvents(sseMetadata.events, (type) =>
+    getType(context, type),
+  );
+  if (events.length > 0) streaming.events = events;
+  if (terminalEvent !== undefined) streaming.terminalEvent = terminalEvent;
+
+  return streaming;
 }
 
 function isEtagType(type: SdkType): boolean {
@@ -682,6 +835,7 @@ function emitHttpResponse(
       "invalid-lro-result",
       method,
     ),
+    streaming: isException ? undefined : emitStructuredStreamingInfo(context, response),
   };
 }
 

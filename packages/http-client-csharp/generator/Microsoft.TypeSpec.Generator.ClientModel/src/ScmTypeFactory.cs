@@ -25,6 +25,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private Dictionary<InputClient, ClientProvider?>? _clientCache;
         private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 
+        protected override IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames()
+            => ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Select(ClientProvider.GetNameForCollisionCheck);
+
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
@@ -285,5 +288,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         protected override ScmSerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
             => new(inputSerializationOptions);
+
+        /// <inheritdoc/>
+        protected override Type? CreateFrameworkType(string fullyQualifiedTypeName)
+            // The base implementation falls back to Type.GetType, which only probes corlib and the assembly that
+            // declares it (Microsoft.TypeSpec.Generator). System.ClientModel is referenced by this assembly instead,
+            // so its types have to be resolved explicitly or they would be treated as non-framework types.
+            => base.CreateFrameworkType(fullyQualifiedTypeName)
+                ?? typeof(BinaryContent).Assembly.GetType(fullyQualifiedTypeName);
     }
 }

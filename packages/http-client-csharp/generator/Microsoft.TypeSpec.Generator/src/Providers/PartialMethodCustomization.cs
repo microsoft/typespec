@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -162,6 +164,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <paramref name="customSignature"/> (modifiers, name, return type, attributes, and
         /// other signature metadata) and the supplied <paramref name="implementationParameters"/>.
         /// The result has <see cref="MethodSignatureModifiers.Partial"/> applied.
+        /// Custom experimental and obsolete attributes remain on the defining declaration to avoid duplicate attributes.
         /// </summary>
         /// <param name="customSignature">The customer's partial declaration signature.</param>
         /// <param name="implementationParameters">The parameters to use for the implementation.
@@ -203,7 +206,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,
-                customSignature.Attributes,
+                [.. customSignature.Attributes.Where(attribute => !ExperimentalApiHelpers.IsExperimentalAttribute(attribute)
+                    && !DeprecationApiHelpers.IsObsoleteAttribute(attribute))],
                 customSignature.GenericArguments,
                 customSignature.GenericParameterConstraints,
                 customSignature.ExplicitInterface,
@@ -213,12 +217,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Clones a ParameterProvider with a new name (and optionally without its default value)
         // while preserving all generator metadata. Returns the source unchanged when no change is
         // needed.
-        private static ParameterProvider CloneParameterWithName(
+        internal static ParameterProvider CloneParameterWithName(
             ParameterProvider source,
             string newName,
-            bool removeDefault)
+            bool removeDefault,
+            ParameterValidationType? validation = null)
         {
-            if (source.Name == newName && !(removeDefault && source.DefaultValue != null))
+            if (source.Name == newName
+                && !(removeDefault && source.DefaultValue != null)
+                && (validation == null || validation == source.Validation))
             {
                 return source;
             }
@@ -238,7 +245,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 initializationValue: source.InitializationValue,
                 location: source.Location,
                 wireInfo: source.WireInfo,
-                validation: source.Validation,
+                validation: validation ?? source.Validation,
                 inputParameter: source.InputParameter)
             {
                 SpreadSource = source.SpreadSource,

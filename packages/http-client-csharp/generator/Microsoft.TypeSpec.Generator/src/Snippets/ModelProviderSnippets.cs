@@ -13,22 +13,32 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
         {
-            return model.BuildPropertyAccessExpression(modelVariable, propertySegments);
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out _);
+        }
+
+        /// <summary>
+        /// Builds a property-access expression for the given segment path and also returns the leaf
+        /// <see cref="PropertyProvider"/> so callers can inspect its type (e.g. to apply enum serialization).
+        /// </summary>
+        public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments, out PropertyProvider leafProperty)
+        {
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out leafProperty);
         }
 
         public static AssignmentExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
         {
-            return model.BuildPropertyAccessExpression(modelVariable, propertySegments).Assign(value);
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out _).Assign(value);
         }
 
-        private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
+        private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments, out PropertyProvider leafProperty)
         {
             ModelProvider currentModel = model;
             ValueExpression propertyAccessExpression = modelVariable;
+            PropertyProvider? property = null;
 
             for (int i = 0; i < propertySegments.Count; i++)
             {
-                var property = FindPropertyInModelHierarchy(currentModel, propertySegments[i]);
+                property = FindPropertyInModelHierarchy(currentModel, propertySegments[i]);
 
                 propertyAccessExpression = propertyAccessExpression.Property(property.Name);
 
@@ -43,6 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                 }
             }
 
+            leafProperty = property
+                ?? throw new System.InvalidOperationException("Cannot build a property-access expression from an empty segment path.");
             return propertyAccessExpression;
         }
 

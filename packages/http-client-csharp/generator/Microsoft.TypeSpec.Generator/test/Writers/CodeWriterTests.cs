@@ -36,6 +36,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.AreEqual(expected, writer.ToString(false));
         }
 
+        [TestCase(typeof(int[]), "int[]")]
+        [TestCase(typeof(int?[]), "int?[]")]
+        [TestCase(typeof(int?[][]), "int?[][]")]
+        [TestCase(typeof(List<int>[]), "global::System.Collections.Generic.List<int>[]")]
+        [TestCase(typeof(List<int>[,]), "global::System.Collections.Generic.List<int>[,]")]
+        [TestCase(typeof(int[][,]), "int[][,]")]
+        [TestCase(typeof(int[,][]), "int[,][]")]
+        [TestCase(typeof(int?[][,][,,]), "int?[][,][,,]")]
+        [TestCase(typeof(List<int[,][]>), "global::System.Collections.Generic.List<int[,][]>")]
+        public void ArrayTypesRenderValidElementAndOrderedRanks(Type type, string expected)
+        {
+            using var writer = new CodeWriter();
+            writer.Append($"{new CSharpType(type)}");
+            var actual = writer.ToString(false);
+            Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ArrayCreationPreservesNullableValueElement()
+        {
+            using var writer = new CodeWriter();
+            using (new CodeWriter.NewInstanceScope(writer))
+            {
+                writer.Append($"{new CSharpType(typeof(int?[]))}");
+            }
+            Assert.That(writer.ToString(false), Is.EqualTo("int?[]"));
+        }
+
         [Test]
         public void FormatInFormat()
         {
@@ -289,6 +317,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteProperty_AccessibilityModifierOrder()
+        {
+            var privateProtected = new PropertyProvider($"", MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected, typeof(string), "Property1", new AutoPropertyBody(false), new TestTypeProvider());
+            var protectedInternal = new PropertyProvider($"", MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal, typeof(string), "Property2", new AutoPropertyBody(false), new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteProperty(privateProtected);
+            codeWriter.WriteProperty(protectedInternal);
+
+            var result = codeWriter.ToString(false);
+
+            StringAssert.Contains("private protected string Property1", result);
+            StringAssert.Contains("protected internal string Property2", result);
         }
 
         [Test]

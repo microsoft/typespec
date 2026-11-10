@@ -32,14 +32,35 @@ from ..models import (
     ParameterListType,
     ByteArraySchema,
 )
-from ..models.utils import NamespaceType
+from ..models.utils import NamespaceType, escape_sphinx_field_name, python_string_literal
 from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
+from ..models.response import (
+    DEFAULT_SSE_EVENT_TYPE,
+    StreamingEvent,
+    get_streaming_event_discriminator,
+)
 from . import utils
 from ...utils import xml_serializable, json_serializable
 
 T = TypeVar("T")
 OrderedSet = dict[T, None]
+
+
+def _sse_event_data_expression(payload_content_type: Optional[str]) -> str:
+    """Return the generated expression that decodes an SSE event's UTF-8 data field."""
+    media_type = payload_content_type.split(";", 1)[0].strip().lower() if payload_content_type else None
+    is_json = media_type is None or media_type == "application/json" or media_type.endswith("+json")
+    return "json.loads(_event.data)" if is_json else "_event.data"
+
+
+def _sse_fallback_data_expression(events: list[StreamingEvent]) -> str:
+    """Decode fallback events only when every candidate payload is JSON."""
+    if not events:
+        return "_event.data"
+    expressions = {_sse_event_data_expression(event.payload_content_type) for event in events}
+    return "json.loads(_event.data)" if expressions == {"json.loads(_event.data)"} else "_event.data"
+
 
 BuilderType = TypeVar(
     "BuilderType",
@@ -78,7 +99,8 @@ def _escape_str(input_str: str) -> str:
 def _get_polymorphic_subtype_template(polymorphic_subtype: ModelType) -> list[str]:
     retval: list[str] = []
     retval.append("")
-    retval.append(f'# JSON input template for discriminator value "{polymorphic_subtype.discriminator_value}":')
+    discriminator_value = python_string_literal(polymorphic_subtype.discriminator_value)
+    retval.append(f"# JSON input template for discriminator value {discriminator_value}:")
     subtype_template = utils.json_dumps_template(
         polymorphic_subtype.get_json_template_representation(),
     )
@@ -311,16 +333,15 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
                 or param.method_location == ParameterMethodLocation.KWARG
             ):
                 continue
+            escaped_name = escape_sphinx_field_name(param.client_name)
             description_list.extend(
-                f":{param.description_keyword} {param.client_name}: {param.description}".replace("\n", "\n ").split(
-                    "\n"
-                )
+                f":{param.description_keyword} {escaped_name}: {param.description}".replace("\n", "\n ").split("\n")
             )
             docstring_type = param.docstring_type(
                 async_mode=self.async_mode,
                 serialize_namespace=self.serialize_namespace,
             )
-            description_list.append(f":{param.docstring_type_keyword} {param.client_name}: {docstring_type}")
+            description_list.append(f":{param.docstring_type_keyword} {escaped_name}: {docstring_type}")
         return description_list
 
     def param_description_and_response_docstring(self, builder: BuilderType) -> list[str]:
@@ -365,7 +386,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             discriminator_name = cast(Property, polymorphic_subtypes[0].discriminator).wire_name
             template.append(
                 "# The input is polymorphic. The following are possible polymorphic "
-                f'inputs based off discriminator "{discriminator_name}":'
+                f"inputs based off discriminator {python_string_literal(discriminator_name)}:"
             )
             for idx in range(
                 min(
@@ -462,6 +483,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             check_kwarg_dict=True,
             pop_headers_kwarg=(PopKwargType.CASE_INSENSITIVE if bool(builder.parameters.headers) else PopKwargType.NO),
             pop_params_kwarg=(PopKwargType.CASE_INSENSITIVE if bool(builder.parameters.query) else PopKwargType.NO),
+            is_body_optional=builder.parameters.has_body and builder.parameters.body_parameter.optional,
         )
 
     @staticmethod
@@ -491,6 +513,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             for h in builder.parameters.headers
             if not builder.has_form_data_body or h.wire_name.lower() != "content-type"
         ]
+        is_body_optional = builder.parameters.has_body and builder.parameters.body_parameter.optional
         retval = ["# Construct headers"] if headers else []
         for header in headers:
             retval.extend(
@@ -499,6 +522,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
                     "headers",
                     self.serializer_name,
                     self.code_model.is_legacy,
+                    is_body_optional=is_body_optional,
                 )
             )
         return retval
@@ -559,7 +583,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append("")
                 retval.append(
                     "# The response is polymorphic. The following are possible polymorphic "
-                    f'responses based off discriminator "{discriminator_name}":'
+                    f"responses based off discriminator {python_string_literal(discriminator_name)}:"
                 )
                 for idx in range(
                     min(
@@ -712,7 +736,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         send_xml = builder.parameters.body_parameter.type.is_xml
         xml_serialization_ctxt = body_param.type.xml_serialization_ctxt if send_xml else None
         ser_ctxt_name = "serialization_ctxt"
-        if xml_serialization_ctxt and self.code_model.options["models-mode"]:
+        if xml_serialization_ctxt and (
+            self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
+        ):
             retval.append(f'{ser_ctxt_name} = {{"xml": {{{xml_serialization_ctxt}}}}}')
         if self.code_model.options["models-mode"] == "msrest":
             is_xml_cmd = _xml_config(send_xml, builder.parameters.body_parameter.content_types)
@@ -722,7 +748,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 f"_{body_kwarg_name} = self._serialize.body({body_param.client_name}, "
                 f"'{serialization_type}'{is_xml_cmd}{serialization_ctxt_cmd})"
             )
-        elif self.code_model.options["models-mode"] == "typeddict":
+        elif self.code_model.generate_typeddict_only:
             # TypedDict-only models are plain dicts — no serialization needed
             create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
         elif self.code_model.options["models-mode"] == "dpg":
@@ -841,7 +867,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
         all_dpg_model_overloads = False
-        if self.code_model.options["models-mode"] in ("dpg", "typeddict") and builder.overloads:
+        if (
+            self.code_model.options["models-mode"] == "dpg" or self.code_model.generate_typeddict_only
+        ) and builder.overloads:
             all_dpg_model_overloads = all(
                 _is_dpg_or_typeddict_body(o.parameters.body_parameter) for o in builder.overloads
             )
@@ -1015,7 +1043,21 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return retval
 
     def call_request_builder(self, builder: OperationType, is_paging: bool = False) -> list[str]:
-        return self._call_request_builder_helper(builder, builder.request_builder, is_paging=is_paging)
+        retval = self._call_request_builder_helper(builder, builder.request_builder, is_paging=is_paging)
+        if (
+            self.code_model.options["enable-sse-reconnect"]
+            and builder.has_structured_stream_response
+            and any(response.streaming_kind == "sse" for response in builder.responses)
+        ):
+            retval.insert(0, '_last_event_id = kwargs.pop("last_event_id", None)')
+            retval.extend(
+                [
+                    "",
+                    "if _last_event_id is not None:",
+                    '    _request.headers["Last-Event-ID"] = _last_event_id',
+                ]
+            )
+        return retval
 
     def response_headers_and_deserialization(
         self,
@@ -1111,25 +1153,39 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return retval
 
     def handle_error_response(  # pylint: disable=too-many-statements, too-many-branches
-        self, builder: OperationType
+        self,
+        builder: OperationType,
+        *,
+        response_name: str = "response",
+        pipeline_response_name: str = "pipeline_response",
+        success_status_codes: Optional[list[int]] = None,
+        stream_value: Optional[Union[str, bool]] = None,
+        response_read_name: Optional[str] = None,
     ) -> list[str]:
         async_await = "await " if self.async_mode else ""
-        retval = [f"if response.status_code not in {str(builder.success_status_codes)}:"]
-        response_read = [
-            "    try:",
-            f"        {async_await}response.read()  # Load the body in memory and close the socket",
-            "    except (StreamConsumedError, StreamClosedError):",
-            "        pass",
-        ]
-        if builder.stream_value is True:  # _stream is True so no need to judge it
+        success_status_codes = builder.success_status_codes if success_status_codes is None else success_status_codes
+        stream_value = builder.stream_value if stream_value is None else stream_value
+        retval = [f"if {response_name}.status_code not in {str(success_status_codes)}:"]
+        if response_read_name:
+            response_read = [f"    {async_await}{response_read_name}({response_name})"]
+        else:
+            response_read = [
+                "    try:",
+                f"        {async_await}{response_name}.read()  # Load the body in memory and close the socket",
+                "    except (StreamConsumedError, StreamClosedError):",
+                "        pass",
+            ]
+        if stream_value is True:  # _stream is True so no need to judge it
             retval.extend(response_read)
-        elif isinstance(builder.stream_value, str):  # _stream is not sure, so we need to judge it
+        elif isinstance(stream_value, str):  # _stream is not sure, so we need to judge it
             retval.append("    if _stream:")
             retval.extend([f"    {l}" for l in response_read])
-        retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
+        retval.append(
+            f"    map_error(status_code={response_name}.status_code, " f"response={response_name}, error_map=error_map)"
+        )
         error_model = ""
-        if (  # pylint: disable=too-many-nested-blocks
-            builder.non_default_errors and self.code_model.options["models-mode"]
+        if builder.non_default_errors and (  # pylint: disable=too-many-nested-blocks
+            self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
         ):
             error_model = ", model=error"
             condition = "if"
@@ -1142,7 +1198,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     pylint_disable = ""
                 if isinstance(e.status_codes[0], int):
                     for status_code in e.status_codes:
-                        retval.append(f"    {condition} response.status_code == {status_code}:")
+                        retval.append(f"    {condition} {response_name}.status_code == {status_code}:")
                         type_annotation = e.type.type_annotation(  # type: ignore
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
@@ -1151,39 +1207,29 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                                 fn = "_failsafe_deserialize_xml"
                             else:
                                 fn = "_failsafe_deserialize"
-                            retval.append(f"        error = {fn}({type_annotation},{pylint_disable}\n  response)")
+                            retval.append(
+                                f"        error = {fn}({type_annotation},{pylint_disable}\n  {response_name})"
+                            )
                         else:
                             retval.extend(
                                 [
                                     "        error = self._deserialize.failsafe_deserialize(",
                                     f"            {type_annotation},{pylint_disable}",
-                                    "            pipeline_response,",
+                                    f"            {pipeline_response_name},",
                                     "        )",
                                 ]
                             )
-                        # add build-in error type
-                        # TODO: we should decide whether need to this wrapper for customized error type
-                        status_code_error_map = {
-                            401: "ClientAuthenticationError",
-                            404: "ResourceNotFoundError",
-                            409: "ResourceExistsError",
-                            304: "ResourceNotModifiedError",
-                        }
-                        if status_code in status_code_error_map:
-                            retval.append(
-                                "        raise {}(response=response{}{})".format(
-                                    status_code_error_map[cast(int, status_code)],
-                                    error_model,
-                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure-arm"] else ""),
-                                )
-                            )
-                            condition = "if"
-                        else:
-                            condition = "elif"
+                        # The dedicated azure-core error type for a standard status
+                        # code is raised by ``map_error`` via the error map, so here
+                        # we only deserialize the customized error body (used by the
+                        # generic ``HttpResponseError`` fallback for non-standard
+                        # status codes within the response).
+                        condition = "elif"
                 # ranged status code only exist in typespec and will not have multiple status codes
                 else:
                     retval.append(
-                        f"    {condition} {e.status_codes[0][0]} <= response.status_code <= {e.status_codes[0][1]}:"
+                        f"    {condition} {e.status_codes[0][0]} <= "
+                        f"{response_name}.status_code <= {e.status_codes[0][1]}:"
                     )
                     type_annotation = e.type.type_annotation(  # type: ignore
                         is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
@@ -1192,26 +1238,28 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         if xml_serializable(str(e.default_content_type)):
                             retval.append(
                                 "        error = _failsafe_deserialize_xml("
-                                f"{type_annotation},{pylint_disable}\n  response)"
+                                f"{type_annotation},{pylint_disable}\n  {response_name})"
                             )
                         else:
                             retval.append(
-                                "        error = _failsafe_deserialize("
-                                f"{type_annotation},{pylint_disable}\n  response)"
+                                f"        error = _failsafe_deserialize("
+                                f"{type_annotation},{pylint_disable}\n  {response_name})"
                             )
                     else:
                         retval.extend(
                             [
                                 "        error = self._deserialize.failsafe_deserialize(",
                                 f"            {type_annotation},{pylint_disable}",
-                                "            pipeline_response,",
+                                f"            {pipeline_response_name},",
                                 "        )",
                             ]
                         )
                     condition = "elif"
         # default error handling
         default_error_deserialization = builder.default_error_deserialization(self.serialize_namespace)
-        if default_error_deserialization and self.code_model.options["models-mode"]:
+        if default_error_deserialization and (
+            self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
+        ):
             error_model = ", model=error"
             indent = "        " if builder.non_default_errors else "    "
             if builder.non_default_errors:
@@ -1226,7 +1274,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     [
                         f"{indent}error = {fn}(",
                         f"{indent}    {default_error_deserialization}",
-                        f"{indent}    response,",
+                        f"{indent}    {response_name},",
                         f"{indent})",
                     ]
                 )
@@ -1235,27 +1283,188 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     [
                         f"{indent}error = self._deserialize.failsafe_deserialize(",
                         f"{indent}    {default_error_deserialization}",
-                        f"{indent}    pipeline_response,",
+                        f"{indent}    {pipeline_response_name},",
                         f"{indent})",
                     ]
                 )
         retval.append(
-            "    raise HttpResponseError(response=response{}{})".format(
+            "    raise HttpResponseError(response={}{}{})".format(
+                response_name,
                 error_model,
                 (", error_format=ARMErrorFormat" if self.code_model.options["azure-arm"] else ""),
             )
         )
         return retval
 
-    def handle_response(self, builder: OperationType) -> list[str]:
-        retval: list[str] = ["response = pipeline_response.http_response"]
+    # pylint: disable=too-many-statements
+    def handle_structured_stream_response(self, builder: OperationType) -> list[str]:
+        """Emit the body for an operation returning a structured (JSONL / SSE) stream.
+
+        Produces a per-event deserialization callback and returns a ``Stream`` /
+        ``AsyncStream`` wrapping the streamed HTTP response.
+        """
+        response = next(r for r in builder.responses if r.is_structured_stream)
+        item_annotation = response.stream_item_annotation(
+            is_operation_file=True, serialize_namespace=self.serialize_namespace
+        )
+        stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
+        terminal_event = getattr(response, "terminal_event", None)
+        terminal_event_names = getattr(response, "terminal_event_names", [])
+        streaming_events = getattr(response, "streaming_events", [])
+        unnamed_events = [event for event in streaming_events if event.event_type is None]
+        unnamed_discriminator = get_streaming_event_discriminator(unnamed_events)
+        retval: list[str] = []
+        retval.append("def _callback(_http_response, _event):")
+        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+            named_events = [event for event in streaming_events if event.event_type is not None]
+
+            def emit_deserialized_event(event: StreamingEvent, indent: str) -> None:
+                event_item_type = event.payload_type
+                event_annotation = event_item_type.type_annotation(
+                    is_operation_file=True,
+                    serialize_namespace=self.serialize_namespace,
+                )
+                if self.code_model.options["models-mode"] == "msrest":
+                    serialization_type = event_item_type.serialization_type(
+                        serialize_namespace=self.serialize_namespace
+                    )
+                    retval.append(f"{indent}deserialized = self._deserialize(")
+                    retval.append(f"{indent}    '{serialization_type}',")
+                    retval.append(f"{indent}    _event_json")
+                    retval.append(f"{indent})")
+                else:
+                    retval.append(f"{indent}deserialized = _deserialize({event_annotation}, _event_json)")
+
+            def emit_typed_event(event: StreamingEvent, indent: str) -> None:
+                event_json = _sse_event_data_expression(event.payload_content_type)
+                retval.append(f"{indent}_event_json = {event_json}")
+                emit_deserialized_event(event, indent)
+
+            def emit_multiple_unnamed_events(events: list[StreamingEvent], indent: str) -> None:
+                event_json = _sse_fallback_data_expression(events)
+                retval.append(f"{indent}_event_json = {event_json}")
+                if unnamed_discriminator is None or event_json != "json.loads(_event.data)":
+                    retval.append(f"{indent}deserialized = _event_json")
+                    return
+                discriminator_name, variants = unnamed_discriminator
+                for index, (discriminator_value, event) in enumerate(variants):
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(
+                        f"{indent}{keyword} isinstance(_event_json, dict) "
+                        f"and _event_json.get({discriminator_name!r}) == {discriminator_value!r}:"
+                    )
+                    emit_deserialized_event(event, indent + "    ")
+                retval.append(f"{indent}else:")
+                retval.append(f"{indent}    deserialized = _event_json")
+
+            def emit_message_branch(keyword: str) -> None:
+                retval.append(f"    {keyword} _event.event == {DEFAULT_SSE_EVENT_TYPE!r}:")
+                if len(unnamed_events) == 1:
+                    emit_typed_event(unnamed_events[0], "        ")
+                else:
+                    emit_multiple_unnamed_events(unnamed_events, "        ")
+
+            if named_events:
+                for index, event in enumerate(named_events):
+                    event_type = event.event_type
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(f"    {keyword} _event.event == {event_type!r}:")
+                    emit_typed_event(event, "        ")
+                if unnamed_events:
+                    emit_message_branch("elif")
+            elif unnamed_events:
+                emit_message_branch("if")
+
+            if named_events or unnamed_events:
+                retval.append("    else:")
+                retval.append('        raise ValueError(f"Unknown SSE event type: {_event.event!r}")')
+            else:
+                retval.append('    raise ValueError(f"Unknown SSE event type: {_event.event!r}")')
+        else:
+            retval.append("    _event_json = _event.json()")
+            if self.code_model.options["models-mode"] == "msrest":
+                serialization_type = response.stream_item_type.serialization_type(
+                    serialize_namespace=self.serialize_namespace
+                )
+                retval.append("    deserialized = self._deserialize(")
+                retval.append(f"        '{serialization_type}',")
+                retval.append("        _event_json")
+                retval.append("    )")
+            else:
+                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+        retval.append("    return deserialized")
         retval.append("")
-        retval.extend(self.handle_error_response(builder))
-        retval.append("")
-        if builder.has_optional_return_type:
-            retval.append("deserialized = None")
-        if builder.any_response_has_headers:
-            retval.append("response_headers = {}")
+        stream_kwargs = ["response=response", "deserialization_callback=_callback"]
+        if terminal_event is not None:
+            stream_kwargs.append(f"terminal_event={terminal_event!r}")
+        if terminal_event_names:
+            stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
+        if response.streaming_kind == "sse" and self.code_model.options["enable-sse-reconnect"]:
+            retval.append("")
+            retval.append(
+                "async def _reconnect(_last_event_id, _reconnect_delay):"
+                if self.async_mode
+                else "def _reconnect(_last_event_id, _reconnect_delay):"
+            )
+            retval.append("    _transport: Any = pipeline_response.context.transport")
+            retval.append(f"    {'await ' if self.async_mode else ''}_transport.sleep(_reconnect_delay)")
+            retval.append("    _update_sse_request_headers(_request, _last_event_id)")
+            retval.append(
+                f"    _reconnect_response = {self._call_method}self._client.send_request("
+                "_request, stream=True, **kwargs)"
+            )
+            reconnect_status_codes = list(builder.success_status_codes)
+            if 204 not in reconnect_status_codes:
+                reconnect_status_codes.append(204)
+            retval.extend(
+                [
+                    f"    {line}"
+                    for line in self.handle_error_response(
+                        builder,
+                        response_name="_reconnect_response",
+                        pipeline_response_name=(
+                            "PipelineResponse(_request, _reconnect_response, pipeline_response.context)"
+                        ),
+                        success_status_codes=reconnect_status_codes,
+                        stream_value=True,
+                        response_read_name=("_read_sse_response_async" if self.async_mode else "_read_sse_response"),
+                    )
+                ]
+            )
+            retval.append("    return _reconnect_response")
+            stream_kwargs.append("last_event_id=_last_event_id")
+            stream_kwargs.append("reconnect_callback=_reconnect")
+        unnamed_terminal_values = (
+            [discriminator_value for discriminator_value, event in unnamed_discriminator[1] if event.is_terminal]
+            if unnamed_discriminator is not None
+            else []
+        )
+        if unnamed_terminal_values:
+            discriminator_name = unnamed_discriminator[0]  # type: ignore[index]
+            retval.append("")
+            retval.append("def _is_terminal_event(_event):")
+            retval.append(f"    if _event.event != {DEFAULT_SSE_EVENT_TYPE!r}:")
+            retval.append("        return False")
+            retval.append("    try:")
+            retval.append("        _event_json = json.loads(_event.data)")
+            retval.append("    except (TypeError, ValueError):")
+            retval.append("        return False")
+            retval.append(
+                f"    return isinstance(_event_json, dict) "
+                f"and _event_json.get({discriminator_name!r}) in {unnamed_terminal_values!r}"
+            )
+            stream_kwargs.append("terminal_event_predicate=_is_terminal_event")
+        retval.append(
+            f"deserialized: {stream_class}[{item_annotation}] = "
+            f"{stream_class}({', '.join(stream_kwargs)})  # type: ignore"
+        )
+        retval.append("if cls:")
+        retval.append("    return cls(pipeline_response, deserialized, {})  # type: ignore")
+        retval.append("return deserialized")
+        return retval
+
+    def _handle_response_body(self, builder: OperationType) -> list[str]:
+        retval: list[str] = []
         if builder.has_response_body or builder.any_response_has_headers:  # pylint: disable=too-many-nested-blocks
             if len(builder.responses) > 1:
                 status_codes, res_headers, res_deserialization = [], [], []
@@ -1290,7 +1499,26 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
                 retval.append("")
-        if builder.has_optional_return_type or self.code_model.options["models-mode"]:
+        return retval
+
+    def handle_response(self, builder: OperationType) -> list[str]:
+        retval: list[str] = ["response = pipeline_response.http_response"]
+        retval.append("")
+        retval.extend(self.handle_error_response(builder))
+        retval.append("")
+        if builder.has_structured_stream_response:
+            retval.extend(self.handle_structured_stream_response(builder))
+            return retval
+        if builder.has_optional_return_type:
+            retval.append("deserialized = None")
+        if builder.any_response_has_headers:
+            retval.append("response_headers = {}")
+        retval.extend(self._handle_response_body(builder))
+        if (
+            builder.has_optional_return_type
+            or self.code_model.options["models-mode"]
+            or self.code_model.generate_typeddict_only
+        ):
             deserialized = "deserialized"
         else:
             deserialized = f"cast({builder.response_type_annotation(async_mode=self.async_mode)}, deserialized)"
@@ -1311,36 +1539,17 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append("return 200 <= response.status_code <= 299")
         return retval
 
-    def _need_specific_error_map(self, code: int, builder: OperationType) -> bool:
-        for non_default_error in builder.non_default_errors:
-            # single status code
-            if code in non_default_error.status_codes:
-                return False
-            # ranged status code
-            if (
-                isinstance(non_default_error.status_codes[0], list)
-                and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]
-            ):
-                return False
-        return True
-
     def error_map(self, builder: OperationType) -> list[str]:
         retval = ["error_map: MutableMapping = {"]
-        if builder.non_default_errors and self.code_model.options["models-mode"]:
-            # TODO: we should decide whether to add the build-in error map when there is a customized default error type
-            if self._need_specific_error_map(401, builder):
-                retval.append("    401: ClientAuthenticationError,")
-            if self._need_specific_error_map(404, builder):
-                retval.append("    404: ResourceNotFoundError,")
-            if self._need_specific_error_map(409, builder):
-                retval.append("    409: ResourceExistsError,")
-            if self._need_specific_error_map(304, builder):
-                retval.append("    304: ResourceNotModifiedError,")
-        else:
-            retval.append(
-                "    401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError, "
-                "304: ResourceNotModifiedError"
-            )
+        # Always map the standard status codes to their dedicated azure-core error
+        # type so ``map_error`` raises the correct semantic error, even when a
+        # customized error model (single, ranged, or default) covers them. The
+        # customized error body is still deserialized in ``handle_error_response``
+        # for the generic ``HttpResponseError`` fallback.
+        retval.append(
+            "    401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError, "
+            "304: ResourceNotModifiedError"
+        )
         retval.append("}")
         if builder.has_etag:
             retval.extend(

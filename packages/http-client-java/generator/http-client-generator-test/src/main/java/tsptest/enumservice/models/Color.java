@@ -21,7 +21,12 @@ public enum Color {
     /**
      * Enum value Green.
      */
-    GREEN("Green");
+    GREEN("Green"),
+
+    /**
+     * Enum value *&#47;.
+     */
+    COMMENT_TERMINATOR("*/");
 
     /**
      * The actual serialized value for a Color instance.

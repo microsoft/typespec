@@ -1,7 +1,7 @@
 import { it } from "vitest";
 import { defaultConfig } from "../../src/config/config-loader.js";
 import { resolveOptionsFromConfig } from "../../src/config/config-to-options.js";
-import { TypeSpecConfig } from "../../src/config/types.js";
+import type { TypeSpecConfig } from "../../src/config/types.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 
 it("should return diagnostics for invalid parameter names", () => {

@@ -1,18 +1,16 @@
+import type { EmitContext, Program } from "@typespec/compiler";
 import {
-  EmitContext,
+  getDirectoryPath,
   getNormalizedAbsolutePath,
   NoTarget,
-  Program,
   resolvePath,
 } from "@typespec/compiler";
-import { promises } from "fs";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 import { stringify } from "yaml";
-import { CodeModelBuilder, EmitterOptionsDev } from "./code-model-builder.js";
-import { CodeModel } from "./common/code-model.js";
+import type { EmitterOptionsDev } from "./code-model-builder.js";
+import { CodeModelBuilder } from "./code-model-builder.js";
+import type { CodeModel } from "./common/code-model.js";
 import { LibName, reportDiagnostic } from "./lib.js";
-import { EmitterOptions } from "./options.js";
+import type { EmitterOptions } from "./options.js";
 import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
 import { validateDependencies } from "./validate.js";
 
@@ -52,8 +50,11 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
     }
 
     if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
-      const __dirname = dirname(fileURLToPath(import.meta.url));
-      const moduleRoot = resolvePath(__dirname, "..", "..");
+      const moduleRoot = resolvePath(
+        getDirectoryPath(program.host.fileURLToPath(import.meta.url)),
+        "..",
+        "..",
+      );
 
       const outputPath = context.emitterOutputDir;
       options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
@@ -65,7 +66,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 
-      await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
+      await program.host.mkdirp(outputPath).catch((err) => {
         if (err.code !== "EISDIR" && err.code !== "EEXIST") {
           reportDiagnostic(program, {
             code: "unknown-error",

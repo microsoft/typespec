@@ -1,5 +1,89 @@
 # Change Log - @typespec/openapi3
 
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Support `model`, `enum`, `union`, and `scalar` declarations used in expression position. Anonymous declaration expressions are inlined, while named ones are hoisted into a referenced component.
+  
+  ```tsp
+  model Foo {
+    status: enum { active, inactive }; // inlined
+    unit: scalar extends string; // inlined
+    inner: model Inner { x: string }; // hoisted as component `Inner`
+  }
+  ```
+- [#11954](https://github.com/microsoft/typespec/pull/11954) OpenAPI 3.1 and 3.2 now emit `additionalProperties` for a `Record<T>` indexer, unless the model also extends another model or the schema is sealed, which still use `unevaluatedProperties`.
+
+### Bug Fixes
+
+- [#11735](https://github.com/microsoft/typespec/pull/11735) [converter] Emit reusable models under a `Responses` namespace for `#/components/responses/...` references instead of inlining the response at each operation
+- [#12042](https://github.com/microsoft/typespec/pull/12042) [converter] Emit valid #deprecated directives for converted operation parameters.
+- [#12020](https://github.com/microsoft/typespec/pull/12020) Fix duplicate schema emitted for a template instantiation referenced by both an operation and an unreachable derived model
+- [#12016](https://github.com/microsoft/typespec/pull/12016) Fix `@encode` on nullable properties and parameters in OpenAPI 3.1 and 3.2. The encoding is now applied to the `T` member of `anyOf: [T, { type: "null" }]` instead of being written next to `anyOf`. When the encoding changed the emitted type, like `unixTimestamp`, `seconds` or `@encode(string)` on a number, the old schema rejected every value. When the encoded type stayed a string, like `rfc7231` on `utcDateTime` or `base64url` on `bytes`, it only rejected `null`. `bytes | null` now also gets `contentEncoding` instead of `format`.
+- [#12050](https://github.com/microsoft/typespec/pull/12050) [converter] Escape quotes and line breaks in `@tagMetadata` strings generated from OpenAPI tags.
+- [#11915](https://github.com/microsoft/typespec/pull/11915) Emit tuple value referencing a declared model as a `$ref`.
+
+
+## 1.16.0
+
+### Bug Fixes
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize the spec provided values interpolated in `output-file`(`{version}`, `{service-name}` and `{service-name-if-multiple}`) so a version or namespace name containing path separators cannot write the OpenAPI document outside of the emitter output dir.
+
+
+## 1.15.0
+
+### Features
+
+- [#11309](https://github.com/microsoft/typespec/pull/11309) Add `identifier` field to the `License` model in `@typespec/openapi`. This is an SPDX license expression for the API (e.g. `"MIT"`, `"Apache-2.0"`). The `identifier` and `url` fields are mutually exclusive. For OpenAPI 3.1+, `identifier` is emitted as-is; for OpenAPI 3.0, it is emitted as the `x-oai-license-identifier` extension. Importing an OpenAPI document also supports reading back `identifier` (or `x-oai-license-identifier` for 3.0 documents).
+  
+  ```typespec
+  @info(#{
+    license: #{ name: "MIT", identifier: "MIT" },
+  })
+  namespace MyService;
+  ```
+- [#11154](https://github.com/microsoft/typespec/pull/11154) Extend the `enum-strategy: annotated` emitter option to unions of literals. When set to `annotated`, a union whose variants are literals is emitted as a `oneOf`/`anyOf` of `const` subschemas with per-variant `title`/`description` taken from `@summary` and `@doc`, instead of collapsing to a single lossy `enum`. Supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
+  
+  For example, the following TypeSpec:
+  
+  ```typespec
+  /** Set of known error types. */
+  union ErrorType {
+    /** Common error for a bad request. */
+    @summary("CommonBadRequest")
+    commonBadRequest: "https://example.com/errors/bad-request",
+  
+    /** The request body could not be parsed. */
+    @summary("InvalidBody")
+    invalidBody: "https://example.com/errors/invalid-body",
+  }
+  ```
+  
+  emits:
+  
+  ```yaml
+  ErrorType:
+    description: Set of known error types.
+    anyOf:
+      - const: https://example.com/errors/bad-request
+        title: CommonBadRequest
+        description: Common error for a bad request.
+      - const: https://example.com/errors/invalid-body
+        title: InvalidBody
+        description: The request body could not be parsed.
+  ```
+  
+  Use `@oneOf` on the union to emit `oneOf` instead of `anyOf`.
+- [#11153](https://github.com/microsoft/typespec/pull/11153) Add scope support to `OpenIdConnectAuth`. The model now accepts an optional `Scopes` template parameter (`OpenIdConnectAuth<ConnectUrl, Scopes>`) and the OpenAPI3 emitter emits those scopes on each operation's `openIdConnect` security requirement. The scheme object itself remains unchanged (scopes are discovered via the `openIdConnectUrl`). Existing `OpenIdConnectAuth<Url>` usages are unaffected.
+
+### Bug Fixes
+
+- [#11427](https://github.com/microsoft/typespec/pull/11427) Fix duplicate type name error when a model with a `@visibility(Lifecycle.Create, Lifecycle.Update)` property extends another model.
+- [#11538](https://github.com/microsoft/typespec/pull/11538) [converter] Convert query parameters using `spaceDelimited`/`pipeDelimited` styles to `@encode(ArrayEncoding.spaceDelimited)`/`@encode(ArrayEncoding.pipeDelimited)` instead of dropping them, including when `explode: true` is set
+
+
 ## 1.14.0
 
 ### Deprecations

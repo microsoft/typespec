@@ -207,6 +207,13 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
+  "templated-declaration-in-expression": {
+    severity: "error",
+    messages: {
+      default:
+        "A declaration used as an expression cannot have template parameters as it cannot be referenced or instantiated.",
+    },
+  },
   "default-required": {
     severity: "error",
     messages: {
@@ -267,6 +274,20 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
+  "declaration-expression-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Declaration expressions require the 'declaration-expressions' feature to be enabled. Add 'declaration-expressions' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "union-extends-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "auto-decorator-disabled": {
@@ -380,6 +401,13 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
+    },
+  },
+  "extend-union": {
+    severity: "error",
+    messages: {
+      default: "Union `extends` must specify a model, scalar, enum, or union.",
+      modelExpression: "Unions cannot extend model expressions.",
     },
   },
   "is-model": {
@@ -752,6 +780,12 @@ const diagnostics = {
       default: paramMessage`Diagnostic "${"code"}" is already suppressed on this node.`,
     },
   },
+  "ambiguous-short-name": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Short name "${"shortName"}" is ambiguous. It could refer to ${"candidates"}. Use the full name instead.`,
+    },
+  },
   "decorator-decl-target": {
     severity: "error",
     messages: {
@@ -797,6 +831,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
+    },
+  },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter "${"emitterPackage"}" not found. Make sure to install it with \`npm install ${"emitterPackage"}\`.`,
     },
   },
   "invalid-emitter": {
@@ -849,6 +889,18 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
+  "circular-ruleset-file": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Linter ruleset file "${"path"}" is extending itself, either directly or indirectly.`,
+    },
+  },
+  "ruleset-file-in-library": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ruleset "${"ruleSetName"}" is defined in a library and cannot extend the ruleset file "${"ref"}". "file:" references can only be used in "tspconfig.yaml", in another ruleset file, or with "--linter-ruleset".`,
     },
   },
 
@@ -978,6 +1030,7 @@ const diagnostics = {
     messages: {
       default: paramMessage`Encoded name '${"name"}' conflicts with existing member name for mime type '${"mimeType"}'`,
       duplicate: paramMessage`Same encoded name '${"name"}' is used for 2 members '${"mimeType"}'`,
+      enumValue: paramMessage`Encoded name '${"name"}' conflicts with the value of another member for mime type '${"mimeType"}'`,
     },
   },
 
@@ -1162,6 +1215,18 @@ const diagnostics = {
       default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
     },
   },
+  "invalid-linter-rule-flag": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The --linter-rule parameter value "${"value"}" must be in the format <library-name>/<rule-name>=<value>, where value is true, false, or a JSON options object.`,
+    },
+  },
+  "conflicting-linter-flags": {
+    severity: "error",
+    messages: {
+      default: "--no-linter cannot be combined with --linter-ruleset or --linter-rule.",
+    },
+  },
   "cli-command-deprecated": {
     severity: "warning",
     messages: {
@@ -1169,6 +1234,13 @@ const diagnostics = {
     },
   },
   // #endregion CLI
+  "typeref-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "The typeref function requires the 'typeref' feature to be enabled. Add 'typeref' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

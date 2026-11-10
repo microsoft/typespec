@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.35.0",
+  "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -35,6 +35,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
     "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/build.ts",
+    "build:playground": "npm run build -- --playground",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",
@@ -50,7 +51,8 @@
     "typecheck": "tsx ./eng/scripts/ci/typecheck.ts",
     "typecheck:generated": "tsx ./eng/scripts/ci/typecheck.ts --generated",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "ci": "npm run test:emitter && npm run ci:generated",
+    "check-unstaged": "git -c core.safecrlf=false diff --ignore-space-at-eol --exit-code HEAD -- .",
+    "ci": "npm run check-unstaged && npm run test:emitter && npm run ci:generated",
     "ci:generated": "tsx ./eng/scripts/ci/run-tests.ts --generator --env=ci",
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
     "change:add": "pnpm chronus add",
@@ -65,26 +67,34 @@
     "emitter"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-autorest": ">=0.70.0 <1.0.0",
-    "@azure-tools/typespec-azure-core": ">=0.70.0 <1.0.0",
-    "@azure-tools/typespec-azure-resource-manager": ">=0.70.0 <1.0.0",
-    "@azure-tools/typespec-azure-rulesets": ">=0.70.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.70.0 <1.0.0",
-    "@typespec/compiler": "^1.14.0",
-    "@typespec/http": "^1.14.0",
-    "@typespec/openapi": "^1.14.0",
-    "@typespec/rest": ">=0.84.0 <1.0.0",
-    "@typespec/versioning": ">=0.84.0 <1.0.0",
-    "@typespec/events": ">=0.84.0 <1.0.0",
-    "@typespec/sse": ">=0.84.0 <1.0.0",
-    "@typespec/streams": ">=0.84.0 <1.0.0",
-    "@typespec/xml": ">=0.84.0 <1.0.0"
+    "@azure-tools/typespec-autorest": ">=0.73.2 <1.0.0",
+    "@azure-tools/typespec-azure-core": ">=0.73.0 <1.0.0",
+    "@azure-tools/typespec-azure-resource-manager": ">=0.73.0 <1.0.0",
+    "@azure-tools/typespec-azure-rulesets": ">=0.73.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.73.1 <1.0.0",
+    "@typespec/compiler": "^1.17.0",
+    "@typespec/http": "^1.17.0",
+    "@typespec/openapi": "^1.17.0",
+    "@typespec/rest": ">=0.87.0 <1.0.0",
+    "@typespec/versioning": ">=0.87.0 <1.0.0",
+    "@typespec/events": ">=0.87.0 <1.0.0",
+    "@typespec/sse": ">=0.87.0 <1.0.0",
+    "@typespec/streams": ">=0.87.0 <1.0.0",
+    "@typespec/xml": ">=0.87.0 <1.0.0"
   },
   "playgroundConfig": {
     "assets": [
       {
         "path": "generator/dist/pygen-*.whl",
         "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser/*.whl",
+        "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser/manifest.json",
+        "contentType": "application/json"
       }
     ],
     "bundlePeerDependencies": [
@@ -96,39 +106,40 @@
     ]
   },
   "dependencies": {
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^4.3.1",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",
-    "tsx": "^4.21.0"
+    "tsx": "^4.23.13"
   },
   "devDependencies": {
-    "@azure-tools/typespec-autorest": "~0.70.0",
-    "@azure-tools/typespec-azure-core": "~0.70.0",
-    "@azure-tools/typespec-azure-resource-manager": "~0.70.0",
-    "@azure-tools/typespec-azure-rulesets": "~0.70.0",
-    "@azure-tools/typespec-client-generator-core": "~0.70.0",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.43",
-    "@typespec/compiler": "^1.14.0",
-    "@typespec/http": "^1.14.0",
-    "@typespec/openapi": "^1.14.0",
-    "@typespec/rest": "~0.84.0",
-    "@typespec/versioning": "~0.84.0",
-    "@typespec/events": "~0.84.0",
-    "@typespec/spector": "0.1.0-alpha.26",
-    "@typespec/spec-api": "0.1.0-alpha.15",
-    "@typespec/sse": "~0.84.0",
-    "@typespec/streams": "~0.84.0",
-    "@typespec/xml": "~0.84.0",
-    "@typespec/http-specs": "0.1.0-alpha.39",
+    "@azure-tools/typespec-autorest": "~0.73.2",
+    "@azure-tools/typespec-azure-core": "~0.73.0",
+    "@azure-tools/typespec-azure-resource-manager": "~0.73.0",
+    "@azure-tools/typespec-azure-rulesets": "~0.73.0",
+    "@azure-tools/typespec-client-generator-core": "~0.73.1",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.46",
+    "@typespec/compiler": "^1.17.0",
+    "@typespec/http": "^1.17.0",
+    "@typespec/openapi": "^1.17.0",
+    "@typespec/rest": "~0.87.0",
+    "@typespec/versioning": "~0.87.0",
+    "@typespec/events": "~0.87.0",
+    "@typespec/spector": "0.1.0-alpha.30",
+    "@typespec/spec-api": "0.1.0-alpha.17",
+    "@typespec/sse": "~0.87.0",
+    "@typespec/streams": "~0.87.0",
+    "@typespec/xml": "~0.87.0",
+    "@typespec/http-specs": "0.1.0-alpha.44",
     "@types/js-yaml": "~4.0.5",
     "@types/node": "~25.0.2",
     "@types/semver": "7.5.8",
     "c8": "^10.1.3",
+    "oxlint": "^1.69.0",
     "picocolors": "~1.1.1",
     "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
-    "typescript-eslint": "^8.49.0",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "prettier": "^3.9.5"
   }
 }

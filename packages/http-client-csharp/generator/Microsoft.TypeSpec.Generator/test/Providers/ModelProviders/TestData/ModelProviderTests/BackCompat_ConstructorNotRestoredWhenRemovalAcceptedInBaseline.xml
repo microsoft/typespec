@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Suppressions>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Sample.Models.MockInputModel.#ctor(System.String,System.String)</Target>
+  </Suppression>
+</Suppressions>

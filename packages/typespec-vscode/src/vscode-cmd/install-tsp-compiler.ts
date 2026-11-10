@@ -2,7 +2,8 @@ import { inspect } from "util";
 import logger from "../log/logger.js";
 import telemetryClient from "../telemetry/telemetry-client.js";
 import { TelemetryEventName } from "../telemetry/telemetry-event.js";
-import { InstallGlobalCliCommandArgs, Result, ResultCode } from "../types.js";
+import type { InstallGlobalCliCommandArgs, Result } from "../types.js";
+import { ResultCode } from "../types.js";
 import { installCompilerWithUi } from "../typespec-utils.js";
 
 export async function installCompilerGlobally(

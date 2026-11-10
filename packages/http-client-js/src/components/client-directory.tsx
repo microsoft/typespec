@@ -1,6 +1,7 @@
-import { Children, For, SourceDirectory, StatementList } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { For, SourceDirectory, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import * as cl from "@typespec/http-client";
+import type * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
 import { ClientContext } from "./client-context/client-context.jsx";
 import { ClientOperations } from "./client-operation.jsx";

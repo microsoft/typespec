@@ -1,5 +1,6 @@
 import { ok } from "assert";
-import { spawn, SpawnOptions } from "child_process";
+import type { SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { readdir, readFile, rm, writeFile } from "fs/promises";
 import { dirname, join, relative, resolve } from "pathe";
 import { fileURLToPath } from "url";
@@ -9,8 +10,19 @@ import { getTypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 import { defaultInternalTemplateSource } from "../../src/init/template-source/index.js";
 
+const manifest = {
+  name: "mock-pkg",
+  version: "1.0.0",
+  dist: { shasum: "abc", tarball: "https://example.com/mock-pkg.tgz" },
+};
 const fetchMock = vi.fn().mockResolvedValue({
-  json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
+  ok: true,
+  json: () =>
+    Promise.resolve({
+      name: manifest.name,
+      "dist-tags": { latest: manifest.version },
+      versions: { [manifest.version]: manifest },
+    }),
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -173,20 +185,26 @@ describe("Init templates e2e tests", () => {
       vi.unstubAllGlobals();
     });
 
+    it("empty", () => scaffoldTemplateSnapshot("empty"));
     it("rest", () => scaffoldTemplateSnapshot("rest"));
     it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
     it("library-ts", () => scaffoldTemplateSnapshot("library-ts"));
   });
 
   describe("validate templates", () => {
+    it("validate empty template", async () => {
+      const fixture = await scaffoldTemplateForTest("empty");
+      await fixture.checkCommand("npm", ["install", "--no-audit"]);
+      await fixture.checkCommand("npx", ["tsp", "compile", "."]);
+    });
     it("validate rest template", async () => {
       const fixture = await scaffoldTemplateForTest("rest");
-      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["install", "--no-audit"]);
       await fixture.checkCommand("npx", ["tsp", "compile", "."]);
     });
     it("validate emitter-ts template", async () => {
       const fixture = await scaffoldTemplateForTest("emitter-ts");
-      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["install", "--no-audit"]);
       await fixture.checkCommand("npm", ["run", "build"]);
       await fixture.checkCommand("npm", ["run", "test"]);
       await fixture.checkCommand("npm", ["run", "lint"]);
@@ -195,7 +213,7 @@ describe("Init templates e2e tests", () => {
 
     it("validate library-ts template", async () => {
       const fixture = await scaffoldTemplateForTest("library-ts");
-      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["install", "--no-audit"]);
       await fixture.checkCommand("npm", ["run", "build"]);
       await fixture.checkCommand("npm", ["run", "test"]);
       await fixture.checkCommand("npm", ["run", "lint"]);

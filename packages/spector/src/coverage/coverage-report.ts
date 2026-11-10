@@ -1,4 +1,4 @@
-import { CoverageReport, ScenarioStatus } from "@typespec/spec-coverage-sdk";
+import type { CoverageReport, ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { getScenarioMetadata } from "./common.js";
 
 export async function createCoverageReport(

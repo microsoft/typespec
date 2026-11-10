@@ -1,20 +1,22 @@
-import {
+import type {
   BooleanLiteral,
-  getEncode,
   IntrinsicScalarName,
-  isTemplateDeclaration,
   Model,
   ModelProperty,
   NumericLiteral,
   Program,
   Scalar,
-  serializeValueAsJson,
   StringLiteral,
   Type,
-  UnserializableValueError,
   Value,
 } from "@typespec/compiler";
-import { HttpOperation, HttpProperty } from "@typespec/http";
+import {
+  getEncode,
+  isTemplateDeclaration,
+  serializeValueAsJson,
+  UnserializableValueError,
+} from "@typespec/compiler";
+import type { HttpOperation, HttpProperty } from "@typespec/http";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 
 /**

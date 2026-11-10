@@ -87,10 +87,10 @@ public partial class PetsController : ControllerBase
     /// </summary>
     [HttpDelete]
     [Route("/pets/{id}")]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(void))]
+    [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
     public virtual async Task<IActionResult> Delete(long id)
     {
-        var result = await PetsImpl.DeleteAsync(id);
-        return Ok(result);
+        await PetsImpl.DeleteAsync(id);
+        return NoContent();
     }
 }

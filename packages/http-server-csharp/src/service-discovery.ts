@@ -1,12 +1,52 @@
+import type { Interface } from "@typespec/compiler";
 import {
-  Interface,
+  getNamespaceFullName,
   isStdNamespace,
   isTemplateDeclaration,
+  listServices,
   type Operation,
+  type Program,
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
-import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
+import { findServiceNamespace, getCSharpNamespaceName } from "./utils/namespace-utils.js";
+
+/**
+ * Collects the namespaces whose declarations are emitted even when nothing references them.
+ *
+ * When the spec declares one or more services, only the service namespaces and their
+ * sub-namespaces qualify; types declared elsewhere are emitted only when the service
+ * references them.
+ *
+ * When no service is declared there is nothing to anchor the emit on, so every
+ * non-standard namespace is treated as part of the service.
+ */
+export function getDeclarationNamespaces(program: Program): Set<TspNamespace> {
+  const namespaces = new Set<TspNamespace>();
+  const globalNs = program.getGlobalNamespaceType();
+
+  function addWithChildren(ns: TspNamespace): void {
+    if (namespaces.has(ns)) return;
+    namespaces.add(ns);
+    for (const child of ns.namespaces.values()) {
+      if (isStdNamespace(child)) continue;
+      addWithChildren(child);
+    }
+  }
+
+  const services = listServices(program);
+  if (services.length === 0) {
+    addWithChildren(globalNs);
+    return namespaces;
+  }
+
+  // Declarations at the global namespace level are always authored by the spec itself.
+  namespaces.add(globalNs);
+  for (const service of services) {
+    addWithChildren(service.type);
+  }
+  return namespaces;
+}
 
 /**
  * Collects all interfaces from the service namespace(s).
@@ -15,6 +55,7 @@ import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
  */
 export function getServiceInterfaces(
   program: ReturnType<typeof useTsp>["$"]["program"],
+  serviceNamespaces: Set<TspNamespace> = getDeclarationNamespaces(program),
 ): Interface[] {
   const interfaces: Interface[] = [];
   const globalNs = program.getGlobalNamespaceType();
@@ -54,18 +95,26 @@ export function getServiceInterfaces(
         interfaces.push(syntheticIface);
       }
     }
-
-    for (const childNs of ns.namespaces?.values() ?? []) {
-      if (isStdNamespace(childNs)) continue;
-      collectFromNamespace(childNs);
-    }
   }
 
-  for (const ns of globalNs.namespaces.values()) {
-    if (isStdNamespace(ns)) continue;
+  for (const ns of serviceNamespaces) {
+    if (ns === globalNs) continue;
     collectFromNamespace(ns);
   }
   return interfaces;
+}
+
+/**
+ * Gets the namespace declared with `@service`.
+ *
+ * When no service is declared, falls back to the first non-standard namespace with content to
+ * preserve standalone model-emission behavior.
+ */
+export function getServiceNamespace(program: Program): TspNamespace | undefined {
+  const service = listServices(program)[0];
+  if (service) return service.type;
+
+  return findServiceNamespace(program.getGlobalNamespaceType());
 }
 
 /**
@@ -74,39 +123,7 @@ export function getServiceInterfaces(
 export function getServiceNamespaceName(
   program: ReturnType<typeof useTsp>["$"]["program"],
 ): string | undefined {
-  const globalNs = program.getGlobalNamespaceType();
-
-  function getFullName(ns: TspNamespace): string {
-    const parts: string[] = [];
-    let current: TspNamespace | undefined = ns;
-    while (current && current !== globalNs) {
-      parts.unshift(current.name);
-      current = current.namespace;
-    }
-    return parts.join(".");
-  }
-
-  // Find the service namespace (deepest non-std namespace in the first branch)
-  function findServiceNs(ns: TspNamespace): TspNamespace | undefined {
-    for (const child of ns.namespaces.values()) {
-      if (isStdNamespace(child)) continue;
-      // If this namespace has content (models, interfaces, operations, enums), use it
-      // Otherwise, recurse deeper
-      const hasContent =
-        child.models.size > 0 ||
-        child.interfaces.size > 0 ||
-        child.operations.size > 0 ||
-        child.enums.size > 0;
-      if (hasContent) return child;
-      const deeper = findServiceNs(child);
-      if (deeper) return deeper;
-      return child;
-    }
-    return undefined;
-  }
-
-  const serviceNs = findServiceNs(globalNs);
+  const serviceNs = getServiceNamespace(program);
   if (!serviceNs) return undefined;
-  const fullName = getFullName(serviceNs);
-  return getCSharpIdentifier(fullName, NameCasingType.Namespace);
+  return getCSharpNamespaceName(getNamespaceFullName(serviceNs));
 }

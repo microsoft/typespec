@@ -1,15 +1,13 @@
-import {
-  expandDyns,
-  MockRequest,
+import type {
   MockRequestHandler,
   MockResponse,
   RequestExt,
   ResolverConfig,
-  ValidationError,
 } from "@typespec/spec-api";
-import { Response } from "express";
+import { expandDyns, MockRequest, ValidationError } from "@typespec/spec-api";
+import type { Response } from "express";
 import { inspect } from "util";
-import { CoverageTracker } from "../coverage/coverage-tracker.js";
+import type { CoverageTracker } from "../coverage/coverage-tracker.js";
 import { logger } from "../logger.js";
 
 export async function processRequest(

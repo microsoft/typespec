@@ -1,14 +1,16 @@
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { getDirectoryPath, normalizePath } from "../core/path-utils.js";
-import { Diagnostic, NoTarget, SystemHost } from "../core/types.js";
+import type { Diagnostic, SystemHost } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 import { doIO } from "../utils/io.js";
 import { omitUndefined } from "../utils/misc.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
-import { EmitterOptions, TypeSpecConfig } from "./types.js";
+import type { EmitterOptions, TypeSpecConfig } from "./types.js";
 
+/** Entry point, optional explicit config, and interpolation inputs used to resolve compiler options. */
 export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
   /** Absolute entrypoint path */
   entrypoint: string;
@@ -17,6 +19,7 @@ export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
   configPath?: string;
 }
 
+/** Values and overrides applied while expanding a loaded TypeSpec configuration. */
 export interface ConfigToOptionsOptions {
   /**
    * Current working directory. This will be used to interpolate `{cwd}` in the config.

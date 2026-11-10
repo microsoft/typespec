@@ -39,6 +39,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(
@@ -47,11 +48,11 @@ setup(
         ]
     ),
     install_requires=[
-        "black==24.4.0",
+        "black==26.3.1",
         "docutils>=0.20.1",
         "Jinja2==3.1.6",
         "PyYAML==6.0.1",
         "tomli==2.0.1",
-        "setuptools==75.3.2",
+        "setuptools==83.0.0",
     ],
 )

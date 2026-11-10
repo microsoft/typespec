@@ -47,11 +47,17 @@ function createDateTimeMatcher(
   });
 }
 
+/** Datetime matcher factories exposed through match.dateTime. */
 export const dateTimeMatcher = {
+  /**
+   * Matches strings with RFC 3339 syntax that parse to the same millisecond timestamp.
+   * Fractional precision and offsets may differ; a zone is optional in the accepted syntax.
+   * @throws {Error} if the expected datetime cannot be parsed.
+   */
   rfc3339(value: string): MockValueMatcher<string> {
     return createDateTimeMatcher(value, "match.dateTime.rfc3339", "rfc3339", rfc3339Pattern);
   },
-  /** Like rfc3339 but rejects timezone offsets — only Z (UTC) suffix is allowed. */
+  /** Like rfc3339 but requires a Z (UTC) suffix, rejecting offsets and missing zones. */
   utcRfc3339(value: string): MockValueMatcher<string> {
     return createDateTimeMatcher(
       value,
@@ -60,6 +66,10 @@ export const dateTimeMatcher = {
       utcRfc3339Pattern,
     );
   },
+  /**
+   * Matches HTTP-date strings ending in GMT that parse to the expected millisecond timestamp.
+   * @throws {Error} if the expected datetime cannot be parsed.
+   */
   rfc7231(value: string): MockValueMatcher<string> {
     return createDateTimeMatcher(value, "match.dateTime.rfc7231", "rfc7231", rfc7231Pattern);
   },

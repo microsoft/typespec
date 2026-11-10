@@ -1,21 +1,32 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
-import {
-  BLOB_STORAGE_BASE_URL,
-  PACKAGE_NAME,
-  PYGEN_WHEEL_FILENAME,
-  PYODIDE_VERSION,
-} from "./constants.js";
-import { dumpCodeModelToYaml } from "./external-process.js";
-import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
+import { BLOB_STORAGE_BASE_URL, PACKAGE_NAME, PYODIDE_VERSION } from "./constants.js";
+import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
-import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
+import type { PyodideInterface } from "./pyodide-loader.js";
+import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
+import { dumpCodeModelToYaml } from "./yaml-utils.js";
 
-function getBrowserPygenWheelUrl(): string {
-  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
+function getBrowserAssetUrl(filename: string): string {
+  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/browser/${filename}`;
+}
+
+function isBrowserWheelManifest(manifest: unknown): manifest is { wheels: string[] } {
+  return (
+    typeof manifest === "object" &&
+    manifest !== null &&
+    "wheels" in manifest &&
+    Array.isArray(manifest.wheels) &&
+    manifest.wheels.length > 0 &&
+    manifest.wheels.every(
+      (name: unknown) => typeof name === "string" && /^[\w.+-]+\.whl$/.test(name),
+    )
+  );
 }
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
@@ -30,6 +41,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     ...sdkContext.emitContext.options,
   };
   const options = sdkContext.emitContext.options;
+  options["enable-sse-reconnect"] ??= false;
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
@@ -178,13 +190,15 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const yamlMap = emitCodeModel(sdkContext);
   const parsedYamlMap = walkThroughNodes(yamlMap);
 
-  // Python emitter requires an SDK client in the TypeSpec
+  // Warn when no SDK clients are present, while still allowing model-only generation.
   if (sdkContext.sdkPackage.clients.length === 0) {
     reportDiagnostic(program, {
       code: "no-sdk-clients",
-      target: NoTarget,
+      target:
+        listServices(program)[0]?.type ??
+        sdkContext.sdkPackage.models[0]?.__raw ??
+        program.getGlobalNamespaceType(),
     });
-    return;
   }
 
   const resolvedOptions = sdkContext.emitContext.options;
@@ -223,7 +237,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   if (typeof window !== "undefined") {
     // Running in browser with Pyodide - fileURLToPath and other filesystem operations are browser-incompatible
-    const pyodide = await browserPyodidePromise;
+    const pyodide = await getBrowserPyodide();
 
     if (!pyodide) {
       reportDiagnostic(program, {
@@ -253,8 +267,29 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 }
 
-const browserPyodidePromise: Promise<PyodideInterface> | null =
-  typeof window !== "undefined" ? setupPyodideCallBrowser() : null;
+let browserPyodidePromise: Promise<PyodideInterface> | undefined;
+
+/**
+ * Boot the Pyodide runtime lazily, on the first browser emit.
+ *
+ * This must not happen when the module is imported: hosts like the TypeSpec playground import every
+ * available emitter up front, and booting Pyodide downloads a full CPython WebAssembly runtime plus
+ * its wheels (~10MB, ~290MB of resident memory). Doing that eagerly pushed the playground past the
+ * per-tab memory budget on mobile browsers, which made the page fail to load.
+ */
+function getBrowserPyodide(): Promise<PyodideInterface> | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  if (browserPyodidePromise === undefined) {
+    browserPyodidePromise = setupPyodideCallBrowser().catch((error) => {
+      // Clear the cached promise so a later emit can retry after a transient failure.
+      browserPyodidePromise = undefined;
+      throw error;
+    });
+  }
+  return browserPyodidePromise;
+}
 
 function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
   const entries: string[] = pyodide.FS.readdir(dir).filter(
@@ -279,9 +314,25 @@ async function setupPyodideCallBrowser() {
 
   // use default MEMFS for browser, since NODEFS is not supported
   pyodide.FS.mkdirTree("/generator");
-  await pyodide.loadPackage("micropip");
-  const micropip = pyodide.pyimport("micropip");
-  await micropip.install(getBrowserPygenWheelUrl());
+  const response = await fetch(getBrowserAssetUrl("manifest.json"));
+  if (!response.ok) {
+    throw new Error(`Failed to load Python browser wheel manifest: HTTP ${response.status}`);
+  }
+  const manifest: unknown = await response.json();
+  if (!isBrowserWheelManifest(manifest)) {
+    throw new Error("Invalid Python browser wheel manifest.");
+  }
+  await loadBrowserPackages(pyodide, manifest.wheels.map(getBrowserAssetUrl));
+  await loadBrowserPackages(pyodide, ["pyyaml", "markupsafe"]);
 
   return pyodide;
+}
+
+async function loadBrowserPackages(pyodide: PyodideInterface, packages: string[]): Promise<void> {
+  const errors: string[] = [];
+  // loadPackage can report failed downloads through its callback without rejecting.
+  await pyodide.loadPackage(packages, { errorCallback: (message) => errors.push(message) });
+  if (errors.length > 0) {
+    throw new Error(`Failed to load Python browser packages: ${errors.join("\n")}`);
+  }
 }

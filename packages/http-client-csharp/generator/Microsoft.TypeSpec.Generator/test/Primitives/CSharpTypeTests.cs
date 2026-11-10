@@ -404,6 +404,81 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.AreEqual(expected, actual);
         }
 
+        [TestCase(1)]
+        [TestCase(2)]
+        public void SymbolBackedArrayPreservesStructure(int rank)
+        {
+            var element = new CSharpType("ExternalValue", "Sample", false, false, null, [], true, false);
+            var array = element.MakeArrayType(rank);
+            Assert.That(array.IsArray, Is.True);
+            Assert.That(array.IsFrameworkType, Is.False);
+            Assert.That(array.ArrayRank, Is.EqualTo(rank));
+            Assert.That(array.ElementType, Is.SameAs(element));
+            Assert.That(array.Arguments, Is.Empty);
+            Assert.That(array.ToString(), Is.EqualTo("global::Sample.ExternalValue[" + new string(',', rank - 1) + "]"));
+
+            var nullable = array.WithNullable(true);
+            Assert.That(nullable.IsArray, Is.True);
+            Assert.That(nullable.ArrayRank, Is.EqualTo(rank));
+            Assert.That(nullable.ElementType, Is.SameAs(element));
+            Assert.That(nullable.WithNullable(false).Equals(array), Is.True);
+            Assert.That(nullable.WithNullable(false).GetHashCode(), Is.EqualTo(array.GetHashCode()));
+        }
+
+        [Test]
+        public void SymbolBackedGenericArrayIncludesElementArguments()
+        {
+            var valueType = new CSharpType("ExternalValue", "Sample", false, false, null, [], true, false);
+            var element = new CSharpType(typeof(List<>), valueType);
+            var array = element.MakeArrayType();
+            var same = element.MakeArrayType();
+            var different = new CSharpType(typeof(List<string>)).MakeArrayType();
+            Assert.That(array.Equals(same), Is.True);
+            Assert.That(array.GetHashCode(), Is.EqualTo(same.GetHashCode()));
+            Assert.That(array.Equals(different), Is.False);
+            Assert.That(array.AreNamesEqual(different), Is.False);
+            Assert.That(array.ToString(), Is.EqualTo("global::System.Collections.Generic.List<global::Sample.ExternalValue>[]"));
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(int[]))]
+        public void FrameworkArrayRetainsRuntimeType(Type elementType)
+        {
+            var array = new CSharpType(elementType).MakeArrayType();
+            Assert.That(array.IsFrameworkType, Is.True);
+            Assert.That(array.FrameworkType, Is.EqualTo(elementType.MakeArrayType()));
+            Assert.That(array.ElementType.Equals(new CSharpType(elementType)), Is.True);
+        }
+
+        [TestCase(typeof(List<int>[]), "global::System.Collections.Generic.List<int>[]")]
+        [TestCase(typeof(int?[]), "int?[]")]
+        [TestCase(typeof(int?[][]), "int?[][]")]
+        public void ArrayRendersConstructedElementType(Type type, string expected)
+        {
+            Assert.That(new CSharpType(type).ToString(), Is.EqualTo(expected));
+        }
+
+        [TestCase(typeof(int[]), typeof(int?[]), false)]
+        [TestCase(typeof(int?[]), typeof(int[]), false)]
+        [TestCase(typeof(int[][]), typeof(int?[][]), false)]
+        [TestCase(typeof(List<int>[]), typeof(List<int?>[]), false)]
+        [TestCase(typeof(List<int[]>), typeof(List<int?[]>), false)]
+        [TestCase(typeof(int[][,]), typeof(int[,][]), false)]
+        [TestCase(typeof(int?[]), typeof(int?[]), true)]
+        [TestCase(typeof(List<int?>[]), typeof(List<int?>[]), true)]
+        public void ArrayNamesDistinguishNullableValueElements(Type left, Type right, bool expected)
+        {
+            Assert.That(new CSharpType(left).AreNamesEqual(new CSharpType(right)), Is.EqualTo(expected));
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void ArrayRejectsInvalidRank(int rank)
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new CSharpType(typeof(int)).MakeArrayType(rank));
+        }
+
         [TestCase(typeof(int), false)]
         [TestCase(typeof(IDictionary<string, string>), false)]
         [TestCase(typeof(ReadOnlyMemory<>), false)]
@@ -660,6 +735,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         }
         private class TestBaseType
         {
+        }
+
+        [TestCase("MyNs", "SimpleType", ExpectedResult = "SimpleType")]
+        [TestCase("MyNs", "SimpleType`1", ExpectedResult = "SimpleType`1")]
+        public string ClrMetadataName_SimpleType(string ns, string name)
+        {
+            var type = new CSharpType(name, ns, false, false, null, [], true, false);
+            return type.ClrMetadataName;
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericType_OneTypeArg()
+        {
+            var argType = new CSharpType("T", "MyNs", false, false, null, [], true, false);
+            var type = new CSharpType("GenericType", "MyNs", false, false, null, [argType], true, false);
+            Assert.AreEqual("GenericType`1", type.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericType_TwoTypeArgs()
+        {
+            var arg1 = new CSharpType("TKey", "MyNs", false, false, null, [], true, false);
+            var arg2 = new CSharpType("TValue", "MyNs", false, false, null, [], true, false);
+            var type = new CSharpType("DictionaryType", "MyNs", false, false, null, [arg1, arg2], true, false);
+            Assert.AreEqual("DictionaryType`2", type.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_NestedType()
+        {
+            var outerType = new CSharpType("Outer", "MyNs", false, false, null, [], true, false);
+            var innerType = new CSharpType("Inner", "MyNs", false, false, outerType, [], true, false);
+            Assert.AreEqual("Outer+Inner", innerType.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericNestedType()
+        {
+            var arg = new CSharpType("T", "MyNs", false, false, null, [], true, false);
+            var outerType = new CSharpType("Outer", "MyNs", false, false, null, [arg], true, false);
+            var innerType = new CSharpType("Inner", "MyNs", false, false, outerType, [], true, false);
+            Assert.AreEqual("Outer`1+Inner", innerType.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_LazilyComputedAndCached()
+        {
+            var type = new CSharpType("MyType", "MyNs", false, false, null, [], true, false);
+            var first = type.ClrMetadataName;
+            var second = type.ClrMetadataName;
+            Assert.AreSame(first, second);
         }
     }
 }

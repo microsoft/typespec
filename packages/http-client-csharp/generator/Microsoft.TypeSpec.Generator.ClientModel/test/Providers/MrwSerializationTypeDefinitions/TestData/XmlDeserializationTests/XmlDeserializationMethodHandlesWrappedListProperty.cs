@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
+using Sample;
 
 namespace Sample.Models
 {
@@ -54,7 +55,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(counts);
+            return new global::Sample.Models.TestXmlModel((counts ?? new global::Sample.ChangeTrackingList<int>()));
         }
     }
 }

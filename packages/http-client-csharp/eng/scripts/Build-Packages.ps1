@@ -47,7 +47,10 @@ function Pack-And-Write-Info {
     )
 
     $versionOption = $BuildNumber ? "/p:Version=$version" : ""
-    Invoke-LoggedCommand "dotnet pack ./$package/src/$package.csproj $versionOption -c Release -o $outputPath/packages"
+    $ciNugetAuditArg = $env:TF_BUILD ? "-p:NuGetAudit=false" : ""
+    $repoRoot = (Resolve-Path "$packageRoot/../..").Path
+    $nugetConfigPath = (Join-Path $repoRoot "eng/nuget.config")
+    Invoke-LoggedCommand "dotnet pack ./$package/src/$package.csproj $versionOption -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg -c Release -o $outputPath/packages"
     Write-PackageInfo -packageName $package -directoryPath "packages/http-client-csharp/generator/$package/src" -version $version
 }
 
@@ -109,7 +112,24 @@ Push-Location "$packageRoot"
 try {
     Write-Host "Working in $PWD"
 
-    Invoke-LoggedCommand "npm run build" -GroupOutput
+    # Ensure nested dotnet builds (invoked via `npm run build:generator`) use the repo NuGet.Config
+    # so restore always targets the Azure DevOps feed instead of nuget.org.
+    $repoRoot = (Resolve-Path "$packageRoot/../..").Path
+    $nugetConfigPath = (Join-Path $repoRoot "eng/nuget.config")
+    $previousRestoreConfigFile = $env:RestoreConfigFile
+    $previousNuGetAudit = $env:NuGetAudit
+    try {
+        $env:RestoreConfigFile = $nugetConfigPath
+        if ($env:TF_BUILD) {
+            $env:NuGetAudit = "false"
+        }
+
+        Invoke-LoggedCommand "npm run build" -GroupOutput
+    }
+    finally {
+        $env:RestoreConfigFile = $previousRestoreConfigFile
+        $env:NuGetAudit = $previousNuGetAudit
+    }
 
     Copy-Item "$packageRoot/emitter/temp/*.api.json" -Destination "$outputPath/packages"
 

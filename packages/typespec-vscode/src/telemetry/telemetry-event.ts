@@ -1,5 +1,5 @@
 import { EmptyGuid } from "../const.js";
-import { ResultCode } from "../types.js";
+import type { ResultCode } from "../types.js";
 
 export interface RawTelemetryEvent {
   eventName: string;

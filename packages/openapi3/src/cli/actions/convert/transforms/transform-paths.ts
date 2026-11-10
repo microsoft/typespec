@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import {
+import type {
   OpenAPI3Parameter,
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
@@ -8,13 +8,13 @@ import {
   OpenAPIRequestBody3_2,
   Refable,
 } from "../../../../types.js";
-import {
+import type {
   TypeSpecDirective,
   TypeSpecOperation,
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
 } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { Context } from "../utils/context.js";
 import {
   getDirectivesForSchema,
   getExtensions,

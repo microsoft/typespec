@@ -1,9 +1,7 @@
 import { strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
-import {
-  ClientConfigProvider,
-  createClientConfigProvider,
-} from "../../src/server/client-config-provider.js";
+import type { ClientConfigProvider } from "../../src/server/client-config-provider.js";
+import { createClientConfigProvider } from "../../src/server/client-config-provider.js";
 
 let configProvider: ClientConfigProvider;
 

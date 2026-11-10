@@ -18,12 +18,20 @@ export async function compile(
   try {
     const typespecCompiler = host.compiler;
 
+    // Deferred emitters are only imported once they are actually used.
+    if (selectedEmitter) {
+      await host.loadLibrary(selectedEmitter);
+    }
+
     // Resolve the compiler options natively from the tspconfig.yaml so the playground
     // honors the full config (emit, options, linter, imports, warn-as-error, ...).
     const [resolvedOptions] = await typespecCompiler.resolveCompilerOptions(host, {
       cwd: resolveVirtualPath("."),
       entrypoint: resolveVirtualPath("main.tsp"),
     });
+
+    // The tspconfig.yaml can request emitters other than the selected one.
+    await Promise.all((resolvedOptions.emit ?? []).map((name) => host.loadLibrary(name)));
 
     const options: CompilerOptions = {
       ...resolvedOptions,

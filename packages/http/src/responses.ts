@@ -1,18 +1,20 @@
-import {
-  createDiagnosticCollector,
+import type {
   Diagnostic,
   DiagnosticCollector,
+  Model,
+  ModelProperty,
+  Operation,
+  Program,
+  Type,
+} from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
   isErrorModel,
   isNullType,
   isVoidType,
-  Model,
-  ModelProperty,
-  Operation,
-  Program,
-  Type,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import {
@@ -20,11 +22,11 @@ import {
   getStatusCodeDescription,
   getStatusCodesWithDiagnostics,
 } from "./decorators.js";
-import { HttpProperty } from "./http-property.js";
+import type { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
-import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
+import type { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
  * Get the responses for a given operation.
@@ -76,7 +78,11 @@ function resolveResponseVariants(
       continue;
     }
     // Recursively resolve nested unions
-    const resolved = resolveResponseVariants(program, option.type, unionDescription);
+    const resolved = resolveResponseVariants(
+      program,
+      option.type,
+      getDoc(program, option) ?? unionDescription,
+    );
     for (const variant of resolved) {
       if (isPlainResponseBody(program, variant.type)) {
         plainVariants.push(variant.type);

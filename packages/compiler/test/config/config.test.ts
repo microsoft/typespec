@@ -2,7 +2,8 @@ import { deepStrictEqual, strictEqual } from "assert";
 import { join } from "path";
 import { describe, it } from "vitest";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
-import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../src/config/index.js";
+import type { TypeSpecRawConfig } from "../../src/config/index.js";
+import { loadTypeSpecConfigForPath } from "../../src/config/index.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
@@ -184,6 +185,57 @@ describe("file discovery", () => {
       diagnostics: [],
       outputDir: "{cwd}/tsp-output",
       kind: "project",
+    });
+  });
+
+  describe("linter ruleset file references", () => {
+    async function loadLinterConfig(files: Record<string, string>, configPath: string) {
+      const fs = createTestFileSystem();
+      for (const [path, content] of Object.entries(files)) {
+        fs.addTypeSpecFile(path, content);
+      }
+      const config = await loadTypeSpecConfigForPath(
+        fs.compilerHost,
+        resolveVirtualPath(configPath),
+        true,
+        false,
+      );
+      return config.linter;
+    }
+
+    it("resolves `file:` references relative to the config file", async () => {
+      const linter = await loadLinterConfig(
+        {
+          "project/tspconfig.yaml": `
+            linter:
+              extends:
+                - "file:./rules/base.yaml"
+                - "@typespec/best-practices/recommended"
+            `,
+        },
+        "project/tspconfig.yaml",
+      );
+      deepStrictEqual(linter?.extends, [
+        `file:${resolveVirtualPath("project/rules/base.yaml")}`,
+        "@typespec/best-practices/recommended",
+      ]);
+    });
+
+    it("resolves `file:` references relative to the config that declared them when extending", async () => {
+      const linter = await loadLinterConfig(
+        {
+          "base/tspconfig.yaml": `
+            linter:
+              extends:
+                - "file:./rules.yaml"
+            `,
+          "project/tspconfig.yaml": `
+            extends: "../base/tspconfig.yaml"
+            `,
+        },
+        "project/tspconfig.yaml",
+      );
+      deepStrictEqual(linter?.extends, [`file:${resolveVirtualPath("base/rules.yaml")}`]);
     });
   });
 });

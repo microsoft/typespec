@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -30,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _namedTypeSymbol = namedTypeSymbol;
             _compilation = compilation;
+            IsExperimental = HasExperimentalAttribute(namedTypeSymbol);
         }
 
         internal string MetadataName
@@ -49,6 +51,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         internal string MetadataSimpleName => _metadataSimpleName ??= _namedTypeSymbol.Name;
+
+        internal bool IsExperimental { get; }
+
+        internal IEnumerable<string> DeclaredMemberNames => _namedTypeSymbol.GetMembers().Select(member => member.Name);
+
+        private static bool HasExperimentalAttribute(ISymbol symbol)
+            => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName);
+
+        // Nested declarations are not materialized as providers for this symbol-backed view.
+        internal bool HasPublicApiNestedTypes => _namedTypeSymbol.GetTypeMembers().Any(type =>
+            type.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or
+                Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal);
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
@@ -73,19 +87,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
-            => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
+            => [.. _namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
+
+        protected internal override CSharpType[] BuildImplements()
+            => [.. _namedTypeSymbol.AllInterfaces.Select(i => i.GetCSharpType())];
 
         internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
-
-        protected override CSharpType? BuildBaseType()
-        {
-            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
-            {
-                return null;
-            }
-
-            return _namedTypeSymbol.BaseType!.GetCSharpType();
-        }
 
         private TypeProvider? BuildBaseTypeProvider()
         {
@@ -95,6 +102,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
+        }
+
+        protected override CSharpType? BuildBaseType()
+        {
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
+            {
+                return null;
+            }
+
+            return _namedTypeSymbol.BaseType!.GetCSharpType();
         }
 
         private bool ShouldSkipBaseType(INamedTypeSymbol? baseType)
@@ -164,6 +181,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         modifiers |= FieldModifiers.Static;
                     }
+                    if (fieldSymbol.IsReadOnly)
+                    {
+                        modifiers |= FieldModifiers.ReadOnly;
+                    }
+                    if (fieldSymbol.IsConst)
+                    {
+                        modifiers |= FieldModifiers.Const;
+                    }
 
                     var fieldProvider = new FieldProvider(
                         modifiers,
@@ -188,18 +213,48 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
+                var modifiers = GetAccessModifier(propertySymbol.DeclaredAccessibility);
+                if (propertySymbol.IsStatic)
+                {
+                    modifiers |= MethodSignatureModifiers.Static;
+                }
+                if (propertySymbol.IsVirtual)
+                {
+                    modifiers |= MethodSignatureModifiers.Virtual;
+                }
+                if (propertySymbol.IsOverride)
+                {
+                    modifiers |= MethodSignatureModifiers.Override;
+                }
+                if (propertySymbol.IsAbstract)
+                {
+                    modifiers |= MethodSignatureModifiers.Abstract;
+                }
+                if (propertySymbol.IsSealed)
+                {
+                    modifiers |= MethodSignatureModifiers.Sealed;
+                }
+
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
-                    GetAccessModifier(propertySymbol.DeclaredAccessibility),
+                    modifiers,
                     propertySymbol.Type.GetCSharpType(),
                     propertySymbol.Name,
                     new AutoPropertyBody(
                         propertySymbol.SetMethod is not null,
-                        InitializationExpression: GetPropertyInitializer(propertySymbol)),
+                        propertySymbol.SetMethod is null
+                            ? MethodSignatureModifiers.None
+                            : GetAccessModifier(propertySymbol.SetMethod.DeclaredAccessibility),
+                        GetPropertyInitializer(propertySymbol)),
                     this,
                     attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
+                    IsInitOnly = propertySymbol.SetMethod?.IsInitOnly == true,
+                    HasUnsupportedBaseContract = propertySymbol.IsIndexer || propertySymbol.ReturnsByRef ||
+                        propertySymbol.ReturnsByRefReadonly || propertySymbol.IsRequired ||
+                        propertySymbol.GetMethod is null ||
+                        propertySymbol.GetMethod.DeclaredAccessibility != propertySymbol.DeclaredAccessibility,
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
                         ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
@@ -244,18 +299,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        private static LiteralExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
         {
-            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
-            {
-                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
-                {
-                    return Literal(fieldSymbol.ConstantValue);
-                }
-                return null;
-            }
-
-            return null;
+            return fieldSymbol.HasConstantValue &&
+                fieldSymbol.ConstantValue != null &&
+                LiteralExpression.TryCreate(fieldSymbol.ConstantValue, out var initializer)
+                ? initializer
+                : null;
         }
 
         private static string? GetOriginalName(ISymbol symbol)
@@ -287,6 +337,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
+                    attributes: [.. constructorSymbol.GetAttributes()
+                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Select(a => new AttributeStatement(a))],
                     initializer: initializer);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
@@ -347,10 +400,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                    Attributes: [.. methodSymbol.GetAttributes()
+                        .Where(a => a.AttributeClass?.ToDisplayString() is { } name
+                            && (name == typeof(ExperimentalAttribute).FullName || name == typeof(ObsoleteAttribute).FullName))
+                        .Select(a => new AttributeStatement(a))],
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null
                         : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],
-                    ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
+                    ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType())
+                {
+                    HasUnsupportedBaseContract = methodSymbol.ReturnsByRef || methodSymbol.ReturnsByRefReadonly ||
+                        methodSymbol.IsVararg
+                };
 
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
@@ -802,7 +863,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 defaultValue: CreateDefaultValue(parameterSymbol),
                 isIn: parameterSymbol.RefKind == RefKind.In,
                 isOut: parameterSymbol.RefKind == RefKind.Out,
-                isRef: parameterSymbol.RefKind == RefKind.Ref);
+                isRef: parameterSymbol.RefKind == RefKind.Ref,
+                isParams: parameterSymbol.IsParams)
+            {
+                HasUnsupportedParameterModifiers = parameterSymbol.RefKind is not
+                    (RefKind.None or RefKind.Ref or RefKind.In or RefKind.Out),
+                HasUnsupportedDefaultValue = parameterSymbol.IsOptional &&
+                    (!parameterSymbol.HasExplicitDefaultValue ||
+                        parameterSymbol.ExplicitDefaultValue is not (null or string or bool or int or double or float or long))
+            };
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -814,6 +883,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (methodSymbol.IsOverride)
             {
                 modifiers |= MethodSignatureModifiers.Override;
+            }
+            if (methodSymbol.IsSealed)
+            {
+                modifiers |= MethodSignatureModifiers.Sealed;
+            }
+            if (methodSymbol.IsAbstract)
+            {
+                modifiers |= MethodSignatureModifiers.Abstract;
             }
             if (methodSymbol.IsAsync)
             {
@@ -955,7 +1032,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var paramElement = xmlDoc.Descendants("param")
                                      .FirstOrDefault(e => e.Attribute("name")?.Value == parameterSymbol.Name);
 
-            return paramElement?.Value.Trim();
+            return paramElement is null ? null : ProcessXmlContent(paramElement);
         }
 
         private static MethodSignatureModifiers GetAccessModifier(Accessibility accessibility) => accessibility switch
@@ -964,6 +1041,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => MethodSignatureModifiers.Protected,
             Accessibility.Internal => MethodSignatureModifiers.Internal,
             Accessibility.Public => MethodSignatureModifiers.Public,
+            Accessibility.ProtectedOrInternal => MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal,
+            Accessibility.ProtectedAndInternal => MethodSignatureModifiers.Protected | MethodSignatureModifiers.Private,
             _ => MethodSignatureModifiers.None
         };
 
@@ -973,7 +1052,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => FieldModifiers.Protected,
             Accessibility.Internal => FieldModifiers.Internal,
             Accessibility.Public => FieldModifiers.Public,
-            _ => FieldModifiers.Public
+            Accessibility.ProtectedOrInternal => FieldModifiers.Protected | FieldModifiers.Internal,
+            Accessibility.ProtectedAndInternal => FieldModifiers.Protected | FieldModifiers.Private,
+            _ => FieldModifiers.Private
         };
 
         private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)

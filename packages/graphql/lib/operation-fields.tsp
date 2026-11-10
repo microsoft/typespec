@@ -19,5 +19,7 @@ alias OperationOrInterface = Operation | Interface;
  * }
  * // Emits: type Person { name: String!; followers(query: String!): [Person!]! }
  * ```
+ *
+ * @param operations The operations, or interfaces of operations, to add to the target as fields.
  */
 extern dec operationFields(target: Model, ...operations: OperationOrInterface[]);

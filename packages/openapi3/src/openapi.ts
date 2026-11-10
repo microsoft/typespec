@@ -1,12 +1,21 @@
-import { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
-import {
-  compilerAssert,
-  createDiagnosticCollector,
+import type { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
+import type {
   Diagnostic,
   DiagnosticCollector,
   EmitContext,
-  emitFile,
   Example,
+  ModelProperty,
+  Namespace,
+  NewLine,
+  Program,
+  Service,
+  Type,
+  TypeNameOptions,
+} from "@typespec/compiler";
+import {
+  compilerAssert,
+  createDiagnosticCollector,
+  emitFile,
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
@@ -29,30 +38,19 @@ import {
   isSecret,
   isVoidType,
   listServices,
-  ModelProperty,
-  Namespace,
   navigateTypesInNamespace,
-  NewLine,
   NoTarget,
-  Program,
+  resolveEncodedEnumMemberValue,
   resolvePath,
-  Service,
-  Type,
-  TypeNameOptions,
+  sanitizePathSegment,
 } from "@typespec/compiler";
-import {
-  unsafe_mutateSubgraphWithNamespace,
-  unsafe_MutatorWithNamespace,
-} from "@typespec/compiler/experimental";
+import type { unsafe_MutatorWithNamespace } from "@typespec/compiler/experimental";
+import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import { createPerfReporter, perf } from "@typespec/compiler/utils";
-import {
+import type {
   AuthenticationOptionReference,
   AuthenticationReference,
-  createMetadataInfo,
-  getHttpService,
-  getServers,
-  getStatusCodeDescription,
   HttpAuth,
   HttpOperation,
   HttpOperationMultipartBody,
@@ -63,9 +61,15 @@ import {
   HttpProperty,
   HttpServer,
   HttpServiceAuthentication,
+  MetadataInfo,
+} from "@typespec/http";
+import {
+  createMetadataInfo,
+  getHttpService,
+  getServers,
+  getStatusCodeDescription,
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
-  MetadataInfo,
   reportIfNoRoutes,
   resolveAuthentication,
   resolveRequestVisibility,
@@ -83,24 +87,26 @@ import {
 } from "@typespec/openapi";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
-import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
-import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
-import {
-  createDiagnostic,
+import type { OperationExamples } from "./examples.js";
+import { getExampleOrExamples, resolveOperationExamples } from "./examples.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import { resolveJsonSchemaModule } from "./json-schema.js";
+import type {
   EnumStrategy,
   FileType,
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
   OperationIdStrategy,
-  reportDiagnostic,
 } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { OperationIdResolver } from "./operation-id-resolver/operation-id-resolver.js";
 import { getParameterStyle } from "./parameters.js";
 import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
-import { resolveSSEModule, SSEModule } from "./sse-module.js";
+import type { SSEModule } from "./sse-module.js";
+import { resolveSSEModule } from "./sse-module.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
-import {
+import type {
   OpenAPI3Encoding,
   OpenAPI3Header,
   OpenAPI3MediaType,
@@ -123,18 +129,19 @@ import {
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
+import type { HttpParameterProperties, SharedHttpOperation } from "./util.js";
 import {
   deepEquals,
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
-  HttpParameterProperties,
   isBytesKeptRaw,
   isSharedHttpOperation,
-  SharedHttpOperation,
 } from "./util.js";
 import { resolveVersioningModule } from "./versioning-module.js";
-import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
-import { resolveXmlModule, XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import { resolveVisibilityUsage } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
+import { resolveXmlModule } from "./xml-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -145,6 +152,11 @@ const defaultOptions = {
   "seal-object-schemas": false,
 } as const;
 
+/**
+ * Compiler emitter entry point: generates all requested OpenAPI specification
+ * versions, reports diagnostics and writes the configured file formats.
+ * Dry runs and programs with errors do not write documents.
+ */
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   for (const specVersion of options.openapiVersions) {
@@ -159,12 +171,14 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
 type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
 
 /**
- * Get the OpenAPI 3 document records from the given program. The documents are
- * returned as a JS object.
+ * Generates OpenAPI document objects without writing files. Results are grouped
+ * by service and API version; requesting multiple OpenAPI specification versions
+ * appends the service records for each requested specification version in order.
+ * Inspect each document's `openapi` field to distinguish those groups.
  *
  * @param program The program to emit to OpenAPI 3
  * @param options OpenAPI 3 emit options
- * @returns An array of OpenAPI 3 document records.
+ * @returns Service records with per-document diagnostics; a document that cannot be produced may be omitted.
  */
 export async function getOpenAPI3(
   program: Program,
@@ -203,6 +217,12 @@ function findFileTypeFromFilename(filename: string | undefined): FileType {
       return defaultFileType;
   }
 }
+/**
+ * Normalizes user options, inferring formats from the output filename when
+ * needed and applying defaults. The output path is resolved against the emitter
+ * directory and may retain service, version and format placeholders.
+ * Incompatible enum strategy/version combinations report a diagnostic.
+ */
 export function resolveOptions(
   context: EmitContext<OpenAPI3EmitterOptions>,
 ): ResolvedOpenAPI3EmitterOptions {
@@ -269,17 +289,34 @@ function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrateg
   }
 }
 
+/** Normalized emitter settings returned by `resolveOptions`, before document-specific path interpolation. */
 export interface ResolvedOpenAPI3EmitterOptions {
+  /** Formats requested for each document; inferred from the output extension or defaulted to YAML when absent. */
   fileTypes: FileType[];
+  /** Resolved output path template; includes an OpenAPI-version directory when multiple specification versions are requested. */
   outputFile: string;
+  /** Specification versions generated in order; defaults to `["3.0.0"]`, independently of service API versions. */
   openapiVersions: OpenAPIVersion[];
+  /** Line ending convention for serialized files; defaults to `"lf"`. */
   newLine: NewLine;
+  /** When true, excludes service types not reachable from operations; defaults to false. */
   omitUnreachableTypes: boolean;
+  /** Debug-only TypeSpec name annotations for inline schemas, or `"never"` by default. */
   includeXTypeSpecName: "inline-only" | "never";
+  /** Format used for the TypeSpec `safeint` scalar; defaults to `"int64"`. */
   safeintStrategy: "double-int" | "int64";
+  /** When true, seals object schemas using version-appropriate additional/unevaluated-property constraints; defaults to false. */
   sealObjectSchemas: boolean;
+  /** Experimental parameter example representation; absent means operation examples do not supply parameter examples. */
   parameterExamplesStrategy?: "data" | "serialized";
-  operationIdStrategy: { kind: OperationIdStrategy; separator: string };
+  /** Generation policy for operations lacking `@operationId`, with a concrete segment separator. */
+  operationIdStrategy: {
+    /** Name-selection policy; defaults to `"parent-container"`. */
+    kind: OperationIdStrategy;
+    /** Segment separator; defaults to `"_"` for parent-container, `"."` for fqn, or `""` for explicit-only. */
+    separator: string;
+  };
+  /** Enum schema representation; defaults to `"default"`. Annotated output requires OpenAPI 3.1 or later. */
   enumStrategy: EnumStrategy;
 }
 
@@ -484,7 +521,8 @@ function createOAPIEmitter(
         return tk.type.isAssignableTo(type, tk.builtin.string, type);
       case "Enum":
         for (const member of type.members.values()) {
-          if (member.value && typeof member.value !== "string") {
+          const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+          if (value && typeof value !== "string") {
             return false;
           }
         }
@@ -629,10 +667,12 @@ function createOAPIEmitter(
   ): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
-      "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
-      "service-name": getNamespaceFullName(service.type),
+      "service-name-if-multiple": multipleService
+        ? sanitizePathSegment(getNamespaceFullName(service.type))
+        : undefined,
+      "service-name": sanitizePathSegment(getNamespaceFullName(service.type)),
       "file-type": fileType,
-      version,
+      version: version && sanitizePathSegment(version),
     });
   }
 
@@ -803,8 +843,9 @@ function createOAPIEmitter(
     const values = operations
       .map((op) => func(program, op.operation))
       .filter((op) => op !== undefined) as string[];
-    if (values.length) {
-      return values.join(joinChar);
+    const uniqueValues = [...new Set(values)];
+    if (uniqueValues.length) {
+      return uniqueValues.join(joinChar);
     } else {
       return undefined;
     }

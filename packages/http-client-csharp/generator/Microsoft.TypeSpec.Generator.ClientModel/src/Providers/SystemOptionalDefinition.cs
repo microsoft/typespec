@@ -17,7 +17,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string IsDefinedMethodName = "IsDefined";
         protected override MethodProvider[] BuildMethods()
         {
-            return [.. base.BuildMethods(), IsJsonElementDefined()];
+            return
+            [
+                .. base.BuildMethods(),
+                IsJsonElementDefined(),
+                BuildIsDefinedWithPresence(new ParameterProvider("value", $"The value.", typeof(JsonElement)))
+            ];
         }
 
         private MethodProvider IsJsonElementDefined()

@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -10,6 +13,137 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("LegacyDetails", "Use \"CurrentDetails\" instead.\nSee C:\\sdk.")]
+        [TestCase("LegacyChoice", "Use CurrentChoice instead.")]
+        [TestCase("LegacyExtensibleChoice", "Use CurrentExtensibleChoice instead.")]
+        [TestCase("CurrentDetails", null)]
+        public void DeprecatedTypesPreserveWarningOnlyMessages(string typeName, string? message)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{typeName}");
+            Assert.IsNotNull(type);
+            var attribute = type!.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.AreEqual(message, attribute?.Message);
+            if (message is not null)
+            {
+                Assert.IsFalse(attribute!.IsError);
+            }
+        }
+
+        [TestCase("Legacy", "Use \"read\" instead.\nSee C:\\sdk.")]
+        [TestCase("LegacyAsync", "Use \"read\" instead.\nSee C:\\sdk.")]
+        public void DeprecatedOperationsPreserveWarningOnlyMessages(string methodName, string? message)
+        {
+            var methods = typeof(SampleTypeSpecClient).Assembly.GetType("SampleTypeSpec.DeprecationSamples")!
+                .GetMethods().Where(m => m.Name == methodName).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                var attribute = method.GetCustomAttribute<ObsoleteAttribute>();
+                Assert.AreEqual(message, attribute?.Message);
+                if (message is not null)
+                {
+                    Assert.IsFalse(attribute!.IsError);
+                }
+            }
+        }
+
+        [TestCase("Read", "OBS001")]
+        [TestCase("ReadAsync", "OBS002")]
+        public void CustomProtocolDeprecationDoesNotDeprecateConvenienceOverload(string methodName, string diagnosticId)
+        {
+            var methods = typeof(DeprecationSamples).GetMethods().Where(method => method.Name == methodName).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            var protocol = methods.Single(method => method.GetParameters().Last().ParameterType == typeof(RequestOptions));
+            var obsolete = protocol.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.IsNotNull(obsolete);
+            Assert.AreEqual(diagnosticId, obsolete!.DiagnosticId);
+            Assert.AreEqual("Use the convenience overload instead.", obsolete.Message);
+            Assert.IsFalse(obsolete.IsError);
+            Assert.IsNull(methods.Single(method => method != protocol).GetCustomAttribute<ObsoleteAttribute>());
+        }
+
+        [TestCase("GetNotebookResult", "GetNotebookResponse", true)]
+        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse", true)]
+        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse", false)]
+        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse", false)]
+        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse", false)]
+        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse", false)]
+        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse", true)]
+        [TestCase("LifecycleModel", null, true)]
+        [TestCase("PagePreviewDetails", null, false)]
+        [TestCase("PreviewDetails", null, true)]
+        [TestCase("PageThing", null, false)]
+        [TestCase("UnknownAnimal", null, false)]
+        [TestCase("UnknownPet", null, false)]
+        [TestCase("UnknownPlant", null, false)]
+        public void ModelReaderWriterContextRegistersOnlyPublicModels(string modelName, string? previousName, bool isPublic)
+        {
+            var modelType = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{modelName}");
+            Assert.IsNotNull(modelType);
+            Assert.AreEqual(isPublic, modelType!.IsPublic);
+            var registeredTypes = typeof(SampleTypeSpecContext).GetCustomAttributesData()
+                .Where(attribute => attribute.AttributeType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(attribute => (Type)attribute.ConstructorArguments[0].Value!)
+                .ToArray();
+
+            Assert.AreEqual(isPublic ? 1 : 0, registeredTypes.Count(type => type == modelType));
+            if (previousName != null)
+            {
+                Assert.IsNull(typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{previousName}"));
+                Assert.IsFalse(registeredTypes.Any(type => type.Name == previousName));
+            }
+        }
+
+        [TestCase("SampleTypeSpec.PreviewDetails", "SAMPLE0003")]
+        [TestCase("SampleTypeSpec.PreviewChoice", "SAMPLE0004")]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "SAMPLE0005")]
+        [TestCase("SampleTypeSpec.LegacyDetails", "SAMPLE0011")]
+        [TestCase("SampleTypeSpec.ExperimentalSamples", "SAMPLE0009")]
+        [TestCase("SampleTypeSpec.LifecycleModel", null)]
+        public void ExperimentalTypeDiagnostics(string typeName, string? diagnosticId)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType(typeName);
+            Assert.IsNotNull(type);
+            Assert.AreEqual(diagnosticId, type!.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+        }
+
+        [TestCase("SampleTypeSpec.PreviewChoice", "Two", "SAMPLE0007")]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "Two", "SAMPLE0006")]
+        [TestCase("SampleTypeSpec.LifecycleModel", "Preview", "SAMPLE0008")]
+        [TestCase("SampleTypeSpec.SampleTypeSpecModelFactory", "PreviewDetails", "SAMPLE0003")]
+        [TestCase("SampleTypeSpec.PreviewChoice", "One", null)]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "One", null)]
+        [TestCase("SampleTypeSpec.SampleTypeSpecClientOptions+ServiceVersion", "V2024_08_16_Preview", "SAMPLE0010")]
+        public void ExperimentalMemberDiagnostics(string typeName, string memberName, string? diagnosticId)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType(typeName);
+            Assert.IsNotNull(type);
+            var member = type!.GetMember(memberName).Single();
+            Assert.AreEqual(diagnosticId, member.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+        }
+
+        [TestCase("HelloDemo2", "SAMPLE0001", 2)]
+        [TestCase("HelloDemo2Async", "SAMPLE0001", 2)]
+        [TestCase("DynamicModelOperation", "SAMPLE0002", 2)]
+        [TestCase("DynamicModelOperationAsync", "SAMPLE0002", 2)]
+        [TestCase("SayHi", null, 2)]
+        [TestCase("SayHiAsync", null, 2)]
+        [TestCase("CreateHelloDemo2Request", null, 1)]
+        [TestCase("CreateDynamicModelOperationRequest", null, 1)]
+        public void ExperimentalOperationDiagnosticsAreScopedToPublicApis(string methodName, string? diagnosticId, int overloadCount)
+        {
+            var methods = typeof(SampleTypeSpecClient)
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(method => method.Name == methodName)
+                .ToArray();
+
+            Assert.AreEqual(overloadCount, methods.Length);
+            foreach (var method in methods)
+            {
+                Assert.AreEqual(diagnosticId, method.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+            }
+        }
+
         [Test]
         public void ModelNameIsCustomized()
         {

@@ -20,13 +20,12 @@ import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
+import type { RegenerateContext, RegenerateFlags } from "./regenerate-common.js";
 import {
   buildTaskGroups,
+  cleanGeneratedCode,
   getSubdirectories,
-  prepareBaselineOfGeneratedCode,
   preprocess,
-  RegenerateContext,
-  RegenerateFlags,
   runParallel,
 } from "./regenerate-common.js";
 
@@ -256,7 +255,7 @@ async function main() {
   const startTime = performance.now();
   let success: boolean;
 
-  await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
+  await cleanGeneratedCode(GENERATED_FOLDER);
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);

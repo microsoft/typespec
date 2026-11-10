@@ -35,6 +35,8 @@ def update_overload_section(
         for overload_s, original_s in zip(overload[section], yaml_data[section]):
             if overload_s.get("type"):
                 overload_s["type"] = original_s["type"]
+            if overload_s.get("streaming"):
+                overload_s["streaming"] = original_s["streaming"]
             if overload_s.get("headers"):
                 for overload_h, original_h in zip(overload_s["headers"], original_s["headers"]):
                     if overload_h.get("type"):
@@ -52,13 +54,14 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     if yaml_data.get("initialOperation"):
         overload["initialOperation"] = yaml_data["initialOperation"]
 
+    # Reattach shared type objects before filtering parameters so positional
+    # alignment with the original operation is preserved.
+    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
+        overload_p["type"] = original_p["type"]
     if for_flatten_params:
         overload["bodyParameter"]["flattened"] = True
     else:
         overload["parameters"] = [p for p in overload["parameters"] if not p.get("inFlattenedBody")]
-    # for yaml sync, we need to make sure all of the responses, parameters, and exceptions' types have the same yaml id
-    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
-        overload_p["type"] = original_p["type"]
     update_overload_section(overload, yaml_data, "responses")
     update_overload_section(overload, yaml_data, "exceptions")
 
@@ -81,21 +84,32 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     return overload
 
 
-def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
-    """If we added a body parameter type, add overloads for that type"""
+def add_overloads_for_body_param(yaml_data: dict[str, Any], skip_single_body_json: bool = False) -> None:
+    """If we added a body parameter type, add overloads for that type.
+
+    ``skip_single_body_json`` is the authoritative signal, computed by
+    ``add_body_param_type``, for whether a TypedDict-style overload was inserted
+    to replace the single-body raw-JSON overload on the spread (``base: json``)
+    path. It is True for both models-mode: dpg (generate-typeddict on) and
+    the TypedDict-only mode (models-mode: none with generate-typeddict on), and
+    False when TypedDict generation is disabled (in which case the single-body
+    raw-JSON overload is kept, matching pre-TypedDict behavior).
+    """
     body_parameter = yaml_data["bodyParameter"]
+    body_types = body_parameter["type"].get("types", [])
     if not (
         body_parameter["type"]["type"] == "combined"
-        and len(yaml_data["bodyParameter"]["type"]["types"]) > len(yaml_data["overloads"])
+        and len(body_types) > 1
+        and len(body_types) > len(yaml_data["overloads"])
     ):
         return
-    for body_type in body_parameter["type"]["types"]:
+    for body_type in body_types:
         if any(o for o in yaml_data["overloads"] if id(o["bodyParameter"]["type"]) == id(body_type)):
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
-            # Skip single-body JSON overload; the TypedDict overload replaces it
-            continue
+            if skip_single_body_json:
+                continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
@@ -251,9 +265,6 @@ def _process_operation_etag_headers(
     if_match_candidates: list[dict[str, Any]] = []
     if_none_match_candidates: list[dict[str, Any]] = []
     for p in operation["parameters"]:
-        wire_name_lower = get_wire_name_lower(p)
-        if p["location"] == "header" and wire_name_lower == "client-request-id":
-            client["requestIdHeaderName"] = wire_name_lower
         if version_tolerant and p["location"] == "header":
             role = _get_etag_role(p)
             if role == "ifMatch":
@@ -262,7 +273,6 @@ def _process_operation_etag_headers(
                 if_none_match_candidates.append(p)
 
     property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
-
     if property_if_match and property_if_none_match:
         etag_params = {id(property_if_match), id(property_if_none_match)}
         operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
@@ -271,6 +281,21 @@ def _process_operation_etag_headers(
         ]
         operation["hasEtag"] = True
         client["hasEtag"] = True
+
+
+def _process_operation_group_etag_headers(
+    operation_groups: list[dict[str, Any]],
+    client: dict[str, Any],
+    version_tolerant: bool,
+) -> None:
+    for operation_group in operation_groups:
+        for operation in operation_group.get("operations", []):
+            _process_operation_etag_headers(operation, client, version_tolerant)
+        _process_operation_group_etag_headers(
+            operation_group.get("operationGroups", []),
+            client,
+            version_tolerant,
+        )
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
@@ -305,6 +330,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
     @property
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file", False)
+
+    @property
+    def generate_typeddict(self) -> bool:
+        return self.options.get("generate-typeddict", True)
 
     @staticmethod
     def _find_existing_typeddict(
@@ -394,11 +423,39 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if not existing_td:
                 code_model["types"].append(td_elem)
 
+    @staticmethod
+    def _insert_json_overload(
+        body_parameter: dict[str, Any],
+        origin_type: str,
+    ) -> None:
+        """Insert a raw-JSON (any-object) type into the body parameter's combined types.
+
+        This restores the pre-TypedDict dict-body overload used when TypedDict
+        generation is disabled.
+        """
+        if origin_type == "model":
+            body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+        else:
+            # dict or list: copy the original container type and swap its element
+            # type for the raw-JSON any-object.
+            any_obj_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+            any_obj_list_or_dict["elementType"] = KNOWN_TYPES["any-object"]
+            body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
+
     def add_body_param_type(
         self,
         code_model: dict[str, Any],
         body_parameter: dict[str, Any],
-    ):
+    ) -> bool:
+        """Build the combined body-parameter type and its overload variants.
+
+        Returns whether a TypedDict-style overload was inserted in place of the
+        single-body raw-JSON overload on the spread (``base: json``) path. The
+        caller passes this to ``add_overloads_for_body_param`` as
+        ``skip_single_body_json``. It is False when TypedDict generation is
+        disabled, so the pre-TypedDict single-body raw-JSON overload is kept.
+        """
+        skip_single_body_json = False
         # For a binary `bytes` body (e.g. content type application/octet-stream or a custom
         # binary media type), add an IO overload alongside the `bytes` one. This keeps backward
         # compatibility for services migrating from swagger, whose binary bodies were typed as IO.
@@ -408,7 +465,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             body_parameter
             and body_parameter["type"]["type"] == "bytes"
             and is_binary_body
-            and self.options["models-mode"] != "typeddict"
+            and not self.options.generate_typeddict_only
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
             body_parameter["type"] = {
@@ -416,7 +473,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 "types": [body_parameter["type"], KNOWN_TYPES["binary"]],
             }
             code_model["types"].append(body_parameter["type"])
-            return
+            return skip_single_body_json
 
         # only add overload for special content type
         if (  # pylint: disable=too-many-boolean-expressions
@@ -432,7 +489,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             )
             is_dpg_model = model_type.get("base") == "dpg"
             is_json_model = model_type.get("base") == "json"
-            is_typeddict_only = self.options["models-mode"] == "typeddict"
+            is_typeddict_only = self.options.generate_typeddict_only
 
             body_parameter["type"] = {
                 "type": "combined",
@@ -442,11 +499,16 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if not (self.is_tsp and has_multi_part_content_type(body_parameter)) and not is_typeddict_only:
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
-            # Add typeddict overload for non-spread dpg models
+            # Add the dict-body overload for non-spread dpg models: a TypedDict when
+            # enabled, otherwise the raw-JSON overload (pre-TypedDict behavior).
             if self.options["models-mode"] == "dpg" and is_dpg_model:
-                cross_lang_id = model_type.get("crossLanguageDefinitionId")
-                existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
-                self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
+                if self.generate_typeddict:
+                    cross_lang_id = model_type.get("crossLanguageDefinitionId")
+                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
+                    self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
+                    skip_single_body_json = True
+                else:
+                    self._insert_json_overload(body_parameter, origin_type)
 
             # For spread bodies (json base), add a typeddict overload that references
             # the original model. This replaces the JSON single-body overload.
@@ -456,17 +518,20 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
                 if is_typeddict_only and original:
                     # In typeddict-only mode, the original dpg model already renders
-                    # as a TypedDict — reference it directly, no copy needed.
+                    # as a TypedDict — reference it directly, no copy needed. It also
+                    # replaces the single-body JSON overload.
+                    skip_single_body_json = True
                     if origin_type == "model":
                         body_parameter["type"]["types"].insert(1, original)
                     else:
                         td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
                         td_list_or_dict["elementType"] = original
                         body_parameter["type"]["types"].insert(1, td_list_or_dict)
-                else:
+                elif self.generate_typeddict:
                     source = original or model_type
                     existing_td = self._find_existing_typeddict(code_model, cross_lang_id, source.get("name"))
                     self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
+                    skip_single_body_json = True
 
             if len(body_parameter["type"]["types"]) == 1:
                 # Only one body variant remains (e.g. typeddict-only mode where the
@@ -474,9 +539,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 # wrapper back to the single type so we don't emit a lone
                 # ``@overload`` (mypy rejects a single overload definition).
                 body_parameter["type"] = body_parameter["type"]["types"][0]
-                return
+                return skip_single_body_json
 
             code_model["types"].append(body_parameter["type"])
+
+        return skip_single_body_json
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
@@ -552,9 +619,16 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if prop_name.endswith("Client"):
             prop_name = prop_name[: len(prop_name) - len("Client")]
         yaml_data["builderPadName"] = to_snake_case(prop_name)
-        for og in yaml_data.get("operationGroups", []):
-            for o in og["operations"]:
-                _process_operation_etag_headers(o, yaml_data, self.version_tolerant)
+        for operation_group in yaml_data.get("operationGroups", []):
+            for operation in operation_group.get("operations", []):
+                for parameter in operation["parameters"]:
+                    if parameter["location"] == "header" and get_wire_name_lower(parameter) == "client-request-id":
+                        yaml_data["requestIdHeaderName"] = "client-request-id"
+        _process_operation_group_etag_headers(
+            yaml_data.get("operationGroups", []),
+            yaml_data,
+            self.version_tolerant,
+        )
 
         # add client signature cloud_setting for arm
         if self.azure_arm and yaml_data["parameters"]:
@@ -649,8 +723,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             response["discriminator"] = "operation"
         if body_parameter and not is_overload:
             # if we have a JSON body, we add a binary overload
-            self.add_body_param_type(code_model, body_parameter)
-            add_overloads_for_body_param(yaml_data)
+            skip_single_body_json = self.add_body_param_type(code_model, body_parameter)
+            add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     def _update_lro_operation_helper(self, yaml_data: dict[str, Any]) -> None:
         for response in yaml_data.get("responses", []):

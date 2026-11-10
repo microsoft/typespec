@@ -1,12 +1,12 @@
-import {
+import type {
   CoverageReport,
   GeneratorMetadata,
   ResolvedCoverageReport,
   ScenarioData,
   ScenarioManifest,
-  SpecCoverageClient,
 } from "@typespec/spec-coverage-sdk";
-import { TierConfig } from "./utils/tier-filtering-utils.js";
+import { SpecCoverageClient } from "@typespec/spec-coverage-sdk";
+import type { TierConfig } from "./utils/tier-filtering-utils.js";
 
 export interface TableDefinition {
   /** Custom table name */
@@ -17,6 +17,13 @@ export interface TableDefinition {
   prefixes?: string[];
   /** Optional emitter names specific to this table. If not provided, falls back to global emitterNames */
   emitterNames?: string[];
+}
+
+export interface EmitterGroup {
+  /** Overview card label. */
+  readonly name: string;
+  /** Emitter package names, in display order. */
+  readonly emitters: readonly string[];
 }
 
 export interface CoverageFromAzureStorageOptions {
@@ -34,6 +41,11 @@ export interface CoverageFromAzureStorageOptions {
   readonly showOverview?: boolean;
   /** Optional friendly display names for emitters. Key is the emitter package name, value is the display name. */
   readonly emitterDisplayNames?: Readonly<Record<string, string>>;
+  /**
+   * Overview groups in display order. Count each scenario once per table, covered if any member covers it.
+   * Does not change table columns or report loading.
+   */
+  readonly groupEmitters?: readonly EmitterGroup[];
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {

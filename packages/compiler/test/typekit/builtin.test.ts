@@ -1,5 +1,5 @@
 import { beforeAll, expect, it } from "vitest";
-import { Program } from "../../src/index.js";
+import type { Program } from "../../src/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { createContextMock } from "./utils.js";
 

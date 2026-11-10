@@ -25,6 +25,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 #pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
@@ -42,6 +43,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string DeserializationMethodNamePrefix = "Deserialize";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
+        private static readonly IReadOnlySet<string> s_createCoreMethodNames = new HashSet<string>
+        {
+            JsonModelCreateCoreMethodName,
+            PersistableModelCreateCoreMethodName
+        };
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
@@ -74,9 +80,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private bool? _shouldOverrideMethods;
-        private bool ShouldOverrideMethods => _shouldOverrideMethods ??= _model.BaseModelProvider != null && !_isStruct;
+        private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
+            (_model.BaseModelProvider != null || HasCustomBaseJsonModelWriteCoreMethod());
         private bool? _shouldSkipSerializationMethodOverrides;
-        private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
+        private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
         // Unknown discriminator models use their base model as the serialization interface type.
@@ -119,6 +126,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
             => [.. originalMethods];
 
+        protected override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+            => [.. originalConstructors];
+
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
         private PropertyProvider[] AdditionalProperties => _additionalProperties.Value;
 
@@ -159,9 +169,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private CSharpType GetRootModelType()
         {
+            // Preserve the shipped create-core return type when back compatibility restores a mapped
+            // base. The prior contract may have used a covariant model return rather than the mapped
+            // framework root type.
+            if (_model.BaseModelProvider is SystemObjectModelProvider &&
+                GetLastContractCreateCoreReturnType() is { } lastContractReturnType)
+            {
+                return lastContractReturnType;
+            }
+
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = _model.BaseModelProvider?.Type ?? Type;
+            var returnType = _model.BaseModelProvider?.Type ??
+                GetCustomMrwBaseRootType() ??
+                Type;
             while (returnType.BaseType != null
                    && IsModelType(returnType.BaseType))
             {
@@ -171,9 +192,174 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return returnType;
         }
 
+        private CSharpType? GetLastContractCreateCoreReturnType()
+        {
+            var returnTypes = new List<CSharpType>();
+            var seenMethods = new HashSet<string>(StringComparer.Ordinal);
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            var provider = _model.LastContractView;
+            while (provider is not null && visited.Add(provider.Type.FullyQualifiedName))
+            {
+                foreach (var method in provider.Methods.Where(method => IsCreateCoreMethod(method.Signature)))
+                {
+                    // An override on a nearer type supersedes the inherited create-core method.
+                    if (!seenMethods.Add(method.Signature.Name))
+                    {
+                        continue;
+                    }
+                    if (method.Signature.ReturnType is not { } returnType ||
+                        !IsLastContractModelType(returnType))
+                    {
+                        // A partial match cannot supply a common historical model return type.
+                        return null;
+                    }
+                    returnTypes.Add(returnType);
+                }
+
+                if (seenMethods.Count == s_createCoreMethodNames.Count)
+                {
+                    break;
+                }
+
+                var baseType = provider.BaseType;
+                if (baseType is null || baseType.IsGenericType)
+                {
+                    break;
+                }
+
+                provider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                    baseType.Namespace, baseType.Name, baseType.DeclaringType?.Name);
+            }
+
+            var distinctReturnTypes = returnTypes.Distinct(CSharpType.IgnoreNullableComparer).ToArray();
+            return distinctReturnTypes.Length == 1 ? distinctReturnTypes[0] : null;
+        }
+
+        private bool IsLastContractModelType(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = _model.LastContractView?.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return IsAvailableInCurrentContract(candidate);
+                }
+            }
+            return false;
+        }
+
+        private bool IsAvailableInCurrentContract(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (CSharpType? type = _model.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal static bool IsCreateCoreMethod(MethodSignature signature)
+        {
+            var expectedModifiers = signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)
+                ? MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            if (HasUnsupportedSignature(signature) ||
+                signature.Parameters.Count != 2 ||
+                signature.GenericArguments is { Count: > 0 } ||
+                signature.ExplicitInterface is not null ||
+                signature.Modifiers != expectedModifiers ||
+                !IsParameter(signature.Parameters[1], typeof(ModelReaderWriterOptions)))
+            {
+                return false;
+            }
+
+            return signature.Name switch
+            {
+                JsonModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(Utf8JsonReader), isRef: true),
+                PersistableModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(BinaryData)),
+                _ => false
+            };
+        }
+
+        private static bool IsParameter(ParameterProvider parameter, Type type, bool isRef = false)
+            => parameter.Type.Equals(type) &&
+                parameter.IsRef == isRef &&
+                !parameter.IsOut &&
+                !parameter.IsIn &&
+                !parameter.IsParams;
+
         private static bool IsModelType(CSharpType type)
             => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var baseProvider) &&
                baseProvider is ModelProvider;
+
+        /// <summary>
+        /// Gets the hand-authored base type this model derives from, or <c>null</c> when the base is generated.
+        /// </summary>
+        private CSharpType? GetCustomSerializationBaseType()
+            => _model.BaseModelProvider is null && _model.CustomCodeView?.BaseType is not null
+                ? _model.BaseType
+                : null;
+
+        /// <summary>
+        /// Gets the return type the generated <c>*Core</c> creation methods must use when this model derives
+        /// from a hand-authored base, or <c>null</c> when the custom base does not declare those methods.
+        /// </summary>
+        /// <remarks>
+        /// A hand-authored base only dictates the <c>*Core</c> return type when it declares the methods being
+        /// overridden, in which case the signatures have to match. A plain base class that merely groups models
+        /// together must be ignored, otherwise the generated base declares a wider return type than its derived
+        /// overrides and the result only compiles on runtimes that support covariant returns.
+        /// </remarks>
+        private CSharpType? GetCustomMrwBaseRootType()
+            => GetCustomSerializationBaseType() is { } baseType
+                ? ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    method => s_createCoreMethodNames.Contains(method.Signature.Name),
+                    baseTypesFirst: true)?.Signature.ReturnType
+                : null;
+
+        /// <summary>
+        /// Determines whether the hand-authored base declares a <c>JsonModelWriteCore</c> method that the
+        /// generated one can legally override.
+        /// </summary>
+        /// <remarks>
+        /// Matching on the name alone is not enough: a base method that is non-virtual, sealed, declared with a
+        /// different signature, or not accessible as <c>protected</c> cannot be overridden, and emitting
+        /// <c>override</c> against it produces CS0506/CS0115/CS0507.
+        /// </remarks>
+        private bool HasCustomBaseJsonModelWriteCoreMethod()
+            => GetCustomSerializationBaseType() is { } baseType &&
+                ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    IsJsonModelWriteCoreSignature,
+                    baseTypesFirst: false) is { } method &&
+                IsJsonModelWriteCoreMethod(method);
+
+        private static bool IsJsonModelWriteCoreMethod(MethodProvider method)
+            => IsJsonModelWriteCoreSignature(method) &&
+                (method.Signature.Modifiers &
+                    (MethodSignatureModifiers.Public |
+                        MethodSignatureModifiers.Internal |
+                        MethodSignatureModifiers.Protected |
+                        MethodSignatureModifiers.Private)) == MethodSignatureModifiers.Protected &&
+                ModelReaderWriterHelpers.IsOverridable(method.Signature.Modifiers);
+
+        private static bool IsJsonModelWriteCoreSignature(MethodProvider method)
+            => method.Signature.Name == JsonModelWriteCoreMethodName &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
+                method.Signature.Parameters.Count == 2 &&
+                method.Signature.Parameters[0].Type.Equals(typeof(Utf8JsonWriter)) &&
+                method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
 
         /// <summary>
         /// Determines whether a derived model should skip overriding the generated serialization
@@ -187,43 +373,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
         /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
         /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
-        /// models re-introduce the methods as <c>virtual</c>.
+        /// models re-introduce the methods as <c>virtual</c>. The same reasoning applies to a
+        /// hand-authored base, which only participates when it declares the <c>*Core</c> methods.
         /// </remarks>
-        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider? baseModelProvider)
+        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider model)
         {
-            if (baseModelProvider is null)
+            if (model.BaseModelProvider is null)
             {
-                return false;
-            }
-
-            if (baseModelProvider is SystemObjectModelProvider systemBase)
-            {
-                return !SystemTypeImplementsModelReaderWriter(systemBase.SystemType);
-            }
-
-            return baseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
-        }
-
-        private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
-        {
-            if (!systemType.IsFrameworkType)
-            {
-                return false;
-            }
-
-            foreach (var @interface in systemType.FrameworkType.GetInterfaces())
-            {
-                if (@interface.IsGenericType)
+                if (model.CustomCodeView?.BaseType is null || model.BaseType is not { } baseType)
                 {
-                    var definition = @interface.GetGenericTypeDefinition();
-                    if (definition == typeof(IJsonModel<>) || definition == typeof(IPersistableModel<>))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+
+                return ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        baseType,
+                        method => method.Signature.Name == JsonModelCreateCoreMethodName,
+                        baseTypesFirst: true) is null &&
+                    ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        baseType,
+                        method => method.Signature.Name == PersistableModelCreateCoreMethodName,
+                        baseTypesFirst: true) is null;
             }
 
-            return false;
+            if (model.BaseModelProvider is SystemObjectModelProvider systemBase)
+            {
+                return !ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase);
+            }
+
+            return model.BaseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -334,6 +511,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            foreach (var method in methods.Where(method => method.Signature.Name.StartsWith(DeserializationMethodNamePrefix, StringComparison.Ordinal)))
+            {
+                method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    method.Suppressions,
+                    SerializationConstructor.Signature.Parameters.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type)),
+                    _inputModel.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties),
+                    _inputModel.DiscriminatedSubtypes.Values.SelectMany(type => ExperimentalApiHelpers.GetReferenceSuppressions(type))));
+            }
             return [.. methods];
         }
 
@@ -735,20 +921,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private SwitchCaseStatement[] GetDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
-            SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
-            int index = 0;
-            for (int i = 0; i < cases.Length; i++)
+            // Enumerate every derived model rather than the first (Count - 1) entries. The unknown
+            // variant is not guaranteed to be last - rebasing a hierarchy (for example via
+            // hierarchyBuilding) can append derived models after it - which would otherwise leave
+            // unassigned entries in the array.
+            List<SwitchCaseStatement> cases = new(_model.DerivedModels.Count);
+            foreach (var model in _model.DerivedModels)
             {
-                var model = _model.DerivedModels[i];
-                if (ReferenceEquals(model, unknownVariant))
+                if (ReferenceEquals(model, unknownVariant) || model.DiscriminatorValue is null)
                 {
                     continue;
                 }
-                cases[index++] = new SwitchCaseStatement(
-                    Literal(model.DiscriminatorValue!),
-                    Return(GetDeserializationMethodInvocationForType(model, _jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter)));
+                cases.Add(new SwitchCaseStatement(
+                    Literal(model.DiscriminatorValue),
+                    Return(GetDeserializationMethodInvocationForType(model, _jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter))));
             }
-            return cases;
+            return [.. cases];
         }
 
         /// <summary>
@@ -916,11 +1104,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
-                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
+                Return(New.Instance(SerializationConstructor.Signature, GetSerializationCtorParameterValues(), GetNullablePresenceInitializer()))
             ];
         }
 
-        private MethodBodyStatement GetPropertyVariableDeclarations()
+        private IReadOnlyDictionary<ValueExpression, ValueExpression>? GetNullablePresenceInitializer()
+        {
+            Dictionary<ValueExpression, ValueExpression>? values = null;
+            foreach (var parameter in SerializationConstructor.Signature.Parameters)
+            {
+                if (parameter.Property is { } property &&
+                    ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
+                {
+                    values ??= [];
+                    values[presence] = presence.AsVariableExpression;
+                }
+            }
+            return values;
+        }
+
+        private MethodBodyStatement GetPropertyVariableDeclarations(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
@@ -958,6 +1161,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
+                        if (preserveJsonPresence && ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
+                        {
+                            propertyDeclarationStatements.Add(Declare(presence.AsVariableExpression, False));
+                        }
                         ValueExpression defaultValue;
                         if (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
                         {
@@ -966,6 +1173,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         else if (IsXmlUnwrappedRequiredCollection(property))
                         {
                             defaultValue = New.List(property.Type.ElementType);
+                        }
+                        else if (preserveJsonPresence &&
+                            IsOptionalNullableCollection(property) &&
+                            !OptionalSnippets.IsConcreteCollection(property.Type))
+                        {
+                            defaultValue = New.Instance(property.Type.PropertyInitializationType);
                         }
                         else
                         {
@@ -1015,7 +1228,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 switchCases.Add(new SwitchCaseStatement(
                     ModelReaderWriterOptionsSnippets.JsonFormat,
-                    Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default]))));
+                    Return(ModelReaderWriterSnippets.Write(This, _mrwOptionsParameterSnippet))));
             }
 
             if (_supportsXml)
@@ -1085,7 +1298,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Builds the values for the serialization constructor parameters.
         /// </summary>
-        private ValueExpression[] GetSerializationCtorParameterValues()
+        private ValueExpression[] GetSerializationCtorParameterValues(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
@@ -1096,7 +1309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var parameter = parameters[i];
                 if (parameter.Property is { } property)
                 {
-                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property);
+                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property, preserveJsonPresence);
                     continue;
                 }
                 else
@@ -1110,9 +1323,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return serializationCtorParameters;
         }
 
-        private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider)
+        private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider, bool preserveJsonPresence)
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
+            var isNullable = propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable;
+            var shouldFallBack = OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
+                ? isRequired && !isNullable
+                : !isRequired || !isNullable;
+
+            if (preserveJsonPresence && IsOptionalNullableCollection(propertyProvider))
+            {
+                return propertyProvider.AsVariableExpression;
+            }
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
@@ -1120,7 +1342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
                     : propertyProvider.AsVariableExpression;
             }
-            else if (!isRequired)
+            else if (shouldFallBack)
             {
                 return OptionalSnippets.FallBackToChangeTrackingCollection(propertyProvider.AsVariableExpression, propertyProvider.Type);
             }
@@ -1128,11 +1350,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return propertyProvider.AsVariableExpression;
         }
 
+        private static bool IsOptionalNullableCollection(PropertyProvider property)
+            => property.WireInfo is { IsRequired: false, IsNullable: true } &&
+                property.Type is { IsCollection: true, IsReadOnlyMemory: false };
+
         private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = [];
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements = [];
             var parameters = SerializationConstructor.Signature.Parameters;
+            var typedAdditionalProperties = new List<PropertyProvider>();
+            foreach (var parameter in parameters)
+            {
+                if (parameter.Property is { IsAdditionalProperties: true } property &&
+                    property != _additionalBinaryDataProperty.Value)
+                {
+                    typedAdditionalProperties.Add(property);
+                }
+            }
 
             // Get the custom serialization attributes
             var serializationAttributes = GetSerializationAttributes();
@@ -1146,7 +1381,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // handle additional properties
                     if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty.Value && parameter.Property.IsAdditionalProperties)
                     {
-                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
+                        AddAdditionalPropertiesValueKindStatements(
+                            additionalPropsValueKindBodyStatements,
+                            parameter.Property,
+                            typedAdditionalProperties,
+                            jsonProperty);
                         continue;
                     }
 
@@ -1162,10 +1401,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyName = parameter.Property?.Name ?? parameter.Field?.Name;
                     var propertyType = parameter.Property?.Type ?? parameter.Field?.Type;
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
-                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
+                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName));
+                    if (parameter.Property is { } property &&
+                        ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat)
-                    };
+                        checkIfJsonPropEqualsName.Add(presence.AsVariableExpression.Assign(True).Terminate());
+                    }
+                    checkIfJsonPropEqualsName.Add(
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat));
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
                 else
@@ -1229,10 +1472,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private void AddAdditionalPropertiesValueKindStatements(
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements,
             PropertyProvider additionalPropertiesProperty,
+            IReadOnlyList<PropertyProvider> typedAdditionalProperties,
             ScopedApi<JsonProperty> jsonProperty)
         {
             DictionaryExpression additionalPropsDict = additionalPropertiesProperty.AsVariableExpression.AsDictionary(additionalPropertiesProperty.Type);
             var valueType = additionalPropertiesProperty.Type.ElementType;
+
+            // A union may expose several nullable dictionaries; store each null entry in only the first one.
+            if (valueType.IsNullable && !additionalPropsValueKindBodyStatements.ContainsKey(JsonValueKind.Null))
+            {
+                AddStatements(JsonValueKind.Null,
+                [
+                    AssignValue(Null),
+                    Continue
+                ]);
+            }
 
             // Handle the known verifiable additional property value types
             if (valueType.IsFrameworkType && AdditionalPropertiesHelper.VerifiableAdditionalPropertyTypes.Contains(valueType.FrameworkType))
@@ -1243,7 +1497,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AddStatements(JsonValueKind.String,
                         [
                             DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression stringValue),
-                            additionalPropsDict.Add(jsonProperty.Name(), stringValue),
+                            AssignValue(stringValue),
                             Continue
                         ]);
                         break;
@@ -1251,7 +1505,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AddStatements(JsonValueKind.True,
                         [
                             DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression boolValue),
-                            additionalPropsDict.Add(jsonProperty.Name(), boolValue),
+                            AssignValue(boolValue),
                             Continue
                         ]);
                         break;
@@ -1260,7 +1514,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetSingle(out ScopedApi<float> floatValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), floatValue),
+                                AssignValue(floatValue),
                                 Continue
                             },
                         ]);
@@ -1270,7 +1524,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetByte(out ScopedApi<byte> byteValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), byteValue),
+                                AssignValue(byteValue),
                                 Continue
                             },
                         ]);
@@ -1280,7 +1534,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetBytesFromBase64(out ScopedApi<byte[]> byteArray))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), byteArray),
+                                AssignValue(byteArray),
                                 Continue
                             },
                         ]);
@@ -1290,7 +1544,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetSByte(out ScopedApi<sbyte> sbyteValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), sbyteValue),
+                                AssignValue(sbyteValue),
                                 Continue
                             },
                         ]);
@@ -1300,7 +1554,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDateTime(out ScopedApi<DateTime> dateTimeValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), dateTimeValue),
+                                AssignValue(dateTimeValue),
                                 Continue
                             },
                         ]);
@@ -1310,7 +1564,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDateTimeOffset(out ScopedApi<DateTimeOffset> dateTimeOffsetValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), dateTimeOffsetValue),
+                                AssignValue(dateTimeOffsetValue),
                                 Continue
                             },
                         ]);
@@ -1320,7 +1574,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetGuid(out ScopedApi<Guid> guidValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), guidValue),
+                                AssignValue(guidValue),
                                 Continue
                             },
                         ]);
@@ -1330,7 +1584,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDecimal(out ScopedApi<decimal> decimalValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), decimalValue),
+                                AssignValue(decimalValue),
                                 Continue
                             },
                         ]);
@@ -1340,7 +1594,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDouble( out ScopedApi<double> doubleValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), doubleValue),
+                                AssignValue(doubleValue),
                                 Continue
                             },
                         ]);
@@ -1350,7 +1604,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt16(out ScopedApi<short> shortValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), shortValue),
+                                AssignValue(shortValue),
                                 Continue
                             },
                         ]);
@@ -1360,7 +1614,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt32(out ScopedApi<int> intValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), intValue),
+                                AssignValue(intValue),
                                 Continue
                             },
                         ]);
@@ -1370,7 +1624,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt64(out ScopedApi<long> longValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), longValue),
+                                AssignValue(longValue),
                                 Continue
                             },
                         ]);
@@ -1380,7 +1634,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt16(out ScopedApi<ushort> ushortValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), ushortValue),
+                                AssignValue(ushortValue),
                                 Continue
                             },
                         ]);
@@ -1390,7 +1644,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt32(out ScopedApi<uint> uintValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), uintValue),
+                                AssignValue(uintValue),
                                 Continue
                             },
                         ]);
@@ -1400,7 +1654,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt64(out ScopedApi<ulong> ulongValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), ulongValue),
+                                AssignValue(ulongValue),
                                 Continue
                             },
                         ]);
@@ -1418,7 +1672,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AddStatements(valueKind,
                 [
                     DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression value),
-                    additionalPropsDict.Add(jsonProperty.Name(), value),
+                    AssignValue(value),
                     Continue
                 ]);
 
@@ -1435,6 +1689,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 checks.AddRange(statements);
             }
+
+            MethodBodyStatement AssignValue(ValueExpression value)
+            {
+                var statements = new List<MethodBodyStatement>(typedAdditionalProperties.Count);
+                foreach (var property in typedAdditionalProperties)
+                {
+                    if (!ReferenceEquals(property, additionalPropertiesProperty))
+                    {
+                        statements.Add(property.AsVariableExpression
+                            .AsDictionary(property.Type)
+                            .Invoke(nameof(Dictionary<object, object>.Remove), jsonProperty.Name())
+                            .Terminate());
+                    }
+                }
+                statements.Add(additionalPropsDict[jsonProperty.Name()].Assign(value).Terminate());
+                return statements;
+            }
         }
 
         private static SwitchStatement CreateDeserializeAdditionalPropsValueKindCheck(
@@ -1447,6 +1718,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 switch (valueKind)
                 {
+                    case JsonValueKind.Null:
+                        switchCases.Add(new SwitchCaseStatement(JsonValueKindSnippets.Null, statements));
+                        break;
                     case JsonValueKind.String:
                         switchCases.Add(new(JsonValueKindSnippets.String, statements));
                         break;
@@ -1569,7 +1843,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if ((serializedType.IsNullable || !serializedType.IsValueType) && wireInfo.IsNullable)
             {
-                if (!serializedType.IsCollection)
+                if (!serializedType.IsCollection || !propertyIsRequired)
                 {
                     return new IfStatement(checkEmptyProperty)
                     {
@@ -1580,9 +1854,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (propertyIsRequired && !serializedType.IsValueType)
                 {
+                    ValueExpression fallbackValue = OptionalSnippets.IsConcreteCollection(serializedType)
+                        ? Null
+                        : New.Instance(serializedType.PropertyInitializationType);
                     return new IfStatement(checkEmptyProperty)
                     {
-                        propertyVarRef.Assign(New.Instance(serializedType.PropertyInitializationType)).Terminate(),
+                        propertyVarRef.Assign(fallbackValue).Terminate(),
                         Continue
                     };
                 }
@@ -1815,7 +2092,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat));
+                        propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                            CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat,
+                                ScmModelProvider.GetNullablePropertyPresence(property)),
+                            ExperimentalApiHelpers.GetMemberSuppressions(property)));
                     }
 
                     foreach (var field in baseModelProvider.CanonicalView.Fields)
@@ -1825,7 +2105,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
+                        propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                            CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat),
+                            ExperimentalApiHelpers.GetMemberSuppressions(field)));
                     }
                 }
             }
@@ -1839,7 +2121,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat));
+                propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                    CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat,
+                        ScmModelProvider.GetNullablePropertyPresence(property)),
+                    ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
             foreach (var field in _model.CanonicalView.Fields)
@@ -1849,7 +2134,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
+                propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                    CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat),
+                    ExperimentalApiHelpers.GetMemberSuppressions(field)));
             }
 
             return [.. propertyStatements];
@@ -1860,7 +2147,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType propertyType,
             string propertyName,
             MemberExpression propertyExpression,
-            SerializationFormat? serializationFormat)
+            SerializationFormat? serializationFormat,
+            FieldProvider? presence = null)
         {
             var propertySerializationName = GetJsonSerializedName(wireInfo);
             var propertySerializationFormat = wireInfo.SerializationFormat;
@@ -1921,7 +2209,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsRequired,
                 propertyIsReadOnly,
                 propertyIsNullable,
-                writePropertySerializationStatements);
+                writePropertySerializationStatements,
+                presence);
 
             return wrapInIsDefinedStatement;
         }
@@ -1933,7 +2222,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsRequired,
             bool propertyIsReadOnly,
             bool propertyIsNullable,
-            MethodBodyStatement writePropertySerializationStatement)
+            MethodBodyStatement writePropertySerializationStatement,
+            FieldProvider? presence)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             ScopedApi<bool>? patchCheck = _jsonPatchProperty != null
@@ -1965,7 +2255,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsRequired,
                 jsonSerializedName,
                 patchCheck,
-                writePropertySerializationStatement);
+                writePropertySerializationStatement,
+                presence);
         }
 
         /// <summary>
@@ -2320,7 +2611,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
                     utf8JsonWriter.WriteStringValue(value),
                 var t when t == typeof(bool) =>
-                    utf8JsonWriter.WriteBooleanValue(value),
+                    serializationFormat == SerializationFormat.Boolean_String
+                        ? utf8JsonWriter.WriteStringValue(new TernaryConditionalExpression(value, Literal("true"), Literal("false")))
+                        : utf8JsonWriter.WriteBooleanValue(value),
                 var t when t == typeof(byte[]) =>
                     utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
                 var t when t == typeof(DateTimeOffset) || t == typeof(DateTime) || t == typeof(TimeSpan) =>
@@ -2392,13 +2685,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(BinaryData) =>
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
-                        : BinaryDataSnippets.FromString(element.GetRawText()),
+                        : element.GetUtf8Bytes(),
                 Type t when t == typeof(byte[]) =>
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? element.GetBytesFromBase64(format.ToFormatSpecifier())
-                        : BinaryDataSnippets.FromString(element.GetRawText()).ToArray(),
+                        : element.GetUtf8Bytes().ToArray(),
                 Type t when t == typeof(Stream) =>
-                    BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
+                    element.GetUtf8Bytes().ToStream(),
                 Type t when t == typeof(FileBinaryContent) =>
                     New.Instance<FileBinaryContent>(New.Instance<MemoryStream>(element.GetBytesFromBase64(), Literal(false))),
                 Type t when t == typeof(JsonElement) =>
@@ -2406,7 +2699,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(object) =>
                     element.GetObject(),
                 Type t when t == typeof(bool) =>
-                    element.GetBoolean(),
+                    format == SerializationFormat.Boolean_String
+                        ? Static<bool>().Invoke(nameof(bool.Parse), element.GetString())
+                        : element.GetBoolean(),
                 Type t when t == typeof(char) =>
                     element.GetChar(),
                 Type t when ValueTypeIsInt(t) =>
@@ -2447,10 +2742,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     $"Deserialization of type {valueType.Name} may not be supported using MRW serialization.",
                     severity: EmitterDiagnosticSeverity.Warning);
                 // Fall back to MRW deserialization for framework type
-                return Static(typeof(ModelReaderWriter)).Invoke(
-                    nameof(ModelReaderWriter.Read),
-                    [data, ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default],
-                    [valueType]);
+                return ModelReaderWriterSnippets.Read(
+                    valueType,
+                    data,
+                    mrwOptions);
             }
 
             return exp;
@@ -2458,8 +2753,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool ValueTypeIsInt(Type valueType) =>
             valueType == typeof(long) ||
+            valueType == typeof(ulong) ||
             valueType == typeof(int) ||
+            valueType == typeof(uint) ||
             valueType == typeof(short) ||
+            valueType == typeof(ushort) ||
             valueType == typeof(sbyte) ||
             valueType == typeof(byte);
 
@@ -2477,8 +2775,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _ => type switch
             {
                 Type t when t == typeof(long) => element.GetInt64(),
+                Type t when t == typeof(ulong) => element.GetUInt64(),
                 Type t when t == typeof(int) => element.GetInt32(),
+                Type t when t == typeof(uint) => element.GetUInt32(),
                 Type t when t == typeof(short) => element.GetInt16(),
+                Type t when t == typeof(ushort) => element.GetUInt16(),
                 Type t when t == typeof(sbyte) => element.GetSByte(),
                 Type t when t == typeof(byte) => element.GetByte(),
                 _ => throw new NotSupportedException($"Framework type {type} is not int.")
@@ -2505,7 +2806,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
-                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
+                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>(), serializationFormat.ToFormatSpecifier());
             }
             return utf8JsonWriter.WriteBinaryData(value);
         }
@@ -2530,7 +2831,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool isRequired,
             string serializedName,
             ValueExpression? patchCheck,
-            MethodBodyStatement writePropertySerializationStatement)
+            MethodBodyStatement writePropertySerializationStatement,
+            FieldProvider? presence)
         {
             ScopedApi<bool> condition;
             bool shouldCheckJsonPath = patchCheck != null && (propertyType.IsList || propertyType.IsArray);
@@ -2558,8 +2860,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
+                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression, propertyType)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
+
+            if (!isRequired && isNullable)
+            {
+                if (presence != null || propertyType is { IsCollection: true, IsReadOnlyMemory: false })
+                {
+                    if (presence != null)
+                    {
+                        isDefinedCondition = OptionalSnippets.IsDefined(propertyMemberExpression, presence);
+                    }
+                    var writeNullableProperty = new IfElseStatement(
+                        new IfStatement(propertyMemberExpression.NotEqual(Null)) { writePropertySerializationStatement },
+                        _utf8JsonWriterSnippet.WriteNull(serializedName));
+                    condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
+                    if (shouldCheckJsonPath)
+                    {
+                        return CreateConditionalPatchSerializationStatement(
+                            serializedName, condition, writeNullableProperty, null);
+                    }
+                    if (patchCheck != null)
+                    {
+                        condition = condition.And(patchCheck);
+                    }
+                    return new IfStatement(condition) { writeNullableProperty };
+                }
+            }
 
             if (patchCheck != null && !shouldCheckJsonPath)
             {
@@ -2612,6 +2939,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
             var forEachStatement = new ForEachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
             {
+                CreateExternalPropertyReplacementKeyFilters(item),
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                 CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default, _rawDataField.WireInfo?.SerializedName ?? _rawDataField.Name),
             };
@@ -2635,17 +2963,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var additionalPropertiesProperty = AdditionalProperties[i];
                 var tKey = additionalPropertiesProperty.Type.Arguments[0];
                 var tValue = additionalPropertiesProperty.Type.Arguments[1];
+                var serializedName = additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name;
                 // generate serialization statements for each key-value pair in the additional properties dictionary
                 var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
+                    CreateExternalPropertyReplacementKeyFilters(item),
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
-                    CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default, additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name),
+                    tValue.IsNullable
+                        ? CreateNullCheckAndSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName)
+                        : CreateSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName),
                 };
-                statements[i] = forEachStatement;
+                statements[i] = ExperimentalApiHelpers.Suppress(forEachStatement,
+                    ExperimentalApiHelpers.GetMemberSuppressions(additionalPropertiesProperty));
             }
 
             return statements;
         }
+
+        /// <summary>
+        /// Creates conditional continue statements for the generated additional-properties loop.
+        /// The collection initializer passes the returned statements to ForEachStatement.Add;
+        /// this does not mutate the additional-properties dictionary during generation.
+        /// </summary>
+        private MethodBodyStatement[] CreateExternalPropertyReplacementKeyFilters(KeyValuePairExpression item)
+            => [.. EnumerateModelAndBaseModelProviders().SelectMany(model => model.ExternalPropertyReplacements)
+                .Where(property => property.WireInfo is { IsHttpMetadata: false })
+                .Select(property => GetJsonSerializedName(property.WireInfo!))
+                .Distinct(StringComparer.Ordinal)
+                .Select(name => new IfStatement(item.Key.Equal(Literal(name)))
+                {
+                    Continue
+                })];
 
         private PropertyProvider? GetAdditionalBinaryDataPropertiesProp()
         {

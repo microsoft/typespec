@@ -12,14 +12,15 @@ import { ProgramCs } from "./components/project/program.jsx";
 import { ControllersAndInterfaces } from "./components/render-root.jsx";
 import { Documentation } from "./components/scaffolding/documentation.jsx";
 import { MockHelpers, MockImplementations } from "./components/scaffolding/mock-scaffolding.jsx";
+import { HttpServiceExceptionFilter } from "./components/serialization/http-service-exception-filter.jsx";
 import { JsonConverters } from "./components/serialization/json-converters.jsx";
 import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
+import { OperationSources } from "./context/operation-source-context.js";
 import { reportEmitterDiagnostics } from "./diagnostics.js";
-import { CSharpServiceEmitterOptions } from "./lib.js";
+import type { CSharpServiceEmitterOptions } from "./lib.js";
 import { resolveOpenApiPath, writeOutputWithOverwrite } from "./output-writer.js";
 import { resolveServiceTypes } from "./service-resolution.js";
-import { getFreePort } from "./utils/port.js";
 
 /**
  * Main function to handle the emission process.
@@ -31,18 +32,27 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const scalarOverrides = createServerScalarOverrides(tk);
   const options = context.options;
   const collectionType = options["collection-type"] ?? "array";
+  const modelsOnly = options["output-type"] === "models";
   const emitMocks =
-    options["emit-mocks"] === "mocks-only" || options["emit-mocks"] === "mocks-and-project-files";
-  const emitProjectFiles = options["emit-mocks"] === "mocks-and-project-files";
-  const useSwaggerUI = options["use-swaggerui"] ?? false;
+    !modelsOnly &&
+    (options["emit-mocks"] === "mocks-only" || options["emit-mocks"] === "mocks-and-project-files");
+  const emitProjectFiles = !modelsOnly && options["emit-mocks"] === "mocks-and-project-files";
+  const useSwaggerUI = !modelsOnly && (options["use-swaggerui"] ?? false);
 
   // Resolve all service types in a single pass
-  const resolution = resolveServiceTypes(context.program, tk, canonicalizer);
+  const resolution = resolveServiceTypes(context.program, tk, canonicalizer, {
+    canonicalizeOperations: !modelsOnly,
+  });
   const serviceName = resolution.serviceNamespaceName ?? "ServiceProject";
   const projectName = options["project-name"] ?? "ServiceProject";
 
   // Report diagnostic warnings (pre-pass before rendering)
-  reportEmitterDiagnostics(context.program, resolution.interfaces, resolution.canonicalOpsMap);
+  reportEmitterDiagnostics(
+    context.program,
+    resolution.interfaces,
+    resolution.canonicalOpsMap,
+    resolution.declarationNamespaces,
+  );
 
   // Resolve OpenAPI path for SwaggerUI
   let openApiPath: string | undefined = options["openapi-path"];
@@ -57,17 +67,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     (iface) => `I${iface.name}, ${iface.name}`,
   );
 
-  // Resolve ports for project files
-  let httpPort = options["http-port"] ?? 5000;
-  let httpsPort = options["https-port"] ?? 7000;
-  if (emitProjectFiles) {
-    if (!options["http-port"]) {
-      httpPort = await getFreePort(5000, 5999);
-    }
-    if (!options["https-port"]) {
-      httpsPort = await getFreePort(7000, 7999);
-    }
-  }
+  const httpPort = options["http-port"] ?? 5000;
+  const httpsPort = options["https-port"] ?? 7000;
 
   const output = (
     <Output program={context.program} namePolicy={createCSharpNamePolicy()}>
@@ -87,16 +88,22 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                     serviceNamespace={resolution.serviceNamespace}
                   />
                 </SourceDirectory>
-                <ControllersAndInterfaces
-                  interfaces={resolution.interfaces}
-                  canonicalOpsMap={resolution.canonicalOpsMap}
-                />
+                <Show when={!modelsOnly}>
+                  <OperationSources.Provider value={resolution.canonicalOperationSourceMap}>
+                    <ControllersAndInterfaces
+                      interfaces={resolution.interfaces}
+                      canonicalOpsMap={resolution.canonicalOpsMap}
+                    />
+                  </OperationSources.Provider>
+                </Show>
               </SourceDirectory>
-              <ProgramCs
-                hasMocks={emitMocks}
-                useSwaggerUI={effectiveUseSwaggerUI}
-                openApiPath={openApiPath}
-              />
+              <Show when={!modelsOnly}>
+                <ProgramCs
+                  hasMocks={emitMocks}
+                  useSwaggerUI={effectiveUseSwaggerUI}
+                  openApiPath={openApiPath}
+                />
+              </Show>
               <Show when={emitMocks}>
                 <MockImplementations
                   interfaces={resolution.interfaces}
@@ -108,13 +115,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                 <LaunchSettings httpPort={httpPort} httpsPort={httpsPort} />
                 <AppSettings />
               </Show>
-              <Documentation
-                interfaceNames={emitMocks ? interfaceNames : []}
-                useSwaggerUI={useSwaggerUI}
-              />
+              <Show when={!modelsOnly}>
+                <Documentation
+                  interfaceNames={emitMocks ? interfaceNames : []}
+                  useSwaggerUI={useSwaggerUI}
+                />
+              </Show>
             </Namespace>
             <SourceDirectory path="generated">
               <JsonConverters />
+              <Show when={!modelsOnly}>
+                <SourceDirectory path="lib">
+                  <HttpServiceExceptionFilter />
+                </SourceDirectory>
+              </Show>
             </SourceDirectory>
             <Show when={emitMocks}>
               <MockHelpers interfaceRegistrations={interfaceRegistrations} />

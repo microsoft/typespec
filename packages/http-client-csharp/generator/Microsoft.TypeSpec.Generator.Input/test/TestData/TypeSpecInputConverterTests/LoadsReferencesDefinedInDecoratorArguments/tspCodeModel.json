@@ -1,0 +1,83 @@
+{
+  "name": "Test",
+  "clients": [
+    {
+      "$id": "client",
+      "name": "TestClient",
+      "decorators": [
+        {
+          "name": "example",
+          "arguments": {
+            "nested": [
+              {
+                "payload": {
+                  "$id": "sharedModel",
+                  "kind": "model",
+                  "name": "SharedModel",
+                  "properties": [
+                    {
+                      "$id": "sharedProperty",
+                      "kind": "property",
+                      "name": "value",
+                      "type": { "$ref": "primitive" }
+                    },
+                    {
+                      "$id": "ownerReference",
+                      "name": "owner",
+                      "type": { "$ref": "owner" }
+                    }
+                  ]
+                }
+              }
+            ],
+            "owner": {
+              "$id": "owner",
+              "kind": "model",
+              "name": "Owner",
+              "properties": [
+                { "$ref": "sharedProperty" },
+                {
+                  "$id": "selfProperty",
+                  "name": "self",
+                  "type": { "$ref": "owner" }
+                },
+                {
+                  "$id": "sharedReference",
+                  "name": "shared",
+                  "type": { "$ref": "sharedModel" }
+                },
+                {
+                  "$id": "enumReference",
+                  "name": "choice",
+                  "type": { "$ref": "choiceEnum" }
+                }
+              ]
+            },
+            "enumeration": {
+              "$id": "choiceEnum",
+              "kind": "enum",
+              "name": "Choice",
+              "valueType": { "$ref": "primitive" },
+              "values": []
+            },
+            "primitive": {
+              "$id": "primitive",
+              "kind": "string",
+              "name": "string"
+            },
+            "unused": {
+              "$id": "opaque",
+              "kind": "not-a-code-model",
+              "value": { "$ref": "not-a-code-model-reference" }
+            },
+            "number": 42,
+            "nullValue": null
+          }
+        }
+      ],
+      "namespace": "Test"
+    }
+  ],
+  "models": [{ "$ref": "owner" }, { "$ref": "sharedModel" }, { "$ref": "sharedModel" }],
+  "enums": [{ "$ref": "choiceEnum" }]
+}

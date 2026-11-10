@@ -1,5 +1,5 @@
 import type { JSONSchemaType } from "ajv";
-import { EmitterOptions, TypeSpecRawConfig } from "./types.js";
+import type { EmitterOptions, TypeSpecRawConfig } from "./types.js";
 
 export const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",

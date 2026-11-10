@@ -3977,6 +3977,35 @@ Expected error response body:
 </XmlErrorBody>
 ```
 
+### Response_BodyOrNoContent_getBody
+
+- Endpoint: `get /response/body-or-no-content/body`
+
+Operation that returns a successful response with a status code of 200 and a `BlobLayout` body.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `200`.
+Expected response status code is 200 with body:
+
+```json
+{ "content": "hello" }
+```
+
+Expected response header `x-ms-request-id: body-request`.
+Verify that the `200` response is deserialized normally and that the raw response status and
+headers remain available.
+
+### Response_BodyOrNoContent_getNoContent
+
+- Endpoint: `get /response/body-or-no-content/no-content`
+
+Operation that returns a successful response with a status code of 204 and no content.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `204`.
+Expected response status code is 204 with no body.
+Expected response header `x-ms-request-id: no-content-request`.
+Verify that the `204` response is classified as successful, that it does not attempt body
+deserialization, and that the raw response status and headers remain available.
+
 ### Response_StatusCodeRange_errorResponseStatusCode404
 
 - Endpoint: `get /response/status-code-range/error-response-status-code-404`
@@ -4277,6 +4306,14 @@ Test query continuation expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-continuation/explode/array?fixed=true&param=a&param=b
 
+### Routes_QueryParameters_QueryContinuation_Explode_model
+
+- Endpoint: `get /routes/query/query-continuation/explode/model?fixed=true{&param*}`
+
+Test query continuation expansion with explode: true when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-continuation/explode/model?fixed=true&field=status&value=active
+
 ### Routes_QueryParameters_QueryContinuation_Explode_primitive
 
 - Endpoint: `get /routes/query/query-continuation/explode/primitive?fixed=true{&param*}`
@@ -4300,6 +4337,14 @@ Expected path: /routes/query/query-continuation/explode/record?fixed=true&a=1&b=
 Test query continuation expansion with explode: false when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-continuation/standard/array?fixed=true&param=a,b
+
+### Routes_QueryParameters_QueryContinuation_Standard_model
+
+- Endpoint: `get /routes/query/query-continuation/standard/model?fixed=true{&param}`
+
+Test query continuation expansion with explode: false when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-continuation/standard/model?fixed=true&param=field,status,value,active
 
 ### Routes_QueryParameters_QueryContinuation_Standard_primitive
 
@@ -4359,6 +4404,14 @@ Expected path: /routes/query/query-expansion/explode/record?a=1&b=2
 Test query expansion with explode: false when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/standard/array?param=a,b
+
+### Routes_QueryParameters_QueryExpansion_Standard_model
+
+- Endpoint: `get /routes/query/query-expansion/standard/model{?param}`
+
+Test query expansion with explode: false when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/standard/model?param=field,status,value,active
 
 ### Routes_QueryParameters_QueryExpansion_Standard_primitive
 
@@ -5353,6 +5406,128 @@ event: responseDelta
 data: {"delta": " world"}
 
 data: [DONE]
+
+```
+
+### Streaming_Sse_Protocol_Data_withEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/with-envelope`
+
+SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+only the `contents` property in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withEnvelope
+data: hello
+```
+
+### Streaming_Sse_Protocol_Data_withoutEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/without-envelope`
+
+SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+sends the complete model in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withoutEnvelope
+data: {"metadata": {"source": "test"}, "contents": "world"}
+```
+
+### Streaming_Sse_Protocol_id
+
+- Endpoint: `get /streaming/sse/protocol/id`
+
+An SSE event with an `id` field. The event ID is envelope metadata and is
+not part of the typed event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidId
+
+- Endpoint: `get /streaming/sse/protocol/invalid-id`
+
+An SSE event with an `id` field containing U+0000 NULL. The field is
+ignored according to the SSE parsing rules.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: invalid<U+0000 NULL>id
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidRetry
+
+- Endpoint: `get /streaming/sse/protocol/invalid-retry`
+
+An SSE event with an invalid `retry` field. Since the value contains
+non-ASCII-digit characters, the field is ignored.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: not-a-number
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_reconnect
+
+- Endpoint: `get /streaming/sse/protocol/reconnect`
+
+An SSE stream that resumes after a reconnect. The first response closes after
+sending `event-1`. On reconnect, the client sends the most recently received
+event ID in the `Last-Event-ID` request header.
+
+Expected initial response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+```
+
+Expected request header on reconnect:
+
+```
+Last-Event-ID: event-1
+```
+
+Expected reconnect response body (content type `text/event-stream`):
+
+```
+id: event-2
+event: message
+data: {"message": "world"}
+
+```
+
+### Streaming_Sse_Protocol_retry
+
+- Endpoint: `get /streaming/sse/protocol/retry`
+
+An SSE event with a valid `retry` field containing only ASCII digits. The
+field sets the client's reconnection delay and is not part of the typed
+event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: 1000
+event: message
+data: {"message": "hello"}
 
 ```
 
@@ -9148,6 +9323,236 @@ Send the union as:
   }
 }
 ```
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/custom-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "petType": "feline", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/custom-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "petType": "canine", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/custom-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "petType": "feline", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_CustomDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/custom-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "petType": "canine", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/enum-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/enum-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/enum-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_EnumDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/enum-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/explicit-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/explicit-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/explicit-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/explicit-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_getCat
+
+- Endpoint: `get /type/union/discriminated/extends/injected-discriminator/cat`
+
+Receive the cat alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_getDog
+
+- Endpoint: `get /type/union/discriminated/extends/injected-discriminator/dog`
+
+Receive the dog alternative of a discriminated union with an explicit model constraint.
+Expected response body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_putCat
+
+- Endpoint: `put /type/union/discriminated/extends/injected-discriminator/cat`
+
+Send the cat alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "cat", "name": "Whiskers", "meow": true }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_InjectedDiscriminator_Operations_putDog
+
+- Endpoint: `put /type/union/discriminated/extends/injected-discriminator/dog`
+
+Send the dog alternative of a discriminated union with an explicit model constraint.
+Expected request body:
+
+```json
+{ "kind": "dog", "name": "Rex", "bark": false }
+```
+
+The response has status 204 and no body.
+
+### Type_Union_Discriminated_Extends_Recursive_get
+
+- Endpoint: `get /type/union/discriminated/extends/recursive`
+
+Receive an inline-discriminated union with recursive model, array, and dictionary properties.
+Expected response body:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true,
+  "friend": { "kind": "dog", "name": "Rex", "bark": false },
+  "friends": [{ "kind": "cat", "name": "Kitten", "meow": false }],
+  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } }
+}
+```
+
+### Type_Union_Discriminated_Extends_Recursive_put
+
+- Endpoint: `put /type/union/discriminated/extends/recursive`
+
+Send an inline-discriminated union with recursive model, array, and dictionary properties.
+Expected request body:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true,
+  "friend": { "kind": "dog", "name": "Rex", "bark": false },
+  "friends": [{ "kind": "cat", "name": "Kitten", "meow": false }],
+  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } }
+}
+```
+
+The response has status 204 and no body.
 
 ### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_get
 

@@ -18,6 +18,7 @@ from ..models import (
 )
 from ..models.parameter import _ParameterBase
 from ..models.parameter_list import BodyParameterType
+from ..models.utils import python_string_literal
 
 
 class PopKwargType(Enum):
@@ -119,8 +120,8 @@ class ParameterSerializer:
         retval = ["path_format_arguments = {"]
         retval.extend(
             [
-                '    "{}": {},'.format(
-                    path_parameter.wire_name,
+                "    {}: {},".format(
+                    python_string_literal(path_parameter.wire_name),
                     (
                         f'"" if {path_parameter.full_client_name} is None else "/" + {self.serialize_parameter(path_parameter, serializer_name)}'
                         if path_parameter.optional and isinstance(path_parameter, RequestBuilderParameter)
@@ -139,6 +140,8 @@ class ParameterSerializer:
         kwarg_name: str,
         serializer_name: str,
         is_legacy: bool,
+        *,
+        is_body_optional: bool = False,
     ) -> list[str]:
         if (
             not is_legacy
@@ -153,20 +156,24 @@ class ParameterSerializer:
                 return [
                     """if_match = prep_if_match(etag, match_condition)""",
                     """if if_match is not None:""",
-                    f"""    _headers["{header_name}"] = _SERIALIZER.header("if_match", if_match, "str")""",
+                    f"""    _headers[{python_string_literal(header_name)}] = _SERIALIZER.header("if_match", if_match, "str")""",
                 ]
             return [
                 """if_none_match = prep_if_none_match(etag, match_condition)""",
                 """if if_none_match is not None:""",
-                f"""    _headers["{header_name}"] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
+                f"""    _headers[{python_string_literal(header_name)}] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
             ]
 
-        set_parameter = "_{}['{}'] = {}".format(
+        set_parameter = "_{}[{}] = {}".format(
             kwarg_name,
-            param.wire_name,
+            python_string_literal(param.wire_name, quote="'"),
             self.serialize_parameter(param, serializer_name),
         )
-        if not param.optional and (param.in_method_signature or param.constant):
+        # When the body is optional, the content-type may legitimately be ``None`` (no body
+        # was sent). In that case the header must be omitted instead of serialized, otherwise
+        # ``_SERIALIZER.header`` raises ``ValueError: No value for given attribute``.
+        is_content_type_optional = getattr(param, "is_content_type", False) and is_body_optional
+        if not param.optional and not is_content_type_optional and (param.in_method_signature or param.constant):
             retval = [set_parameter]
         else:
             retval = [
@@ -184,6 +191,7 @@ class ParameterSerializer:
         check_client_input: bool = False,
         *,
         body_parameter: Optional[BodyParameterType] = None,
+        is_body_optional: Optional[bool] = None,
     ) -> list[str]:
         retval = []
 
@@ -195,7 +203,8 @@ class ParameterSerializer:
 
         append_pop_kwarg("headers", pop_headers_kwarg)
         append_pop_kwarg("params", pop_params_kwarg)
-        is_body_optional = check_body_optional(body_parameter)
+        if is_body_optional is None:
+            is_body_optional = check_body_optional(body_parameter)
         if pop_headers_kwarg != PopKwargType.NO or pop_params_kwarg != PopKwargType.NO:
             retval.append("")
         for kwarg in parameters:
@@ -206,7 +215,13 @@ class ParameterSerializer:
                 if is_content_type_optional and not type_annotation.startswith("Optional[")
                 else type_annotation
             )
-            if kwarg.client_default_value is not None or kwarg.optional or kwarg.constant or kwarg.is_api_version:
+            if (
+                kwarg.client_default_value is not None
+                or kwarg.optional
+                or kwarg.constant
+                or kwarg.is_api_version
+                or is_content_type_optional
+            ):
                 if check_client_input and kwarg.check_client_input:
                     default_value = f"self._config.{kwarg.client_name}"
                 elif kwarg.constant:
@@ -217,7 +232,8 @@ class ParameterSerializer:
                     default_value = kwarg.client_default_value_declaration
                 if check_kwarg_dict and (kwarg.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]):
                     kwarg_dict = "headers" if kwarg.location == ParameterLocation.HEADER else "params"
-                    default_value = f"_{kwarg_dict}.pop('{kwarg.wire_name}', {default_value})"
+                    wire_literal = python_string_literal(kwarg.wire_name, quote="'")
+                    default_value = f"_{kwarg_dict}.pop({wire_literal}, {default_value})"
 
                 retval.append(
                     f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"

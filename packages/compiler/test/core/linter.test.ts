@@ -1,14 +1,26 @@
+import { strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 
+import type { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
-import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
+import type { Linter } from "../../src/core/linter.js";
+import { createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
+  type Diagnostic,
+  type EnumMember,
   type Interface,
   type LibraryInstance,
   type LinterDefinition,
   type LinterRuleContext,
+  type SourceLocation,
 } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
+import type { MockFile } from "../../src/testing/index.js";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  mockFile,
+  resolveVirtualPath,
+} from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 const noModelFoo = createLinterRule({
@@ -114,6 +126,7 @@ const noModelWithName = createLinterRule({
 async function createTestLinter(
   code: string | Record<string, string>,
   linterDef: LinterDefinition,
+  codeResolver?: ReturnType<typeof createDiagnosticCodeResolver>,
 ): Promise<Linter> {
   let result;
   if (typeof code === "string") {
@@ -140,8 +153,10 @@ async function createTestLinter(
     linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
   };
 
-  const linter = createLinter(result.program, (libName) =>
-    Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
+  const linter = createLinter(
+    result.program,
+    (libName) => Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
+    codeResolver,
   );
   return linter;
 }
@@ -271,6 +286,45 @@ describe("diagnostic location", () => {
 });
 
 describe("when enabling a rule", () => {
+  it.each(["enumMember", "exitEnumMember"] as const)(
+    "reports diagnostics from %s listeners",
+    async (event) => {
+      const rule = createLinterRule({
+        name: "no-enum-member-foo",
+        description: "Prevents enum members named Foo",
+        severity: "warning",
+        messages: {
+          default: "Cannot call enum member 'Foo'",
+        },
+        create(context) {
+          return {
+            [event]: (target: EnumMember) => {
+              if (target.name === "Foo") {
+                context.reportDiagnostic({ target });
+              }
+            },
+          };
+        },
+      });
+      const linter = await createTestLinterAndEnableRules(
+        `
+          enum Test { Foo, Bar }
+          model References {
+            first: Test.Foo;
+            second: Test.Foo;
+          }
+        `,
+        { rules: [rule] },
+      );
+
+      expectDiagnostics((await linter.lint()).diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-enum-member-foo",
+        message: "Cannot call enum member 'Foo'",
+      });
+    },
+  );
+
   it("emit a diagnostic if rule report one", async () => {
     const linter = await createTestLinter(`model Foo {}`, {
       rules: [noModelFoo],
@@ -399,6 +453,130 @@ describe("(integration) loading in program", () => {
       model Foo {}`);
 
     expectDiagnosticEmpty(diagnostics);
+  });
+});
+
+describe("(integration) short names", () => {
+  async function diagnoseWithLib(
+    code: string,
+    options: {
+      libName: string;
+      alias?: string;
+      enable: string;
+    },
+  ) {
+    const libDir = `node_modules/${options.libName}`;
+    return await Tester.files({
+      [`${libDir}/package.json`]: JSON.stringify({
+        name: options.libName,
+        main: "index.js",
+      }),
+      [`${libDir}/index.js`]: mockFile.js({
+        $lib: createTypeSpecLibrary({
+          name: options.libName,
+          alias: options.alias,
+          diagnostics: {},
+        }),
+        $linter: { rules: [noModelFoo] },
+      }),
+    }).diagnose(`import "${options.libName}";\n${code}`, {
+      compilerOptions: {
+        linterRuleSet: {
+          enable: { [options.enable]: true },
+        },
+      },
+    });
+  }
+
+  it("enables a rule using the scope-stripped short name", async () => {
+    const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+      libName: "@typespec/test-real",
+      enable: "test-real/no-model-foo",
+    });
+    expectDiagnostics(diagnostics, { code: "@typespec/test-real/no-model-foo" });
+  });
+
+  it("enables a rule using a library-declared alias", async () => {
+    const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+      libName: "@azure-tools/typespec-fake",
+      alias: "fake",
+      enable: "fake/no-model-foo",
+    });
+    expectDiagnostics(diagnostics, { code: "@azure-tools/typespec-fake/no-model-foo" });
+  });
+
+  it("suppresses a diagnostic using the short name", async () => {
+    const diagnostics = await diagnoseWithLib(
+      `
+      #suppress "test-real/no-model-foo" "intentional"
+      model Foo {}`,
+      {
+        libName: "@typespec/test-real",
+        enable: "test-real/no-model-foo",
+      },
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("suppresses a diagnostic reported with full name using the short name", async () => {
+    const diagnostics = await diagnoseWithLib(
+      `
+      #suppress "fake/no-model-foo" "intentional"
+      model Foo {}`,
+      {
+        libName: "@azure-tools/typespec-fake",
+        alias: "fake",
+        enable: "@azure-tools/typespec-fake/no-model-foo",
+      },
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  // Two libraries that both resolve to the short name `http`.
+  function twoConflictingLibs() {
+    const libNames = ["@typespec/http", "typespec-http"];
+    const files: Record<string, MockFile> = {};
+    for (const libName of libNames) {
+      const libDir = `node_modules/${libName}`;
+      files[`${libDir}/package.json`] = JSON.stringify({ name: libName, main: "index.js" });
+      files[`${libDir}/index.js`] = mockFile.js({
+        $lib: createTypeSpecLibrary({ name: libName, diagnostics: {} }),
+        $linter: { rules: [noModelFoo] },
+      });
+    }
+    const imports = libNames.map((n) => `import "${n}";`).join("\n");
+    return { files, imports };
+  }
+
+  it("warns and does not enable a rule when the short name is ambiguous", async () => {
+    const { files, imports } = twoConflictingLibs();
+    const diagnostics = await Tester.files(files).diagnose(`${imports}\nmodel Foo {}`, {
+      compilerOptions: {
+        linterRuleSet: { enable: { "http/no-model-foo": true } },
+      },
+    });
+    // Only the ambiguity warning, no unknown-rule error and no rule triggered.
+    expectDiagnostics(diagnostics, {
+      code: "ambiguous-short-name",
+      message: /Short name "http" is ambiguous/,
+    });
+  });
+
+  it("warns when suppressing with an ambiguous short name", async () => {
+    const { files, imports } = twoConflictingLibs();
+    const diagnostics = await Tester.files(files).diagnose(
+      `${imports}\n#suppress "http/no-model-foo" "intentional"\nmodel Foo {}`,
+      {
+        compilerOptions: {
+          linterRuleSet: { enable: { "@typespec/http/no-model-foo": true } },
+        },
+      },
+    );
+    // The suppression can't be resolved, so the rule still fires, plus the ambiguity warning.
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-short-name", message: /Short name "http" is ambiguous/ },
+      { code: "@typespec/http/no-model-foo" },
+    ]);
   });
 });
 
@@ -709,5 +887,267 @@ describe("rule options", () => {
       await linter.lint();
       expect(modelListener).not.toHaveBeenCalled();
     });
+  });
+});
+
+/**
+ * Assert a diagnostic points at `expectedText` inside the given file, so that ruleset diagnostics
+ * are locatable in an editor rather than being reported globally.
+ */
+function expectTargetsSourceText(
+  diagnostic: Diagnostic,
+  fileName: string,
+  fileContent: string,
+  expectedText: string,
+) {
+  const target = diagnostic.target as SourceLocation;
+  strictEqual(target.file?.path, resolveVirtualPath(fileName));
+  strictEqual(fileContent.slice(target.pos, target.end), expectedText);
+}
+
+describe("extending a ruleset defined in a file", () => {
+  async function createLinterWithFiles(files: Record<string, string>) {
+    return await createTestLinter(
+      { "main.tsp": `model Foo {}`, ...files },
+      {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: { enable: { "@typespec/test-linter/no-model-foo": true } },
+        },
+      },
+    );
+  }
+
+  it("enables the rules defined in the file", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": true
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("resolves path without ./ prefix", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": true
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:rules.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can extend a ruleset defined in a library", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can disable a rule enabled by an extended ruleset", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+disable:
+  "@typespec/test-linter/no-model-foo": "Not applicable here"
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }));
+    expectDiagnosticEmpty((await linter.lint()).diagnostics);
+  });
+
+  it("can enable a rule that an extended file set to `enable: false`", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": false
+`,
+    });
+    expectDiagnosticEmpty(
+      await linter.extendRuleSet({
+        extends: ["file:./rules.yaml"],
+        enable: { "@typespec/test-linter/no-model-foo": true },
+      }),
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can re-enable a rule disabled by an extended file", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+disable:
+  "@typespec/test-linter/no-model-foo": "Not applicable here"
+`,
+    });
+    expectDiagnosticEmpty(
+      await linter.extendRuleSet({
+        extends: ["file:./rules.yaml"],
+        enable: { "@typespec/test-linter/no-model-foo": true },
+      }),
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("emits a diagnostic when a library ruleset tries to extend a file", async () => {
+    const linter = await createTestLinter(`model Foo {}`, {
+      rules: [noModelFoo],
+      ruleSets: {
+        custom: { extends: ["file:./rules.yaml"] },
+      },
+    });
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["@typespec/test-linter/custom"] }), {
+      code: "ruleset-file-in-library",
+      message:
+        'Ruleset "@typespec/test-linter/custom" is defined in a library and cannot extend the ruleset file "file:./rules.yaml". "file:" references can only be used in "tspconfig.yaml", in another ruleset file, or with "--linter-ruleset".',
+    });
+    expectDiagnosticEmpty((await linter.lint()).diagnostics);
+  });
+
+  it("emits a diagnostic when a library ruleset reached through a ruleset file extends a file", async () => {
+    const linter = await createTestLinter(
+      {
+        "main.tsp": `model Foo {}`,
+        "rules.yaml": `extends:\n  - "@typespec/test-linter/custom"\n`,
+      },
+      {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: { extends: ["file:./other.yaml"] },
+        },
+      },
+    );
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }), {
+      code: "ruleset-file-in-library",
+    });
+  });
+
+  it("resolves nested file reference relative to the ruleset file", async () => {
+    const linter = await createLinterWithFiles({
+      "rulesets/main.yaml": `
+extends:
+  - "file:./base.yaml"
+`,
+      "rulesets/base.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": true
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rulesets/main.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("emits a diagnostic when the file doesn't exist", async () => {
+    const linter = await createLinterWithFiles({});
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./not-found.yaml"] }), {
+      code: "file-not-found",
+    });
+  });
+
+  it("locates a missing file on the `extends` entry that referenced it", async () => {
+    const content = `
+extends:
+  - "file:./not-found.yaml"
+`;
+    const linter = await createLinterWithFiles({ "rules.yaml": content });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "file-not-found" });
+    expectTargetsSourceText(diagnostics[0], "rules.yaml", content, `"file:./not-found.yaml"`);
+  });
+
+  it("emits a diagnostic when the file is not a valid ruleset", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+notARuleSetProperty: true
+`,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "invalid-schema" });
+    // Diagnostics must point at the ruleset file itself, not `<anonymous file>`.
+    strictEqual((diagnostics[0].target as any).file.path, resolveVirtualPath("rules.yaml"));
+  });
+
+  it("emits a diagnostic pointing at the ruleset file when the yaml is malformed", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  - "a/b": [
+`,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "yaml-bad-indent" });
+    strictEqual((diagnostics[0].target as any).file.path, resolveVirtualPath("rules.yaml"));
+  });
+
+  it("emits a diagnostic when the file extends itself", async () => {
+    const content = `
+extends:
+  - "file:./rules.yaml"
+`;
+    const linter = await createLinterWithFiles({ "rules.yaml": content });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "circular-ruleset-file" });
+    // The diagnostic is located on the `extends` entry that closes the cycle.
+    expectTargetsSourceText(diagnostics[0], "rules.yaml", content, `"file:./rules.yaml"`);
+  });
+
+  it("emits a diagnostic when there is a circular reference between files", async () => {
+    const bContent = `
+extends:
+  - "file:./a.yaml"
+`;
+    const linter = await createLinterWithFiles({
+      "a.yaml": `
+extends:
+  - "file:./b.yaml"
+`,
+      "b.yaml": bContent,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./a.yaml"] });
+    expectDiagnostics(diagnostics, { code: "circular-ruleset-file" });
+    // Blames `b.yaml`, the file that references back into the cycle.
+    expectTargetsSourceText(diagnostics[0], "b.yaml", bContent, `"file:./a.yaml"`);
+  });
+});
+
+describe("(integration) linter ruleset file in tspconfig", () => {
+  it("loads the ruleset relative to the config file", async () => {
+    const diagnostics = await Tester.files({
+      "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", main: "index.js" }),
+      "node_modules/my-lib/index.js": mockFile.js({
+        $lib: createTypeSpecLibrary({ name: "my-lib", diagnostics: {} }),
+        $linter: { rules: [noModelFoo] },
+      }),
+      "rules.yaml": `
+enable:
+  "my-lib/no-model-foo": true
+`,
+    }).diagnose(`model Foo {}`, {
+      compilerOptions: {
+        linterRuleSet: { extends: ["file:./rules.yaml"] },
+      },
+    });
+    expectDiagnostics(diagnostics, { code: "my-lib/no-model-foo" });
   });
 });

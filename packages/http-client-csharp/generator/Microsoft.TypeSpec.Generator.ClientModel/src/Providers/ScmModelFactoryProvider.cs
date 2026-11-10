@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -31,7 +33,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var method in methods)
             {
-                if (!MethodReferencesFileBinaryContent(method))
+                if (!MethodReferencesFileBinaryContent(method)
+                    || method.Signature.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute))
                 {
                     continue;
                 }

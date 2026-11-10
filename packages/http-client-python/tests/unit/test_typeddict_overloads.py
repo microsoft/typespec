@@ -11,15 +11,18 @@ That left a lone ``@overload`` on the generated method, which mypy rejects with
 ``Single overload definition, multiple required``.  The preprocess plugin must
 instead keep the body as a plain single type so no ``@overload`` is emitted.
 """
-from pygen.preprocess import PreProcessPlugin, add_overloads_for_body_param
+import pytest
+
+from pygen.preprocess import PreProcessPlugin, add_overload, add_overloads_for_body_param
 
 
-def _plugin(models_mode: str) -> PreProcessPlugin:
+def _plugin(models_mode: str, generate_typeddict: bool = True) -> PreProcessPlugin:
     return PreProcessPlugin(
         output_folder="",
         **{
             "version-tolerant": True,
             "models-mode": models_mode,
+            "generate-typeddict": generate_typeddict,
             "tsp_file": True,
             "show-operations": True,
             "show-send-request": True,
@@ -71,20 +74,233 @@ def _json_model_operation() -> tuple[dict, dict, dict]:
     return code_model, yaml_data, model_type
 
 
+def _named_union_operation(member_count: int) -> dict:
+    member_types = [{"type": "string"}, {"type": "integer"}]
+    union_type = {
+        "type": "combined",
+        "name": "GenerateAgentRequest",
+        "types": member_types[:member_count],
+    }
+    return {
+        "name": "generate",
+        "bodyParameter": {
+            "wireName": "body",
+            "clientName": "body",
+            "location": "body",
+            "optional": False,
+            "implementation": "Method",
+            "contentTypes": ["application/json"],
+            "type": union_type,
+        },
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+
+
+def _etag_parameters(*, optional: bool) -> tuple[list[dict], dict, dict]:
+    etag_type = {"type": "string"}
+    match_condition_type = {"type": "sdkcore", "name": "MatchConditions"}
+    return (
+        [
+            {
+                "wireName": "If-Match",
+                "clientName": "etag",
+                "location": "header",
+                "optional": optional,
+                "implementation": "Method",
+                "type": etag_type,
+            },
+            {
+                "wireName": "If-None-Match",
+                "clientName": "match_condition",
+                "location": "header",
+                "etagRole": "ifNoneMatch",
+                "optional": optional,
+                "implementation": "Method",
+                "type": match_condition_type,
+            },
+        ],
+        etag_type,
+        match_condition_type,
+    )
+
+
+@pytest.mark.parametrize("optional", [False, True])
+def test_named_single_member_union_emits_no_overload(optional: bool):
+    """The implementation annotation carries the alias without an invalid lone overload."""
+    yaml_data = _named_union_operation(member_count=1)
+    named_union = yaml_data["bodyParameter"]["type"]
+    etag_parameters, etag_type, match_condition_type = _etag_parameters(optional=optional)
+    yaml_data["parameters"].extend(etag_parameters)
+
+    add_overloads_for_body_param(yaml_data)
+
+    assert yaml_data["overloads"] == []
+    assert yaml_data["bodyParameter"]["type"] is named_union
+    assert yaml_data["bodyParameter"]["type"]["name"] == "GenerateAgentRequest"
+    assert yaml_data["parameters"][-2]["type"] is etag_type
+    assert yaml_data["parameters"][-1]["type"] is match_condition_type
+    assert all(parameter["optional"] is optional for parameter in yaml_data["parameters"][-2:])
+
+
+@pytest.mark.parametrize("optional", [False, True])
+def test_named_multiple_member_union_emits_variant_overloads(optional: bool):
+    """Multi-member named unions keep one overload per variant."""
+    yaml_data = _named_union_operation(member_count=2)
+    named_union = yaml_data["bodyParameter"]["type"]
+    etag_parameters, etag_type, match_condition_type = _etag_parameters(optional=optional)
+    yaml_data["parameters"].extend(etag_parameters)
+
+    add_overloads_for_body_param(yaml_data)
+
+    assert len(yaml_data["overloads"]) == 2
+    assert yaml_data["bodyParameter"]["type"] is named_union
+    assert all(
+        overload["bodyParameter"]["type"] is member_type
+        for overload, member_type in zip(yaml_data["overloads"], named_union["types"])
+    )
+    for overload in yaml_data["overloads"]:
+        assert overload["parameters"][-2]["type"] is etag_type
+        assert overload["parameters"][-1]["type"] is match_condition_type
+        assert all(parameter["optional"] is optional for parameter in overload["parameters"][-2:])
+
+
+def test_add_overload_preserves_types_after_filtering_flattened_parameters():
+    """Filtering a flattened parameter must not shift later parameter types."""
+    yaml_data = _named_union_operation(member_count=2)
+    flattened_type = {"type": "string", "name": "FlattenedType"}
+    etag_type = {"type": "string", "name": "EtagType"}
+    match_condition_type = {"type": "sdkcore", "name": "MatchConditions"}
+    yaml_data["parameters"].extend(
+        [
+            {
+                "wireName": "flattened",
+                "clientName": "flattened",
+                "location": "body",
+                "optional": True,
+                "implementation": "Method",
+                "inFlattenedBody": True,
+                "type": flattened_type,
+            },
+            {
+                "wireName": "If-Match",
+                "clientName": "etag",
+                "location": "header",
+                "optional": True,
+                "implementation": "Method",
+                "type": etag_type,
+            },
+            {
+                "wireName": "If-None-Match",
+                "clientName": "match_condition",
+                "location": "header",
+                "etagRole": "ifNoneMatch",
+                "optional": True,
+                "implementation": "Method",
+                "type": match_condition_type,
+            },
+        ]
+    )
+
+    overload = add_overload(yaml_data, yaml_data["bodyParameter"]["type"]["types"][0])
+
+    assert [parameter["clientName"] for parameter in overload["parameters"]] == [
+        "content_type",
+        "etag",
+        "match_condition",
+    ]
+    assert overload["parameters"][1]["type"] is etag_type
+    assert overload["parameters"][2]["type"] is match_condition_type
+
+
+@pytest.mark.parametrize("optional", [False, True])
+def test_spread_body_overloads_preserve_etag_parameter_types(optional: bool):
+    """Flattened, JSON, and binary overloads keep the shared ETag pair."""
+    plugin = _plugin("dpg")
+    cross_language_id = "Contoso.TelephonyTransferTargets"
+    original = _dpg_body_parameter("TelephonyTransferTargets", cross_language_id)["type"]
+    spread_body = _json_spread_body_parameter("ReplaceTransferTargetsRequest", cross_language_id)
+    flattened_type = {"type": "list", "elementType": {"type": "string"}}
+    flattened_parameter = {
+        "wireName": "transfer_targets",
+        "clientName": "transfer_targets",
+        "location": "body",
+        "optional": False,
+        "implementation": "Method",
+        "inFlattenedBody": True,
+        "type": flattened_type,
+    }
+    etag_parameters, etag_type, match_condition_type = _etag_parameters(optional=optional)
+    yaml_data = {
+        "name": "replace",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param(), flattened_parameter, *etag_parameters],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [original, spread_body["type"]]}
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert len(yaml_data["overloads"]) == 3
+    flattened_overloads = [
+        overload for overload in yaml_data["overloads"] if overload["bodyParameter"].get("flattened")
+    ]
+    assert len(flattened_overloads) == 1
+    assert flattened_overloads[0]["parameters"][1]["type"] is flattened_type
+    for overload in yaml_data["overloads"]:
+        parameters_by_name = {parameter["clientName"]: parameter for parameter in overload["parameters"]}
+        assert parameters_by_name["etag"]["type"] is etag_type
+        assert parameters_by_name["match_condition"]["type"] is match_condition_type
+        assert parameters_by_name["etag"]["optional"] is optional
+        assert parameters_by_name["match_condition"]["optional"] is optional
+        if not overload["bodyParameter"].get("flattened"):
+            assert "transfer_targets" not in parameters_by_name
+
+
 def test_typeddict_only_single_body_emits_no_overload():
     """A lone TypedDict body variant must NOT produce a single ``@overload``."""
     plugin = _plugin("typeddict")
     code_model, yaml_data, model_type = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
-    plugin.add_body_param_type(code_model, body_parameter)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     # A single overload is illegal for mypy; we expect none at all.
+    assert len(yaml_data["overloads"]) == 0
+    # No TypedDict replacement is inserted when the body collapses to a single type.
+    assert skip_single_body_json is False
     assert len(yaml_data["overloads"]) == 0
     # The body stays a plain single type rather than a one-member combined type.
     assert body_parameter["type"] is model_type
     assert body_parameter["type"]["type"] == "model"
+
+
+def test_models_mode_none_maps_to_typeddict_only():
+    """User-facing ``models-mode: none`` (TypeSpec) behaves as typeddict-only.
+
+    ``generate-typeddict`` defaults to ``True``, so ``none`` generates TypedDicts.
+    Internally ``models-mode`` stays ``none`` (falsy) and typeddict-only generation
+    is expressed via ``generate_typeddict_only``. A lone TypedDict body variant must
+    still NOT emit a single ``@overload``.
+    """
+    plugin = _plugin("none")
+    # models-mode stays 'none' (falsy); TypedDict-only is expressed via generate_typeddict_only.
+    assert plugin.options["models-mode"] is False
+    assert plugin.options.generate_typeddict_only is True
+    code_model, yaml_data, model_type = _json_model_operation()
+    body_parameter = yaml_data["bodyParameter"]
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert len(yaml_data["overloads"]) == 0
+    assert body_parameter["type"] is model_type
 
 
 def test_dpg_mode_still_emits_multiple_overloads():
@@ -93,13 +309,128 @@ def test_dpg_mode_still_emits_multiple_overloads():
     code_model, yaml_data, _ = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
-    plugin.add_body_param_type(code_model, body_parameter)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     # dpg mode adds at least the binary overload alongside the model, so the
     # combined type has multiple members and overloads are generated.
     assert body_parameter["type"]["type"] == "combined"
     assert len(yaml_data["overloads"]) >= 2
+
+
+def test_dpg_mode_can_disable_typeddict_autogeneration():
+    """Opting out reverts to the pre-TypedDict overloads: model + raw-JSON + binary."""
+    plugin = _plugin("dpg", generate_typeddict=False)
+    code_model, yaml_data, model_type = _json_model_operation()
+    body_parameter = yaml_data["bodyParameter"]
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert body_parameter["type"]["type"] == "combined"
+    # Opting out inserts no TypedDict replacement, so the single-body JSON overload is kept.
+    assert skip_single_body_json is False
+    # The dict-body overload is the raw-JSON ``any-object`` (not a TypedDict).
+    assert body_parameter["type"]["types"] == [model_type, {"type": "any-object"}, {"type": "binary"}]
+    assert len(yaml_data["overloads"]) == 3
+    overload_types = [o["bodyParameter"]["type"]["type"] for o in yaml_data["overloads"]]
+    assert overload_types == ["model", "any-object", "binary"]
+    assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
+
+
+def test_spread_body_opt_out_keeps_json_overload():
+    """Spread bodies revert to pre-TypedDict: flattened + single-body JSON + binary."""
+    plugin = _plugin("dpg", generate_typeddict=False)
+    spread_body = _json_spread_body_parameter("CreateRequest", "Contoso.Widget")
+    yaml_data = {
+        "name": "create",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [spread_body["type"]]}
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert spread_body["type"]["type"] == "combined"
+    # Opting out inserts no TypedDict replacement, so the single-body JSON overload is kept.
+    assert skip_single_body_json is False
+    assert spread_body["type"]["types"][0]["base"] == "json"
+    assert spread_body["type"]["types"][1] == {"type": "binary"}
+    assert len(yaml_data["overloads"]) == 3
+    json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
+    # Both a flattened (keyword params) overload AND a single-body raw-JSON overload.
+    assert any(o["bodyParameter"].get("flattened") for o in json_overloads)
+    assert any(not o["bodyParameter"].get("flattened") for o in json_overloads)
+    assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
+
+
+def test_spread_body_dpg_typeddict_on_skips_single_json_overload():
+    """dpg + generate-typeddict on: the TypedDict overload replaces the single-body JSON one."""
+    plugin = _plugin("dpg")
+    clid = "Contoso.Widget"
+    original = _dpg_body_parameter("Widget", clid)["type"]
+    spread_body = _json_spread_body_parameter("CreateRequest", clid)
+    yaml_data = {
+        "name": "create",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [original, spread_body["type"]]}
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    # Combined types: [json_model, typeddict, binary]; the single-body JSON overload is
+    # replaced by the TypedDict, so only the flattened JSON overload remains.
+    assert skip_single_body_json is True
+    json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
+    assert all(o["bodyParameter"].get("flattened") for o in json_overloads)
+    assert not any(not o["bodyParameter"].get("flattened") for o in json_overloads)
+
+
+def test_spread_body_typeddict_mode_skips_single_json_overload():
+    """models-mode: typeddict spread bodies must NOT keep the single-body JSON overload.
+
+    The inserted overload is the original ``base: dpg`` model (it renders as a TypedDict
+    via models-mode), so a ``base == "typeddict"`` sniff would miss it. The
+    ``skip_single_body_json`` signal returned by ``add_body_param_type`` ensures the
+    single-body JSON overload is still skipped.
+    """
+    plugin = _plugin("typeddict")
+    clid = "Contoso.Widget"
+    original = _dpg_body_parameter("Widget", clid)["type"]
+    spread_body = _json_spread_body_parameter("CreateRequest", clid)
+    yaml_data = {
+        "name": "create",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [original, spread_body["type"]]}
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert spread_body["type"]["type"] == "combined"
+    assert skip_single_body_json is True
+    # typeddict-only mode omits the binary overload; the inserted overload is the
+    # original dpg model referenced directly.
+    assert spread_body["type"]["types"][0]["base"] == "json"
+    assert spread_body["type"]["types"][1] is original
+    # Exactly the flattened JSON overload plus the original-model overload; the
+    # single-body JSON overload must be absent.
+    json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
+    assert len(json_overloads) == 1
+    assert json_overloads[0]["bodyParameter"].get("flattened") is True
 
 
 def _dpg_body_parameter(name: str, cross_lang_id: str) -> dict:

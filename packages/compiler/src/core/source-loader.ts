@@ -1,11 +1,7 @@
 import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
-import {
-  ModuleResolutionResult,
-  ResolvedModule,
-  resolveModule,
-  ResolveModuleError,
-} from "../module-resolver/index.js";
-import { PackageJson } from "../types/package-json.js";
+import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/index.js";
+import { resolveModule, ResolveModuleError } from "../module-resolver/index.js";
+import type { PackageJson } from "../types/package-json.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { doIO } from "../utils/io.js";
 import { deepEquals, resolveTspMain } from "../utils/misc.js";
@@ -16,16 +12,18 @@ import { createResolveModuleHost } from "./module-host.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath, resolvePath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
-import {
+import type {
   DiagnosticTarget,
-  ModifierFlags,
   ModuleLibraryMetadata,
-  NodeFlags,
-  NoTarget,
   ParseOptions,
   SourceFile,
-  SyntaxKind,
   Tracer,
+} from "./types.js";
+import {
+  ModifierFlags,
+  NodeFlags,
+  NoTarget,
+  SyntaxKind,
   type CompilerHost,
   type Diagnostic,
   type JsSourceFileNode,

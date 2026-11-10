@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -92,9 +93,13 @@ public class ClientModelUtil {
             // 1. ServiceClient has operations
             // 2. ServiceClient has sub clients
 
-            AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
-                .serviceClient(serviceClient)
-                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
+            AsyncSyncClient.Builder builder
+                = new AsyncSyncClient.Builder().packageName(packageName)
+                    .serviceClient(serviceClient)
+                    .apiMetadata(new ApiMetadata.Builder()
+                        .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client))
+                        .experimental(SchemaUtil.getExperimental(client))
+                        .build());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -129,7 +134,7 @@ public class ClientModelUtil {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
                 .methodGroupClient(methodGroupClient)
-                .crossLanguageDefinitionId(methodGroupClient.getCrossLanguageDefinitionId());
+                .apiMetadata(methodGroupClient.getApiMetadata());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -872,15 +877,8 @@ public class ClientModelUtil {
     }
 
     public static boolean readOnlyNotInCtor(ClientModel model, ClientModelProperty property, JavaSettings settings) {
-        return
-        // must be read-only and not appear in constructor
-        ((property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
-            // immutable output model only has package-private setters, making its properties effectively read-only
-            || (isImmutableOutputModel(getDefiningModel(model, property), settings))
-                // if property.isReadOnly(), whether it's required or not will not affect it being in constructor or not
-                // , thus only check when !property.isReadOnly() and the model is immutable output(effectively
-                // read-only)
-                && !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()));
+        return (property.isReadOnly() || isImmutableOutputModel(getDefiningModel(model, property), settings))
+            && !includePropertyInConstructor(property, settings);
     }
 
     /**

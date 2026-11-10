@@ -1,4 +1,4 @@
-import { TypeSpecOpenAPIDecorators } from "../generated-defs/TypeSpec.OpenAPI.js";
+import type { TypeSpecOpenAPIDecorators } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { $oneOf, $useRef } from "./decorators.js";
 
 export { $lib } from "./lib.js";

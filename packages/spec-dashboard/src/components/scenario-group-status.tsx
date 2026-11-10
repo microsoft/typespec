@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import type { FunctionComponent } from "react";
 import { GroupRatioColors, GroupRatios } from "../constants.js";
 import style from "./scenario-group-status.module.css";
 

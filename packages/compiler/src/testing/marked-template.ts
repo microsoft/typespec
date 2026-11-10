@@ -24,31 +24,45 @@ import type {
   Value,
 } from "../core/types.js";
 
+/** A named type or value expectation interpolated by {@link t.code} and checked during compilation. */
 export type Marker<T extends Entity, N extends string> = T extends Type
   ? TypeMarker<T, N>
   : T extends Value
     ? ValueMarker<T, N>
     : never;
 
+/** Select a type entity and optionally require a particular semantic type kind. */
 export interface TypeMarker<T extends Type, N extends string> {
+  /** Requires the resolved entity to be a type rather than a runtime value. */
   readonly entityKind: "Type";
+  /** Required type kind; when absent, any type kind is accepted. */
   readonly kind?: T["kind"];
+  /** Identifier inserted into the source and used as the compilation result key. */
   readonly name: N;
 }
 
+/** Select a runtime value entity and optionally require a particular value kind. */
 export interface ValueMarker<T extends Value, N extends string> {
+  /** Requires the resolved entity to be a runtime value rather than a type. */
   readonly entityKind: "Value";
+  /** Required value kind; when absent, any runtime value is accepted. */
   readonly valueKind?: T["valueKind"];
+  /** Identifier inserted into the source and used as the compilation result key. */
   readonly name: N;
 }
 
+/** Expected entity categories and kinds, keyed by the names collected from a marked template. */
 export type MarkerConfig<T extends Record<string, Entity>> = {
   [K in keyof T]: Marker<T[K], K & string>;
 };
 
+/** Source produced by {@link t.code}, carrying typed expectations for named entities in that source. */
 export interface TemplateWithMarkers<T extends Record<string, Entity>> {
+  /** Discriminator identifying a marked template rather than a record of input files. */
   readonly isTemplateWithMarkers: true;
+  /** Generated TypeSpec text, including the marker comments used to locate entities. */
   readonly code: string;
+  /** Expectations checked when resolving marked entities after compilation. */
   readonly markers: MarkerConfig<T>;
 }
 
@@ -106,10 +120,15 @@ function valueMarker<const T extends Value>(valueKind?: T["valueKind"]) {
   };
 }
 
-/** TypeSpec template marker */
+/**
+ * Build TypeSpec source with typed entity markers.
+ * Marker factories take an identifier, insert it with a locating comment through {@link t.code},
+ * and require the resolved entity to match the factory's type or value kind.
+ */
 export const t = {
   /**
-   * Define a marked code block
+   * Interpolate source strings and entity markers into a test input with typed result properties.
+   * Plain strings are inserted verbatim; a marker named `Foo` inserts `/*Foo*\/Foo`.
    *
    * @example
    * ```ts
@@ -188,6 +207,10 @@ type FlattenTemplates<M extends Record<string, string | TemplateWithMarkers<any>
   [K in keyof M]: M[K] extends TemplateWithMarkers<infer T> ? T : never;
 }>;
 
+/**
+ * Infer named entity result properties from a marked template or a record of marked input files.
+ * Names appearing only in plain source strings are not inferred by this type.
+ */
 export type GetMarkedEntities<
   M extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
 > =

@@ -1,11 +1,7 @@
 import { deepStrictEqual, equal, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  MarkupKind,
-} from "vscode-languageserver";
+import type { CompletionItem, CompletionList } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind } from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -143,6 +139,22 @@ describe("completes for keywords", () => {
     [`interface I ex ex┆`, []],
     [`interface I {┆}`, []],
     [`interface I<T, ┆>`, []],
+
+    [`union U ┆`, ["extends"]],
+    [`union U ┆ `, ["extends"]],
+    [`union U \n┆\n`, ["extends"]],
+    [`union U ┆{}`, ["extends"]],
+    [`union U ┆ {}`, ["extends"]],
+    [`union U ┆ \nscalar S2`, ["extends"]],
+    [`model M1{}; union U ┆ M1`, ["extends"]],
+    [`model M1{}; union U e┆x M1`, ["extends"]],
+    [`union U<T> ┆\n`, ["extends"]],
+    [`union U<T>┆ \n`, ["extends"]],
+    [`union U<T extends string> ┆ {}`, ["extends"]],
+    [`union U ex┆`, ["extends"]],
+    [`union U ex┆tends`, ["extends"]],
+    [`union U {┆}`, []],
+    [`union U<T, ┆> {}`, []],
 
     [`scalar S<T ┆>`, ["extends"]],
     [`scalar S<T ┆ = int16>`, ["extends"]],
@@ -440,7 +452,7 @@ describe("identifiers", () => {
     ]);
   });
 
-  it("does not complete functions or decorators in type position", async () => {
+  it("completes declared TypeSpec functions but not JavaScript exports or decorators", async () => {
     const completions = await complete(
       `
       model M {
@@ -450,10 +462,13 @@ describe("identifiers", () => {
     );
 
     deepStrictEqual(
-      [],
-      completions.items.filter(
-        (c) => c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function,
-      ),
+      completions.items
+        .filter(
+          (c) =>
+            c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function,
+        )
+        .map((c) => c.label),
+      ["typeref"],
     );
   });
 
@@ -759,6 +774,52 @@ describe("identifiers", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value: "(enum member)\n```typespec\n`enum`.`foo-bar`\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in member expression without backticks", async () => {
+    const completions = await complete(
+      `
+      model Test {
+        auto: string;
+      }
+      alias A = Test.au┆
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nTest.auto: string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in model body without backticks", async () => {
+    const completions = await complete(
+      `
+      model Base {
+        auto: string;
+      }
+      model Child extends Base {
+        au┆
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nBase.auto: string\n```",
         },
       },
     ]);
@@ -1279,6 +1340,26 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes types in a union extends clause", async () => {
+    const completions = await complete(
+      `
+      namespace N {
+        model A {}
+        union B extends ┆
+      }
+        `,
+    );
+
+    check(completions, [
+      {
+        label: "A",
+        insertText: "A",
+        kind: CompletionItemKind.Class,
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.A\n```" },
+      },
+    ]);
+  });
+
   it("completes using statements", async () => {
     const completions = await complete(
       `
@@ -1306,6 +1387,54 @@ describe("identifiers", () => {
       {
         allowAdditionalCompletions: false,
       },
+    );
+  });
+
+  it("does not complete file namespace members in a using declared before the file namespace", async () => {
+    const completions = await complete(
+      `
+      import "./lib.tsp";
+      using ┆M;
+      namespace MyOrg.Svc;
+      `,
+      undefined,
+      {
+        "test/lib.tsp": `
+        namespace MyOrg.Models { model M {} }
+        namespace Standalone { model S {} }
+        `,
+      },
+    );
+
+    ok(
+      completions.items.some((x) => x.label === "Standalone"),
+      "Should complete global namespaces",
+    );
+    ok(
+      !completions.items.some((x) => x.label === "Models"),
+      "Should not complete `Models` as usings before the file namespace resolve from the global namespace",
+    );
+  });
+
+  it("completes file namespace members in a using declared after the file namespace", async () => {
+    const completions = await complete(
+      `
+      import "./lib.tsp";
+      namespace MyOrg.Svc;
+      using ┆M;
+      `,
+      undefined,
+      {
+        "test/lib.tsp": `
+        namespace MyOrg.Models { model M {} }
+        namespace Standalone { model S {} }
+        `,
+      },
+    );
+
+    ok(
+      completions.items.some((x) => x.label === "Models"),
+      "Should complete `Models` as usings after the file namespace resolve relative to it",
     );
   });
 

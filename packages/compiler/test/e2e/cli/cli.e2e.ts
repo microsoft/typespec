@@ -1,5 +1,8 @@
-import { ChildProcess, SpawnOptions, spawn } from "child_process";
+import type { ChildProcess, SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { access, readFile, rm } from "fs/promises";
+import * as http from "http";
+import type { AddressInfo } from "net";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolvePath } from "../../../src/index.js";
 import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
@@ -12,25 +15,26 @@ function getScenarioDir(name: string) {
 }
 interface ExecCliOptions {
   cwd?: string;
+  env?: NodeJS.ProcessEnv;
 }
 
-async function execCli(args: string[], { cwd }: ExecCliOptions) {
+async function execCli(args: string[], { cwd, env }: ExecCliOptions) {
   const node = process.platform === "win32" ? "node.exe" : "node";
   return execAsync(node, [resolvePath(pkgRoot, "entrypoints/cli.js"), ...args], {
     cwd,
-    env: { ...process.env, NO_COLOR: "1" },
+    env: { ...process.env, ...env, NO_COLOR: "1" },
   });
 }
-async function execCliSuccess(args: string[], { cwd }: ExecCliOptions) {
-  const result = await execCli(args, { cwd });
+async function execCliSuccess(args: string[], options: ExecCliOptions) {
+  const result = await execCli(args, options);
   if (result.exitCode !== 0) {
     throw new Error(`Failed to execute cli: ${result.stdio}`);
   }
 
   return result;
 }
-async function execCliFail(args: string[], { cwd }: ExecCliOptions) {
-  const result = await execCli(args, { cwd });
+async function execCliFail(args: string[], options: ExecCliOptions) {
+  const result = await execCli(args, options);
   if (result.exitCode === 0) {
     throw new Error(`Cli succeeded but expected failure: ${result.stdio}`);
   }
@@ -105,6 +109,75 @@ describe("info", () => {
   });
 });
 
+describe("install", () => {
+  it("reports registry failures without an internal compiler error", async () => {
+    const server = http.createServer((_req, res) => {
+      res.writeHead(401);
+      res.end();
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+
+    try {
+      const result = await execCliFail(["install"], {
+        cwd: getScenarioDir("install"),
+        env: { TYPESPEC_NPM_REGISTRY: `http://127.0.0.1:${port}` },
+      });
+
+      expect(result.stdio).toContain("install-package-manager-error");
+      expect(result.stdio).toContain("failed with status 401");
+      expect(result.stdio).not.toContain("Internal compiler error");
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  });
+
+  it("reports package manager download failures without an internal compiler error", async () => {
+    const server = http.createServer((req, res) => {
+      if (req.url === "/npm") {
+        const manifest = {
+          name: "npm",
+          version: "99.99.99",
+          dist: { tarball: `http://${req.headers.host}/npm.tgz` },
+          bin: { npm: "bin/npm-cli.js" },
+        };
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            name: "npm",
+            "dist-tags": { latest: manifest.version },
+            versions: { [manifest.version]: manifest },
+          }),
+        );
+      } else {
+        res.writeHead(200);
+        res.end();
+      }
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+    const registryUrl = `http://127.0.0.1:${port}`;
+
+    try {
+      const result = await execCliFail(["install"], {
+        cwd: getScenarioDir("install"),
+        env: { TYPESPEC_NPM_REGISTRY: registryUrl },
+      });
+
+      expect(result.stdio).toContain("install-package-manager-error");
+      expect(result.stdio).toContain("Failed to download package manager npm");
+      expect(result.stdio).toContain("Failed to extract package from");
+      expect(result.stdio).not.toContain("Internal compiler error");
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  });
+});
+
 describe("format", () => {
   it("--check returns non zero exit code for unformatted files", async () => {
     const { stderr } = await execCliFail(["format", "--check", "."], {
@@ -115,6 +188,65 @@ describe("format", () => {
 });
 
 describe("compile", () => {
+  describe("linter overrides", () => {
+    const cwd = getScenarioDir("linter");
+
+    beforeEach(async () => {
+      await cleanOutputDir("linter");
+    });
+
+    it("reports configured lint diagnostics as errors with --warn-as-error", async () => {
+      const { stdio } = await execCliFail(["compile", ".", "--warn-as-error"], { cwd });
+      expect(stdio).toContain("error @typespec/compiler/unused-using:");
+    });
+
+    it("disables linting without disabling the configured emitter", async () => {
+      const { stdio } = await execCliSuccess(["compile", ".", "--no-linter", "--warn-as-error"], {
+        cwd,
+      });
+      expect(stdio).not.toContain("compiler/unused-");
+      expect(await readFile(resolvePath(cwd, "tsp-output/out.txt"), "utf8")).toBe("Hello, world!");
+    });
+
+    it("does not suppress compiler warnings with --no-linter", async () => {
+      const { stdio } = await execCliFail(["compile", ".", "--no-linter", "--warn-as-error"], {
+        cwd: getScenarioDir("warn"),
+      });
+      expect(stdio).toContain("error deprecated:");
+    });
+
+    it("applies ruleset selection and per-rule overrides from CLI flags", async () => {
+      const { stdio } = await execCliSuccess(
+        [
+          "compile",
+          ".",
+          "--linter-ruleset",
+          "@typespec/compiler/all",
+          "--linter-rule",
+          "compiler/unused-using=false",
+        ],
+        { cwd },
+      );
+      expect(stdio).not.toContain("warning @typespec/compiler/unused-using:");
+      expect(stdio).toContain("warning @typespec/compiler/unused-template-parameter:");
+    });
+
+    it.each(["linter-ruleset", "linter-rule"])("requires a value for --%s", async (flag) => {
+      const { stdio } = await execCliFail(["compile", ".", `--${flag}`], { cwd });
+      expect(stdio).toContain(`Not enough arguments following: ${flag}`);
+      expect(stdio).not.toContain("Internal compiler error");
+    });
+
+    it.each([
+      ["--linter-ruleset", "@typespec/compiler/all"],
+      ["--linter-rule", "compiler/unused-using=true"],
+    ])("rejects --no-linter with %s", async (...override) => {
+      const { stdio } = await execCliFail(["compile", ".", "--no-linter", ...override], { cwd });
+      expect(stdio).toContain("conflicting-linter-flags");
+      expect(stdio).not.toContain("Internal compiler error");
+    });
+  });
+
   describe("compiling spec with warning", () => {
     it("logs warning and succeed", async () => {
       const { stdout } = await execCliSuccess(["compile", ".", "--pretty", "false"], {

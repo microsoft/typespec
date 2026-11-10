@@ -5,6 +5,11 @@ import { getContentTypes } from "@typespec/http";
 import { getStreamOf } from "@typespec/streams";
 import { reportDiagnostic, SSEStateKeys } from "./lib.js";
 
+/**
+ * Compiler validation hook that reports terminal events outside `@events` unions.
+ * Also checks that stream models whose `contentType` property includes
+ * `text/event-stream` carry a union marked with `@events`.
+ */
 export function $onValidate(program: Program) {
   checkForIncorrectlyAssignedTerminalEvents(program);
   checkForSSEStreamWithoutEventsDecorator(program);

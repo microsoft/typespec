@@ -33,6 +33,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<string> Substring(this ScopedApi<string> stringExpression, ValueExpression startIndex)
             => stringExpression.Invoke(nameof(string.Substring), [startIndex], null, false).As<string>();
 
+        public static ScopedApi<string> Trim(this ScopedApi<string> stringExpression)
+            => stringExpression.Invoke(nameof(string.Trim)).As<string>();
+
         public static ValueExpression ToCharArray(this ScopedApi<string> stringExpression)
             => stringExpression.Invoke(nameof(string.ToCharArray), Array.Empty<ValueExpression>(), null, false);
 

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -15,6 +17,136 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     internal class AdditionalPropertiesTest
     {
+        [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
+        public void NullableAdditionalPropertiesDeserializeNull(InputType valueType, bool isNullable)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: isNullable ? new InputNullableType(valueType) : valueType);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+            var nullCases = valueKindSwitch.Cases.Where(c =>
+                c.Matches.Any(m => m.ToDisplayString() == JsonValueKindSnippets.Null.ToDisplayString())).ToArray();
+
+            Assert.That(nullCases, Has.Length.EqualTo(isNullable ? 1 : 0));
+            if (isNullable)
+            {
+                Assert.That(nullCases[0].Statement.ToDisplayString(),
+                    Is.EqualTo(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n")));
+            }
+        }
+
+        public static IEnumerable<TestCaseData> NullableAdditionalPropertiesTestCases
+        {
+            get
+            {
+                InputType[] types =
+                [
+                    InputPrimitiveType.String,
+                    InputPrimitiveType.Int32,
+                    InputPrimitiveType.Boolean,
+                    InputFactory.Array(InputPrimitiveType.String),
+                    InputFactory.Dictionary(InputPrimitiveType.String),
+                    InputFactory.Array(new InputNullableType(InputPrimitiveType.String))
+                ];
+                foreach (var type in types)
+                {
+                    yield return new TestCaseData(type, false);
+                    yield return new TestCaseData(type, true);
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
+        public void TypedAdditionalPropertiesOverwriteDuplicateKeys(InputType valueType, bool isNullable)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: isNullable ? new InputNullableType(valueType) : valueType);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+            var valueKindCode = valueKindSwitch.ToDisplayString();
+
+            StringAssert.Contains("[prop.Name] =", valueKindCode);
+            StringAssert.DoesNotContain(".Add(prop.Name", valueKindCode);
+        }
+
+        [Test]
+        public void TypedAdditionalPropertiesUnionKeepsKeysInSingleDictionary()
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: new InputNullableType(
+                    new InputUnionType("union",
+                    [
+                        InputPrimitiveType.String,
+                        InputPrimitiveType.Int32,
+                        InputPrimitiveType.Boolean
+                    ])));
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+
+            Assert.That(valueKindSwitch.Cases, Has.Count.EqualTo(4));
+            foreach (var @case in valueKindSwitch.Cases)
+            {
+                var caseCode = @case.Statement.ToDisplayString();
+                Assert.That(caseCode.Split(".Remove(prop.Name);").Length - 1, Is.EqualTo(2), caseCode);
+                Assert.That(caseCode.IndexOf(".Remove(prop.Name);", StringComparison.Ordinal),
+                    Is.LessThan(caseCode.IndexOf("[prop.Name] =", StringComparison.Ordinal)), caseCode);
+            }
+        }
+
+        [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
+        public void NullableAdditionalPropertiesSerializeNull(InputType valueType, bool isNullable)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: isNullable ? new InputNullableType(valueType) : valueType);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var nullCheck = loop.Body.SelectMany(statement => statement).OfType<IfStatement>().SingleOrDefault();
+
+            if (isNullable)
+            {
+                Assert.That(nullCheck, Is.Not.Null);
+                Assert.That(nullCheck!.ToDisplayString(),
+                    Is.EqualTo(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n")));
+            }
+            else
+            {
+                Assert.That(nullCheck, Is.Null);
+            }
+        }
+
+        [Test]
+        public void NullableAdditionalPropertiesUnionUsesFirstNullableDictionary([Values(false, true)] bool nonNullableFirst)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: new InputUnionType("union",
+                [
+                    nonNullableFirst ? InputPrimitiveType.String : new InputNullableType(InputPrimitiveType.String),
+                    new InputNullableType(InputPrimitiveType.Int32),
+                    new InputNullableType(InputPrimitiveType.Boolean)
+                ]));
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+            var nullCase = valueKindSwitch.Cases.Single(c =>
+                c.Matches.Any(m => m.ToDisplayString() == JsonValueKindSnippets.Null.ToDisplayString()));
+
+            Assert.That(nullCase.Statement.ToDisplayString(),
+                Is.EqualTo(Helpers.GetExpectedFromFile(nonNullableFirst.ToString()).ReplaceLineEndings("\n")));
+        }
+
         [TestCaseSource(nameof(TestBuildDeserializationMethodTestCases))]
         public void TestBuildDeserializationMethod(
             InputType additionalPropsValueType,
@@ -111,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 yield return new TestCaseData(
                     InputPrimitiveType.String,
                     new string[] { "string" },
-                    new string[] { "case global::System.Text.Json.JsonValueKind.String:", "additionalProperties.Add(prop.Name, prop.Value.GetString());" });
+                    new string[] { "case global::System.Text.Json.JsonValueKind.String:", "additionalProperties[prop.Name] = prop.Value.GetString();" });
                 // bool additional properties
                 yield return new TestCaseData(
                     InputPrimitiveType.Boolean,
@@ -119,7 +251,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new string[]
                     {
                         "case (global::System.Text.Json.JsonValueKind.True or global::System.Text.Json.JsonValueKind.False):",
-                        "additionalProperties.Add(prop.Name, prop.Value.GetBoolean());"
+                        "additionalProperties[prop.Name] = prop.Value.GetBoolean();"
                     });
                 // float additional properties
                 yield return new TestCaseData(
@@ -129,7 +261,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     {
                         "case global::System.Text.Json.JsonValueKind.Number:",
                         "if (prop.Value.TryGetSingle(out float floatValue))",
-                        "additionalProperties.Add(prop.Name, floatValue);"
+                        "additionalProperties[prop.Name] = floatValue;"
                     });
                 // union additional properties
                 yield return new TestCaseData(
@@ -138,10 +270,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new string[]
                     {
                         "case global::System.Text.Json.JsonValueKind.String:",
-                        "additionalProperties.Add(prop.Name, prop.Value.GetString());",
+                        "additionalProperties[prop.Name] = prop.Value.GetString();",
                         "case global::System.Text.Json.JsonValueKind.Number:",
                         "if (prop.Value.TryGetDouble(out double doubleValue))",
-                        "additionalDoubleProperties.Add(prop.Name, doubleValue);"
+                        "additionalDoubleProperties[prop.Name] = doubleValue;"
                     });
             }
         }

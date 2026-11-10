@@ -1,7 +1,10 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/http/streams";
+import "@typespec/sse";
+import "@typespec/events";
 import "@typespec/xml";
-import "@typespec/http-client-csharp";
+import "@typespec/http-client";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -19,9 +22,11 @@ import "@azure-tools/typespec-azure-core";
 namespace SampleTypeSpec;
 
 using TypeSpec.Http;
+using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
-using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
+using TypeSpec.Events;
+using TypeSpec.SSE;
 using Azure.ClientGenerator.Core;
 
 alias SampleOAuth2 = OAuth2Auth<[
@@ -35,7 +40,76 @@ alias SampleOAuth2 = OAuth2Auth<[
 
 enum Versions {
   `2024-07-16-preview`,
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0010",
+  })
   `2024-08-16-preview`,
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0003",
+  dependsOn: #["SAMPLE0004"],
+})
+model PreviewDetails {
+  choice: PreviewChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0004",
+})
+enum PreviewChoice {
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0007",
+  })
+  Two: "two",
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0005",
+})
+union PreviewExtensibleChoice {
+  string,
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0006",
+  })
+  Two: "two",
+}
+
+model LifecycleModel {
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0008",
+    dependsOn: #["SAMPLE0003"],
+  })
+  preview?: PreviewDetails;
+
+  choice: PreviewExtensibleChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0009",
+})
+interface ExperimentalSamples {
+  @route("/experimental")
+  @get
+  read(): LifecycleModel;
+
+  @route("/experimental/pages")
+  @get
+  @list
+  list(): Page<PreviewDetails>;
 }
 
 @doc("float fixed enum")
@@ -57,6 +131,11 @@ enum IntFixedEnum {
   One: 1,
   Two: 2,
   Four: 4,
+  Ip: 10,
+  Db: 20,
+  Os: 30,
+  Ipv4: 40,
+  IpV6: 60,
 }
 
 @doc("Simple enum")
@@ -64,6 +143,11 @@ enum StringFixedEnum {
   One: "1",
   Two: "2",
   Four: "4",
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  IpV4: "ipv4",
+  Ipv6: "ipv6",
 }
 
 @doc("Int based extensible enum")
@@ -96,6 +180,19 @@ union StringExtensibleEnum {
   One: "1",
   Two: "2",
   Four: "4",
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  Ipv4: "ipv4",
+  IpV6: "ipv6",
+}
+
+union StringFixedUnion {
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  IpV4: "ipv4",
+  Ipv6: "ipv6",
 }
 
 @doc("A model with a few properties of literal types")
@@ -170,6 +267,9 @@ model ModelWithRequiredNullableProperties {
 
   @doc("required nullable fixed enum type")
   requiredFixedEnum: StringFixedEnum | null;
+
+  fixedUnion?: StringFixedUnion;
+  numericEnum?: IntFixedEnum;
 }
 
 @doc("this is not a friendly model but with a friendly name")
@@ -286,7 +386,7 @@ model RoundTripModel {
 }
 
 @doc("A sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model DynamicModel {
   name: string;
   optionalUnknown?: unknown;
@@ -306,10 +406,78 @@ model DynamicModel {
 }
 
 @doc("Another sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model AnotherDynamicModel {
   bar: string;
 }
+
+@dynamicModel("csharp")
+@usage(Usage.input | Usage.json)
+@access(Access.public)
+model NullableDynamicModel {
+  modelValue?: AnotherDynamicModel | null;
+  children?: (AnotherDynamicModel | null)[] | null;
+  childDictionary?: Record<AnotherDynamicModel | null> | null;
+  nestedChildren?: ((AnotherDynamicModel | null)[] | null)[] | null;
+  nestedChildDictionary?: Record<Record<AnotherDynamicModel | null> | null> | null;
+  dictionaryChildren?: Record<(AnotherDynamicModel | null)[] | null> | null;
+  listOfDictionaries?: (Record<AnotherDynamicModel | null> | null)[] | null;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableBase {
+  inheritedNullable?: string | null;
+}
+
+@dynamicModel("csharp")
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableDynamicProperties extends OptionalNullableBase {}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableChild {
+  value: string;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableProperties extends OptionalNullableBase {
+  nullableModel?: OptionalNullableChild | null;
+  nullableString?: string | null;
+  nullableInt?: int32 | null;
+  nullableBoolean?: boolean | null;
+  nullableEnum?: StringFixedEnum | null;
+  nullableDateTime?: utcDateTime | null;
+  nullableBytes?: bytes | null;
+  nullableList?: (string | null)[] | null;
+  nullableDictionary?: Record<int32 | null> | null;
+
+  @visibility(Lifecycle.Read)
+  readOnlyNullable?: string | null;
+
+  requiredNullable: string | null;
+  optionalNonNullable?: string;
+  optionalNonNullableInt?: int32;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableContainer {
+  child: OptionalNullableProperties;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableFieldNames extends Record<string | null> {
+  additionalStringProperties?: string | null;
+  additionalStringPropertiesIsDefined?: string | null;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model UnionAdditionalProperties extends Record<string | int32 | boolean | null> {}
 
 @nsDeclarations
 enum XmlNamespaces {
@@ -509,7 +677,7 @@ op sayHi(
 @route("/againHi")
 @doc("Return hi again")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloAgain(
   @header p1: string,
   @body action: RoundTripModel,
@@ -533,43 +701,47 @@ op noContentTypeOverride(info: Wrapper): RoundTripModel;
 @route("/demoHi")
 @doc("Return hi in demo2")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0001",
+})
 op helloDemo2(): Thing;
 
 @route("/literal")
 @doc("Create with literal value")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op createLiteral(@body body: Thing): Thing;
 
 @route("/helloLiteral")
 @doc("Send literal parameters")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloLiteral(@header p1: "test", @path p2: 123, @query p3: true): Thing;
 
 @route("/top")
 @doc("top level method")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op topAction(@path action: utcDateTime): Thing;
 
 @route("/top2")
 @doc("top level method2")
 @get
-@convenientAPI(false)
+@convenientAPI(false, "csharp")
 op topAction2(): Thing;
 
 @route("/patch")
 @doc("top level patch")
 @patch
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op patchAction(@body body: Thing): Thing;
 
 @route("/anonymousBody")
 @doc("body parameter without body decorator")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op anonymousBody(
   ...Thing,
   @query requiredQueryParam: "someRequiredLiteralQueryParam",
@@ -579,7 +751,7 @@ op anonymousBody(
 @route("/friendlyName")
 @doc("Model can have its friendly name")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op friendlyModel(...NotFriend): NotFriend;
 
 op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: utcDateTime): void;
@@ -587,13 +759,13 @@ op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: ut
 @route("/projectedName")
 @doc("Model can have its projected name")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op projectedNameModel(...ModelWithClientName): ModelWithClientName;
 
 @route("/returnsAnonymousModel")
 @doc("return anonymous model")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op returnsAnonymousModel(): {
   @body body: {};
 };
@@ -606,32 +778,33 @@ op getUnknownValue(): DaysOfWeekExtensibleEnum;
 @doc("When set protocol false and convenient true, then the protocol method should be internal")
 @route("internalProtocol")
 @post
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "csharp")
+@protocolAPI(false, "csharp")
 op internalProtocol(@body body: Thing): Thing;
 
 @doc("When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one")
 @route("stillConvenient")
 @get
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "csharp")
+@protocolAPI(false, "csharp")
 op stillConvenient(): void;
 
 @route("/headAsBoolean")
-@doc("head as boolean.")
+@doc("Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.")
 @head
-@convenientAPI(true)
+@responseAsBool
+@convenientAPI(true, "csharp")
 op headAsBoolean(@path id: string): void;
 
 @route("/WithApiVersion")
 @doc("Return hi again")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op WithApiVersion(@header p1: string, @query apiVersion: string): void;
 
 @route("/link")
 @doc("List things with nextlink")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithNextLink(): {
   @pageItems
@@ -642,7 +815,7 @@ op ListWithNextLink(): {
 
 @route("/linkString")
 @doc("List things with nextlink")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithStringNextLink(): {
   @pageItems
@@ -653,7 +826,7 @@ op ListWithStringNextLink(): {
 
 @route("/continuation")
 @doc("List things with continuation token")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithContinuationToken(@query @continuationToken token?: string): {
   @pageItems
@@ -664,7 +837,7 @@ op ListWithContinuationToken(@query @continuationToken token?: string): {
 
 @route("/continuation/header")
 @doc("List things with continuation token header response")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithContinuationTokenHeaderResponse(@query @continuationToken token?: string): {
   @pageItems
@@ -679,7 +852,7 @@ model Page<T> {
 
 @route("list/paging")
 @doc("List things with paging")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithPaging(): Page<Thing>;
 
@@ -691,6 +864,11 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @route("dynamicModel")
 @doc("An operation with a dynamic model")
 @post
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0002",
+  dependsOn: #["SCME0001"],
+})
 op DynamicModelOperation(@body body: DynamicModel): void;
 
 @route("xmlAdvanced")
@@ -796,6 +974,9 @@ model Tree extends Plant {
 
   @doc("The age of the tree in years")
   age: int32;
+
+  nullableText?: string | null;
+  nullableLabels?: Record<string> | null;
 }
 
 @route("/plants")
@@ -902,3 +1083,275 @@ op uploadCat(
   @header contentType: "multipart/form-data",
   @multipartBody body: Cat,
 ): NoContentResponse;
+
+model StreamingItem {
+  message: string;
+}
+
+@events
+union SampleEvents {
+  @Events.contentType("application/json")
+  item: StreamingItem,
+
+  @Events.contentType("text/plain")
+  @terminalEvent
+  "[DONE]",
+}
+
+@post
+@route("/streaming/jsonl/send")
+op sendJsonLines(stream: JsonlStream<StreamingItem>): NoContentResponse;
+
+@get
+@route("/streaming/jsonl/receive")
+op receiveJsonLines(): JsonlStream<StreamingItem>;
+
+@get
+@route("/streaming/sse/receive")
+op receiveSse(): SSEStream<SampleEvents>;
+
+@route("/experimental/jsonl")
+@get
+op receiveExperimentalJsonLines(): JsonlStream<PreviewDetails>;
+
+@route("/acronyms/{targetDbName}")
+@doc("Send acronym-named path, query, and header parameters.")
+@get
+@convenientAPI(true, "csharp")
+op getAcronymParameters(
+  @path targetDbName: string,
+  @query sourceIpAddress?: string,
+  @header("X-Guest-OS-Type") guestOsType?: string,
+): void;
+
+@route("/acronyms/addresses")
+@doc("Send parameters with leading IP version acronyms.")
+@post
+@convenientAPI(true, "csharp")
+op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
+
+#deprecated "Use \"CurrentDetails\" instead.\nSee C:\\sdk."
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0011",
+})
+model LegacyDetails {
+  choice: LegacyChoice;
+  extensibleChoice: LegacyExtensibleChoice;
+}
+
+#deprecated "Use CurrentChoice instead."
+enum LegacyChoice {
+  one,
+  two,
+}
+
+#deprecated "Use CurrentExtensibleChoice instead."
+union LegacyExtensibleChoice {
+  string,
+  one: "one",
+}
+
+model CurrentDetails extends LegacyDetails {
+  previous?: LegacyDetails[];
+}
+
+interface DeprecationSamples {
+  #deprecated "Use \"read\" instead.\nSee C:\\sdk."
+  @route("/deprecated")
+  @get
+  legacy(): LegacyDetails;
+
+  @route("/deprecated/current")
+  @get
+  read(): CurrentDetails;
+}
+
+model ConstructorBase {
+  value: string;
+  mode: "fixed";
+  items: string[];
+}
+
+model ConstructorOverride extends ConstructorBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+interface ConstructorRequirements {
+  @route("/constructor-override")
+  @put
+  send(@body body: ConstructorOverride): void;
+
+  @route("/constructor-read-only-override")
+  @put
+  sendReadOnly(@body body: ConstructorReadOnlyOverride): void;
+
+  @route("/constructor-read-only-leaf")
+  @put
+  sendReadOnlyLeaf(@body body: ConstructorReadOnlyLeaf): void;
+
+  @route("/constructor-xml-override")
+  @put
+  sendXml(@body body: XmlConstructorOverride, @header contentType: "application/xml"): void;
+
+  @route("/constructor-inherited-leaf")
+  @put
+  sendInheritedLeaf(@body body: ConstructorInheritedLeaf): void;
+
+  @route("/constructor-renamed-override")
+  @put
+  sendRenamed(@body body: RenamedConstructorOverride): void;
+
+  @route("/constructor-renamed-leaf")
+  @put
+  sendRenamedLeaf(@body body: RenamedConstructorLeaf): void;
+
+  @route("/constructor-writable-leaf")
+  @put
+  sendWritableLeaf(@body body: ConstructorWritableLeaf): void;
+
+  @route("/constructor-returned-name")
+  @put
+  sendReturnedName(@body body: RenamedConstructorReturnedName): void;
+
+  @route("/constructor-required-renamed")
+  @put
+  sendRequiredRenamed(@body body: RequiredRenamedConstructorOverride): void;
+
+  @route("/constructor-read-only-collections")
+  @put
+  sendReadOnlyCollections(@body body: ConstructorReadOnlyCollectionOverride): void;
+
+  @route("/constructor-required-collections")
+  @put
+  sendRequiredCollections(@body body: ConstructorRequiredCollectionOverride): void;
+
+  @route("/constructor-renamed-literal")
+  @post
+  sendRenamedLiteral(
+    @body body: RenamedLiteralConstructorOverride,
+  ): RenamedLiteralConstructorOverride;
+
+  @route("/constructor-client-name-collision")
+  @post
+  sendClientNameCollision(
+    @body body: ConstructorClientNameCollisionLeaf,
+  ): ConstructorClientNameCollisionLeaf;
+}
+
+model ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorReadOnlyOverride extends ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorReadOnlyLeaf extends ConstructorReadOnlyOverride {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model XmlConstructorBase {
+  value: string;
+  title: string;
+}
+
+model XmlConstructorMiddle extends XmlConstructorBase {
+  note?: string;
+}
+
+model XmlConstructorOverride extends XmlConstructorMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorInheritedLeaf extends ConstructorOverride {}
+
+model RenamedConstructorBase {
+  value: string;
+  title: string;
+}
+
+model RenamedConstructorOverride extends RenamedConstructorBase {
+  @clientName("renamedValue", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorLeaf extends RenamedConstructorOverride {}
+
+model ConstructorWritableBase {
+  value: string;
+}
+
+model ConstructorReadOnlyMiddle extends ConstructorWritableBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorWritableLeaf extends ConstructorReadOnlyMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorReturnedName extends RenamedConstructorOverride {
+  @clientName("value", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RequiredRenamedConstructorOverride extends RenamedConstructorOverride {
+  @clientName("requiredValue", "csharp")
+  value: string;
+}
+
+model ConstructorReadOnlyCollectionBase {
+  @visibility(Lifecycle.Read)
+  items: string[];
+
+  @visibility(Lifecycle.Read)
+  values: Record<string>;
+}
+
+model ConstructorReadOnlyCollectionOverride extends ConstructorReadOnlyCollectionBase {
+  @clientName("renamedItems", "csharp")
+  @visibility(Lifecycle.Create)
+  items: string[];
+
+  @clientName("renamedValues", "csharp")
+  @visibility(Lifecycle.Create)
+  values: Record<string>;
+}
+
+model ConstructorRequiredCollectionOverride extends ConstructorReadOnlyCollectionOverride {
+  @clientName("requiredItems", "csharp")
+  items: string[];
+
+  @clientName("requiredValues", "csharp")
+  values: Record<string>;
+}
+
+model LiteralConstructorBase {
+  value: string;
+}
+
+model RenamedLiteralConstructorOverride extends LiteralConstructorBase {
+  @clientName("renamedValue", "csharp")
+  value: "fixed";
+}
+
+model ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  original: string;
+}
+
+model ConstructorClientNameCollision extends ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  other: string;
+}
+
+model ConstructorClientNameCollisionLeaf extends ConstructorClientNameCollision {}

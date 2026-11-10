@@ -1,6 +1,6 @@
 import { defineCodeFix, getNodeForTarget, getSourceLocation } from "../diagnostics.js";
+import type { Diagnostic } from "../types.js";
 import {
-  Diagnostic,
   NoTarget,
   SyntaxKind,
   type CodeFix,
@@ -32,6 +32,11 @@ const mapGroupBy: typeof Map.groupBy =
     return result;
   });
 
+/**
+ * Create a fix that inserts a `#suppress` directive before the nearest supported suppression target.
+ * Requires a bound, non-synthetic target or an explicit location in a real source file.
+ * Check {@link getSourceLocation} before offering the fix and skip targets whose location is synthetic.
+ */
 export function createSuppressCodeFix(
   diagnosticTarget: DiagnosticTarget,
   warningCode: string,
@@ -57,6 +62,8 @@ export function createSuppressCodeFix(
 /**
  * Create code fixes to suppress the given diagnostics.
  * This function groups diagnostics by their suppression target to avoid duplicate suppressions.
+ * Only warnings with a target are considered. Targets must satisfy the source-location preconditions
+ * of {@link createSuppressCodeFix}.
  * @param diagnostics The diagnostics to suppress.
  * @param suppressionMessage The suppression message to use.
  * @returns An array of code fixes to apply the suppressions.

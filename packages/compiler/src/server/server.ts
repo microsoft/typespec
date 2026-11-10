@@ -4,20 +4,18 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { format, inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
+import type {
   ApplyWorkspaceEditParams,
-  ProposedFeatures,
   PublishDiagnosticsParams,
-  TextDocuments,
   WorkspaceEdit,
-  createConnection,
 } from "vscode-languageserver/node";
+import { ProposedFeatures, TextDocuments, createConnection } from "vscode-languageserver/node";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
 import { writeServerFatalError } from "./fatal-error.js";
 import { createServer } from "./serverlib.js";
-import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
+import type { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
 const writeStderr = process.stderr.write.bind(process.stderr) as (message: string) => void;
@@ -144,11 +142,14 @@ function main() {
   connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
-  connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
+  connection.onRequest<boolean, unknown>(
+    validateInitProjectTemplate,
+    profile(s.validateInitProjectTemplate),
+  );
   const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
-  connection.onRequest(initProjectRequestName, profile(s.initProject));
+  connection.onRequest<boolean, unknown>(initProjectRequestName, profile(s.initProject));
   const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
   connection.onRequest(compileProjectRequestName, profile(s.internalCompile));
 

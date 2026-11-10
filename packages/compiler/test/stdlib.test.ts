@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { CompilerOptions } from "../src/index.js";
+import type { CompilerOptions } from "../src/index.js";
 import { expectDiagnosticEmpty } from "../src/testing/index.js";
 import { Tester } from "./tester.js";
 

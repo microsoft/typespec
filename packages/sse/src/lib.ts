@@ -1,5 +1,9 @@
 import { createTypeSpecLibrary } from "@typespec/compiler";
 
+/**
+ * Defines the server-sent events library's identity, diagnostics, and terminal-event
+ * state key for the TypeSpec compiler.
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/sse",
   diagnostics: {

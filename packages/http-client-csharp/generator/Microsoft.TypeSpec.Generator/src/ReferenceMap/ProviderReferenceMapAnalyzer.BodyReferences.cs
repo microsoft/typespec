@@ -598,7 +598,7 @@ namespace Microsoft.TypeSpec.Generator
             return lastDot < 0 ? null : fullyQualifiedName.Substring(0, lastDot);
         }
 
-        private static string GetProviderTypeName(CSharpType type)
+        internal static string GetProviderTypeName(CSharpType type)
         {
             var name = type.Arguments.Count > 0 && !type.Name.Contains('`', StringComparison.Ordinal)
                 ? $"{type.Name}`{type.Arguments.Count}"

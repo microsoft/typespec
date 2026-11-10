@@ -1,5 +1,5 @@
 export { SpecCoverageClient, SpecCoverageOperations, SpecManifestOperations } from "./client.js";
-export {
+export type {
   CoverageReport,
   GeneratorMetadata,
   LineAndCharacter,

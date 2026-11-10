@@ -180,7 +180,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of DurationClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of DurationClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +225,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of QueryClient class.
-     *
+     * 
      * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -236,7 +236,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of PropertyClient class.
-     *
+     * 
      * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -247,7 +247,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of HeaderClient class.
-     *
+     * 
      * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -258,7 +258,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of LossyClient class.
-     *
+     * 
      * @return an instance of LossyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

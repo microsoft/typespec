@@ -1,4 +1,4 @@
-import { ModelProperty } from "@typespec/compiler";
+import type { ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import {
   getHeaderFieldOptions,
@@ -9,7 +9,11 @@ import {
   isPathParam,
   isQueryParam,
 } from "../../../decorators.js";
-import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "../../../types.js";
+import type {
+  HeaderFieldOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
+} from "../../../types.js";
 
 /**
  * Utilities for working with model properties in the context of Http.

@@ -1,12 +1,9 @@
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import {
-  ExpandConfigOptions,
-  expandConfigVariables,
-  resolveValues,
-} from "../../src/config/config-interpolation.js";
+import type { ExpandConfigOptions } from "../../src/config/config-interpolation.js";
+import { expandConfigVariables, resolveValues } from "../../src/config/config-interpolation.js";
 import { defaultConfig, validateConfigPathsAbsolute } from "../../src/config/config-loader.js";
-import { TypeSpecConfig } from "../../src/config/types.js";
+import type { TypeSpecConfig } from "../../src/config/types.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("resolveValues", () => {

@@ -1,29 +1,27 @@
 import { formatLog } from "../core/logger/index.js";
-import {
-  compile as compileProgram,
-  CompilerHost,
-  CompilerOptions,
-  normalizePath,
-  ProcessedLog,
-  Program,
-  ServerLog,
-} from "../index.js";
+import type { CompilerHost, CompilerOptions, ProcessedLog, Program, ServerLog } from "../index.js";
+import { compile as compileProgram, normalizePath } from "../index.js";
 import { debugLoggers } from "./debug.js";
 import { trackActionFunc } from "./server-track-action-task.js";
-import { UpdateManager } from "./update-manager.js";
+import type { UpdateManager } from "./update-manager.js";
 
 /**
- * core: linter and emitter will be set to [] when trigger compilation
- * full: compile as it is
+ * Compilation work requested by a server operation.
+ * In core mode, emitters are disabled and the linter rule set is cleared.
+ * Full mode preserves the supplied compiler options. A completed full compilation
+ * can also satisfy a core-mode request.
  */
 export type ServerCompileMode = "core" | "full";
 
+/** Cache and freshness controls for a language-server compilation request. */
 export interface ServerCompileOptions {
+  /** Start a new compilation instead of returning a cached tracker; does not prevent reuse of an old program. */
   skipCache?: boolean;
+  /** Do not seed a new compilation with a previously completed program; does not prevent returning a cached tracker. */
   skipOldProgramFromCache?: boolean;
-  /** Make this non-optional on purpose so that the caller needs to determine the correct mode to compile explicitly */
+  /** Required choice of analysis-only or full compilation; there is no implicit default mode. */
   mode: ServerCompileMode;
-  /** A simple func to check if the compilation is cancelled. After compiler supports cancellation, we may want to change to use it */
+  /** Check whether to discard the request before or after asynchronous compilation work; does not interrupt the compiler. */
   isCancelled?: () => boolean;
 }
 
@@ -243,9 +241,20 @@ class CompileCacheInternal {
   }
 }
 
+/**
+ * Tracks one compilation's program promise, change version, timing, and captured compiler logs.
+ * A cached tracker can be reused by multiple requests. Its completion state and logs evolve
+ * while compilation runs; it is not an immutable snapshot of the server's current state.
+ */
 export class CompileTracker {
   private endTime: Date | undefined;
 
+  /**
+   * Start a compilation and capture its compiler log messages separately from server logging.
+   * The change version is captured from the update manager at startup. The supplied log
+   * callback receives compilation lifecycle messages; compiler messages remain in getLogs().
+   * Core mode disables emitters and clears the linter rule set before invoking the compiler.
+   */
   static compile(
     id: number,
     updateManager: UpdateManager,
@@ -323,42 +332,52 @@ export class CompileTracker {
     );
   }
 
+  /** Identifier supplied when this compilation was started; reused requests retain the same identifier. */
   getCompileId() {
     return this.id;
   }
 
+  /** Entry-point path passed to the compiler, not the URI of the document that triggered the request. */
   getEntryPoint() {
     return this.entrypoint;
   }
 
+  /** Await the program produced by this compilation; rejects if the underlying compilation fails. */
   async getCompileResult() {
     return await this.compileResultPromise;
   }
 
+  /** Server-wide change version captured at startup, not an individual document's LSP version. */
   getVersion() {
     return this.version;
   }
 
+  /** Startup time recorded for this compilation. The returned Date is not cloned. */
   getStartTime(): Date {
     return this.startTime;
   }
 
+  /** Completion time after success or failure, or undefined while pending. The returned Date is not cloned. */
   getEndTime(): Date | undefined {
     return this.endTime;
   }
 
+  /** Whether the compilation has settled, including failure; this does not indicate a successful program. */
   isCompleted(): boolean {
     return this.endTime !== undefined;
   }
 
+  /** Whether the captured change version still matches the update manager's current version. */
   isUpToDate(): boolean {
     return this.version === this.updateManager.docChangedVersion;
   }
 
+  /** Mode used to start this compilation, which may be full even when reused by a core-mode request. */
   getMode(): ServerCompileMode {
     return this.mode;
   }
 
+  /** Captured compiler messages in arrival order; returns the backing array, which can grow until compilation settles. */
   getLogs(): ServerLog[] {
     return this.logs;
   }

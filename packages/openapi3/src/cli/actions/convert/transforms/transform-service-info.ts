@@ -1,6 +1,6 @@
 import type { License } from "@typespec/openapi";
-import { OpenAPI3Info } from "../../../../types.js";
-import { TypeSpecServiceInfo } from "../interfaces.js";
+import type { OpenAPI3Info } from "../../../../types.js";
+import type { TypeSpecServiceInfo } from "../interfaces.js";
 
 export function transformServiceInfo(info: OpenAPI3Info): TypeSpecServiceInfo {
   let license = info.license;

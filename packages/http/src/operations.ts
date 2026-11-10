@@ -1,30 +1,35 @@
-import {
-  createDiagnosticCollector,
+import type {
   Diagnostic,
   DiagnosticCollector,
+  Namespace,
+  Operation,
+  Program,
+} from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
   getLocationContext,
   getOverloadedOperation,
   getOverloads,
   listOperationsIn,
   listServices,
-  Namespace,
   navigateProgram,
-  Operation,
-  Program,
 } from "@typespec/compiler";
+import { unsafe_useCache as useCache } from "@typespec/compiler/experimental";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
 import { isSharedRoute } from "./decorators/shared-route.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
 import { resolvePathAndParameters } from "./route.js";
-import {
+import type {
   HttpOperation,
   HttpService,
   HttpVerb,
   OperationContainer,
   RouteResolutionOptions,
 } from "./types.js";
+
+const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
 
 /**
  * Return the Http Operation details for a given TypeSpec operation.
@@ -36,6 +41,11 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
+  if (!options) {
+    return useCache(program, httpOperationCacheKey, operation, () =>
+      getHttpOperationInternal(program, operation, options, new Map()),
+    );
+  }
   return getHttpOperationInternal(program, operation, options, new Map());
 }
 
@@ -81,6 +91,11 @@ export function getAllHttpServices(
   return diagnostics.wrap(services);
 }
 
+/**
+ * Resolves a namespace's HTTP operations and directly declared authentication, validating endpoint uniqueness.
+ * Does not recurse into nested namespaces when resolving the global namespace.
+ * Returns resolution and duplicate-route diagnostics alongside the service.
+ */
 export function getHttpService(
   program: Program,
   serviceNamespace: Namespace,
@@ -107,6 +122,11 @@ export function getHttpService(
   return diagnostics.wrap(service);
 }
 
+/**
+ * Reports `no-service-found` for project namespaces with operations when the program declares no service.
+ *
+ * @param routes Retained for compatibility; the current implementation does not inspect this array.
+ */
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   const services = listServices(program);
   // Only warn if there are no services defined anywhere in the program
@@ -181,7 +201,13 @@ export function validateRouteUnique(
   }
 }
 
-export function isOverloadSameEndpoint(overload: HttpOperation & { overloading: HttpOperation }) {
+/** Tests whether an overload has the same legacy route path and HTTP method as its base operation. */
+export function isOverloadSameEndpoint(
+  overload: HttpOperation & {
+    /** Resolved base operation whose endpoint is compared with the overload. */
+    overloading: HttpOperation;
+  },
+) {
   return overload.path === overload.overloading.path && overload.verb === overload.overloading.verb;
 }
 

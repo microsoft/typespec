@@ -256,20 +256,55 @@ model File<ContentType extends string = string, Contents extends bytes | string 
   contents: Contents;
 }
 
+/**
+ * Options for configuring an individual part of a multipart payload.
+ */
 model HttpPartOptions {
   /** Name of the part when using the array form. */
   name?: string;
 }
 
+/**
+ * Represents a single part of a multipart payload.
+ *
+ * @template Type The type of the part's content.
+ * @template Options Options for this part, such as the name to use when the part is repeated.
+ *
+ * @example
+ *
+ * ```typespec
+ * op upload(
+ *   @header `content-type`: "multipart/form-data",
+ *   @multipartBody body: {
+ *     fullName: HttpPart<string>;
+ *     headShots: HttpPart<Image>[];
+ *   },
+ * ): void;
+ * ```
+ */
 @Private.httpPart(Type, Options)
 model HttpPart<Type, Options extends valueof HttpPartOptions = #{}> {}
 
+/**
+ * Describes a web link as defined by [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
+ */
 model Link {
+  /** The target URI of the link. */
   target: url;
+
+  /** The relation type of the link, describing how the target relates to the current resource. */
   rel: string;
+
+  /** Additional target attributes to serialize as link parameters. */
   attributes?: Record<unknown>;
 }
 
+/**
+ * A `Link` header value as defined by [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
+ *
+ * @template T The links carried by the header, either as a map of relation type to URI or as a
+ * list of `Link`.
+ */
 scalar LinkHeader<T extends Record<url> | Link[]> extends string;
 
 /**

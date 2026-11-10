@@ -1,13 +1,13 @@
 import { printIdentifier } from "@typespec/compiler";
-import { Refable, SupportedOpenAPISchema } from "../../../../types.js";
-import {
+import type { Refable, SupportedOpenAPISchema } from "../../../../types.js";
+import type {
   TypeSpecDataTypes,
   TypeSpecDecorator,
   TypeSpecEnum,
   TypeSpecModelProperty,
   TypeSpecUnion,
 } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { Context } from "../utils/context.js";
 import { getDecoratorsForSchema, getDirectivesForSchema } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 

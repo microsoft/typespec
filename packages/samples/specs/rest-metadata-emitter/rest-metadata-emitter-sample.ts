@@ -1,24 +1,24 @@
-import {
+import type {
   EmitContext,
-  getService,
-  getTypeName,
-  isArrayModelType,
-  joinPaths,
-  listServices,
   Model,
   ModelProperty,
   Namespace,
   Program,
   Type,
 } from "@typespec/compiler";
+import {
+  getService,
+  getTypeName,
+  isArrayModelType,
+  joinPaths,
+  listServices,
+} from "@typespec/compiler";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
+import type { HttpOperation, HttpOperationResponse, HttpPayloadBody } from "@typespec/http";
 import {
   createMetadataInfo,
   getHttpService,
   getVisibilitySuffix,
-  HttpOperation,
-  HttpOperationResponse,
-  HttpPayloadBody,
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";

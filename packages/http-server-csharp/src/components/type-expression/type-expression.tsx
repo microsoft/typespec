@@ -1,5 +1,5 @@
 import { code, type Children } from "@alloy-js/core";
-import type { Scalar, Type } from "@typespec/compiler";
+import { isStdNamespace, type Namespace, type Scalar, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverridesConfig, useTsp } from "@typespec/emitter-framework";
 import {
@@ -19,6 +19,23 @@ export interface TypeExpressionProps {
 
 // Re-export efRefkey for consumers that were using serverRefkey
 export { efRefkey } from "@typespec/emitter-framework/csharp";
+
+export function getNullableValueTypeUnionInnerType($: Typekit, type: Type): Type | undefined {
+  if (type.kind !== "Union" || isUnionEnum(type)) return undefined;
+  let current: Type = type;
+  const visited = new Set<Type>();
+
+  while (current.kind === "Union" && !isUnionEnum(current)) {
+    if (visited.has(current)) return undefined;
+    visited.add(current);
+
+    const innerType = getNullableUnionInnerType(current);
+    if (innerType === undefined) return undefined;
+    current = innerType;
+  }
+
+  return isValueType($, current) ? current : undefined;
+}
 
 /**
  * Wrapper around emitter-framework's TypeExpression that handles
@@ -43,6 +60,18 @@ export function TypeExpression(props: TypeExpressionProps): Children {
       } catch {
         return code`${type.name ?? "object"}`;
       }
+    case "EnumMember": {
+      // A property typed as a specific enum member (e.g. `kind: Color.red`) uses
+      // the parent enum type in C#. Std-lib enums (e.g. auth `AuthType`) are not
+      // emitted, so fall back to the member's underlying primitive value type.
+      if (isInStdLibNamespace(type.enum.namespace)) {
+        if (typeof type.value === "number") {
+          return Number.isInteger(type.value) ? code`int` : code`double`;
+        }
+        return code`string`;
+      }
+      return code`${efRefkey(type.enum)}`;
+    }
     case "Tuple":
       // Tuple of values — use the type of the first element as array
       if (type.values.length > 0) {
@@ -158,6 +187,21 @@ export function TypeExpression(props: TypeExpressionProps): Children {
   }
 }
 
+/**
+ * Returns true when the namespace (or any of its ancestors) is a TypeSpec
+ * standard-library namespace. Enums declared under the std library (e.g.
+ * `TypeSpec.Http.AuthType`) are never emitted, so references to their members
+ * must fall back to a primitive type instead of an (unresolved) enum reference.
+ */
+function isInStdLibNamespace(namespace: Namespace | undefined): boolean {
+  let current = namespace;
+  while (current) {
+    if (isStdNamespace(current)) return true;
+    current = current.namespace;
+  }
+  return false;
+}
+
 function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union): Children {
   // Named unions that qualify as enums should reference the enum type
   if (isUnionEnum(union)) {
@@ -172,10 +216,11 @@ function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union)
       return code`object`;
     }
     // Nullable value type → T?
-    if (isValueType($, innerType)) {
+    const nullableValueType = getNullableValueTypeUnionInnerType($, union);
+    if (nullableValueType) {
       return (
         <>
-          <TypeExpression type={innerType} />?
+          <TypeExpression type={nullableValueType} />?
         </>
       );
     }

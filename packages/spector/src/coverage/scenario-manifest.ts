@@ -1,8 +1,9 @@
 import { loadScenarios } from "../scenarios-resolver.js";
-import { Diagnostic } from "../utils/diagnostic-reporter.js";
+import type { Diagnostic } from "../utils/diagnostic-reporter.js";
 import { getCommit, getPackageJson, type SpectorPackageJson } from "../utils/misc-utils.js";
-import { ScenarioLocation, ScenarioManifest } from "@typespec/spec-coverage-sdk";
-import { getSourceLocation, normalizePath, PackageJson } from "@typespec/compiler";
+import type { ScenarioLocation, ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import type { PackageJson } from "@typespec/compiler";
+import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import type { Scenario } from "../lib/decorators.js";
 

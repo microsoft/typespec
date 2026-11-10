@@ -1,7 +1,8 @@
 import * as ts from "@alloy-js/typescript";
 import type { Type } from "@typespec/compiler";
-import { HasName, TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
-import { HttpOperation } from "@typespec/http";
+import type { HasName } from "@typespec/emitter-framework";
+import { TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
+import type { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";
 import { ContentTypeEncodingProvider } from "./content-type-encoding-provider.jsx";
 import { JsonTransform } from "./json/json-transform.jsx";

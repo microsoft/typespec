@@ -1,8 +1,9 @@
-import { TestHost } from "@typespec/compiler/testing";
-import { ok, strictEqual } from "assert";
+import type { TestHost } from "@typespec/compiler/testing";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputEnumType } from "../../src/type/input-type.js";
+import type { InputEnumType } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -17,6 +18,127 @@ describe("Operation Converter", () => {
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });
+
+  it.each([undefined, "", 'Use "read" instead.\nSee C:\\sdk.'])(
+    "preserves operation deprecation metadata: %s",
+    async (message) => {
+      const program = await typeSpecCompile(
+        `${message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`}
+         @get op legacy(): string;`,
+        runner,
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      strictEqual(root.clients[0].methods[0].operation.deprecated, message);
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      strictEqual(serialized.clients[0].methods[0].operation.deprecated, message);
+    },
+  );
+
+  it.each([
+    { start: 200, end: 299 },
+    { start: 204, end: 204 },
+  ])("preserves exactly the $start-$end response status range", async ({ start, end }) => {
+    const program = await typeSpecCompile(
+      `
+        model RangedResponse {
+          @statusCode @minValue(${start}) @maxValue(${end})
+          code: int32;
+        }
+        @get op read(): RangedResponse;
+      `,
+      runner,
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const responses = root.clients[0].methods[0].operation.responses;
+    const expected = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+
+    strictEqual(responses.length, 1);
+    deepStrictEqual(responses[0].statusCodes, expected);
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    deepStrictEqual(serialized.clients[0].methods[0].operation.responses[0].statusCodes, expected);
+  });
+
+  it.each([
+    { decorator: "@responseAsBool", enabled: true },
+    { decorator: '@responseAsBool("csharp")', enabled: true },
+    { decorator: '@responseAsBool("java")', enabled: false },
+    { decorator: "", enabled: false },
+  ])("preserves HEAD response-as-bool metadata for $decorator", async ({ decorator, enabled }) => {
+    const program = await typeSpecCompile(
+      `
+        ${decorator}
+        @head op exists(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const operation = serialized.clients[0].methods[0].operation;
+
+    strictEqual(operation.responseAsBool, enabled ? true : undefined);
+    strictEqual(method.response.type?.kind, enabled ? "boolean" : undefined);
+    deepStrictEqual(
+      method.operation.responses.flatMap((response) => response.statusCodes),
+      enabled ? [204, 404] : [204],
+    );
+    ok(method.operation.responses.every((response) => response.bodyType === undefined));
+  });
+
+  it.each([
+    {
+      scope: "namespace",
+      code: `@get @route("/widgets") op getWidget(): string;`,
+      path: "/widgets",
+    },
+    {
+      scope: "interface",
+      code: `interface Widgets {
+        @get @route("/widgets") getWidget(): string;
+      }`,
+      path: "/widgets",
+    },
+    {
+      scope: "REST resource",
+      code: `
+        @resource("widgets")
+        model Widget {
+          @key id: string;
+        }
+        @readsResource(Widget)
+        @get @route("/widgets/{id}")
+        op getWidget(@path id: string): Widget;
+      `,
+      path: "/widgets/{id}",
+    },
+  ])(
+    "omits resourceName for $scope operations and serialized code models",
+    async ({ code, path }) => {
+      const program = await typeSpecCompile(code, runner);
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      strictEqual(root.clients.length, 1);
+      const client = root.clients[0];
+      const methods = [
+        ...client.methods,
+        ...(client.children ?? []).flatMap((child) => child.methods),
+      ];
+
+      strictEqual(methods.length, 1);
+      const operation = methods[0].operation;
+      ok(operation);
+      strictEqual(operation.name, "getWidget");
+      strictEqual(operation.httpMethod, "GET");
+      strictEqual(operation.path, path);
+      strictEqual("resourceName" in operation, false);
+      strictEqual(serializeCodeModel(sdkContext, root).includes('"resourceName"'), false);
+    },
+  );
 
   describe("Operation with embedded non-body parameters in request body", () => {
     describe("With header in request model", () => {
@@ -62,6 +184,7 @@ describe("Operation Converter", () => {
         // validate operation
         const operation = root.clients[0].methods[0].operation;
         ok(operation);
+        strictEqual("resourceName" in operation, false);
         strictEqual(operation.parameters.length, 4);
 
         // content type parameter
@@ -215,6 +338,95 @@ describe("Operation Converter", () => {
   });
 
   describe("Operation response type conversion", () => {
+    it("preserves JSONL stream item types", async () => {
+      const program = await typeSpecCompile(
+        `
+          model Info {
+            desc: string;
+          }
+
+          @post op send(stream: JsonlStream<Info>): void;
+          op receive(): JsonlStream<Info>;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const send = root.clients[0].methods.find((method) => method.name === "send");
+      ok(send);
+      const sendParameter = send.parameters.find((parameter) => parameter.name === "stream");
+      ok(sendParameter);
+      ok(sendParameter.type.kind === "streaming");
+      ok(sendParameter.type.valueType.kind === "model");
+      strictEqual(sendParameter.type.valueType.name, "Info");
+
+      const bodyParameter = send.operation.parameters.find(
+        (parameter) => parameter.kind === "body",
+      );
+      ok(bodyParameter);
+      ok(bodyParameter.type.kind === "streaming");
+      ok(bodyParameter.type.valueType.kind === "model");
+      strictEqual(bodyParameter.type.valueType.name, "Info");
+
+      const receive = root.clients[0].methods.find((method) => method.name === "receive");
+      ok(receive);
+      ok(receive.response.type?.kind === "streaming");
+      ok(receive.response.type.valueType.kind === "model");
+      strictEqual(receive.response.type.valueType.name, "Info");
+      ok(receive.operation.responses[0].bodyType?.kind === "streaming");
+      ok(receive.operation.responses[0].bodyType.valueType.kind === "model");
+      strictEqual(receive.operation.responses[0].bodyType.valueType.name, "Info");
+      strictEqual(receive.operation.bufferResponse, false);
+    });
+
+    it("preserves SSE event unions and terminal events", async () => {
+      const program = await typeSpecCompile(
+        `
+          model ResponseCreated {
+            id: string;
+          }
+
+          model ResponseDelta {
+            delta: string;
+          }
+
+          @events
+          union ResponseEvents {
+            @Events.contentType("application/json")
+            responseCreated: ResponseCreated,
+
+            @Events.contentType("application/json")
+            responseDelta: ResponseDelta,
+
+            @Events.contentType("text/plain")
+            @terminalEvent
+            "[DONE]",
+          }
+
+          op receive(): SSEStream<ResponseEvents>;
+        `,
+        runner,
+        { IsSseNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const receive = root.clients[0].methods.find((method) => method.name === "receive");
+      ok(receive);
+      ok(receive.response.type?.kind === "streaming");
+      strictEqual(receive.response.type.streamKind, "sse");
+      ok(receive.response.type.valueType.kind === "union");
+      strictEqual(receive.response.type.valueType.name, "ResponseEvents");
+      strictEqual(receive.response.type.terminalEventType, undefined);
+      strictEqual(receive.response.type.terminalEventValue, "[DONE]");
+      ok(receive.operation.responses[0].bodyType?.kind === "streaming");
+      strictEqual(receive.operation.responses[0].bodyType.streamKind, "sse");
+      strictEqual(receive.operation.bufferResponse, false);
+    });
+
     describe("With anonymous union enum response type", () => {
       it("should convert anonymous union enum response type to value type", async () => {
         const program = await typeSpecCompile(

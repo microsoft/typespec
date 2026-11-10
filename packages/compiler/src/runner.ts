@@ -1,7 +1,8 @@
 import { readFile, realpath, stat } from "fs/promises";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
-import { ResolveModuleHost, resolveModule } from "./module-resolver/index.js";
+import type { ResolveModuleHost } from "./module-resolver/index.js";
+import { resolveModule } from "./module-resolver/index.js";
 
 /**
  * Run script given by relative path from @typespec/compiler package root.

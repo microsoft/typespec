@@ -370,22 +370,38 @@ model TypeSpec.Http.HeaderOptions
 
 ### `HttpPart` {#TypeSpec.Http.HttpPart}
 
+Represents a single part of a multipart payload.
+
 ```typespec
 model TypeSpec.Http.HttpPart<Type, Options>
 ```
 
 #### Template Parameters
 
-| Name    | Description |
-| ------- | ----------- |
-| Type    |             |
-| Options |             |
+| Name    | Description                                                               |
+| ------- | ------------------------------------------------------------------------- |
+| Type    | The type of the part's content.                                           |
+| Options | Options for this part, such as the name to use when the part is repeated. |
+
+#### Examples
+
+```typespec
+op upload(
+  @header `content-type`: "multipart/form-data",
+  @multipartBody body: {
+    fullName: HttpPart<string>;
+    headShots: HttpPart<Image>[];
+  },
+): void;
+```
 
 #### Properties
 
 None
 
 ### `HttpPartOptions` {#TypeSpec.Http.HttpPartOptions}
+
+Options for configuring an individual part of a multipart payload.
 
 ```typespec
 model TypeSpec.Http.HttpPartOptions
@@ -416,17 +432,19 @@ model TypeSpec.Http.ImplicitFlow
 
 ### `Link` {#TypeSpec.Http.Link}
 
+Describes a web link as defined by [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
+
 ```typespec
 model TypeSpec.Http.Link
 ```
 
 #### Properties
 
-| Name        | Type              | Description |
-| ----------- | ----------------- | ----------- |
-| target      | `url`             |             |
-| rel         | `string`          |             |
-| attributes? | `Record<unknown>` |             |
+| Name        | Type              | Description                                                                               |
+| ----------- | ----------------- | ----------------------------------------------------------------------------------------- |
+| target      | `url`             | The target URI of the link.                                                               |
+| rel         | `string`          | The relation type of the link, describing how the target relates to the current resource. |
+| attributes? | `Record<unknown>` | Additional target attributes to serialize as link parameters.                             |
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
@@ -468,9 +486,9 @@ model TypeSpec.Http.NoAuth
 
 #### Properties
 
-| Name | Type                            | Description |
-| ---- | ------------------------------- | ----------- |
-| type | `TypeSpec.Http.AuthType.noAuth` |             |
+| Name | Type                            | Description        |
+| ---- | ------------------------------- | ------------------ |
+| type | `TypeSpec.Http.AuthType.noAuth` | No authentication. |
 
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
@@ -612,11 +630,13 @@ model TypeSpec.Http.PatchOptions
 
 #### Properties
 
-| Name                 | Type      | Description                                                                                                       |
-| -------------------- | --------- | ----------------------------------------------------------------------------------------------------------------- |
-| implicitOptionality? | `boolean` | If set to `false`, disables the implicit transform that makes the body of a<br />PATCH operation deeply optional. |
+| Name                 | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| implicitOptionality? | `boolean` | If set to `false`, disables the implicit transform that makes the body of a<br />PATCH operation deeply optional.<br /><br />**Deprecated:** `implicitOptionality` is deprecated and will be removed.<br />To preserve the previous behavior, define and use an explicit patch model<br />with optional properties for your `@body` parameter.<br />For actual JSON Merge Patch behavior, use `MergePatchUpdate<T>` as the<br />`@body` type (for example: `@patch op update(@body pet: MergePatchUpdate<Pet>): void;`). |
 
 ### `PathOptions` {#TypeSpec.Http.PathOptions}
+
+Options for configuring how a path parameter is serialized into the URI template.
 
 ```typespec
 model TypeSpec.Http.PathOptions
@@ -626,7 +646,7 @@ model TypeSpec.Http.PathOptions
 
 | Name           | Type                                                      | Description                                                                                                                                                                                                                                  |
 | -------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name?          | `string`                                                  | Name of the parameter in the uri template.                                                                                                                                                                                                   |
+| name?          | `string`                                                  | Name of the parameter in the URI template.                                                                                                                                                                                                   |
 | explode?       | `boolean`                                                 | When interpolating this parameter in the case of array or object expand each value using the given style.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3) |
 | style?         | `"simple" \| "label" \| "matrix" \| "fragment" \| "path"` | Different interpolating styles for the path parameter.<br />- `simple`: No special encoding.<br />- `label`: Using `.` separator.<br />- `matrix`: `;` as separator.<br />- `fragment`: `#` as separator.<br />- `path`: `/` as separator.   |
 | allowReserved? | `boolean`                                                 | When interpolating this parameter do not encode reserved characters.<br />Equivalent of adding `+` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)                                      |
@@ -745,6 +765,8 @@ enum TypeSpec.Http.OAuth2FlowType
 | clientCredentials |       | client credential flow  |
 
 ### `LinkHeader` {#TypeSpec.Http.LinkHeader}
+
+A `Link` header value as defined by [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
 
 ```typespec
 scalar TypeSpec.Http.LinkHeader

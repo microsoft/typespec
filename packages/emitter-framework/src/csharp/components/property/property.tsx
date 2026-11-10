@@ -9,13 +9,15 @@ import {
   type ModelProperty,
   type Type,
 } from "@typespec/compiler";
-import { useTsp } from "../../../core/index.js";
+import { Experimental_OverridableComponent, useTsp } from "../../../core/index.js";
 import { useJsonConverterResolver } from "../json-converter/json-converter-resolver.jsx";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
 import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 
+/** Source property and opt-in System.Text.Json metadata for a generated C# property. */
 export interface PropertyProps {
+  /** Supplies the name, documentation, optionality, type, and inheritance relationships. */
   type: ModelProperty;
   /** If set the property will add the json serialization attributes(using System.Text.Json.Serialization).
    *  - the JsonPropertyName attribute
@@ -28,6 +30,19 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
+  return (
+    <Experimental_OverridableComponent
+      declaration
+      type={props.type}
+      Declaration={PropertyBody}
+      declarationProps={props}
+    >
+      <PropertyBody {...props} />
+    </Experimental_OverridableComponent>
+  );
+}
+
+function PropertyBody(props: PropertyProps): Children {
   const { $ } = useTsp();
   const result = preprocessPropertyType(props.type);
 

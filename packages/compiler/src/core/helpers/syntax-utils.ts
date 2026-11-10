@@ -1,6 +1,7 @@
 import { CharCode, isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
 import { isModifier, Keywords, ReservedKeywords } from "../scanner.js";
-import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } from "../types.js";
+import type { IdentifierNode, MemberExpressionNode, TypeReferenceNode } from "../types.js";
+import { SyntaxKind } from "../types.js";
 
 /**
  * Print a string as a TypeSpec identifier. If the string is a valid identifier, return it as is otherwise wrap it into backticks.

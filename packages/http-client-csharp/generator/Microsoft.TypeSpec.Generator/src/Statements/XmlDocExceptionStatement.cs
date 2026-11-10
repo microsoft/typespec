@@ -30,6 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
             _reason = reason;
         }
 
+        internal XmlDocExceptionStatement WithParameters(IReadOnlyList<ParameterProvider> parameters)
+            => new XmlDocExceptionStatement(ExceptionType, _reason, parameters);
+
         private static string GetText(Type exceptionType) => exceptionType switch
         {
             { } when exceptionType == typeof(ArgumentNullException) => "is null.",

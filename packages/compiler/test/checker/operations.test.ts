@@ -1,6 +1,6 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { DecoratorContext, IntrinsicType, Type } from "../../src/core/types.js";
+import type { DecoratorContext, IntrinsicType, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";

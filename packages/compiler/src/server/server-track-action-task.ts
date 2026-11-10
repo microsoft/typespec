@@ -1,5 +1,5 @@
-import { TaskStatus, TrackActionTask } from "../core/types.js";
-import { ServerLog } from "./types.js";
+import type { TaskStatus, TrackActionTask } from "../core/types.js";
+import type { ServerLog } from "./types.js";
 
 export class ServerTrackActionTask implements TrackActionTask {
   #log: (log: ServerLog) => void;

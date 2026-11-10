@@ -1,16 +1,16 @@
-import { afterAll, afterEach, beforeEach, expect, it, vi } from "vitest";
-import { CliCompilerHost } from "../../src/core/cli/types.js";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { CliCompilerHost } from "../../src/core/cli/types.js";
 import { resolvePath } from "../../src/core/path-utils.js";
-import { LogSink } from "../../src/index.js";
-import { initTypeSpecProject, InitTypeSpecProjectOptions } from "../../src/init/init.js";
+import type { LogSink } from "../../src/index.js";
+import type { InitTemplate } from "../../src/init/init-template.js";
+import type { InitTypeSpecProjectOptions } from "../../src/init/init.js";
+import { initTypeSpecProject, isTemplateCompatibleWithTspVersion } from "../../src/init/init.js";
 import { UriTemplateSource } from "../../src/init/template-source/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
-import { TestFileSystem } from "../../src/testing/types.js";
+import type { TestFileSystem } from "../../src/testing/types.js";
 import { parseYaml as coreParseYaml } from "../../src/yaml/parser.js";
 
-const fetchMock = vi.fn().mockResolvedValue({
-  json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
-});
+const fetchMock = vi.fn().mockResolvedValue(createFetchResponse());
 
 beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
@@ -18,10 +18,25 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  fetchMock.mockResolvedValue({
-    json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
-  });
+  fetchMock.mockResolvedValue(createFetchResponse());
 });
+
+function createFetchResponse() {
+  const manifest = {
+    name: "mock-pkg",
+    version: "1.0.0",
+    dist: { shasum: "abc", tarball: "https://example.com/mock-pkg.tgz" },
+  };
+  return {
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        name: manifest.name,
+        "dist-tags": { latest: manifest.version },
+        versions: { [manifest.version]: manifest },
+      }),
+  };
+}
 
 const TEST_SCAFFOLDING = {
   foo: {
@@ -150,6 +165,7 @@ afterAll(() => {
 
 it("should create a new project with the specified template", async () => {
   const { compilerHost, init } = await createTestFSWithCliCompilerHost();
+  consoleMock.mockClear();
 
   await init("/tmp/test-project", {
     template: "foo",
@@ -161,6 +177,24 @@ it("should create a new project with the specified template", async () => {
 
   expect(packageJson.name).toBe("test-project");
   expect(tspConfig.emit).toEqual(["@typespec/openapi3"]);
+  expect(consoleMock).toHaveBeenCalledWith(expect.stringContaining("tsp compile ."));
+});
+
+it("recommends the package build script for library and emitter templates", async () => {
+  const { fs, compilerHost, init } = await createTestFSWithCliCompilerHost();
+  fs.set(
+    resolvePath(compilerHost.getExecutionRoot(), "templates", "scaffolding.json"),
+    JSON.stringify({ library: { ...TEST_SCAFFOLDING.foo, target: "library" } }),
+  );
+  consoleMock.mockClear();
+
+  await init("/tmp/test-library", {
+    template: "library",
+    "no-prompt": true,
+  });
+
+  expect(consoleMock).toHaveBeenCalledWith(expect.stringContaining("npm run build"));
+  expect(consoleMock).not.toHaveBeenCalledWith(expect.stringContaining("tsp compile ."));
 });
 
 it("does not ask for permission if directory has files", async () => {
@@ -307,4 +341,40 @@ it("should fallback to 'latest' when npm registry is unreachable", async () => {
 
   const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
   expect(packageJson.dependencies["@typespec/compiler"]).toBe("latest");
+});
+
+describe("isTemplateCompatibleWithTspVersion", () => {
+  function makeTemplate(compilerVersion: string | undefined): InitTemplate {
+    return {
+      title: "Test",
+      description: "Test template",
+      compilerVersion,
+    };
+  }
+
+  it("returns true when compilerVersion is undefined", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate(undefined))).toBe(true);
+  });
+
+  it("returns true when plain version is less than or equal to current (backward compat: plain version means >=)", () => {
+    // Current version is 1.14.0; a plain version <= current should be compatible
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("0.44.0"))).toBe(true);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("1.0.0"))).toBe(true);
+  });
+
+  it("returns false when plain version is greater than current", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("99.0.0"))).toBe(false);
+  });
+
+  it("returns true when semver range is satisfied by current version", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^1.0.0"))).toBe(true);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate(">=1.0.0"))).toBe(true);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^1.14.0"))).toBe(true);
+  });
+
+  it("returns false when semver range is not satisfied by current version", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^2.0.0"))).toBe(false);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate(">=99.0.0"))).toBe(false);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^0.50.0"))).toBe(false);
+  });
 });

@@ -15,4 +15,4 @@ export { makeScaffoldingConfig, scaffoldNewProject } from "../init/scaffold.js";
 export type { TemplateSource } from "../init/template-source/types.js";
 export { UriTemplateSource } from "../init/template-source/uri-template-source.js";
 export { resolveEntrypointFile } from "../server/entrypoint-resolver.js";
-export { InternalCompileResult, ServerDiagnostic } from "../server/index.js";
+export type { InternalCompileResult, ServerDiagnostic } from "../server/index.js";

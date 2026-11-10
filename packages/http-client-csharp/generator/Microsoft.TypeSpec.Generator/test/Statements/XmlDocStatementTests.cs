@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.Statements;
 using NUnit.Framework;
 
@@ -44,6 +45,101 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag> &lt;|endoftext|&gt;. </tag>\n", writer.ToString(false));
+        }
+
+        [TestCase("\r")]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        [TestCase("\u0085")]
+        [TestCase("\u2028")]
+        [TestCase("\u2029")]
+        public void LineTerminatorsInLiteralAreNormalized(string terminator)
+        {
+            FormattableString line = terminator switch
+            {
+                "\r" => FormattableStringFactory.Create("first\rsecond"),
+                "\r\n" => FormattableStringFactory.Create("first\r\nsecond"),
+                "\n" => FormattableStringFactory.Create("first\nsecond"),
+                "\u0085" => FormattableStringFactory.Create("first\u0085second"),
+                "\u2028" => FormattableStringFactory.Create("first\u2028second"),
+                "\u2029" => FormattableStringFactory.Create("first\u2029second"),
+                _ => throw new ArgumentOutOfRangeException(nameof(terminator)),
+            };
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [line]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
+        [TestCase("\r")]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        [TestCase("\u0085")]
+        [TestCase("\u2028")]
+        [TestCase("\u2029")]
+        public void LineTerminatorsInArgumentAreNormalized(string terminator)
+        {
+            var text = $"first{terminator}second";
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"{text}"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
+        [TestCase("\r", "\\r")]
+        [TestCase("\r\n", "\\r\\n")]
+        [TestCase("\n", "\\n")]
+        [TestCase("\u0085", "\\u0085")]
+        [TestCase("\u2028", "\\u2028")]
+        [TestCase("\u2029", "\\u2029")]
+        public void LineTerminatorsInFormattedArgumentAreNotSplit(string terminator, string escapedTerminator)
+        {
+            // formatted arguments (":L") are rendered through SyntaxFactory.Literal, which escapes any embedded line
+            // terminator into a textual C# escape sequence rather than emitting the raw character. Since no raw
+            // terminator reaches the generated file, the argument is kept intact as a single `///` line.
+            var text = $"first{terminator}second";
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"{text:L}"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual($"/// <tag> \"first{escapedTerminator}second\". </tag>\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void LineTerminatorsInNestedFormattableArgumentWithLiteralFormatAreNormalized()
+        {
+            var nested = FormattableStringFactory.Create("first\u2028second");
+            var line = FormattableStringFactory.Create("{0:L}", nested);
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [line]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
+        [TestCase('D', "/// <tag>\n/// first\n/// second\n/// </tag>\n")]
+        [TestCase('I', "/// <tag>\n/// first\n/// second\n/// </tag>\n")]
+        [TestCase('C', "/// <tag>\n/// <see cref=\"first\"/>\n/// <see cref=\"second\"/>\n/// </tag>\n")]
+        public void LineTerminatorsInNonLiteralFormattedArgumentAreNormalized(char formatSpecifier, string expected)
+        {
+            var text = "first\u2028second";
+            var line = FormattableStringFactory.Create($"{{0:{formatSpecifier}}}", text);
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [line]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual(expected, writer.ToString(false));
+        }
+
+        [Test]
+        public void AllLineTerminatorsAreNormalized()
+        {
+            var statement = new XmlDocStatement(
+                $"<tag>",
+                $"</tag>",
+                [$"first\rsecond\r\nthird\u0085fourth\u2028fifth\u2029sixth\nseventh"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual(
+                "/// <tag>\n/// first\n/// second\n/// third\n/// fourth\n/// fifth\n/// sixth\n/// seventh\n/// </tag>\n",
+                writer.ToString(false));
         }
     }
 }

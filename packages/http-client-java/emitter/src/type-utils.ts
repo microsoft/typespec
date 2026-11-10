@@ -1,14 +1,13 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
-import {
+import type {
   SdkDurationType,
   SdkEnumType,
   SdkModelPropertyType,
   SdkModelType,
   SdkType,
-  isSdkFloatKind,
-  isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
-import {
+import { isSdkFloatKind, isSdkIntKind } from "@azure-tools/typespec-client-generator-core";
+import type {
   DecoratedType,
   DecoratorApplication,
   EnumMember,
@@ -23,14 +22,16 @@ import {
   TypeNameOptions,
   Union,
   Value,
+} from "@typespec/compiler";
+import {
   getTypeName,
   isNullType,
   isTemplateDeclaration,
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
-import { XmlSerializationFormat } from "./common/formats/xml.js";
-import { DurationSchema } from "./common/schemas/time.js";
+import type { XmlSerializationFormat } from "./common/formats/xml.js";
+import type { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 

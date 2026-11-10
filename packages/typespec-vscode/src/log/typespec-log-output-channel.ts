@@ -1,4 +1,5 @@
-import vscode, { LogOutputChannel } from "vscode";
+import type { LogOutputChannel } from "vscode";
+import vscode from "vscode";
 
 const TRACE_PREFIX = /^\[Trace.*?\] /iu;
 const DEBUG_PREFIX = /^\[Debug.*?\] /iu;

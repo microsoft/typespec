@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createTracer } from "../../src/core/logger/tracer.js";
-import { LogInfo, Logger, Tracer } from "../../src/index.js";
+import type { LogInfo, Logger, Tracer } from "../../src/index.js";
 
 let logger: Logger;
 let logs: LogInfo[] = [];

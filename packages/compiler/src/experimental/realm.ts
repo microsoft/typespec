@@ -1,13 +1,13 @@
 import { compilerAssert } from "../core/diagnostics.js";
-import { Program } from "../core/program.js";
-import { Type } from "../core/types.js";
+import type { Program } from "../core/program.js";
+import type { Type } from "../core/types.js";
 import type { Typekit } from "../typekit/index.js";
 import { createTypekit } from "./typekit/index.js";
 
 /**
  * A Realm's view of a Program's state map for a given state key.
  *
- * For all operations, if a type was created within the realm, the realm's own state map is used. Otherwise, the owning'
+ * For keyed operations, if a type belongs to the realm, the realm's own state map is used. Otherwise, the owning
  * Program's state map is used.
  *
  * @experimental
@@ -23,6 +23,9 @@ class StateMapRealmView<V> implements Map<Type, V> {
     this.#realmState = realmState;
   }
 
+  /**
+   * Check the realm's state for a type it owns, or the program's state for any other type.
+   */
   has(t: Type) {
     return this.#select(t).has(t) ?? false;
   }
@@ -36,6 +39,9 @@ class StateMapRealmView<V> implements Map<Type, V> {
     return this.#select(t).get(t);
   }
 
+  /**
+   * Delete from the realm's state for a type it owns, or from the program's state otherwise.
+   */
   delete(t: Type) {
     return this.#select(t).delete(t);
   }
@@ -48,14 +54,24 @@ class StateMapRealmView<V> implements Map<Type, V> {
     return this;
   }
 
+  /**
+   * The sum of the realm and program entry counts, without deduplicating shared keys.
+   */
   get size() {
     return this.#realmState.size + this.#parentState.size;
   }
 
+  /**
+   * Clear only the realm's state, leaving the program's entries intact.
+   */
   clear() {
     this.#realmState.clear();
   }
 
+  /**
+   * Iterate the realm's entries first, then the program's entries, in each map's insertion order.
+   * A key present in both maps is yielded twice.
+   */
   *entries(): MapIterator<[Type, V]> {
     for (const item of this.#realmState) {
       yield item;
@@ -84,6 +100,9 @@ class StateMapRealmView<V> implements Map<Type, V> {
     return undefined;
   }
 
+  /**
+   * Iterate entries in the same realm-first order as {@link entries}.
+   */
   [Symbol.iterator]() {
     return this.entries();
   }
@@ -123,6 +142,9 @@ export class Realm {
   #deletedTypes = new WeakSet<Type>();
 
   #stateMaps = new Map<symbol, Map<Type, any>>();
+  /**
+   * A symbol identifying this realm, created with the constructor's description.
+   */
   public key!: symbol;
 
   /**
@@ -159,6 +181,13 @@ export class Realm {
    *
    * This state map is a view of the program's state map for the given state key, with modifications made to the realm's
    * own state.
+   *
+   * Reads, writes, and deletes use realm-local state for types added to this realm, without falling back to program
+   * state for those types. For other types, these operations access the program's state directly, so modifying a
+   * shared original type's state is not isolated. Clone the type into the realm first when isolation is needed.
+   *
+   * Iteration yields realm entries followed by program entries without deduplicating keys; `size` counts both maps.
+   * `clear()` removes only realm-local entries.
    *
    * @param stateKey - The symbol to use as the state key.
    * @returns The realm's state map for the given state key.
@@ -235,6 +264,10 @@ export class Realm {
     return this.#types;
   }
 
+  /**
+   * Process-wide lookup of the last realm a type was added to, shared across loaded compiler instances.
+   * A type may belong to multiple realms; use {@link hasType} to test membership in a specific realm.
+   */
   static realmForType = singleton("Realm.realmForType", () => new WeakMap<Type, Realm>());
 }
 

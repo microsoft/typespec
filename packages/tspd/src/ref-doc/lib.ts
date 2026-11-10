@@ -10,6 +10,12 @@ export const libDef = {
         missingCondition: `exports field is missing one export with the typespec condition`,
       },
     },
+    "sub-export-missing-js": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Sub export "${"subpath"}" declares decorators or functions but has no JS export condition("import" or "default") in package.json. Skipping generation of the signature typecheck file.`,
+      },
+    },
     "documentation-missing": {
       severity: "warning",
       messages: {
@@ -30,7 +36,9 @@ export const libDef = {
   },
 } as const;
 
+/** TypeSpec library definition used to create and report tspd's documentation diagnostics. */
 export const $lib = createTypeSpecLibrary(libDef);
 export const { reportDiagnostic, createStateSymbol, createDiagnostic } = $lib;
 
+/** Library contract carrying tspd's diagnostic codes and message parameter types. */
 export type RefDocLibrary = typeof $lib;

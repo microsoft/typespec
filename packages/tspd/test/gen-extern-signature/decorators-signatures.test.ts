@@ -19,7 +19,7 @@ async function generateDecoratorSignatures(code: string) {
       configFile: {
         projectRoot: ".",
         kind: "project",
-        features: ["auto-decorators"],
+        features: ["auto-decorators", "function-declarations"],
         diagnostics: [],
         outputDir: "tsp-output",
       },
@@ -286,13 +286,42 @@ export type Decorators = {
     it("generate local model as interface", async () => {
       await expectSignatures({
         code: `
-          model Info { name: string, age?: int32} 
+          /**
+           * Information supplied to the decorator.
+           *
+           * @example
+           * #{ name: "Ada" }
+           */
+          model Info {
+            /** Display name used in generated output. */
+            name: string;
+            /**
+             * Age in years, when known.
+             *
+             * Omit this property when the age is unavailable.
+             */
+            age?: int32;
+          }
           extern dec simple(target, arg1: valueof Info);`,
         expected: `
 ${importLine(["Type"])}
 
+/**
+ * Information supplied to the decorator.
+ *
+ * @example
+ * #{ name: "Ada" }
+ */
 export interface Info {
+  /**
+   * Display name used in generated output.
+   */
   readonly name: string;
+  /**
+   * Age in years, when known.
+   *
+   * Omit this property when the age is unavailable.
+   */
   readonly age?: number;
 }
 
@@ -302,6 +331,91 @@ export type Decorators = {
   simple: SimpleDecorator;
 };
     `,
+      });
+    });
+
+    it("preserves documentation on spread and nested anonymous properties without documenting synthetic indexers", async () => {
+      await expectSignatures({
+        code: `
+          model Base {
+            /** Display name used in generated output. */
+            name: string;
+          }
+          extern dec simple(target, arg1: valueof {
+            ...Record<unknown>;
+            ...Base;
+            /** Additional display settings. */
+            settings?: {
+              /** Whether to include the display name. */
+              enabled: boolean;
+            };
+          });`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  arg1: {
+    readonly [key: string]: unknown;
+    /**
+     * Display name used in generated output.
+     */
+    readonly name: string;
+    /**
+     * Additional display settings.
+     */
+    readonly settings?: {
+      /**
+       * Whether to include the display name.
+       */
+      readonly enabled: boolean;
+    };
+  },
+) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+`,
+      });
+    });
+
+    it("preserves anonymous model property documentation in function parameters and return values", async () => {
+      await expectSignatures({
+        code: `
+          #suppress "experimental-feature"
+          extern fn simple(
+            arg: valueof {
+              /** Display name supplied by the caller. */
+              name: string;
+            }
+          ): valueof {
+            /** Whether the name was accepted. */
+            accepted: boolean;
+          };`,
+        expected: `
+import type { FunctionContext } from "@typespec/compiler";
+
+export type SimpleFunctionImplementation = (
+  context: FunctionContext,
+  arg: {
+    /**
+     * Display name supplied by the caller.
+     */
+    readonly name: string;
+  },
+) => {
+  /**
+   * Whether the name was accepted.
+   */
+  readonly accepted: boolean;
+};
+
+export type Functions = {
+  simple: SimpleFunctionImplementation;
+};
+`,
       });
     });
   });
@@ -469,6 +583,7 @@ describe("auto decorator accessors", () => {
       expected: `
 import { hasAutoDecorator, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
 
+/** Check if the \`@myFlag\` decorator was applied on the given target. */
 export function isMyFlag(program: Program, target: Model): boolean {
   return hasAutoDecorator(program, "myFlag", target);
 }
@@ -531,6 +646,71 @@ export function setMyMeta(program: Program, target: Model, value: { name: string
     });
   });
 
+  it("documents accessors with the decorator description, dropping doc tags", async () => {
+    await expectSignatures({
+      code: `
+        /**
+         * Specify the minimum number of instances the array must contain.
+         *
+         * @param value The minimum number of instances.
+         */
+        auto dec myMin(target: Model, value: valueof int32);
+      `,
+      expected: `
+import { getAutoDecoratorValue, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
+
+/** Specify the minimum number of instances the array must contain. */
+export function getMyMin(program: Program, target: Model): number | undefined {
+  return getAutoDecoratorValue(program, "myMin", target)?.["value"] as any;
+}
+
+/** Specify the minimum number of instances the array must contain. */
+export function setMyMin(program: Program, target: Model, value: number): void {
+  setAutoDecorator(program, "myMin", target, { value: value });
+}
+  `,
+    });
+  });
+
+  it("documents `is*` accessors generically instead of with the decorator description", async () => {
+    await expectSignatures({
+      code: `
+        /** Mark the model as a flag. */
+        auto dec myFlag(target: Model);
+      `,
+      expected: `
+import { hasAutoDecorator, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
+
+/** Check if the \`@myFlag\` decorator was applied on the given target. */
+export function isMyFlag(program: Program, target: Model): boolean {
+  return hasAutoDecorator(program, "myFlag", target);
+}
+
+/** Mark the model as a flag. */
+export function setMyFlag(program: Program, target: Model): void {
+  setAutoDecorator(program, "myFlag", target);
+}
+  `,
+    });
+  });
+
+  it("renders a multi line description as a block comment", async () => {
+    const result = await generateDecoratorSignatures(`
+      /**
+       * First line.
+       *
+       * Second line.
+       */
+      auto dec myLabel(target: Model, label: valueof string);
+    `);
+    expect(result).toContain(`/**
+ * First line.
+ *
+ * Second line.
+ */
+export function getMyLabel`);
+  });
+
   it("generates accessor with fully-qualified name for namespaced auto decorator", async () => {
     const [{ program }] = await Tester.compileAndDiagnose(
       `
@@ -580,5 +760,62 @@ export function setMyMeta(program: Program, target: Model, value: { name: string
     expect(result).toContain("setAutoDecorator");
     // Verify no $decorators type for auto decorators
     expect(result).not.toContain("dataFlag: ");
+  });
+});
+
+describe("type references", () => {
+  it("does not describe scalar subtypes as type-reference values", async () => {
+    await expectSignatures({
+      code: `
+        scalar CustomRef extends TypeRef<string> { init create(); }
+        extern dec capture(target, reference: valueof CustomRef);
+        extern fn pass(reference: valueof CustomRef): valueof CustomRef;
+`,
+      expected: `
+import type { DecoratorContext, DecoratorValidatorCallbacks, FunctionContext, Type } from "@typespec/compiler";
+
+export type CaptureDecorator = (context: DecoratorContext, target: Type, reference: unknown) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  capture: CaptureDecorator;
+};
+
+export type PassFunctionImplementation = (context: FunctionContext, reference: unknown) => unknown;
+
+export type Functions = {
+  pass: PassFunctionImplementation;
+};
+`,
+    });
+  });
+
+  it("maps generic type references in decorator parameters", async () => {
+    await expectSignatures({
+      code: `extern dec simple(target, reference: valueof TypeRef<string>);`,
+      expected: `
+${importLine(["Type", "TypeRefValue"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Type, reference: TypeRefValue) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+`,
+    });
+  });
+
+  it("maps type references in function parameters and return values", async () => {
+    await expectSignatures({
+      code: `extern fn simple(reference: valueof TypeRef<string>): valueof TypeRef;`,
+      expected: `
+import type { FunctionContext, TypeRefValue } from "@typespec/compiler";
+
+export type SimpleFunctionImplementation = (context: FunctionContext, reference: TypeRefValue) => TypeRefValue;
+
+export type Functions = {
+  simple: SimpleFunctionImplementation;
+};
+`,
+    });
   });
 });

@@ -1,7 +1,7 @@
 ---
 description: |
-  Daily TCGC version watcher for the http-client-csharp emitter. Checks the npm
-  registry for new non-dev releases of @azure-tools/typespec-client-generator-core
+  Daily TCGC version watcher for the http-client-csharp emitter. Uses npm to check
+  the public npm registry for new non-dev releases of @azure-tools/typespec-client-generator-core
   and, when a newer stable version is available and no equivalent issue already
   exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 
@@ -14,7 +14,10 @@ permissions:
   issues: read
   copilot-requests: write
 
-network: defaults
+network:
+  allowed:
+    - defaults
+    - registry.npmjs.org
 
 safe-outputs:
   messages:
@@ -49,7 +52,13 @@ You're an automation assistant for the TypeSpec GitHub repository. Your task is 
 
 ## Instructions
 
-1. **Detect the latest stable TCGC version.** Use the `web-fetch` tool to read the npm registry metadata at `https://registry.npmjs.org/@azure-tools/typespec-client-generator-core`. Pick the latest version that does **not** contain a pre-release tag — i.e. the version string contains no `-` character (no `-dev`, `-alpha`, `-beta`, `-rc`). Save it as `LATEST_STABLE`. If no stable version is found, call `noop` and exit.
+1. **Detect the latest stable TCGC version.** Use the shell tool to run `npm` against the public npm registry (do not use `curl` or `web-fetch` for this step):
+
+   ```bash
+   npm view @azure-tools/typespec-client-generator-core versions --json
+   ```
+
+   Do not override the registry. The command returns a JSON array of all published versions. Pick the latest version that does **not** contain a pre-release tag — i.e. the version string contains no `-` character (no `-dev`, `-alpha`, `-beta`, `-rc`). Save it as `LATEST_STABLE`. If no stable version is found, call `noop` and exit.
 
 2. **Read the current version from `package.json`.** Use the `get_file_contents` tool (owner: `microsoft`, repo: `typespec`, path: `packages/http-client-csharp/package.json`) and extract the version listed under `devDependencies["@azure-tools/typespec-client-generator-core"]`. Save it as `CURRENT_VERSION`.
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import type { ExtendsUnknownAdditionalPropertiesDiscriminatedDerived } from "../../../../generated/type/property/additional-properties/src/index.js";
 import {
-  ExtendsUnknownAdditionalPropertiesDiscriminatedDerived,
   ExtendsUnknownClient,
   ExtendsUnknownDerivedClient,
   ExtendsUnknownDiscriminatedClient,

@@ -6,7 +6,7 @@ import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
-import {
+import type {
   AliasStatementNode,
   Decorator,
   EnumMember,
@@ -18,12 +18,11 @@ import {
   Operation,
   StringTemplate,
   Sym,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { SymbolFlags, SyntaxKind } from "../core/types.js";
 import { walkPropertiesInherited } from "../index.js";
 
 interface GetSymbolSignatureOptions {
@@ -204,7 +203,12 @@ function getModelSignature(type: Model, includeBody: boolean): string {
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
+    if (
+      type.node &&
+      (type.node.kind === SyntaxKind.ModelStatement ||
+        type.node.kind === SyntaxKind.ModelDeclarationExpression) &&
+      type.node.templateParameters
+    ) {
       type.node.templateParameters.forEach((t) => {
         if (t.default) {
           getRawTextWithCache(t);

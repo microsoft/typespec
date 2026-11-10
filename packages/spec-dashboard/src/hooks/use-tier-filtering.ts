@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { CoverageSummary } from "../apis.js";
-import { classifyScenario, compileTierConfig, TierConfig } from "../utils/tier-filtering-utils.js";
+import type { CoverageSummary } from "../apis.js";
+import type { TierConfig } from "../utils/tier-filtering-utils.js";
+import { classifyScenario, compileTierConfig } from "../utils/tier-filtering-utils.js";
 
 /**
  * Hook to filter coverage summaries by scenario tiers.

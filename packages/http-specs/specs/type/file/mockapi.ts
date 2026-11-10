@@ -1,4 +1,5 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi, ValidationError } from "@typespec/spec-api";
+import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
+import { passOnSuccess, ValidationError } from "@typespec/spec-api";
 import { pngFile } from "../../helper.js";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};

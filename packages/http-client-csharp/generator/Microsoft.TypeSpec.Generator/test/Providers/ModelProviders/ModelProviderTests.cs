@@ -1,14 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore DBOS IPDBOSIP
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -19,10 +28,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
     public class ModelProviderTests
     {
+        string? _projectDir = null;
+
         [SetUp]
         public void Setup()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void TestBuildDescription_SkipsDerivedClassesTextWhenNoPublicDerivedModels()
+        {
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true);
+            var internalDerived = InputFactory.Model("InternalDerived", access: "internal");
+            var baseModel = InputFactory.Model(
+                "BaseModel",
+                properties: [discriminator],
+                derivedModels: [internalDerived],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, internalDerived]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel);
+
+            Assert.IsNotNull(provider);
+            Assert.AreEqual("BaseModel description", provider!.Description.ToString());
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        [SetCulture("en-US")]
+        public void DerivedModelsAreSortedAndDeduplicated(bool reverseInputOrder)
+        {
+            var cat = InputFactory.Model("Cat");
+            var zebra = InputFactory.Model("Zebra");
+            var antelope = InputFactory.Model("antelope", isExactName: true);
+            InputModelType[] subtypes = [zebra, cat];
+            InputModelType[] derivedModels = [antelope, cat];
+            if (reverseInputOrder)
+            {
+                Array.Reverse(subtypes);
+                Array.Reverse(derivedModels);
+            }
+
+            var inputModel = InputFactory.Model(
+                "Animal",
+                discriminatedModels: subtypes.ToDictionary(m => m.Name),
+                derivedModels: derivedModels);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual(new[] { "Cat", "Zebra", "antelope" }, model!.DerivedModels.Select(m => m.Name));
         }
 
         [Test]
@@ -56,6 +111,510 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
             Assert.NotNull(prop1Field);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
+        }
+
+        [TestCase("IpAddress", false, "IPAddress")]
+        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
+        [TestCase("OsProfile", false, "OSProfile")]
+        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
+        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
+        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase("Ipv4address", false, "Ipv4address")]
+        [TestCase("Ipv42Address", false, "Ipv42Address")]
+        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase("IpAddress", true, "IpAddress")]
+        public void TestBuildName_NormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName, isExactName: isExactName);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, modelProvider.Name);
+        }
+
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("Response", false, "Result")]
+        [TestCase("widget_response", false, "WidgetResult")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("WidgetResponseResponse", false, "WidgetResponseResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        [TestCase("WidgetResult", false, "WidgetResult")]
+        [TestCase("ResponseWidget", false, "ResponseWidget")]
+        [TestCase("WidgetResponses", false, "WidgetResponses")]
+        [TestCase("Widgetresponse", false, "Widgetresponse")]
+        public void TestBuildName_ResponseSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                isExactName: isExactName,
+                properties: [InputFactory.Property("serviceResponse", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
+        }
+
+        [TestCase("WidgetRequest", false, "WidgetContent")]
+        [TestCase("Request", false, "Content")]
+        [TestCase("widget_request", false, "WidgetContent")]
+        [TestCase("IpRequest", false, "IPContent")]
+        [TestCase("WidgetRequestRequest", false, "WidgetRequestContent")]
+        [TestCase("WidgetResponseRequest", false, "WidgetResponseContent")]
+        [TestCase("WidgetRequestResponse", false, "WidgetRequestResult")]
+        [TestCase("WidgetRequest", true, "WidgetRequest")]
+        [TestCase("IpRequest", true, "IpRequest")]
+        [TestCase("WidgetContent", false, "WidgetContent")]
+        [TestCase("RequestWidget", false, "RequestWidget")]
+        [TestCase("WidgetRequests", false, "WidgetRequests")]
+        [TestCase("Widgetrequest", false, "Widgetrequest")]
+        public void TestBuildName_RequestSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                isExactName: isExactName,
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(expectedName, model.Type.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceRequest", model.Properties[0].Name);
+        }
+
+        [TestCase(InputModelTypeUsage.Input, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.Error | InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
+        [TestCase(InputModelTypeUsage.None, "WidgetContent")]
+        public void TestBuildName_RequestSuffixAppliesToAllUsages(InputModelTypeUsage usage, string expectedName)
+        {
+            var inputModel = InputFactory.Model("WidgetRequest", usage: usage | InputModelTypeUsage.Json);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+        }
+
+        [TestCase(InputModelTypeUsage.Input, "IPContent")]
+        [TestCase(InputModelTypeUsage.Output, "IPContent")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "IPContent")]
+        public void TestBuildName_RequestSuffixUsagePreservesAcronymsAndProperties(InputModelTypeUsage usage, string expectedName)
+        {
+            var inputModel = InputFactory.Model("IpRequest",
+                usage: usage | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Type.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceRequest", model.Properties[0].Name);
+        }
+
+        [TestCase("WidgetRequest", "WidgetContent", false, false)]
+        [TestCase("WidgetRequest", "WidgetContent", false, true)]
+        [TestCase("WidgetRequest", "WidgetContent", true, false)]
+        [TestCase("WidgetRequest", "WidgetContent", true, true)]
+        [TestCase("WidgetResponse", "WidgetResult", false, false)]
+        [TestCase("WidgetResponse", "WidgetResult", false, true)]
+        [TestCase("IpRequest", "IPContent", false, false)]
+        [TestCase("IpRequest", "IpContent", false, true)]
+        [TestCase("IpResponse", "IPResult", false, true)]
+        public void TestBuildName_ModelSuffixCollision(
+            string inputName, string reservedName, bool exactReservedName, bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model(inputName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reservedModel = InputFactory.Model(reservedName, isExactName: exactReservedName);
+            var wrapper = InputFactory.Model("Wrapper", properties:
+            [
+                InputFactory.Property("request", inputModel),
+                InputFactory.Property("content", reservedModel)
+            ]);
+            InputModelType[] models = reverseOrder
+                ? [reservedModel, inputModel, wrapper]
+                : [inputModel, reservedModel, wrapper];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToList();
+            var model = factory.CreateModel(inputModel)!;
+            var reserved = factory.CreateModel(reservedModel)!;
+            var wrapperProvider = factory.CreateModel(wrapper)!;
+
+            Assert.AreEqual(inputName.ToIdentifierName().NormalizeCSharpAcronyms(), model.Name);
+            Assert.AreEqual(exactReservedName ? reservedName : reservedName.NormalizeCSharpAcronyms(), reserved.Name);
+            Assert.AreEqual(providers.Count, providers.Select(p => p.RelativeFilePath).Distinct().Count());
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(reserved, factory.CSharpTypeMap[reserved.Type]);
+            Assert.AreSame(model, factory.TypeProvidersByName[model.Name]);
+            Assert.AreSame(reserved, factory.TypeProvidersByName[reserved.Name]);
+            Assert.AreSame(model, factory.CSharpTypeMap[wrapperProvider.Properties[0].Type]);
+            Assert.AreSame(reserved, factory.CSharpTypeMap[wrapperProvider.Properties[1].Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixCollisionPreservesCustomName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var customizedModel = InputFactory.Model("Gadget");
+            InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var customized = factory.CreateModel(customizedModel)!;
+
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("WidgetContent", customized.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(customized.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
+        }
+
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetRequest", false)]
+        [TestCase("WidgetRequest", "WidgetContent", "WidgetRequest", true)]
+        [TestCase("IpRequest", "IpContent", "IPRequest", false)]
+        [TestCase("IpRequest", "IpContent", "IPRequest", true)]
+        public async Task TestBuildName_ModelSuffixCollisionPreservesContractName(
+            string inputName, string contractName, string expectedName, bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model(inputName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var shippedModel = InputFactory.Model(contractName);
+            InputModelType[] models = reverseOrder ? [shippedModel, inputModel] : [inputModel, shippedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var shipped = factory.CreateModel(shippedModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(contractName, shipped.Name);
+            Assert.IsNotNull(shipped.LastContractView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(shipped, factory.CSharpTypeMap[shipped.Type]);
+        }
+
+        [Test]
+        public void TestBuildName_ModelSuffixDoesNotCollideWithDistinctExactName()
+        {
+            var inputModel = InputFactory.Model("IpRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var exactModel = InputFactory.Model("IpContentModel", isExactName: true);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+
+            Assert.AreEqual("IPContent", factory.CreateModel(inputModel)!.Name);
+            Assert.AreEqual("IpContentModel", factory.CreateModel(exactModel)!.Name);
+        }
+
+        [TestCase("Sample.Models")]
+        [TestCase("Other.Models")]
+        public void TestBuildName_ModelSuffixAvoidsCaseInsensitiveFileCollision(string reservedNamespace)
+        {
+            var inputModel = InputFactory.Model("IpRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var exactModel = InputFactory.Model("IpContent", @namespace: reservedNamespace, isExactName: true);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, exactModel]);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var exact = factory.CreateModel(exactModel)!;
+
+            Assert.AreEqual("IPRequest", model.Name);
+            Assert.AreEqual("IpContent", exact.Name);
+            Assert.IsFalse(string.Equals(model.RelativeFilePath, exact.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        [TestCase("WidgetRequest", "WidgetContent", false)]
+        [TestCase("WidgetRequest", "WidgetContent", true)]
+        [TestCase("WidgetResponse", "WidgetResult", false)]
+        [TestCase("IpRequest", "IpContent", true)]
+        public void TestBuildName_ModelSuffixReservesEnumNames(string modelName, string enumName, bool extensible)
+        {
+            var inputModel = InputFactory.Model(modelName, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputEnum = InputFactory.StringEnum(enumName, [("One", "one")], isExtensible: extensible);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel], inputEnumTypes: [inputEnum]);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var enumProvider = factory.CreateEnum(inputEnum)!;
+
+            Assert.AreEqual(modelName.NormalizeCSharpAcronyms(), model.Name);
+            Assert.AreEqual(enumName.NormalizeCSharpAcronyms(), enumProvider.Name);
+            Assert.IsFalse(string.Equals(model.RelativeFilePath, enumProvider.RelativeFilePath, StringComparison.OrdinalIgnoreCase));
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(enumProvider, factory.CSharpTypeMap[enumProvider.Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestBuildName_ModelSuffixReservesUnknownDiscriminatorName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("UnknownPetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
+            var baseModel = InputFactory.Model("PetContent", properties: [discriminator]);
+            InputModelType[] models = reverseOrder ? [baseModel, inputModel] : [inputModel, baseModel];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToList();
+            var model = factory.CreateModel(inputModel)!;
+            var unknown = factory.CreateModel(baseModel.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPetRequest", model.Name);
+            Assert.AreEqual("UnknownPetContent", unknown.Name);
+            Assert.Contains(unknown, providers);
+            Assert.AreEqual(providers.Count, providers.Select(p => p.RelativeFilePath).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(unknown, factory.CSharpTypeMap[unknown.Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixCollisionPreservesMappedSuffixName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var customizedModel = InputFactory.Model("GadgetResponse");
+            InputModelType[] models = reverseOrder ? [customizedModel, inputModel] : [inputModel, customizedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var customized = factory.CreateModel(customizedModel)!;
+
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("WidgetContent", customized.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(customized.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(customized, factory.CSharpTypeMap[customized.Type]);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixMappingBelongsToOriginalInput(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var mappedModel = InputFactory.Model("WidgetContent");
+            InputModelType[] models = reverseOrder ? [mappedModel, inputModel] : [inputModel, mappedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var mapped = factory.CreateModel(mappedModel)!;
+
+            Assert.AreEqual("WidgetRequest", model.Name);
+            Assert.AreEqual("CustomizedContent", mapped.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(mapped.CustomCodeView);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(mapped, factory.CSharpTypeMap[mapped.Type]);
+            Assert.AreNotEqual(model.RelativeFilePath, mapped.RelativeFilePath);
+        }
+
+        [Test]
+        public void TestBuildName_ModelSuffixNamesAreCachedForLibrary()
+        {
+            var models = Enumerable.Range(0, 1000).Select(i => InputFactory.Model($"Widget{i}Request", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json)).ToArray();
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var names = factory.ModelNames;
+
+            Assert.AreEqual(models.Length, names.Count);
+            Assert.IsEmpty(factory.CreatedModelProviders);
+            foreach (var model in models)
+            {
+                var provider = factory.CreateModel(model)!;
+                Assert.AreEqual($"{model.Name[..^"Request".Length]}Content", provider.Name);
+                Assert.AreEqual(names[model], provider.Name);
+                Assert.AreSame(names, factory.ModelNames);
+            }
+        }
+
+        [Test]
+        public void TestBuildName_ModelSuffixFallbackAvoidsReservedOriginalName()
+        {
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reserved = InputFactory.Model("WidgetContent", isExactName: true);
+            var inputEnum = InputFactory.StringEnum("WidgetRequest", [("One", "one")]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel, reserved], inputEnumTypes: [inputEnum]);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual("WidgetRequest1", model.Name);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ModelSuffixFallbackAvoidsMappedInputName(bool reverseOrder)
+        {
+            var inputModel = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var reserved = InputFactory.Model("WidgetContent", isExactName: true);
+            var mappedModel = InputFactory.Model("WidgetRequest1");
+            var inputEnum = InputFactory.StringEnum("WidgetRequest", [("One", "one")]);
+            InputModelType[] models = reverseOrder ? [mappedModel, reserved, inputModel] : [inputModel, reserved, mappedModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var model = factory.CreateModel(inputModel)!;
+            var mapped = factory.CreateModel(mappedModel)!;
+
+            Assert.AreEqual("WidgetRequest2", model.Name);
+            Assert.AreEqual("CustomizedRequest", mapped.Name);
+            Assert.IsNull(model.CustomCodeView);
+            Assert.IsNotNull(mapped.CustomCodeView);
+            Assert.AreNotEqual(model.RelativeFilePath, mapped.RelativeFilePath);
+            Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
+            Assert.AreSame(mapped, factory.CSharpTypeMap[mapped.Type]);
+        }
+
+        [TestCase("ErrorResponse", false, "ErrorResponse")]
+        [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
+        [TestCase("IpResponse", false, "IPResponse")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        public void TestBuildName_ErrorResponseSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                usage: InputModelTypeUsage.Error | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                isExactName: isExactName);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+        }
+
+        [TestCase("WidgetResponse", "WidgetResponse", false, false)]
+        [TestCase("WidgetResponse", "WidgetResponse", true, false)]
+        [TestCase("WidgetResponse", "WidgetResponse", false, true)]
+        [TestCase("WidgetResponse", "WidgetResponse", true, true)]
+        [TestCase("IpResponse", "IPResponse", false, false)]
+        [TestCase("IpResponse", "IPResponse", true, false)]
+        [TestCase("IpResponse", "IPResponse", false, true)]
+        [TestCase("IpResponse", "IPResponse", true, true)]
+        [TestCase("DbResponse", "DbResponse", false, false)]
+        [TestCase("DbResponse", "DbResponse", true, false)]
+        [TestCase("DbResponse", "DbResponse", false, true)]
+        [TestCase("DbResponse", "DbResponse", true, true)]
+        [TestCase("WidgetRequest", "WidgetRequest", false, false)]
+        [TestCase("WidgetRequest", "WidgetRequest", true, false)]
+        [TestCase("WidgetRequest", "WidgetRequest", false, true)]
+        [TestCase("WidgetRequest", "WidgetRequest", true, true)]
+        [TestCase("IpRequest", "IPRequest", false, false)]
+        [TestCase("IpRequest", "IPRequest", true, false)]
+        [TestCase("IpRequest", "IPRequest", false, true)]
+        [TestCase("IpRequest", "IPRequest", true, true)]
+        [TestCase("DbRequest", "DbRequest", false, false)]
+        [TestCase("DbRequest", "DbRequest", true, false)]
+        [TestCase("DbRequest", "DbRequest", false, true)]
+        [TestCase("DbRequest", "DbRequest", true, true)]
+        public async Task TestBuildName_ModelSuffixPreservesExistingName(
+            string inputName, string expectedName, bool lastContract, bool updateNamespace)
+        {
+            var inputModel = InputFactory.Model(
+                inputName, @namespace: updateNamespace ? "Sample" : "Sample.Models",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            if (updateNamespace)
+            {
+                Assert.That(model.Name, Does.EndWith(inputName.EndsWith("Request", StringComparison.Ordinal) ? "Content" : "Result"));
+                model.Update(@namespace: "Sample.Models");
+            }
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.IsNotNull(lastContract ? model.LastContractView : model.CustomCodeView);
+        }
+
+        [TestCase("WidgetResponse", "CustomizedWidget", false)]
+        [TestCase("WidgetResponse", "CustomizedWidget", true)]
+        [TestCase("IpResponse", "CustomizedIP", false)]
+        [TestCase("IpResponse", "CustomizedIP", true)]
+        [TestCase("GadgetResponse", "CustomizedGadget", false)]
+        [TestCase("WidgetRequest", "CustomizedRequest", false)]
+        [TestCase("WidgetRequest", "CustomizedRequest", true)]
+        [TestCase("IpRequest", "CustomizedIPRequest", false)]
+        [TestCase("IpRequest", "CustomizedIPRequest", true)]
+        [TestCase("GadgetRequest", "CustomizedGadgetRequest", false)]
+        public async Task TestBuildName_ModelSuffixPreservesCustomName(
+            string inputName, string expectedName, bool isError)
+        {
+            var inputModel = InputFactory.Model(inputName,
+                usage: InputModelTypeUsage.Json |
+                    (isError ? InputModelTypeUsage.Error | InputModelTypeUsage.Output : InputModelTypeUsage.Input));
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.IsNotNull(model.CustomCodeView);
+        }
+
+        [Test]
+        public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            var inputModel = InputFactory.Model(
+                "IpAddress",
+                properties:
+                [
+                    InputFactory.Property("dbName", InputPrimitiveType.String),
+                    InputFactory.Property("osProfile", InputPrimitiveType.String),
+                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.AreEqual("IpAddress", modelProvider!.Name);
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
+        }
+
+        [Test]
+        public async Task TestBuildName_BackCompatTakesPrecedenceAfterNamespaceUpdate()
+        {
+            var inputModel = InputFactory.Model(
+                "IpAddress",
+                @namespace: "Sample",
+                properties:
+                [
+                    InputFactory.Property("dbName", InputPrimitiveType.String),
+                    InputFactory.Property("osProfile", InputPrimitiveType.String),
+                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.AreEqual("IPAddress", modelProvider!.Name);
+
+            modelProvider.Update(@namespace: "Sample.Models");
+
+            Assert.AreEqual("IpAddress", modelProvider.Name);
+            Assert.IsNotNull(modelProvider.LastContractView);
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
         }
 
         // Validates that the property body's setter is correctly set based on the property type
@@ -253,6 +812,375 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         };
 
         [Test]
+        public void ConstructorRequirementsDoNotChangeWireRequirements()
+        {
+            var title = InputFactory.Property("title", InputPrimitiveType.String, isRequired: true);
+            var state = InputFactory.Property("state", InputPrimitiveType.String, isRequired: true);
+            state.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("Resource", properties: [title, state], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var provider = new ModelProvider(inputModel);
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(new[] { "title", "state", "additionalBinaryDataProperties" }, provider.FullConstructor.Signature.Parameters.Select(p => p.Name));
+            var stateProperty = provider.Properties.Single(p => p.Name == "State");
+            Assert.IsTrue(stateProperty.WireInfo!.IsRequired);
+            Assert.IsFalse(stateProperty.Type.IsNullable);
+            Assert.IsTrue(stateProperty.Body.HasSetter);
+            Assert.IsFalse(provider.Properties.Single(p => p.Name == "Title").Body.HasSetter);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [Test]
+        public void PartialRequestAllowsEmptyConstructionAndInheritedSetters()
+        {
+            var baseProperty = InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true);
+            baseProperty.Update(isRequiredInConstructor: false);
+            var property = InputFactory.Property("value", InputPrimitiveType.Int32, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = new ModelProvider(inputModel);
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsEmpty(constructor.Signature.Parameters);
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.BaseModelProvider!.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.Properties.Single().WireInfo!.IsRequired);
+        }
+
+        [Test]
+        public void RelaxedOverridePreservesRequiredBaseConstructor()
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsEmpty(constructor.Signature.Parameters);
+            Assert.AreEqual("value", provider.BaseModelProvider!.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Single().Name);
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.Properties.Single().Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsTrue(provider.BaseModelProvider.Properties.Single().Body.HasSetter);
+            Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+        }
+
+        [Test]
+        public void RelaxedOverridePreservesFullBaseArguments()
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    baseProperty,
+                    InputFactory.Property("mode", InputFactory.Literal.String("fixed"), isRequired: true),
+                    InputFactory.Property("enabled", InputFactory.Literal.Bool(true), isRequired: true),
+                    InputFactory.Property("version", InputFactory.Literal.Int32(3), isRequired: true),
+                    InputFactory.Property("optionalMode", InputFactory.Literal.String("optional")),
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true)
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.That(new TypeProviderWriter(provider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RelaxedOverrideKeepsReadOnlyBaseNonPubliclyWritable(bool relaxRequirement)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, isReadOnly: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            if (relaxRequirement)
+            {
+                property.Update(isRequiredInConstructor: false);
+            }
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var partialProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            partialProperty.Update(isRequiredInConstructor: false);
+            var partialModel = InputFactory.Model("Partial", properties: [partialProperty], baseModel: baseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel, partialModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.IsTrue(provider.Properties.Single().Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsTrue(provider.Properties.Single().Body.HasSetter);
+            Assert.IsTrue(provider.BaseModelProvider!.Properties.Single().WireInfo!.IsReadOnly);
+            Assert.That(new TypeProviderWriter(provider.BaseModelProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Base")).NoClip);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(relaxRequirement ? "Resource" : "RequiredResource")).NoClip);
+        }
+
+        [TestCase(InputModelTypeUsage.Xml, false)]
+        [TestCase(InputModelTypeUsage.Xml, true)]
+        [TestCase(InputModelTypeUsage.MultipartFormData, false)]
+        [TestCase(InputModelTypeUsage.MultipartFormData, true)]
+        public void RelaxedOverrideUsesNonValidatingNonJsonBase(InputModelTypeUsage format, bool includeIntermediate)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var usage = InputModelTypeUsage.Input | format;
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: usage);
+            var middle = includeIntermediate
+                ? InputFactory.Model("Middle", baseModel: baseModel, properties: [InputFactory.Property("note", InputPrimitiveType.String)], usage: usage)
+                : baseModel;
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: includeIntermediate ? [baseModel, middle, inputModel] : [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)!;
+
+            Assert.IsTrue(baseProvider.Constructors.Any(c => c.Signature.Modifiers == (MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected)));
+            Assert.That(new TypeProviderWriter(baseProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Base")).NoClip);
+            if (includeIntermediate)
+            {
+                Assert.That(new TypeProviderWriter(provider.BaseModelProvider!).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile("Middle")).NoClip);
+            }
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(includeIntermediate ? "ResourceWithMiddle" : "Resource")).NoClip);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RequiredOverrideInitializesRelaxedBaseProperty(bool rename)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            baseProperty.Update(isRequiredInConstructor: false);
+            var property = InputFactory.Property(rename ? "renamedValue" : "value", InputPrimitiveType.String, isRequired: true);
+            property.Update(originalName: "value");
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(rename ? "Renamed" : null)).NoClip);
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void RenamedNarrowedLiteralPreservesInitialization(bool baseRequired, bool includeMiddle)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: baseRequired)], usage: usage);
+            var middle = includeMiddle ? InputFactory.Model("Middle", properties: [], baseModel: baseModel, usage: usage) : baseModel;
+            var property = InputFactory.Property("renamedValue", InputFactory.Literal.String("fixed"), isRequired: true);
+            property.Update(originalName: "value");
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: includeMiddle ? [baseModel, middle, inputModel] : [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var output = provider.Properties.Single();
+
+            Assert.IsFalse(output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsInstanceOf<AutoPropertyBody>(output.Body);
+            Assert.IsEmpty(provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{(baseRequired ? "Required" : "Optional")}{(includeMiddle ? "Middle" : null)}")).NoClip);
+        }
+
+        [TestCase(false, false, false, "Resource")]
+        [TestCase(true, false, false, "Resource")]
+        [TestCase(true, true, false, "Resource")]
+        [TestCase(true, false, true, "Resource")]
+        [TestCase(true, false, false, "ValueProperty")]
+        public void DifferentDeclarationsWithSameClientNameRemainDistinct(bool collide, bool reserveSuffix, bool renameBase, string modelName)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json;
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, serializedName: "original");
+            baseProperty.Update(originalName: "original");
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: usage);
+            var middleProperty = InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true, serializedName: "original");
+            middleProperty.Update(originalName: "original");
+            var middle = renameBase ? InputFactory.Model("Middle", properties: [middleProperty], baseModel: baseModel, usage: usage) : baseModel;
+            var property = InputFactory.Property(collide ? "value" : "other", InputPrimitiveType.String, isRequired: true, serializedName: "other");
+            property.Update(originalName: "other");
+            var reservedProperty = InputFactory.Property("valueProperty", InputPrimitiveType.String, isRequired: true);
+            var inputModel = InputFactory.Model(modelName, properties: reserveSuffix ? [property, reservedProperty] : [property],
+                baseModel: middle, usage: usage);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: inputModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: renameBase ? [baseModel, middle, inputModel, leaf] : [baseModel, inputModel, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var output = provider.Properties.Single(p => p.InputProperty == property);
+            var expectedName = collide ? reserveSuffix || modelName == "ValueProperty" ? "ValueProperty1" : "ValueProperty" : "Other";
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.AreEqual(expectedName, output.Name);
+            Assert.IsNull(output.BaseProperty);
+            Assert.AreEqual("other", ((InputModelProperty)output.InputProperty!).OriginalName);
+            Assert.AreEqual("other", output.WireInfo!.SerializedName);
+            Assert.AreEqual(renameBase ? "BaseValue" : "Value", provider.BaseModelProvider!.Properties.Single().Name);
+            var expectedParameters = reserveSuffix ? new[] { "value", "valueProperty1", "valueProperty" }
+                : new[] { "value", expectedName.ToVariableName() };
+            if (renameBase)
+            {
+                expectedParameters[0] = "baseValue";
+            }
+            CollectionAssert.AreEqual(expectedParameters, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(expectedParameters, CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Constructors
+                .Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(modelName == "ValueProperty" ? "ModelName" : renameBase ? "RenamedBase" : reserveSuffix ? "Reserved" : collide ? "Collision" : "Distinct")).NoClip);
+        }
+
+        [TestCase("value", true)]
+        [TestCase("anotherValue", false)]
+        public void RenamedOverridesRespectGrandparentMemberNames(string name, bool hidesGrandparent)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)], usage: usage);
+            var middleProperty = InputFactory.Property("renamedValue", InputPrimitiveType.String, isRequired: true);
+            middleProperty.Update(originalName: "value", isRequiredInConstructor: false);
+            var middle = InputFactory.Model("Middle", properties: [middleProperty], baseModel: baseModel, usage: usage);
+            var property = InputFactory.Property(name, InputPrimitiveType.String, isRequired: true);
+            property.Update(originalName: "value", isRequiredInConstructor: false);
+            var leaf = InputFactory.Model("Leaf", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var output = CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Properties.Single();
+
+            Assert.AreEqual(hidesGrandparent, output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(output.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ReadOnlyCollectionOverridesShareCompatibleStorage(bool dictionary, bool rename)
+        {
+            var type = dictionary ? (InputType)InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String);
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("items", type, isRequired: true, isReadOnly: true)], usage: usage);
+            var property = InputFactory.Property(rename ? "renamedItems" : "items", type, isRequired: true);
+            property.Update(originalName: "items", isRequiredInConstructor: false);
+            var model = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, model]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+            var output = provider.Properties.Single();
+            var baseOutput = provider.BaseModelProvider!.Properties.Single();
+
+            Assert.AreNotEqual(baseOutput.Type, output.Type);
+            Assert.IsNotNull(baseOutput.BackingField);
+            Assert.AreSame(baseOutput.BackingField, output.BackingField);
+            Assert.IsFalse(baseOutput.Body.HasSetter);
+            Assert.AreEqual(!rename, output.Modifiers.HasFlag(MethodSignatureModifiers.New));
+        }
+
+        [TestCase(InputModelTypeUsage.Json)]
+        [TestCase(InputModelTypeUsage.Xml)]
+        public void InheritedRelaxedOverrideReplacesAncestorConstructorRequirement(InputModelTypeUsage format)
+        {
+            var usage = InputModelTypeUsage.Input | format;
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("title", InputPrimitiveType.String, isRequired: true)
+                ], usage: usage);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var middle = InputFactory.Model("Middle", properties: [property], baseModel: baseModel, usage: usage);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            CollectionAssert.AreEqual(new[] { "title" }, constructor.Signature.Initializer!.Arguments.Select(a => a.ToDisplayString()));
+            CollectionAssert.AreEqual(new[] { "value", "title" },
+                provider.BaseModelProvider!.BaseModelProvider!.Constructors
+                    .Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+        }
+
+        [Test]
+        public void ForwardedReadOnlyIntermediatePreservesSetterAccessibility()
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)], usage: usage);
+            var middle = InputFactory.Model("Middle", baseModel: baseModel,
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true, isReadOnly: true)], usage: usage);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            property.Update(isRequiredInConstructor: false);
+            var leaf = InputFactory.Model("Leaf", properties: [property], baseModel: middle, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, middle, leaf]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(middle)!;
+            var outputProperty = provider.Properties.Single();
+            var setterModifiers = outputProperty.Body switch
+            {
+                AutoPropertyBody body => body.SetterModifiers,
+                MethodPropertyBody body => body.SetterModifiers,
+                _ => MethodSignatureModifiers.None
+            };
+
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected, setterModifiers);
+            Assert.IsTrue(outputProperty.WireInfo!.IsReadOnly);
+            Assert.IsTrue(CodeModelGenerator.Instance.TypeFactory.CreateModel(leaf)!.Properties.Single().Body.HasSetter);
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public void RenamedOverridesMatchDeclarationIdentity(bool requiredInConstructor, bool isOverride)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Json;
+            var baseModel = InputFactory.Model("Base", properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("title", InputPrimitiveType.String, isRequired: true)
+                ], usage: usage);
+            var property = InputFactory.Property("renamedValue", InputPrimitiveType.String, isRequired: true, wireName: "value");
+            property.Update(isRequiredInConstructor: requiredInConstructor, originalName: isOverride ? "value" : "other");
+            var inputModel = InputFactory.Model("Resource", properties: [property], baseModel: baseModel, usage: usage);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, inputModel]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = provider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+
+            CollectionAssert.AreEqual(isOverride
+                ? requiredInConstructor ? new[] { "title", "renamedValue" } : new[] { "title" }
+                : new[] { "value", "title" }, constructor.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual(isOverride, provider.Properties.Single().BaseProperty is not null);
+            Assert.That(new TypeProviderWriter(provider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile(isOverride ? requiredInConstructor ? "Required" : "Relaxed" : "Unrelated")).NoClip);
+        }
+
+        [Test]
+        public async Task ConstructorRequirementsPreservePublishedOverload()
+        {
+            var title = InputFactory.Property("title", InputPrimitiveType.String, isRequired: true);
+            var state = InputFactory.Property("state", InputPrimitiveType.String, isRequired: true);
+            state.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("Resource", properties: [title, state], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = (ModelProvider)CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(t => t.Name == "Resource");
+
+            provider.ProcessTypeForBackCompatibility();
+
+            var constructors = provider.Constructors.Where(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            Assert.AreEqual(2, constructors.Length);
+            Assert.AreEqual(1, constructors[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, constructors[1].Signature.Parameters.Count);
+            Assert.AreEqual("title", constructors[1].Signature.Initializer!.Arguments.Single().ToDisplayString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [Test]
         public void TestBuildConstructor_ValidateConstructors()
         {
             var properties = new List<InputModelProperty>
@@ -410,6 +1338,1733 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.IsNotNull(param);
                 Assert.AreEqual("additionalBinaryDataProperties", param?.Name);
             }
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeChangePreservesGeneratedRootBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [derivedModel, currentBase, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("PreviousBase", provider.BaseType?.Name);
+            Assert.AreEqual("PreviousBase", provider.BaseModelProvider?.Name);
+
+            emitter.WriteBufferedMessages();
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            using var output = JsonDocument.Parse(await reader.ReadToEndAsync());
+            var trace = output.RootElement.GetProperty("params");
+            var message = trace.GetProperty("message").GetString();
+            Assert.Multiple(() =>
+            {
+                Assert.That(trace.GetProperty("level").GetString(), Is.EqualTo("info"));
+                Assert.That(message, Does.Contain("Model Base Type Preserved"));
+                Assert.That(message, Does.Contain("Changed base type of model 'DerivedModel' from 'Sample.Models.CurrentBase' to 'Sample.Models.PreviousBase'"));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeChangePreservesMappedRootBase()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("child", InputPrimitiveType.String)],
+                baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(nameof(Exception), provider.BaseType?.Name);
+                Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Child"),
+                    "The derived model's own property must remain generated after mapped-base restoration");
+                Assert.That(provider.FullConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Does.Contain("child"),
+                    "The derived model's own property must remain in constructor generation");
+                Assert.IsNotNull(provider.FullConstructor.Signature.Initializer,
+                    "The derived constructor must continue chaining to the mapped base");
+            });
+
+            var modelOutput = new TypeProviderWriter(provider).Write().Content;
+            Assert.Multiple(() =>
+            {
+                Assert.That(modelOutput, Does.Contain("class DerivedModel : global::System.Exception"));
+                Assert.That(modelOutput, Does.Contain("Child"));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_MappedRootBaseDiscoveryIsIndependentOfInputOrder()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [derivedModel, currentBase, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+        }
+
+        [Test]
+        public async Task BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            CSharpType? requestedBase = null;
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                createLastContractModelBase: (previousBase, currentModel) =>
+                {
+                    requestedBase = previousBase;
+                    return new CSharpType(typeof(Exception));
+                });
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(requestedBase?.AreNamesEqual(new CSharpType(typeof(Exception))), Is.True);
+                Assert.That(provider.BaseType?.AreNamesEqual(new CSharpType(typeof(Exception))), Is.True);
+                Assert.That(provider.BaseModelProvider, Is.InstanceOf<SystemObjectModelProvider>());
+                Assert.That(((SystemObjectModelProvider)provider.BaseModelProvider!).SystemType.FrameworkType, Is.EqualTo(typeof(Exception)));
+                Assert.That(provider.BaseModelProvider.Properties.Select(property => property.Name), Does.Contain("Message"));
+                Assert.That(provider.BaseModelProvider.FullConstructor.Signature.Parameters, Is.Not.Empty);
+                Assert.That(provider.BaseModelProvider.FullConstructor.Signature.Parameters,
+                    Is.All.Matches<ParameterProvider>(parameter => parameter.Property is not null));
+                Assert.That(CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.ContainsKey(provider.BaseType!), Is.False,
+                    "A restored provider must remain local to its derived model rather than affecting unrelated models");
+            });
+        }
+
+        // https://github.com/microsoft/typespec/issues/12301
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task BackCompat_DownstreamMappedBaseRestoresWithOrWithoutCurrentInputBase(bool hasCurrentInputBase)
+        {
+            var message = InputFactory.Property("message", InputPrimitiveType.String, isRequired: true);
+            var child = InputFactory.Property("child", InputPrimitiveType.String);
+            var currentBase = InputFactory.Model("CurrentBase", properties: [message]);
+            // The flat case has no input base at all, rather than an empty current base.
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: hasCurrentInputBase ? [child] : [message, child],
+                baseModel: hasCurrentInputBase ? currentBase : null);
+            var mappedType = new CSharpType(typeof(Exception));
+            CSharpType? requestedBase = null;
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: hasCurrentInputBase ? [currentBase, derivedModel] : [derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) =>
+                {
+                    requestedBase = previousBase;
+                    return mappedType;
+                },
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    currentProperty.Name == "message" && lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+            var initializationConstructor = provider.Constructors[0];
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(requestedBase?.AreNamesEqual(mappedType), Is.True,
+                    "A flat input model must still be considered for downstream last-contract base mapping");
+                Assert.That(provider.BaseType?.AreNamesEqual(mappedType), Is.True,
+                    "Compatible properties must permit restoring the shipped framework base even without a current input base");
+                Assert.That(provider.BaseModelProvider, Is.InstanceOf<SystemObjectModelProvider>());
+                Assert.That(provider.Properties.Select(property => property.Name), Is.EqualTo(new[] { "Child" }),
+                    "The mapped property must be inherited, while the model's own property must remain declared");
+                Assert.That(initializationConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Is.EqualTo(new[] { "message" }));
+                Assert.That(initializationConstructor.Signature.Initializer?.IsBase, Is.True);
+                Assert.That(initializationConstructor.Signature.Initializer?.Arguments.Count, Is.EqualTo(1));
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_FlatMappedBasePreservesOwnPropertiesAndInputOwnership(bool hasAdditionalProperties)
+        {
+            var message = InputFactory.Property("message", InputPrimitiveType.String, isReadOnly: true);
+            var child = InputFactory.Property("child", InputPrimitiveType.Int32, isRequired: true);
+            var model = InputFactory.Model(
+                "DerivedModel",
+                properties: [message, child],
+                additionalProperties: hasAdditionalProperties ? InputPrimitiveType.Int32 : null);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(provider => provider.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Child").And.Not.Contain("Message"));
+                Assert.That(provider.Constructors[0].Signature.Parameters.Select(parameter => parameter.Name),
+                    Is.EqualTo(new[] { "child" }));
+                Assert.That(provider.FullConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Does.Contain("message").And.Contain("child"));
+                Assert.That(model.BaseModel, Is.Null);
+                Assert.That(model.Properties, Is.EqualTo(new[] { message, child }));
+                Assert.That(message.EnclosingType, Is.SameAs(model));
+                Assert.That(child.EnclosingType, Is.SameAs(model));
+                Assert.That(model.AdditionalProperties, Is.SameAs(hasAdditionalProperties ? InputPrimitiveType.Int32 : null));
+            });
+        }
+
+        [TestCase("type", false)]
+        [TestCase("accessor", false)]
+        [TestCase("type", true)]
+        public async Task BackCompat_FlatMappedBaseRejectsIncompatibleProperty(string mismatch, bool useWireAlias)
+        {
+            var model = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property(useWireAlias ? "renamed" : "message",
+                    mismatch == "type" ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
+                    isReadOnly: mismatch != "accessor", serializedName: "message")]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(provider => provider.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType, Is.Null);
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain(useWireAlias ? "Renamed" : "Message"));
+            });
+        }
+
+        [TestCase("type", false)]
+        [TestCase("properties.type", true)]
+        public void BackCompat_FlatMappedPropertyIdentityPreservesFullWirePath(string wireName, bool overlaps)
+        {
+            var current = InputFactory.Property("renamed", InputPrimitiveType.String, serializedName: wireName);
+            var enclosingType = new ModelProvider(InputFactory.Model("HistoricalBase"));
+            var historical = new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(string), "ResourceType",
+                new AutoPropertyBody(false), enclosingType,
+                attributes: [new AttributeStatement(
+                    new CSharpType("WirePathAttribute", "Sample", false, false, null, [], false, false),
+                    Snippet.Literal((object)"properties.type"))]);
+
+            Assert.That(MappedModelBaseCompatibility.HasKnownPropertyIdentity(current, historical), Is.EqualTo(overlaps));
+        }
+
+        [TestCase(false, null, "newValue", false)]
+        [TestCase(false, "oldValue", "oldValue", false)]
+        [TestCase(false, "oldValue", "newValue", true)]
+        [TestCase(false, "properties.value", "value", true)]
+        [TestCase(false, "properties.value", "properties.value", false)]
+        [TestCase(false, "oldValue", "OldValue", true)]
+        [TestCase(true, null, "newValue", false)]
+        [TestCase(true, "oldValue", "oldValue", false)]
+        [TestCase(true, "oldValue", "newValue", true)]
+        [TestCase(true, "properties.value", "value", true)]
+        [TestCase(true, "properties.value", "properties.value", false)]
+        [TestCase(true, "oldValue", "OldValue", true)]
+        public void BackCompat_FlatMappedKnownWireMetadataUsesFullOrdinalIdentity(
+            bool useWirePath, string? historicalWireName, string currentWireName, bool conflicts)
+        {
+            var current = InputFactory.Property("value", InputPrimitiveType.String, serializedName: currentWireName);
+            var historical = new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(string), "Value",
+                new AutoPropertyBody(false), new ModelProvider(InputFactory.Model("HistoricalBase")),
+                attributes: useWirePath && historicalWireName is not null
+                    ? [new AttributeStatement(
+                        new CSharpType("WirePathAttribute", "Sample", false, false, null, [], false, false),
+                        Snippet.Literal((object)historicalWireName))]
+                    : []);
+            if (!useWirePath && historicalWireName is not null)
+            {
+                historical.WireInfo = new PropertyWireInformation(
+                    SerializationFormat.Default, false, false, false, false, historicalWireName, false, false);
+            }
+
+            Assert.That(MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(current, historical), Is.EqualTo(conflicts));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_FlatMappedBaseRequiresDownstreamOptInForExistingProvider(bool allowMapping)
+        {
+            var existing = InputFactory.Model("ExistingBase",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isReadOnly: true)]);
+            var message = InputFactory.Property("message", InputPrimitiveType.String, isReadOnly: true);
+            var model = InputFactory.Model("DerivedModel", properties: [message]);
+            var askedForMapping = false;
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [existing, model],
+                createModelCore: input => input == existing
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) =>
+                {
+                    askedForMapping = true;
+                    return allowMapping ? mappedType : null;
+                });
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(provider => provider.Name == "DerivedModel");
+            var existingProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(existing)!;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(askedForMapping, Is.True);
+                Assert.That(provider.BaseType?.Name, Is.EqualTo(allowMapping ? nameof(Exception) : null));
+                Assert.That(existingProvider.InputModel, Is.SameAs(existing));
+                Assert.That(existing.Properties.Single().EnclosingType, Is.SameAs(existing));
+                Assert.That(message.EnclosingType, Is.SameAs(model));
+                if (allowMapping)
+                {
+                    Assert.That(provider.BaseModelProvider, Is.Not.SameAs(existingProvider));
+                    Assert.That(provider.BaseModelProvider!.InputModel, Is.SameAs(model));
+                }
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_FlatMappedBaseRejectsAmbiguousPropertyMapping(bool manyToOne)
+        {
+            var properties = manyToOne
+                ? new[] { InputFactory.Property("first", InputPrimitiveType.String), InputFactory.Property("second", InputPrimitiveType.String) }
+                : new[] { InputFactory.Property("message", InputPrimitiveType.String) };
+            var model = InputFactory.Model("DerivedModel", properties: properties);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, previousProperty) =>
+                    previousProperty.Name == "Message" || !manyToOne && previousProperty.Name == "HelpLink");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(provider => provider.Name == "DerivedModel");
+            Assert.That(provider.BaseType, Is.Null);
+        }
+
+        [Test]
+        public async Task BackCompat_MappedCandidateWithInputHierarchyIsUnsupported()
+        {
+            var mappedBase = InputFactory.Model("MappedBase", properties: []);
+            var mappedInput = InputFactory.Model("MappedInput", properties: [], baseModel: mappedBase);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var model = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [mappedBase, mappedInput, currentBase, model]);
+
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(model));
+            Assert.That(compatibility.IsSupportedModelBase(
+                new SystemObjectModelProvider(new CSharpType(typeof(Exception)), mappedInput)), Is.False);
+        }
+
+        [Test]
+        public void BackCompat_MappedFrameworkBaseRejectsMissingParameterlessConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(System.Globalization.CultureInfo)),
+                currentBase);
+
+            Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.False);
+        }
+
+        [Test]
+        public void BackCompat_DownstreamMappedBaseSupportsImplicitParameterlessConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                currentBase,
+                new NonModelTypeProvider());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.True);
+                Assert.That(mappedBase.FullConstructor.Signature.Parameters, Is.Empty);
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsNonPropertyConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                createLastContractModelBase: (previousBase, currentModel) => previousBase);
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A mapped base must be rejected when none of its shipped constructors can be reconstructed from its properties");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsUncallableInitializationConstructor()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(System.Globalization.CultureInfo)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    currentProperty.Name == "name" && lastContractProperty.Name == "Name");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "Restoration must be rejected when the generated initialization constructor cannot call the mapped base");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsRequiredPropertyMissingFromConstructor()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("source", InputPrimitiveType.String, isRequired: true)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A required mapped property must be supplied by the reconstructed shipped constructor");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsOptionalPropertyMissingFromConstructor()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("source", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A mapped property must not be dropped when the reconstructed shipped constructor omits it");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBasePreservesRequiredInitializationParameters()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    currentProperty.Name == "message" && lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+            var initializationConstructor = provider.Constructors[0];
+            var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase)!;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+                Assert.That(initializationConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Is.EqualTo(new[] { "message" }));
+                Assert.That(initializationConstructor.Signature.Initializer?.Arguments.Count, Is.EqualTo(1));
+                Assert.That(currentBaseProvider.Properties.Single().Body.HasSetter, Is.True,
+                    "Mapped reconciliation must not mutate the cached property owned by the displaced current base");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRestoresOptionalFlatProperties()
+        {
+            var model = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    currentProperty.Name == "message" && lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+                Assert.That(provider.Properties, Is.Empty);
+                Assert.That(provider.FullConstructor.Signature.Initializer?.IsBase, Is.True);
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsManyToOnePropertyMapping()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties:
+                [
+                    InputFactory.Property("first", InputPrimitiveType.String),
+                    InputFactory.Property("second", InputPrimitiveType.String)
+                ]);
+            var model = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                    "A mapped base must be rejected when multiple current properties map to one shipped property");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsEffectivePropertyCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String)],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A current property must not be hidden by a property that exists only on the effective mapped base");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsMissingCurrentBaseProperty()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("currentOnly", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A property inherited from the current base must not disappear when that base is replaced");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationAllowsUnrelatedCustomCode()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.CustomCodeView, Is.Not.Null);
+                Assert.That(provider.CustomCodeView!.BaseType, Is.Null);
+                Assert.That(provider.CustomCodeView.Properties.Select(property => property.Name), Does.Contain("CustomValue"));
+                Assert.That(provider.BaseType?.AreNamesEqual(new CSharpType(typeof(Exception))), Is.True);
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsCustomMemberCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom member must not unexpectedly hide a property introduced by the restored base");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsCustomMethodCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom method must not unexpectedly hide a property introduced by the restored base");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsInheritedFrameworkMemberCollision()
+        {
+            var mappedInput = InputFactory.Model("MappedInput", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(Exception)), input)
+                    : new ModelProvider(input),
+                inputModelTypes: [derivedModel, currentBase, mappedInput],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom member must not hide a method inherited from the restored framework base");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsInheritedLastContractMemberCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom member must not hide a method inherited from the restored last-contract base");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsCustomConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom constructor may contain a base initializer that is incompatible with the restored base");
+        }
+
+        [Test]
+        public async Task BackCompat_GeneratedBaseRestorationStillRejectsUnrelatedCustomCode()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"));
+        }
+
+        [Test]
+        public void BackCompat_InputTypeStructuralComparerDistinguishesFilePrimitive()
+        {
+            Assert.That(
+                InputTypeStructuralComparer.Equals(
+                    InputFactory.FileType(),
+                    new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes")),
+                Is.False);
+        }
+
+        [TestCase("dateTime")]
+        [TestCase("duration")]
+        [TestCase("literal")]
+        [TestCase("streaming")]
+        public async Task BackCompat_BaseTypeRestorationSupportsMappedLeafPropertyShape(string inputTypeKind)
+        {
+            InputType CreatePropertyType() => inputTypeKind switch
+            {
+                "dateTime" => new InputDateTimeType(
+                    DateTimeKnownEncoding.Rfc3339,
+                    "utcDateTime",
+                    "TypeSpec.utcDateTime",
+                    InputPrimitiveType.String),
+                "duration" => new InputDurationType(
+                    DurationKnownEncoding.Iso8601,
+                    "duration",
+                    "TypeSpec.duration",
+                    InputPrimitiveType.String,
+                    null),
+                "literal" => InputFactory.Literal.String("fixed"),
+                "streaming" => new InputStreamingType(
+                    "jsonLines",
+                    "Sample.jsonLines",
+                    InputPrimitiveType.String,
+                    ["application/jsonl"]),
+                _ => throw new InvalidOperationException($"Unsupported input type kind '{inputTypeKind}'.")
+            };
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("value", CreatePropertyType())]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("value", CreatePropertyType())]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("value", CreatePropertyType())],
+                baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => new CSharpType(typeof(string)),
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual(nameof(Exception), provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsAbstractMappedBase()
+        {
+            var mappedInput = InputFactory.Model("MappedInput", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var mappedType = new CSharpType(typeof(Stream));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType,
+                "A concrete generated model cannot inherit an abstract mapped base without implementing its abstract members");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsAbstractDownstreamMappedBase()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Stream)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A downstream mapping must pass the same eligibility checks as discovered mapped providers");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationSkipsGeneratedCandidateBeforeBuildingCyclicProperties()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String)],
+                baseModel: currentBase);
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("derived", derivedModel)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"));
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationHandlesGeneratedCandidatePropertyCycle()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("derived", derivedModel)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("PreviousBase"));
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationKeepsMappedCurrentBaseAuthoritative()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == currentBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual(nameof(Exception), provider.BaseType?.Name,
+                "A mapped current base remains authoritative even when its input contract is empty");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationSkipsConstructedGenericBase()
+        {
+            var mappedInput = InputFactory.Model("GenericPreviousBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var mappedType = new CSharpType(
+                "GenericPreviousBase",
+                "Sample.Models",
+                false,
+                false,
+                null,
+                [new CSharpType(typeof(string))],
+                true,
+                false);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsAmbiguousMappedBase()
+        {
+            var firstMappedInput = InputFactory.Model(
+                "FirstMappedInput",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("other", InputPrimitiveType.String)
+                ]);
+            var secondMappedInput = InputFactory.Model(
+                "SecondMappedInput",
+                properties:
+                [
+                    InputFactory.Property("other", InputPrimitiveType.String),
+                    InputFactory.Property("id", InputPrimitiveType.String)
+                ]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == firstMappedInput || input == secondMappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [firstMappedInput, secondMappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
+            var provider = providers.Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "Restoration must be skipped when multiple mapped providers expose the same compatible CLR base");
+        }
+
+        [Test]
+        public void BackCompat_MappedContractsWithDifferentSerializationMetadataAreNotEquivalent()
+        {
+            var firstInput = InputFactory.Model(
+                "FirstInput",
+                properties:
+                [
+                    InputFactory.Property(
+                        "id",
+                        InputPrimitiveType.String,
+                        serializationOptions: InputFactory.Serialization.Options(
+                            xml: InputFactory.Serialization.Xml("firstId")))
+                ]);
+            var secondInput = InputFactory.Model(
+                "SecondInput",
+                properties:
+                [
+                    InputFactory.Property(
+                        "id",
+                        InputPrimitiveType.String,
+                        serializationOptions: InputFactory.Serialization.Options(
+                            xml: InputFactory.Serialization.Xml("secondId")))
+                ]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
+        }
+
+        [TestCase("Ready", "ready", true)]
+        [TestCase("Ready", "changed", false)]
+        [TestCase("Other", "ready", false)]
+        public void BackCompat_MappedContractsRequireEquivalentEnumMembers(string memberName, string wireValue, bool equivalent)
+        {
+            var firstEnum = InputFactory.StringEnum("Status", [("Ready", "ready")]);
+            var secondEnum = InputFactory.StringEnum("Status", [(memberName, wireValue)]);
+            var firstInput = InputFactory.Model("FirstInput", properties: [InputFactory.Property("status", firstEnum)]);
+            var secondInput = InputFactory.Model("SecondInput", properties: [InputFactory.Property("status", secondEnum)]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.EqualTo(equivalent));
+        }
+
+        [Test]
+        public void BackCompat_MappedContractsWithDifferentEnumMemberCountsAreNotEquivalent()
+        {
+            var firstEnum = InputFactory.StringEnum("Status", [("Ready", "ready")]);
+            var secondEnum = InputFactory.StringEnum("Status", [("Ready", "ready"), ("Pending", "pending")]);
+            var firstInput = InputFactory.Model("FirstInput", properties: [InputFactory.Property("status", firstEnum)]);
+            var secondInput = InputFactory.Model("SecondInput", properties: [InputFactory.Property("status", secondEnum)]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
+        }
+
+        [Test]
+        public async Task BackCompat_MappedContractsWithInputHierarchiesAreNotEquivalent()
+        {
+            var firstBase = InputFactory.Model(
+                "FirstBase",
+                properties: [InputFactory.Property("first", InputPrimitiveType.String)]);
+            var secondBase = InputFactory.Model(
+                "SecondBase",
+                properties: [InputFactory.Property("second", InputPrimitiveType.String)]);
+            var firstInput = InputFactory.Model("FirstInput", properties: [], baseModel: firstBase);
+            var secondInput = InputFactory.Model("SecondInput", properties: [], baseModel: secondBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [firstBase, secondBase, firstInput, secondInput]);
+
+            var mappedType = new CSharpType(typeof(Exception));
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationSelectsSoleCompatibleMappedCandidate()
+        {
+            var compatibleMappedInput = InputFactory.Model(
+                "CompatibleMappedInput",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var incompatibleMappedInput = InputFactory.Model(
+                "IncompatibleMappedInput",
+                properties: [InputFactory.Property("other", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == compatibleMappedInput || input == incompatibleMappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [compatibleMappedInput, incompatibleMappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual(nameof(Exception), provider.BaseType?.Name,
+                "An incompatible mapping to the same CLR type must not hide the sole compatible contract");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsMappedPropertiesMissingFromCurrentBase()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [InputFactory.Property("stale", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "Restoration must not reintroduce mapped wire properties absent from the current base");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsMappedPropertyShapeMismatch()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [InputFactory.Property("id", InputPrimitiveType.Int32)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "Restoration must not displace a current base property with an incompatible mapped shape");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsAdditionalProperties()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                createLastContractModelBase: (previousBase, _) => previousBase.Name == nameof(Exception)
+                    ? new CSharpType(typeof(Exception))
+                    : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "Restoration must not drop additional-properties behavior from the displaced current base");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsMappedAdditionalPropertiesMismatch()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A mapped base must not introduce additional-properties behavior absent from the current base");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsDuplicateAdditionalPropertiesOwnership()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType,
+                "The derived model and restored mapped base must not both own additional-properties state");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsInvalidMappedBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var mappedStruct = new CSharpType("PreviousBase", "Sample.Models", true, false, null, [], true, true);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedStruct, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsMappedEncodingChange()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties:
+                [
+                    InputFactory.Property(
+                        "items",
+                        InputFactory.Array(InputPrimitiveType.String),
+                        encode: ArrayKnownEncoding.CommaDelimited)
+                ]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "items",
+                        InputFactory.Array(InputPrimitiveType.String),
+                        encode: ArrayKnownEncoding.PipeDelimited)
+                ]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsCandidateWithEffectiveBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new BuildBaseTypeOverridingModelProvider(input, new CSharpType(typeof(Exception)))
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsDerivedMappedPropertyCollision()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.Int32))],
+                baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationAllowsRequiredRedeclarationOfCurrentBaseProperty()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isReadOnly: true)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isReadOnly: true)]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, isReadOnly: true)],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(Exception)), input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsPolymorphicCandidate()
+        {
+            var variant = InputFactory.Model("Variant", discriminatedKind: "variant", properties: []);
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["variant"] = variant });
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, variant, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsMappedClrWireMismatch()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("shared", InputPrimitiveType.String, serializedName: "oldShared")]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("shared", InputPrimitiveType.String, serializedName: "newShared")]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsCurrentEffectiveBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == currentBase
+                    ? new BuildBaseTypeOverridingModelProvider(input, new CSharpType(typeof(Exception)))
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationHonorsApiCompatSuppression()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.PreviousBase' does not exist"]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)),
+                apiCompatBaseline: baseline);
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationKeepsPromotedCurrentBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: [], baseModel: previousBase);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseMissingShippedProperty()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base missing a shipped public property must not be restored");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseMissingShippedMethod()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base missing a shipped public method must not be restored");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseMissingShippedField()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base missing a shipped public field must not be restored");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseWithChangedAccessor()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String, isReadOnly: true)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base with a changed public property accessor must not be restored");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationAllowsOptionalReferenceNullabilityDifference()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("PreviousBase", provider.BaseType?.Name,
+                "Missing Roslyn top-level nullable metadata must not block an otherwise compatible base");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseWithNewRequiredProperty()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true)
+                ]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base with a new required constructor property must not be restored");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseWithPropertyBecomingRequired()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base property becoming required must not replace a shipped parameterless constructor");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationSkipsUnsupportedCases()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var customizedDerived = InputFactory.Model("CustomizedDerived", properties: []);
+            var collisionDerived = InputFactory.Model(
+                "CollisionDerived",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var memberCurrentBase = InputFactory.Model(
+                "MemberCurrentBase",
+                properties: [InputFactory.Property("location", InputPrimitiveType.String)]);
+            var memberBaseDerived = InputFactory.Model(
+                "MemberBaseDerived",
+                properties: [],
+                baseModel: memberCurrentBase);
+            var customizedCurrentBase = InputFactory.Model("CustomizedCurrentBase", properties: []);
+            var customBaseDerived = InputFactory.Model(
+                "CustomBaseDerived",
+                properties: [],
+                baseModel: customizedCurrentBase);
+            var unavailableDerived = InputFactory.Model("UnavailableDerived", properties: []);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, customizedDerived, collisionDerived, memberCurrentBase, memberBaseDerived, customizedCurrentBase, customBaseDerived, unavailableDerived],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("CustomBase", providers.Single(p => p.Name == "CustomizedDerived").BaseType?.Name);
+                Assert.IsNull(providers.Single(p => p.Name == "CollisionDerived").BaseType);
+                Assert.AreEqual("MemberCurrentBase", providers.Single(p => p.Name == "MemberBaseDerived").BaseType?.Name,
+                    "A current base that contributes members must remain authoritative");
+                Assert.AreEqual("CustomizedCurrentBase", providers.Single(p => p.Name == "CustomBaseDerived").BaseType?.Name,
+                    "A current base with custom code must remain authoritative");
+            });
+
+            _ = providers.Single(p => p.Name == "UnavailableDerived").BaseType;
+            _ = providers.Single(p => p.Name == "UnavailableDerived").BaseType;
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            var output = await reader.ReadToEndAsync();
+            Assert.Multiple(() =>
+            {
+                Assert.That(output.Split("UnavailableDerived", StringSplitOptions.None).Length - 1, Is.EqualTo(1),
+                    "Repeated null base-type evaluation must not emit duplicate diagnostics for the same model");
+                Assert.That(output, Does.Contain("automatic restoration is limited"));
+                Assert.That(output, Does.Contain("\"severity\":\"warning\""));
+            });
         }
 
         [Test]
@@ -1283,6 +3938,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NullableReferencePropertiesRetainSpecNullability()
+        {
+            var bytes = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unknown", new InputNullableType(InputPrimitiveType.Any), isRequired: true),
+                    InputFactory.Property("bytes", new InputNullableType(bytes), isRequired: true),
+                    InputFactory.Property("description", new InputNullableType(InputPrimitiveType.String), isRequired: true),
+                    InputFactory.Property("items", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+            var properties = modelProvider.Properties.ToDictionary(p => p.Name);
+
+            Assert.IsTrue(properties["Unknown"].Type.IsNullable);
+            Assert.IsTrue(properties["Bytes"].Type.IsNullable);
+            Assert.IsTrue(properties["Description"].Type.IsNullable);
+            Assert.IsTrue(properties["Description"].Type.Equals(typeof(object)));
+            Assert.IsTrue(properties["Items"].Type.IsNullable);
+            Assert.AreEqual(typeof(IReadOnlyList<>), properties["Items"].Type.FrameworkType);
+            Assert.IsFalse(properties["Name"].Type.IsNullable);
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            var parameters = constructor.Signature.Parameters.ToDictionary(p => p.Name);
+
+            Assert.AreEqual(ParameterValidationType.None, parameters["unknown"].Validation);
+            Assert.AreEqual(ParameterValidationType.None, parameters["bytes"].Validation);
+            Assert.AreEqual(ParameterValidationType.None, parameters["description"].Validation);
+            Assert.AreEqual(ParameterValidationType.None, parameters["items"].Validation);
+            Assert.AreEqual(ParameterValidationType.AssertNotNull, parameters["name"].Validation);
+
+            var generatedCode = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(unknown"));
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(bytes"));
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(description"));
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(items"));
+            Assert.IsTrue(generatedCode.Contains("AssertNotNull(name"));
+            Assert.IsTrue(generatedCode.Contains("Items = items?.ToList();"));
+        }
+
+        [Test]
         public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
         {
             var inputModel = InputFactory.Model(
@@ -1307,14 +4014,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_EnumPropertyTypeIsRetainedWhenNullabilityDiffers()
+        public async Task BackCompat_EnumPropertyTypeIsRetainedWhenNullabilityDiffers(
+            [Values(false, true)] bool isExtensible,
+            [Values(false, true)] bool wasFixedEnum)
         {
             // A scalar (non-collection) enum property whose nullability changed between the
             // last contract and the current spec should retain the last contract's nullability.
             var statusEnum = InputFactory.StringEnum(
                 "StatusEnum",
                 [("Active", "Active"), ("Inactive", "Inactive")],
-                isExtensible: true);
+                isExtensible: isExtensible);
             var inputModel = InputFactory.Model(
                 "MockInputModel",
                 properties:
@@ -1325,7 +4034,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 inputEnumTypes: [statusEnum],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(wasFixedEnum ? "Fixed" : null));
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
@@ -1335,6 +4044,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(statusProperty);
             Assert.IsTrue(statusProperty!.Type.IsNullable);
             Assert.AreEqual("StatusEnum", statusProperty.Type.Name);
+            Assert.IsTrue(statusProperty.Type.IsEnum);
+            Assert.AreEqual(isExtensible, statusProperty.Type.IsStruct);
         }
 
         [Test]
@@ -1464,7 +4175,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1496,7 +4207,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1529,7 +4240,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1646,6 +4357,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceNameEvaluation()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            TestModelProvider? provider = null;
+            Assert.DoesNotThrow(() => provider = new TestModelProvider(inputModel, "ProjectedModel"));
+            Assert.AreEqual("ProjectedModel", provider!.Name);
+        }
+
         // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
         // eagerly compute DiscriminatorValueExpression, which read BaseModelProvider and thus
         // virtually dispatched BuildBaseType()/BuildBaseModel() onto a partially-constructed
@@ -1684,7 +4406,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
-        [TestCase(false, false,InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, true, InputModelTypeUsage.Input, true, false)]
         [TestCase(true, true, InputModelTypeUsage.Input | InputModelTypeUsage.Output, true, true)]
         [TestCase(true, false, InputModelTypeUsage.Input, false, false)]
@@ -1780,7 +4502,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             // The property with external type should be resolved
-            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IpAddress");
+            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IPAddress");
             Assert.IsNotNull(ipAddressProp);
             Assert.IsNotNull(ipAddressProp!.Type.FrameworkType);
 
@@ -1839,15 +4561,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Directory.CreateDirectory(nugetCacheDir);
 
             const string pkgName = "Test.ModelProvider.External";
+            const string pkgVersion = "1.0.0";
             const string typeName = "Test.ModelProvider.External.MyExternalType";
             FakeNuGetPackage.Create(
                 nugetCacheDir,
                 pkgName,
-                "1.0.0",
+                pkgVersion,
                 $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
 
             var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+
             ExternalTypeReferenceResolver.Reset();
             try
             {
@@ -1861,7 +4585,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         InputFactory.Property("name", InputPrimitiveType.String)
                     ]);
 
-                MockHelpers.LoadMockGenerator(inputModelTypes: [model]);
+                await CreateProjectAndLoadDependencies([pkgName], [pkgVersion], tempDir, nugetCacheDir, model);
                 await ExternalTypeReferenceResolver.ResolveAllAsync();
 
                 var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -1884,6 +4608,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        private async Task CreateProjectAndLoadDependencies(string[] packages, string?[] versions, string temporaryDir, string nugetCache, InputModelType model)
+        {
+            _projectDir = Path.Combine(temporaryDir, "ProjectDir");
+            Directory.CreateDirectory(Path.Combine(_projectDir, "src"));
+            Assert.That(packages.Length, Is.EqualTo(versions.Length), "Each package must have a version (it can be null)");
+            StringBuilder sbPackagesProject = new();
+            StringBuilder sbPackagesAssets = new();
+            string tab = "    ";
+            for (int i = 0; i < packages.Length; i++)
+            {
+                sbPackagesProject.Append($"\n  <PackageReference Include=\"{packages[i]}\">\n    <Version>{versions[i]}</Version>\n  </PackageReference>\n");
+                sbPackagesAssets.Append($"\n{tab}{tab}\"{packages[i]}\": {{\n{tab}{tab}{tab}\"type\": \"package\",\n{tab}{tab}{tab}\"dependencies\": {{}}\n{tab}{tab}}}\n");
+            }
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>{sbPackagesProject}</ItemGroup>
+</Project>";
+            string minimalProjectAssets = $$"""
+            {
+              "version": 4,
+              "targets": {
+                  "netstandard2.0": {{{sbPackagesAssets}}
+                  },
+                  "net10.0": {{{sbPackagesAssets}}
+                  }
+              }
+            }
+            """;
+            Assert.That(_projectDir, Is.Not.Null.And.Not.Empty);
+            Directory.CreateDirectory(Path.Combine(_projectDir!, "src"));
+            Directory.CreateDirectory(Path.Combine(_projectDir!, "src", "obj"));
+            string ns = "TestProject";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", "obj", "project.assets.json"), minimalProjectAssets);
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir!,
+                inputModelTypes: [model],
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var nugetConfigPath = Path.Combine(_projectDir, "NuGet.Config");
+            var normalizedCachePath = nugetCache.Replace("\\", "/");
+            var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key=""local-cache"" value=""{normalizedCachePath}"" />
+    </packageSources>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+</configuration>";
+            await File.WriteAllTextAsync(nugetConfigPath, config);
+        }
+
         [Test]
         public void ModelWithOptionalDiscriminatorProperty()
         {
@@ -1903,7 +4685,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             MockHelpers.LoadMockGenerator(
                 inputModelTypes: [inputModel, derivedInputModel],
@@ -2172,8 +4954,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("meows", catProtectedParams[3].Name);
         }
 
-        [Test]
-        public void TestMultiLevelDiscriminatorConstructorParameterPassthrough()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestMultiLevelDiscriminatorConstructorParameterPassthrough(bool basePropertiesRequired)
         {
             // Create a three-level discriminator hierarchy: base → intermediate → derived
             var derivedInputModel = InputFactory.Model(
@@ -2189,7 +4972,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 discriminatedKind: "intermediate",
                 properties: [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-                    InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: true)
+                    InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: basePropertiesRequired)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "derived", derivedInputModel } });
 
@@ -2197,7 +4980,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "base",
                 properties: [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-                    InputFactory.Property("baseProperty", InputPrimitiveType.String, isRequired: true)
+                    InputFactory.Property("baseProperty", InputPrimitiveType.String, isRequired: basePropertiesRequired)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "intermediate", intermediateInputModel } });
 
@@ -2235,6 +5018,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var derivedInitializer = derivedCtor!.Signature.Initializer;
             Assert.IsNotNull(derivedInitializer, "Derived constructor should have base initializer");
             Assert.IsTrue(derivedInitializer!.IsBase, "Derived initializer should call base constructor");
+            Assert.AreEqual(basePropertiesRequired ? 3 : 1, derivedCtor.Signature.Parameters.Count);
+            Assert.IsFalse(derivedCtor.Signature.Parameters.Any(p => p.Name == "kind"));
+            Assert.AreEqual(basePropertiesRequired ? 3 : 1, derivedInitializer.Arguments.Count);
 
             // Derived should pass its discriminator value to intermediate constructor
             var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();
@@ -2247,7 +5033,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             MockHelpers.LoadMockGenerator();
             var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
             // Use the subclass to ensure we populate serialization providers
-            var modelProvider = new TestModelProvider(inputModel);
+            var modelProvider = new TestModelProvider(inputModel, "TestModel");
 
             var serializationProviders = modelProvider.SerializationProviders;
             Assert.IsNotNull(serializationProviders);
@@ -2269,11 +5055,99 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(1, newerSerializationProviders.Count);
         }
 
-        private class TestModelProvider : ModelProvider
+        // BuildConstructors returns the cached FullConstructor instance, so invalidating the constructor
+        // list on an identity change without invalidating FullConstructor left the stale instance in the
+        // rebuilt list. Derived generators mutate the constructors they get back from BuildConstructors,
+        // and reusing the same instance caused those mutations to be applied more than once.
+        [Test]
+        public void TestUpdate_ResetsFullConstructor()
         {
-            public TestModelProvider(InputModelType inputModel) : base(inputModel)
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            var modelProvider = new ModelProvider(inputModel);
+
+            var fullConstructor = modelProvider.FullConstructor;
+            Assert.IsTrue(modelProvider.Constructors.Contains(fullConstructor));
+
+            // Change name
+            modelProvider.Update(name: "NewName");
+            var newFullConstructor = modelProvider.FullConstructor;
+            Assert.AreNotSame(fullConstructor, newFullConstructor);
+            // The rebuilt constructor list must contain the rebuilt full constructor, not the stale one
+            Assert.IsTrue(modelProvider.Constructors.Contains(newFullConstructor));
+            Assert.IsFalse(modelProvider.Constructors.Contains(fullConstructor));
+
+            // Change namespace
+            modelProvider.Update(@namespace: "NewNamespace");
+            var newerFullConstructor = modelProvider.FullConstructor;
+            Assert.AreNotSame(newFullConstructor, newerFullConstructor);
+            Assert.IsTrue(modelProvider.Constructors.Contains(newerFullConstructor));
+
+            // Re-applying the current identity also invalidates the constructor list because
+            // customization metadata and declaration modifiers may have changed.
+            modelProvider.Update(name: modelProvider.Name);
+            var sameIdentityFullConstructor = modelProvider.FullConstructor;
+            Assert.AreNotSame(newerFullConstructor, sameIdentityFullConstructor);
+            Assert.IsTrue(modelProvider.Constructors.Contains(sameIdentityFullConstructor));
+        }
+
+        // Regression coverage for the duplication that the stale FullConstructor caused: a generator that
+        // adds a suppression to the full constructor every time it builds the constructor list must not see
+        // its additions accumulate when an identity change triggers a rebuild.
+        [Test]
+        public void TestUpdate_DoesNotReapplyConstructorMutationsAfterIdentityChange()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            var modelProvider = new MutatingModelProvider(inputModel);
+
+            _ = modelProvider.Constructors;
+            Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
+
+            modelProvider.Update(name: "NewName");
+            _ = modelProvider.Constructors;
+
+            Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
+
+            modelProvider.Update(name: modelProvider.Name);
+            _ = modelProvider.Constructors;
+
+            Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
+        }
+
+        // Mimics how ScmModelProvider post-processes the constructors returned from the base implementation.
+        private class MutatingModelProvider : ModelProvider
+        {
+            public MutatingModelProvider(InputModelType inputModel) : base(inputModel)
             {
             }
+
+            protected internal override ConstructorProvider[] BuildConstructors()
+            {
+                var constructors = base.BuildConstructors();
+                foreach (var constructor in constructors)
+                {
+                    if (ReferenceEquals(constructor, FullConstructor))
+                    {
+                        var suppression = new SuppressionStatement(null, Snippet.Literal("TEST0001"), "Test suppression.");
+                        constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
+                    }
+                }
+                return constructors;
+            }
+        }
+
+        private class TestModelProvider : ModelProvider
+        {
+            private readonly string? _name;
+
+            public TestModelProvider(InputModelType inputModel, string name) : base(inputModel)
+            {
+                _name = name;
+            }
+
+            protected override string BuildName()
+                => _name ?? throw new InvalidOperationException("The derived provider has not finished construction.");
 
             protected override TypeProvider[] BuildSerializationProviders()
             {
@@ -2301,7 +5175,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -2327,6 +5201,1460 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
             Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterSwapRestoredBySignatureMatch()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("vmSkuName", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "name", "vmSkuName" }));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "Name", "VmSkuName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterRenameRestoredBySignatureMatch()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("newName", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "unchanged", "oldName" }));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "Unchanged", "NewName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterExactNameNotRenamed()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "unchanged", "newName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNonExactParameterIsRestoredWithExactRename()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                    InputFactory.Property("newCount", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorSameTypedNonExactParameterIsRestoredWithExactRename()
+        {
+            // The last contract published `MockInputModel(string oldUnchanged, string oldName)`. Only the
+            // second parameter is exact, so the first - which shares its type - must still be restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterNotRestoredWhenItCollidesWithExactName()
+        {
+            // The last contract published `MockInputModel(string first, string secondValue)`. The exact
+            // parameter keeps the name "secondValue", so restoring the other parameter would duplicate it.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("second_value", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                    InputFactory.Property("other", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorAcronymParameterNameIsPreserved()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("ipv4Address", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "iPv4Address" }));
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterCasingAndRotationRestoredBySignatureMatch()
+        {
+            var casingModel = InputFactory.Model(
+                "CasingModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("vMwareSiteId", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var rotationModel = InputFactory.Model(
+                "RotationModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("third", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("first", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("second", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [casingModel, rotationModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var models = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Where(t => t.Name is "CasingModel" or "RotationModel")
+                .ToDictionary(t => t.Name);
+
+            foreach (var model in models.Values)
+            {
+                model.ProcessTypeForBackCompatibility();
+            }
+
+            var casingContent = new TypeProviderWriter(models["CasingModel"]).Write().Content;
+            var rotationContent = new TypeProviderWriter(models["RotationModel"]).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Casing"), casingContent);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Rotation"), rotationContent);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterChainedRenameRestoredBySignatureMatch()
+        {
+            // Current ctor is (skuName, name); the last contract was (name, vmName). Restoring position 0 to
+            // "name" transiently collides with position 1's current "name", which is itself restored to
+            // "vmName" - so both names must still be preserved rather than skipped on the intermediate clash.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("skuName", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "name", "vmName" }));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "SkuName", "Name" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenNoChainTarget()
+        {
+            // The last contract published `MockInputModel(string beta, string alpha, int gamma)`. The current
+            // generation reorders the required properties so the public `(alpha, beta)` constructor is not an
+            // in-order subsequence to chain to. A standalone constructor would bypass the current
+            // constructor's initialization, so the previous constructor is not restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("alpha", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("beta", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("gamma", InputPrimitiveType.Int32, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c => c.Signature.Parameters.Count == 3),
+                "Expected the previous constructor not to be restored without a chain target.");
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenNewRequiredPropertyPreventsChaining()
+        {
+            // The last contract published `MockInputModel(string workloadProfileType, int minimumCount, int maximumCount)`.
+            // The current generation adds a required `name` property, so the current public constructor
+            // `(name, workloadProfileType)` is not an in-order subsequence of the previous signature and there
+            // is no chain target. A standalone constructor would bypass initialization, so it is not restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("workloadProfileType", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("minimumCount", InputPrimitiveType.Int32, isRequired: false),
+                    InputFactory.Property("maximumCount", InputPrimitiveType.Int32, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c => c.Signature.Parameters.Count == 3),
+                "Expected the previous constructor not to be restored without a chain target.");
+        }
+
+        [Test]
+        public async Task BackCompat_ParameterlessConstructorRestored()
+        {
+            // The last contract published a parameterless `protected BaseModel()`. The current generation
+            // makes the discriminator required, so the initialization constructor now takes a parameter and
+            // the parameterless constructor is dropped. It should be restored, chaining to the private-protected
+            // initialization constructor (no public or protected constructor exists on the abstract base).
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ParameterlessConstructorChainsToPublicConstructor()
+        {
+            // The last contract published a parameterless `public MockInputModel()`. The current generation
+            // makes "name" required, so the public initialization constructor now takes it. The restored
+            // parameterless constructor chains to that public constructor (not the internal full constructor).
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_RequiredToOptionalConstructorIsRestored()
+        {
+            // "resources" was required in the last contract (so the initialization constructor
+            // accepted it), but the current spec relaxes it to optional which would otherwise drop
+            // it from the constructor. The previously published constructor should be restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // Before back-compat processing the public constructor only takes "name".
+            var publicCtorBefore = modelProvider!.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtorBefore);
+            Assert.AreEqual(1, publicCtorBefore!.Signature.Parameters.Count);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // After back-compat processing the previously published (name, resources) constructor is restored.
+            var restoredCtor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(restoredCtor, "Expected the (name, resources) constructor to be restored for back compat");
+            Assert.AreEqual("name", restoredCtor!.Signature.Parameters[0].Name);
+            Assert.AreEqual("resources", restoredCtor.Signature.Parameters[1].Name);
+            Assert.IsTrue(restoredCtor.Signature.Parameters[1].Type.Equals(typeof(string)));
+
+            // It chains to the current (name) constructor and assigns the extra property in its body.
+            var initializer = restoredCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase);
+            Assert.AreEqual(1, initializer.Arguments.Count);
+            Assert.AreEqual("name", initializer.Arguments[0].ToDisplayString());
+
+            var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[0].Validation);
+            Assert.IsFalse(body.Contains("Argument.AssertNotNull(name"), $"Did not expect duplicated name validation in restored constructor, was: {body}");
+            Assert.IsTrue(body.Contains("Resources = resources"), $"Expected the body to assign Resources, was: {body}");
+            Assert.AreEqual(ParameterValidationType.AssertNotNull, restoredCtor.Signature.Parameters[1].Validation);
+
+            // Validate the full generated model, including the restored constructor, against the expected output.
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task BackCompat_ConstructorRelaxedCollectionIsRestored(bool dictionary, bool keepNameRequired)
+        {
+            var name = InputFactory.Property("name", InputPrimitiveType.String, isRequired: true);
+            name.Update(isRequiredInConstructor: keepNameRequired);
+            var resources = InputFactory.Property("resources",
+                dictionary ? InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String),
+                isRequired: true);
+            resources.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    name,
+                    resources,
+                    InputFactory.Property("metadata", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ]);
+            var collectionKind = dictionary ? "Dictionary" : "List";
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(collectionKind));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var currentConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(currentConstructor.Signature.Parameters.Count, Is.EqualTo(keepNameRequired ? 1 : 0));
+            Assert.That(modelProvider.Properties.Single(p => p.Name == "Resources").Body.HasSetter, Is.False);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor, Is.Not.Null);
+            Assert.That(restoredConstructor!.Signature.Parameters[1].Type.AreNamesEqual(
+                new CSharpType(dictionary ? typeof(IDictionary<string, string>) : typeof(IEnumerable<string>))), Is.True);
+            Assert.That(restoredConstructor.Signature.Parameters[1].Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments.Count, Is.EqualTo(keepNameRequired ? 1 : 0));
+            Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(),
+                Does.Contain(dictionary ? "Resources = resources" : "Resources = resources.ToList()"));
+            Assert.That(new TypeProviderWriter(modelProvider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{collectionKind},{keepNameRequired}")));
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorRelaxedEnumCollectionPreservesBaseInitialization()
+        {
+            var riskCategory = InputFactory.StringEnum("RiskCategory", [("Safety", "safety")]);
+            var targetModel = InputFactory.Model("EvaluationTarget", properties: []);
+            var baseModel = InputFactory.Model("EvaluationTaxonomyInput", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)]);
+            var target = InputFactory.Property("target", targetModel, isRequired: true);
+            target.Update(isRequiredInConstructor: false);
+            var riskCategories = InputFactory.Property("riskCategories", InputFactory.Array(riskCategory), isRequired: true);
+            riskCategories.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("AgentTaxonomyInput",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [target, riskCategories],
+                baseModel: baseModel,
+                discriminatedKind: "agent");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel, targetModel],
+                inputEnumTypes: [riskCategory],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "AgentTaxonomyInput");
+            var currentConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(currentConstructor.Signature.Parameters, Is.Empty);
+            Assert.That(currentConstructor.Signature.Initializer!.IsBase, Is.True);
+            Assert.That(currentConstructor.Signature.Initializer.Arguments.Single().ToDisplayString(), Does.Contain("agent"));
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
+            using var writer = new CodeWriter();
+            writer.WriteConstructor(restoredConstructor);
+            Assert.That(writer.ToString(false), Is.EqualTo(Helpers.GetExpectedFromFile()));
+        }
+
+        [TestCase("StringModel")]
+        [TestCase("BoolModel")]
+        [TestCase("IntModel")]
+        public async Task BackCompat_ConstructorNotRestoredForRequiredLiteral(string modelName)
+        {
+            var literalType = modelName switch
+            {
+                "BoolModel" => InputFactory.Literal.Bool(true),
+                "IntModel" => InputFactory.Literal.Int32(3),
+                _ => InputFactory.Literal.String("fixed"),
+            };
+            var inputModel = InputFactory.Model(modelName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("value", literalType, isRequired: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            var property = modelProvider.Properties.Single();
+            Assert.That(property.Type.IsLiteral, Is.True);
+            Assert.That(property.Body.HasSetter, Is.False);
+            Assert.That(((AutoPropertyBody)property.Body).InitializationExpression, Is.Not.Null);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [TestCase("generatedAuto", true)]
+        [TestCase("localBacking", true)]
+        [TestCase("trackingStorage", true)]
+        [TestCase("inheritedAuto", false)]
+        [TestCase("customGetter", false)]
+        [TestCase("methodGetter", false)]
+        [TestCase("changedElement", false)]
+        [TestCase("incompatibleBacking", false)]
+        [TestCase("unassignableBacking", false)]
+        public async Task BackCompat_CollectionConstructorRestoredOnlyWhenAssignable(string change, bool shouldRestore)
+        {
+            var resources = InputFactory.Property("resources", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            resources.Update(isRequiredInConstructor: false);
+            var baseModel = change == "inheritedAuto"
+                ? InputFactory.Model("BaseModel", properties: [resources])
+                : null;
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: baseModel is null
+                    ? [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true), resources]
+                    : [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: baseModel is null ? [inputModel] : [baseModel, inputModel],
+                compilation: change == "customGetter" ? async () => await Helpers.GetCompilationFromDirectoryAsync() : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("List",
+                    method: nameof(BackCompat_ConstructorRelaxedCollectionIsRestored)));
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var property = (baseModel is null ? modelProvider : modelProvider.BaseModelProvider!)
+                .CanonicalView.Properties.Single(p => p.Name == "Resources");
+            if (change == "changedElement")
+            {
+                property.Update(type: new CSharpType(typeof(IList<int>)));
+                property.SynchronizePropertyShape();
+            }
+            if (change is "methodGetter" or "localBacking" or "trackingStorage")
+            {
+                property.Update(body: new MethodPropertyBody(Snippet.Return(Snippet.Null)));
+            }
+            if (change is "localBacking" or "trackingStorage" or "incompatibleBacking" or "unassignableBacking")
+            {
+                var fieldType = change switch
+                {
+                    "trackingStorage" => property.Type.PropertyInitializationType,
+                    "incompatibleBacking" => new CSharpType(typeof(IList<int>)),
+                    "unassignableBacking" => new CSharpType(typeof(HashSet<string>)),
+                    _ => property.Type,
+                };
+                property.BackingField = new FieldProvider(FieldModifiers.Private, fieldType, "_resources", modelProvider);
+            }
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.AreNamesEqual(new CSharpType(typeof(IEnumerable<string>))), Is.True);
+                var body = restoredConstructor.BodyStatements!.ToDisplayString();
+                Assert.That(body, change == "trackingStorage"
+                    ? Does.Contain("_resources =").And.Contain("new global::Sample.ChangeTrackingList<string>")
+                    : Does.Contain(change == "localBacking" ? "_resources = resources.ToList()" : "Resources = resources.ToList()"));
+            }
+        }
+
+        [TestCase("FileDataset", "file", false)]
+        [TestCase("FolderDataset", "folder", false)]
+        [TestCase("FileDataset", "file", true)]
+        public async Task BackCompat_InheritedRequiredToOptionalConstructorIsRestored(string modelName, string discriminator, bool privateBackingField)
+        {
+            var baseModel = InputFactory.Model(
+                "AIProjectDataset",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("dataUri", InputPrimitiveType.Url),
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ]);
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel, discriminatedKind: discriminator);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                lastContractCompilation: async () => (await Helpers.GetCompilationFromDirectoryAsync())
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            if (privateBackingField)
+            {
+                var baseProvider = modelProvider.BaseModelProvider!;
+                var property = baseProvider.CanonicalView.Properties.Single(p => p.Name == "DataUri");
+                property.BackingField = new FieldProvider(FieldModifiers.Private, property.Type, "_dataUri", baseProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Count(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 0), Is.EqualTo(1));
+            var restoredConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            var parameter = restoredConstructor.Signature.Parameters.Single();
+            Assert.That(parameter.Name, Is.EqualTo("dataUri"));
+            Assert.That(parameter.Type.AreNamesEqual(new CSharpType(typeof(Uri))), Is.True);
+            Assert.That(parameter.Type.IsNullable, Is.False);
+            Assert.That(parameter.Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
+            Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("DataUri = dataUri"));
+
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile(modelName)));
+        }
+
+        [TestCase("removed")]
+        [TestCase("readOnly")]
+        [TestCase("changedType")]
+        [TestCase("privateSetter")]
+        public async Task BackCompat_InheritedConstructorNotRestoredWhenPropertyCannotBeAssigned(string change)
+        {
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+            };
+            if (change != "removed")
+            {
+                properties.Add(InputFactory.Property("dataUri", InputPrimitiveType.Url, isReadOnly: change == "readOnly"));
+            }
+            var baseModel = InputFactory.Model("AIProjectDataset", properties: properties);
+            var inputModel = InputFactory.Model("FileDataset", properties: [], baseModel: baseModel, discriminatedKind: "file");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                lastContractCompilation: async () => (await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_InheritedRequiredToOptionalConstructorIsRestored)))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "FileDataset");
+            if (change == "changedType")
+            {
+                modelProvider.BaseModelProvider!.CanonicalView.Properties.Single(p => p.Name == "DataUri")
+                    .Update(type: new CSharpType(typeof(string)));
+            }
+            else if (change == "privateSetter")
+            {
+                modelProvider.BaseModelProvider!.CanonicalView.Properties.Single(p => p.Name == "DataUri")
+                    .Update(body: new AutoPropertyBody(true, MethodSignatureModifiers.Private));
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [TestCase("StringFieldDataset")]
+        [TestCase("UriFieldDataset")]
+        [TestCase("MethodDataset")]
+        [TestCase("EventDataset")]
+        [TestCase("NestedTypeDataset")]
+        public async Task BackCompat_InheritedConstructorNotRestoredWhenCustomMemberHidesProperty(string modelName)
+        {
+            var baseModel = InputFactory.Model("AIProjectDataset", properties:
+                [InputFactory.Property("dataUri", InputPrimitiveType.Url)]);
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                compilation: async () => (await Helpers.GetCompilationFromDirectoryAsync())
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)),
+                lastContractCompilation: async () => (await Helpers.GetCompilationFromDirectoryAsync(parameters: "LastContract"))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [TestCase("MessageException", "message", "System.Exception", false)]
+        [TestCase("SourceException", "source", "System.Exception", true)]
+        [TestCase("MissingException", "missing", "System.Exception", false)]
+        [TestCase("HResultException", "hResult", "System.Exception", false)]
+        [TestCase("ProtectedHResultException", "hResult", "System.Exception", true)]
+        [TestCase("NullableHResultException", "hResult", "System.Exception", false)]
+        [TestCase("InheritedSourceException", "source", "System.ArgumentException", true)]
+        public async Task BackCompat_ExternalPropertyConstructorRestoredOnlyWhenAssignable(
+            string modelName, string propertyName, string externalType, bool shouldRestore)
+        {
+            var baseModel = InputFactory.Model("ExternalException",
+                properties: [InputFactory.Property(propertyName,
+                    modelName is "ProtectedHResultException" or "NullableHResultException"
+                        ? InputPrimitiveType.Int32 : InputPrimitiveType.String)],
+                external: new InputExternalTypeMetadata(externalType, null, null));
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            Assert.That(modelProvider.BaseModelProvider, Is.InstanceOf<SystemObjectModelProvider>());
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (shouldRestore)
+            {
+                Assert.That(restoredConstructor!.BodyStatements!.ToDisplayString(),
+                    Does.Contain($"{propertyName.ToIdentifierName()} = {propertyName}"));
+            }
+        }
+
+        [Test]
+        public async Task BackCompat_LocalCustomPrivateSetterConstructorIsRestored()
+        {
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json, properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_RenamedPropertyConstructorIsRestored_LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2), Is.True);
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.That(file.Content, Is.EqualTo(Helpers.GetExpectedFromFile(
+                method: "BackCompat_RenamedPropertyConstructorIsRestored")));
+        }
+
+        [TestCase("StringGenericCounter", true)]
+        [TestCase("NestedGenericCounter", true)]
+        [TestCase("NullableGenericCounter", true)]
+        [TestCase("GeneratedGenericCounter", true)]
+        [TestCase("EnumCounter", true)]
+        [TestCase("EnumCollectionCounter", true)]
+        [TestCase("MismatchedGenericCounter", false)]
+        [TestCase("MismatchedNullableCollectionCounter", false)]
+        [TestCase("NullableToNonNullableCollectionCounter", false)]
+        [TestCase("NonNullableToNullableCollectionCounter", false)]
+        [TestCase("NullableArrayCounter", true)]
+        [TestCase("NullableToDifferentNullableArrayCounter", false)]
+        [TestCase("DifferentNullableToNullableArrayCounter", false)]
+        [TestCase("JaggedNullableArrayCounter", true)]
+        [TestCase("MismatchedJaggedNullableArrayCounter", false)]
+        [TestCase("MismatchedNestedNullableArrayCounter", false)]
+        [TestCase("MismatchedMappedNullableArrayCounter", false)]
+        [TestCase("ExternalArrayCounter", true)]
+        [TestCase("ExternalJaggedArrayCounter", true)]
+        [TestCase("ExternalGenericArrayCounter", true)]
+        [TestCase("ArrayGenericCounter", true)]
+        [TestCase("NullableArrayGenericCounter", true)]
+        [TestCase("ExternalArrayGenericCounter", true)]
+        [TestCase("JaggedArrayGenericCounter", true)]
+        [TestCase("MatrixArrayGenericCounter", true)]
+        [TestCase("MismatchedArrayRankCounter", false)]
+        [TestCase("MismatchedArrayGenericCounter", false)]
+        [TestCase("ExternalVectorOfMatricesCounter", true)]
+        [TestCase("ExternalMatrixOfVectorsCounter", true)]
+        [TestCase("MismatchedMixedArrayRankCounter", false)]
+        public async Task BackCompat_ExternalClrPropertyTypesPermitCompatibleConstructors(string modelName, bool shouldRestore)
+        {
+            var enumType = new CSharpType(typeof(Sample.External.ExternalKind)).WithUnderlyingEnumType(typeof(string));
+            var generatedType = new CSharpType("ExternalValue", "Sample.External",
+                false, false, null, [], true, false);
+            var (baseType, propertyType) = modelName switch
+            {
+                "NestedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<string>)),
+                    new CSharpType(typeof(List<string>))),
+                "NullableGenericCounter" => (new CSharpType(typeof(Sample.External.NullableGenericBase<int>)),
+                    new CSharpType(typeof(int?))),
+                "GeneratedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericBase<>), generatedType),
+                    generatedType),
+                "EnumCounter" => (new CSharpType(typeof(Sample.External.EnumBase)), enumType),
+                "EnumCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericBase<List<Sample.External.ExternalKind>>)),
+                    new CSharpType(typeof(List<>), enumType)),
+                "MismatchedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericBase<int>)),
+                    new CSharpType(typeof(string))),
+                "MismatchedNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int>)),
+                    new CSharpType(typeof(List<int?>))),
+                "NullableToNonNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int>)),
+                    new CSharpType(typeof(List<int>))),
+                "NonNullableToNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int?>)),
+                    new CSharpType(typeof(List<int?>))),
+                "NullableArrayCounter" or "NullableToDifferentNullableArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<int?[]>)), new CSharpType(typeof(int?[]))),
+                "DifferentNullableToNullableArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<long?[]>)), new CSharpType(typeof(long?[]))),
+                "JaggedNullableArrayCounter" or "MismatchedJaggedNullableArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<int?[][]>)), new CSharpType(typeof(int?[][]))),
+                "MismatchedNestedNullableArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<List<int?[]>>)), new CSharpType(typeof(List<int?[]>))),
+                "MismatchedMappedNullableArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<long?[]>)), new CSharpType(typeof(int?[]))),
+                "ExternalArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[]))),
+                "ExternalJaggedArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[][]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[][]))),
+                "ExternalGenericArrayCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<List<Sample.External.ExternalValue>[]>)),
+                    new CSharpType(typeof(List<Sample.External.ExternalValue>[]))),
+                "ArrayGenericCounter" or "MismatchedArrayRankCounter" or "MismatchedArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.ArrayBase<int>)), new CSharpType(typeof(int[]))),
+                "NullableArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.ArrayBase<int?>)), new CSharpType(typeof(int?[]))),
+                "ExternalArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.ArrayBase<>), generatedType),
+                    new CSharpType(typeof(Sample.External.ExternalValue[]))),
+                "JaggedArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.JaggedArrayBase<int>)), new CSharpType(typeof(int[][]))),
+                "MatrixArrayGenericCounter" => (
+                    new CSharpType(typeof(Sample.External.MatrixArrayBase<int>)), new CSharpType(typeof(int[,]))),
+                "ExternalVectorOfMatricesCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[][,]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[][,]))),
+                "ExternalMatrixOfVectorsCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<Sample.External.ExternalValue[,][]>)),
+                    new CSharpType(typeof(Sample.External.ExternalValue[,][]))),
+                "MismatchedMixedArrayRankCounter" => (
+                    new CSharpType(typeof(Sample.External.GenericBase<int[][,]>)), new CSharpType(typeof(int[][,]))),
+                _ => (new CSharpType(typeof(Sample.External.GenericBase<string>)), new CSharpType(typeof(string))),
+            };
+            var baseModel = InputFactory.Model("ExternalBase",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                createModelCore: input => input == baseModel
+                    ? new SystemObjectModelProvider(baseType, input) : new ModelProvider(input),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            var property = modelProvider.BaseModelProvider!.CanonicalView.Properties.Single(p => p.Name == "Value");
+            property.Update(type: propertyType);
+            property.SynchronizePropertyShape();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (shouldRestore)
+            {
+                Assert.That(restoredConstructor!.Signature.Parameters.Single().Type.AreNamesEqual(propertyType), Is.True);
+                if (propertyType.IsArray)
+                {
+                    Assert.That(restoredConstructor.Signature.Parameters.Single().Type.Equals(propertyType), Is.True);
+                }
+                Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("Value = value"));
+                if (modelName is "ExternalVectorOfMatricesCounter" or "ExternalMatrixOfVectorsCounter")
+                {
+                    using var writer = new CodeWriter();
+                    writer.WriteConstructor(restoredConstructor);
+                    Assert.That(writer.ToString(false), Is.EqualTo(Helpers.GetExpectedFromFile(modelName)));
+                }
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_NestedNullableValueConstructorChecksBackingField(bool incompatibleBackingField)
+        {
+            var inputModel = InputFactory.Model("MockInputModel", properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("values", InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32))),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var property = modelProvider.CanonicalView.Properties.Single(p => p.Name == "Values");
+            property.Update(type: new CSharpType(typeof(List<int?>)), body: new AutoPropertyBody(true));
+            property.SynchronizePropertyShape();
+            if (incompatibleBackingField)
+            {
+                property.BackingField = new FieldProvider(
+                    FieldModifiers.Private, new CSharpType(typeof(List<int>)), "_values", modelProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(!incompatibleBackingField));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.Equals(new CSharpType(typeof(List<int?>))), Is.True);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_NestedNullableValueConstructorChecksChainedParameter(bool compatibleParameter)
+        {
+            var inputModel = InputFactory.Model("MockInputModel", properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String),
+                    InputFactory.Property("values", InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32)), isRequired: true),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_NestedNullableValueConstructorChecksBackingField)));
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var parameter = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)).Signature.Parameters.Single();
+            parameter.Update(type: compatibleParameter ? new CSharpType(typeof(List<int?>)) : new CSharpType(typeof(List<int>)));
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(compatibleParameter));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.Equals(new CSharpType(typeof(List<int?>))), Is.True);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_NullableArrayConstructorChecksBackingField(bool incompatibleBackingField)
+        {
+            var inputModel = InputFactory.Model("MockInputModel", properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("values", InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32))),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var property = modelProvider.CanonicalView.Properties.Single(p => p.Name == "Values");
+            property.Update(type: new CSharpType(typeof(int?[])), body: new AutoPropertyBody(true));
+            property.SynchronizePropertyShape();
+            if (incompatibleBackingField)
+            {
+                property.BackingField = new FieldProvider(
+                    FieldModifiers.Private, new CSharpType(typeof(long?[])), "_values", modelProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(!incompatibleBackingField));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.Equals(new CSharpType(typeof(int?[]))), Is.True);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_NullableArrayConstructorChecksChainedParameter(bool compatibleParameter)
+        {
+            var inputModel = InputFactory.Model("MockInputModel", properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String),
+                    InputFactory.Property("values", InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32)), isRequired: true),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_NullableArrayConstructorChecksBackingField)));
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var parameter = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)).Signature.Parameters.Single();
+            parameter.Update(type: compatibleParameter ? new CSharpType(typeof(int?[])) : new CSharpType(typeof(long?[])));
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(compatibleParameter));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.Equals(new CSharpType(typeof(int?[]))), Is.True);
+            }
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenPropertyRemoved()
+        {
+            // "resources" existed in the last contract constructor but has been removed entirely from
+            // the current spec, so the previous constructor cannot be safely restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var twoParamPublicCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(twoParamPublicCtor, "The constructor should not be restored when a property was removed");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ConstructorParameterNormalizesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "DateTimeModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual("startsOn", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "DateTimeModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual("startTime", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenLastContractMissing()
+        {
+            // No last contract exists for the model, so nothing should be restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNull(modelProvider!.LastContractView);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var twoParamPublicCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(twoParamPublicCtor);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_OptionalValueTypeConstructorParameterIsRestored()
+        {
+            // "count" was a required value type in the last contract, so the initialization constructor
+            // accepted it. Relaxing it to optional drops it; the previously published constructor is
+            // restored, and because it is a value type no null validation is emitted.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var restoredCtor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(restoredCtor, "Expected the (name, count) constructor to be restored for back compat");
+            Assert.AreEqual("count", restoredCtor!.Signature.Parameters[1].Name);
+            // The restored parameter keeps the previously published non-nullable value type.
+            Assert.IsTrue(restoredCtor.Signature.Parameters[1].Type.Equals(typeof(int)));
+            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[1].Validation);
+
+            var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(body.Contains("Count = count"), $"Expected the body to assign Count, was: {body}");
+            // Value types never emit a null check.
+            Assert.IsFalse(body.Contains("AssertNotNull(count"), $"Did not expect null validation for a value type, was: {body}");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase("NullableCounter", false, true)]
+        [TestCase("NonNullableCounter", false, false)]
+        [TestCase("DerivedNullableCounter", false, true)]
+        [TestCase("DerivedNonNullableCounter", false, false)]
+        [TestCase("NullableCounter", true, false)]
+        [TestCase("DerivedNullableCounter", true, true)]
+        public async Task BackCompat_NullableValueTypeConstructorRestoredOnlyWhenAssignable(
+            string modelName, bool privateBackingField, bool shouldRestore)
+        {
+            var inherited = modelName.StartsWith("Derived", StringComparison.Ordinal);
+            var baseModel = inherited
+                ? InputFactory.Model(modelName["Derived".Length..],
+                    usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                    properties: [InputFactory.Property("count", InputPrimitiveType.Int32)])
+                : null;
+            var inputModel = InputFactory.Model(modelName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: inherited ? [] : [InputFactory.Property("count", InputPrimitiveType.Int32)],
+                baseModel: baseModel);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: baseModel is null ? [inputModel] : [baseModel, inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            modelProvider.BaseModelProvider?.ProcessTypeForBackCompatibility();
+            var propertyProvider = modelProvider.BaseModelProvider ?? modelProvider;
+            var property = propertyProvider.CanonicalView.Properties.Single(p => p.Name == "Count");
+            if (privateBackingField)
+            {
+                property.BackingField = new FieldProvider(
+                    FieldModifiers.Private, new CSharpType(typeof(int)), "_count", propertyProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (shouldRestore)
+            {
+                Assert.That(restoredConstructor!.Signature.Parameters.Single().Type.IsNullable, Is.True);
+                Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("Count = count"));
+            }
+        }
+
+        [Test]
+        public async Task BackCompat_RenamedPropertyConstructorIsRestored()
+        {
+            // The spec property "resources" is renamed to "ResourceList" via a [CodeGenMember]
+            // customization. The previously published constructor's "resources" parameter must still
+            // be matched to the renamed property (via its OriginalName) so the constructor is restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_RenamedPropertyConstructorIsRestored_LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var restoredCtor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(restoredCtor, "Expected the (name, resources) constructor to be restored for back compat");
+            // The restored parameter keeps the previously published (pre-rename) name.
+            Assert.AreEqual("resources", restoredCtor!.Signature.Parameters[1].Name);
+
+            // The body assigns the current, renamed property.
+            var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(body.Contains("ResourceList = resources"), $"Expected the body to assign the renamed property, was: {body}");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(".txt")]
+        [TestCase(".xml")]
+        public async Task BackCompat_ConstructorNotRestoredWhenRemovalAcceptedInBaseline(string baselineExtension)
+        {
+            // "resources" was required in the last contract and is now optional, which would normally
+            // cause the previous (name, resources) constructor to be restored. However its removal is
+            // accepted in the ApiCompat baseline (tested in both the txt and xml formats), so the
+            // constructor must not be resurrected.
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: baselineExtension);
+
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_ConstructorNotRestoredWhenRemovalAcceptedInBaseline_LastContract"),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // The (name, resources) constructor removal is accepted in the baseline, so it is not restored.
+            var restoredCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(restoredCtor, "The constructor should not be restored when its removal is accepted in the baseline");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_RenamedAbstractBaseConstructorNotRestoredWhenRemovalAcceptedInBaseline()
+        {
+            // The last contract published a public `BaseModel(string createdOn)` on an abstract base. The
+            // current generation produces a `private protected BaseModel(string kind)`. Without the baseline
+            // filter, the rename pass would restore the previous "createdOn" name and the base promotion would
+            // re-publish the constructor - but its removal is accepted in the ApiCompat baseline, so it must
+            // not be resurrected, and the current parameter must keep its name.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // The baseline-accepted removal must not be promoted back to a public constructor.
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c =>
+                    c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1),
+                "The abstract-base constructor should not be promoted to public when its removal is accepted in the baseline.");
+
+            // The current initialization constructor must keep its parameter name (not renamed to "createdOn").
+            var initConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.AreEqual("kind", initConstructor.Signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode()
+        {
+            // "resources" was required in the last contract and is now optional, which would normally
+            // cause the previous (name, resources) constructor to be restored. Here the user has replaced
+            // that constructor with their own custom implementation, so the generator must not add a
+            // colliding back-compat overload.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode_LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // The custom (name, resources) constructor lives in the canonical view.
+            var customCtor = modelProvider!.CanonicalView.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(customCtor, "Expected the custom (name, resources) constructor to be present");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // Because the custom code already provides the (name, resources) constructor, the generator
+            // must not restore a colliding overload of its own.
+            var restoredCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(restoredCtor, "The constructor should not be restored when it is replaced by custom code");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -2361,6 +6689,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(typeof(object), propertyType.Arguments[1].FrameworkType, "Value type should be object for backward compatibility");
         }
 
+        [Test]
+        public async Task TestBuildProperties_NonPublicObjectAdditionalPropertiesNotUsedForBackwardCompatibility()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+
+            // The last contract's object AdditionalProperties property is non-public, so it is not part of the
+            // contract and must not force object additional properties; BinaryData is preserved.
+            var additionalPropertiesProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "AdditionalProperties");
+            Assert.IsNotNull(additionalPropertiesProperty, "AdditionalProperties property should be generated");
+
+            var propertyType = additionalPropertiesProperty!.Type;
+            Assert.IsTrue(propertyType.IsDictionary, "Property should be a dictionary type");
+            Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
+            Assert.AreEqual(typeof(BinaryData), propertyType.Arguments[1].FrameworkType, "Value type should stay BinaryData");
+        }
+
         [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_OutputOnly_NoField")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_Input_NoField")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_InputAndOutput_NoField")]
@@ -2385,6 +6741,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             else
             {
                 Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
+        }
+
+        [TearDown]
+        public void CleanUp()
+        {
+            if (_projectDir != null && Directory.Exists(_projectDir))
+            {
+                Directory.Delete(_projectDir, true);
             }
         }
     }

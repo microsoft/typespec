@@ -11,6 +11,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.ServerSentEvents;
 using System.Threading;
 using System.Threading.Tasks;
 using SampleTypeSpec.Models.Custom;
@@ -33,10 +34,15 @@ namespace SampleTypeSpec
             }
         };
         private readonly string _apiVersion;
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+        private ExperimentalSamples _cachedExperimentalSamples;
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
         private AnimalOperations _cachedAnimalOperations;
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
+        private DeprecationSamples _cachedDeprecationSamples;
+        private ConstructorRequirements _cachedConstructorRequirements;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -362,6 +368,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0001")]
         public virtual ClientResult HelloDemo2(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
@@ -379,6 +386,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0001")]
         public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
@@ -388,6 +396,7 @@ namespace SampleTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0001")]
         public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
             ClientResult result = HelloDemo2(cancellationToken.ToRequestOptions());
@@ -397,6 +406,7 @@ namespace SampleTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0001")]
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
             ClientResult result = await HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
@@ -1030,19 +1040,19 @@ namespace SampleTypeSpec
         /// <summary> return anonymous model. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
+        public virtual ClientResult<ReturnsAnonymousModelResult> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
         {
             ClientResult result = ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            return ClientResult.FromValue((ReturnsAnonymousModelResult)result, result.GetRawResponse());
         }
 
         /// <summary> return anonymous model. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<ReturnsAnonymousModelResult>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            return ClientResult.FromValue((ReturnsAnonymousModelResult)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1085,7 +1095,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString());
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1094,7 +1105,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString());
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1210,7 +1222,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] head as boolean.
+        /// [Protocol Method] Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1223,16 +1235,16 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
+        public virtual ClientResult<bool> HeadAsBoolean(string id, RequestOptions options)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return Pipeline.ProcessHeadAsBoolMessage(message, options);
         }
 
         /// <summary>
-        /// [Protocol Method] head as boolean.
+        /// [Protocol Method] Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1245,34 +1257,34 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
+        public virtual async Task<ClientResult<bool>> HeadAsBooleanAsync(string id, RequestOptions options)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return await Pipeline.ProcessHeadAsBoolMessageAsync(message, options).ConfigureAwait(false);
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary> Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses. </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HeadAsBoolean(string id, CancellationToken cancellationToken = default)
+        public virtual ClientResult<bool> HeadAsBoolean(string id, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             return HeadAsBoolean(id, cancellationToken.ToRequestOptions());
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary> Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses. </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<bool>> HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
@@ -1690,6 +1702,8 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -1697,6 +1711,7 @@ namespace SampleTypeSpec
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] An operation with a dynamic model
@@ -1711,6 +1726,8 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -1718,30 +1735,37 @@ namespace SampleTypeSpec
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary> An operation with a dynamic model. </summary>
         /// <param name="body"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary> An operation with a dynamic model. </summary>
         /// <param name="body"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] Get an advanced XML model with various property types
@@ -1939,6 +1963,309 @@ namespace SampleTypeSpec
             return await UploadCatAsync(content, content.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// [Protocol Method] SendJsonLines
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SendJsonLines(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendJsonLinesRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendJsonLines
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SendJsonLinesAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendJsonLinesRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> SendJsonLines. </summary>
+        /// <param name="stream"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="stream"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SendJsonLinesAsync(IAsyncEnumerable<StreamingItem> stream, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(stream, nameof(stream));
+
+            using BinaryContent content = new JsonLinesBinaryContent<StreamingItem>(stream);
+            return await SendJsonLinesAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReceiveJsonLines
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<AsyncStreamingResult<BinaryData>> ReceiveJsonLinesAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReceiveJsonLinesRequest(options);
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReceiveJsonLines. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<AsyncStreamingResult<StreamingItem>> ReceiveJsonLinesAsync(CancellationToken cancellationToken = default)
+        {
+            using PipelineMessage message = CreateReceiveJsonLinesRequest(cancellationToken.ToRequestOptions());
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateJsonLines<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<StreamingItem>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReceiveSse
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<AsyncStreamingResult<SseItem<BinaryData>>> ReceiveSseAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReceiveSseRequest(options);
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false), item => item.Data.ToString() == "[DONE]");
+        }
+
+        /// <summary> ReceiveSse. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<AsyncStreamingResult<SseItem<StreamingItem>>> ReceiveSseAsync(CancellationToken cancellationToken = default)
+        {
+            using PipelineMessage message = CreateReceiveSseRequest(cancellationToken.ToRequestOptions());
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateSse<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (@_, data) => ModelReaderWriter.Read<StreamingItem>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), item => item.Data.ToString() == "[DONE]", cancellationToken);
+        }
+
+        /// <summary>
+        /// [Protocol Method] ReceiveExperimentalJsonLines
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+        public virtual async Task<AsyncStreamingResult<BinaryData>> ReceiveExperimentalJsonLinesAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReceiveExperimentalJsonLinesRequest(options);
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+
+        /// <summary> ReceiveExperimentalJsonLines. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+        public virtual async Task<AsyncStreamingResult<PreviewDetails>> ReceiveExperimentalJsonLinesAsync(CancellationToken cancellationToken = default)
+        {
+            using PipelineMessage message = CreateReceiveExperimentalJsonLinesRequest(cancellationToken.ToRequestOptions());
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateJsonLines<PreviewDetails>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<PreviewDetails>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+
+        /// <summary>
+        /// [Protocol Method] Send acronym-named path, query, and header parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAcronymParameters(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            using PipelineMessage message = CreateGetAcronymParametersRequest(targetDBName, sourceIPAddress, guestOSType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send acronym-named path, query, and header parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAcronymParametersAsync(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            using PipelineMessage message = CreateGetAcronymParametersRequest(targetDBName, sourceIPAddress, guestOSType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Send acronym-named path, query, and header parameters. </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult GetAcronymParameters(string targetDBName, string sourceIPAddress = default, string guestOSType = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            return GetAcronymParameters(targetDBName, sourceIPAddress, guestOSType, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send acronym-named path, query, and header parameters. </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> GetAcronymParametersAsync(string targetDBName, string sourceIPAddress = default, string guestOSType = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            return await GetAcronymParametersAsync(targetDBName, sourceIPAddress, guestOSType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send parameters with leading IP version acronyms.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SetAcronymAddresses(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            using PipelineMessage message = CreateSetAcronymAddressesRequest(ipv4Address, ipv6Address, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send parameters with leading IP version acronyms.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SetAcronymAddressesAsync(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            using PipelineMessage message = CreateSetAcronymAddressesRequest(ipv4Address, ipv6Address, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Send parameters with leading IP version acronyms. </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SetAcronymAddresses(string ipv4Address, string ipv6Address = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            return SetAcronymAddresses(ipv4Address, ipv6Address, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send parameters with leading IP version acronyms. </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SetAcronymAddressesAsync(string ipv4Address, string ipv6Address = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            return await SetAcronymAddressesAsync(ipv4Address, ipv6Address, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of ExperimentalSamples. </summary>
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+        public virtual ExperimentalSamples GetExperimentalSamplesClient()
+        {
+            return Volatile.Read(ref _cachedExperimentalSamples) ?? Interlocked.CompareExchange(ref _cachedExperimentalSamples, new ExperimentalSamples(Pipeline, _endpoint), null) ?? _cachedExperimentalSamples;
+        }
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {
@@ -1981,6 +2308,18 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(notebook, nameof(notebook));
 
             return new Notebooks(Pipeline, _endpoint, notebook);
+        }
+
+        /// <summary> Initializes a new instance of DeprecationSamples. </summary>
+        public virtual DeprecationSamples GetDeprecationSamplesClient()
+        {
+            return Volatile.Read(ref _cachedDeprecationSamples) ?? Interlocked.CompareExchange(ref _cachedDeprecationSamples, new DeprecationSamples(Pipeline, _endpoint), null) ?? _cachedDeprecationSamples;
+        }
+
+        /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
+        public virtual ConstructorRequirements GetConstructorRequirementsClient()
+        {
+            return Volatile.Read(ref _cachedConstructorRequirements) ?? Interlocked.CompareExchange(ref _cachedConstructorRequirements, new ConstructorRequirements(Pipeline, _endpoint), null) ?? _cachedConstructorRequirements;
         }
     }
 }

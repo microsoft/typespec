@@ -38,11 +38,43 @@ describe("UriTemplateSource", () => {
     expect(file.text).toBe("op ping(): void;");
   });
 
+  it.each([
+    "../outside.tsp",
+    String.raw`..\outside.tsp`,
+    "/outside.tsp",
+    "C:/outside.tsp",
+    "https://evil.example/outside.tsp",
+  ])("rejects template file paths outside the template root: %s", async (path) => {
+    const source = new UriTemplateSource(
+      testFs.compilerHost,
+      resolvePath(root, "scaffolding.json"),
+    );
+
+    await expect(source.readFile(path)).rejects.toThrow(
+      `Template file path must be a relative path: "${path}"`,
+    );
+  });
+
   it("fromDirectory resolves scaffolding.json at the directory root", async () => {
     const source = UriTemplateSource.fromDirectory(testFs.compilerHost, root);
     const index = await source.loadIndex();
     expect(index.templates.sample.title).toBe("Sample");
     expect((await source.readFile("sample/main.tsp")).text).toBe("op ping(): void;");
+  });
+
+  it("rejects local template file symlinks that escape the template root", async () => {
+    const host = {
+      ...testFs.compilerHost,
+      realpath: async (path: string) =>
+        path === resolvePath(root, "sample/main.tsp")
+          ? "/outside/main.tsp"
+          : testFs.compilerHost.realpath(path),
+    };
+    const source = new UriTemplateSource(host, resolvePath(root, "scaffolding.json"));
+
+    await expect(source.readFile("sample/main.tsp")).rejects.toThrow(
+      'Template file path must be a relative path: "sample/main.tsp"',
+    );
   });
 
   it("resolves remote template files relative to the index URL", async () => {
@@ -60,6 +92,22 @@ describe("UriTemplateSource", () => {
 
     await source.readFile("sample/main.tsp");
     expect(reads).toContain("https://example.com/tpl/sample/main.tsp");
+  });
+
+  it("rejects encoded traversal in remote template file paths", async () => {
+    const reads: string[] = [];
+    const host = {
+      readUrl: async (url: string) => {
+        reads.push(url);
+        return { path: url, text: JSON.stringify(scaffolding) };
+      },
+    } as unknown as CompilerHost;
+    const source = new UriTemplateSource(host, "https://example.com/tpl/index.json");
+
+    await expect(source.readFile("%2e%2e/outside.tsp")).rejects.toThrow(
+      'Template file path must be a relative path: "%2e%2e/outside.tsp"',
+    );
+    expect(reads).toEqual([]);
   });
 });
 

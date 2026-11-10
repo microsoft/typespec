@@ -1,6 +1,8 @@
-import { getEncode, ModelProperty, Scalar, Type } from "@typespec/compiler";
-import { Encoder, getJsScalar } from "../common/scalar.js";
-import { JsContext, Module } from "../ctx.js";
+import type { ModelProperty, Scalar, Type } from "@typespec/compiler";
+import { getEncode } from "@typespec/compiler";
+import type { Encoder } from "../common/scalar.js";
+import { getJsScalar } from "../common/scalar.js";
+import type { JsContext, Module } from "../ctx.js";
 
 /**
  * A resolved encoding chain for a model property or scalar.

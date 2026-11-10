@@ -1,19 +1,15 @@
-import {
-  For,
-  Output,
-  OutputDirectory,
-  Refkey,
-  refkey,
-  render,
-  Show,
-  StatementList,
-} from "@alloy-js/core";
+import type { OutputDirectory, Refkey } from "@alloy-js/core";
+import { For, Output, refkey, render, Show, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
+import type { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
 import { AutoDecoratorAccessors } from "./auto-decorator-accessors.js";
-import { DecoratorSignatureType, ValueOfModelTsInterfaceBody } from "./decorator-signature-type.js";
+import {
+  DecoratorSignatureType,
+  getDocComment,
+  ValueOfModelTsInterfaceBody,
+} from "./decorator-signature-type.js";
 import { DollarDecoratorsType } from "./dollar-decorators-type.js";
 import { DollarFunctionsType } from "./dollar-functions-type.jsx";
 import { EntitySignatureTests } from "./entity-signature-tests.jsx";
@@ -88,7 +84,12 @@ export function LocalTypes() {
       <For each={localTypes} doubleHardline>
         {(type) => {
           return (
-            <ts.InterfaceDeclaration export name={type.name} refkey={refkey(type)}>
+            <ts.InterfaceDeclaration
+              export
+              name={type.name}
+              refkey={refkey(type)}
+              doc={getDocComment(type)}
+            >
               <ValueOfModelTsInterfaceBody model={type} />
             </ts.InterfaceDeclaration>
           );
@@ -98,25 +99,38 @@ export function LocalTypes() {
   );
 }
 
+export interface GenerateSignaturesOptions {
+  /** Package export subpath the signatures belong to. Defaults to the root(`.`). */
+  readonly subpath?: string;
+  /** Whether to emit the `<Namespace>.ts-test.ts` typecheck file. Defaults to `true`. */
+  readonly emitTests?: boolean;
+}
+
 export function generateSignatures(
   program: Program,
   entities: EntitySignature[],
   libraryName: string,
   namespaceName: string,
+  options?: GenerateSignaturesOptions,
 ): OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
+  const subpath = options?.subpath ?? ".";
+  const emitTests = options?.emitTests ?? true;
   const $decoratorsRef = refkey();
   const $functionsRef = refkey();
   const userLib = ts.createPackage({
     name: libraryName,
     version: "0.0.0",
     descriptor: {
-      ".": {
+      [subpath]: {
         named: ["$decorators", "$functions"],
       },
     },
   });
+  // createPackage hoists the root export members but keeps sub exports nested under their subpath key.
+  const userLibExports: { $decorators: Refkey; $functions: Refkey } =
+    subpath === "." ? (userLib as any) : (userLib as any)[subpath];
 
   const jsxContent = (
     <TspdContext.Provider value={context}>
@@ -129,7 +143,7 @@ export function generateSignatures(
             dollarFunctionsRefKey={$functionsRef}
           />
         </ts.SourceFile>
-        {!base.includes(".Private") && (
+        {emitTests && !base.includes(".Private") && (
           <ts.SourceFile
             path={`${base}.ts-test.ts`}
             headerComment="An error in the imports would mean that the decorator is not exported or doesn't have the right name."
@@ -137,9 +151,9 @@ export function generateSignatures(
             <EntitySignatureTests
               namespaceName={namespaceName}
               entities={entities}
-              dollarDecoratorRefKey={userLib.$decorators}
+              dollarDecoratorRefKey={userLibExports.$decorators}
               dollarDecoratorsTypeRefKey={$decoratorsRef}
-              dollarFunctionsRefKey={userLib.$functions}
+              dollarFunctionsRefKey={userLibExports.$functions}
               dollarFunctionsTypeRefKey={$functionsRef}
             />
           </ts.SourceFile>

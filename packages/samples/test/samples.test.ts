@@ -6,6 +6,8 @@ import { defineSampleSnaphotTests } from "../src/sample-snapshot-testing.js";
 const excludedSamples = [
   // fails compilation by design to demo language server
   "local-typespec",
+  // The GraphQL emitter's Alloy output is validated in its package; the playground compiles this sample.
+  "emitters/graphql",
 ];
 
 const pkgRoot = await findTestPackageRoot(import.meta.url);

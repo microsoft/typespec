@@ -1,6 +1,6 @@
 import isUnicodeSupported from "is-unicode-supported";
 import pc from "picocolors";
-import { TaskStatus, TrackActionTask } from "../types.js";
+import type { TaskStatus, TrackActionTask } from "../types.js";
 
 const StatusIcons = {
   success: pc.green("✔"),

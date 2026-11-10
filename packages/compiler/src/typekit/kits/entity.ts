@@ -1,5 +1,6 @@
 import type { Entity, Node } from "../../core/types.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -27,6 +28,9 @@ export interface EntityKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Resolve references to types or values and check assignability between entities.
+   */
   entity: EntityKit;
 }
 

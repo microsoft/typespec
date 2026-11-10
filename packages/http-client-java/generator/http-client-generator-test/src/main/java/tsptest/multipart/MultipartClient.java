@@ -62,10 +62,10 @@ public final class MultipartClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> uploadWithResponse(String name, BinaryData data, RequestOptions requestOptions) {
+    Response<Void> uploadWithResponseInternal(String name, BinaryData data, RequestOptions requestOptions) {
         // Operation 'upload' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.uploadWithResponse(name, data, requestOptions);
+        return this.serviceClient.uploadWithResponseInternal(name, data, requestOptions);
     }
 
     /**
@@ -89,10 +89,10 @@ public final class MultipartClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> uploadHttpPartWithResponse(String name, BinaryData body, RequestOptions requestOptions) {
+    Response<Void> uploadHttpPartWithResponseInternal(String name, BinaryData body, RequestOptions requestOptions) {
         // Operation 'uploadHttpPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.uploadHttpPartWithResponse(name, body, requestOptions);
+        return this.serviceClient.uploadHttpPartWithResponseInternal(name, body, requestOptions);
     }
 
     /**
@@ -111,12 +111,13 @@ public final class MultipartClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void upload(String name, FormData data, Boolean compress) {
-        // Generated convenience method for uploadWithResponse
+        // Generated convenience method for uploadWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         if (compress != null) {
             requestOptions.addQueryParam("compress", String.valueOf(compress), false);
         }
-        uploadWithResponse(name, new MultipartFormDataHelper(requestOptions).serializeTextField("name", data.getName())
+        uploadWithResponseInternal(name, new MultipartFormDataHelper(requestOptions)
+            .serializeTextField("name", data.getName())
             .serializeTextField("resolution", String.valueOf(data.getResolution()))
             .serializeTextField("type", Objects.toString(data.getType()))
             .serializeJsonField("size", data.getSize())
@@ -151,9 +152,10 @@ public final class MultipartClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void upload(String name, FormData data) {
-        // Generated convenience method for uploadWithResponse
+        // Generated convenience method for uploadWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        uploadWithResponse(name, new MultipartFormDataHelper(requestOptions).serializeTextField("name", data.getName())
+        uploadWithResponseInternal(name, new MultipartFormDataHelper(requestOptions)
+            .serializeTextField("name", data.getName())
             .serializeTextField("resolution", String.valueOf(data.getResolution()))
             .serializeTextField("type", Objects.toString(data.getType()))
             .serializeJsonField("size", data.getSize())
@@ -189,12 +191,12 @@ public final class MultipartClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void uploadHttpPart(String name, UploadHttpPartRequest body, Boolean compress) {
-        // Generated convenience method for uploadHttpPartWithResponse
+        // Generated convenience method for uploadHttpPartWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         if (compress != null) {
             requestOptions.addQueryParam("compress", String.valueOf(compress), false);
         }
-        uploadHttpPartWithResponse(name,
+        uploadHttpPartWithResponseInternal(name,
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("fileData1", body.getFileData1().getContent(), body.getFileData1().getContentType(),
                     body.getFileData1().getFilename())
@@ -221,9 +223,9 @@ public final class MultipartClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void uploadHttpPart(String name, UploadHttpPartRequest body) {
-        // Generated convenience method for uploadHttpPartWithResponse
+        // Generated convenience method for uploadHttpPartWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        uploadHttpPartWithResponse(name,
+        uploadHttpPartWithResponseInternal(name,
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("fileData1", body.getFileData1().getContent(), body.getFileData1().getContentType(),
                     body.getFileData1().getFilename())
