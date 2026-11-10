@@ -2323,7 +2323,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(true)]
         public async Task CustomPartialConstructorsPreserveImplementation(bool expressionBody)
         {
-            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync(), includeXmlDocs: true);
             var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
             var identifier = new ParameterProvider("identifier", $"The identifier.", typeof(string));
             var version = new ParameterProvider("version", $"The resource version.", typeof(string), defaultValue: Snippet.Null);
@@ -2350,10 +2350,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("bicepIdentifier", customized.Signature.Parameters[0].Name);
             Assert.AreEqual("resourceVersion", customized.Signature.Parameters[1].Name);
             Assert.IsTrue(customized.Signature.Parameters.All(p => p.DefaultValue == null));
+            Assert.AreEqual("identifier", identifier.Name);
+            Assert.AreEqual("version", version.Name);
+            Assert.IsNotNull(version.DefaultValue);
+            Assert.AreEqual(MethodSignatureModifiers.Internal, signature.Modifiers);
             Assert.IsNotNull(typeProvider.CustomCodeView!.Constructors.Single(c => c.Signature.Parameters.Count == 2).Signature.Parameters[1].DefaultValue);
             Assert.AreEqual(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Partial, typeProvider.Constructors[1].Signature.Modifiers);
             Assert.AreSame(chainedConstructor.Signature.Initializer, typeProvider.Constructors[1].Signature.Initializer);
+            typeProvider.Update(constructors: typeProvider.Constructors);
             Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task CustomPartialConstructorsKeepAccessibilityDuringBackCompatibility()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(BuildConstructorsForBackCompatibilityPromotesPrivateProtectedToPublic)));
+            var typeProvider = new TestTypeProvider(
+                name: "PromoteCtorType",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            var modifiers = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected | MethodSignatureModifiers.Partial;
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, null, modifiers,
+                    [new ParameterProvider("baseProp", $"", typeof(string))]),
+                MethodBodyStatement.Empty, typeProvider);
+
+            var result = typeProvider.BuildConstructorsForBackCompatibility([constructor]);
+
+            Assert.AreEqual(modifiers, result.Single().Signature.Modifiers);
         }
 
         [TestCase(typeof(string), 1)]

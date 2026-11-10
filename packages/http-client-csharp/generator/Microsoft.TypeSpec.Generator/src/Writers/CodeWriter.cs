@@ -218,6 +218,18 @@ namespace Microsoft.TypeSpec.Generator
         {
             ArgumentNullException.ThrowIfNull(ctor, nameof(ctor));
 
+            using var parameterScope = ctor.OriginalParameters != null ? AmbientScope() : null;
+            if (ctor.OriginalParameters is { } originalParameters)
+            {
+                // Bind shared body declarations in this scope without renaming parameters on other constructors.
+                for (int i = 0; i < originalParameters.Count; i++)
+                {
+                    var declaration = ctor.Signature.Parameters[i].AsVariable().Declaration;
+                    declaration.SetActualName(declaration.RequestedName, parameterScope!);
+                    originalParameters[i].AsVariable().Declaration.SetActualName(declaration.RequestedName, parameterScope!);
+                }
+            }
+
             using (WriteXmlDocs(ctor.XmlDocs))
             {
                 using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(ctor.Signature.Attributes), emitDirectives: false);

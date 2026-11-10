@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; }
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
+        internal IReadOnlyList<ParameterProvider>? OriginalParameters { get; set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

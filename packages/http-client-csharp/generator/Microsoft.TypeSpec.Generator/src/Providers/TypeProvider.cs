@@ -722,15 +722,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         MethodSignatureBase.SignatureComparer.Equals(partial.Signature, constructor.Signature));
                 if (matchingPartial != null)
                 {
-                    // Keep the parameter instances referenced by the initializer, body, and XML docs.
-                    for (int i = 0; i < constructor.Signature.Parameters.Count; i++)
-                    {
-                        var parameter = constructor.Signature.Parameters[i];
-                        parameter.Update(name: matchingPartial.Signature.Parameters[i].Name);
-                        parameter.DefaultValue = null;
-                    }
-                    constructor.Signature.Update(modifiers: matchingPartial.Signature.Modifiers | MethodSignatureModifiers.Partial);
-                    constructors.Add(constructor);
+                    constructors.Add(CreatePartialConstructorFromCustomSignature(matchingPartial.Signature, constructor));
                     continue;
                 }
 
@@ -741,6 +733,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. constructors];
+        }
+
+        private static ConstructorProvider CreatePartialConstructorFromCustomSignature(ConstructorSignature customSignature, ConstructorProvider generatedConstructor)
+        {
+            var generatedSignature = generatedConstructor.Signature;
+            var parameters = PartialMethodCustomization.RenameAndCloneParameters(
+                generatedSignature.Parameters, customSignature.Parameters, removeDefaults: true);
+            var signature = new ConstructorSignature(
+                generatedSignature.Type,
+                generatedSignature.Description,
+                customSignature.Modifiers | MethodSignatureModifiers.Partial,
+                parameters,
+                generatedSignature.Attributes,
+                generatedSignature.Initializer);
+            signature.Update(nonDocumentComment: generatedSignature.NonDocumentComment);
+
+            var constructor = generatedConstructor.BodyExpression != null
+                ? new ConstructorProvider(signature, generatedConstructor.BodyExpression, generatedConstructor.EnclosingType, generatedConstructor.XmlDocs, generatedConstructor.Suppressions)
+                : new ConstructorProvider(signature, MethodBodyStatement.Empty, generatedConstructor.EnclosingType, generatedConstructor.XmlDocs, generatedConstructor.Suppressions);
+            if (generatedConstructor.BodyStatements is { } body)
+            {
+                constructor.Update(bodyStatements: body);
+            }
+            constructor.OriginalParameters = generatedConstructor.OriginalParameters ?? generatedSignature.Parameters;
+            return constructor;
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -1399,7 +1416,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (int i = 0; i < constructors.Count; i++)
                 {
                     var currentConstructor = constructors[i];
-                    if (!currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
+                    if (currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ||
+                        !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
                         !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                     {
                         continue;

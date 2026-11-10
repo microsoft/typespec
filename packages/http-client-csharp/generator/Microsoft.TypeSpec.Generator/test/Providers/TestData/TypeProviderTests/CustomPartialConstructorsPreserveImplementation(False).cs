@@ -4,8 +4,11 @@
 
 namespace Test
 {
+    /// <summary></summary>
     public partial class CustomPartialConstructorType
     {
+        /// <param name="bicepIdentifier"> The identifier. </param>
+        /// <param name="resourceVersion"> The resource version. </param>
         public partial CustomPartialConstructorType(string bicepIdentifier, string resourceVersion) : base(bicepIdentifier, (resourceVersion ?? "2026-03-01"))
         {
             bicepIdentifier.ToString();
