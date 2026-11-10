@@ -25,13 +25,13 @@ allowBuilds:
 
 catalog:
   "@alloy-js/cli": ^0.26.0
-  "@alloy-js/core": ^0.26.0
-  "@alloy-js/csharp": ^0.26.0
-  "@alloy-js/markdown": ^0.26.0
-  "@alloy-js/msbuild": ^0.26.0
-  "@alloy-js/python": ^0.7.0
+  "@alloy-js/core": ^0.25.0
+  "@alloy-js/csharp": ^0.25.0
+  "@alloy-js/markdown": ^0.25.0
+  "@alloy-js/msbuild": ^0.25.0
+  "@alloy-js/python": ^0.6.0
   "@alloy-js/rollup-plugin": ^0.2.0
-  "@alloy-js/typescript": ^0.26.0
+  "@alloy-js/typescript": ^0.25.0
   "@astrojs/check": ^0.9.12
   "@astrojs/markdown-remark": ^7.3.4
   "@astrojs/react": ^7.1.1
@@ -183,7 +183,7 @@ catalog:
 minimumReleaseAge: 10080 # 7 days
 
 packageExtensions:
-  "@alloy-js/cli@0.25.0":
+  "@alloy-js/cli@0.26.0":
     dependencies:
       # Alloy resolves typescript/bin/tsc directly instead of using the workspace PATH.
       typescript: ~7.0.2
