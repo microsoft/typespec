@@ -277,6 +277,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         return methods.stream()
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
+            .map(m -> settings.isFluent()
+                && operation.getInternalApi() == Boolean.TRUE
+                && m.getMethodVisibility() == JavaVisibility.Public
+                    ? m.newBuilder().methodVisibility(JavaVisibility.PackagePrivate).build()
+                    : m)
             .distinct()
             .collect(Collectors.toList());
     }

@@ -61,21 +61,30 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return collector.GetSuppressions();
         }
 
-        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type)
+        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type, bool includeFrameworkTypes = false)
         {
             if (type is null)
             {
                 return [];
             }
             var suppressions = new List<SuppressionStatement>();
-            suppressions.AddRange(GetReferenceSuppressions(type.DeclaringType));
+            suppressions.AddRange(GetReferenceSuppressions(type.DeclaringType, includeFrameworkTypes));
             foreach (var argument in type.Arguments)
             {
-                suppressions.AddRange(GetReferenceSuppressions(argument));
+                suppressions.AddRange(GetReferenceSuppressions(argument, includeFrameworkTypes));
             }
             if (type.IsArray)
             {
-                suppressions.AddRange(GetReferenceSuppressions(type.ElementType));
+                suppressions.AddRange(GetReferenceSuppressions(type.ElementType, includeFrameworkTypes));
+            }
+            if (includeFrameworkTypes && type.IsFrameworkType)
+            {
+                var attribute = type.FrameworkType.GetCustomAttributesData()
+                    .FirstOrDefault(a => a.AttributeType.FullName == typeof(ExperimentalAttribute).FullName);
+                if (attribute?.ConstructorArguments.FirstOrDefault().Value is string diagnosticId)
+                {
+                    suppressions.AddRange(CreateSuppressions([diagnosticId]));
+                }
             }
             if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) && provider is not null)
             {

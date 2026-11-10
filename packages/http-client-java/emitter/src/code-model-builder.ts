@@ -54,6 +54,7 @@ import type {
 } from "@typespec/compiler";
 import {
   NoTarget,
+  compilerAssert,
   getDoc,
   getNamespaceFullName,
   getOverloadedOperation,
@@ -68,7 +69,6 @@ import { Visibility, getAuthentication } from "@typespec/http";
 import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
-import { fail } from "assert";
 import type {
   Client as CodeModelClient,
   EncodedProperty,
@@ -304,6 +304,7 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
+  private readonly specialHeaderNames = new Set(SPECIAL_HEADER_NAMES);
   private readonly javaNamespaceCache = new Map<string, string>();
   private readonly sseSchemaBundles = new Map<string, SseSchemaBundle>();
 
@@ -330,7 +331,7 @@ export class CodeModelBuilder {
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
-        SPECIAL_HEADER_NAMES.add(it.toLowerCase()),
+        this.specialHeaderNames.add(it.toLowerCase()),
       );
     }
 
@@ -1830,7 +1831,7 @@ export class CodeModelBuilder {
       clientContext.addGlobalParameter(parameter);
     } else if (
       param.kind === "header" &&
-      SPECIAL_HEADER_NAMES.has(param.serializedName.toLowerCase())
+      this.specialHeaderNames.has(param.serializedName.toLowerCase())
     ) {
       // special headers
       op.specialHeaders = op.specialHeaders ?? [];
@@ -2717,7 +2718,10 @@ export class CodeModelBuilder {
           }
           break;
         default:
-          fail(`Unsupported response replacement: ${responseReplacement satisfies never}`);
+          compilerAssert(
+            false,
+            `Unsupported response replacement: ${responseReplacement satisfies never}`,
+          );
       }
     }
 
@@ -2933,7 +2937,9 @@ export class CodeModelBuilder {
   }
 
   private processSchema(type: SdkType, nameHint: string): Schema {
-    return this.schemaCache.process(type, nameHint) || fail("Unable to process schema.");
+    const schema = this.schemaCache.process(type, nameHint);
+    compilerAssert(schema, "Unable to process schema.");
+    return schema;
   }
 
   private processSchemaImpl(type: SdkType, nameHint: string): Schema {
@@ -3186,9 +3192,7 @@ export class CodeModelBuilder {
     const rawEnumType = type.__raw;
     const namespace = getNamespace(rawEnumType);
     const valueType = this.processSchema(type.valueType, type.valueType.kind);
-    if (!isPrimitiveSchema(valueType)) {
-      fail("Choice values must use a primitive schema.");
-    }
+    compilerAssert(isPrimitiveSchema(valueType), "Choice values must use a primitive schema.");
     const choices: ChoiceValue[] = [];
     type.values.forEach((it: SdkEnumValueType) => {
       const choice = createChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
@@ -4127,8 +4131,10 @@ export class CodeModelBuilder {
           }
         }
       } else if (schema.type === SchemaType.Dictionary) {
-        if (!schema.elementType)
-          fail("Dictionary element type must be resolved before propagating usage.");
+        compilerAssert(
+          schema.elementType,
+          "Dictionary element type must be resolved before propagating usage.",
+        );
         innerApplySchemaUsage(schema.elementType, schemaUsage);
       } else if (schema.type === SchemaType.Array) {
         innerApplySchemaUsage(schema.elementType, schemaUsage);
@@ -4183,8 +4189,10 @@ export class CodeModelBuilder {
         );
       }
     } else if (schema.type === SchemaType.Dictionary) {
-      if (!schema.elementType)
-        fail("Dictionary element type must be resolved before tracking usage.");
+      compilerAssert(
+        schema.elementType,
+        "Dictionary element type must be resolved before tracking usage.",
+      );
       this.trackSchemaUsage(schema.elementType, schemaUsage);
     } else if (schema.type === SchemaType.Array) {
       this.trackSchemaUsage(schema.elementType, schemaUsage);

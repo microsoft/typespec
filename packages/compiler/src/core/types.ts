@@ -444,7 +444,8 @@ export type Value =
   | ArrayValue
   | EnumValue
   | NullValue
-  | FunctionValue;
+  | FunctionValue
+  | TypeRefValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -3724,7 +3725,8 @@ export type RuleRef = `${string}/${string}`;
 /**
  * Reference to a ruleset defined in a yaml file. In this format `file:<path to the yaml file>`.
  * A relative path is resolved relative to the file declaring it (`tspconfig.yaml` or another ruleset file).
- * Only valid in `tspconfig.yaml` or in another ruleset file, not in a ruleset defined by a library.
+ * On the CLI, relative paths resolve from the current working directory.
+ * Valid in config files, ruleset files, and `--linter-ruleset`, not in a ruleset defined by a library.
  */
 export type RuleSetFileRef = `file:${string}`;
 
@@ -4120,4 +4122,24 @@ export interface Tracer {
    * separated by a dot. Child tracers share the parent's filtering and log destination.
    */
   sub(subarea: string): Tracer;
+}
+
+/**
+ * The native generic scalar used to store a compile-time type reference.
+ * Its template argument constrains the referenced type.
+ */
+export interface TypeRefType extends Scalar {
+  /** The name of the standard type-reference declaration. */
+  name: "TypeRef";
+}
+
+/**
+ * A value referencing an existing compiler type without copying it.
+ * Its inferred storage type is `TypeRef<T>`; the precise referenced type is available through `target`.
+ */
+export interface TypeRefValue extends BaseValue {
+  /** Identifies this value as a reference to a compiler type. */
+  valueKind: "TypeRefValue";
+  /** The referenced compiler type, preserving its original identity. */
+  target: Type;
 }
