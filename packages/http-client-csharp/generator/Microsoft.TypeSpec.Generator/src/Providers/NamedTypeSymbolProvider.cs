@@ -333,7 +333,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 var initializer = ExtractConstructorInitializer(constructorSymbol);
                 var modifiers = GetAccessModifier(constructorSymbol.DeclaredAccessibility);
-                if (constructorSymbol.MethodKind == MethodKind.Constructor && IsPartialDeclaration(constructorSymbol))
+                if (constructorSymbol.MethodKind == MethodKind.Constructor
+                    && constructorSymbol.PartialImplementationPart is null
+                    && IsPartialDeclaration(constructorSymbol))
                 {
                     modifiers |= MethodSignatureModifiers.Partial;
                 }

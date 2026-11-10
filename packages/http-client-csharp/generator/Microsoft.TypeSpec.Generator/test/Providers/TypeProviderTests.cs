@@ -2415,6 +2415,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(typeof(bool), 0)]
         [TestCase(typeof(double), 0)]
         [TestCase(typeof(float), 1)]
+        [TestCase(typeof(long), 0)]
         public async Task CustomPartialConstructorsOnlyMergeMatchingDeclarations(Type parameterType, int expectedCount)
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());

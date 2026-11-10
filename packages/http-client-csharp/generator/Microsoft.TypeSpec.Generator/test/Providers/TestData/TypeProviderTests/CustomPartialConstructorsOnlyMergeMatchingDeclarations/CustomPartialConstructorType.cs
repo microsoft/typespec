@@ -11,6 +11,10 @@ namespace Test
     {
         public partial CustomPartialConstructorType(string value, string version);
 
+        public partial CustomPartialConstructorType(long value);
+
+        public partial CustomPartialConstructorType(long value) { }
+
         public CustomPartialConstructorType(int value) { }
 
         public partial CustomPartialConstructorType(bool value) { }
