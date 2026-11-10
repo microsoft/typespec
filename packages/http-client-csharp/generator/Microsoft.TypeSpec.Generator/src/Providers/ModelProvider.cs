@@ -1268,7 +1268,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var originalConstructorList = originalConstructors as IReadOnlyList<ConstructorProvider> ?? [.. originalConstructors];
             IReadOnlyList<ConstructorProvider> candidateConstructors = CustomCodeView?.Constructors is { Count: > 0 } customConstructors
-                ? [.. originalConstructorList, .. customConstructors]
+                ? [.. originalConstructorList, .. customConstructors.Where(c => !c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial))]
                 : originalConstructorList;
 
             var restorablePreviousConstructors = previousConstructors

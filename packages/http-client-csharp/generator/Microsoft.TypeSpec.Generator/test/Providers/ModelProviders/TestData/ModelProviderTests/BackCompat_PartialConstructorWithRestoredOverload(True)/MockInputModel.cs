@@ -5,6 +5,6 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        public partial MockInputModel(string resourceName, int resourceCount);
+        public partial MockInputModel(string name, int count);
     }
 }
