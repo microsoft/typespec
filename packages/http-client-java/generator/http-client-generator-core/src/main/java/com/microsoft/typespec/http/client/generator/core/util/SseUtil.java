@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseSchemaMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
@@ -78,11 +79,26 @@ public final class SseUtil {
                 .stream()
                 .flatMap(List::stream)
                 .anyMatch(proxy -> proxy.getImplementation() == null
-                    && (proxy.isSync() ? settings.isGenerateSyncMethods() : settings.isGenerateAsyncMethods()));
+                    && ((settings.isGenerateSyncMethods()
+                        && shouldGenerateSyncSseMethod(proxy.isSync(), settings.getSyncMethods(),
+                            settings.isSyncStackEnabled()))
+                        || (settings.isGenerateAsyncMethods()
+                            && shouldGenerateAsyncSseMethod(proxy.isSync(), settings.getSyncMethods()))));
         if (consumer) {
             validateSseMetadata(operation);
         }
         return consumer;
+    }
+
+    public static boolean shouldGenerateAsyncSseMethod(boolean proxyMethodSync, SyncMethodsGeneration syncMethods) {
+        return !proxyMethodSync && syncMethods != SyncMethodsGeneration.SYNC_ONLY;
+    }
+
+    public static boolean shouldGenerateSyncSseMethod(boolean proxyMethodSync, SyncMethodsGeneration syncMethods,
+        boolean syncStackEnabled) {
+        return proxyMethodSync
+            || (!syncStackEnabled
+                && (syncMethods == SyncMethodsGeneration.ALL || syncMethods == SyncMethodsGeneration.SYNC_ONLY));
     }
 
     private static void validateSseMetadata(Operation operation) {

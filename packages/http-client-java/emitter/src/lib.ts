@@ -96,6 +96,13 @@ export const $lib = createTypeSpecLibrary({
           "Java SSE generation does not support this event stream shape. The operation will continue to return BinaryData.",
       },
     },
+    "sse-nonstandard-status-code": {
+      ...doc("sse-nonstandard-status-code"),
+      severity: "warning",
+      messages: {
+        default: paramMessage`SSE operation '${"operationName"}' declares streaming response status codes ${"statusCodes"}. Java generation continues and the generated client accepts these declared responses. WHATWG EventSource expects status 200 for a stream; status 204 means no content.`,
+      },
+    },
     "no-service": {
       ...doc("no-service"),
       severity: "warning",

@@ -58,6 +58,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Flux;
 
 @Isolated
@@ -89,8 +91,9 @@ public class JavaPackageSseTests {
             "toIterableStream(Response<BinaryData> response,\n        BiFunction<String, String, T> converter)"));
     }
 
-    @Test
-    public void validatesContentTypeWithQuotedParameters(@TempDir Path tempDir) throws Exception {
+    @ParameterizedTest
+    @ValueSource(ints = { 200, 201, 202 })
+    public void validatesContentTypeWithQuotedParameters(int statusCode, @TempDir Path tempDir) throws Exception {
         JavaSettings.clear();
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
         javaPackage.addJavaFromResources("com.azure.mock.sseruntime", "ServerSentEventStreamHelper");
@@ -109,7 +112,7 @@ public class JavaPackageSseTests {
                 "text/event-stream; profile=\"a\\\\,b\"; charset=utf-8")) {
                 HttpHeaders headers = new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
                 Response<BinaryData> response
-                    = new SimpleResponse<>(null, 200, headers, BinaryData.fromString(content));
+                    = new SimpleResponse<>(null, statusCode, headers, BinaryData.fromString(content));
                 Flux<?> events = (Flux<?>) toFlux.invoke(null, response, converter);
                 Assertions.assertEquals(List.of("message:accepted"), events.collectList().block(Duration.ofSeconds(5)),
                     contentType);
@@ -122,7 +125,7 @@ public class JavaPackageSseTests {
                         super.close();
                     }
                 };
-                response = new SimpleResponse<>(null, 200, headers, BinaryData.fromStream(input));
+                response = new SimpleResponse<>(null, statusCode, headers, BinaryData.fromStream(input));
                 try (CloseableIterableStream<?> iterable
                     = (CloseableIterableStream<?>) toIterableStream.invoke(null, response, converter)) {
                     Assertions.assertFalse(closed.get(), contentType);
@@ -145,7 +148,7 @@ public class JavaPackageSseTests {
                 BinaryData body = BinaryData
                     .fromFlux(Flux.<java.nio.ByteBuffer>never().doOnCancel(() -> cancelled.set(true)), null, false)
                     .block();
-                Response<BinaryData> response = new SimpleResponse<>(null, 200, headers, body);
+                Response<BinaryData> response = new SimpleResponse<>(null, statusCode, headers, body);
                 Flux<?> events = (Flux<?>) toFlux.invoke(null, response, converter);
                 IllegalStateException validationFailure = Assertions.assertThrows(IllegalStateException.class,
                     () -> events.collectList().block(Duration.ofSeconds(5)), contentType);
@@ -161,12 +164,21 @@ public class JavaPackageSseTests {
                     }
                 };
                 Response<BinaryData> syncResponse
-                    = new SimpleResponse<>(null, 200, headers, BinaryData.fromStream(input));
+                    = new SimpleResponse<>(null, statusCode, headers, BinaryData.fromStream(input));
                 InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
                     () -> toIterableStream.invoke(null, syncResponse, converter), contentType);
                 Assertions.assertInstanceOf(IllegalStateException.class, exception.getCause(), contentType);
                 Assertions.assertTrue(closed.get(), contentType);
             }
+
+            Response<BinaryData> missingBody = new SimpleResponse<>(null, statusCode,
+                new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, "text/event-stream"), null);
+            Flux<?> events = (Flux<?>) toFlux.invoke(null, missingBody, converter);
+            Assertions.assertThrows(NullPointerException.class,
+                () -> events.collectList().block(Duration.ofSeconds(5)));
+            InvocationTargetException failure = Assertions.assertThrows(InvocationTargetException.class,
+                () -> toIterableStream.invoke(null, missingBody, converter));
+            Assertions.assertInstanceOf(NullPointerException.class, failure.getCause());
         }
     }
 

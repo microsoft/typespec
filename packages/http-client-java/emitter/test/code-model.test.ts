@@ -445,6 +445,90 @@ describe("experimental metadata", () => {
   );
 });
 
+describe("SSE response status codes", () => {
+  async function buildStatusScenario(namespace: string, flavor = "azure", warningAsError = false) {
+    const program = await compileSseScenario(namespace, warningAsError);
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    const operations = Object.fromEntries(
+      model.clients
+        .flatMap((client) => client.operationGroups)
+        .flatMap((group) => group.operations ?? [])
+        .map((operation) => [operation.language.default.name, operation]),
+    );
+    return { program, operations };
+  }
+
+  it("warns per supported streaming operation without changing declared statuses or SSE metadata", async () => {
+    const { program, operations } = await buildStatusScenario("SseStatusCodes");
+    const warnings = program.diagnostics.filter(
+      (diagnostic) => diagnostic.code !== "@typespec/http-client-java/sse-unsupported",
+    );
+    expectDiagnostics(
+      warnings,
+      ["created", "ranged", "protocol"].map(() => ({
+        code: "@typespec/http-client-java/sse-nonstandard-status-code",
+        severity: "warning" as const,
+      })),
+    );
+    const namespace = program.getGlobalNamespaceType().namespaces.get("SseStatusCodes")!;
+    expect(warnings.map((diagnostic) => diagnostic.target)).toEqual(
+      ["created", "ranged", "protocol"].map((name) => namespace.operations.get(name)),
+    );
+    expect(warnings[0].message).toContain("201");
+    expect(warnings[1].message).toContain("201, 202");
+    expect(warnings[2].message).toContain("201");
+    for (const name of ["standard", "created", "ranged", "protocol"]) {
+      expect(operations[name].sseMetadata?.streamName).toBe("Events");
+    }
+    expect(operations.created.sseMetadata?.baseSchema).toBe(
+      operations.standard.sseMetadata?.baseSchema,
+    );
+    expect(operations.created.convenienceApi).toBeDefined();
+    expect(operations.protocol.convenienceApi).toBeUndefined();
+    expect(
+      operations.created.responses?.flatMap((response) => response.protocol.http?.statusCodes),
+    ).toEqual(["201", "204"]);
+    expect(
+      operations.ranged.responses?.flatMap((response) => response.protocol.http?.statusCodes),
+    ).toEqual(["200", "201", "202"]);
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+      [{ code: "@typespec/http-client-java/sse-unsupported", severity: "warning" }],
+    );
+    expect(operations.unsupported.sseMetadata).toBeUndefined();
+    expect(operations.ordinary.sseMetadata).toBeUndefined();
+  });
+
+  it("allows operation-level suppression with warnings treated as errors", async () => {
+    const { program, operations } = await buildStatusScenario("SseStatusSuppressed", "azure", true);
+    expectDiagnosticEmpty(program.diagnostics);
+    expect(operations.created.sseMetadata).toBeDefined();
+    expect(operations.created.convenienceApi).toBeDefined();
+    expect(operations.created.responses?.[0].protocol.http?.statusCodes).toEqual(["201"]);
+  });
+
+  it.each(["", "azurev2"])("does not warn for other Java flavors: %s", async (flavor) => {
+    const { program, operations } = await buildStatusScenario("SseStatusCodes", flavor);
+    expectDiagnosticEmpty(program.diagnostics);
+    expect(
+      Object.values(operations).every((operation) => operation.sseMetadata === undefined),
+    ).toBe(true);
+  });
+});
+
 describe("code model characterization", () => {
   it.each(["SseGeneric", "SseGenericEncoded", "SseGenericReused"])(
     "checks effective generic union ownership: %s",

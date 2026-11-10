@@ -10,6 +10,65 @@ using TypeSpec.Events;
 using TypeSpec.SSE;
 using Azure.ClientGenerator.Core;
 
+namespace SseStatusCodes {
+  @events
+  union Events {
+    message: string,
+  }
+
+  model CreatedStream is SSEStream<Events> {
+    @statusCode statusCode: 201;
+  }
+
+  @minValue(200)
+  @maxValue(202)
+  scalar StreamingStatus extends int32;
+
+  model RangedStream is SSEStream<Events> {
+    @statusCode statusCode: StreamingStatus;
+  }
+
+  @error
+  model Failure {
+    @statusCode statusCode: 400 | 500;
+    message: string;
+  }
+
+  @events
+  union UnsupportedEvents {
+    message: "literal",
+  }
+
+  @route("/standard") @get op standard(): SSEStream<Events> | NoContentResponse | Failure;
+  @route("/created") @post op created(): CreatedStream | NoContentResponse | Failure;
+  @route("/ranged") @get op ranged(): RangedStream | Failure;
+  @route("/protocol")
+  @get
+  @convenientAPI(false, "java")
+  op protocol(): CreatedStream;
+  @route("/ordinary") @post op ordinary(): {
+    @statusCode statusCode: 201;
+    value: string;
+  };
+  @route("/unsupported") @get op unsupported(): {
+    @statusCode statusCode: 201;
+    ...SSEStream<UnsupportedEvents>;
+  };
+}
+
+namespace SseStatusSuppressed {
+  @events
+  union Events {
+    message: string,
+  }
+
+  #suppress "@typespec/http-client-java/sse-nonstandard-status-code" "The service uses 201."
+  @route("/created") @post op created(): {
+    @statusCode statusCode: 201;
+    ...SSEStream<Events>;
+  };
+}
+
 // Scenario: supported named payloads, API gates, and recursive collections.
 @server("https://example.org")
 namespace SseTest {

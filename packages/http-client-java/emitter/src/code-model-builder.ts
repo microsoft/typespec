@@ -1114,6 +1114,9 @@ export class CodeModelBuilder {
     this.applyExperimental(httpOperation.__raw.operation, codeModelOperation);
     codeModelOperation.internalApi = sdkMethod.access === "internal";
     codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response, sdkMethod.__raw);
+    if (codeModelOperation.sseMetadata) {
+      this.reportNonstandardSseStatusCodes(sdkMethod);
+    }
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
@@ -1319,6 +1322,24 @@ export class CodeModelBuilder {
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
 
     return codeModelOperation;
+  }
+
+  private reportNonstandardSseStatusCodes(sdkMethod: SdkServiceMethod<SdkHttpOperation>): void {
+    const statusCodes = [
+      ...new Set(
+        sdkMethod.operation.responses
+          .filter((response) => response.streamMetadata?.contentTypes.includes("text/event-stream"))
+          .flatMap((response) => this.getStatusCodes(response.statusCodes))
+          .filter((statusCode) => statusCode !== "200" && statusCode !== "204"),
+      ),
+    ].sort((left, right) => Number(left) - Number(right));
+    if (statusCodes.length > 0) {
+      reportDiagnostic(this.program, {
+        code: "sse-nonstandard-status-code",
+        format: { operationName: sdkMethod.name, statusCodes: statusCodes.join(", ") },
+        target: sdkMethod.__raw ?? sdkMethod.operation.__raw.operation,
+      });
+    }
   }
 
   private processSseMetadata(

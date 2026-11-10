@@ -108,6 +108,10 @@ union ProtocolOnlyStreamEvents {
   message: ProtocolOnlyMessageStreamEvent,
 }
 
+model CreatedTestStream is SSEStream<TestStreamEvents> {
+  @statusCode statusCode: 201;
+}
+
 @events
 union RetrievalStreamEvents {
   `retrieval.started`: StartedPayload,
@@ -124,6 +128,10 @@ interface Stream {
   @route("/stream")
   @get
   read(@header authorization?: string): SSEStream<TestStreamEvents>;
+
+  @route("/stream-created")
+  @get
+  readCreated(): CreatedTestStream;
 
   @route("/fallback")
   @get

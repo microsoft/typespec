@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
@@ -65,6 +66,31 @@ public class SseUtilTests {
         metadata.getEvents().get(4).setTerminal(true);
 
         Assertions.assertEquals(List.of("response.completed", "error"), SseUtil.getTerminalEventNames(metadata));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "false, ALL, false, true, true",
+        "false, ALL, true, false, true",
+        "false, ESSENTIAL, false, false, true",
+        "false, ESSENTIAL, true, false, true",
+        "false, SYNC_ONLY, false, true, false",
+        "false, SYNC_ONLY, true, false, false",
+        "false, NONE, false, false, true",
+        "false, NONE, true, false, true",
+        "true, ALL, false, true, false",
+        "true, ALL, true, true, false",
+        "true, ESSENTIAL, false, true, false",
+        "true, ESSENTIAL, true, true, false",
+        "true, SYNC_ONLY, false, true, false",
+        "true, SYNC_ONLY, true, true, false",
+        "true, NONE, false, true, false",
+        "true, NONE, true, true, false" })
+    public void selectsSseMethodKinds(boolean proxyMethodSync, SyncMethodsGeneration syncMethods,
+        boolean syncStackEnabled, boolean expectedSync, boolean expectedAsync) {
+        Assertions.assertEquals(expectedSync,
+            SseUtil.shouldGenerateSyncSseMethod(proxyMethodSync, syncMethods, syncStackEnabled));
+        Assertions.assertEquals(expectedAsync, SseUtil.shouldGenerateAsyncSseMethod(proxyMethodSync, syncMethods));
     }
 
     private static SseMetadata metadata(String streamName, String... eventNames) {

@@ -24,7 +24,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -174,19 +173,6 @@ public class ClientMethodMapperTests {
         } finally {
             resetJavaSettings();
         }
-    }
-
-    @Test
-    public void sseSyncOnlyModeDoesNotGenerateAsyncMethods() {
-        Assertions.assertFalse(ClientMethodMapper.shouldGenerateAsyncSseMethod(false, SyncMethodsGeneration.SYNC_ONLY));
-        Assertions
-            .assertTrue(ClientMethodMapper.shouldGenerateSyncSseMethod(false, SyncMethodsGeneration.SYNC_ONLY, false));
-    }
-
-    @Test
-    public void sseSyncOverAsyncGeneratesBothMethodKinds() {
-        Assertions.assertTrue(ClientMethodMapper.shouldGenerateAsyncSseMethod(false, SyncMethodsGeneration.ALL));
-        Assertions.assertTrue(ClientMethodMapper.shouldGenerateSyncSseMethod(false, SyncMethodsGeneration.ALL, false));
     }
 
     @Test

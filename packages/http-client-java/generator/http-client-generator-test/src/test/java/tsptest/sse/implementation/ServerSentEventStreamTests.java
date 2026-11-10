@@ -3,11 +3,15 @@
 
 package tsptest.sse.implementation;
 
+import com.azure.core.exception.HttpResponseException;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.policy.FixedDelayOptions;
+import com.azure.core.http.policy.RetryOptions;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.SimpleResponse;
+import com.azure.core.test.http.MockHttpResponse;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
 import java.io.ByteArrayInputStream;
@@ -28,8 +32,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import tsptest.sse.SseAsyncClient;
 import tsptest.sse.SseClient;
+import tsptest.sse.SseClientBuilder;
 import tsptest.sse.models.ActivityCompletedRetrievalStreamEvent;
 import tsptest.sse.models.OneTwoThreeDoneRetrievalStreamEvent;
 import tsptest.sse.models.RetrievalStartedRetrievalStreamEvent;
@@ -150,9 +156,45 @@ public class ServerSentEventStreamTests {
 
     @Test
     public void rejectsInvalidResponsesAndClosesTheirBodies() {
-        assertInvalidResponseClosed(500, "text/event-stream");
         assertInvalidResponseClosed(200, "application/json");
         assertInvalidResponseClosed(200, "text/event-stream, application/json");
+    }
+
+    @Test
+    public void generatedClientsAcceptDeclaredCreatedStatus() throws IOException {
+        String content = "event: started\ndata: {\"message\":\"created\"}\n\n";
+        HttpHeaders headers = new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, "text/event-stream");
+        SseClientBuilder builder = new SseClientBuilder().endpoint("https://example.org")
+            .retryOptions(new RetryOptions(new FixedDelayOptions(0, Duration.ZERO)))
+            .httpClient(request -> Mono
+                .just(new MockHttpResponse(request, 201, headers, content.getBytes(StandardCharsets.UTF_8))));
+
+        try (CloseableIterableStream<TestStreamEvent> events = builder.buildClient().readCreated()) {
+            TestStartedStreamEvent event
+                = Assertions.assertInstanceOf(TestStartedStreamEvent.class, events.iterator().next());
+            Assertions.assertEquals("created", event.getValue().getMessage());
+        }
+
+        TestStartedStreamEvent asyncEvent = Assertions.assertInstanceOf(TestStartedStreamEvent.class,
+            builder.buildAsyncClient().readCreated().single().block());
+        Assertions.assertEquals("created", asyncEvent.getValue().getMessage());
+    }
+
+    @Test
+    public void generatedClientsRejectUndeclaredStatusBeforeSseDecoding() {
+        HttpHeaders headers = new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, "text/event-stream");
+        SseClientBuilder builder = new SseClientBuilder().endpoint("https://example.org")
+            .retryOptions(new RetryOptions(new FixedDelayOptions(0, Duration.ZERO)))
+            .httpClient(request -> Mono.just(new MockHttpResponse(request, 500, headers,
+                "event: started\ndata: {\"message\":\"unexpected\"}\n\n".getBytes(StandardCharsets.UTF_8))));
+
+        Assertions.assertThrows(HttpResponseException.class, () -> {
+            try (CloseableIterableStream<TestStreamEvent> ignored = builder.buildClient().readCreated()) {
+                ignored.iterator().hasNext();
+            }
+        });
+        Assertions.assertThrows(HttpResponseException.class,
+            () -> builder.buildAsyncClient().readCreated().collectList().block());
     }
 
     @Test

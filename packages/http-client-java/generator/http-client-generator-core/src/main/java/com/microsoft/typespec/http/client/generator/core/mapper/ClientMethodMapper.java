@@ -251,12 +251,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     // Create Simple Client Methods.
                     //
                     if (!isProtocolMethod && SseUtil.isSseOperation(operation)) {
-                        if (shouldGenerateSyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods(),
+                        if (SseUtil.shouldGenerateSyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods(),
                             settings.isSyncStackEnabled())) {
                             createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
                             createSseClientMethods(true, operation, baseMethod, methods, createMethodArgs);
                         }
-                        if (shouldGenerateAsyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods())) {
+                        if (SseUtil.shouldGenerateAsyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods())) {
                             createSimpleWithResponseClientMethods(false, baseMethod, methods, createMethodArgs);
                             createSseClientMethods(false, operation, baseMethod, methods, createMethodArgs);
                         }
@@ -284,17 +284,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     : m)
             .distinct()
             .collect(Collectors.toList());
-    }
-
-    static boolean shouldGenerateAsyncSseMethod(boolean proxyMethodSync, SyncMethodsGeneration syncMethods) {
-        return !proxyMethodSync && syncMethods != SyncMethodsGeneration.SYNC_ONLY;
-    }
-
-    static boolean shouldGenerateSyncSseMethod(boolean proxyMethodSync, SyncMethodsGeneration syncMethods,
-        boolean syncStackEnabled) {
-        return proxyMethodSync
-            || (!syncStackEnabled
-                && (syncMethods == SyncMethodsGeneration.ALL || syncMethods == SyncMethodsGeneration.SYNC_ONLY));
     }
 
     private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
