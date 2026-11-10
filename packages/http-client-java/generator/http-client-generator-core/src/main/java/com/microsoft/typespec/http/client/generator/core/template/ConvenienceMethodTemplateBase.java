@@ -313,9 +313,7 @@ abstract class ConvenienceMethodTemplateBase {
 
             addGeneratedAnnotation(classBlock);
             ExperimentalAnnotationUtil.write(classBlock, convenienceMethod.getApiMetadata());
-            if (convenienceMethod.getSseMetadata() == null) {
-                TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
-            }
+            TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
 
             JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
