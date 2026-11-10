@@ -25,7 +25,7 @@ const [disables, diagnostics] = collectLinterDisables(configText);
 const observedSuppressions = getSuppressions(program); // Includes a `used` flag.
 ```
 
-- Override linter configuration on the commans line. Select rulesets with `--linter-ruleset`, enable, disable, or configure individual rules with `--linter-rule`, and skip linting with `--no-linter`.
+- Override linter configuration on the command line. Select rulesets with `--linter-ruleset`, enable, disable, or configure individual rules with `--linter-rule`, and skip linting with `--no-linter`.
 
 ```bash
 tsp compile . --linter-ruleset @typespec/http/all
@@ -46,7 +46,10 @@ const cursor = skipTrivia(sourceText, property.end, property.parent?.end);
 - Add `LongRunningOperation<Response, Metadata>` for long-running operations ([AIP-151](https://google.aip.dev/151)), and `WellKnown.Operation`. An operation that returns `LongRunningOperation` returns a `google.longrunning.Operation`, and the emitter writes its response and metadata types in the method's `google.longrunning.operation_info` option.
 
 ```tsp
-importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+@Protobuf.service
+interface Library {
+  importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+}
 ```
 
 ```proto
