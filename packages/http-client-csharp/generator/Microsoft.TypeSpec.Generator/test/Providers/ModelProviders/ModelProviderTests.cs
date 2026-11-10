@@ -245,6 +245,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(property.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.False);
         }
 
+        [TestCase("StableBase", true)]
+        [TestCase("ObsoleteBase", false)]
+        public async Task OverrideDeclarationUsesCustomizedBaseDeprecation(string baseName, bool expectCs0809)
+        {
+            var baseModel = InputFactory.Model(baseName, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Generated base message")]);
+            var derived = InputFactory.Model("Derived", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Derived message")]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var provider = generator.Object.TypeFactory.CreateModel(derived)!;
+            var property = provider.BuildProperties().Single();
+
+            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0809\""),
+                Is.EqualTo(expectCs0809));
+        }
+
+        [TestCase("CustomOverride", "BASE001")]
+        [TestCase("CustomHidden", null)]
+        [TestCase("CustomObsoleteOverride", "DERIVED001")]
+        public async Task CustomizedOverrideReferencesUseBaseObsoleteMetadata(string modelName, string? expectedDiagnostic)
+        {
+            var baseModel = InputFactory.Model("ObsoleteBase", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Generated base message")]);
+            var derived = InputFactory.Model(modelName, baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.CanonicalView.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(s => s.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics, Is.EquivalentTo(expectedDiagnostic is null ? [] : new[] { $"\"{expectedDiagnostic}\"" }));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomizedOverrideReferencesUseGeneratedBaseDeprecation(bool baseDeprecated)
+        {
+            var baseModel = InputFactory.Model("GeneratedBase", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derived = InputFactory.Model("CustomGeneratedBaseOverride", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.CanonicalView.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.EqualTo(baseDeprecated));
+        }
+
         private sealed class RenameBasePropertyVisitor : LibraryVisitor
         {
             protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)

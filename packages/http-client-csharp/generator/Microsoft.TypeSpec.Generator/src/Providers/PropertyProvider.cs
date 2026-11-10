@@ -53,6 +53,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        private readonly AttributeStatement? _generatedDeprecationAttribute;
+        private bool _removedGeneratedDeprecationAttribute;
+        private IReadOnlyList<SuppressionStatement> _overrideDeprecationSuppressions = [];
         public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
         internal IReadOnlyList<SuppressionStatement> DeclarationSuppressions { get; private set; } = [];
 
@@ -155,6 +158,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (inputProperty is InputModelProperty modelProperty &&
                 DeprecationApiHelpers.BuildAttribute(modelProperty.Deprecation) is { } deprecationAttribute)
             {
+                _generatedDeprecationAttribute = deprecationAttribute;
                 Attributes = [.. Attributes, deprecationAttribute];
             }
             Suppressions = ExperimentalApiHelpers.MergeSuppressions(
@@ -164,6 +168,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
+        }
+
+        internal void RefreshDeprecation(TypeProvider enclosingType)
+        {
+            if (_generatedDeprecationAttribute is not { } attribute ||
+                (!Attributes.Contains(attribute) && !_removedGeneratedDeprecationAttribute))
+            {
+                return;
+            }
+
+            var previous = enclosingType.LastContractView?.Properties.FirstOrDefault(p =>
+                p.Name == Name && MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes));
+            var shouldInclude = !MethodSignatureHelper.IsPublicApi(Modifiers, Attributes) ||
+                previous is null || previous.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+            shouldInclude &= !Attributes.Any(a => !ReferenceEquals(a, attribute) && DeprecationApiHelpers.IsObsoleteAttribute(a));
+            Attributes = [.. Attributes.Where(a => !ReferenceEquals(a, attribute))];
+            _removedGeneratedDeprecationAttribute = !shouldInclude;
+            if (shouldInclude)
+            {
+                Attributes = [.. Attributes, attribute];
+            }
+        }
+
+        internal void RefreshOverrideDeprecationSuppressions()
+        {
+            DeclarationSuppressions = [.. DeclarationSuppressions.Except(_overrideDeprecationSuppressions)];
+            _overrideDeprecationSuppressions = [];
+            if (!Modifiers.HasFlag(MethodSignatureModifiers.Override) ||
+                BaseProperty is not { } baseProperty)
+            {
+                return;
+            }
+            DeprecationApiHelpers.EnsurePropertyInitialized(baseProperty);
+            var baseIsObsolete = DeprecationApiHelpers.GetEffectiveObsoleteAttribute(baseProperty) is not null;
+            var currentIsObsolete = Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+            if (baseIsObsolete != currentIsObsolete)
+            {
+                _overrideDeprecationSuppressions =
+                [
+                    new(null, Snippet.Literal(baseIsObsolete ? "CS0672" : "CS0809"),
+                        "This generated property redeclares a member with a different deprecation status.")
+                ];
+                DeclarationSuppressions = ExperimentalApiHelpers.MergeSuppressions(DeclarationSuppressions, _overrideDeprecationSuppressions);
+            }
         }
 
         public PropertyProvider(
@@ -485,6 +533,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes.ToArray();
+                _removedGeneratedDeprecationAttribute = false;
             }
             if (suppressions != null)
             {

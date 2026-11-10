@@ -1099,6 +1099,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void ProcessTypeForBackCompatibility()
         {
+            if (this is ModelProvider model)
+            {
+                model.RefreshPropertyDeprecation();
+            }
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
 

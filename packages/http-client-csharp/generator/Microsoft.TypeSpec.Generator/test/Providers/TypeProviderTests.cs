@@ -267,6 +267,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Does.Contain("\"CS0809\""));
         }
 
+        [Test]
+        public async Task PropertyDeprecationFollowsFinalTypeIdentity(
+            [Values] bool changeNamespace, [Values] bool initiallyPublished)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var initialName = changeNamespace || initiallyPublished ? "StableModel" : "Unpublished";
+            var initialNamespace = changeNamespace && !initiallyPublished ? "Unpublished" : "Sample.Models";
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(InputFactory.Model(initialName,
+                @namespace: initialNamespace, properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Generated message")]))!;
+            var property = provider.Properties.Single();
+            Assert.AreEqual(!initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+
+            provider.Update(
+                name: changeNamespace ? null : initiallyPublished ? "Unpublished" : "StableModel",
+                @namespace: changeNamespace ? initiallyPublished ? "Unpublished" : "Sample.Models" : null);
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreSame(property, provider.Properties.Single());
+            Assert.AreEqual(initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+
+            provider.Update(name: initialName, @namespace: initialNamespace);
+            provider.ProcessTypeForBackCompatibility();
+            Assert.AreEqual(!initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.That(property.Attributes.Count(DeprecationApiHelpers.IsObsoleteAttribute), Is.LessThanOrEqualTo(1));
+        }
+
+        [Test]
+        public async Task PropertyCompatibilityPreservesVisitorObsoleteAttributes(
+            [Values] bool inputDeprecated, [Values] bool replaceGenerated)
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var visitor = new PropertyObsoleteVisitor(replaceGenerated);
+            generator.Object.AddVisitor(visitor);
+            var provider = generator.Object.TypeFactory.CreateModel(InputFactory.Model("StableModel", properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String,
+                    deprecation: inputDeprecated ? "Generated message" : null)]))!;
+
+            provider.ProcessTypeForBackCompatibility();
+
+            var attributes = provider.Properties.Single().Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            Assert.IsTrue(ReferenceEquals(visitor.Attribute, attributes.Single()));
+        }
+
+        private sealed class PropertyObsoleteVisitor(bool replaceGenerated) : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } =
+                new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property is not null)
+                {
+                    property.Update(attributes: replaceGenerated ? [Attribute] : [.. property.Attributes, Attribute]);
+                }
+                return property;
+            }
+        }
+
         private sealed class PropertyAttributeVisitor : LibraryVisitor
         {
             public AttributeStatement Attribute { get; } =

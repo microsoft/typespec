@@ -250,6 +250,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
+                    BaseProperty = propertySymbol.OverriddenProperty is { } baseProperty
+                        ? new NamedTypeSymbolProvider(baseProperty.ContainingType, _compilation).Properties
+                            .FirstOrDefault(p => p.Name == baseProperty.Name)
+                        : null,
                     IsInitOnly = propertySymbol.SetMethod?.IsInitOnly == true,
                     HasUnsupportedBaseContract = propertySymbol.IsIndexer || propertySymbol.ReturnsByRef ||
                         propertySymbol.ReturnsByRefReadonly || propertySymbol.IsRequired ||
