@@ -168,6 +168,7 @@ public final class ProtocolAsyncClient {
      * @return A stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public Flux<ProtocolEvent> id() {
         RequestOptions requestOptions = new RequestOptions();
         return idWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
@@ -187,6 +188,7 @@ public final class ProtocolAsyncClient {
      * @return A stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public Flux<ProtocolEvent> invalidId() {
         RequestOptions requestOptions = new RequestOptions();
         return invalidIdWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
@@ -206,6 +208,7 @@ public final class ProtocolAsyncClient {
      * @return A stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public Flux<ProtocolEvent> retry() {
         RequestOptions requestOptions = new RequestOptions();
         return retryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper.toFlux(response,
@@ -225,6 +228,7 @@ public final class ProtocolAsyncClient {
      * @return A stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public Flux<ProtocolEvent> invalidRetry() {
         RequestOptions requestOptions = new RequestOptions();
         return invalidRetryWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper
@@ -244,6 +248,7 @@ public final class ProtocolAsyncClient {
      * @return A stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public Flux<ProtocolEvent> reconnect() {
         RequestOptions requestOptions = new RequestOptions();
         return reconnectWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreamHelper

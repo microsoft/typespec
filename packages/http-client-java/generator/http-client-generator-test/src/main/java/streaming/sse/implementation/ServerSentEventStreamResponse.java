@@ -18,6 +18,7 @@ import reactor.core.publisher.BaseSubscriber;
 
 /**
  * Validates and exposes the fields used by a server-sent event stream.
+ * The generated operation proxy validates the declared response status codes before decoding.
  */
 final class ServerSentEventStreamResponse {
     private final int statusCode;
@@ -50,14 +51,10 @@ final class ServerSentEventStreamResponse {
         int statusCode = response.getStatusCode();
         BinaryData body = response.getValue();
         RuntimeException validationFailure = null;
-        if (statusCode != 200 && statusCode != 204) {
-            validationFailure
-                = new IllegalStateException("Expected a server-sent event response to have status code 200 or 204.");
-        } else if (statusCode == 200
-            && !isTextEventStream(response.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE))) {
+        if (statusCode != 204 && !isTextEventStream(response.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE))) {
             validationFailure = new IllegalStateException(
                 "Expected a successful server-sent event response to have Content-Type 'text/event-stream'.");
-        } else if (statusCode == 200 && body == null) {
+        } else if (statusCode != 204 && body == null) {
             validationFailure
                 = new NullPointerException("'response.getValue()' cannot be null unless the status code is 204.");
         }

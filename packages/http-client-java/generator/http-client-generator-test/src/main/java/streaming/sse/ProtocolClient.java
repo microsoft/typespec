@@ -171,6 +171,7 @@ public final class ProtocolClient {
      * @return A closeable stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public CloseableIterableStream<ProtocolEvent> id() {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreamHelper.toIterableStream(idWithResponse(requestOptions),
@@ -194,6 +195,7 @@ public final class ProtocolClient {
      * @return A closeable stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public CloseableIterableStream<ProtocolEvent> invalidId() {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreamHelper.toIterableStream(invalidIdWithResponse(requestOptions),
@@ -217,6 +219,7 @@ public final class ProtocolClient {
      * @return A closeable stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public CloseableIterableStream<ProtocolEvent> retry() {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreamHelper.toIterableStream(retryWithResponse(requestOptions),
@@ -240,6 +243,7 @@ public final class ProtocolClient {
      * @return A closeable stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public CloseableIterableStream<ProtocolEvent> invalidRetry() {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreamHelper.toIterableStream(invalidRetryWithResponse(requestOptions),
@@ -263,6 +267,7 @@ public final class ProtocolClient {
      * @return A closeable stream of typed protocol event events.
      */
     @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
     public CloseableIterableStream<ProtocolEvent> reconnect() {
         RequestOptions requestOptions = new RequestOptions();
         return ServerSentEventStreamHelper.toIterableStream(reconnectWithResponse(requestOptions),
