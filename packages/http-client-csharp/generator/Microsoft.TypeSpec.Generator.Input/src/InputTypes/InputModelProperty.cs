@@ -41,6 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public bool IsDiscriminator { get; internal set; }
+        public string? Deprecation { get; internal set; }
         /// <summary>
         /// The property declaration name before client-side renaming.
         /// </summary>

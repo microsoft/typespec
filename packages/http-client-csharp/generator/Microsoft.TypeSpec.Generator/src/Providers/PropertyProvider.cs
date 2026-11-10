@@ -151,6 +151,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = new PropertyWireInformation(inputProperty);
             Attributes = ExperimentalApiHelpers.BuildAttributes(inputProperty.Experimental);
+            if (inputProperty is InputModelProperty modelProperty &&
+                DeprecationApiHelpers.BuildAttribute(modelProperty.Deprecation) is { } deprecationAttribute)
+            {
+                Attributes = [.. Attributes, deprecationAttribute];
+            }
             Suppressions = ExperimentalApiHelpers.MergeSuppressions(
                 ExperimentalApiHelpers.GetDependencySuppressions(inputProperty.Experimental),
                 ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.Type),

@@ -374,6 +374,27 @@ describe("Discriminator property", () => {
   });
 
   it.each([undefined, "", 'Use "Current" instead.\nSee C:\\sdk.'])(
+    "preserves property deprecation metadata: %s",
+    async (message) => {
+      const directive = message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`;
+      const program = await typeSpecCompile(
+        `model ExampleOptions {
+           ${directive}
+           legacy?: string;
+           replacement?: string;
+         }
+         @get op read(): ExampleOptions;`,
+        runner,
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const properties = root.models.find((m) => m.name === "ExampleOptions")!.properties;
+      strictEqual(properties.find((p) => p.name === "legacy")?.deprecation, message);
+      strictEqual(properties.find((p) => p.name === "replacement")?.deprecation, undefined);
+    },
+  );
+
+  it.each([undefined, "", 'Use "Current" instead.\nSee C:\\sdk.'])(
     "preserves model and enum deprecation metadata: %s",
     async (message) => {
       const directive = message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`;

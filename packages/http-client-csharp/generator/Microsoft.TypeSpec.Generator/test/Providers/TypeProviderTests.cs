@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,6 +25,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [Test]
+        public async Task DeprecatedPropertiesPreserveMessagesAndCustomizations(
+            [Values("ExampleOptions", "CustomOptions")] string modelName,
+            [Values(null, "", "Use \"Replacement\" instead.\nSee C:\\sdk.")] string? message)
+        {
+            var input = TypeSpecSerialization.Deserialize($$"""
+                {
+                  "name": "Sample",
+                  "models": [{
+                    "$id": "model", "name": "{{modelName}}", "namespace": "Sample", "usage": "Input, Output",
+                    "properties": [
+                      {"$id": "legacy", "name": "legacy", "optional": true,
+                       {{(message is null ? "" : $"\"deprecation\": {JsonSerializer.Serialize(message)},")}}
+                       "type": {"kind": "string"} },
+                      {"$id": "replacement", "name": "replacement", "optional": true, "type": {"kind": "string"} },
+                      {"$id": "handwritten", "name": "handwritten", "optional": true,
+                       "deprecation": "Generated message", "type": {"kind": "string"} }
+                    ]
+                  }]
+                }
+                """)!;
+            var model = input.Models.Single();
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [model],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            var attribute = provider.Properties.Single(p => p.Name == "Legacy").Attributes
+                .SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+            if (message is null)
+            {
+                Assert.IsNull(attribute);
+            }
+            else
+            {
+                Assert.IsNotNull(attribute);
+                Assert.AreEqual(Snippet.Literal(message).ToDisplayString(), attribute!.Arguments.Single().ToDisplayString());
+                Assert.IsEmpty(attribute.PositionalArguments);
+            }
+            Assert.IsEmpty(provider.Properties.Single(p => p.Name == "Replacement").Attributes);
+            if (modelName == "CustomOptions")
+            {
+                Assert.AreEqual("RenamedOptions", provider.Name);
+                Assert.IsFalse(provider.Properties.Any(p => p.Name == "Handwritten"));
+                var custom = provider.CustomCodeView!.Properties.Single(p => p.Name == "Handwritten");
+                var obsolete = custom.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                Assert.AreEqual("\"Handwritten message\"", obsolete.Arguments.Single().ToDisplayString());
+            }
+        }
+
         [TestCase(typeof(int[]), true)]
         [TestCase(typeof(int?[]), false)]
         [TestCase(typeof(int[][]), true)]

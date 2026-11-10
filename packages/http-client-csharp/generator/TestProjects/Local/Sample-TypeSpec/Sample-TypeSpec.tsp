@@ -282,6 +282,7 @@ model NotFriend {
 @doc("this is a model with a client name")
 @clientName("RenamedModel")
 model ModelWithClientName {
+  #deprecated "Use replacement instead."
   @doc("name of the ModelWithClientName")
   otherName: string;
 }
@@ -1153,6 +1154,7 @@ union LegacyExtensibleChoice {
 }
 
 model CurrentDetails extends LegacyDetails {
+  #deprecated "Use \"replacement\" instead.\nSee C:\\sdk."
   previous?: LegacyDetails[];
 }
 
