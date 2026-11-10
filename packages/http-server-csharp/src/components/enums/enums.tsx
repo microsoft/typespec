@@ -173,7 +173,12 @@ function isAnonymousStringLiteralUnion(type: Type): type is Union {
 function getFlattenedUnionEnumMembers(
   union: Union,
   activeUnions = new Set<Union>(),
+  flattenedMembersCache = new Map<Union, UnionEnumMember[]>(),
 ): UnionEnumMember[] | undefined {
+  const cachedMembers = flattenedMembersCache.get(union);
+  if (cachedMembers) {
+    return cachedMembers;
+  }
   if (activeUnions.has(union)) return undefined;
 
   const nextActiveUnions = new Set(activeUnions);
@@ -237,7 +242,11 @@ function getFlattenedUnionEnumMembers(
         return undefined;
       }
 
-      const nestedMembers = getFlattenedUnionEnumMembers(variant.type, nextActiveUnions);
+      const nestedMembers = getFlattenedUnionEnumMembers(
+        variant.type,
+        nextActiveUnions,
+        flattenedMembersCache,
+      );
       if (!nestedMembers) return undefined;
       for (const member of nestedMembers) {
         const generatedName = namePolicy.getName(member.name, "enum-member");
@@ -261,6 +270,7 @@ function getFlattenedUnionEnumMembers(
     return undefined;
   }
 
+  flattenedMembersCache.set(union, members);
   return members;
 }
 

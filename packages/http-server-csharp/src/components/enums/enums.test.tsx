@@ -249,6 +249,32 @@ describe("isUnionEnum", () => {
     expect(isUnionEnum(MaybeStatus)).toBe(true);
     expect(getUnionEnumMembers(MaybeStatus).map((member) => member.value)).toEqual(["ready"]);
   });
+
+  it("rejects self-recursive unions without recursing indefinitely", async () => {
+    const { Recursive } = await runner.compile(t.code`
+      union ${t.union("Recursive")} {
+        "ready",
+        Recursive,
+      }
+    `);
+
+    expect(isUnionEnum(Recursive)).toBe(false);
+  });
+
+  it("rejects mutually recursive unions without recursing indefinitely", async () => {
+    const { First } = await runner.compile(t.code`
+      union ${t.union("First")} {
+        "first",
+        Second,
+      }
+      union Second {
+        "second",
+        First,
+      }
+    `);
+
+    expect(isUnionEnum(First)).toBe(false);
+  });
 });
 
 describe("union-as-enum rendering", () => {

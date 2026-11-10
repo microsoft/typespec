@@ -229,11 +229,8 @@ function resolveUnionType(
     // Nullable value type → T?
     const nullableValueType = getNullableValueTypeUnionInnerType($, union);
     if (nullableValueType) {
-      return (
-        <>
-          <TypeExpression type={nullableValueType} nullable={false} />?
-        </>
-      );
+      const valueTypeExpression = <TypeExpression type={nullableValueType} nullable={false} />;
+      return nullable ? <>{valueTypeExpression}?</> : valueTypeExpression;
     }
     // Nullable reference type or multi-variant nullable → resolve inner type
     return <TypeExpression type={innerType} nullable={nullable} />;

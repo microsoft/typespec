@@ -144,6 +144,15 @@ describe("nullable union", () => {
     ).toRenderTo("int?");
   });
 
+  it("respects nullable=false for non-enum nullable value unions", async () => {
+    const type = await compileType("int32 | null");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} nullable={false} />
+      </Wrapper>,
+    ).toRenderTo("int");
+  });
+
   it("maps string | null to string", async () => {
     const type = await compileType("string | null");
     expect(
