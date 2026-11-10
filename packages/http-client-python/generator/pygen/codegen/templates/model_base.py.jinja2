@@ -1102,7 +1102,7 @@ class Model(_MyMutableMapping):
 
     @classmethod
     def _get_discriminator(cls, exist_discriminators) -> typing.Optional["_RestField"]:
-        for v in cls.__dict__.values():
+        for v in dict(cls.__dict__).values():
             if isinstance(v, _RestField) and v._is_discriminator and v._rest_name not in exist_discriminators:
                 return v
         return None
