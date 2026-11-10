@@ -18,6 +18,9 @@ As a Node.js package, the entry of the library is written in TypeScript, under `
 As a Java code generator, part of the implementation is written in Java, under `generator` folder.
 Java code is packaged into a JAR file, and included in the Node.js package. The JAR file is called at runtime by TypeScript code.
 
+Generated Java is analyzed with JavaParser to remove unused imports and order the remaining imports, then formatted with Eclipse JDT using `generator\eclipse-format-azure-sdk-for-java.xml`.
+Import cleanup does not require resolving the generated SDK's dependencies.
+
 ## Build and Pack
 
 ["Setup.ps1" script](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/Setup.ps1) builds TypeScript code and Java code, and packs them into "typespec-http-client-java-[version].tgz".

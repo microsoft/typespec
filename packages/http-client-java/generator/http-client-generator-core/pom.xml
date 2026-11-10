@@ -83,12 +83,6 @@
       <artifactId>javaparser-core</artifactId>
       <version>3.27.0</version>
     </dependency>
-    <!-- 1.24.0 is the last version that supports Java 11 -->
-    <dependency>
-      <groupId>com.google.googlejavaformat</groupId>
-      <artifactId>google-java-format</artifactId>
-      <version>1.24.0</version>
-    </dependency>
     <!-- Keep Eclipse formatter dependencies pinned to releases compatible with Java 17. -->
     <!-- Upgrading the formatter may change generated code formatting. -->
     <dependency>
