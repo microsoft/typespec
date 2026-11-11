@@ -9,6 +9,11 @@ import org.junit.jupiter.api.Test;
 
 public class ResponseReplacementTests {
     @Test
+    public void testVoidResponse() {
+        new ResponseReplacementClientBuilder().buildClient().voidResponse();
+    }
+
+    @Test
     public void testBytesResponse() {
         ResponseReplacementClient client = new ResponseReplacementClientBuilder().buildClient();
         Assertions.assertArrayEquals("{\"name\":\"widget\"}".getBytes(StandardCharsets.UTF_8),
