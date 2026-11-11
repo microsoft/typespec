@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Update vulnerable npm transitive dependencies.
+Upgrade Node.js dependencies and sync Java dependency versions.
