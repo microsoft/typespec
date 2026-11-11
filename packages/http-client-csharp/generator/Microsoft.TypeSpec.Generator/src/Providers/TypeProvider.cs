@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -177,9 +178,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         // Intentionally do not cache this value as the name might be changed in a visitor so we want to always
         // recalculate it.
-        public string RelativeFilePath => _relativeFilePath ?? BuildRelativeFilePath();
+        public string RelativeFilePath
+        {
+            get
+            {
+                var path = _relativeFilePath ?? BuildRelativeFilePath();
+                _observedRelativeFilePath = path;
+                return path;
+            }
+        }
 
         private string? _relativeFilePath;
+        private string? _observedRelativeFilePath;
 
         public string Name => Type.Name;
 
@@ -365,6 +375,69 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= ApplyCustomizationFilter(BuildFields());
 
+        // The first pre-emission lookup slice only proves a simple, top-level class
+        // scope. Custom partials and inherited scopes require additional facts.
+        private PreparedFieldTypes? _preparedFieldTypes;
+        private long _declarationRevision;
+        internal long DeclarationRevision => System.Threading.Volatile.Read(ref _declarationRevision);
+        internal IReadOnlyList<MethodProvider>? CachedMethods => _methods;
+        internal IReadOnlyList<ConstructorProvider>? CachedConstructors => _constructors;
+        internal IReadOnlyList<FieldProvider>? CachedFields => _fields;
+        internal IReadOnlyList<PropertyProvider>? CachedProperties => _properties;
+        internal IReadOnlyList<TypeProvider>? CachedNestedTypes => _nestedTypes;
+        internal IReadOnlyList<TypeProvider>? CachedSerializationProviders => _serializationProviders;
+        internal IReadOnlyList<MethodBodyStatement>? CachedWriteAttributes => _attributes;
+        internal WhereExpression? CachedWhereClause => _whereClause;
+        internal string? CachedRelativeFilePath => _relativeFilePath ?? _observedRelativeFilePath;
+        internal TypeSignatureModifiers? CachedDeclarationModifiers => _declarationModifiers;
+        internal XmlDocProvider? CachedXmlDocs => _xmlDocs;
+        internal IReadOnlyList<SuppressionStatement>? CachedDisabledFileWarnings => _disabledFileWarnings;
+        internal bool HasFileWarningInput => _inputType is not null || SerializationProviderOwner?._inputType is not null;
+        internal IReadOnlyList<CSharpType>? CachedImplements => _implements;
+        internal string? PinnedRelativeFilePath => _relativeFilePath;
+        internal bool IsCustomCodeViewMaterialized => _customCodeView.IsValueCreated;
+        internal TypeProvider? CachedCustomCodeView => _customCodeView.IsValueCreated ? _customCodeView.Value : null;
+        internal bool TryAttachFieldTypePreparation(PreparedFieldTypes preparation) =>
+            System.Threading.Interlocked.CompareExchange(ref _preparedFieldTypes, preparation, null) is null;
+
+        internal void DetachFieldTypePreparation(PreparedFieldTypes preparation) =>
+            System.Threading.Interlocked.CompareExchange(ref _preparedFieldTypes, null, preparation);
+
+        internal void InvalidateFieldTypePreparation()
+        {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
+            _preparedFieldTypes?.Invalidate();
+        }
+
+        // Generated declaration restrictions. Preparation separately validates
+        // and merges the scope of any already-loaded custom partial declarations.
+        internal bool HasSimpleFieldTypeScope =>
+            DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
+            DeclaringTypeProvider is null && Type.DeclaringType is null && !Type.IsGenericType &&
+            BaseType is null && Implements.Count == 0 && WhereClause is null;
+
+        internal HashSet<string> CaptureFieldTypeScopeNames()
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var nested in NestedTypes)
+            {
+                names.Add(nested.Name);
+            }
+            foreach (var field in Fields)
+            {
+                names.Add(field.Name);
+            }
+            foreach (var property in Properties)
+            {
+                names.Add(property.Name);
+            }
+            foreach (var method in Methods)
+            {
+                names.Add(method.Signature.Name);
+            }
+            return names;
+        }
+
         // Applies customization filtering when enabled, otherwise returns the input as-is.
         // Centralizes the FilterCustomizedMembers gate so the property getters and
         // ProcessTypeForBackCompatibility share identical filtering semantics.
@@ -396,6 +469,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProvidersInternal();
 
         internal TypeProvider? SerializationProviderOwner { get; private set; }
+
+        private TypeProvider? _partialDeclarationOwner;
+        private ImmutableArray<TypeProvider> _partialDeclarationParts = [];
+        internal TypeProvider? PartialDeclarationOwner => _partialDeclarationOwner;
+        internal ImmutableArray<TypeProvider> PartialDeclarationParts => _partialDeclarationParts;
+
+        /// <summary>
+        /// Identifies this provider as another generated part of the owner's
+        /// declaration. Does not select either provider for emission or merge
+        /// their canonical types. Preparation still verifies the written group.
+        /// </summary>
+        protected void RegisterPartialDeclarationOwner(TypeProvider owner)
+        {
+            ArgumentNullException.ThrowIfNull(owner);
+            if (ReferenceEquals(_partialDeclarationOwner, owner))
+            {
+                return;
+            }
+            if (_partialDeclarationOwner is not null || ReferenceEquals(owner, this))
+            {
+                throw new InvalidOperationException("A generated partial declaration must have one distinct owner.");
+            }
+            InvalidateFieldTypePreparation();
+            owner.InvalidateFieldTypePreparation();
+            _partialDeclarationOwner = owner;
+            owner._partialDeclarationParts = owner._partialDeclarationParts.Add(this);
+        }
 
         private IReadOnlyList<CSharpType>? _helperDependencyTypes;
         internal IReadOnlyList<CSharpType> HelperDependencyTypes => _helperDependencyTypes ??= BuildHelperDependencyTypes();
@@ -892,6 +992,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public void ResetMethods()
         {
+            InvalidateFieldTypePreparation();
             _methods = null;
             _generatedMethodDeprecationAttributes = null;
         }
@@ -902,6 +1003,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public virtual void Reset()
         {
+            InvalidateFieldTypePreparation();
             _methods = null;
             _generatedMethodDeprecationAttributes = null;
             _properties = null;
@@ -969,6 +1071,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string? relativeFilePath = null,
             bool reset = false)
         {
+            InvalidateFieldTypePreparation();
             if (reset)
             {
                 Reset();

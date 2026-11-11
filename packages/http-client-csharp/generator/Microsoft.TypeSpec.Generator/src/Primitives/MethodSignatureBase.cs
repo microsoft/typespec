@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
@@ -41,19 +42,36 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             ReturnType = returnType;
         }
 
-        public CSharpType? ReturnType { get; private set; }
+        private long _declarationRevision;
+        internal long DeclarationRevision => System.Threading.Volatile.Read(ref _declarationRevision);
+        protected void TouchDeclaration() => System.Threading.Interlocked.Increment(ref _declarationRevision);
 
-        public IReadOnlyList<AttributeStatement> Attributes { get; internal set; }
+        // Original declaration provenance is descriptive metadata, never emitted-call selection.
+        internal IMethodSymbol? OriginalSymbol { get; private set; }
+        internal Compilation? OriginalCompilation { get; private set; }
+        internal long OriginalDeclarationRevision { get; private set; }
+        internal void RetainOriginalSymbol(IMethodSymbol symbol, Compilation compilation)
+        {
+            TouchDeclaration();
+            OriginalSymbol = symbol;
+            OriginalCompilation = compilation;
+            OriginalDeclarationRevision = DeclarationRevision;
+        }
 
-        public IReadOnlyList<ParameterProvider> Parameters { get; internal set; }
-
-        public MethodSignatureModifiers Modifiers { get; internal set; }
-
-        public string? NonDocumentComment { get; internal set; }
-
-        public FormattableString? Description { get; internal set; }
-
-        public string Name { get; internal set; }
+        private CSharpType? _returnType;
+        public CSharpType? ReturnType { get => _returnType; private set { TouchDeclaration(); _returnType = value; } }
+        private IReadOnlyList<AttributeStatement> _attributes = [];
+        public IReadOnlyList<AttributeStatement> Attributes { get => _attributes; internal set { TouchDeclaration(); _attributes = value; } }
+        private IReadOnlyList<ParameterProvider> _parameters = [];
+        public IReadOnlyList<ParameterProvider> Parameters { get => _parameters; internal set { TouchDeclaration(); _parameters = value; } }
+        private MethodSignatureModifiers _modifiers;
+        public MethodSignatureModifiers Modifiers { get => _modifiers; internal set { TouchDeclaration(); _modifiers = value; } }
+        private string? _nonDocumentComment;
+        public string? NonDocumentComment { get => _nonDocumentComment; internal set { TouchDeclaration(); _nonDocumentComment = value; } }
+        private FormattableString? _description;
+        public FormattableString? Description { get => _description; internal set { TouchDeclaration(); _description = value; } }
+        private string _name = string.Empty;
+        public string Name { get => _name; internal set { TouchDeclaration(); _name = value; } }
 
         public void Update(string? name = default, FormattableString? description = default, string? nonDocumentComment = default, MethodSignatureModifiers? modifiers = default, IReadOnlyList<ParameterProvider>? parameters = default, IReadOnlyList<AttributeStatement>? attributes = default, CSharpType? returnType = default)
         {

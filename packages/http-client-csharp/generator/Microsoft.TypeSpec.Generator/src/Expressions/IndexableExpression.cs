@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public ValueExpression this[ValueExpression index] => new IndexerExpression(this, index);
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Original.Write(writer);
         }

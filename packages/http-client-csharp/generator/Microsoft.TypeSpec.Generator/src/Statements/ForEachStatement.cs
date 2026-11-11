@@ -70,11 +70,12 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public ForEachStatement Add(MethodBodyStatement statement)
         {
+            TouchSource();
             _body.Add(statement);
             return this;
         }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -104,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitForEachStatement(this, method);
 
             if (updated is not ForEachStatement updatedForEach)
@@ -133,6 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             VariableExpression? itemVariable = null,
             ValueExpression? enumerable = null)
         {
+            TouchSource();
             if (itemVariable != null)
             {
                 ItemVariable = itemVariable;

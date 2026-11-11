@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -22,12 +24,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         public string Name { get; private set; }
         public FormattableString Description { get; private set; }
-        public CSharpType Type { get; set; }
+        private long _declarationRevision;
+        internal long DeclarationRevision => System.Threading.Volatile.Read(ref _declarationRevision);
+        internal IParameterSymbol? OriginalSymbol { get; private set; }
+        internal Compilation? OriginalCompilation { get; private set; }
+        internal long OriginalDeclarationRevision { get; private set; }
+        internal DeclaredTypeSnapshot? OriginalTypeSnapshot { get; private set; }
+        internal ImmutableArray<AttributeData> OriginalAttributes => OriginalSymbol?.GetAttributes() ?? [];
+        internal void RetainOriginalSymbol(IParameterSymbol symbol, Compilation compilation)
+        {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
+            OriginalSymbol = symbol;
+            OriginalCompilation = compilation;
+            OriginalDeclarationRevision = DeclarationRevision;
+            DeclaredTypeSnapshot.TryCapture(Type, out var type);
+            OriginalTypeSnapshot = type;
+        }
 
+        private CSharpType _type = null!;
+        public CSharpType Type
+        {
+            get => _type;
+            set { System.Threading.Interlocked.Increment(ref _declarationRevision); _type = value; }
+        }
+
+        private ValueExpression? _defaultValue;
         /// <summary>
         /// The default value of the parameter.
         /// </summary>
-        public ValueExpression? DefaultValue { get; set; }
+        public ValueExpression? DefaultValue
+        {
+            get => _defaultValue;
+            set { System.Threading.Interlocked.Increment(ref _declarationRevision); _defaultValue = value; }
+        }
         public ValueExpression? InitializationValue { get; private set; }
         public ParameterValidationType Validation { get; set; } = ParameterValidationType.None;
         public bool IsRef { get; private set; }
@@ -246,15 +275,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (parameter._asVariable == null)
             {
-                var variableName = parameter.InputParameter?.IsExactName == true
-                    ? parameter.Name
-                    : parameter.Name.Length > 0 && char.IsLower(parameter.Name[0])
-                        ? parameter.Name.ToVariableName(preserveUnderscores: false, normalizeAcronyms: false)
-                        : parameter.Name.ToVariableName();
-
                 parameter._asVariable = new VariableExpression(
                     parameter.Type,
-                    variableName);
+                    GetEmittedVariableName(parameter));
             }
 
             return parameter._asVariable;
@@ -271,6 +294,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private VariableExpression? _asVariable;
+        internal VariableExpression? CachedVariableExpression => _asVariable;
+
+        // Canonical lazy materialization has zero revisions and the same expected
+        // spelling; observe its cached carrier without creating it during capture.
+        internal (long Variable, long Declaration, string Name) EmittedDeclarationState =>
+            (_asVariable?.SourceRevision ?? 0, _asVariable?.Declaration.SourceRevision ?? 0,
+                _asVariable?.Declaration.RequestedName ?? GetEmittedVariableName(this));
+
+        private static string GetEmittedVariableName(ParameterProvider parameter) => parameter.InputParameter?.IsExactName == true
+            ? parameter.Name
+            : parameter.Name.Length > 0 && char.IsLower(parameter.Name[0])
+                ? parameter.Name.ToVariableName(preserveUnderscores: false, normalizeAcronyms: false)
+                : parameter.Name.ToVariableName();
 
         public TypeProvider? SpreadSource { get; set; }
 
@@ -357,6 +393,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInformation? wireInfo = null,
             ParameterValidationType? validation = null)
         {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
             if (name is not null)
             {
                 Name = name;

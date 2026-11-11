@@ -1600,7 +1600,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             ConstructorInitializer? initializer = target is null
                 ? null
-                : new ConstructorInitializer(false, [.. target.Signature.Parameters.Select(_ => Snippet.Default)]);
+                : new ConstructorInitializer(false, target, [.. target.Signature.Parameters.Select(_ => Snippet.Default)]);
 
             var signature = new ConstructorSignature(
                 Type,

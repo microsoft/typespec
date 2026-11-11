@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// <param name="UseSingleLine">Flag to determine if the object should be initialized inline.</param>
     public record ObjectInitializerExpression(IReadOnlyDictionary<ValueExpression, ValueExpression> Values, bool UseSingleLine = false) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             var iterator = Values.GetEnumerator();
             if (!iterator.MoveNext())

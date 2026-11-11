@@ -12,7 +12,10 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// <param name="IsInline">Flag to determine if the array should be initialized inline.</param>
     public sealed record ArrayInitializerExpression(IReadOnlyList<ValueExpression>? Elements = null, bool IsInline = true) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        public ArrayInitializerExpression(ValueExpression[] Elements, bool IsInline = true)
+            : this((IReadOnlyList<ValueExpression>)Elements, IsInline) { }
+
+        internal override void WriteCore(CodeWriter writer)
         {
             if (Elements is not { Count: > 0 })
             {

@@ -19,6 +19,7 @@ export interface CSharpEmitterOptions {
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
   "disable-roslyn-reduce"?: boolean;
+  "enable-pre-emission-simplification"?: boolean;
   "generator-name"?: string;
   "emitter-extension-path"?: string;
   plugins?: string[];
@@ -105,6 +106,13 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       description:
         "Set to `true` to skip the Roslyn reduce (simplification) post-processing step. " +
         "This speeds up generation and is useful when iterating quickly. The default value is `false`.",
+    },
+    "enable-pre-emission-simplification": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Experimental: enable supported pre-emission simplifications when a trusted build-host input snapshot is available. " +
+        "Standalone and hosted generation retain the existing path. The default value is `false`.",
     },
     "generator-name": {
       type: "string",

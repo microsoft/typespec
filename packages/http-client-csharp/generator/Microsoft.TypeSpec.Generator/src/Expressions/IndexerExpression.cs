@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         {
             return new IndexerExpression(null, null) { Elements = elements };
         }
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             if (Inner is not null)
             {

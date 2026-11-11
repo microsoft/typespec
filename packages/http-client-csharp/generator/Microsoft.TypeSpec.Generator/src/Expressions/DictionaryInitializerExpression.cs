@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record DictionaryInitializerExpression(IReadOnlyDictionary<ValueExpression, ValueExpression> Values) : ObjectInitializerExpression(Values)
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             var enumerator = Values.GetEnumerator();
             if (!enumerator.MoveNext())

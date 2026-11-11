@@ -12,6 +12,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     {
         protected readonly TypeProvider _provider;
 
+        internal PreparedFieldTypes? PreparedFieldTypes { get; set; }
+
+        internal bool OwnsPreparation(PreparedFieldTypes preparation, TypeProvider owner) =>
+            GetType() == typeof(TypeProviderWriter) && ReferenceEquals(PreparedFieldTypes, preparation) && ReferenceEquals(_provider, owner);
+
         public TypeProviderWriter(TypeProvider provider)
         {
             _provider = provider;
@@ -20,16 +25,24 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
+            if (PreparedFieldTypes is not null && GetType() == typeof(TypeProviderWriter))
+            {
+                writer.EnableQualifiedFallback(PreparedFieldTypes, _provider);
+                writer.AttachSourceFile(PreparedFieldTypes, _provider, this);
+            }
+            PreparedFieldTypes?.ObserveSnapshot();
             using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
 
             using (writer.SuppressWarnings(_provider.DisabledFileWarnings))
             {
                 using (var ns = writer.SetNamespace(_provider.Type.Namespace))
                 {
+                    PreparedFieldTypes?.ObserveSnapshot();
                     WriteType(writer);
                 }
             }
-            return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
+            var content = writer.ToString();
+            return new CodeFile(content, _provider.RelativeFilePath, writer.QualifiedContent, writer.CompleteSourceFile(), writer.NameAlternatives);
         }
 
         private bool IsPublicContext(TypeProvider provider)
@@ -41,18 +54,24 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private void WriteType(CodeWriter writer)
         {
             using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
-            if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
+            using (writer.BeginSourceRoot(_provider, "type-documentation", 0))
             {
-                writer.WriteXmlDocsNoScope(_provider.XmlDocs);
+                if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
+                {
+                    writer.WriteXmlDocsNoScope(_provider.XmlDocs);
+                }
             }
+            int attributeIndex = 0;
             foreach (var attribute in _provider.GetAttributesForWrite())
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "type-attribute", attributeIndex++);
                 attribute.Write(writer);
                 if (attribute is AttributeStatement)
                 {
                     writer.WriteLine();
                 }
             }
+            PreparedFieldTypes?.ObserveSnapshot();
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Type.BaseType != null || _provider.Implements.Any())
@@ -71,6 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             if (_provider.WhereClause is not null)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "type-constraint", 0);
                 using (writer.ScopeRaw(string.Empty, string.Empty, false))
                 {
                     _provider.WhereClause.Write(writer);
@@ -148,6 +168,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
+                    using var occurrence = writer.BeginSourceRoot(_provider, "field", i);
                     using var warnings = writer.SuppressWarnings(_provider.Fields[i].Suppressions);
                     writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
                     foreach (var attr in _provider.Fields[i].Attributes)
@@ -182,6 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.Properties.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "property", i);
                 var property = _provider.Properties[i];
                 writer.WriteProperty(property);
                 if (i < _provider.Properties.Count - 1)
@@ -195,7 +217,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.Fields.Count; i++)
             {
-                writer.WriteField(_provider.Fields[i]);
+                using var occurrence = writer.BeginSourceRoot(_provider, "field", i);
+                var field = _provider.Fields[i];
+                writer.WriteField(field, GetType() == typeof(TypeProviderWriter) ? PreparedFieldTypes : null, _provider);
             }
         }
 
@@ -203,6 +227,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             for (int i = 0; i < _provider.Constructors.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "constructor", i);
                 writer.WriteConstructor(_provider.Constructors[i]);
                 if (i < _provider.Constructors.Count - 1)
                 {
@@ -220,6 +245,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             for (int i = 0; i < _provider.Methods.Count; i++)
             {
+                using var occurrence = writer.BeginSourceRoot(_provider, "method", i);
                 writer.WriteMethod(_provider.Methods[i]);
                 if (i < _provider.Methods.Count - 1)
                 {
@@ -230,9 +256,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteNestedTypes(CodeWriter writer)
         {
+            PreparedFieldTypes?.ObserveSnapshot();
             for (int i = 0; i < _provider.NestedTypes.Count; i++)
             {
-                var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i]);
+                PreparedFieldTypes?.ObserveSnapshot();
+                var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i])
+                {
+                    PreparedFieldTypes = PreparedFieldTypes
+                };
                 using (writer.SuppressWarnings(_provider.NestedTypes[i].DisabledFileWarnings))
                 {
                     nestedWriter.WriteType(writer);

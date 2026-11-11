@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType };
 
         public static InvokeMethodExpression InvokeLambda(this ParameterProvider parameter, params ValueExpression[] args)
-            => new InvokeMethodExpression(null, parameter.Name, args);
+            => new InvokeMethodExpression(null, parameter.Name, args) { DelegateParameterIntent = parameter };
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);

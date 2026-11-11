@@ -13,6 +13,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     public class ConstructorProvider
     {
+        private long _declarationRevision;
+        internal long DeclarationRevision => System.Threading.Volatile.Read(ref _declarationRevision);
         public ConstructorSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set; }
         public ValueExpression? BodyExpression { get; private set; }
@@ -80,6 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocProvider? xmlDocs = null,
             IEnumerable<SuppressionStatement>? suppressions = default)
         {
+            System.Threading.Interlocked.Increment(ref _declarationRevision);
             if (signature != null)
             {
                 Signature = signature;

@@ -222,6 +222,26 @@ namespace Microsoft.TypeSpec.Generator
             return new GeneratedCodeWorkspace(project);
         }
 
+        // Host residual reduction must use the same captured non-generated sources
+        // and options as the field proof. The separate customization workspace is
+        // intentionally unchanged.
+        internal static async Task<GeneratedCodeWorkspace> CreateForCompilerProof(CompleteSourceInputSnapshot snapshot)
+        {
+            var compilation = snapshot.Compilation;
+            var parseOptions = snapshot.ParseOptions ?? throw new InvalidOperationException("Compiler-host parse options are unavailable.");
+            var project = CreateGeneratedCodeProject()
+                .WithAssemblyName(compilation.AssemblyName ?? throw new InvalidOperationException("Compiler-host assembly name is unavailable."))
+                .WithCompilationOptions(compilation.Options)
+                .WithParseOptions(parseOptions)
+                .WithMetadataReferences(compilation.References);
+            foreach (var tree in compilation.SyntaxTrees)
+            {
+                var document = project.AddDocument(Path.GetFileName(tree.FilePath), await tree.GetTextAsync(), filePath: tree.FilePath);
+                project = document.Project;
+            }
+            return new GeneratedCodeWorkspace(project);
+        }
+
         private static async Task<Compilation?> CreateLastContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
@@ -275,9 +295,27 @@ namespace Microsoft.TypeSpec.Generator
             string? assetsJson = await GetAssetFileOrNull();
             if (string.IsNullOrEmpty(assetsJson) || !File.Exists(assetsJson))
             {
+                if (CodeModelGenerator.Instance.IsCompilerBuildHost)
+                {
+                    throw new InvalidOperationException("Compiler-host project assets are no longer available.");
+                }
                 return hshFrameworks;
             }
-            Utf8JsonReader reader = new Utf8JsonReader(await File.ReadAllBytesAsync(assetsJson));
+            ReadOnlyMemory<byte> assetsBytes;
+            if (CodeModelGenerator.Instance.IsCompilerBuildHost)
+            {
+                var captured = CodeModelGenerator.Instance.CompilerBuildAssets;
+                if (captured is null || !captured.IsCurrent())
+                {
+                    throw new InvalidOperationException("Compiler-host project assets are no longer current.");
+                }
+                assetsBytes = captured.Contents;
+            }
+            else
+            {
+                assetsBytes = await File.ReadAllBytesAsync(assetsJson);
+            }
+            Utf8JsonReader reader = new Utf8JsonReader(assetsBytes.Span);
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
             foreach (JsonProperty prop in document.RootElement.EnumerateObject())
             {
@@ -357,6 +395,16 @@ namespace Microsoft.TypeSpec.Generator
             if (!File.Exists(projectFilePath))
             {
                 return null;
+            }
+
+            if (CodeModelGenerator.Instance.IsCompilerBuildHost)
+            {
+                var assets = CodeModelGenerator.Instance.CompilerBuildAssets;
+                if (assets is null || !assets.IsCurrent())
+                {
+                    throw new InvalidOperationException("Compiler-host generation requires current captured project assets.");
+                }
+                return assets.Path;
             }
 
             if (CodeModelGenerator.Instance.IsHosted)
@@ -451,7 +499,11 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            if (CodeModelGenerator.Instance.IsHosted)
+            if (CodeModelGenerator.Instance.IsCompilerBuildHost)
+            {
+                CodeModelGenerator.Instance.Emitter.Debug("Using captured project assets without nested restore.");
+            }
+            else if (CodeModelGenerator.Instance.IsHosted)
             {
                 CodeModelGenerator.Instance.Emitter.Debug("Skipping dotnet restore in hosted mode.");
             }
@@ -605,6 +657,10 @@ namespace Microsoft.TypeSpec.Generator
                     var candidate = Path.Combine(baselineDirectory, $"{packageName}{extension}");
                     if (File.Exists(candidate))
                     {
+                        if (CodeModelGenerator.Instance.IsCompilerBuildHost)
+                        {
+                            throw new InvalidOperationException("Compiler-host generation does not yet support ApiCompat baseline files.");
+                        }
                         CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
                         return ApiCompatBaseline.FromFile(candidate);
                     }
@@ -631,6 +687,10 @@ namespace Microsoft.TypeSpec.Generator
             if (baselineVersion == null)
             {
                 return null;
+            }
+            if (CodeModelGenerator.Instance.IsCompilerBuildHost)
+            {
+                throw new InvalidOperationException("Compiler-host generation does not yet support baseline contracts.");
             }
 
             var targetFrameworksValue = projectRoot.Properties

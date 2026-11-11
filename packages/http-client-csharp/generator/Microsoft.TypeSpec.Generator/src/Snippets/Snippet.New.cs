@@ -68,7 +68,13 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
             public static ValueExpression Anonymous(ValueExpression key, ValueExpression value) => Anonymous(new Dictionary<ValueExpression, ValueExpression> { [key] = value });
             public static ValueExpression Anonymous(IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(null, [], new ObjectInitializerExpression(properties));
-            public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyList<ValueExpression> arguments, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => new NewInstanceExpression(ctorSignature.Type, arguments, properties != null ? new ObjectInitializerExpression(properties) : null);
+            public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyList<ValueExpression> arguments, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => new NewInstanceExpression(ctorSignature.Type, arguments, properties != null ? new ObjectInitializerExpression(properties) : null) { ConstructorIntent = ctorSignature };
+            public static ValueExpression Instance(ConstructorSignature ctorSignature, ValueExpression[] arguments, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null)
+                => Instance(ctorSignature, (IReadOnlyList<ValueExpression>)arguments, properties);
+            public static ValueExpression Instance(ConstructorProvider constructor, ValueExpression[] arguments)
+                => Instance(constructor, (IReadOnlyList<ValueExpression>)arguments);
+            public static ValueExpression Instance(ConstructorProvider constructor, IReadOnlyList<ValueExpression> arguments)
+                => new NewInstanceExpression(constructor.Signature.Type, arguments) { ConstructorProviderIntent = constructor };
             public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => Instance(ctorSignature, ctorSignature.Parameters.Select(p => (ValueExpression)p).ToArray(), properties);
             public static ValueExpression Instance(CSharpType type, IReadOnlyList<ValueExpression> arguments) => new NewInstanceExpression(type, arguments);
             public static ValueExpression Instance(CSharpType type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments);

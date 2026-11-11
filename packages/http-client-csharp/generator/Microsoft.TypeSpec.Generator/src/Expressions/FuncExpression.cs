@@ -3,12 +3,24 @@
 
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record FuncExpression(IReadOnlyList<CodeWriterDeclaration?> Parameters, ValueExpression Inner) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        public MethodBodyStatement? BlockBody { get; init; }
+
+        public FuncExpression(CodeWriterDeclaration?[] Parameters, ValueExpression Inner)
+            : this((IReadOnlyList<CodeWriterDeclaration?>)Parameters, Inner) { }
+
+        public FuncExpression(IReadOnlyList<CodeWriterDeclaration?> parameters, MethodBodyStatement blockBody)
+            : this(parameters, ValueExpression.Empty) { BlockBody = blockBody; }
+
+        public FuncExpression(CodeWriterDeclaration?[] parameters, MethodBodyStatement blockBody)
+            : this((IReadOnlyList<CodeWriterDeclaration?>)parameters, blockBody) { }
+
+        internal override void WriteCore(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -47,7 +59,18 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 }
 
                 writer.AppendRaw(" => ");
-                Inner.Write(writer);
+                if (BlockBody is { } block)
+                {
+                    writer.WriteLine();
+                    using (writer.Scope())
+                    {
+                        block.Write(writer);
+                    }
+                }
+                else
+                {
+                    Inner.Write(writer);
+                }
             }
         }
     }

@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         }
         public static SwitchCaseExpression Default(ValueExpression expression) => new SwitchCaseExpression(Snippet.Dash, expression);
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Case.Write(writer);
             writer.AppendRaw(" => ");

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
@@ -30,6 +31,14 @@ namespace Microsoft.TypeSpec.Generator
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
+        private UnsafeBufferSequence? _qualifiedBuilder;
+        internal string? QualifiedContent { get; private set; }
+        internal ImmutableArray<PreparedNameAlternative> NameAlternatives { get; private set; } = ImmutableArray<PreparedNameAlternative>.Empty;
+        private List<PreparedNameAlternative>? _nameAlternatives;
+        private int _qualifiedPayloadLength;
+        private bool _hasWrittenPayload;
+        private PreparedFieldTypes? _preparedFieldTypes;
+        private TypeProvider? _preparedFileOwner;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
@@ -179,6 +188,11 @@ namespace Microsoft.TypeSpec.Generator
             return this;
         }
 
+        // Shared with preparation: a cached method is not necessarily a written
+        // declaration. Ordinary bodyless methods emit documentation only.
+        internal static bool HasMethodDeclaration(MethodProvider method) => method.BodyStatements is not null || method.BodyExpression is not null ||
+            method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial) || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract);
+
         public void WriteMethod(MethodProvider method)
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
@@ -203,8 +217,7 @@ namespace Microsoft.TypeSpec.Generator
                         WriteRawLine(";");
                     }
                 }
-                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
-                    || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                else if (HasMethodDeclaration(method))
                 {
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
@@ -260,6 +273,7 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            using var occurrence = EnterSourceNode(docs);
             if (docs.Inherit is not null)
             {
                 docs.Inherit.Write(this);
@@ -415,6 +429,10 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            if (_preparedFileOwner is not null)
+            {
+                _preparedFieldTypes?.ObserveImport(_preparedFileOwner, @namespace);
+            }
             _usingNamespaces.Add(@namespace);
         }
 
@@ -466,7 +484,36 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        public CodeWriter WriteField(FieldProvider field)
+        internal void EnableQualifiedFallback(PreparedFieldTypes? preparedFields = null, TypeProvider? fileOwner = null)
+        {
+            if (_qualifiedBuilder is not null || _hasWrittenPayload)
+            {
+                throw new InvalidOperationException("Qualified fallback must be enabled once, before writing payload.");
+            }
+            _qualifiedBuilder = new UnsafeBufferSequence();
+            _preparedFieldTypes = preparedFields;
+            _preparedFileOwner = fileOwner;
+        }
+
+        // Output capture only, not permission. The consumer must already justify both
+        // spellings for this occurrence, register its used permission, and observe the
+        // same namespace as ordinary formatting. A false result writes nothing.
+        internal bool TryAppendPreparedBodyName(string shortSpelling, string qualifiedSpelling)
+        {
+            if (_qualifiedBuilder is null || string.IsNullOrEmpty(shortSpelling) ||
+                string.IsNullOrEmpty(qualifiedSpelling) || shortSpelling.Length >= qualifiedSpelling.Length ||
+                shortSpelling.Any(char.IsWhiteSpace) || qualifiedSpelling.Any(char.IsWhiteSpace))
+            {
+                return false;
+            }
+
+            AppendRaw(shortSpelling.AsSpan(), qualifiedSpelling.AsSpan(), PreparedNameChannel.Body);
+            return true;
+        }
+
+        public CodeWriter WriteField(FieldProvider field) => WriteField(field, null, null);
+
+        internal CodeWriter WriteField(FieldProvider field, PreparedFieldTypes? preparedFields, TypeProvider? owner)
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
@@ -490,13 +537,32 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            if (field.Declaration.HasBeenDeclared(_scopes))
+            if (owner is not null && preparedFields?.CanWriteSimpleName(owner, field) == true)
             {
-                Append($"{field.Type} {field.Declaration:I}");
+                if (_qualifiedBuilder is not null)
+                {
+                    UseNamespace(field.Type.Namespace);
+                    var qualifiedName = $"global::{field.Type.Namespace}.{field.Type.Name}";
+                    AppendRaw(field.Type.Name.AsSpan(), qualifiedName.AsSpan(), PreparedNameChannel.Field).AppendRaw(" ");
+                }
+                else
+                {
+                    preparedFields.Invalidate();
+                    Append($"{field.Type} ");
+                }
             }
             else
             {
-                Append($"{field.Type} {field.Declaration:D}");
+                Append($"{field.Type} ");
+            }
+
+            if (field.Declaration.HasBeenDeclared(_scopes))
+            {
+                Append($"{field.Declaration:I}");
+            }
+            else
+            {
+                Append($"{field.Declaration:D}");
             }
 
             if (field.InitializationValue != null)
@@ -708,25 +774,51 @@ namespace Microsoft.TypeSpec.Generator
 
         private CodeWriter AppendRawChar(char c)
         {
+            _hasWrittenPayload = true;
             var destination = _builder.GetSpan(1);
             destination[0] = c;
             _builder.Advance(1);
+            if (_qualifiedBuilder is not null)
+            {
+                var qualifiedDestination = _qualifiedBuilder.GetSpan(1);
+                qualifiedDestination[0] = c;
+                _qualifiedBuilder.Advance(1);
+                _qualifiedPayloadLength = checked(_qualifiedPayloadLength + 1);
+            }
             _atBeginningOfLine = true;
             return this;
         }
 
-        private CodeWriter AppendRaw(ReadOnlySpan<char> span)
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span) => AppendRaw(span, span);
+
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span, ReadOnlySpan<char> qualifiedSpan, PreparedNameChannel? channel = null)
         {
             if (span.Length == 0)
             {
                 return this;
             }
 
+            _hasWrittenPayload = true;
             AddSpaces(span);
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
             _builder.Advance(span.Length);
+            if (_qualifiedBuilder is not null)
+            {
+                // AddSpaces has already advanced both buffers. These offsets are
+                // relative to the current qualified payload, not the short buffer.
+                int qualifiedOffset = _qualifiedPayloadLength;
+                var qualifiedDestination = _qualifiedBuilder.GetSpan(qualifiedSpan.Length);
+                qualifiedSpan.CopyTo(qualifiedDestination);
+                _qualifiedBuilder.Advance(qualifiedSpan.Length);
+                _qualifiedPayloadLength = checked(_qualifiedPayloadLength + qualifiedSpan.Length);
+                if (channel is { } capturedChannel && !span.SequenceEqual(qualifiedSpan))
+                {
+                    (_nameAlternatives ??= new()).Add(new PreparedNameAlternative(
+                        qualifiedOffset, qualifiedSpan.Length, span.ToString(), capturedChannel));
+                }
+            }
 
             _atBeginningOfLine = span[span.Length - 1] == _newLine;
             return this;
@@ -749,6 +841,13 @@ namespace Microsoft.TypeSpec.Generator
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
             _builder.Advance(spaces);
+            if (_qualifiedBuilder is not null)
+            {
+                var qualifiedDestination = _qualifiedBuilder.GetSpan(spaces);
+                qualifiedDestination.Slice(0, spaces).Fill(_space);
+                _qualifiedBuilder.Advance(spaces);
+                _qualifiedPayloadLength = checked(_qualifiedPayloadLength + spaces);
+            }
         }
 
         internal CodeWriter WriteIdentifier(string identifier)
@@ -956,9 +1055,22 @@ namespace Microsoft.TypeSpec.Generator
         public string ToString(bool header)
         {
             var reader = _builder.ExtractReader();
+            using var qualifiedReader = _qualifiedBuilder?.ExtractReader();
+            var payloadAlternatives = _nameAlternatives;
+            _nameAlternatives = null;
+            int qualifiedPayloadLength = _qualifiedPayloadLength;
+            _qualifiedPayloadLength = 0;
+            NameAlternatives = ImmutableArray<PreparedNameAlternative>.Empty;
+            // ExtractReader drains the buffers. Fail rather than publish incorrect
+            // ranges if a future buffer mutation bypasses the append accounting.
+            if (qualifiedReader is not null && qualifiedReader.Length != qualifiedPayloadLength)
+            {
+                throw new InvalidOperationException("Qualified payload changed outside append accounting.");
+            }
             var totalLength = reader.Length;
             if (totalLength == 0)
             {
+                QualifiedContent = qualifiedReader is null ? null : string.Empty;
                 return string.Empty;
             }
 
@@ -999,7 +1111,25 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
+            // Snapshot the actual common header once; never format it again to
+            // estimate offsets (the license and imports may be lazy inputs).
+            int headerLength = builder.Length;
+            var qualifiedOutput = qualifiedReader is null ? null : new StringBuilder(builder.ToString());
             reader.CopyTo(builder, default);
+            if (qualifiedReader is not null)
+            {
+                qualifiedReader.CopyTo(qualifiedOutput!, default);
+                QualifiedContent = qualifiedOutput!.ToString();
+                if (payloadAlternatives is { Count: > 0 })
+                {
+                    var alternatives = ImmutableArray.CreateBuilder<PreparedNameAlternative>(payloadAlternatives.Count);
+                    foreach (var alternative in payloadAlternatives)
+                    {
+                        alternatives.Add(alternative with { QualifiedOffset = checked(headerLength + alternative.QualifiedOffset) });
+                    }
+                    NameAlternatives = alternatives.MoveToImmutable();
+                }
+            }
             return builder.ToString();
         }
 
@@ -1110,6 +1240,7 @@ namespace Microsoft.TypeSpec.Generator
         public void Dispose()
         {
             _builder?.Dispose();
+            _qualifiedBuilder?.Dispose();
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public ValueExpression this[ValueExpression key] => new IndexerExpression(this, key);
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Original.Write(writer);
         }

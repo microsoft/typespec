@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public record VariableTupleExpression(bool IsRef = false, params VariableExpression[] Variables) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.AppendRawIf("ref ", IsRef);
             writer.AppendRaw("(");

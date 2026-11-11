@@ -336,11 +336,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
-                    [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
-                    attributes: [.. constructorSymbol.GetAttributes()
+                    constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p, _compilation)).ToArray(),
+                    attributes: constructorSymbol.GetAttributes()
                         .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
-                        .Select(a => new AttributeStatement(a))],
+                        .Select(a => new AttributeStatement(a)).ToArray(),
                     initializer: initializer);
+                signature.RetainOriginalSymbol(constructorSymbol, _compilation);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. constructors];
@@ -399,20 +400,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     explicitInterface != null ? modifiers & ~MethodSignatureModifiers.Private : modifiers,
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
-                    [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
-                    Attributes: [.. methodSymbol.GetAttributes()
+                    methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p, _compilation)).ToArray(),
+                    Attributes: methodSymbol.GetAttributes()
                         .Where(a => a.AttributeClass?.ToDisplayString() is { } name
                             && (name == typeof(ExperimentalAttribute).FullName || name == typeof(ObsoleteAttribute).FullName))
-                        .Select(a => new AttributeStatement(a))],
+                        .Select(a => new AttributeStatement(a)).ToArray(),
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null
-                        : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],
+                        : methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType()).ToArray(),
                     ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType())
                 {
                     HasUnsupportedBaseContract = methodSymbol.ReturnsByRef || methodSymbol.ReturnsByRefReadonly ||
                         methodSymbol.IsVararg
                 };
 
+                signature.RetainOriginalSymbol(methodSymbol, _compilation);
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. methods];
@@ -854,9 +856,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
-        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol, Compilation compilation)
         {
-            return new ParameterProvider(
+            var parameter = new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
                 parameterSymbol.Type.GetCSharpType(),
@@ -872,6 +874,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     (!parameterSymbol.HasExplicitDefaultValue ||
                         parameterSymbol.ExplicitDefaultValue is not (null or string or bool or int or double or float or long))
             };
+            parameter.RetainOriginalSymbol(parameterSymbol, compilation);
+            return parameter;
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -1129,7 +1133,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return new ConstructorInitializer(isBase, arguments);
+            return new ConstructorInitializer(isBase, arguments)
+            {
+                OriginalSource = constructorSyntax.Initializer.GetReference(),
+                OriginalTargetSymbol = _compilation.GetSemanticModel(constructorSyntax.SyntaxTree)
+                    .GetSymbolInfo(constructorSyntax.Initializer).Symbol as IMethodSymbol,
+                OriginalCompilation = _compilation
+            };
         }
 
         private ValueExpression? ConvertArgumentToExpression(ArgumentSyntax argument)

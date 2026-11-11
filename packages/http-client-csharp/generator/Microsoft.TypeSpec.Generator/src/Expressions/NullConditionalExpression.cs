@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record NullConditionalExpression(ValueExpression Inner) : ValueExpression
     {
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             Inner.Write(writer);
             writer.AppendRaw("?");

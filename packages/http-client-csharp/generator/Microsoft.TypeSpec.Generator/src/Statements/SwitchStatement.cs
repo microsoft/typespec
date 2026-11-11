@@ -25,9 +25,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
         private List<SwitchCaseStatement> _cases = new();
         public IReadOnlyList<SwitchCaseStatement> Cases => _cases;
 
-        public void Add(SwitchCaseStatement statement) => _cases.Add(statement);
+        public void Add(SwitchCaseStatement statement) { TouchSource(); _cases.Add(statement); }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -44,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var updated = visitor.VisitSwitchStatement(this, method);
 
             if (updated is not SwitchStatement switchStatement)
@@ -69,6 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             ValueExpression? matchExpression = null,
             IEnumerable<SwitchCaseStatement>? cases = null)
         {
+            TouchSource();
             if (matchExpression != null)
             {
                 MatchExpression = matchExpression;

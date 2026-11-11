@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression? Inner { get; internal set; } = Inner;
         public string MemberName { get; private set; } = MemberName;
         internal CodeWriterDeclaration? Declaration { get; set; }
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             if (Inner is not null)
             {
@@ -34,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
+            TouchSource();
             var expression = visitor.VisitMemberExpression(this, method);
             if (expression is not MemberExpression memberExpression)
             {
@@ -48,6 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public void Update(ValueExpression? inner = null, string? memberName = null)
         {
+            TouchSource();
             if (inner != null)
             {
                 Inner = inner;

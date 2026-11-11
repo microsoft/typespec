@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         internal DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, ValueExpression bodyExpression)
             : this(name, parameters, returnType, bodyExpression, null) { }
 
-        internal override void Write(CodeWriter writer)
+        internal override void WriteCore(CodeWriter writer)
         {
             writer.Append($"{ReturnType} {Name:D}(");
             for (int i = 0; i < Parameters.Count; i++)
