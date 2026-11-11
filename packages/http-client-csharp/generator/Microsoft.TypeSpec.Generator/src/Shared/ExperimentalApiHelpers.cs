@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static SuppressionStatement[] GetInheritedObsoleteSuppressions(PropertyProvider property)
         {
             if (!property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) &&
-                DeprecationApiHelpers.GetReferenceObsoleteAttribute(property) is { } attribute)
+                DeprecationApiHelpers.GetEffectiveObsoleteAttribute(property) is { } attribute)
             {
                 return DeprecationApiHelpers.GetSuppressions(attribute);
             }

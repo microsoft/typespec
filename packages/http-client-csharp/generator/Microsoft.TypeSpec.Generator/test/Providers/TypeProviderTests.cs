@@ -246,8 +246,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
                 .Select(suppression => suppression.Code.ToDisplayString());
-            // References stay suppressed because a later type-identity change can restore the base attribute.
-            Assert.That(diagnostics, Does.Contain("\"CS0618\""));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0618\""));
             Assert.That(property.BaseProperty!.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute), Is.False);
             Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
                 Does.Not.Contain("\"CS0672\""));
@@ -269,7 +268,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task PropertyDeprecationFollowsFinalTypeIdentity(
+        public async Task PropertyDeprecationIsOnlyRemovedForFinalTypeIdentity(
             [Values] bool changeNamespace, [Values] bool initiallyPublished, [Values] bool addAttribute)
         {
             await MockHelpers.LoadMockGeneratorAsync(
@@ -294,50 +293,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.ProcessTypeForBackCompatibility();
 
             Assert.AreSame(property, provider.Properties.Single());
-            Assert.AreEqual(initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            // Unpublished -> published removes the attribute; published -> unpublished does not restore it because references were already built without its suppressions.
+            Assert.IsFalse(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             Assert.AreEqual(addAttribute, property.Attributes.Contains(visitorAttribute));
 
             provider.Update(name: initialName, @namespace: initialNamespace);
             provider.ProcessTypeForBackCompatibility();
-            Assert.AreEqual(!initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
-            Assert.That(property.Attributes.Count(DeprecationApiHelpers.IsObsoleteAttribute), Is.LessThanOrEqualTo(1));
+            Assert.IsFalse(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             Assert.AreEqual(addAttribute, property.Attributes.Contains(visitorAttribute));
-        }
-
-        [Test]
-        public async Task CachedReferencesSuppressRestoredPropertyDeprecation()
-        {
-            var generator = await MockHelpers.LoadMockGeneratorAsync(
-                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
-            generator.Object.AddVisitor(new RenameDerivedPropertyVisitor());
-            var baseInput = InputFactory.Model("StableModel", properties:
-                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Generated message")]);
-            var derivedInput = InputFactory.Model("DerivedModel", baseModel: baseInput, properties:
-                [InputFactory.Property("previouslyStable", InputPrimitiveType.String)]);
-            var baseProvider = generator.Object.TypeFactory.CreateModel(baseInput)!;
-            var derivedProvider = generator.Object.TypeFactory.CreateModel(derivedInput)!;
-            var forwardingProperty = derivedProvider.Properties.Single();
-            Assert.IsFalse(baseProvider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
-
-            baseProvider.Update(name: "Unpublished");
-            baseProvider.ProcessTypeForBackCompatibility();
-
-            Assert.IsTrue(baseProvider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
-            Assert.AreSame(forwardingProperty, derivedProvider.Properties.Single());
-            var file = new TypeProviderWriter(derivedProvider).Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        private sealed class RenameDerivedPropertyVisitor : LibraryVisitor
-        {
-            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
-            {
-                if (property?.EnclosingType.Name == "DerivedModel")
-                {
-                    property.Update(name: "CurrentValue");
-                }
-                return property;
-            }
         }
 
         [Test]

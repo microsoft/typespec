@@ -54,13 +54,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         private readonly AttributeStatement? _generatedDeprecationAttribute;
-        private bool _removedGeneratedDeprecationAttribute;
-        /// <summary>
-        /// Gets the generated deprecation attribute temporarily omitted for API compatibility.
-        /// Compatibility processing can restore it after generated references have captured their suppressions.
-        /// </summary>
-        public AttributeStatement? PendingGeneratedDeprecationAttribute =>
-            _removedGeneratedDeprecationAttribute ? _generatedDeprecationAttribute : null;
         private IReadOnlyList<SuppressionStatement> _overrideDeprecationSuppressions = [];
         public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
         internal IReadOnlyList<SuppressionStatement> DeclarationSuppressions { get; private set; } = [];
@@ -178,8 +171,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void RefreshDeprecation(TypeProvider enclosingType)
         {
-            if (_generatedDeprecationAttribute is not { } attribute ||
-                (!Attributes.Contains(attribute) && !_removedGeneratedDeprecationAttribute))
+            // Only remove: generated references have already captured suppressions, so restoring the attribute here would leave them unsuppressed.
+            if (_generatedDeprecationAttribute is not { } attribute || !Attributes.Contains(attribute))
             {
                 return;
             }
@@ -189,11 +182,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var shouldInclude = !MethodSignatureHelper.IsPublicApi(Modifiers, Attributes) ||
                 previous is null || previous.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
             shouldInclude &= !Attributes.Any(a => !ReferenceEquals(a, attribute) && DeprecationApiHelpers.IsObsoleteAttribute(a));
-            Attributes = [.. Attributes.Where(a => !ReferenceEquals(a, attribute))];
-            _removedGeneratedDeprecationAttribute = !shouldInclude;
-            if (shouldInclude)
+            if (!shouldInclude)
             {
-                Attributes = [.. Attributes, attribute];
+                Attributes = [.. Attributes.Where(a => !ReferenceEquals(a, attribute))];
             }
         }
 
@@ -539,9 +530,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes.ToArray();
-                // A compatibility removal remains pending while the generated attribute is absent.
-                _removedGeneratedDeprecationAttribute &= _generatedDeprecationAttribute is not null &&
-                    !Attributes.Contains(_generatedDeprecationAttribute);
             }
             if (suppressions != null)
             {
