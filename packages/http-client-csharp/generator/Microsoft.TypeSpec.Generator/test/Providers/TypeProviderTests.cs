@@ -233,6 +233,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(provider.Properties.Single().Attributes.Any(a => ReferenceEquals(a, visitor.Attribute)), Is.True);
         }
 
+        [TestCase("previouslyStable", false)]
+        [TestCase("previouslyObsolete", true)]
+        [TestCase("newProperty", true)]
+        public async Task PropertyDeprecationPreservesInheritedLastContract(string propertyName, bool obsolete)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var property = InputFactory.Property(propertyName, InputPrimitiveType.String, deprecation: "Current message");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                InputFactory.Model("InheritingModel", properties: [property]))!;
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(obsolete,
+                provider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+        }
+
         [Test]
         public async Task OverrideReferencesHonorPreservedBaseProperty()
         {

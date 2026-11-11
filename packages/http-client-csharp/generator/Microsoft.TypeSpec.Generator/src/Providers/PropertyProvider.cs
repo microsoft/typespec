@@ -177,8 +177,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return;
             }
 
-            var previous = enclosingType.LastContractView?.Properties.FirstOrDefault(p =>
-                p.Name == Name && MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes));
+            var previous = FindLastContractProperty(enclosingType.LastContractView);
             var shouldInclude = !MethodSignatureHelper.IsPublicApi(Modifiers, Attributes) ||
                 previous is null || previous.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
             shouldInclude &= !Attributes.Any(a => !ReferenceEquals(a, attribute) && DeprecationApiHelpers.IsObsoleteAttribute(a));
@@ -186,6 +185,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Attributes = [.. Attributes.Where(a => !ReferenceEquals(a, attribute))];
             }
+        }
+
+        // Consumers of the last contract could also reach the property through an inherited declaration.
+        private PropertyProvider? FindLastContractProperty(TypeProvider? lastContractType)
+        {
+            HashSet<TypeProvider> visited = [];
+            for (var type = lastContractType; type is not null && visited.Add(type); type = type.BaseTypeProvider)
+            {
+                if (type.Properties.FirstOrDefault(p => p.Name == Name && MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes)) is { } property)
+                {
+                    return property;
+                }
+            }
+            return null;
         }
 
         internal void RefreshOverrideDeprecationSuppressions()

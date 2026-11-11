@@ -14,6 +14,8 @@ namespace Sample.Models
         public string PreviouslyObsolete { get; set; } = "";
     }
 
+    public class InheritingModel : StableModel { }
+
     [Obsolete("Previous message")]
     public class ObsoleteModel { }
 
