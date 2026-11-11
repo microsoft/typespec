@@ -6,14 +6,6 @@ title: "Generator plugins"
 
 Plugins are a lightweight way to customize the C# generator without authoring a full custom generator. A plugin can register additional visitors, rewriters, metadata references, or shared source directories that participate in the normal generation pipeline. This is useful when you want to tweak the generated output (for example, rename types, add attributes, or post-process models) while still using the built-in `ScmCodeModelGenerator`.
 
-## Choosing between an emitter option and a plugin
-
-If a feature should apply to generated clients generally, enable it by default rather than adding an option to turn it on. When users need control over behavior, use an emitter option for a simple setting that can be combined independently with other settings, such as enabling or disabling convenience methods.
-
-Use a plugin for scenario-specific customization that needs executable logic or combines coordinated changes to generated code, such as adding visitors or rewriters to rename types, add attributes, or post-process models. Prefer an option when a boolean or value can express the choice; prefer a plugin when users need to define how the generator transforms their output.
-
-See [emitter options](./emitter.md#emitter-options) for the available settings and [authoring a plugin](#authoring-a-plugin) to get started with custom transformations.
-
 The generator discovers plugins in two ways:
 
 1. **Automatically**, from the `dist` folder of any package listed in your project's `node_modules`.
