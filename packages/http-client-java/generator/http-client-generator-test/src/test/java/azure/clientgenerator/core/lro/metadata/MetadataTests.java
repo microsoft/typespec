@@ -5,9 +5,12 @@ package azure.clientgenerator.core.lro.metadata;
 
 import azure.clientgenerator.core.lro.metadata.models.ContentAnalysisResult;
 import azure.clientgenerator.core.lro.metadata.models.ContentAnalysisStatus;
+import azure.clientgenerator.core.lro.metadata.models.LanguageJobResult;
+import azure.clientgenerator.core.lro.metadata.models.LanguageJobStatus;
 import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,5 +27,18 @@ public class MetadataTests {
         Assertions.assertEquals(1, response.getValue().getUsage().getDocumentPagesBasic());
         Assertions.assertEquals(Map.of("input", 10, "output", 4), response.getValue().getUsage().getTokens());
         Assertions.assertEquals("The document contains three sections.", poller.getFinalResult().getContents());
+    }
+
+    @Test
+    public void testAnalyzeJob() {
+        MetadataClient client = new MetadataClientBuilder().buildClient();
+        SyncPoller<LanguageJobStatus, LanguageJobResult> poller = client.beginAnalyzeJob();
+
+        PollResponse<LanguageJobStatus> response = poller.waitForCompletion();
+        Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
+        Assertions.assertEquals("job-success", response.getValue().getJobId());
+        Assertions.assertEquals(3, response.getValue().getStatistics().getSucceeded());
+        Assertions.assertEquals(List.of("document-1", "document-2", "document-3"),
+            poller.getFinalResult().getDocuments());
     }
 }
