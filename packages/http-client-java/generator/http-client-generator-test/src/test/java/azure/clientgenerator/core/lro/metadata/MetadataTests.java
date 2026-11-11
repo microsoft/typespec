@@ -7,6 +7,7 @@ import azure.clientgenerator.core.lro.metadata.models.ContentAnalysisResult;
 import azure.clientgenerator.core.lro.metadata.models.ContentAnalysisStatus;
 import azure.clientgenerator.core.lro.metadata.models.LanguageJobResult;
 import azure.clientgenerator.core.lro.metadata.models.LanguageJobStatus;
+import com.azure.core.exception.AzureException;
 import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
@@ -40,5 +41,18 @@ public class MetadataTests {
         Assertions.assertEquals(3, response.getValue().getStatistics().getSucceeded());
         Assertions.assertEquals(List.of("document-1", "document-2", "document-3"),
             poller.getFinalResult().getDocuments());
+    }
+
+    @Test
+    public void testAnalyzeJobWithFailure() {
+        MetadataClient client = new MetadataClientBuilder().buildClient();
+        SyncPoller<LanguageJobStatus, LanguageJobResult> poller = client.beginAnalyzeJobWithFailure();
+
+        PollResponse<LanguageJobStatus> response = poller.waitForCompletion();
+        Assertions.assertEquals(LongRunningOperationStatus.FAILED, response.getStatus());
+        Assertions.assertEquals("job-failure", response.getValue().getJobId());
+        Assertions.assertEquals(2, response.getValue().getStatistics().getFailed());
+        Assertions.assertEquals("InvalidDocument", response.getValue().getErrors().get(0).getCode());
+        Assertions.assertThrows(AzureException.class, poller::getFinalResult);
     }
 }
