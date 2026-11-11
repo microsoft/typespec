@@ -20,15 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         /// Builds a property-access expression for the given segment path and also returns the leaf
         /// <see cref="PropertyProvider"/> so callers can inspect its type (e.g. to apply enum serialization).
         /// </summary>
-        public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments, out PropertyProvider leafProperty)
-        {
-            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out leafProperty);
-        }
-
-        /// <summary>
-        /// Builds a property-access expression for the given segment path and also returns the leaf
-        /// <see cref="PropertyProvider"/> and every property accessed along the path.
-        /// </summary>
         public static ValueExpression GetPropertyExpression(
             this ModelProvider model,
             ValueExpression modelVariable,
