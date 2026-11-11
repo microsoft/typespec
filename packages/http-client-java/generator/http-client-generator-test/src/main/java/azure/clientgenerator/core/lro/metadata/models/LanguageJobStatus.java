@@ -65,7 +65,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Creates an instance of LanguageJobStatus class.
-     *
+     * 
      * @param createdDateTime the createdDateTime value to set.
      * @param lastUpdatedDateTime the lastUpdatedDateTime value to set.
      * @param expirationDateTime the expirationDateTime value to set.
@@ -84,7 +84,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the jobId property: The jobId property.
-     *
+     * 
      * @return the jobId value.
      */
     @Generated
@@ -94,7 +94,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the displayName property: The displayName property.
-     *
+     * 
      * @return the displayName value.
      */
     @Generated
@@ -104,7 +104,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the statistics property: The statistics property.
-     *
+     * 
      * @return the statistics value.
      */
     @Generated
@@ -114,7 +114,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the errors property: The errors property.
-     *
+     * 
      * @return the errors value.
      */
     @Generated
@@ -124,7 +124,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the status property: The status property.
-     *
+     * 
      * @return the status value.
      */
     @Generated
@@ -134,7 +134,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the error property: The error property.
-     *
+     * 
      * @return the error value.
      */
     @Generated
@@ -144,7 +144,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Get the result property: The result property.
-     *
+     * 
      * @return the result value.
      */
     @Generated
@@ -181,7 +181,7 @@ public final class LanguageJobStatus extends JobTimestamps {
 
     /**
      * Reads an instance of LanguageJobStatus from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of LanguageJobStatus if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

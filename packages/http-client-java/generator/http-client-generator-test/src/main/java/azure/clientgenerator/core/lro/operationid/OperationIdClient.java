@@ -33,7 +33,7 @@ public final class OperationIdClient {
 
     /**
      * Initializes an instance of OperationIdClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -44,7 +44,7 @@ public final class OperationIdClient {
     /**
      * The getDocumentAnalysisStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -55,7 +55,7 @@ public final class OperationIdClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param resultId The resultId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -74,7 +74,7 @@ public final class OperationIdClient {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -92,7 +92,7 @@ public final class OperationIdClient {
     /**
      * The getTranslationStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -104,7 +104,7 @@ public final class OperationIdClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -120,7 +120,7 @@ public final class OperationIdClient {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -137,7 +137,7 @@ public final class OperationIdClient {
     /**
      * The getTranslationWithPathStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -149,7 +149,7 @@ public final class OperationIdClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param operationId The operationId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -167,7 +167,7 @@ public final class OperationIdClient {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -183,7 +183,7 @@ public final class OperationIdClient {
 
     /**
      * The getDocumentAnalysisStatus operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param resultId The resultId parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -205,7 +205,7 @@ public final class OperationIdClient {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -225,7 +225,7 @@ public final class OperationIdClient {
 
     /**
      * The getTranslationStatus operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -243,7 +243,7 @@ public final class OperationIdClient {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -261,7 +261,7 @@ public final class OperationIdClient {
 
     /**
      * The getTranslationWithPathStatus operation.
-     *
+     * 
      * @param operationId The operationId parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -282,7 +282,7 @@ public final class OperationIdClient {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.

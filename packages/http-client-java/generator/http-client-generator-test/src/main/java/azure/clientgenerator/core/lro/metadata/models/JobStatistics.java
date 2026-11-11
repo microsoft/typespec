@@ -37,7 +37,7 @@ public final class JobStatistics implements JsonSerializable<JobStatistics> {
 
     /**
      * Creates an instance of JobStatistics class.
-     *
+     * 
      * @param total the total value to set.
      * @param succeeded the succeeded value to set.
      * @param failed the failed value to set.
@@ -51,7 +51,7 @@ public final class JobStatistics implements JsonSerializable<JobStatistics> {
 
     /**
      * Get the total property: The total property.
-     *
+     * 
      * @return the total value.
      */
     @Generated
@@ -61,7 +61,7 @@ public final class JobStatistics implements JsonSerializable<JobStatistics> {
 
     /**
      * Get the succeeded property: The succeeded property.
-     *
+     * 
      * @return the succeeded value.
      */
     @Generated
@@ -71,7 +71,7 @@ public final class JobStatistics implements JsonSerializable<JobStatistics> {
 
     /**
      * Get the failed property: The failed property.
-     *
+     * 
      * @return the failed value.
      */
     @Generated
@@ -94,7 +94,7 @@ public final class JobStatistics implements JsonSerializable<JobStatistics> {
 
     /**
      * Reads an instance of JobStatistics from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of JobStatistics if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

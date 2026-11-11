@@ -26,7 +26,7 @@ public final class LanguageJobResult implements JsonSerializable<LanguageJobResu
 
     /**
      * Creates an instance of LanguageJobResult class.
-     *
+     * 
      * @param documents the documents value to set.
      */
     @Generated
@@ -36,7 +36,7 @@ public final class LanguageJobResult implements JsonSerializable<LanguageJobResu
 
     /**
      * Get the documents property: The documents property.
-     *
+     * 
      * @return the documents value.
      */
     @Generated
@@ -57,7 +57,7 @@ public final class LanguageJobResult implements JsonSerializable<LanguageJobResu
 
     /**
      * Reads an instance of LanguageJobResult from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of LanguageJobResult if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

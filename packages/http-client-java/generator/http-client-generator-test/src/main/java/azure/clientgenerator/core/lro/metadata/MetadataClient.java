@@ -32,7 +32,7 @@ public final class MetadataClient {
 
     /**
      * Initializes an instance of MetadataClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -43,7 +43,7 @@ public final class MetadataClient {
     /**
      * The getContentAnalysisStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -61,7 +61,7 @@ public final class MetadataClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param operationId The operationId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -79,7 +79,7 @@ public final class MetadataClient {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -97,7 +97,7 @@ public final class MetadataClient {
     /**
      * The getLanguageJobStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -139,7 +139,7 @@ public final class MetadataClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param jobId The jobId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -157,7 +157,7 @@ public final class MetadataClient {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -199,7 +199,7 @@ public final class MetadataClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -216,7 +216,7 @@ public final class MetadataClient {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -258,7 +258,7 @@ public final class MetadataClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -274,7 +274,7 @@ public final class MetadataClient {
 
     /**
      * The getContentAnalysisStatus operation.
-     *
+     * 
      * @param operationId The operationId parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -295,7 +295,7 @@ public final class MetadataClient {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -315,7 +315,7 @@ public final class MetadataClient {
 
     /**
      * The getLanguageJobStatus operation.
-     *
+     * 
      * @param jobId The jobId parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -335,7 +335,7 @@ public final class MetadataClient {
 
     /**
      * The analyzeJob operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -353,7 +353,7 @@ public final class MetadataClient {
 
     /**
      * The analyzeJobWithFailure operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.

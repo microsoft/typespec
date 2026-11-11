@@ -198,7 +198,7 @@ public final class MetadataClientBuilder implements HttpTrait<MetadataClientBuil
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the MetadataClientBuilder.
      */
@@ -216,7 +216,7 @@ public final class MetadataClientBuilder implements HttpTrait<MetadataClientBuil
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the MetadataClientBuilder.
      */
@@ -228,7 +228,7 @@ public final class MetadataClientBuilder implements HttpTrait<MetadataClientBuil
 
     /**
      * Builds an instance of MetadataClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of MetadataClientImpl.
      */
     @Generated
@@ -286,7 +286,7 @@ public final class MetadataClientBuilder implements HttpTrait<MetadataClientBuil
 
     /**
      * Builds an instance of MetadataAsyncClient class.
-     *
+     * 
      * @return an instance of MetadataAsyncClient.
      */
     @Generated
@@ -296,7 +296,7 @@ public final class MetadataClientBuilder implements HttpTrait<MetadataClientBuil
 
     /**
      * Builds an instance of MetadataClient class.
-     *
+     * 
      * @return an instance of MetadataClient.
      */
     @Generated

@@ -37,7 +37,7 @@ public final class JobItemError implements JsonSerializable<JobItemError> {
 
     /**
      * Creates an instance of JobItemError class.
-     *
+     * 
      * @param code the code value to set.
      * @param message the message value to set.
      * @param target the target value to set.
@@ -51,7 +51,7 @@ public final class JobItemError implements JsonSerializable<JobItemError> {
 
     /**
      * Get the code property: The code property.
-     *
+     * 
      * @return the code value.
      */
     @Generated
@@ -61,7 +61,7 @@ public final class JobItemError implements JsonSerializable<JobItemError> {
 
     /**
      * Get the message property: The message property.
-     *
+     * 
      * @return the message value.
      */
     @Generated
@@ -71,7 +71,7 @@ public final class JobItemError implements JsonSerializable<JobItemError> {
 
     /**
      * Get the target property: The target property.
-     *
+     * 
      * @return the target value.
      */
     @Generated
@@ -94,7 +94,7 @@ public final class JobItemError implements JsonSerializable<JobItemError> {
 
     /**
      * Reads an instance of JobItemError from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of JobItemError if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

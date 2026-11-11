@@ -40,7 +40,7 @@ public class JobTimestamps implements JsonSerializable<JobTimestamps> {
 
     /**
      * Creates an instance of JobTimestamps class.
-     *
+     * 
      * @param createdDateTime the createdDateTime value to set.
      * @param lastUpdatedDateTime the lastUpdatedDateTime value to set.
      * @param expirationDateTime the expirationDateTime value to set.
@@ -55,7 +55,7 @@ public class JobTimestamps implements JsonSerializable<JobTimestamps> {
 
     /**
      * Get the createdDateTime property: The createdDateTime property.
-     *
+     * 
      * @return the createdDateTime value.
      */
     @Generated
@@ -65,7 +65,7 @@ public class JobTimestamps implements JsonSerializable<JobTimestamps> {
 
     /**
      * Get the lastUpdatedDateTime property: The lastUpdatedDateTime property.
-     *
+     * 
      * @return the lastUpdatedDateTime value.
      */
     @Generated
@@ -75,7 +75,7 @@ public class JobTimestamps implements JsonSerializable<JobTimestamps> {
 
     /**
      * Get the expirationDateTime property: The expirationDateTime property.
-     *
+     * 
      * @return the expirationDateTime value.
      */
     @Generated
@@ -105,7 +105,7 @@ public class JobTimestamps implements JsonSerializable<JobTimestamps> {
 
     /**
      * Reads an instance of JobTimestamps from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of JobTimestamps if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

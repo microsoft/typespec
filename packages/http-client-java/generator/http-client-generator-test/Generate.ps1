@@ -209,6 +209,7 @@ try {
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
   Get-ChildItem ./specs -Filter tspconfig.yaml -File -Recurse | Remove-Item -Force
+  Copy-Item ./specs/azure/resource-manager/example/examples.yaml ./examples.yaml
 
   $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
   # ensure multi-service client specs are processed even though they do not match the default filter
@@ -220,6 +221,7 @@ try {
   $job | Wait-Job -Timeout 1200
   $job | Receive-Job
 
+  Remove-Item ./examples.yaml -Force
   Remove-Item ./specs -Recurse -Force
 
   Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("ReadmeSamples.java", "module-info.java")

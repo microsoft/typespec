@@ -44,7 +44,7 @@ public final class OperationState extends ExpandableStringEnum<OperationState> {
 
     /**
      * Creates a new instance of OperationState value.
-     *
+     * 
      * @deprecated Use the {@link #fromString(String)} factory method.
      */
     @Generated
@@ -54,7 +54,7 @@ public final class OperationState extends ExpandableStringEnum<OperationState> {
 
     /**
      * Creates or finds a OperationState from its string representation.
-     *
+     * 
      * @param name a name to look for.
      * @return the corresponding OperationState.
      */
@@ -65,7 +65,7 @@ public final class OperationState extends ExpandableStringEnum<OperationState> {
 
     /**
      * Gets known OperationState values.
-     *
+     * 
      * @return known OperationState values.
      */
     @Generated

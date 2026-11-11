@@ -25,7 +25,7 @@ public final class TranslationResult implements JsonSerializable<TranslationResu
 
     /**
      * Creates an instance of TranslationResult class.
-     *
+     * 
      * @param translatedCharacters the translatedCharacters value to set.
      */
     @Generated
@@ -35,7 +35,7 @@ public final class TranslationResult implements JsonSerializable<TranslationResu
 
     /**
      * Get the translatedCharacters property: The translatedCharacters property.
-     *
+     * 
      * @return the translatedCharacters value.
      */
     @Generated
@@ -56,7 +56,7 @@ public final class TranslationResult implements JsonSerializable<TranslationResu
 
     /**
      * Reads an instance of TranslationResult from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of TranslationResult if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

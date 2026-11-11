@@ -40,7 +40,7 @@ public final class LegacyClientsImpl {
 
     /**
      * Initializes an instance of LegacyClientsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     LegacyClientsImpl(ApiVersionOverrideClientImpl client) {
@@ -77,7 +77,7 @@ public final class LegacyClientsImpl {
 
     /**
      * Sends the API-version configured for this child client.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -94,7 +94,7 @@ public final class LegacyClientsImpl {
 
     /**
      * Sends the API-version configured for this child client.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.

@@ -31,7 +31,7 @@ public final class StructuralKeyAll extends StructuralKeyDiscriminator {
 
     /**
      * Get the kind property: The kind property.
-     *
+     * 
      * @return the kind value.
      */
     @Generated
@@ -53,7 +53,7 @@ public final class StructuralKeyAll extends StructuralKeyDiscriminator {
 
     /**
      * Reads an instance of StructuralKeyAll from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of StructuralKeyAll if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

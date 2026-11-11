@@ -25,7 +25,7 @@ public final class DocumentAnalysisResult implements JsonSerializable<DocumentAn
 
     /**
      * Creates an instance of DocumentAnalysisResult class.
-     *
+     * 
      * @param summary the summary value to set.
      */
     @Generated
@@ -35,7 +35,7 @@ public final class DocumentAnalysisResult implements JsonSerializable<DocumentAn
 
     /**
      * Get the summary property: The summary property.
-     *
+     * 
      * @return the summary value.
      */
     @Generated
@@ -56,7 +56,7 @@ public final class DocumentAnalysisResult implements JsonSerializable<DocumentAn
 
     /**
      * Reads an instance of DocumentAnalysisResult from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DocumentAnalysisResult if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.

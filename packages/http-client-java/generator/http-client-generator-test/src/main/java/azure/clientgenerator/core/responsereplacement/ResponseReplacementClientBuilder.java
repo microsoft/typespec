@@ -198,7 +198,7 @@ public final class ResponseReplacementClientBuilder implements HttpTrait<Respons
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the ResponseReplacementClientBuilder.
      */
@@ -210,7 +210,7 @@ public final class ResponseReplacementClientBuilder implements HttpTrait<Respons
 
     /**
      * Builds an instance of ResponseReplacementClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of ResponseReplacementClientImpl.
      */
     @Generated
@@ -266,7 +266,7 @@ public final class ResponseReplacementClientBuilder implements HttpTrait<Respons
 
     /**
      * Builds an instance of ResponseReplacementAsyncClient class.
-     *
+     * 
      * @return an instance of ResponseReplacementAsyncClient.
      */
     @Generated
@@ -276,7 +276,7 @@ public final class ResponseReplacementClientBuilder implements HttpTrait<Respons
 
     /**
      * Builds an instance of ResponseReplacementClient class.
-     *
+     * 
      * @return an instance of ResponseReplacementClient.
      */
     @Generated

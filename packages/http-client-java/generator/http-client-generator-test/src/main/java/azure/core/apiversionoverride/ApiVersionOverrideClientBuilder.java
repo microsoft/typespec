@@ -198,7 +198,7 @@ public final class ApiVersionOverrideClientBuilder implements HttpTrait<ApiVersi
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the ApiVersionOverrideClientBuilder.
      */
@@ -210,7 +210,7 @@ public final class ApiVersionOverrideClientBuilder implements HttpTrait<ApiVersi
 
     /**
      * Builds an instance of ApiVersionOverrideClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of ApiVersionOverrideClientImpl.
      */
     @Generated
@@ -266,7 +266,7 @@ public final class ApiVersionOverrideClientBuilder implements HttpTrait<ApiVersi
 
     /**
      * Builds an instance of ApiVersionOverrideAsyncClient class.
-     *
+     * 
      * @return an instance of ApiVersionOverrideAsyncClient.
      */
     @Generated
@@ -276,7 +276,7 @@ public final class ApiVersionOverrideClientBuilder implements HttpTrait<ApiVersi
 
     /**
      * Builds an instance of ApiVersionOverrideClient class.
-     *
+     * 
      * @return an instance of ApiVersionOverrideClient.
      */
     @Generated

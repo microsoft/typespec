@@ -29,7 +29,7 @@ public final class ResponseReplacementAsyncClient {
 
     /**
      * Initializes an instance of ResponseReplacementAsyncClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -40,7 +40,7 @@ public final class ResponseReplacementAsyncClient {
     /**
      * The voidResponse operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -48,7 +48,7 @@ public final class ResponseReplacementAsyncClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -65,7 +65,7 @@ public final class ResponseReplacementAsyncClient {
     /**
      * The bytesResponse operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -73,7 +73,7 @@ public final class ResponseReplacementAsyncClient {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -89,7 +89,7 @@ public final class ResponseReplacementAsyncClient {
 
     /**
      * The voidResponse operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -107,7 +107,7 @@ public final class ResponseReplacementAsyncClient {
 
     /**
      * The bytesResponse operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.

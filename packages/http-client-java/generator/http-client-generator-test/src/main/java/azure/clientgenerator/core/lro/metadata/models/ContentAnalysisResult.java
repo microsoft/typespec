@@ -25,7 +25,7 @@ public final class ContentAnalysisResult implements JsonSerializable<ContentAnal
 
     /**
      * Creates an instance of ContentAnalysisResult class.
-     *
+     * 
      * @param contents the contents value to set.
      */
     @Generated
@@ -35,7 +35,7 @@ public final class ContentAnalysisResult implements JsonSerializable<ContentAnal
 
     /**
      * Get the contents property: The contents property.
-     *
+     * 
      * @return the contents value.
      */
     @Generated
@@ -56,7 +56,7 @@ public final class ContentAnalysisResult implements JsonSerializable<ContentAnal
 
     /**
      * Reads an instance of ContentAnalysisResult from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ContentAnalysisResult if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.

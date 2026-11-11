@@ -31,7 +31,7 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
 
     /**
      * Creates an instance of DocumentAnalysisStatus class.
-     *
+     * 
      * @param status the status value to set.
      */
     @Generated
@@ -41,7 +41,7 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
 
     /**
      * Get the status property: The status property.
-     *
+     * 
      * @return the status value.
      */
     @Generated
@@ -51,7 +51,7 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
 
     /**
      * Get the result property: The result property.
-     *
+     * 
      * @return the result value.
      */
     @Generated
@@ -73,7 +73,7 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
 
     /**
      * Reads an instance of DocumentAnalysisStatus from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DocumentAnalysisStatus if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.

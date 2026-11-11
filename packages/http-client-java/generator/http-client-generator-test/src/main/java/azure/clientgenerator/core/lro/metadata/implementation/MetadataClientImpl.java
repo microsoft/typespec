@@ -60,7 +60,7 @@ public final class MetadataClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -74,7 +74,7 @@ public final class MetadataClientImpl {
 
     /**
      * Gets Service version.
-     *
+     * 
      * @return the serviceVersion value.
      */
     public MetadataServiceVersion getServiceVersion() {
@@ -88,7 +88,7 @@ public final class MetadataClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -102,7 +102,7 @@ public final class MetadataClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     *
+     * 
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -111,7 +111,7 @@ public final class MetadataClientImpl {
 
     /**
      * Initializes an instance of MetadataClient client.
-     *
+     * 
      * @param endpoint Service host.
      * @param serviceVersion Service version.
      */
@@ -122,7 +122,7 @@ public final class MetadataClientImpl {
 
     /**
      * Initializes an instance of MetadataClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      * @param serviceVersion Service version.
@@ -133,7 +133,7 @@ public final class MetadataClientImpl {
 
     /**
      * Initializes an instance of MetadataClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
@@ -258,7 +258,7 @@ public final class MetadataClientImpl {
     /**
      * The getContentAnalysisStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -276,7 +276,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param operationId The operationId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -296,7 +296,7 @@ public final class MetadataClientImpl {
     /**
      * The getContentAnalysisStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -314,7 +314,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param operationId The operationId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -333,7 +333,7 @@ public final class MetadataClientImpl {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -350,7 +350,7 @@ public final class MetadataClientImpl {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -367,7 +367,7 @@ public final class MetadataClientImpl {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -395,7 +395,7 @@ public final class MetadataClientImpl {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -423,7 +423,7 @@ public final class MetadataClientImpl {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -450,7 +450,7 @@ public final class MetadataClientImpl {
 
     /**
      * The analyzeWithUsage operation.
-     *
+     * 
      * @param analyzerId The analyzerId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -477,7 +477,7 @@ public final class MetadataClientImpl {
     /**
      * The getLanguageJobStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -519,7 +519,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param jobId The jobId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -539,7 +539,7 @@ public final class MetadataClientImpl {
     /**
      * The getLanguageJobStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -581,7 +581,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param jobId The jobId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -600,7 +600,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -642,7 +642,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -660,7 +660,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -702,7 +702,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -720,7 +720,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -762,7 +762,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -789,7 +789,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -831,7 +831,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -857,7 +857,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -899,7 +899,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -924,7 +924,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJob operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -966,7 +966,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -991,7 +991,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -1033,7 +1033,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1051,7 +1051,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -1093,7 +1093,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1111,7 +1111,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -1153,7 +1153,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1181,7 +1181,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -1223,7 +1223,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1251,7 +1251,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -1293,7 +1293,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1319,7 +1319,7 @@ public final class MetadataClientImpl {
     /**
      * The analyzeJobWithFailure operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -1361,7 +1361,7 @@ public final class MetadataClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.

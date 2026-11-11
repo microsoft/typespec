@@ -198,7 +198,7 @@ public final class OperationIdClientBuilder implements HttpTrait<OperationIdClie
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the OperationIdClientBuilder.
      */
@@ -216,7 +216,7 @@ public final class OperationIdClientBuilder implements HttpTrait<OperationIdClie
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the OperationIdClientBuilder.
      */
@@ -228,7 +228,7 @@ public final class OperationIdClientBuilder implements HttpTrait<OperationIdClie
 
     /**
      * Builds an instance of OperationIdClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of OperationIdClientImpl.
      */
     @Generated
@@ -286,7 +286,7 @@ public final class OperationIdClientBuilder implements HttpTrait<OperationIdClie
 
     /**
      * Builds an instance of OperationIdAsyncClient class.
-     *
+     * 
      * @return an instance of OperationIdAsyncClient.
      */
     @Generated
@@ -296,7 +296,7 @@ public final class OperationIdClientBuilder implements HttpTrait<OperationIdClie
 
     /**
      * Builds an instance of OperationIdClient class.
-     *
+     * 
      * @return an instance of OperationIdClient.
      */
     @Generated

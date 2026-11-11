@@ -43,7 +43,7 @@ public final class ContentAnalysisStatus implements JsonSerializable<ContentAnal
 
     /**
      * Creates an instance of ContentAnalysisStatus class.
-     *
+     * 
      * @param id the id value to set.
      * @param status the status value to set.
      */
@@ -55,7 +55,7 @@ public final class ContentAnalysisStatus implements JsonSerializable<ContentAnal
 
     /**
      * Get the id property: The id property.
-     *
+     * 
      * @return the id value.
      */
     @Generated
@@ -65,7 +65,7 @@ public final class ContentAnalysisStatus implements JsonSerializable<ContentAnal
 
     /**
      * Get the status property: The status property.
-     *
+     * 
      * @return the status value.
      */
     @Generated
@@ -75,7 +75,7 @@ public final class ContentAnalysisStatus implements JsonSerializable<ContentAnal
 
     /**
      * Get the usage property: The usage property.
-     *
+     * 
      * @return the usage value.
      */
     @Generated
@@ -85,7 +85,7 @@ public final class ContentAnalysisStatus implements JsonSerializable<ContentAnal
 
     /**
      * Get the result property: The result property.
-     *
+     * 
      * @return the result value.
      */
     @Generated
@@ -109,7 +109,7 @@ public final class ContentAnalysisStatus implements JsonSerializable<ContentAnal
 
     /**
      * Reads an instance of ContentAnalysisStatus from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ContentAnalysisStatus if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.

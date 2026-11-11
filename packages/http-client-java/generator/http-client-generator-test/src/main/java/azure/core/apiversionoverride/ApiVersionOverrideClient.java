@@ -26,7 +26,7 @@ public final class ApiVersionOverrideClient {
 
     /**
      * Initializes an instance of ApiVersionOverrideClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -36,7 +36,7 @@ public final class ApiVersionOverrideClient {
 
     /**
      * Sends the API-version configured for this child client.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -52,7 +52,7 @@ public final class ApiVersionOverrideClient {
 
     /**
      * Sends the API-version configured for this child client.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.

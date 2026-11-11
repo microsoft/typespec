@@ -31,7 +31,7 @@ public enum MetadataServiceVersion implements ServiceVersion {
 
     /**
      * Gets the latest service version supported by this client library.
-     *
+     * 
      * @return The latest {@link MetadataServiceVersion}.
      */
     public static MetadataServiceVersion getLatest() {

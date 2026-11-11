@@ -61,7 +61,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -75,7 +75,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Gets Service version.
-     *
+     * 
      * @return the serviceVersion value.
      */
     public OperationIdServiceVersion getServiceVersion() {
@@ -89,7 +89,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -103,7 +103,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     *
+     * 
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -112,7 +112,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Initializes an instance of OperationIdClient client.
-     *
+     * 
      * @param endpoint Service host.
      * @param serviceVersion Service version.
      */
@@ -123,7 +123,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Initializes an instance of OperationIdClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      * @param serviceVersion Service version.
@@ -134,7 +134,7 @@ public final class OperationIdClientImpl {
 
     /**
      * Initializes an instance of OperationIdClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
@@ -276,7 +276,7 @@ public final class OperationIdClientImpl {
     /**
      * The getDocumentAnalysisStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -287,7 +287,7 @@ public final class OperationIdClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param resultId The resultId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -308,7 +308,7 @@ public final class OperationIdClientImpl {
     /**
      * The getDocumentAnalysisStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -319,7 +319,7 @@ public final class OperationIdClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param resultId The resultId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -339,7 +339,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -356,7 +356,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -373,7 +373,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -400,7 +400,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -427,7 +427,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -452,7 +452,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The analyze operation.
-     *
+     * 
      * @param modelId The modelId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -478,7 +478,7 @@ public final class OperationIdClientImpl {
     /**
      * The getTranslationStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -490,7 +490,7 @@ public final class OperationIdClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -508,7 +508,7 @@ public final class OperationIdClientImpl {
     /**
      * The getTranslationStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -520,7 +520,7 @@ public final class OperationIdClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -537,7 +537,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -553,7 +553,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -569,7 +569,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -595,7 +595,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -621,7 +621,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -645,7 +645,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslation operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -670,7 +670,7 @@ public final class OperationIdClientImpl {
     /**
      * The getTranslationWithPathStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -682,7 +682,7 @@ public final class OperationIdClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param operationId The operationId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -702,7 +702,7 @@ public final class OperationIdClientImpl {
     /**
      * The getTranslationWithPathStatus operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -714,7 +714,7 @@ public final class OperationIdClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param operationId The operationId parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -733,7 +733,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -749,7 +749,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -765,7 +765,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -792,7 +792,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -819,7 +819,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -844,7 +844,7 @@ public final class OperationIdClientImpl {
 
     /**
      * The startTranslationWithPath operation.
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.

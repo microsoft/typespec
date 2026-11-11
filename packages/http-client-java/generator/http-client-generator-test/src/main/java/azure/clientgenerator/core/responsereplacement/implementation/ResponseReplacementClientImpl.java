@@ -48,7 +48,7 @@ public final class ResponseReplacementClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -62,7 +62,7 @@ public final class ResponseReplacementClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -76,7 +76,7 @@ public final class ResponseReplacementClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     *
+     * 
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -85,7 +85,7 @@ public final class ResponseReplacementClientImpl {
 
     /**
      * Initializes an instance of ResponseReplacementClient client.
-     *
+     * 
      * @param endpoint Service host.
      */
     public ResponseReplacementClientImpl(String endpoint) {
@@ -95,7 +95,7 @@ public final class ResponseReplacementClientImpl {
 
     /**
      * Initializes an instance of ResponseReplacementClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      */
@@ -105,7 +105,7 @@ public final class ResponseReplacementClientImpl {
 
     /**
      * Initializes an instance of ResponseReplacementClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
@@ -166,7 +166,7 @@ public final class ResponseReplacementClientImpl {
     /**
      * The voidResponse operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -174,7 +174,7 @@ public final class ResponseReplacementClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -192,7 +192,7 @@ public final class ResponseReplacementClientImpl {
     /**
      * The voidResponse operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -200,7 +200,7 @@ public final class ResponseReplacementClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -217,7 +217,7 @@ public final class ResponseReplacementClientImpl {
     /**
      * The bytesResponse operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -225,7 +225,7 @@ public final class ResponseReplacementClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -243,7 +243,7 @@ public final class ResponseReplacementClientImpl {
     /**
      * The bytesResponse operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * {
@@ -251,7 +251,7 @@ public final class ResponseReplacementClientImpl {
      * }
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.

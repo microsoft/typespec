@@ -39,7 +39,7 @@ public final class UsageDetails implements JsonSerializable<UsageDetails> {
 
     /**
      * Get the documentPagesBasic property: The documentPagesBasic property.
-     *
+     * 
      * @return the documentPagesBasic value.
      */
     @Generated
@@ -49,7 +49,7 @@ public final class UsageDetails implements JsonSerializable<UsageDetails> {
 
     /**
      * Get the tokens property: The tokens property.
-     *
+     * 
      * @return the tokens value.
      */
     @Generated
@@ -71,7 +71,7 @@ public final class UsageDetails implements JsonSerializable<UsageDetails> {
 
     /**
      * Reads an instance of UsageDetails from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of UsageDetails if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

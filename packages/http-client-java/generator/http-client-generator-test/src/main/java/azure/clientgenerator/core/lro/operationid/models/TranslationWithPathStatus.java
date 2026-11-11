@@ -37,7 +37,7 @@ public final class TranslationWithPathStatus implements JsonSerializable<Transla
 
     /**
      * Creates an instance of TranslationWithPathStatus class.
-     *
+     * 
      * @param id the id value to set.
      * @param status the status value to set.
      */
@@ -49,7 +49,7 @@ public final class TranslationWithPathStatus implements JsonSerializable<Transla
 
     /**
      * Get the id property: The id property.
-     *
+     * 
      * @return the id value.
      */
     @Generated
@@ -59,7 +59,7 @@ public final class TranslationWithPathStatus implements JsonSerializable<Transla
 
     /**
      * Get the status property: The status property.
-     *
+     * 
      * @return the status value.
      */
     @Generated
@@ -69,7 +69,7 @@ public final class TranslationWithPathStatus implements JsonSerializable<Transla
 
     /**
      * Get the result property: The result property.
-     *
+     * 
      * @return the result value.
      */
     @Generated
@@ -92,7 +92,7 @@ public final class TranslationWithPathStatus implements JsonSerializable<Transla
 
     /**
      * Reads an instance of TranslationWithPathStatus from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of TranslationWithPathStatus if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.

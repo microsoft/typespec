@@ -31,7 +31,7 @@ public enum OperationIdServiceVersion implements ServiceVersion {
 
     /**
      * Gets the latest service version supported by this client library.
-     *
+     * 
      * @return The latest {@link OperationIdServiceVersion}.
      */
     public static OperationIdServiceVersion getLatest() {
