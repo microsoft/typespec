@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import type.union.discriminated.extendsnamespace.explicitdiscriminator.models.Cat;
 import type.union.discriminated.extendsnamespace.explicitdiscriminator.models.Dog;
+import type.union.discriminated.extendsnamespace.injecteddiscriminator.models.Cat1;
+import type.union.discriminated.extendsnamespace.injecteddiscriminator.models.Dog1;
 
 public class ExtendsTests {
     @Test
@@ -22,5 +24,20 @@ public class ExtendsTests {
         Assertions.assertEquals("Rex", dog.getName());
         Assertions.assertFalse(dog.isBark());
         client.putDog(new Dog("Rex", false));
+    }
+
+    @Test
+    public void testInjectedDiscriminator() {
+        InjectedDiscriminatorOperationsClient client
+            = new ExtendsClientBuilder().buildInjectedDiscriminatorOperationsClient();
+        Cat1 cat = Assertions.assertInstanceOf(Cat1.class, client.getCat());
+        Assertions.assertEquals("Whiskers", cat.getName());
+        Assertions.assertTrue(cat.isMeow());
+        client.putCat(new Cat1("Whiskers", true));
+
+        Dog1 dog = Assertions.assertInstanceOf(Dog1.class, client.getDog());
+        Assertions.assertEquals("Rex", dog.getName());
+        Assertions.assertFalse(dog.isBark());
+        client.putDog(new Dog1("Rex", false));
     }
 }
