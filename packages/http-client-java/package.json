@@ -88,16 +88,13 @@
     "@typespec/streams": "0.87.0",
     "@typespec/versioning": "0.87.0",
     "@typespec/xml": "0.87.0",
-    "rimraf": "~6.1.3",
+    "rimraf": "~6.1.4",
     "typescript": "~7.0.2",
     "vitest": "^5.0.3"
   },
   "overrides": {
     "@microsoft/api-extractor": {
       "minimatch": "^11.0.4"
-    },
-    "rimraf": {
-      "glob": "^14.0.3"
     }
   }
 }
