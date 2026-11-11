@@ -1,0 +1,207 @@
+---
+slug: release-notes/typespec-1-18-0
+title: "1.18.0"
+releaseDate: 2026-11-10
+version: "1.18.0"
+---
+
+# 1.18.0
+
+This release includes updates that improve the management of linting rules, including new command-line options, new APIs for managing suppressions, and new APIs to simplify codefixes. It also enables the representation of long-running operations in protobuf APIs.
+
+## Highlights
+
+### @typespec/compiler
+
+- Inspect inline suppressions and locally configured linter disables without compiling a project. For compiled programs, inspect whether each project suppression matched a diagnostic using `getSuppressions`.
+
+```ts
+import { collectLinterDisables } from "@typespec/compiler";
+import { collectSuppressions, getSuppressions, parse } from "@typespec/compiler/ast";
+
+const script = parse(source);
+const suppressions = collectSuppressions(script);
+const [disables, diagnostics] = collectLinterDisables(configText);
+const observedSuppressions = getSuppressions(program); // Includes a `used` flag.
+```
+
+- Override linter configuration on the command line. Select rulesets with `--linter-ruleset`, enable, disable, or configure individual rules with `--linter-rule`, and skip linting with `--no-linter`.
+
+```bash
+tsp compile . --linter-ruleset @typespec/http/all
+tsp compile . --linter-rule @typespec/compiler/unused-using=true
+tsp compile . --no-linter
+```
+
+- Reuse compiler whitespace and comment handling in codefixes using `skipTrivia` from `@typespec/compiler/ast`.
+
+```ts
+import { skipTrivia } from "@typespec/compiler/ast";
+
+const cursor = skipTrivia(sourceText, property.end, property.parent?.end);
+```
+
+### @typespec/protobuf
+
+- Add `LongRunningOperation<Response, Metadata>` for long-running operations ([AIP-151](https://google.aip.dev/151)), and `WellKnown.Operation`. An operation that returns `LongRunningOperation` returns a `google.longrunning.Operation`, and the emitter writes its response and metadata types in the method's `google.longrunning.operation_info` option.
+
+```tsp
+@Protobuf.service
+interface Library {
+  importBooks(...ImportBooksRequest): LongRunningOperation<
+    ImportBooksResponse,
+    ImportBooksMetadata
+  >;
+}
+```
+
+```proto
+rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+  option (google.longrunning.operation_info) = {
+    response_type: "ImportBooksResponse"
+    metadata_type: "ImportBooksMetadata"
+  };
+}
+```
+
+## Deprecations
+
+### @typespec/compiler
+
+- `getDiscriminatedUnionFromInheritance(type, discriminator)` is deprecated. Pass the program as the first argument so enum member discriminator values use their `@encodedName`.
+
+```ts
+const [union, diagnostics] = getDiscriminatedUnionFromInheritance(program, type, discriminator);
+```
+
+## Features
+
+### @typespec/compiler
+
+- Inspect inline suppressions and local linter disables without compiling a project. Inline results include declaration context and source locations; config results include rule-key locations and diagnostics. For compiled programs, inspect whether each project suppression matched a diagnostic using `getSuppressions`.
+
+```ts
+import { collectLinterDisables } from "@typespec/compiler";
+import { collectSuppressions, getSuppressions, parse } from "@typespec/compiler/ast";
+
+const script = parse(source);
+const suppressions = collectSuppressions(script);
+const [disables, diagnostics] = collectLinterDisables(configText);
+const observedSuppressions = getSuppressions(program); // Includes a `used` flag.
+```
+
+Usage is a snapshot of diagnostics matched so far in that compilation, including rejected attempts to suppress errors. An unmatched suppression may be needed under other settings: its rule could be disabled, its diagnostic source unavailable, its emitter skipped, or compilation could stop before the relevant stage runs.
+
+- Override linter configuration for a single compilation without editing `tspconfig.yaml`. Select rulesets with `--linter-ruleset`, enable, disable, or configure individual rules with `--linter-rule`, and skip linting with `--no-linter`.
+
+```bash
+tsp compile . --linter-ruleset @typespec/http/all
+tsp compile . --linter-rule @typespec/compiler/unused-using=true
+tsp compile . --no-linter
+```
+
+- Expose `skipTrivia` through `@typespec/compiler/ast` so codefixes can reuse the compiler whitespace and comment handling.
+
+```ts
+import { skipTrivia } from "@typespec/compiler/ast";
+
+const cursor = skipTrivia(sourceText, property.end, property.parent?.end);
+```
+
+- [API] Widen `isTemplateDeclaration` and `isTemplateDeclarationOrInstance` to accept any `Type`.
+
+- Add `typeref(Type)` for referencing types from metadata values. Enable the `typeref` compiler feature in the calling project or library's `tspconfig.yaml`. Its result has type `TypeRef<T>`, where `T` is the referenced type. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to constrain its target. JavaScript implementations and generated signatures use `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler type. Type references are compilation metadata and cannot be represented as JSON values.
+
+```typespec
+model Item {
+  id: string;
+}
+model Registration {
+  name: string;
+  type: TypeRef;
+}
+const entry: Registration = #{ name: "item", type: typeref(Item) };
+```
+
+### @typespec/protobuf
+
+- Add `LongRunningOperation<Response, Metadata>` for long-running operations ([AIP-151](https://google.aip.dev/151)), and `WellKnown.Operation`. An operation that returns `LongRunningOperation` returns a `google.longrunning.Operation`, and the emitter writes its response and metadata types in the method's `google.longrunning.operation_info` option.
+
+```tsp
+importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+```
+
+```proto
+rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+  option (google.longrunning.operation_info) = {
+    response_type: "ImportBooksResponse"
+    metadata_type: "ImportBooksMetadata"
+  };
+}
+```
+
+## Bug Fixes
+
+### @typespec/compiler
+
+- Suppress deprecated type warnings in deprecated operations, including parameter and response types nested in inline models and template arguments.
+
+- `@encodedName` on an enum member now sets the value the member is serialized as, including when it has an explicit value. Emitters can resolve it with `resolveEncodedEnumMemberValue`. A spec that relied on the encoded name being ignored can now report errors, such as an encoded name equal to another member's value, or a `@discriminated` union variant named after the member instead of its encoded name.
+
+```tsp
+enum ConversationStatus {
+  // Keeps 0 for protobuf, serialized as "unknown" in JSON
+  @encodedName("application/json", "unknown")
+  CONVERSATION_STATUS_UNSPECIFIED: 0,
+}
+```
+
+- Fix the underline in the diagnostic source preview starting one character to the right of the target since the upgrade to `@babel/code-frame` 8.
+
+- Highlight type-reference names without their template arguments when reporting diagnostics.
+
+- Fix decorators being skipped when concrete types are first referenced from template declarations, including references through model properties, union variants, and enum members.
+
+- Recommend npm run build instead of tsp compile . after initializing a TypeSpec library or emitter.
+
+- Fix `enumMember` and `exitEnumMember` semantic navigation callbacks so linter rules can validate enum members. Scoped navigation uses the parent enum's namespace to avoid visiting members outside the requested scope.
+
+- Explain that createTester requires a library root directory when its package.json cannot be found.
+
+- Correct reflection type constraint comparisons in function signatures, template parameters, and type references so namespace and other non-model constraints are not accepted as model constraints.
+
+- Preserve source model and property documentation in generated extern signatures.
+
+### @typespec/json-schema
+
+- Enum members use their `application/json` `@encodedName` as their value, including members with an explicit value. An encoded integer member is emitted as a string.
+
+- Report a diagnostic instead of crashing when `@prefixItems` receives an array type rather than a tuple.
+
+### @typespec/openapi3
+
+- Enum members use their `application/json` `@encodedName` as their value, including in a server variable; an encoded integer member is emitted as a string.
+
+- Reduce the visibility context of array declarations so that named array models are not incorrectly emitted with an `Item` suffix.
+
+- Deduplicate identical summaries and descriptions across `@sharedRoute` operations.
+
+- [converter] Escape quotes in the `@service` title generated from the OpenAPI `info.title`.
+
+- Fix `@terminalEvent` on a variant with a payload emitting an unconstrained `oneOf` branch in OpenAPI 3.2 SSE output
+
+- Preserve distinct discriminated union envelopes when variants share the same payload type.
+
+- Emit `minItems` and `maxItems` for tuple types so generated schemas enforce the tuple's exact length.
+
+### @typespec/protobuf
+
+- An object value, such as an `@opExample` or `const` value, can now fill a `Map<Key, Value>`: `Map` is a `Record` of its values. The emitted `map` is unchanged.
+
+### @typespec/versioning
+
+- Preserve transformed property optionality in version snapshots and skip incompatible optionality diagnostics when the property differs from its original declaration, without special-casing transformation helpers.
+
+### @typespec/http
+
+- Improve HTTP payload resolution performance for models with many properties by avoiding repeated metadata scans.
