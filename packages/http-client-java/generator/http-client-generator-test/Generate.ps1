@@ -58,6 +58,10 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
     $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
+    if ($tspFile -match "azure[\\/]resource-manager[\\/]example[\\/]main\.tsp$") {
+      # Use the scenario's unified YAML example instead of the shared JSON examples directory.
+      $tspOptions += " --option ""@typespec/http-client-java.examples-dir="""
+    }
   } elseif ($tspFile -match "tsp[\\/]versioning.tsp") {
     # test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
