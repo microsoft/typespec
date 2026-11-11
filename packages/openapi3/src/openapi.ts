@@ -365,7 +365,6 @@ function createOAPIEmitter(
   let visibilityUsage: VisibilityUsageTracker;
   let sseModule: SSEModule | undefined;
   let jsonSchemaModule: JsonSchemaModule | undefined;
-  let multipartSchemaTypes: Map<string, Type>;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -527,7 +526,6 @@ function createOAPIEmitter(
     currentPath = root.paths;
 
     params = new Map();
-    multipartSchemaTypes = new Map();
     paramModels = new Set();
     tagsUsedInOperations = new Set();
   }
@@ -1439,20 +1437,10 @@ function createOAPIEmitter(
       required: requiredProperties,
     };
 
-    let name =
+    const name =
       "name" in body.type && body.type.name !== ""
         ? getComponentTypeName(program, body.type, typeNameOptions, options)
         : undefined;
-    if (name !== undefined) {
-      name = ensureValidComponentFixedFieldKey(program, body.type, name);
-      if (name) {
-        const existing = multipartSchemaTypes.get(name);
-        if (existing && existing !== body.type) {
-          checkDuplicateTypeName(program, body.type, name, root.components!.schemas!);
-        }
-        multipartSchemaTypes.set(name, body.type);
-      }
-    }
     if (name) {
       root.components!.schemas![name] = schema;
     }
@@ -1870,10 +1858,6 @@ function createOAPIEmitter(
       const schemas = root.components!.schemas!;
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
-        const multipartType = multipartSchemaTypes.get(declaration.name);
-        if (multipartType) {
-          checkDuplicateTypeName(program, multipartType, declaration.name, schemas);
-        }
         schemas[declaration.name] = declaration.value as any;
       }
     }
