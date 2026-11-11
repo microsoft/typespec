@@ -48,7 +48,10 @@ const cursor = skipTrivia(sourceText, property.end, property.parent?.end);
 ```tsp
 @Protobuf.service
 interface Library {
-  importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+  importBooks(...ImportBooksRequest): LongRunningOperation<
+    ImportBooksResponse,
+    ImportBooksMetadata
+  >;
 }
 ```
 
