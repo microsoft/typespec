@@ -416,10 +416,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(isRef, parameter.IsRef);
         }
 
-        [Test]
-        public async Task ValidatePartialConstructorDeclarations()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ValidatePartialConstructorDeclarations(bool useWorkspace)
         {
-            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            MockHelpers.LoadMockGenerator(sharedSourceDirectories: [Helpers.GetAssetFileOrDirectoryPath(false)]);
+            var compilation = useWorkspace
+                ? await (await GeneratedCodeWorkspace.Create(isCustomCodeProject: true)).GetCompilationAsync()
+                : await Helpers.GetCompilationFromDirectoryAsync(languageVersion: LanguageVersion.Preview);
             var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
             var provider = new NamedTypeSymbolProvider(symbol, compilation);
 
