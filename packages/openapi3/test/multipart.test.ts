@@ -1,9 +1,59 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import type { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor, emitOpenApiWithDiagnostics }) => {
+  it("validates multipart keys before creating references", async () => {
+    const [doc, diagnostics] = await emitOpenApiWithDiagnostics(`
+      model \`Upload/Form\` { name: HttpPart<string>; }
+      op upload(@multipartBody body: \`Upload/Form\`): void;
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/invalid-component-fixed-field-key",
+      },
+    ]);
+    expect(Object.keys(doc.components!.schemas!)).toEqual(["Upload_Form"]);
+    expect(doc.paths["/"].post!.requestBody).toMatchObject({
+      content: { "multipart/form-data": { schema: { $ref: "#/components/schemas/Upload_Form" } } },
+    });
+  });
+
+  it("reports duplicate multipart keys", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`
+      @friendlyName("UploadForm") model First { a: HttpPart<string>; }
+      @friendlyName("UploadForm") model Second { b: HttpPart<string>; }
+      @route("/a") op first(@multipartBody body: First): void;
+      @route("/b") op second(@multipartBody body: Second): void;
+    `);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
+  });
+
+  it("reports collisions between multipart and regular schemas", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`
+      @friendlyName("UploadForm") model Upload { name: HttpPart<string>; }
+      model UploadForm { value: string; }
+      op upload(@multipartBody body: Upload): UploadForm;
+    `);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
+  });
+
+  it("allows repeated references to the same named multipart body", async () => {
+    const doc = await openApiFor(`
+      model UploadForm { name: HttpPart<string>; }
+      @route("/a") op first(@multipartBody body: UploadForm): void;
+      @route("/b") op second(@multipartBody body: UploadForm): void;
+    `);
+    expect(Object.keys(doc.components.schemas)).toEqual(["UploadForm"]);
+    for (const path of ["/a", "/b"]) {
+      expect(doc.paths[path].post.requestBody.content["multipart/form-data"].schema).toEqual({
+        $ref: "#/components/schemas/UploadForm",
+      });
+    }
+  });
+
   it("create dedicated model for multipart", async () => {
     const res = await openApiFor(
       `
