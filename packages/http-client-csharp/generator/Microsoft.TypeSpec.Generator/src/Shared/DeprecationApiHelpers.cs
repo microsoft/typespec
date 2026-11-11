@@ -22,6 +22,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             => message is null ? null : new AttributeStatement(typeof(ObsoleteAttribute), [Literal(message)]);
 
         public static AttributeStatement? GetEffectiveObsoleteAttribute(PropertyProvider property)
+            => GetObsoleteAttribute(property, includePendingGeneratedAttribute: false);
+
+        // Generated references are built before final compatibility processing, so include attributes that may still be restored.
+        public static AttributeStatement? GetReferenceObsoleteAttribute(PropertyProvider property)
+            => GetObsoleteAttribute(property, includePendingGeneratedAttribute: true);
+
+        private static AttributeStatement? GetObsoleteAttribute(PropertyProvider property, bool includePendingGeneratedAttribute)
         {
             HashSet<PropertyProvider> visited = [];
             while (visited.Add(property))
@@ -29,6 +36,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 if (property.Attributes.FirstOrDefault(IsObsoleteAttribute) is { } attribute)
                 {
                     return attribute;
+                }
+                if (includePendingGeneratedAttribute && property.PendingGeneratedDeprecationAttribute is { } pendingAttribute)
+                {
+                    return pendingAttribute;
                 }
                 if (!property.Modifiers.HasFlag(MethodSignatureModifiers.Override) || property.BaseProperty is not { } baseProperty)
                 {

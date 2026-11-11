@@ -55,6 +55,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         private readonly AttributeStatement? _generatedDeprecationAttribute;
         private bool _removedGeneratedDeprecationAttribute;
+        /// <summary>
+        /// Gets the generated deprecation attribute temporarily omitted for API compatibility.
+        /// Compatibility processing can restore it after generated references have captured their suppressions.
+        /// </summary>
+        public AttributeStatement? PendingGeneratedDeprecationAttribute =>
+            _removedGeneratedDeprecationAttribute ? _generatedDeprecationAttribute : null;
         private IReadOnlyList<SuppressionStatement> _overrideDeprecationSuppressions = [];
         public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
         internal IReadOnlyList<SuppressionStatement> DeclarationSuppressions { get; private set; } = [];
@@ -533,7 +539,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes.ToArray();
-                _removedGeneratedDeprecationAttribute = false;
+                // A compatibility removal remains pending while the generated attribute is absent.
+                _removedGeneratedDeprecationAttribute &= _generatedDeprecationAttribute is not null &&
+                    !Attributes.Contains(_generatedDeprecationAttribute);
             }
             if (suppressions != null)
             {
