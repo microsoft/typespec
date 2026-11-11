@@ -1927,6 +1927,109 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void NextLinkPagingOmitsOnlyContinuationToken(
+            [Values] bool supportsPageResumption,
+            [Values] bool hasNextLink,
+            [Values] bool isHeader,
+            [Values] bool isContinuationToken,
+            [Values] bool emptyTokenSegments)
+        {
+            InputParameter token = isHeader
+                ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
+                : InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String,
+                location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query);
+            token.Update(isContinuationToken: isContinuationToken,
+                methodParameterSegments: emptyTokenSegments ? [] : [methodToken]);
+            if (emptyTokenSegments)
+            {
+                methodToken.Update(isContinuationToken: isContinuationToken);
+            }
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url),
+                InputFactory.Property("nextToken", InputPrimitiveType.String)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters:
+            [
+                methodToken,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, location: InputRequestLocation.Query)
+            ], pagingMetadata: new InputPagingServiceMetadata(
+                ["items"],
+                hasNextLink ? new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null) : null,
+                hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body)));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient],
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+            var omitToken = supportsPageResumption && hasNextLink && isContinuationToken;
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(omitToken.ToString()), writer.ToString(false));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(true, false, true)]
+        public async Task NextLinkPagingPreservesContinuationTokenOptionsBag(
+            bool supportsPageResumption, bool standaloneToken = false, bool customizeMethods = false)
+        {
+            var optionsModel = InputFactory.Model("GetItemsOptions", properties:
+            [
+                InputFactory.Property("token", InputPrimitiveType.String, isHttpMetadata: true),
+                InputFactory.Property("filter", InputPrimitiveType.String, isHttpMetadata: true)
+            ]);
+            var options = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
+            token.Update(isContinuationToken: true, methodParameterSegments: standaloneToken
+                ? [methodToken]
+                : [options, methodToken]);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            filter.Update(methodParameterSegments:
+            [
+                options, InputFactory.MethodParameter("filter", InputPrimitiveType.String)
+            ]);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters: standaloneToken ? [options, methodToken] : [options],
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [optionsModel, item, page], clients: () => [inputClient],
+                compilation: customizeMethods ? () => Helpers.GetCompilationFromDirectoryAsync("CustomMethods") : null,
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            var baseline = customizeMethods ? "CustomMethods" : standaloneToken ? supportsPageResumption.ToString() : null;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), writer.ToString(false));
+        }
+
+        [Test]
         public void ListMethodWithInheritedPageItems()
         {
             var pagingMetadata = InputFactory.PagingMetadata(
@@ -2638,51 +2741,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
                 .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
-        }
-
-        [TestCase(false)]
-        [TestCase(true)]
-        public void LifecycleCollectionBodiesUseCollectionHelpers(bool readOnlyMemory)
-        {
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ =>
-                new CSharpType(readOnlyMemory ? typeof(ReadOnlyMemory<int>) : typeof(IEnumerable<int>)));
-            var inputType = InputFactory.Array(InputPrimitiveType.Int32);
-            var operation = InputFactory.Operation("TestOperation",
-                parameters: [InputFactory.BodyParameter("data", inputType, isRequired: true)]);
-            operation.Update(requestVisibility: InputVisibility.Create);
-            var serviceMethod = InputFactory.BasicServiceMethod("TestOperation", operation,
-                parameters: [InputFactory.MethodParameter("data", inputType, location: InputRequestLocation.Body, isRequired: true)]);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var method = new ScmMethodProviderCollection(serviceMethod, client).Single(m =>
-                m.Signature.Name == "TestOperation" && m.Signature.Parameters.Any(p => p.Name == "cancellationToken"));
-
-            StringAssert.Contains(Helpers.GetExpectedFromFile(readOnlyMemory.ToString()).TrimEnd(),
-                method.BodyStatements!.ToDisplayString());
-        }
-
-        [TestCase(false)]
-        [TestCase(true)]
-        public void LifecycleCollectionsHonorFirstMediaType(bool xmlFirst)
-        {
-            var model = InputFactory.Model("Topic",
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json | InputModelTypeUsage.Xml,
-                serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Topic")));
-            var inputType = InputFactory.Array(model);
-            var operation = InputFactory.Operation("TestOperation",
-                parameters: [InputFactory.BodyParameter("data", inputType, isRequired: true)],
-                requestMediaTypes: xmlFirst ? ["text/xml", "application/json"] : ["application/json", "text/xml"]);
-            operation.Update(requestVisibility: InputVisibility.Create);
-            var serviceMethod = InputFactory.BasicServiceMethod("TestOperation", operation,
-                parameters: [InputFactory.MethodParameter("data", inputType, location: InputRequestLocation.Body, isRequired: true)]);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [model]);
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var method = new ScmMethodProviderCollection(serviceMethod, client).Single(m =>
-                m.Signature.Name == "TestOperation" && m.Signature.Parameters.Any(p => p.Name == "cancellationToken"));
-
-            StringAssert.Contains(Helpers.GetExpectedFromFile(xmlFirst.ToString()).TrimEnd(),
-                method.BodyStatements!.ToDisplayString());
         }
 
         [Test]
@@ -4587,11 +4645,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 
-        [TestCase("application/xml")]
-        [TestCase("text/xml")]
-        [TestCase("application/vnd.typespec+xml")]
-        [TestCase("Application/Vnd.TypeSpec+Xml; charset=utf-8")]
-        public void ConvenienceMethod_DualFormatModel_XmlContentType_CallsToBinaryContentWithX(string mediaType)
+        [Test]
+        public void ConvenienceMethod_DualFormatModel_XmlContentType_CallsToBinaryContentWithX()
         {
             // Create a dual-format model
             var dualFormatModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
@@ -4601,7 +4656,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var operation = InputFactory.Operation(
                 "UpdateModel",
                 parameters: [bodyParam],
-                requestMediaTypes: [mediaType],
+                requestMediaTypes: ["application/xml"],
                 responses: [InputFactory.OperationResponse([200])]);
 
             var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
@@ -4689,11 +4744,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(expectedMethodBody, methodBody);
         }
 
-        [TestCase("application/xml")]
-        [TestCase("text/xml")]
-        [TestCase("application/vnd.typespec+xml")]
-        [TestCase("Application/Vnd.TypeSpec+Xml; charset=utf-8")]
-        public void ConvenienceMethod_XmlListBody_UsesXmlFromEnumerable(string mediaType)
+        [Test]
+        public void ConvenienceMethod_XmlListBody_UsesXmlFromEnumerable()
         {
             // Create a model with XML serialization options
             var elementModel = InputFactory.Model(
@@ -4710,8 +4762,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 arrayType,
                 isRequired: true,
                 serializedName: "SignedIdentifiers",
-                contentTypes: [mediaType],
-                defaultContentType: mediaType);
+                contentTypes: ["application/xml"],
+                defaultContentType: "application/xml");
             var methodBodyParam = InputFactory.MethodParameter(
                 "body",
                 arrayType,
@@ -4722,7 +4774,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "Foo",
                 httpMethod: "POST",
                 parameters: [bodyParam],
-                requestMediaTypes: [mediaType],
+                requestMediaTypes: ["application/xml"],
                 responses: [InputFactory.OperationResponse([200])]);
 
             var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -35,6 +35,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
     "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/build.ts",
+    "build:playground": "npm run build -- --playground",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",
@@ -66,11 +67,11 @@
     "emitter"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-autorest": ">=0.73.0 <1.0.0",
+    "@azure-tools/typespec-autorest": ">=0.73.2 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.73.0 <1.0.0",
     "@azure-tools/typespec-azure-resource-manager": ">=0.73.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.73.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.73.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.73.1 <1.0.0",
     "@typespec/compiler": "^1.17.0",
     "@typespec/http": "^1.17.0",
     "@typespec/openapi": "^1.17.0",
@@ -86,6 +87,14 @@
       {
         "path": "generator/dist/pygen-*.whl",
         "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser/*.whl",
+        "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser/manifest.json",
+        "contentType": "application/json"
       }
     ],
     "bundlePeerDependencies": [
@@ -104,11 +113,11 @@
     "tsx": "^4.23.13"
   },
   "devDependencies": {
-    "@azure-tools/typespec-autorest": "~0.73.0",
+    "@azure-tools/typespec-autorest": "~0.73.2",
     "@azure-tools/typespec-azure-core": "~0.73.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.73.0",
     "@azure-tools/typespec-azure-rulesets": "~0.73.0",
-    "@azure-tools/typespec-client-generator-core": "~0.73.0",
+    "@azure-tools/typespec-client-generator-core": "~0.73.1",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.46",
     "@typespec/compiler": "^1.17.0",
     "@typespec/http": "^1.17.0",

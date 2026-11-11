@@ -188,6 +188,7 @@ export interface InputPropertyTypeBase extends DecoratedType {
   doc?: string;
   summary?: string;
   isApiVersion: boolean;
+  isContinuationToken?: boolean;
   defaultValue?: InputConstant;
   optional: boolean;
   crossLanguageDefinitionId: string;
@@ -199,8 +200,10 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
-  /** Bit mask of the property's HTTP lifecycle visibilities. */
-  lifecycleVisibility?: number;
+  /** The declaration name before client-side renaming, when different from name. */
+  originalName?: string;
+  /** Overrides constructor requiredness without changing the wire contract. */
+  requiredInConstructor?: boolean;
   apiVersions: string[];
   discriminator: boolean;
   serializedName: string;

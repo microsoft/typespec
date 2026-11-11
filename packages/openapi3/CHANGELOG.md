@@ -1,5 +1,28 @@
 # Change Log - @typespec/openapi3
 
+## 1.18.0
+
+### Features
+
+- [#12461](https://github.com/microsoft/typespec/pull/12461) Add `typeref(Type)` for referencing types from metadata values. Enable the `typeref` compiler feature in the calling project or library's `tspconfig.yaml`. Its result has type `TypeRef<T>`, where `T` is the referenced type. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to constrain its target. JavaScript implementations and generated signatures use `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler type. Type references are compilation metadata and cannot be represented as JSON values.
+  
+  ```typespec
+  model Item { id: string; }
+  model Registration { name: string; type: TypeRef; }
+  const entry: Registration = #{ name: "item", type: typeref(Item) };
+  ```
+
+### Bug Fixes
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) Enum members use their `application/json` `@encodedName` as their value, including in a server variable; an encoded integer member is emitted as a string.
+- [#12300](https://github.com/microsoft/typespec/pull/12300) Reduce the visibility context of array declarations so that named array models are not incorrectly emitted with an `Item` suffix.
+- [#12368](https://github.com/microsoft/typespec/pull/12368) Deduplicate identical summaries and descriptions across `@sharedRoute` operations.
+- [#12092](https://github.com/microsoft/typespec/pull/12092) [converter] Escape quotes in the `@service` title generated from the OpenAPI `info.title`.
+- [#12021](https://github.com/microsoft/typespec/pull/12021) Fix `@terminalEvent` on a variant with a payload emitting an unconstrained `oneOf` branch in OpenAPI 3.2 SSE output
+- [#11990](https://github.com/microsoft/typespec/pull/11990) Preserve distinct discriminated union envelopes when variants share the same payload type.
+- [#12165](https://github.com/microsoft/typespec/pull/12165) Emit `minItems` and `maxItems` for tuple types so generated schemas enforce the tuple's exact length.
+
+
 ## 1.17.0
 
 ### Features

@@ -1262,6 +1262,7 @@ describe("compiler: checker: type relations", () => {
     testReflectionType("Namespace", "Foo", `namespace Foo {}`);
     testReflectionType("Operation", "foo", `op foo(): void;`);
     testReflectionType("Scalar", "foo", `scalar foo;`);
+    testReflectionType("StringTemplate", '"${string}"', "");
     describe(`Reflection.Union`, () => {
       it(`can assign union expression`, async () => {
         await expectTypeAssignable({
@@ -1285,6 +1286,39 @@ describe("compiler: checker: type relations", () => {
         source: "never",
         target: `TypeSpec.Reflection.Model`,
       });
+    });
+
+    it("rejects a reflection namespace declaration as a model argument", async () => {
+      const diagnostics = await MockTester.import("./mock.js").diagnose(`
+        extern dec mock(target: unknown, value: Reflection.Model);
+        @mock(Reflection.Namespace) model Test {}
+      `);
+      expectDiagnostics(diagnostics, { code: "invalid-argument" });
+    });
+
+    it("accepts a reflection namespace declaration as a namespace argument", async () => {
+      await Tester.compile(`
+        model NamespaceOnly<T extends Reflection.Namespace> {}
+        alias Test = NamespaceOnly<Reflection.Namespace>;
+      `);
+    });
+
+    it("keeps unrecognized reflection models as ordinary types", async () => {
+      await Tester.compile(`
+        namespace TypeSpec.Reflection { model Custom {} }
+        model Accept<T extends Reflection.Custom> {}
+        alias Test = Accept<Reflection.Custom>;
+      `);
+    });
+
+    it("rejects a forwarded namespace constraint as a model argument", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model Target<T extends Reflection.Model> {}
+        model Source<T extends Reflection.Namespace> {
+          value: Target<T>;
+        }
+      `);
+      expectDiagnostics(diagnostics, { code: "invalid-argument" });
     });
   });
 
