@@ -39,7 +39,7 @@ public final class RequestHeaderOpsImpl {
 
     /**
      * Initializes an instance of RequestHeaderOpsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     RequestHeaderOpsImpl(RequestHeadersClientImpl client) {
@@ -72,6 +72,24 @@ public final class RequestHeaderOpsImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> sendSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions, Context context);
 
+        @Post("/request-headers/byte-collections")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> sendByteCollections(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
+
+        @Post("/request-headers/byte-collections")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> sendByteCollectionsSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
+
         @Post("/request-headers/bytes")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -102,7 +120,7 @@ public final class RequestHeaderOpsImpl {
      * parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -126,7 +144,7 @@ public final class RequestHeaderOpsImpl {
      * parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -137,6 +155,53 @@ public final class RequestHeaderOpsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponseInternal(RequestOptions requestOptions) {
         return service.sendSync(this.client.getEndpoint(), requestOptions, Context.NONE);
+    }
+
+    /**
+     * The sendByteCollections operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, byte[]&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * <tr><td>x-ms-url-meta</td><td>Map&lt;String, byte[]&gt;</td><td>No</td><td>The urlMetadata parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> sendByteCollectionsWithResponseInternalAsync(RequestOptions requestOptions) {
+        return FluxUtil
+            .withContext(context -> service.sendByteCollections(this.client.getEndpoint(), requestOptions, context));
+    }
+
+    /**
+     * The sendByteCollections operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, byte[]&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * <tr><td>x-ms-url-meta</td><td>Map&lt;String, byte[]&gt;</td><td>No</td><td>The urlMetadata parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendByteCollectionsWithResponseInternal(RequestOptions requestOptions) {
+        return service.sendByteCollectionsSync(this.client.getEndpoint(), requestOptions, Context.NONE);
     }
 
     /**
@@ -158,7 +223,7 @@ public final class RequestHeaderOpsImpl {
      * <tr><td>x-ms-url</td><td>byte[]</td><td>No</td><td>The url parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -190,7 +255,7 @@ public final class RequestHeaderOpsImpl {
      * <tr><td>x-ms-url</td><td>byte[]</td><td>No</td><td>The url parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.

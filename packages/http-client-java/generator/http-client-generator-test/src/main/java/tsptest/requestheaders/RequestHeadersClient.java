@@ -31,7 +31,7 @@ public final class RequestHeadersClient {
 
     /**
      * Initializes an instance of RequestHeadersClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -50,7 +50,7 @@ public final class RequestHeadersClient {
      * parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -62,6 +62,30 @@ public final class RequestHeadersClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> sendWithResponseInternal(RequestOptions requestOptions) {
         return this.serviceClient.sendWithResponseInternal(requestOptions);
+    }
+
+    /**
+     * The sendByteCollections operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, byte[]&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * <tr><td>x-ms-url-meta</td><td>Map&lt;String, byte[]&gt;</td><td>No</td><td>The urlMetadata parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> sendByteCollectionsWithResponseInternal(RequestOptions requestOptions) {
+        return this.serviceClient.sendByteCollectionsWithResponseInternal(requestOptions);
     }
 
     /**
@@ -83,7 +107,7 @@ public final class RequestHeadersClient {
      * <tr><td>x-ms-url</td><td>byte[]</td><td>No</td><td>The url parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -99,7 +123,7 @@ public final class RequestHeadersClient {
 
     /**
      * The send operation.
-     *
+     * 
      * @param metadata The metadata parameter.
      * @param priorities The priorities parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -138,7 +162,7 @@ public final class RequestHeadersClient {
 
     /**
      * The send operation.
-     *
+     * 
      * @param metadata The metadata parameter.
      * @param priorities The priorities parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -173,7 +197,7 @@ public final class RequestHeadersClient {
 
     /**
      * The send operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -189,8 +213,101 @@ public final class RequestHeadersClient {
     }
 
     /**
+     * The sendByteCollections operation.
+     * 
+     * @param metadata The metadata parameter.
+     * @param urlMetadata The urlMetadata parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendByteCollectionsWithResponse(Map<String, byte[]> metadata, Map<String, byte[]> urlMetadata,
+        RequestOptions requestOptions) {
+        // Generated convenience method for sendByteCollectionsWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        RequestOptions requestOptionsLocal = requestOptions;
+        if (metadata != null) {
+            metadata.forEach((key, value) -> {
+                if (key != null && value != null) {
+                    requestOptionsLocal.setHeader(HttpHeaderName.fromString("x-ms-meta-" + key),
+                        Base64Util.encodeToString(value));
+                }
+            });
+        }
+        if (urlMetadata != null) {
+            urlMetadata.forEach((key, value) -> {
+                if (key != null && value != null) {
+                    requestOptionsLocal.setHeader(HttpHeaderName.fromString("x-ms-url-meta-" + key),
+                        String.valueOf(Base64Url.encode(value)));
+                }
+            });
+        }
+        return sendByteCollectionsWithResponseInternal(requestOptions);
+    }
+
+    /**
+     * The sendByteCollections operation.
+     * 
+     * @param metadata The metadata parameter.
+     * @param urlMetadata The urlMetadata parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void sendByteCollections(Map<String, byte[]> metadata, Map<String, byte[]> urlMetadata) {
+        // Generated convenience method for sendByteCollectionsWithResponseInternal
+        RequestOptions requestOptions = new RequestOptions();
+        if (metadata != null) {
+            metadata.forEach((key, value) -> {
+                if (key != null && value != null) {
+                    requestOptions.setHeader(HttpHeaderName.fromString("x-ms-meta-" + key),
+                        Base64Util.encodeToString(value));
+                }
+            });
+        }
+        if (urlMetadata != null) {
+            urlMetadata.forEach((key, value) -> {
+                if (key != null && value != null) {
+                    requestOptions.setHeader(HttpHeaderName.fromString("x-ms-url-meta-" + key),
+                        String.valueOf(Base64Url.encode(value)));
+                }
+            });
+        }
+        sendByteCollectionsWithResponseInternal(requestOptions).getValue();
+    }
+
+    /**
+     * The sendByteCollections operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void sendByteCollections() {
+        // Generated convenience method for sendByteCollectionsWithResponseInternal
+        RequestOptions requestOptions = new RequestOptions();
+        sendByteCollectionsWithResponseInternal(requestOptions).getValue();
+    }
+
+    /**
      * The sendBytes operation.
-     *
+     * 
      * @param contentMD5 The contentMD5 parameter.
      * @param xMsContentMD5 The xMsContentMD5 parameter.
      * @param xMsSourceContentCrc64 The xMsSourceContentCrc64 parameter.
@@ -233,7 +350,7 @@ public final class RequestHeadersClient {
 
     /**
      * The sendBytes operation.
-     *
+     * 
      * @param contentMD5 The contentMD5 parameter.
      * @param xMsContentMD5 The xMsContentMD5 parameter.
      * @param xMsSourceContentCrc64 The xMsSourceContentCrc64 parameter.
@@ -274,7 +391,7 @@ public final class RequestHeadersClient {
 
     /**
      * The sendBytes operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
