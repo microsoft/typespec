@@ -66,8 +66,7 @@ public class ExtendsTests {
 
     @Test
     public void testEnumDiscriminator() {
-        EnumDiscriminatorOperationsClient client
-            = new ExtendsClientBuilder().buildEnumDiscriminatorOperationsClient();
+        EnumDiscriminatorOperationsClient client = new ExtendsClientBuilder().buildEnumDiscriminatorOperationsClient();
         Cat3 cat = Assertions.assertInstanceOf(Cat3.class, client.getCat());
         Assertions.assertEquals("Whiskers", cat.getName());
         Assertions.assertTrue(cat.isMeow());

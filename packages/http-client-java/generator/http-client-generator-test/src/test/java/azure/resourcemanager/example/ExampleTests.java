@@ -15,10 +15,7 @@ public class ExampleTests {
     public void testListWidgets() {
         ExampleManager manager
             = ExampleManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
-        List<Widget> widgets = manager.widgets()
-            .listByResourceGroup("test-rg")
-            .stream()
-            .collect(Collectors.toList());
+        List<Widget> widgets = manager.widgets().listByResourceGroup("test-rg").stream().collect(Collectors.toList());
         Assertions.assertEquals(1, widgets.size());
         Assertions.assertEquals("widget", widgets.get(0).name());
         Assertions.assertEquals("sample widget", widgets.get(0).properties().description());
