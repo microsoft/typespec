@@ -473,12 +473,12 @@ catalogs:
       version: 18.2.0
 
 overrides:
-  '@pinterest/alloy-graphql@1.1.1>@alloy-js/core': ^0.25.0
+  '@pinterest/alloy-graphql@1.1.1>@alloy-js/core': ^0.26.0
   diff@>=6.0.0 <8.0.3: ^8.0.3
   dompurify@<3.4.17: ^3.4.17
   yaml@>=2.0.0 <2.8.3: ^2.8.3
 
-packageExtensionsChecksum: sha256-hcvadM+VJpLUMniZQB2V94wn6/ia0AagJQWqGCRFSUc=
+packageExtensionsChecksum: sha256-O+O1hfoT3BSE5kmWbtU2Ugq8CRpOHkEhwVHaz8pvGV0=
 
 importers:
 
@@ -3037,9 +3037,6 @@ packages:
     resolution: {integrity: sha512-tsHD1OFpJ9V7lD7Il3p9rZZyuvXoxmzWjw9eOKJG94o3ofVjBJH+9aQyEAnNxgBFCLVXOFckIl/aikm5/DbRnA==}
     engines: {node: '>=22.0.0'}
     hasBin: true
-
-  '@alloy-js/core@0.25.0':
-    resolution: {integrity: sha512-VVC5/uuPKrIZ9BkHZ+UJCwA/l2lMsTVJ7ZQC5UdfU8F+db0fwINAdPkyMcpnxv5ibHQU9eVSVdirFfoW8byLsg==}
 
   '@alloy-js/core@0.26.0':
     resolution: {integrity: sha512-E1QloOz5kJgcmAVhOGxgaROIYRO8/B44L3WiftoFEld4SdFpwDCdYSgojjLF9THuPpezRtz8PhTfLgk4pS8SMw==}
@@ -11174,21 +11171,9 @@ snapshots:
       '@babel/preset-typescript': 8.0.1(@babel/core@8.0.1)
       pathe: 2.0.3
       picocolors: 1.1.1
+      typescript: 7.0.2
     transitivePeerDependencies:
       - supports-color
-
-  '@alloy-js/core@0.25.0':
-    dependencies:
-      '@types/ws': 8.18.2
-      '@vue/reactivity': 3.5.43
-      cli-table3: 0.6.5
-      devalue: 5.9.4
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      ws: 8.22.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
 
   '@alloy-js/core@0.26.0':
     dependencies:
@@ -14565,7 +14550,7 @@ snapshots:
 
   '@pinterest/alloy-graphql@1.1.1':
     dependencies:
-      '@alloy-js/core': 0.25.0
+      '@alloy-js/core': 0.26.0
       graphql: 17.0.2
       pathe: 2.0.3
       pluralize: 8.0.0
