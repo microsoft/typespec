@@ -100,6 +100,14 @@ try {
   # generate for http-specs/azure-http-specs test sources
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
 
+  # Keep scenario feature flags without losing the test emitter configuration.
+  Get-ChildItem ./specs -Filter tspconfig.yaml -File -Recurse | ForEach-Object {
+    $baseConfig = [IO.Path]::GetRelativePath($_.DirectoryName, (Join-Path $PSScriptRoot "tspconfig.yaml"))
+    $content = Get-Content -LiteralPath $_.FullName -Raw
+    if ($content.Trim() -eq "{}") { $content = "" }
+    Set-Content -LiteralPath $_.FullName -Value "extends: '$baseConfig'`n$content"
+  }
+
   Write-Host "Copied http-specs to current directory"
 
   $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob

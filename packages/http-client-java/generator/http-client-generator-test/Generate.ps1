@@ -205,6 +205,14 @@ try {
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 
+  # Keep scenario feature flags without losing the test emitter configuration.
+  Get-ChildItem ./specs -Filter tspconfig.yaml -File -Recurse | ForEach-Object {
+    $baseConfig = [IO.Path]::GetRelativePath($_.DirectoryName, (Join-Path $PSScriptRoot "tspconfig.yaml"))
+    $content = Get-Content -LiteralPath $_.FullName -Raw
+    if ($content.Trim() -eq "{}") { $content = "" }
+    Set-Content -LiteralPath $_.FullName -Value "extends: '$baseConfig'`n$content"
+  }
+
   $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
   # ensure multi-service client specs are processed even though they do not match the default filter
   $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service/client.tsp")
