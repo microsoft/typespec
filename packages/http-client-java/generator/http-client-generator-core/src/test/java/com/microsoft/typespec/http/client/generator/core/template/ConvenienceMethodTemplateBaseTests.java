@@ -344,8 +344,8 @@ public class ConvenienceMethodTemplateBaseTests {
         Set<String> imports = new HashSet<>();
         String output
             = renderByteParameter(false, RequestParameterLocation.QUERY, ArrayType.BYTE_ARRAY, false, null, imports);
-        Assertions.assertTrue(output.contains("data == null ? null : Base64.getEncoder().encodeToString(data)"),
-            output);
+        Assertions.assertTrue(output.contains("requestContext = requestContext.toBuilder().addQueryParam(\"data\", "
+            + "data == null ? null : Base64.getEncoder().encodeToString(data), false).build();"), output);
         Assertions.assertTrue(imports.contains("java.util.Base64"), imports.toString());
     }
 
@@ -401,6 +401,7 @@ public class ConvenienceMethodTemplateBaseTests {
 
     private static String renderByteParameter(boolean async, RequestParameterLocation location, IType wireType,
         boolean explode, String headerPrefix, Set<String> imports) {
+        JavaSettings settings = JavaSettings.getInstance();
         ProxyMethodParameter proxyParameter = new ProxyMethodParameter.Builder().name("data")
             .requestParameterName(location == RequestParameterLocation.HEADER ? "Content-MD5" : "data")
             .requestParameterLocation(location)
@@ -426,7 +427,9 @@ public class ConvenienceMethodTemplateBaseTests {
             .build();
         IType protocolReturnType = GenericType.response(ClassType.BINARY_DATA);
         ClientMethod protocolMethod = new ClientMethod.Builder().name("sendWithResponse")
-            .parameters(List.of(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER))
+            .parameters(List.of(settings.isAzureV1()
+                ? ClientMethodParameter.REQUEST_OPTIONS_PARAMETER
+                : ClientMethodParameter.REQUEST_CONTEXT_PARAMETER))
             .proxyMethod(proxyMethod)
             .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
             .returnValue(new ReturnValue("response", async ? GenericType.mono(protocolReturnType) : protocolReturnType))
@@ -440,7 +443,7 @@ public class ConvenienceMethodTemplateBaseTests {
             .build();
         JavaFileContents contents = new JavaFileContents();
         ConvenienceMethodTemplateBase template
-            = async ? ConvenienceAsyncMethodTemplate.getInstance() : ConvenienceSyncMethodTemplate.getInstance();
+            = async ? Templates.getConvenienceAsyncMethodTemplate() : Templates.getConvenienceSyncMethodTemplate();
         template.writeMethodImplementation(protocolMethod, convenienceMethod, new JavaBlock(contents), new HashSet<>());
         if (imports != null) {
             template.addImports(imports, List.of(new ConvenienceMethod(protocolMethod, List.of(convenienceMethod))));
