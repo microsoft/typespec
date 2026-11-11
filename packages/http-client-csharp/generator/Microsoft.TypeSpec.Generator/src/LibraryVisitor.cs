@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator
             if (type != null)
             {
                 var methods = new List<MethodProvider>();
-                foreach (var methodProvider in typeProvider.Methods)
+                foreach (var methodProvider in type.Methods)
                 {
                     var method = methodProvider.Accept(this);
                     if (method != null)
@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var constructors = new List<ConstructorProvider>();
-                foreach (var constructorProvider in typeProvider.Constructors)
+                foreach (var constructorProvider in type.Constructors)
                 {
                     var constructor = VisitConstructor(constructorProvider);
                     if (constructor != null)
@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var properties = new List<PropertyProvider>();
-                foreach (var propertyProvider in typeProvider.Properties)
+                foreach (var propertyProvider in type.Properties)
                 {
                     var property = VisitProperty(propertyProvider);
                     if (property != null)
@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var fields = new List<FieldProvider>();
-                foreach (var fieldProvider in typeProvider.Fields)
+                foreach (var fieldProvider in type.Fields)
                 {
                     var field = VisitField(fieldProvider);
                     if (field != null)
@@ -75,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var serializations = new List<TypeProvider>();
-                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                foreach (var serializationProvider in type.SerializationProviders)
                 {
                     var serialization = VisitTypeCore(serializationProvider);
                     if (serialization != null)
@@ -85,9 +85,9 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var nestedTypes = new List<TypeProvider>();
-                foreach (var nestedTypeProvider in typeProvider.NestedTypes)
+                foreach (var nestedTypeProvider in type.NestedTypes)
                 {
-                    var nestedType = VisitType(nestedTypeProvider);
+                    var nestedType = VisitTypeCore(nestedTypeProvider);
                     if (nestedType != null)
                     {
                         nestedTypes.Add(nestedType);
@@ -144,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator
 
         /// <summary>
         /// Visits a <see cref="TypeProvider"/> and returns a possibly modified version of it. This method is called before visiting the
-        /// type provider's members.
+        /// returned type provider's members, including its nested and serialization providers.
         /// </summary>
         /// <param name="type">The original <see cref="TypeProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="TypeProvider"/>.</returns>

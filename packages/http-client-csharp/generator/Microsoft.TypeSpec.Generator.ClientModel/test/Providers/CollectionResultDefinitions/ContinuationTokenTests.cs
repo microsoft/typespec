@@ -18,8 +18,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -32,8 +32,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -46,8 +46,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -60,8 +60,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -74,8 +74,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -88,8 +88,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -102,8 +102,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -116,8 +116,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -130,8 +130,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -144,8 +144,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -158,8 +158,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -172,8 +172,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);

@@ -181,7 +181,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
         }
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Client.Name}.Collections.cs");
+
+        protected override TypeProvider BuildDeclaringTypeProvider() => Client;
+
+        protected override bool IsRootedByDeclaringType => false;
 
         protected override string BuildNamespace() => Client.Type.Namespace;
 
@@ -190,33 +194,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName()
         {
-            var operationName = Operation.Name.ToIdentifierName();
-            // Check if there is another paging operation in the same client whose name would produce a collision.
-            // If so, use the OriginalName to differentiate.
-            if (HasPagingOperationNameCollision(operationName))
+            var operations = Client.InputClient.Methods.OfType<InputPagingServiceMethod>().Select(m => m.Operation).Distinct().ToArray();
+            var name = GetName(Operation, IsAsync);
+            // Reading Client.Methods here would recursively build the paging helpers.
+            var reservedNames = Client.InputClient.Methods
+                .SelectMany(m => new[] { m.Name, $"{m.Name}Async" })
+                .Concat(Client.Fields.Select(f => f.Name))
+                .Concat(Client.Properties.Select(p => p.Name))
+                .ToHashSet(StringComparer.Ordinal);
+            reservedNames.Add(Client.Name);
+            if (Client.CustomCodeView is { } customCodeView)
             {
-                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+                var customType = ScmCodeModelGenerator.Instance.SourceInputModel.Customization?
+                    .GetTypeByMetadataName(customCodeView.Type.FullyQualifiedName.TrimStart('.'));
+                reservedNames.UnionWith(customType?.GetMembers().Select(m => m.Name) ?? []);
             }
-            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
-        }
 
-        private bool HasPagingOperationNameCollision(string operationName)
-        {
-            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
-            int count = 0;
-            foreach (var method in pagingMethods)
+            // Allocate in input operation order, skipping client members and previously assigned helpers.
+            var candidate = name;
+            var suffix = 2;
+            foreach (var operation in operations)
             {
-                if (method.Operation.Name.ToIdentifierName() == operationName)
+                foreach (var isAsync in new[] { false, true })
                 {
-                    count++;
-                    if (count > 1)
+                    if (GetName(operation, isAsync) != name)
                     {
-                        return true;
+                        continue;
+                    }
+
+                    while (!reservedNames.Add(candidate))
+                    {
+                        candidate = $"{name}{suffix++}";
+                    }
+
+                    if (operation == Operation && isAsync == IsAsync)
+                    {
+                        return candidate;
                     }
                 }
             }
-            return false;
+
+            return name;
         }
+
+        private string GetName(InputOperation operation, bool isAsync)
+            => $"{operation.Name.ToIdentifierName()}{(isAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

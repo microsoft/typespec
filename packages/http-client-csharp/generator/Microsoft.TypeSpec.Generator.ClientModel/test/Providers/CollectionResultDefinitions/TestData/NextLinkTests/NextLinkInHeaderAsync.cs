@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
+    internal partial class GetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
     {
         private readonly global::Sample.CatClient _client;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public GetCatsAsyncCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _options = options;
