@@ -29,6 +29,8 @@ options:
 
 ## Emitter options
 
+For guidance on when to add an emitter option versus using a plugin, see [Choosing between an emitter option and a plugin](./plugins.md#choosing-between-an-emitter-option-and-a-plugin).
+
 ### `emitter-output-dir`
 
 **Type:** `absolutePath`
