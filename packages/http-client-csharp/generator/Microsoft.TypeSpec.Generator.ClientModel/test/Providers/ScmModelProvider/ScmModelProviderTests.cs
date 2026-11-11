@@ -1466,6 +1466,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public void TestMultipartFormDataModel_DeprecatedNonFilePartSuppressesFileOverloads()
+        {
+            var filename = InputFactory.Property("filename", InputPrimitiveType.String, isRequired: true);
+            var inputModel = MultipartModel(
+                "DeprecatedPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String, deprecation: "Use something else."),
+                    FilePartProperty("file", filename: filename),
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var file = new TypeProviderWriter(model).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void TestMultipartFormDataModel_MixedJsonAndMultipartUsage()
         {
             var inputModel = MultipartModel(
@@ -1634,13 +1652,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 serializationOptions: InputFactory.Serialization.Options(
                     multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
 
-        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+        private static InputModelProperty NonFilePartProperty(string name, InputType type, string? deprecation = null)
             => InputFactory.Property(
                 name,
                 type,
                 isRequired: true,
                 serializationOptions: InputFactory.Serialization.Options(
-                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])),
+                deprecation: deprecation);
 
         private static InputModelType MultipartModel(
             string name,
