@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client
 
+## 0.17.1
+
+### Bug Fixes
+
+- [#12225](https://github.com/microsoft/typespec/pull/12225) Preserve source model and property documentation in generated extern signatures.
+
+
 ## 0.17.0
 
 ### Features

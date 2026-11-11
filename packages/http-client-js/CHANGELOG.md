@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client-js
 
+## 0.16.4
+
+### Bug Fixes
+
+- [#12126](https://github.com/microsoft/typespec/pull/12126) Do not emit an unused private `#context` field for clients without operations. This fixes `TS6133` errors for consumers compiling the generated client with `noUnusedLocals`.
+
+
 ## 0.16.3
 
 No changes, version bump only.
