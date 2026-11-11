@@ -13,6 +13,24 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("CurrentDetails", "Previous", "Use \"replacement\" instead.\nSee C:\\sdk.")]
+        [TestCase("RenamedModelCustom", "OtherName", "Use replacement instead.")]
+        [TestCase("CurrentDetails", "Choice", null)]
+        [TestCase("RenamedModelCustom", "Name", null)]
+        public void DeprecatedPropertiesPreserveWarningOnlyMessages(string typeName, string propertyName, string? message)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{typeName}");
+            var property = type!.GetProperty(propertyName);
+            Assert.IsNotNull(property);
+            var attributes = property!.GetCustomAttributes<ObsoleteAttribute>().ToArray();
+            Assert.AreEqual(message is null ? 0 : 1, attributes.Length);
+            if (message is not null)
+            {
+                Assert.AreEqual(message, attributes[0].Message);
+                Assert.IsFalse(attributes[0].IsError);
+            }
+        }
+
         [TestCase("LegacyDetails", "Use \"CurrentDetails\" instead.\nSee C:\\sdk.")]
         [TestCase("LegacyChoice", "Use CurrentChoice instead.")]
         [TestCase("LegacyExtensibleChoice", "Use CurrentExtensibleChoice instead.")]

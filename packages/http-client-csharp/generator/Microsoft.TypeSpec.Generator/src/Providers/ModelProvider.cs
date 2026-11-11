@@ -905,10 +905,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
+            var baseModelProviders = EnumerateBaseModelProviders().ToArray();
+            var baseInputModels = baseModelProviders.Select(model => model._inputModel).ToArray();
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = [];
             HashSet<string> skippedBasePropertyNames = [];
-            foreach (var baseModelProvider in EnumerateBaseModelProviders())
+            foreach (var baseModelProvider in baseModelProviders)
             {
                 var inputProperties = baseModelProvider is SystemObjectModelProvider mappedBase
                     ? mappedBase.MappedInputProperties
@@ -933,7 +935,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             // Build a set of serialized names for base discriminator properties to handle cases where
             // the derived model has a discriminator with a different C# name but the same wire name
-            HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
+            HashSet<string> baseDiscriminatorSerializedNames = baseInputModels
                 .SelectMany(m => m.Properties)
                 .Where(p => p.IsDiscriminator && p.SerializedName is not null)
                 .Select(p => p.SerializedName)
@@ -964,15 +966,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (EnumerateBaseModelProviders().Any(model =>
+                if (baseModelProviders.Any(model =>
                     (model is SystemObjectModelProvider mappedBase ? mappedBase.MappedInputProperties : model._inputModel.Properties)
                         .Any(p => p.OriginalName != property.OriginalName
                             && CodeModelGenerator.Instance.TypeFactory.CreateProperty(p, model)?.Name == outputProperty.Name))
-                    && EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p =>
+                    && baseModelProviders.Any(model => model.CanonicalView.Properties.Any(p =>
                         p.Name == outputProperty.Name && p.InputProperty is InputModelProperty inputProperty
                         && inputProperty.OriginalName != property.OriginalName)))
                 {
-                    reservedPropertyNames ??= EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)
+                    reservedPropertyNames ??= baseModelProviders.SelectMany(model => model.CanonicalView.Properties)
                         .Concat(_inputModel.Properties.Select(p => CodeModelGenerator.Instance.TypeFactory.CreateProperty(p, this))
                             .OfType<PropertyProvider>())
                         .Select(p => p.Name).Append(Name).ToHashSet(StringComparer.Ordinal);
@@ -1019,6 +1021,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
+                PropertyProvider? baseOutputProperty = null;
                 if (!isDiscriminator)
                 {
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.OriginalName)).Value?[property.OriginalName];
@@ -1036,10 +1039,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (baseProperties.TryGetValue(property.OriginalName, out var baseProperty))
                     {
-                        var baseOutputProperty = outputProperty.Type.IsCollection
-                            ? EnumerateBaseModelProviders().SelectMany(model => model.CanonicalView.Properties)
-                                .FirstOrDefault(candidate => candidate.InputProperty == baseProperty)
-                            : CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
+                        baseOutputProperty = baseModelProviders.SelectMany(model => model.CanonicalView.Properties)
+                            .FirstOrDefault(candidate => candidate.InputProperty == baseProperty);
                         if (DomainEqual(baseProperty, property))
                         {
                             if (outputProperty.Type.IsCollection && baseOutputProperty?.BackingField is { } collectionField
@@ -1047,12 +1048,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             {
                                 outputProperty.BackingField = collectionField;
                             }
-                            var hasDifferentBaseAccessors = EnumerateBaseModels().Any(model => model.Properties.Any(p =>
+                            var hasDifferentBaseAccessors = baseInputModels.Any(model => model.Properties.Any(p =>
                                 p.OriginalName == property.OriginalName && DomainEqual(p, property) && p.IsReadOnly != property.IsReadOnly));
                             var hasDifferentName = baseOutputProperty is not null && baseOutputProperty.Name != outputProperty.Name;
                             if (outputProperty.BackingField is not null)
                             {
-                                if (EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
+                                if (baseModelProviders.Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
                                 {
                                     outputProperty.Modifiers |= MethodSignatureModifiers.New;
                                 }
@@ -1066,7 +1067,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                         ? MethodSignatureModifiers.New
                                         : MethodSignatureModifiers.Override;
                                 }
-                                else if (EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
+                                else if (baseModelProviders.Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
                                 {
                                     outputProperty.Modifiers |= MethodSignatureModifiers.New;
                                 }
@@ -1078,6 +1079,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                     && setterModifiers != MethodSignatureModifiers.None && setterModifiers != MethodSignatureModifiers.Public
                                     ? new MethodPropertyBody(Return(getter), setter?.Terminate(), setterModifiers)
                                     : new ExpressionPropertyBody(getter, setter);
+                                DeprecationApiHelpers.EnsurePropertyInitialized(baseOutputProperty);
+                                outputProperty.Update(declarationSuppressions:
+                                    ExperimentalApiHelpers.GetMemberSuppressions(baseOutputProperty));
                             }
                             else
                             {
@@ -1086,7 +1090,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
                         else
                         {
-                            if (EnumerateBaseModelProviders().Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
+                            if (baseModelProviders.Any(model => model.CanonicalView.Properties.Any(p => p.Name == outputProperty.Name)))
                             {
                                 outputProperty.Modifiers |= MethodSignatureModifiers.New;
                             }
@@ -1103,6 +1107,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         outputProperty.BaseProperty = baseOutputProperty;
                     }
                 }
+
+                outputProperty.RefreshDeprecation(this);
+                outputProperty.RefreshOverrideDeprecationSuppressions();
+
                 if (outputProperty.BackingField is { } sharedField && outputProperty.Type.IsCollection
                     && sharedField.Type.Equals(outputProperty.Type.PropertyInitializationType, ignoreNullable: true))
                 {
@@ -1119,6 +1127,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+        }
+
+        internal override void RefreshPropertyDeprecation()
+        {
+            foreach (var model in EnumerateBaseModelProviders().Reverse().Append(this))
+            {
+                foreach (var property in model.Properties)
+                {
+                    property.RefreshDeprecation(model);
+                    property.RefreshOverrideDeprecationSuppressions();
+                }
+            }
         }
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
@@ -2136,7 +2156,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property)
-                ? Properties.First(p => p.BaseProperty == parameter.Property).AsParameter
+                ? CanonicalView.Properties.First(p => p.BaseProperty == parameter.Property).AsParameter
                 : parameter;
             if (useFullBaseConstructor && availableParameters?.Any(p => p.Name == paramToUse.Name) != true)
             {

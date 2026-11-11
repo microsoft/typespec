@@ -19,7 +19,11 @@ namespace SampleTypeSpec
         /// <param name="otherName"> name of the ModelWithClientName. </param>
         internal RenamedModelCustom(string name, string otherName) : base(name)
         {
+#pragma warning disable CS0612 // This generated code references obsolete functionality.
+#pragma warning disable CS0618 // This generated code references obsolete functionality.
             OtherName = otherName;
+#pragma warning restore CS0618 // This generated code references obsolete functionality.
+#pragma warning restore CS0612 // This generated code references obsolete functionality.
         }
 
         /// <summary> Initializes a new instance of <see cref="RenamedModelCustom"/>. </summary>
@@ -28,10 +32,15 @@ namespace SampleTypeSpec
         /// <param name="otherName"> name of the ModelWithClientName. </param>
         internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, string otherName) : base(name, additionalBinaryDataProperties)
         {
+#pragma warning disable CS0612 // This generated code references obsolete functionality.
+#pragma warning disable CS0618 // This generated code references obsolete functionality.
             OtherName = otherName;
+#pragma warning restore CS0618 // This generated code references obsolete functionality.
+#pragma warning restore CS0612 // This generated code references obsolete functionality.
         }
 
         /// <summary> name of the ModelWithClientName. </summary>
+        [Obsolete("Use replacement instead.")]
         public string OtherName { get; }
     }
 }

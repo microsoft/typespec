@@ -94,6 +94,220 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, derivedModel2Provider.Properties[0].Modifiers);
         }
 
+        [TestCase(true, false, "CS0672")]
+        [TestCase(false, true, "CS0809")]
+        public void DeprecatedOverrideSuppressesDeclarationWarning(
+            bool baseDeprecated,
+            bool derivedDeprecated,
+            string expectedDiagnostic)
+        {
+            var baseProperty = InputFactory.Property(
+                "value",
+                InputPrimitiveType.String,
+                deprecation: baseDeprecated ? "Base message" : null);
+            var baseModel = InputFactory.Model("BaseModel", properties: [baseProperty]);
+            var derivedProperty = InputFactory.Property(
+                "value",
+                InputPrimitiveType.String,
+                deprecation: derivedDeprecated ? "Derived message" : null);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [derivedProperty], baseModel: baseModel);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+
+            var provider = new ModelProvider(derivedModel);
+            var property = provider.Properties.Single();
+
+            CollectionAssert.Contains(
+                property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                $"\"{expectedDiagnostic}\"");
+            Assert.IsEmpty(property.Suppressions, "Declaration-only diagnostics must not be propagated to property accesses.");
+            StringAssert.Contains($"#pragma warning disable {expectedDiagnostic}", new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [TestCase(true, false, false, true)]
+        [TestCase(false, true, false, true)]
+        [TestCase(false, false, false, false)]
+        [TestCase(true, false, true, false)]
+        public void OverrideReferencesHonorInheritedObsoleteWarnings(
+            bool baseDeprecated, bool derivedDeprecated, bool hidesBase, bool expectSuppression)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", hidesBase ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
+                    deprecation: derivedDeprecated ? "Derived message" : null)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics.Contains("\"CS0618\""), Is.EqualTo(expectSuppression));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0672\""));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0809\""));
+        }
+
+        [TestCase(false, "BASE001")]
+        [TestCase(true, "DERIVED001")]
+        public void OverrideReferencesUseNearestObsoleteDiagnostic(bool derivedDeprecated, string expectedDiagnostic)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: derivedDeprecated ? "Derived message" : null)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+            property.BaseProperty!.Update(attributes:
+            [
+                new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Base message")],
+                    [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("BASE001"))])
+            ]);
+            if (derivedDeprecated)
+            {
+                property.Update(attributes:
+                [
+                    new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Derived message")],
+                        [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("DERIVED001"))])
+                ]);
+            }
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics, Is.EquivalentTo(new[] { $"\"{expectedDiagnostic}\"" }));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OverrideReferencesFindObsoleteGrandparent(bool hasIntermediateWithoutProperty)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var intermediate = InputFactory.Model("Intermediate", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var inherited = InputFactory.Model("Inherited", baseModel: intermediate);
+            var derived = InputFactory.Model("Derived", baseModel: hasIntermediateWithoutProperty ? inherited : intermediate, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, intermediate, inherited, derived]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()), Does.Contain("\"CS0618\""));
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        public void OverrideDeclarationHonorsInheritedObsoleteStatus(bool derivedDeprecated, bool expectCs0672)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var intermediate = InputFactory.Model("Intermediate", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var derived = InputFactory.Model("Derived", baseModel: intermediate, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: derivedDeprecated ? "Derived message" : null)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, intermediate, derived]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+            var diagnostics = property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()).ToArray();
+
+            Assert.That(diagnostics.Contains("\"CS0672\""), Is.EqualTo(expectCs0672));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0809\""));
+        }
+
+        [Test]
+        public void OverrideReferencesDoNotInheritWarningsAcrossHiddenProperty()
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var intermediate = InputFactory.Model("Intermediate", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.Int32)]);
+            var derived = InputFactory.Model("Derived", baseModel: intermediate, properties:
+                [InputFactory.Property("value", InputPrimitiveType.Int32)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, intermediate, derived]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()), Does.Not.Contain("\"CS0618\""));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ForwardingPropertySuppressesDeprecatedBaseReference(bool baseDeprecated)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+            generator.Object.AddVisitor(new RenameBasePropertyVisitor());
+
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+
+            Assert.That(property.Body, Is.InstanceOf<ExpressionPropertyBody>());
+            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""),
+                Is.EqualTo(baseDeprecated));
+            Assert.That(property.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.False);
+        }
+
+        [TestCase("StableBase", true)]
+        [TestCase("ObsoleteBase", false)]
+        public async Task OverrideDeclarationUsesCustomizedBaseDeprecation(string baseName, bool expectCs0809)
+        {
+            var baseModel = InputFactory.Model(baseName, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Generated base message")]);
+            var derived = InputFactory.Model("Derived", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Derived message")]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var provider = generator.Object.TypeFactory.CreateModel(derived)!;
+            var property = provider.BuildProperties().Single();
+
+            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0809\""),
+                Is.EqualTo(expectCs0809));
+        }
+
+        [TestCase("CustomOverride", "BASE001")]
+        [TestCase("CustomHidden", null)]
+        [TestCase("CustomObsoleteOverride", "DERIVED001")]
+        public async Task CustomizedOverrideReferencesUseBaseObsoleteMetadata(string modelName, string? expectedDiagnostic)
+        {
+            var baseModel = InputFactory.Model("ObsoleteBase", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Generated base message")]);
+            var derived = InputFactory.Model(modelName, baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.CanonicalView.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(s => s.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics, Is.EquivalentTo(expectedDiagnostic is null ? [] : new[] { $"\"{expectedDiagnostic}\"" }));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomizedOverrideReferencesUseGeneratedBaseDeprecation(bool baseDeprecated)
+        {
+            var baseModel = InputFactory.Model("GeneratedBase", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derived = InputFactory.Model("CustomGeneratedBaseOverride", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.CanonicalView.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.EqualTo(baseDeprecated));
+        }
+
+        private sealed class RenameBasePropertyVisitor : LibraryVisitor
+        {
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property?.EnclosingType.Name == "BaseModel" && input.Name == "value")
+                {
+                    property.Update(name: "LegacyValue");
+                }
+                return property;
+            }
+        }
+
         [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithNew()
         {
