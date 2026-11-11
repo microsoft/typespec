@@ -48,6 +48,50 @@ public class RequestHeadersTests {
     }
 
     @Test
+    public void testByteHeaderCollections() {
+        AtomicReference<HttpRequest> captured = new AtomicReference<>();
+        RequestHeadersClientBuilder builder
+            = new RequestHeadersClientBuilder().endpoint("http://localhost:3000").httpClient(captureRequest(captured));
+        Map<String, byte[]> metadata = new LinkedHashMap<>();
+        metadata.put("checksum", new byte[] { (byte) 0xfb, (byte) 0xff });
+        metadata.put("empty", new byte[0]);
+        metadata.put("missing", null);
+        metadata.put(null, new byte[] { 1 });
+
+        builder.buildClient().sendByteCollections(metadata, metadata);
+        assertByteHeaderCollections(captured);
+
+        builder.buildClient().sendByteCollectionsWithResponse(metadata, metadata, null);
+        assertByteHeaderCollections(captured);
+
+        builder.buildAsyncClient().sendByteCollections(metadata, metadata).block();
+        assertByteHeaderCollections(captured);
+
+        builder.buildAsyncClient().sendByteCollectionsWithResponse(metadata, metadata, new RequestOptions()).block();
+        assertByteHeaderCollections(captured);
+
+        builder.buildClient().sendByteCollections(null, null);
+        Assertions.assertTrue(captured.get()
+            .getHeaders()
+            .stream()
+            .noneMatch(
+                header -> header.getName().startsWith("x-ms-meta") || header.getName().startsWith("x-ms-url-meta")));
+    }
+
+    private static void assertByteHeaderCollections(AtomicReference<HttpRequest> captured) {
+        HttpRequest request = captured.getAndSet(null);
+        Assertions.assertNotNull(request);
+        Assertions.assertEquals("+/8=", request.getHeaders().getValue("x-ms-meta-checksum"));
+        Assertions.assertEquals("-_8", request.getHeaders().getValue("x-ms-url-meta-checksum"));
+        for (String prefix : new String[] { "x-ms-meta", "x-ms-url-meta" }) {
+            Assertions.assertEquals("", request.getHeaders().getValue(prefix + "-empty"));
+            Assertions.assertNull(request.getHeaders().getValue(prefix + "-missing"));
+            Assertions.assertNull(request.getHeaders().getValue(prefix + "-null"));
+            Assertions.assertNull(request.getHeaders().getValue(prefix));
+        }
+    }
+
+    @Test
     public void testByteHeadersAndQuery() {
         AtomicReference<HttpRequest> captured = new AtomicReference<>();
         RequestHeadersClientBuilder builder
