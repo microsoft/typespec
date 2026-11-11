@@ -15,6 +15,8 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.util.Base64Url;
+import com.azure.core.util.Base64Util;
 import java.util.Map;
 import tsptest.requestheaders.implementation.RequestHeaderOpsImpl;
 import tsptest.requestheaders.models.MetadataValue;
@@ -29,7 +31,7 @@ public final class RequestHeadersClient {
 
     /**
      * Initializes an instance of RequestHeadersClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -48,7 +50,7 @@ public final class RequestHeadersClient {
      * parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -63,8 +65,41 @@ public final class RequestHeadersClient {
     }
 
     /**
+     * The sendBytes operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>data</td><td>byte[]</td><td>No</td><td>The data parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>Content-MD5</td><td>byte[]</td><td>No</td><td>The contentMD5 parameter</td></tr>
+     * <tr><td>x-ms-content-md5</td><td>byte[]</td><td>No</td><td>The xMsContentMD5 parameter</td></tr>
+     * <tr><td>x-ms-source-content-crc64</td><td>byte[]</td><td>No</td><td>The xMsSourceContentCrc64 parameter</td></tr>
+     * <tr><td>x-ms-url</td><td>byte[]</td><td>No</td><td>The url parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> sendBytesWithResponseInternal(RequestOptions requestOptions) {
+        return this.serviceClient.sendBytesWithResponseInternal(requestOptions);
+    }
+
+    /**
      * The send operation.
-     * 
+     *
      * @param metadata The metadata parameter.
      * @param priorities The priorities parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -103,7 +138,7 @@ public final class RequestHeadersClient {
 
     /**
      * The send operation.
-     * 
+     *
      * @param metadata The metadata parameter.
      * @param priorities The priorities parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -138,7 +173,7 @@ public final class RequestHeadersClient {
 
     /**
      * The send operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -151,5 +186,106 @@ public final class RequestHeadersClient {
         // Generated convenience method for sendWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         sendWithResponseInternal(requestOptions).getValue();
+    }
+
+    /**
+     * The sendBytes operation.
+     *
+     * @param contentMD5 The contentMD5 parameter.
+     * @param xMsContentMD5 The xMsContentMD5 parameter.
+     * @param xMsSourceContentCrc64 The xMsSourceContentCrc64 parameter.
+     * @param data The data parameter.
+     * @param url The url parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendBytesWithResponse(byte[] contentMD5, byte[] xMsContentMD5, byte[] xMsSourceContentCrc64,
+        byte[] data, byte[] url, RequestOptions requestOptions) {
+        // Generated convenience method for sendBytesWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (contentMD5 != null) {
+            requestOptions.setHeader(HttpHeaderName.CONTENT_MD5, Base64Util.encodeToString(contentMD5));
+        }
+        if (xMsContentMD5 != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("x-ms-content-md5"),
+                Base64Util.encodeToString(xMsContentMD5));
+        }
+        if (xMsSourceContentCrc64 != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("x-ms-source-content-crc64"),
+                Base64Util.encodeToString(xMsSourceContentCrc64));
+        }
+        if (data != null) {
+            requestOptions.addQueryParam("data", Base64Util.encodeToString(data), false);
+        }
+        if (url != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("x-ms-url"), String.valueOf(Base64Url.encode(url)));
+        }
+        return sendBytesWithResponseInternal(requestOptions);
+    }
+
+    /**
+     * The sendBytes operation.
+     *
+     * @param contentMD5 The contentMD5 parameter.
+     * @param xMsContentMD5 The xMsContentMD5 parameter.
+     * @param xMsSourceContentCrc64 The xMsSourceContentCrc64 parameter.
+     * @param data The data parameter.
+     * @param url The url parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void sendBytes(byte[] contentMD5, byte[] xMsContentMD5, byte[] xMsSourceContentCrc64, byte[] data,
+        byte[] url) {
+        // Generated convenience method for sendBytesWithResponseInternal
+        RequestOptions requestOptions = new RequestOptions();
+        if (contentMD5 != null) {
+            requestOptions.setHeader(HttpHeaderName.CONTENT_MD5, Base64Util.encodeToString(contentMD5));
+        }
+        if (xMsContentMD5 != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("x-ms-content-md5"),
+                Base64Util.encodeToString(xMsContentMD5));
+        }
+        if (xMsSourceContentCrc64 != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("x-ms-source-content-crc64"),
+                Base64Util.encodeToString(xMsSourceContentCrc64));
+        }
+        if (data != null) {
+            requestOptions.addQueryParam("data", Base64Util.encodeToString(data), false);
+        }
+        if (url != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("x-ms-url"), String.valueOf(Base64Url.encode(url)));
+        }
+        sendBytesWithResponseInternal(requestOptions).getValue();
+    }
+
+    /**
+     * The sendBytes operation.
+     *
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void sendBytes() {
+        // Generated convenience method for sendBytesWithResponseInternal
+        RequestOptions requestOptions = new RequestOptions();
+        sendBytesWithResponseInternal(requestOptions).getValue();
     }
 }

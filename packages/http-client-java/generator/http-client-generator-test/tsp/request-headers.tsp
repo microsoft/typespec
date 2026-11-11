@@ -21,6 +21,16 @@ model MetadataHeaders {
 interface RequestHeaderOps {
   @post
   send(...MetadataHeaders): void;
+
+  @post
+  @route("/bytes")
+  sendBytes(
+    @header("Content-MD5") contentMD5?: bytes,
+    @header("x-ms-content-md5") xMsContentMD5?: bytes,
+    @header("x-ms-source-content-crc64") xMsSourceContentCrc64?: bytes,
+    @query data?: bytes,
+    @header("x-ms-url") @encode("base64url") url?: bytes,
+  ): void;
 }
 
 @@alternateType(MetadataHeaders.metadata, Record<string>, "java");
