@@ -179,3 +179,119 @@ it("types a non-integer enum whose members are all encoded as the enum", async (
   expect(ratio).toContain(`[JsonStringEnumMemberName("half")]`);
   expect(ratio).toContain(`[JsonStringEnumMemberName("quarter")]`);
 });
+
+it("emits members from nested provisioning-state unions", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      union ResourceProvisioningState {
+        Succeeded: "Succeeded",
+        Failed: "Failed",
+        Cancelled: "Cancelled",
+      }
+
+      union ProvisioningState {
+        Accepted: "Accepted",
+        Creating: "Creating",
+        ResourceProvisioningState,
+        string,
+      }
+
+      model Resource {
+        provisioningState: ProvisioningState;
+      }
+
+      op read(): Resource;
+    `),
+    { "skip-format": true },
+  );
+  const provisioningState = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/ProvisioningState.cs"),
+  )?.[1];
+
+  expect(provisioningState).toContain("public enum ProvisioningState");
+  expect(provisioningState).toContain(`[JsonStringEnumMemberName("Succeeded")]`);
+  expect(provisioningState).toContain("Succeeded,");
+  expect(provisioningState).toContain(`[JsonStringEnumMemberName("Failed")]`);
+  expect(provisioningState).toContain("Failed,");
+  expect(provisioningState).toContain(`[JsonStringEnumMemberName("Cancelled")]`);
+  expect(provisioningState).toMatch(/Cancelled,?\r?\n}/);
+});
+
+it("emits shared nested-union members once in diamond-shaped union graphs", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      union SharedStates {
+        Shared: "shared",
+      }
+
+      union LeftStates {
+        Left: "left",
+        SharedStates,
+      }
+
+      union RightStates {
+        Right: "right",
+        SharedStates,
+      }
+
+      union DiamondState {
+        LeftStates,
+        RightStates,
+        string,
+      }
+
+      model Resource {
+        state: DiamondState;
+      }
+
+      op read(): Resource;
+    `),
+    { "skip-format": true },
+  );
+  const diamondState = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/DiamondState.cs"),
+  )?.[1];
+
+  expect(diamondState).toContain("public enum DiamondState");
+  expect(diamondState).toContain(`[JsonStringEnumMemberName("left")]`);
+  expect(diamondState).toContain(`[JsonStringEnumMemberName("right")]`);
+  expect(diamondState).toContain(`[JsonStringEnumMemberName("shared")]`);
+  expect(diamondState?.match(/JsonStringEnumMemberName\("shared"\)/g)).toHaveLength(1);
+});
+
+it("terminates safely for recursive string unions without emitting enums", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      union Recursive {
+        "ready",
+        Recursive,
+      }
+
+      union First {
+        "first",
+        Second,
+      }
+
+      union Second {
+        "second",
+        First,
+      }
+
+      model Resource {
+        recursive: Recursive;
+        first: First;
+      }
+
+      op read(): Resource;
+    `),
+    { "skip-format": true },
+  );
+  const paths = [...result.fs.fs.keys()];
+
+  expect(paths.some((path) => path.endsWith("/generated/models/Recursive.cs"))).toBe(false);
+  expect(paths.some((path) => path.endsWith("/generated/models/First.cs"))).toBe(false);
+  expect(paths.some((path) => path.endsWith("/generated/models/Second.cs"))).toBe(false);
+});
