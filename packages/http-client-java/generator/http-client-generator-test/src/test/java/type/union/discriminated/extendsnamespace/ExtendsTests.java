@@ -3,6 +3,8 @@
 
 package type.union.discriminated.extendsnamespace;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import type.union.discriminated.extendsnamespace.customdiscriminator.models.Cat2;
@@ -13,6 +15,8 @@ import type.union.discriminated.extendsnamespace.explicitdiscriminator.models.Ca
 import type.union.discriminated.extendsnamespace.explicitdiscriminator.models.Dog;
 import type.union.discriminated.extendsnamespace.injecteddiscriminator.models.Cat1;
 import type.union.discriminated.extendsnamespace.injecteddiscriminator.models.Dog1;
+import type.union.discriminated.extendsnamespace.recursive.models.Cat4;
+import type.union.discriminated.extendsnamespace.recursive.models.Dog4;
 
 public class ExtendsTests {
     @Test
@@ -73,5 +77,19 @@ public class ExtendsTests {
         Assertions.assertEquals("Rex", dog.getName());
         Assertions.assertFalse(dog.isBark());
         client.putDog(new Dog3("Rex", false));
+    }
+
+    @Test
+    public void testRecursive() {
+        RecursiveClient client = new ExtendsClientBuilder().buildRecursiveClient();
+        Cat4 cat = Assertions.assertInstanceOf(Cat4.class, client.get());
+        Assertions.assertEquals("Whiskers", cat.getName());
+        Assertions.assertEquals("Rex", Assertions.assertInstanceOf(Dog4.class, cat.getFriend()).getName());
+        Assertions.assertEquals("Kitten", Assertions.assertInstanceOf(Cat4.class, cat.getFriends().get(0)).getName());
+        Assertions.assertEquals("Rex", Assertions.assertInstanceOf(Dog4.class, cat.getLookup().get("best")).getName());
+
+        client.put(new Cat4("Whiskers", true).setFriend(new Dog4("Rex", false))
+            .setFriends(List.of(new Cat4("Kitten", false)))
+            .setLookup(Map.of("best", new Dog4("Rex", false))));
     }
 }
