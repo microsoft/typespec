@@ -1,5 +1,13 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.30
+
+### Bug Fixes
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) Enum members use their `application/json` `@encodedName` as their value, including members with an explicit value.
+- [#12135](https://github.com/microsoft/typespec/pull/12135) Fix generated code for string literals containing a quote, a backslash or a newline.
+
+
 ## 0.58.0-alpha.29
 
 ### Bug Fixes
