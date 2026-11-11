@@ -16,7 +16,7 @@ namespace Routes._QueryParameters
     {
         protected QueryParameters() => throw null;
 
-        internal QueryParameters(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal QueryParameters(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -1,3 +1,4 @@
 global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-return this.UpdateModel(body, cancellationToken.ToRequestOptions());
+using global::System.ClientModel.BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+return this.UpdateModel(content, cancellationToken.ToRequestOptions());

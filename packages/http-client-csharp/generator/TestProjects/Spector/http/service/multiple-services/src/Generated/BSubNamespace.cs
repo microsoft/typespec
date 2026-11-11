@@ -14,7 +14,7 @@ namespace Service.MultipleServices.ServiceB.SubNamespace
     {
         protected BSubNamespace() => throw null;
 
-        internal BSubNamespace(ClientPipeline pipeline, Uri endpoint, string apiVersion) => throw null;
+        internal BSubNamespace(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, string apiVersion) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

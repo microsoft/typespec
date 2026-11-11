@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsUnknownDiscriminated() => throw null;
 
-        internal IsUnknownDiscriminated(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IsUnknownDiscriminated(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

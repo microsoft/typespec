@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.ClientModel.Primitives;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -49,6 +50,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MultipartForm
             var model = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ScmModel>().Single(t => t.Name == modelName);
             var serialization = new MultipartFormDataSerializationDefinition(inputModel, model);
             return new TypeProviderWriter(serialization).Write().Content;
+        }
+
+        [Test]
+        public void SerializationMethodAcceptsModelReaderWriterOptions()
+        {
+            var inputModel = MultipartModel(
+                "JsonPartRequest",
+                [NonFilePartProperty("address", InputFactory.Model("address"), defaultContentTypes: ["application/json"])]);
+            var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var method = new MultipartFormDataSerializationDefinition(inputModel, model).Methods.Single();
+
+            var optionsParameter = method.Signature.Parameters.SingleOrDefault(p => p.Name == "options");
+            Assert.IsNotNull(optionsParameter);
+            Assert.AreEqual(typeof(ModelReaderWriterOptions), optionsParameter!.Type.FrameworkType);
+            Assert.That(method.BodyStatements!.ToDisplayString(), Does.Contain("options"));
+            Assert.That(method.BodyStatements!.ToDisplayString(), Does.Not.Contain("ModelSerializationExtensions.WireOptions"));
         }
 
         [Test]

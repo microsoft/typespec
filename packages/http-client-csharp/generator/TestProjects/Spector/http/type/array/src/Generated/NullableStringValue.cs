@@ -15,7 +15,7 @@ namespace _Type._Array
     {
         protected NullableStringValue() => throw null;
 
-        internal NullableStringValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal NullableStringValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

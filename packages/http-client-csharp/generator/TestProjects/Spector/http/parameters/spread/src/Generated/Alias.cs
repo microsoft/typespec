@@ -15,7 +15,7 @@ namespace Parameters.Spread._Alias
     {
         protected Alias() => throw null;
 
-        internal Alias(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Alias(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

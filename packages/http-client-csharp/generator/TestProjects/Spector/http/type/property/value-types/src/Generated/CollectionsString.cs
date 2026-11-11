@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected CollectionsString() => throw null;
 
-        internal CollectionsString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal CollectionsString(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

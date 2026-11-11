@@ -14,7 +14,7 @@ namespace Payload.ContentNegotiation._SameBody
     {
         protected SameBody() => throw null;
 
-        internal SameBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SameBody(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

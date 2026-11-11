@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithUnwrappedArrayValue() => throw null;
 
-        internal ModelWithUnwrappedArrayValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithUnwrappedArrayValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
