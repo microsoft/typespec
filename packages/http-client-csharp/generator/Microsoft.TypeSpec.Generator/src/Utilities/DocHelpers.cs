@@ -158,7 +158,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var asteriskPlaceholder = "\0";
             while (text.Contains(asteriskPlaceholder, StringComparison.Ordinal))
             {
-                asteriskPlaceholder += "\0";
+                asteriskPlaceholder += "_";
             }
             text = CodeSpanRegex.Replace(text, match => match.Value.Replace("*", asteriskPlaceholder));
 

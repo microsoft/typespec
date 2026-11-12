@@ -58,6 +58,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCase("***Use `cache:***` here***", "<b><i>Use `cache:***` here</i></b>")]
         [TestCase("``literal `*` and **bold**`` with *italic*", "``literal `*` and **bold**`` with <i>italic</i>")]
         [TestCase("\0 `*literal*` and *italic*", "\0 `*literal*` and <i>italic</i>")]
+        [TestCase("`\0*` and *italic*", "`\0*` and <i>italic</i>")]
+        [TestCase("`\0_*` and *italic*", "`\0_*` and <i>italic</i>")]
         [TestCase("`unclosed *italic*", "`unclosed <i>italic</i>")]
         [TestCase("``mismatched *italic*`", "``mismatched <i>italic</i>`")]
         [TestCase("- `cache:*` and `~*` with *italic*", "<list type=\"bullet\"><item><description>`cache:*` and `~*` with <i>italic</i></description></item></list>")]
