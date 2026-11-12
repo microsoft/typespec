@@ -77,21 +77,23 @@ import {
 } from "@typespec/http";
 import { getStreamMetadata } from "@typespec/http/experimental";
 import {
+  checkDuplicateTypeName,
   getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
-  getParameterKey,
   getTagsMetadata,
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
 import { stringify } from "yaml";
+import { getComponentTypeName } from "./component-naming.js";
 import { getRef } from "./decorators.js";
 import type { OperationExamples } from "./examples.js";
 import { getExampleOrExamples, resolveOperationExamples } from "./examples.js";
 import type { JsonSchemaModule } from "./json-schema.js";
 import { resolveJsonSchemaModule } from "./json-schema.js";
 import type {
+  ComponentNameStrategy,
   EnumStrategy,
   FileType,
   OpenAPI3EmitterOptions,
@@ -247,6 +249,7 @@ export function resolveOptions(
   }
 
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
+  const componentNameStrategy = resolvedOptions["component-name-strategy"] ?? "fqn";
   return {
     fileTypes,
     newLine: resolvedOptions["new-line"],
@@ -258,6 +261,14 @@ export function resolveOptions(
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
     operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
+    componentNameStrategy: {
+      kind:
+        typeof componentNameStrategy === "string"
+          ? componentNameStrategy
+          : componentNameStrategy.kind,
+      separator:
+        typeof componentNameStrategy === "string" ? "." : (componentNameStrategy.separator ?? "."),
+    },
     enumStrategy,
   };
 }
@@ -291,6 +302,13 @@ function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrateg
 
 /** Normalized emitter settings returned by `resolveOptions`, before document-specific path interpolation. */
 export interface ResolvedOpenAPI3EmitterOptions {
+  /** Component qualification; defaults to service-relative `"fqn"` with `"."` separators. */
+  componentNameStrategy?: {
+    /** Whether to include service-relative namespaces. */
+    kind: ComponentNameStrategy;
+    /** Separator between namespace and parameter-property segments. */
+    separator: string;
+  };
   /** Formats requested for each document; inferred from the output extension or defaulted to YAML when absent. */
   fileTypes: FileType[];
   /** Resolved output path template; includes an OpenAPI-version directory when multiple specification versions are requested. */
@@ -1421,7 +1439,7 @@ function createOAPIEmitter(
 
     const name =
       "name" in body.type && body.type.name !== ""
-        ? getOpenAPITypeName(program, body.type, typeNameOptions)
+        ? getComponentTypeName(program, body.type, typeNameOptions, options)
         : undefined;
     if (name) {
       root.components!.schemas![name] = schema;
@@ -1806,14 +1824,18 @@ function createOAPIEmitter(
 
   function emitParameters() {
     for (const [property, param] of params) {
-      const key = getParameterKey(
+      const parent = property.model!;
+      const name = getComponentTypeName(program, parent, typeNameOptions, options);
+      const separator = options.componentNameStrategy?.separator ?? ".";
+      const key = parent.properties.size > 1 ? name + separator + property.name : name;
+      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
+      checkDuplicateTypeName(
         program,
         property,
-        param,
+        validKey,
         root.components!.parameters!,
-        typeNameOptions,
+        "parameter",
       );
-      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
       root.components!.parameters![validKey] = { ...param };
       for (const key of Object.keys(param)) {
         delete param[key];

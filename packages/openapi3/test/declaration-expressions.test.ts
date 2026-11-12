@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ oapiForModel }) => {
+worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
   it("inlines an anonymous enum used as a property type", async () => {
     const res = await oapiForModel("Foo", `model Foo { status: enum { active, inactive }; }`);
     const status = res.schemas.Foo.properties.status;
@@ -34,5 +34,34 @@ worksFor(supportedVersions, ({ oapiForModel }) => {
     expect(res.schemas.Inner.type).toBe("object");
     expect(res.schemas.Inner.properties.x.type).toBe("string");
     expect(Object.keys(res.schemas).sort()).toEqual(["Foo", "Inner"]);
+  });
+
+  it("does not qualify declaration expressions with their enclosing namespace", async () => {
+    const doc = await openApiFor(
+      `
+      @service namespace Demo {
+        namespace Models {
+          model Outer {
+            inner: model Inner { value: string; };
+            choice: enum Choice { active };
+            code: scalar Code extends string;
+          }
+        }
+        @get op read(): Models.Outer;
+      }
+    `,
+      { "component-name-strategy": { kind: "fqn", separator: "_" } },
+    );
+    expect(Object.keys(doc.components.schemas)).toEqual([
+      "Choice",
+      "Code",
+      "Inner",
+      "Models_Outer",
+    ]);
+    expect(doc.components.schemas.Models_Outer.properties).toEqual({
+      inner: { $ref: "#/components/schemas/Inner" },
+      choice: { $ref: "#/components/schemas/Choice" },
+      code: { $ref: "#/components/schemas/Code" },
+    });
   });
 });

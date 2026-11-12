@@ -346,6 +346,24 @@ Models are handled differently based on how they're defined:
 
 [friendlyname]: ../../standard-library/built-in-decorators.md#@friendlyName
 
+### Component Names
+
+By default, schema names include their namespace relative to the service, such as `Models.User_Profile`. A `@friendlyName` overrides that name. Reusable parameter keys use the same naming rules, with a property-name segment when the source model has multiple properties.
+
+Use `component-name-strategy` to omit namespaces or customize the separator between namespace and parameter-property segments:
+
+```yaml
+options:
+  "@typespec/openapi3":
+    component-name-strategy: name-only
+```
+
+Alternatively, use `{ kind: fqn, separator: "_" }` to emit `Models_User_Profile`, or an empty separator to concatenate segments. Separators do not replace punctuation inside identifiers or friendly names. The default strategy is `fqn` with `"."` separators.
+
+The option affects schema and reusable parameter keys and their references, including named multipart schemas. It does not change operation IDs, HTTP parameter names, JSON property names, discriminator values, security-scheme names, or explicit `@useRef` URLs. Characters within identifiers and friendly names, such as underscores and hyphens, remain unchanged.
+
+Names that collide after namespace changes produce errors; the emitter does not append counters. Adjust identifiers, friendly names, or namespace settings to resolve these errors.
+
 ### Type Mapping
 
 This table shows how TypeSpec types map to OpenAPI/JSON Schema types:

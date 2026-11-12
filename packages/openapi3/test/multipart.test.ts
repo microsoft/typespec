@@ -4,6 +4,25 @@ import type { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ openApiFor }) => {
+  it("uses configured component names for repeated named multipart bodies", async () => {
+    const res = await openApiFor(
+      `
+      @service namespace Demo {
+        namespace Models { model Upload_Form { name: HttpPart<string>; } }
+        @route("/a") op first(@multipartBody body: Models.Upload_Form): void;
+        @route("/b") op second(@multipartBody body: Models.Upload_Form): void;
+      }
+    `,
+      { "component-name-strategy": "name-only" },
+    );
+    expect(Object.keys(res.components.schemas)).toEqual(["Upload_Form"]);
+    for (const path of ["/a", "/b"]) {
+      expect(res.paths[path].post.requestBody.content["multipart/form-data"].schema).toEqual({
+        $ref: "#/components/schemas/Upload_Form",
+      });
+    }
+  });
+
   it("create dedicated model for multipart", async () => {
     const res = await openApiFor(
       `
