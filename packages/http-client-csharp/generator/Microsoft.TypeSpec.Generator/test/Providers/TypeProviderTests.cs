@@ -529,11 +529,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, provider.Methods.Count);
             Assert.IsTrue(provider.Methods.Single(m => m.Signature.Parameters.Count == 2).Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
             var previous = provider.Methods.Single(m => m.Signature.Parameters.Count == 1);
-            Assert.AreEqual(previouslyObsolete, previous.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
-            if (previouslyObsolete)
-            {
-                Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
-            }
+            Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
             Assert.IsTrue(previous.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal(diagnosticId ?? "CS0618").ToDisplayString()));
         }
 
@@ -585,7 +581,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task DeprecationPreservesReorderedLastContractMethods()
+        public async Task DeprecationAppliesToReorderedLastContractMethods()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
                 Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
@@ -602,7 +598,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.ProcessTypeForBackCompatibility();
 
             CollectionAssert.AreEqual(new[] { "name", "value" }, provider.Methods.Single().Signature.Parameters.Select(p => p.Name));
-            Assert.IsFalse(provider.Methods.Single().Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            Assert.AreEqual("\"Current message\"", provider.Methods.Single().Signature.Attributes
+                .Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
         }
 
         [Test]

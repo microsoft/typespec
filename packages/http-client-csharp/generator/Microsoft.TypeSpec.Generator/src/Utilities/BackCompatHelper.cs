@@ -513,7 +513,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 ApplyCurrentApiMetadata(
                     enclosingType,
                     overload,
-                    previousMethod,
                     optionalityMatch ?? newOptionalMatch ?? nullabilityMatch!);
                 candidates.Add(overload);
                 methods.Add(overload);
@@ -523,7 +522,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
         }
 
-        private static void ApplyCurrentApiMetadata(TypeProvider enclosingType, MethodProvider overload, MethodProvider previousMethod, MethodProvider currentMethod)
+        private static void ApplyCurrentApiMetadata(TypeProvider enclosingType, MethodProvider overload, MethodProvider currentMethod)
         {
             var customMethod = currentMethod.IsPartialMethod
                 ? enclosingType.CustomCodeView?.Methods.FirstOrDefault(
@@ -542,8 +541,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)
                     && !DeprecationApiHelpers.IsObsoleteAttribute(a)),
                 .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute],
-                .. obsolete is not null && (!enclosingType.IsGeneratedMethodDeprecationAttribute(obsolete)
-                    || previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)) ? [obsolete] : Array.Empty<AttributeStatement>()
+                .. obsolete is null ? Array.Empty<AttributeStatement>() : [obsolete]
             ]);
             overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions,
                 obsolete is null ? [] : DeprecationApiHelpers.GetSuppressions(obsolete)));

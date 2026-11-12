@@ -1312,12 +1312,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var method in methods)
             {
-                if (method.Signature.Attributes.Any(IsGeneratedMethodDeprecationAttribute)
-                    && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
-                        && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, method.Signature)
-                        && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
+                var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
+                if (generatedAttributes.Length > 0
+                    && method.Signature.Attributes.Any(attribute =>
+                        DeprecationApiHelpers.IsObsoleteAttribute(attribute)
+                        && !IsGeneratedMethodDeprecationAttribute(attribute)))
                 {
-                    var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
                     method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
                     method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                         generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
