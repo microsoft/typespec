@@ -40,7 +40,7 @@ jobs:
         artifact: vs-extension-signed
         displayName: Download VS extension(.vsix) from pipeline artifacts
 
-      - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-vs-extension-build-task.PublishVisualStudioExtension@5
+      - task: PublishVisualStudioExtension@5
         displayName: Publish
         inputs:
           connectTo: AzureRM
