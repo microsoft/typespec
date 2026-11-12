@@ -293,12 +293,10 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
           "component-name-strategy": "name-only",
         },
       );
-      expectDiagnostics(diagnostics, [
-        {
-          code: "@typespec/openapi/duplicate-type-name",
-          message: /parameter/,
-        },
-      ]);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/duplicate-type-name",
+        message: /parameter/,
+      });
     });
 
     it("uses the configured separator for shared parameter properties", async () => {

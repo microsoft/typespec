@@ -412,7 +412,7 @@ worksFor(supportedVersions, async (specHelpers) => {
       `,
         { "component-name-strategy": "name-only" },
       );
-      expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi/duplicate-type-name" });
     });
   });
 
