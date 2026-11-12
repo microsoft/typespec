@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,6 +25,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [Test]
+        public async Task DeprecatedPropertiesPreserveMessagesAndCustomizations(
+            [Values("ExampleOptions", "CustomOptions")] string modelName,
+            [Values(null, "", "Use \"Replacement\" instead.\nSee C:\\sdk.")] string? message)
+        {
+            var input = TypeSpecSerialization.Deserialize($$"""
+                {
+                  "name": "Sample",
+                  "models": [{
+                    "$id": "model", "name": "{{modelName}}", "namespace": "Sample", "usage": "Input, Output",
+                    "properties": [
+                      {"$id": "legacy", "name": "legacy", "optional": true,
+                       {{(message is null ? "" : $"\"deprecation\": {JsonSerializer.Serialize(message)},")}}
+                       "type": {"kind": "string"} },
+                      {"$id": "replacement", "name": "replacement", "optional": true, "type": {"kind": "string"} },
+                      {"$id": "handwritten", "name": "handwritten", "optional": true,
+                       "deprecation": "Generated message", "type": {"kind": "string"} }
+                    ]
+                  }]
+                }
+                """)!;
+            var model = input.Models.Single();
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [model],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            var attribute = provider.Properties.Single(p => p.Name == "Legacy").Attributes
+                .SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+            if (message is null)
+            {
+                Assert.IsNull(attribute);
+            }
+            else
+            {
+                Assert.IsNotNull(attribute);
+                Assert.AreEqual(Snippet.Literal(message).ToDisplayString(), attribute!.Arguments.Single().ToDisplayString());
+                Assert.IsEmpty(attribute.PositionalArguments);
+            }
+            Assert.IsEmpty(provider.Properties.Single(p => p.Name == "Replacement").Attributes);
+            if (modelName == "CustomOptions")
+            {
+                Assert.AreEqual("RenamedOptions", provider.Name);
+                Assert.IsFalse(provider.Properties.Any(p => p.Name == "Handwritten"));
+                var custom = provider.CustomCodeView!.Properties.Single(p => p.Name == "Handwritten");
+                var obsolete = custom.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                Assert.AreEqual("\"Handwritten message\"", obsolete.Arguments.Single().ToDisplayString());
+            }
+        }
+
         [TestCase(typeof(int[]), true)]
         [TestCase(typeof(int?[]), false)]
         [TestCase(typeof(int[][]), true)]
@@ -162,6 +212,194 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             provider.ProcessTypeForBackCompatibility();
             Assert.AreEqual(obsolete, provider.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+        }
+
+        [TestCase("previouslyStable", false)]
+        [TestCase("previouslyObsolete", true)]
+        [TestCase("newProperty", true)]
+        public async Task PropertyDeprecationPreservesLastContract(string propertyName, bool obsolete)
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var visitor = new PropertyAttributeVisitor();
+            generator.Object.AddVisitor(visitor);
+            var property = InputFactory.Property(propertyName, InputPrimitiveType.String, deprecation: "Current message");
+            var model = InputFactory.Model("StableModel", properties: [property]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.AreEqual(obsolete,
+                provider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.That(provider.Properties.Single().Attributes.Any(a => ReferenceEquals(a, visitor.Attribute)), Is.True);
+        }
+
+        [TestCase("previouslyStable", false)]
+        [TestCase("previouslyObsolete", true)]
+        [TestCase("newProperty", true)]
+        public async Task PropertyDeprecationPreservesInheritedLastContract(string propertyName, bool obsolete)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var property = InputFactory.Property(propertyName, InputPrimitiveType.String, deprecation: "Current message");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                InputFactory.Model("InheritingModel", properties: [property]))!;
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(obsolete,
+                provider.Properties.Single().Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+        }
+
+        [Test]
+        public async Task OverrideReferencesHonorPreservedBaseProperty()
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var baseModel = InputFactory.Model("StableModel", properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Current message")]);
+            var derived = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String)]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString());
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0618\""));
+            Assert.That(property.BaseProperty!.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute), Is.False);
+            Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                Does.Not.Contain("\"CS0672\""));
+        }
+
+        [Test]
+        public async Task DeprecatedOverrideHonorsPreservedBaseProperty()
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var baseModel = InputFactory.Model("StableModel", properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Current message")]);
+            var derived = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Derived message")]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                Does.Contain("\"CS0809\""));
+        }
+
+        [Test]
+        public async Task PropertyDeprecationIsOnlyRemovedForFinalTypeIdentity(
+            [Values] bool changeNamespace, [Values] bool initiallyPublished, [Values] bool addAttribute)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var initialName = changeNamespace || initiallyPublished ? "StableModel" : "Unpublished";
+            var initialNamespace = changeNamespace && !initiallyPublished ? "Unpublished" : "Sample.Models";
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(InputFactory.Model(initialName,
+                @namespace: initialNamespace, properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Generated message")]))!;
+            var property = provider.Properties.Single();
+            Assert.AreEqual(!initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            var visitorAttribute = new AttributeStatement(typeof(EditorBrowsableAttribute),
+                Snippet.FrameworkEnumValue(EditorBrowsableState.Advanced));
+            if (addAttribute)
+            {
+                property.Update(attributes: [.. property.Attributes, visitorAttribute]);
+            }
+
+            provider.Update(
+                name: changeNamespace ? null : initiallyPublished ? "Unpublished" : "StableModel",
+                @namespace: changeNamespace ? initiallyPublished ? "Unpublished" : "Sample.Models" : null);
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreSame(property, provider.Properties.Single());
+            // Unpublished -> published removes the attribute; published -> unpublished does not restore it because references were already built without its suppressions.
+            Assert.IsFalse(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.AreEqual(addAttribute, property.Attributes.Contains(visitorAttribute));
+
+            provider.Update(name: initialName, @namespace: initialNamespace);
+            provider.ProcessTypeForBackCompatibility();
+            Assert.IsFalse(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.AreEqual(addAttribute, property.Attributes.Contains(visitorAttribute));
+        }
+
+        [Test]
+        public async Task SymbolBaseLookupBuildsOnlyOverriddenProperties()
+        {
+            const int depth = 12;
+            string[] names = ["Value", "Other", "Third", "Fourth"];
+            var members = string.Concat(names.Select(name => $" public virtual string {name} {{ get; set; }}"));
+            var overrides = string.Concat(names.Select(name => $" public override string {name} {{ get; set; }}"));
+            var source = new System.Text.StringBuilder($"namespace Sample {{ public class Level0 {{{members} }}");
+            for (var i = 1; i <= depth; i++)
+            {
+                source.Append($" public class Level{i} : Level{i - 1} {{{overrides} }}");
+            }
+            source.Append(" }");
+            var compilation = Microsoft.CodeAnalysis.CSharp.CSharpCompilation.Create("Hierarchy",
+                [Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(source.ToString())],
+                [Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            await MockHelpers.LoadMockGeneratorAsync();
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var provider = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName($"Sample.Level{depth}")!, compilation);
+            var value = provider.Properties.Single(p => p.Name == "Value");
+            stopwatch.Stop();
+
+            var chainLength = 0;
+            for (var current = value; current.BaseProperty is { } baseProperty; current = baseProperty)
+            {
+                Assert.AreEqual("Value", baseProperty.Name);
+                chainLength++;
+            }
+            Assert.AreEqual(depth, chainLength);
+            Assert.That(stopwatch.Elapsed, Is.LessThan(TimeSpan.FromSeconds(10)));
+        }
+
+        [Test]
+        public async Task PropertyCompatibilityPreservesVisitorObsoleteAttributes(
+            [Values] bool inputDeprecated, [Values] bool replaceGenerated)
+        {
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
+            var visitor = new PropertyObsoleteVisitor(replaceGenerated);
+            generator.Object.AddVisitor(visitor);
+            var provider = generator.Object.TypeFactory.CreateModel(InputFactory.Model("StableModel", properties:
+                [InputFactory.Property("previouslyStable", InputPrimitiveType.String,
+                    deprecation: inputDeprecated ? "Generated message" : null)]))!;
+
+            provider.ProcessTypeForBackCompatibility();
+
+            var attributes = provider.Properties.Single().Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            Assert.IsTrue(ReferenceEquals(visitor.Attribute, attributes.Single()));
+        }
+
+        private sealed class PropertyObsoleteVisitor(bool replaceGenerated) : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } =
+                new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property is not null)
+                {
+                    property.Update(attributes: replaceGenerated ? [Attribute] : [.. property.Attributes, Attribute]);
+                }
+                return property;
+            }
+        }
+
+        private sealed class PropertyAttributeVisitor : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } =
+                new(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Advanced));
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property is not null)
+                {
+                    property.Update(attributes: [.. property.Attributes, Attribute]);
+                }
+                return property;
+            }
         }
 
         [Test]

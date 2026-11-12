@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi
 
+## 1.18.0
+
+### Bug Fixes
+
+- [#12225](https://github.com/microsoft/typespec/pull/12225) Preserve source model and property documentation in generated extern signatures.
+
+
 ## 1.17.0
 
 ### Features

@@ -666,6 +666,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void XmlSerializationSuppressesInheritedObsoletePropertyWarnings(bool baseDeprecated)
+        {
+            var xmlAttribute = InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("attribute", attribute: true));
+            var xmlElement = InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("element"));
+            var baseModel = InputFactory.Model("Base", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml, properties:
+            [
+                InputFactory.Property("attribute", InputPrimitiveType.String, serializationOptions: xmlAttribute,
+                    deprecation: baseDeprecated ? "Base message" : null),
+                InputFactory.Property("element", InputPrimitiveType.String, serializationOptions: xmlElement,
+                    deprecation: baseDeprecated ? "Base message" : null)
+            ]);
+            var derived = InputFactory.Model("Derived", baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml, properties:
+            [
+                InputFactory.Property("attribute", InputPrimitiveType.String, serializationOptions: xmlAttribute),
+                InputFactory.Property("element", InputPrimitiveType.String, serializationOptions: xmlElement)
+            ]);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derived]);
+            var serialization = generator.Object.TypeFactory.CreateModel(derived)!.SerializationProviders
+                .OfType<MrwSerializationTypeDefinition>().Single();
+            var method = serialization.Methods.Single(m => m.Signature.Name == "XmlModelWriteCore");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var code = writer.ToString(false);
+
+            Assert.That(code.Split("#pragma warning disable CS0618").Length - 1, Is.EqualTo(baseDeprecated ? 2 : 0));
+            Assert.That(code, Does.Not.Contain("CS0672"));
+            if (baseDeprecated)
+            {
+                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), code);
+            }
+        }
+
         [Test]
         public async Task XmlSerializationHandlesAttributeWithNamespace()
         {

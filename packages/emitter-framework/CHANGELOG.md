@@ -1,5 +1,16 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.22.0
+
+### Breaking Changes
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) Enum members use their `application/json` `@encodedName` as their value in the TypeScript and Python components. Rendering `EnumMember`, `ValueExpression` or `Atom` for an enum value now requires a `TspContext`.
+
+### Bug Fixes
+
+- [#12494](https://github.com/microsoft/typespec/pull/12494) Preserve TypeSpec deprecation directives as `@deprecated` JSDoc tags in generated TypeScript declarations and members.
+
+
 ## 0.21.0
 
 ### Features

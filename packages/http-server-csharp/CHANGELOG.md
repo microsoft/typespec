@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.34
+
+### Bug Fixes
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) Enum members use their `application/json` `@encodedName` as their serialized value, including members with an explicit value. A non-integer enum whose members are all encoded is typed as the enum instead of `double`.
+- [#12143](https://github.com/microsoft/typespec/pull/12143) Write exactly one `JsonPropertyName` per property, with its JSON name. Fixes a duplicate attribute (CS0579) on a camelCase property with an `@encodedName`, and a property such as `Title` being written as `title`.
+
+
 ## 0.58.0-alpha.33
 
 ### Bug Fixes
