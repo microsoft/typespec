@@ -14,6 +14,7 @@ from .primitive_types import ExternalType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
+from .lro_operation import LROOperationBase
 from .utils import NamespaceType
 from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
 from ... import OptionsDict
@@ -293,6 +294,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             for client in self.clients
             for og in client.operation_groups
             for op in og.operations
+        )
+
+    @property
+    def has_lro_metadata(self) -> bool:
+        return any(
+            isinstance(operation, LROOperationBase) and operation.lro_metadata
+            for client in self.clients
+            for operation in client.lro_operations
         )
 
     def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:

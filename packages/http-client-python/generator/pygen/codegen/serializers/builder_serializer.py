@@ -1850,6 +1850,35 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
 
     def return_lro_poller(self, builder: LROOperationType) -> list[str]:
         retval = []
+        metadata_argument = "lro_metadata=lro_metadata," if builder.lro_metadata else ""
+        if builder.lro_metadata:
+            retval.extend(["lro_metadata = _LroMetadata(", "    status_metadata={"])
+            for selection, metadata_type in builder.status_metadata:
+                if self.code_model.options["models-mode"] == "msrest":
+                    serialization_type = metadata_type.serialization_type(serialize_namespace=self.serialize_namespace)
+                    deserialize = f"self._deserialize({serialization_type!r}, value)"
+                elif self.code_model.options["models-mode"] == "dpg" and not self.code_model.generate_typeddict_only:
+                    annotation = metadata_type.type_annotation(
+                        serialize_namespace=self.serialize_namespace, is_operation_file=True
+                    )
+                    encoding = getattr(metadata_type, "encode", None) or selection.get("encode")
+                    format_argument = f", format={encoding!r}" if encoding else ""
+                    deserialize = f"_deserialize({annotation}, value{format_argument})"
+                else:
+                    deserialize = "value"
+                retval.append(
+                    f"        {selection['clientName']!r}: "
+                    f"({selection['propertySegments']!r}, lambda value: {deserialize}),"
+                )
+            retval.extend(
+                [
+                    "    },",
+                    f"    operation_id_path={builder.lro_metadata.get('operationIdPath')!r},",
+                    f"    operation_id_uri={builder.lro_metadata.get('operationIdUri')!r},",
+                    f"    initial_response_is_monitor={builder.lro_metadata['initialResponseIsMonitor']!r},",
+                    ")",
+                ]
+            )
         lro_options_str = (
             "lro_options={'final-state-via': '" + builder.lro_options["final-state-via"] + "'},"
             if builder.lro_options
@@ -1867,6 +1896,7 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
                 + f"= cast({builder.get_base_polling_method(self.async_mode)}, "
                 f"{builder.get_polling_method(self.async_mode)}(",
                 "        lro_delay,",
+                f"        {metadata_argument}",
                 f"        {lro_options_str}",
                 f"        {path_format_arguments_str}",
                 "        **kwargs",
@@ -1883,10 +1913,18 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
         retval.append("        polling_method=polling_method,")
         retval.append("        continuation_token=cont_token,")
         retval.append("        client=self._client,")
-        retval.append("        deserialization_callback=get_long_running_output")
+        retval.append("        deserialization_callback=get_long_running_output" + ("," if metadata_argument else ""))
+        if metadata_argument:
+            retval.append(f"        {metadata_argument}")
         retval.append("    )")
         retval.append(f"return {builder.get_poller_with_response_type(self.async_mode)}(")
-        retval.append("    self._client, raw_result, get_long_running_output, polling_method  # type: ignore")
+        retval.append(
+            "    self._client, raw_result, get_long_running_output, polling_method"
+            + ("," if metadata_argument else "")
+            + "  # type: ignore"
+        )
+        if metadata_argument:
+            retval.append(f"    {metadata_argument}")
         retval.append("    )")
         return retval
 

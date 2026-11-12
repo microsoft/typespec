@@ -329,6 +329,21 @@ The emitter supports different operation patterns:
 - **Paging**: Operations that return paginated results
 - **LRO + Paging**: Combined pattern
 
+### Selected LRO Metadata
+
+For Azure LROs annotated with `@lroStatusMetadata` or `@lroOperationId`, the emitter preserves TCGC's selected properties and JSON `propertySegments` in the intermediate code model. The generator emits `MetadataLROPoller` and `AsyncMetadataLROPoller` in the SDK's public `polling` module. Unannotated operations retain their existing poller types.
+
+The poller's `details` mapping exposes selected values by their Python client names, using the normal generated deserializers. It reflects the latest received monitor response: changed values replace earlier values, absent properties disappear, and failed or canceled responses remain inspectable. A subsequent final-resource request does not replace the monitor snapshot. The `operation_id` property exposes a selected monitor-body ID, falling back to the selected parameter of the initial polling URI; `details["operation_id"]` provides the same identifier when available. Polling still uses the complete URL, including its query parameters.
+
+Continuation tokens retain Azure Core's existing format. After resuming through the generated begin method, the URI identifier is immediately available, but selected monitor metadata is repopulated only after another monitor response. The default generated polling strategy refreshes metadata; an explicitly supplied custom polling strategy remains responsible for its own behavior.
+
+```python
+poller = client.begin_analyze(document, polling_interval=1)
+result = poller.result()
+print(poller.operation_id)
+print(poller.details.get("percent_complete"))
+```
+
 ### Model Modes
 
 Two model generation modes:

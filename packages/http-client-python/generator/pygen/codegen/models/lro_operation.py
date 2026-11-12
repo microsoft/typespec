@@ -47,6 +47,14 @@ class LROOperationBase(OperationBase[LROResponseType]):
         if not self.name.lstrip("_").startswith("begin"):
             self.name = ("_begin" if self.internal else "begin_") + self.name
         self.lro_options: dict[str, Any] = self.yaml_data.get("lroOptions", {})
+        self.lro_metadata: dict[str, Any] = self.yaml_data.get("lroMetadata") or {}
+        self.status_metadata = [
+            (selection, code_model.lookup_type(id(selection["type"])))
+            for selection in self.lro_metadata.get("statusMetadata") or []
+        ]
+        if self.lro_metadata:
+            for response in self.responses:
+                response.yaml_data["hasLroMetadata"] = True
         self._initial_operation: Optional["OperationType"] = None
 
     @property
@@ -140,6 +148,25 @@ class LROOperationBase(OperationBase[LROResponseType]):
             )
         file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
+        if self.lro_metadata:
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="polling"),
+                "_LroMetadata",
+                ImportType.LOCAL,
+            )
+            for _, metadata_type in self.status_metadata:
+                file_import.merge(metadata_type.imports(**kwargs))
+            if (
+                self.status_metadata
+                and self.code_model.options["models-mode"] == "dpg"
+                and not self.code_model.generate_typeddict_only
+            ):
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                    "_deserialize",
+                    ImportType.LOCAL,
+                )
         return file_import
 
 
