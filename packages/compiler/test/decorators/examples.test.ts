@@ -81,6 +81,17 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual(1);
     });
 
+    it("handles large int64 example exceeding JS safe integer range", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+      model TestModel {
+        @example(123456789123456789)
+        /*test*/b: int64;
+      }
+    `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual(123456789123456789n);
+    });
+
     it("emit diagnostic for unassignable value", async () => {
       const diagnostics = await Tester.diagnose(`
         model TestModel {
