@@ -21,15 +21,6 @@ import "./models/foo.tsp";
 import "./decorators.js";
 ```
 
-## Importing a TypeScript file
-
-```typespec
-import "./decorators.ts";
-import "./other-decorators.mts";
-```
-
-TypeSpec loads `.ts` and `.mts` files with Node.js's built-in TypeScript support, which requires Node.js 22.11 or later. Node.js only strips type annotations: it does not type-check the file or support TypeScript syntax that emits JavaScript, such as `enum` or `namespace`.
-
 ## Importing a library
 
 The import value can be the name of one of the package dependencies.
