@@ -2510,6 +2510,11 @@ interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessag
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /**
+   * When a diagnostic targets a library declaration, report it on the project node that uses it
+   * (container, spread, template instantiation) instead of dropping it.
+   */
+  reportAtUsage?: boolean;
 }
 
 interface LinterRuleDefinitionSync<
@@ -2586,7 +2591,14 @@ export type LinterRuleDiagnosticReportWithoutTarget<
 export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
-> = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
+> = LinterRuleDiagnosticReportWithoutTarget<T, M> & {
+  target: DiagnosticTarget | typeof NoTarget;
+  /**
+   * Explicit project node to report at when `target` is declared in a library.
+   * Overrides the automatic lookup enabled by the rule's `reportAtUsage`.
+   */
+  useSite?: DiagnosticTarget;
+};
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },

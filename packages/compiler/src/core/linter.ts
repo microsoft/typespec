@@ -1,6 +1,7 @@
 import { isPromise } from "../utils/misc.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
+import { findProjectUsageSite } from "./helpers/usage-site.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
@@ -332,13 +333,20 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget) {
-      const context = getLocationContext(program, diagnostic.target);
-      // Only report diagnostic in the user project.
-      // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
-      if (context.type === "project") {
-        diagnosticCollector.add(diagnostic);
-      }
+    if (diagnostic.target === NoTarget) {
+      return;
+    }
+    if (getLocationContext(program, diagnostic.target).type === "project") {
+      diagnosticCollector.add(diagnostic);
+      return;
+    }
+    // Target is in a library: show it where the project uses it.
+    // See https://github.com/microsoft/typespec/issues/1997
+    const useSite =
+      diag.useSite ??
+      (rule.reportAtUsage ? findProjectUsageSite(program, diagnostic.target) : undefined);
+    if (useSite && getLocationContext(program, useSite).type === "project") {
+      diagnosticCollector.add({ ...diagnostic, target: useSite });
     }
   }
 }

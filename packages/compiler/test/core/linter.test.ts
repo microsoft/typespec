@@ -31,6 +31,25 @@ const noModelFoo = createLinterRule({
   },
 });
 
+const noTopParameter = createLinterRule({
+  name: "no-top-parameter",
+  description: "",
+  severity: "warning",
+  reportAtUsage: true,
+  messages: {
+    default: "Operation cannot have a 'top' parameter",
+  },
+  create(context) {
+    return {
+      modelProperty: (prop) => {
+        if (prop.name === "top") {
+          context.reportDiagnostic({ target: prop });
+        }
+      },
+    };
+  },
+});
+
 const exitLintRuleSync = createLinterRule({
   name: "exit-lint-rule-sync",
   description: "",
@@ -250,6 +269,49 @@ describe("compiler: linter", () => {
         code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,
       });
+    });
+  });
+
+  describe("diagnostic with reportAtUsage", () => {
+    const lib = {
+      "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
+      "node_modules/my-lib/main.tsp": `
+        model SharedQuery { top?: int32; }
+        model Page<T> { ...SharedQuery; items: T[]; }
+      `,
+    };
+
+    it("reports on the operation spreading a library model", async () => {
+      const main = `import "my-lib"; op list(...SharedQuery): void;`;
+      const linter = await createTestLinterAndEnableRules(
+        { ...lib, "main.tsp": main },
+        { rules: [noTopParameter] },
+      );
+      const diagnostics = (await linter.lint()).diagnostics;
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/test-linter/no-top-parameter",
+        pos: main.indexOf("("),
+      });
+    });
+
+    it("walks the template instantiation to the project when the container is in the library", async () => {
+      const main = `import "my-lib"; model Foo { page: Page<string>; }`;
+      const linter = await createTestLinterAndEnableRules(
+        { ...lib, "main.tsp": main },
+        { rules: [noTopParameter] },
+      );
+      expectDiagnostics((await linter.lint()).diagnostics, {
+        code: "@typespec/test-linter/no-top-parameter",
+        pos: main.indexOf("Page<string>"),
+      });
+    });
+
+    it("drops the diagnostic when nothing in the project uses the library type", async () => {
+      const linter = await createTestLinterAndEnableRules(
+        { ...lib, "main.tsp": `import "my-lib";` },
+        { rules: [noTopParameter] },
+      );
+      expectDiagnosticEmpty((await linter.lint()).diagnostics);
     });
   });
 
