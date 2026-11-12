@@ -12,7 +12,13 @@ import {
   type ScopeConditionSet,
 } from "./scope.js";
 import { getFullyQualifiedSymbolName } from "./type-utils.js";
-import type { DecoratorContext, DecoratorDeclarationStatementNode, Sym, Type } from "./types.js";
+import type {
+  DecoratorContext,
+  DecoratorDeclarationStatementNode,
+  Node,
+  Sym,
+  Type,
+} from "./types.js";
 
 /**
  * Get the state key for an auto decorator given its fully-qualified name.
@@ -92,12 +98,14 @@ export function createScopedAutoDecoratorImplementation(
   symbol: Sym,
   node: DecoratorDeclarationStatementNode,
   scope: ScopeConditionSet,
+  application?: Node,
 ): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
   const fqn = getFullyQualifiedSymbolName(symbol);
   const impl = (context: DecoratorContext, target: Type, ...args: unknown[]) => {
     addScopedDecoratorEntry(context.program, fqn, target, {
       value: buildAutoDecoratorData(node, args),
       scope,
+      node: application,
     });
   };
   Object.defineProperty(impl, "name", { value: `$${node.id.sv}` });
@@ -159,7 +167,7 @@ export function getAutoDecoratorValue(
   if (scope !== undefined) {
     const entries = getScopedDecoratorEntries(program, decoratorFqn, resolved);
     if (entries !== undefined) {
-      const value = resolveScopedDecoratorValue(entries, scope);
+      const value = resolveScopedDecoratorValue(entries, scope, program);
       if (value !== undefined) {
         return value;
       }

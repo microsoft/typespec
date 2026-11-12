@@ -140,9 +140,14 @@ function sealVisibilityModifiersForClass(
 /**
  * Stores the default modifier set for a given visibility class.
  */
-const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMember>>(
-  createStateSymbol("defaultVisibilityModifiers"),
-);
+const [getDefaultModifiers, setDefaultModifiers, getDefaultModifierMap] = useStateMap<
+  Enum,
+  Set<EnumMember>
+>(createStateSymbol("defaultVisibilityModifiers"));
+
+export function getDefaultVisibilityClasses(program: Program): IterableIterator<Enum> {
+  return getDefaultModifierMap(program).keys();
+}
 
 /**
  * Gets the default modifier set for a visibility class. If no default modifier set has been set, this function will

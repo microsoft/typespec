@@ -1364,6 +1364,15 @@ export function createResolver(program: Program): NameResolver {
     }
 
     switch (node.kind) {
+      case SyntaxKind.WhenClause:
+        for (const condition of node.conditions) {
+          if (condition.kind === SyntaxKind.CallExpression) {
+            for (const argument of condition.arguments) bindAndResolveNode(argument);
+          } else {
+            resolveTypeReference(condition);
+          }
+        }
+        return;
       case SyntaxKind.TypeReference:
         resolveTypeReference(node);
         break;

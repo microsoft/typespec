@@ -1,5 +1,6 @@
 import pc from "picocolors";
 import type { EmitterOptions } from "../config/types.js";
+import { validateScopeViews } from "../experimental/scope-views.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
@@ -509,6 +510,7 @@ async function createProgram(
   // onValidate stage
   currentStage = "validating";
   await runValidators();
+  if (continueToNextStage) validateScopeViews(program);
 
   validateRequiredImports();
 

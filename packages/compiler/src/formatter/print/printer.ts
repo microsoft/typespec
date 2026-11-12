@@ -686,7 +686,7 @@ export function printDecorator(
 
 /** Print the trailing `when` clause of a decorator, if any. */
 function printWhenClause(
-  path: AstPath<DecoratorExpressionNode | AugmentDecoratorStatementNode>,
+  path: AstPath<Node & { readonly when?: WhenClauseNode }>,
   print: PrettierChildPrint,
 ): Doc {
   return path.node.when === undefined ? "" : [" ", path.call(print, "when")];
@@ -697,7 +697,15 @@ export function printWhenClauseNode(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ): Doc {
-  return group(["when ", indent(join([line, "| "], path.map(print, "conditions")))]);
+  const conditions = path.map(print, "conditions");
+  return group([
+    "when ",
+    indent(
+      conditions.flatMap((condition, i) =>
+        i === 0 ? [condition] : [line, `${path.node.operators?.[i - 1] ?? "|"} `, condition],
+      ),
+    ),
+  ]);
 }
 
 export function printAugmentDecorator(
@@ -866,6 +874,7 @@ export function printEnumStatement(
     printModifiers(path, options, print),
     "enum",
     id,
+    printWhenClause(path, print),
     " ",
     printEnumBlock(path, options, print),
   ];
@@ -896,7 +905,7 @@ export function printEnumMember(
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
   });
-  return [decorators, id, value];
+  return [decorators, id, value, printWhenClause(path, print)];
 }
 
 function printEnumSpreadMember(
@@ -925,6 +934,7 @@ export function printUnionStatement(
     "union",
     id,
     generic,
+    printWhenClause(path, print),
     heritage,
     " ",
     printUnionVariantsBlock(path, options, print),
@@ -959,7 +969,7 @@ export function printUnionVariant(
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
-  return [decorators, id, path.call(print, "value")];
+  return [decorators, id, path.call(print, "value"), printWhenClause(path, print)];
 }
 
 export function printInterfaceStatement(
@@ -978,6 +988,7 @@ export function printInterfaceStatement(
     "interface ",
     id,
     generic,
+    printWhenClause(path, print),
     extendList,
     " ",
     printInterfaceMembers(path, options, print),
@@ -1300,6 +1311,7 @@ export function printModelStatement(
     "model",
     id,
     generic,
+    printWhenClause(path, print),
     heritage,
     isBase,
     body,
@@ -1450,6 +1462,7 @@ export function printModelProperty(
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
+    printWhenClause(path, print),
   ];
 }
 
@@ -1499,6 +1512,7 @@ function printScalarStatement(
     "scalar",
     id,
     template,
+    printWhenClause(path, print),
     heritage,
     members,
   ];
@@ -1603,6 +1617,7 @@ export function printOperationStatement(
     path.call(print, "id"),
     templateParams,
     path.call(print, "signature"),
+    printWhenClause(path, print),
     `;`,
   ];
 }

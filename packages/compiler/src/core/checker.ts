@@ -44,7 +44,7 @@ import {
   visitChildren,
 } from "./parser.js";
 import type { Program } from "./program.js";
-import { isWhenFilterName, whenFilterNames, type ScopeCondition } from "./scope.js";
+import { resolveWhenClause } from "./scope.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -188,7 +188,6 @@ import type {
   Value,
   ValueWithTemplate,
   VoidType,
-  WhenClauseNode,
 } from "./types.js";
 import {
   IdentifierKind,
@@ -392,7 +391,7 @@ export interface Checker {
     typeDef: T,
   ): T & TypePrototype;
   /** Run a type's decorators and finishing validators, mark it finished, and return the same object. */
-  finishType<T extends Type>(typeDef: T): T;
+  finishType<T extends Type>(typeDef: T, options?: { skipDecorators?: boolean }): T;
   /** Get or create the program's cached string literal type for the supplied value. */
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   /** Get or create a numeric literal type, preserving precise {@link Numeric} values. */
@@ -7181,91 +7180,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
-    const conditions = checkWhenConditions(when);
-    if (conditions === undefined) {
-      return undefined;
+    const scope = resolveWhenClause(program, when);
+    if (scope === undefined) {
+      return () => {};
     }
 
-    return createScopedAutoDecoratorImplementation(sym, declNode, { conditions });
+    return createScopedAutoDecoratorImplementation(sym, declNode, scope, decNode);
   }
 
-  /** Resolve the closed condition grammar into scope dimensions. Returns `undefined` on error. */
-  function checkWhenConditions(when: WhenClauseNode): ScopeCondition[] | undefined {
-    const conditions: ScopeCondition[] = [];
-    let hasError = false;
-
-    for (const condition of when.conditions) {
-      if (condition.kind !== SyntaxKind.CallExpression) {
-        // Enum member references (e.g. `Lifecycle.read`) are reserved for the visibility
-        // dimension, which is not part of phase 1.
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "unknown-when-filter",
-            format: { name: getIdentifierText(condition), expected: whenFilterNames.join(", ") },
-            target: condition,
-          }),
-        );
-        hasError = true;
-        continue;
-      }
-
-      const name =
-        condition.target.kind === SyntaxKind.Identifier ? condition.target.sv : undefined;
-      if (name === undefined || !isWhenFilterName(name)) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "unknown-when-filter",
-            format: {
-              name: getIdentifierText(condition.target),
-              expected: whenFilterNames.join(", "),
-            },
-            target: condition.target,
-          }),
-        );
-        hasError = true;
-        continue;
-      }
-
-      if (condition.arguments.length !== 1) {
-        reportCheckerDiagnostic(
-          createDiagnostic({ code: "invalid-when-condition", format: { name }, target: condition }),
-        );
-        hasError = true;
-        continue;
-      }
-
-      const arg = condition.arguments[0];
-      if (arg.kind !== SyntaxKind.StringLiteral) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-when-condition",
-            messageId: "notAValue",
-            format: { name },
-            target: arg,
-          }),
-        );
-        hasError = true;
-        continue;
-      }
-
-      conditions.push({ dimension: name, value: arg.value });
-    }
-
-    return hasError ? undefined : conditions;
-  }
-
-  function getIdentifierText(node: Node): string {
-    switch (node.kind) {
-      case SyntaxKind.Identifier:
-        return node.sv;
-      case SyntaxKind.MemberExpression:
-        return `${getIdentifierText(node.base)}${node.selector}${node.id.sv}`;
-      case SyntaxKind.CallExpression:
-        return getIdentifierText(node.target);
-      default:
-        return "<unknown>";
-    }
-  }
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {

@@ -12,6 +12,7 @@ import {
   type TypeNameOptions,
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
+import { hasScopeConditions } from "@typespec/compiler/experimental";
 import {
   $added,
   $removed,
@@ -22,9 +23,11 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
   getUseDependencies,
+  getVersion,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
 import { hasChangedOptionality } from "./optionality.js";
+import { registerVersioningScopeAxis } from "./mutator.js";
 import type { Version } from "./types.js";
 import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
 import {
@@ -55,6 +58,13 @@ export function getCachedNamespaceDependencies(
  * The compiler invokes this when the library is loaded; emitters need not call it.
  */
 export function $onValidate(program: Program) {
+  if (hasScopeConditions(program)) {
+    navigateProgram(program, {
+      namespace(namespace) {
+        if (getVersion(program, namespace)) registerVersioningScopeAxis(program, namespace);
+      },
+    });
+  }
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
   function addNamespaceDependency(source: Namespace | undefined, target: Type | undefined) {

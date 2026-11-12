@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: v2
+tags: []
+paths:
+  /:
+    get:
+      operationId: getWidget
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Clients:
+      type: string
+      enum:
+        - csharp
+        - provisioning
+        - python
+    DotnetSettings:
+      type: object
+      required:
+        - assembly
+      properties:
+        assembly:
+          type: string
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2
+    Widget:
+      type: object
+      required:
+        - id
+        - settings
+      properties:
+        id:
+          type: string
+          readOnly: true
+        value:
+          type: string
+        settings:
+          $ref: '#/components/schemas/DotnetSettings'

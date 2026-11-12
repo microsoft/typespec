@@ -64,6 +64,8 @@ export function isCompilerFeatureEnabled(
       return program.compilerOptions.configFile?.features?.includes(feature) ?? false;
     case "library":
       return context.features?.includes(feature) ?? false;
+    case "compiler":
+      return true;
     default:
       // compiler (standard library) and synthetic code are never gated.
       return false;

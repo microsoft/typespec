@@ -326,6 +326,38 @@ const diagnostics = {
       notAValue: paramMessage`Filter '${"name"}' expects a string literal argument.`,
     },
   },
+  "invalid-scope-condition": {
+    severity: "error",
+    messages: {
+      default: "A declared scope condition must reference an enum member.",
+      emptyUniverse: "The declared scope axes have no valid concrete views to validate.",
+      range: "'since' and 'before' require an ordered versioning axis.",
+      legacySelector:
+        "String selectors are supported only by the original metadata spike. Use declared enum scopes for structural views; do not mix the two scope systems.",
+    },
+  },
+  "invalid-scope-hierarchy": {
+    severity: "error",
+    messages: { default: "Scope parents must form an acyclic hierarchy within the same enum." },
+  },
+  "ambiguous-scoped-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ambiguous '${"decorator"}' metadata in view '${"view"}'. Add a more specific application covering this overlap.`,
+    },
+  },
+  "incompatible-scoped-reference": {
+    severity: "error",
+    messages: {
+      default: paramMessage`'${"source"}' references '${"target"}', which is absent in view '${"view"}'.`,
+    },
+  },
+  "invalid-scoped-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid type relationship in view '${"view"}': ${"reason"}`,
+    },
+  },
   "using-invalid-ref": {
     severity: "error",
     messages: {

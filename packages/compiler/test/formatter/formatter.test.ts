@@ -4,6 +4,17 @@ import { describe, it } from "vitest";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
+
+it("preserves structural conditions and conjunctions while formatting", async () => {
+  await assertFormat({
+    code: `model Item when Clients.csharp { value:string when Lifecycle.Read & Clients.csharp; }
+op get():Item when Clients.csharp;`,
+    expected: `model Item when Clients.csharp {
+  value: string when Lifecycle.Read & Clients.csharp;
+}
+op get(): Item when Clients.csharp;`,
+  });
+});
 async function format(code: string, parser: TestParser = "typespec"): Promise<string> {
   const output = await prettier.format(code, {
     parser,

@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: v1
+tags: []
+paths:
+  /:
+    get:
+      operationId: getWidget
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Clients:
+      type: string
+      enum:
+        - csharp
+        - provisioning
+        - python
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2
+    Widget:
+      type: object
+      required:
+        - id
+        - oldValue
+      properties:
+        id:
+          type: string
+          readOnly: true
+        oldValue:
+          type: integer
+          format: int32

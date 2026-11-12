@@ -29,6 +29,8 @@ export interface PlaygroundSample {
    * Compiler options for the sample.
    */
   compilerOptions?: CompilerOptions;
+  /** Full sample configuration, including experimental compiler features. */
+  tspconfig?: string;
 }
 
 /** Metadata for a library available to a browser host, including unloaded deferred emitters. */
