@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningOperationIdMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
@@ -128,6 +129,11 @@ public class ClientModel {
      */
     private final ApiMetadata apiMetadata;
 
+    /**
+     * The sources of the long-running operation ID, if this model is the poll result of a long-running operation.
+     */
+    private final LongRunningOperationIdMetadata lroOperationId;
+
     // Set of non-final properties that are set on access.
     // This pattern is used as when the ClientModel is initialized the ModelMapper may not have mapped all models
     // related to the one being initialized. When that happens some properties may not be set correctly. For example,
@@ -173,6 +179,7 @@ public class ClientModel {
      * @param implementationDetails The implementation details for the model.
      * @param usedInXml Whether the model is used in XML serialization.
      * @param apiMetadata The API metadata for the model.
+     * @param lroOperationId The sources of the long-running operation ID.
      */
     protected ClientModel(String packageKeyword, String name, List<String> imports, String description,
         boolean isPolymorphic, ClientModelProperty polymorphicDiscriminator, String polymorphicDiscriminatorName,
@@ -180,7 +187,7 @@ public class ClientModel {
         String xmlName, String xmlNamespace, List<ClientModelProperty> properties,
         List<ClientModelPropertyReference> propertyReferences, IType modelType, boolean stronglyTypedHeader,
         ImplementationDetails implementationDetails, boolean usedInXml, Set<String> serializationFormats,
-        ApiMetadata apiMetadata) {
+        ApiMetadata apiMetadata, LongRunningOperationIdMetadata lroOperationId) {
         this.packageName = packageKeyword;
         this.name = name;
         this.fullName = packageName + "." + name;
@@ -204,6 +211,7 @@ public class ClientModel {
         this.implementationDetails = implementationDetails;
         this.usedInXml = usedInXml;
         this.apiMetadata = apiMetadata;
+        this.lroOperationId = lroOperationId;
         this.serializationFormats = serializationFormats;
     }
 
@@ -214,6 +222,15 @@ public class ClientModel {
      */
     public ApiMetadata getApiMetadata() {
         return apiMetadata;
+    }
+
+    /**
+     * Gets the sources of the long-running operation ID, if this model is the poll result of a long-running operation.
+     *
+     * @return the sources of the long-running operation ID, or null.
+     */
+    public LongRunningOperationIdMetadata getLroOperationId() {
+        return lroOperationId;
     }
 
     /**
@@ -685,6 +702,7 @@ public class ClientModel {
         private boolean usedInXml;
         private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
         private Set<String> serializationFormats = Set.of();
+        private LongRunningOperationIdMetadata lroOperationId;
 
         /**
          * Sets the package that this model class belongs to.
@@ -901,6 +919,17 @@ public class ClientModel {
         }
 
         /**
+         * Sets the sources of the long-running operation ID.
+         *
+         * @param lroOperationId the sources of the long-running operation ID.
+         * @return the Builder itself
+         */
+        public Builder lroOperationId(LongRunningOperationIdMetadata lroOperationId) {
+            this.lroOperationId = lroOperationId;
+            return this;
+        }
+
+        /**
          * Sets the Set of serialization format of this model.
          *
          * @param serializationFormats the Set of serialization format of this model.
@@ -920,7 +949,7 @@ public class ClientModel {
             return new ClientModel(packageName, name, imports, description, isPolymorphic, polymorphicDiscriminator,
                 polymorphicDiscriminatorName, serializedName, needsFlatten, parentModelName, derivedModels, xmlName,
                 xmlNamespace, properties, propertyReferences, modelType, stronglyTypedHeader, implementationDetails,
-                usedInXml, serializationFormats, apiMetadata);
+                usedInXml, serializationFormats, apiMetadata, lroOperationId);
         }
     }
 }

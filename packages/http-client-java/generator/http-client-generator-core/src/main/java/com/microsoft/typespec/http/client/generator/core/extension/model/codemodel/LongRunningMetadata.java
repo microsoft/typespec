@@ -11,6 +11,7 @@ public class LongRunningMetadata {
     private Schema finalResultType;
     private Metadata pollingStrategy;
     private String finalResultPropertySerializedName;
+    private LongRunningOperationIdMetadata operationId;
 
     /**
      * Creates a new instance of the LongRunningMetadata class.
@@ -88,5 +89,23 @@ public class LongRunningMetadata {
      */
     public void setFinalResultPropertySerializedName(String finalResultPropertySerializedName) {
         this.finalResultPropertySerializedName = finalResultPropertySerializedName;
+    }
+
+    /**
+     * Gets the sources of the operation ID.
+     *
+     * @return the sources of the operation ID.
+     */
+    public LongRunningOperationIdMetadata getOperationId() {
+        return operationId;
+    }
+
+    /**
+     * Sets the sources of the operation ID.
+     *
+     * @param operationId the sources of the operation ID.
+     */
+    public void setOperationId(LongRunningOperationIdMetadata operationId) {
+        this.operationId = operationId;
     }
 }

@@ -368,6 +368,13 @@ public class CodeModelCustomConstructor extends Constructor {
                                             new ScalarNode(keyNode.getTag(), "xmsArmIdDetails", keyNode.getStartMark(),
                                                 keyNode.getEndMark(), keyNode.getScalarStyle()),
                                             extension.getValueNode()));
+                            } else if ("x-ms-lro-operation-id".equals(keyNode.getValue())) {
+                                actualValues
+                                    .add(
+                                        new NodeTuple(
+                                            new ScalarNode(keyNode.getTag(), "xmsLroOperationId",
+                                                keyNode.getStartMark(), keyNode.getEndMark(), keyNode.getScalarStyle()),
+                                            extension.getValueNode()));
                             } else if ("x-ms-secret".equals(keyNode.getValue())) {
                                 actualValues.add(
                                     new NodeTuple(new ScalarNode(keyNode.getTag(), "xmsSecret", keyNode.getStartMark(),

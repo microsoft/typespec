@@ -17,6 +17,7 @@ import type {
   SdkHttpOperation,
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
+  SdkLroServiceMetadata,
   SdkLroServiceMethod,
   SdkModelPropertyType,
   SdkModelType,
@@ -80,7 +81,10 @@ import {
 } from "./common/client.js";
 import type { CodeModel } from "./common/code-model.js";
 import { addGlobalParameter, createCodeModel } from "./common/code-model.js";
-import type { LongRunningMetadata } from "./common/long-running-metadata.js";
+import type {
+  LongRunningMetadata,
+  LongRunningOperationIdMetadata,
+} from "./common/long-running-metadata.js";
 import { createLongRunningMetadata } from "./common/long-running-metadata.js";
 import type { Operation as CodeModelOperation, Request } from "./common/operation.js";
 import {
@@ -1547,17 +1551,56 @@ export class CodeModelBuilder {
         }
       }
 
+      // operation ID, only for poll result model (not the PollOperationDetails, which already has it)
+      let operationId: LongRunningOperationIdMetadata | undefined = undefined;
+      if (pollingSchema && pollingSchema !== this.pollResultSchema) {
+        operationId = this.processLroOperationIdMetadata(lroMetadata);
+        if (operationId) {
+          pollingSchema.extensions = pollingSchema.extensions ?? {};
+          pollingSchema.extensions["x-ms-lro-operation-id"] = { ...operationId };
+        }
+      }
+
       op.lroMetadata = createLongRunningMetadata(
         true,
         pollingSchema,
         finalSchema,
         pollingStrategy,
         finalResultPropertySerializedName,
+        operationId,
       );
       return op.lroMetadata;
     }
 
     return createLongRunningMetadata(false);
+  }
+
+  private processLroOperationIdMetadata(
+    lroMetadata: SdkLroServiceMetadata,
+  ): LongRunningOperationIdMetadata | undefined {
+    if (!lroMetadata.operationId || lroMetadata.operationId.length === 0) {
+      return undefined;
+    }
+    const operationId: LongRunningOperationIdMetadata = {};
+    for (const selection of lroMetadata.operationId) {
+      if (selection.kind === "path") {
+        const statusMonitorStep = lroMetadata.statusMonitorStep;
+        const statusMonitorOperation =
+          statusMonitorStep?.kind === "nextOperationReference"
+            ? statusMonitorStep.target.operation
+            : statusMonitorStep?.operation;
+        if (statusMonitorOperation) {
+          operationId.pathTemplate = statusMonitorOperation.path;
+          operationId.pathParameterSerializedName = selection.pathParameter.serializedName;
+        }
+      } else if (selection.kind === "property" && selection.propertySegments.length === 1) {
+        // nested property is not supported, TCGC currently only provides a single segment
+        operationId.propertySerializedName = getPropertySerializedName(
+          selection.propertySegments[0],
+        );
+      }
+    }
+    return operationId.pathTemplate || operationId.propertySerializedName ? operationId : undefined;
   }
 
   private processRouteForLongRunning(op: CodeModelOperation, lroMetadata: LongRunningMetadata) {

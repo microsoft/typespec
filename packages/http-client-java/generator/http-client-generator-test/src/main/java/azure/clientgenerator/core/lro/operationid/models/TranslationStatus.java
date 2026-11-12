@@ -78,6 +78,16 @@ public final class TranslationStatus implements JsonSerializable<TranslationStat
     }
 
     /**
+     * Get the ID of the long-running operation, from the {@code id} property.
+     * 
+     * @return the ID of the long-running operation.
+     */
+    @Generated
+    public String getOperationId() {
+        return this.getId();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated

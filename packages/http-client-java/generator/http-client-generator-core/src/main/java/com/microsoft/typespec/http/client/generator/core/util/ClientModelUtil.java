@@ -67,6 +67,8 @@ public class ClientModelUtil {
 
     public static final String OPERATION_LOCATION_POLLING_STRATEGY = "OperationLocationPollingStrategy";
     public static final String SYNC_OPERATION_LOCATION_POLLING_STRATEGY = "SyncOperationLocationPollingStrategy";
+    public static final String OPERATION_ID_POLLING_STRATEGY = "OperationIdPollingStrategy";
+    public static final String SYNC_OPERATION_ID_POLLING_STRATEGY = "SyncOperationIdPollingStrategy";
     public static final String POLLING_UTILS = "PollingUtils";
     public static final String CLIENT_CORE_POLLING_UTILS = "ClientCorePollingUtils";
     public static final String CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY
@@ -832,6 +834,27 @@ public class ClientModelUtil {
         }
 
         return false;
+    }
+
+    /**
+     * Checks whether any long-running operation extracts the operation ID from the path of the polling URL.
+     *
+     * @param codeModel the code model.
+     * @return whether OperationIdPollingStrategy is required.
+     */
+    public static boolean requireOperationIdPollingStrategy(CodeModel codeModel) {
+        if (CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            return false;
+        }
+        return codeModel.getClients()
+            .stream()
+            .filter(client -> client.getOperationGroups() != null)
+            .flatMap(client -> client.getOperationGroups().stream())
+            .filter(og -> og.getOperations() != null)
+            .flatMap(og -> og.getOperations().stream())
+            .anyMatch(operation -> operation.getLroMetadata() != null
+                && operation.getLroMetadata().getOperationId() != null
+                && operation.getLroMetadata().getOperationId().hasPathSource());
     }
 
     /**

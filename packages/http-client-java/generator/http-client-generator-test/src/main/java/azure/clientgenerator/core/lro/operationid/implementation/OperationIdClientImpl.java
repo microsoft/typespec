@@ -386,14 +386,17 @@ public final class OperationIdClientImpl {
     public PollerFlux<DocumentAnalysisStatus, DocumentAnalysisResult> beginAnalyzeWithModelAsync(String modelId,
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1), () -> this.analyzeWithResponseAsync(modelId, requestOptions),
-            new azure.clientgenerator.core.lro.operationid.implementation.OperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "result"),
+            new azure.clientgenerator.core.lro.operationid.implementation.OperationIdPollingStrategy<>(
+                new azure.clientgenerator.core.lro.operationid.implementation.OperationLocationPollingStrategy<>(
+                    new PollingStrategyOptions(this.getHttpPipeline())
+                        .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                        .setContext(requestOptions != null && requestOptions.getContext() != null
+                            ? requestOptions.getContext()
+                            : Context.NONE)
+                        .setServiceVersion(this.getServiceVersion().getVersion()),
+                    "result"),
+                "/azure/client-generator-core/lro/operation-id/documentModels/{modelId}/analyzeResults/{resultId}",
+                "resultId"),
             TypeReference.createInstance(DocumentAnalysisStatus.class),
             TypeReference.createInstance(DocumentAnalysisResult.class));
     }
@@ -413,14 +416,17 @@ public final class OperationIdClientImpl {
     public SyncPoller<DocumentAnalysisStatus, DocumentAnalysisResult> beginAnalyzeWithModel(String modelId,
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1), () -> this.analyzeWithResponse(modelId, requestOptions),
-            new azure.clientgenerator.core.lro.operationid.implementation.SyncOperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "result"),
+            new azure.clientgenerator.core.lro.operationid.implementation.SyncOperationIdPollingStrategy<>(
+                new azure.clientgenerator.core.lro.operationid.implementation.SyncOperationLocationPollingStrategy<>(
+                    new PollingStrategyOptions(this.getHttpPipeline())
+                        .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                        .setContext(requestOptions != null && requestOptions.getContext() != null
+                            ? requestOptions.getContext()
+                            : Context.NONE)
+                        .setServiceVersion(this.getServiceVersion().getVersion()),
+                    "result"),
+                "/azure/client-generator-core/lro/operation-id/documentModels/{modelId}/analyzeResults/{resultId}",
+                "resultId"),
             TypeReference.createInstance(DocumentAnalysisStatus.class),
             TypeReference.createInstance(DocumentAnalysisResult.class));
     }
@@ -778,14 +784,16 @@ public final class OperationIdClientImpl {
         beginStartTranslationWithPathWithModelAsync(RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.startTranslationWithPathWithResponseAsync(requestOptions),
-            new azure.clientgenerator.core.lro.operationid.implementation.OperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "result"),
+            new azure.clientgenerator.core.lro.operationid.implementation.OperationIdPollingStrategy<>(
+                new azure.clientgenerator.core.lro.operationid.implementation.OperationLocationPollingStrategy<>(
+                    new PollingStrategyOptions(this.getHttpPipeline())
+                        .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                        .setContext(requestOptions != null && requestOptions.getContext() != null
+                            ? requestOptions.getContext()
+                            : Context.NONE)
+                        .setServiceVersion(this.getServiceVersion().getVersion()),
+                    "result"),
+                "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId"),
             TypeReference.createInstance(TranslationWithPathStatus.class),
             TypeReference.createInstance(TranslationResult.class));
     }
@@ -805,14 +813,16 @@ public final class OperationIdClientImpl {
         beginStartTranslationWithPathWithModel(RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.startTranslationWithPathWithResponse(requestOptions),
-            new azure.clientgenerator.core.lro.operationid.implementation.SyncOperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "result"),
+            new azure.clientgenerator.core.lro.operationid.implementation.SyncOperationIdPollingStrategy<>(
+                new azure.clientgenerator.core.lro.operationid.implementation.SyncOperationLocationPollingStrategy<>(
+                    new PollingStrategyOptions(this.getHttpPipeline())
+                        .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                        .setContext(requestOptions != null && requestOptions.getContext() != null
+                            ? requestOptions.getContext()
+                            : Context.NONE)
+                        .setServiceVersion(this.getServiceVersion().getVersion()),
+                    "result"),
+                "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId"),
             TypeReference.createInstance(TranslationWithPathStatus.class),
             TypeReference.createInstance(TranslationResult.class));
     }
