@@ -6,7 +6,15 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Sample.Models
 {
-    public class StableModel { }
+    public class StableModel
+    {
+        public string PreviouslyStable { get; set; } = "";
+
+        [Obsolete("Previous message")]
+        public string PreviouslyObsolete { get; set; } = "";
+    }
+
+    public class InheritingModel : StableModel { }
 
     [Obsolete("Previous message")]
     public class ObsoleteModel { }

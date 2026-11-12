@@ -53,7 +53,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        private readonly AttributeStatement? _generatedDeprecationAttribute;
+        private IReadOnlyList<SuppressionStatement> _overrideDeprecationSuppressions = [];
         public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
+        internal IReadOnlyList<SuppressionStatement> DeclarationSuppressions { get; private set; } = [];
 
         public string? OriginalName { get; internal init; }
 
@@ -151,6 +154,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = new PropertyWireInformation(inputProperty);
             Attributes = ExperimentalApiHelpers.BuildAttributes(inputProperty.Experimental);
+            if (inputProperty is InputModelProperty modelProperty &&
+                DeprecationApiHelpers.BuildAttribute(modelProperty.Deprecation) is { } deprecationAttribute)
+            {
+                _generatedDeprecationAttribute = deprecationAttribute;
+                Attributes = [.. Attributes, deprecationAttribute];
+            }
             Suppressions = ExperimentalApiHelpers.MergeSuppressions(
                 ExperimentalApiHelpers.GetDependencySuppressions(inputProperty.Experimental),
                 ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.Type),
@@ -158,6 +167,61 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
+        }
+
+        internal void RefreshDeprecation(TypeProvider enclosingType)
+        {
+            // Only remove: generated references have already captured suppressions, so restoring the attribute here would leave them unsuppressed.
+            if (_generatedDeprecationAttribute is not { } attribute || !Attributes.Contains(attribute))
+            {
+                return;
+            }
+
+            var previous = FindLastContractProperty(enclosingType.LastContractView);
+            var shouldInclude = !MethodSignatureHelper.IsPublicApi(Modifiers, Attributes) ||
+                previous is null || previous.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+            shouldInclude &= !Attributes.Any(a => !ReferenceEquals(a, attribute) && DeprecationApiHelpers.IsObsoleteAttribute(a));
+            if (!shouldInclude)
+            {
+                Attributes = [.. Attributes.Where(a => !ReferenceEquals(a, attribute))];
+            }
+        }
+
+        // Consumers of the last contract could also reach the property through an inherited declaration.
+        private PropertyProvider? FindLastContractProperty(TypeProvider? lastContractType)
+        {
+            HashSet<TypeProvider> visited = [];
+            for (var type = lastContractType; type is not null && visited.Add(type); type = type.BaseTypeProvider)
+            {
+                if (type.Properties.FirstOrDefault(p => p.Name == Name && MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes)) is { } property)
+                {
+                    return property;
+                }
+            }
+            return null;
+        }
+
+        internal void RefreshOverrideDeprecationSuppressions()
+        {
+            DeclarationSuppressions = [.. DeclarationSuppressions.Except(_overrideDeprecationSuppressions)];
+            _overrideDeprecationSuppressions = [];
+            if (!Modifiers.HasFlag(MethodSignatureModifiers.Override) ||
+                BaseProperty is not { } baseProperty)
+            {
+                return;
+            }
+            DeprecationApiHelpers.EnsurePropertyInitialized(baseProperty);
+            var baseIsObsolete = DeprecationApiHelpers.GetEffectiveObsoleteAttribute(baseProperty) is not null;
+            var currentIsObsolete = Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute);
+            if (baseIsObsolete != currentIsObsolete)
+            {
+                _overrideDeprecationSuppressions =
+                [
+                    new(null, Snippet.Literal(baseIsObsolete ? "CS0672" : "CS0809"),
+                        "This generated property redeclares a member with a different deprecation status.")
+                ];
+                DeclarationSuppressions = ExperimentalApiHelpers.MergeSuppressions(DeclarationSuppressions, _overrideDeprecationSuppressions);
+            }
         }
 
         public PropertyProvider(
@@ -182,7 +246,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
-            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes?.ToArray() ?? [];
             Suppressions = suppressions?.ToArray() ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
@@ -432,7 +496,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyWireInformation? wireInfo = null,
             bool? isRef = null,
             XmlDocProvider? xmlDocs = null,
-            IEnumerable<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null,
+            IEnumerable<SuppressionStatement>? suppressions = null,
+            IEnumerable<SuppressionStatement>? declarationSuppressions = null)
         {
             if (description != null)
             {
@@ -476,7 +542,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? attributes.ToArray();
+            }
+            if (suppressions != null)
+            {
+                Suppressions = ExperimentalApiHelpers.MergeSuppressions(Suppressions, suppressions);
+            }
+            if (declarationSuppressions != null)
+            {
+                DeclarationSuppressions = ExperimentalApiHelpers.MergeSuppressions(DeclarationSuppressions, declarationSuppressions);
             }
             if (isRef is not null)
             {

@@ -38,6 +38,113 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             }
         }
 
+        [TestCase("itemContainer", false, false)]
+        [TestCase("items", false, false)]
+        [TestCase("nextContainer", false, false)]
+        [TestCase("next", false, false)]
+        [TestCase("itemContainer", true, false)]
+        [TestCase("items", true, false)]
+        [TestCase("nextContainer", true, false)]
+        [TestCase("next", true, false)]
+        [TestCase("nextContainer", false, true)]
+        [TestCase("next", true, true)]
+        [TestCase("items", false, true)]
+        [TestCase("unused", false, false)]
+        [TestCase("none", true, false)]
+        public void PagingSuppressesOnlyAccessedDeprecatedProperties(
+            string deprecatedSegment,
+            bool continuationToken,
+            bool nextInHeader)
+        {
+            string? Deprecation(string segment) => deprecatedSegment == segment ? "Use a replacement." : null;
+            var item = InputFactory.Model("Item", properties: []);
+            var payloadBase = InputFactory.Model("PayloadBase", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item), deprecation: Deprecation("items")),
+                InputFactory.Property("next", InputPrimitiveType.String, deprecation: Deprecation("next"))
+            ]);
+            var payload = InputFactory.Model("Payload", baseModel: payloadBase, properties: []);
+            var responseBase = InputFactory.Model("ResponseBase", properties:
+            [
+                InputFactory.Property("itemContainer", payload, deprecation: Deprecation("itemContainer")),
+                InputFactory.Property("nextContainer", payload, deprecation: Deprecation("nextContainer")),
+                InputFactory.Property("unused", InputPrimitiveType.String, deprecation: Deprecation("unused"))
+            ]);
+            var response = InputFactory.Model("Response", baseModel: responseBase, properties: []);
+            var parameter = InputFactory.QueryParameter("token", InputPrimitiveType.String, isRequired: true);
+            var location = nextInHeader ? InputResponseLocation.Header : InputResponseLocation.Body;
+            string[] nextSegments = nextInHeader ? ["x-next"] : ["nextContainer", "next"];
+            var paging = continuationToken
+                ? InputFactory.ContinuationTokenPagingMetadata(parameter, ["itemContainer", "items"], nextSegments, location)
+                : InputFactory.NextLinkPagingMetadata(["itemContainer", "items"], nextSegments, location);
+            var operation = InputFactory.Operation("List",
+                parameters: continuationToken ? [parameter] : [],
+                responses: [InputFactory.OperationResponse(bodytype: response)]);
+            var serviceMethod = InputFactory.PagingServiceMethod("List", operation, pagingMetadata: paging);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, payloadBase, payload, responseBase, response],
+                clients: () => [client]);
+
+            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+            Assert.That(helpers, Has.Length.EqualTo(4));
+            foreach (var helper in helpers)
+            {
+                foreach (var method in helper.Methods)
+                {
+                    var readsItems = method.Signature.Name.StartsWith("GetValuesFromPage");
+                    var readsNext = method.Signature.Name.StartsWith("GetRawPages") ||
+                        method.Signature.Name == "GetContinuationToken";
+                    var expected = (readsItems && deprecatedSegment is "itemContainer" or "items") ||
+                        (readsNext && !nextInHeader && deprecatedSegment is "nextContainer" or "next");
+                    var actual = method.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\"");
+                    Assert.That(actual, Is.EqualTo(expected), $"{helper.Name}.{method.Signature.Name}");
+                }
+                if (deprecatedSegment == "next" && !continuationToken && !nextInHeader &&
+                    helper.Name == "TestClientGetAllCollectionResultOfT")
+                {
+                    Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                        new TypeProviderWriter(helper).Write().Content);
+                }
+            }
+        }
+
+        [TestCase("items")]
+        [TestCase("next")]
+        [TestCase("unused")]
+        [TestCase("none")]
+        public void PagingScopesDirectPropertySuppressions(string deprecatedProperty)
+        {
+            string? Deprecation(string property) => deprecatedProperty == property ? "Use a replacement." : null;
+            var item = InputFactory.Model("Item", properties: []);
+            var response = InputFactory.Model("Response", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item), deprecation: Deprecation("items")),
+                InputFactory.Property("next", InputPrimitiveType.String, deprecation: Deprecation("next")),
+                InputFactory.Property("unused", InputPrimitiveType.String, deprecation: Deprecation("unused"))
+            ]);
+            var operation = InputFactory.Operation("List", responses: [InputFactory.OperationResponse(bodytype: response)]);
+            var serviceMethod = InputFactory.PagingServiceMethod("List", operation,
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["items"], ["next"], InputResponseLocation.Body));
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, response], clients: () => [client]);
+
+            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+            Assert.That(helpers, Has.Length.EqualTo(4));
+            foreach (var helper in helpers)
+            {
+                foreach (var method in helper.Methods)
+                {
+                    var readsItems = method.Signature.Name.StartsWith("GetValuesFromPage");
+                    var readsNext = method.Signature.Name.StartsWith("GetRawPages") ||
+                        method.Signature.Name == "GetContinuationToken";
+                    var expected = (readsItems && deprecatedProperty == "items") ||
+                        (readsNext && deprecatedProperty == "next");
+                    var actual = method.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\"");
+                    Assert.That(actual, Is.EqualTo(expected), $"{helper.Name}.{method.Signature.Name}");
+                }
+            }
+        }
+
         [SetUp]
         public void Setup()
         {

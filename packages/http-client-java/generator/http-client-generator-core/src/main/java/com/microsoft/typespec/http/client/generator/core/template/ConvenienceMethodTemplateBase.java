@@ -742,6 +742,11 @@ abstract class ConvenienceMethodTemplateBase {
 
         // byte[]
         ClassType.BASE_64_URL.addImportsTo(imports, false);
+        if (settings.isAzureV1()) {
+            ClassType.BASE_64_UTIL.addImportsTo(imports, false);
+        } else {
+            imports.add("java.util.Base64");
+        }
 
         // flatten payload
         imports.add(Map.class.getName());
@@ -982,6 +987,10 @@ abstract class ConvenienceMethodTemplateBase {
     private static String expressionConvertToString(String name, IType type, ProxyMethodParameter parameter) {
         if (type == ClassType.STRING) {
             return name;
+        } else if (type == ArrayType.BYTE_ARRAY) {
+            return JavaSettings.getInstance().isAzureV1()
+                ? "Base64Util.encodeToString(" + name + ")"
+                : name + " == null ? null : Base64.getEncoder().encodeToString(" + name + ")";
         } else if (type instanceof EnumType) {
             // enum
             EnumType enumType = (EnumType) type;

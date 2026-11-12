@@ -35,6 +35,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets the Previous. </summary>
+        [Obsolete("Use \"replacement\" instead.\nSee C:\\sdk.")]
         public IList<LegacyDetails> Previous { get; }
     }
 }

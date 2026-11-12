@@ -36,7 +36,7 @@ catalog:
   "@astrojs/markdown-remark": ^7.3.4
   "@astrojs/react": ^7.1.1
   "@astrojs/starlight": ^0.42.7
-  "@azure/identity": ^4.14.0
+  "@azure/identity": ^4.14.1
   "@azure/storage-blob": ^12.34.0
   "@babel/code-frame": ^8.0.0
   "@babel/core": ^8.0.9
@@ -51,8 +51,8 @@ catalog:
   "@inquirer/confirm": ^6.3.5
   "@inquirer/input": ^5.1.9
   "@inquirer/select": ^5.2.8
-  "@microsoft/api-extractor": ^7.60.0
-  "@microsoft/api-extractor-model": ^7.33.15
+  "@microsoft/api-extractor": ^7.60.1
+  "@microsoft/api-extractor-model": ^7.33.16
   "@microsoft/tsdoc": ^0.17.1
   "@microsoft/tsdoc-config": ^0.18.3
   "@octokit/core": ^7.0.7
@@ -85,7 +85,7 @@ catalog:
   "@types/which": ^3.0.4
   "@types/yargs": ^17.0.35
   "@typespec/ts-http-runtime": 0.3.9
-  "@vitejs/plugin-react": ^6.1.0
+  "@vitejs/plugin-react": ^6.2.1
   "@vitest/coverage-v8": ^5.0.5
   "@vitest/ui": ^5.0.5
   "@vscode/extension-telemetry": ^1.5.2
@@ -113,7 +113,7 @@ catalog:
   esbuild-plugins-node-modules-polyfill: ^1.8.3
   execa: ^10.2.1
   express: ^5.3.0
-  fast-xml-parser: ^5.11.0
+  fast-xml-parser: ^5.12.0
   graphql: ^17.0.2
   happy-dom: ^21.0.4
   is-unicode-supported: ^2.1.0
