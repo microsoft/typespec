@@ -4,9 +4,9 @@ import type { YamlScript } from "../yaml/types.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { formatShortNameCandidates } from "./diagnostic-code.js";
 import type { DiagnosticCollector } from "./diagnostics.js";
-import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector, getSourceLocation } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
-import { findProjectUsageSite } from "./helpers/usage-site.js";
+import { findUsageSite } from "./helpers/usage-site.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
@@ -532,11 +532,19 @@ export function createLinterRuleContext<
   options: Options,
   diagnosticCollector: DiagnosticCollector,
 ): LinterRuleContext<DM, Options> {
+  const reportedAtUsage = new Set<string>();
+
   return {
     program,
     options,
     reportDiagnostic,
   };
+
+  function findRuleUsageSite(target: DiagnosticTarget): DiagnosticTarget | undefined {
+    const opt = rule.reportAtUsage;
+    if (!opt) return undefined;
+    return findUsageSite(program, target, opt === true ? undefined : opt)?.node;
+  }
 
   function createDiagnostic<M extends keyof DM>(
     diag: LinterRuleDiagnosticReport<DM, M>,
@@ -575,11 +583,13 @@ export function createLinterRuleContext<
     }
     // Target is in a library: show it where the project uses it.
     // See https://github.com/microsoft/typespec/issues/1997
-    const useSite =
-      diag.useSite ??
-      (rule.reportAtUsage ? findProjectUsageSite(program, diagnostic.target) : undefined);
+    const useSite = diag.useSite ?? findRuleUsageSite(diagnostic.target);
     if (useSite && getLocationContext(program, useSite).type === "project") {
-      diagnosticCollector.add({ ...diagnostic, target: useSite });
+      const key = `${rule.id}:${getSourceLocation(useSite).file.path}:${getSourceLocation(useSite).pos}`;
+      if (!reportedAtUsage.has(key)) {
+        reportedAtUsage.add(key);
+        diagnosticCollector.add({ ...diagnostic, target: useSite });
+      }
     }
   }
 }
