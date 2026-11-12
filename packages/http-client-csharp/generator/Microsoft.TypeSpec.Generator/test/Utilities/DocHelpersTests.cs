@@ -98,6 +98,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCase("`unclosed\n*italic* and **bold**", "`unclosed\n<i>italic</i> and <b>bold</b>")]
         [TestCase("``mismatched\n*italic*`", "``mismatched\n<i>italic</i>`")]
         [TestCase("`*literal*`\n*italic*", "`*literal*`\n<i>italic</i>")]
+        [TestCase("`unclosed\n\n*italic* and `cache:* ~other:*`", "`unclosed\n<i>italic</i> and `cache:* ~other:*`")]
+        [TestCase("- `unclosed\n- `cache:* ~other:*`", "<list type=\"bullet\"><item><description>`unclosed</description></item><item><description>`cache:* ~other:*`</description></item></list>")]
         [TestCase("- Use `+@read\n~cache:* ~other:*` and *italic*", "<list type=\"bullet\"><item><description>Use `+@read</description></item></list>\n~cache:* ~other:*` and <i>italic</i>")]
         [TestCase("1. Use `+@read\n~cache:* ~other:*` and **bold**", "<list type=\"number\"><item><description>Use `+@read</description></item></list>\n~cache:* ~other:*` and <b>bold</b>")]
         public void TestMultilineCodeSpansWithFormatting(string markdown, string expected)

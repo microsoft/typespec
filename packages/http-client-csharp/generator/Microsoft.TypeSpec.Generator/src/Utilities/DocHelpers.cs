@@ -232,6 +232,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 var closingSearchIndex = delimiterEnd;
                 while (closingSearchIndex < text.Length)
                 {
+                    if ((text[closingSearchIndex] == '\r' || text[closingSearchIndex] == '\n') &&
+                        IsMarkdownBlockBoundary(text, closingSearchIndex))
+                    {
+                        break;
+                    }
+
                     if (text[closingSearchIndex] != '`')
                     {
                         closingSearchIndex++;
@@ -255,6 +261,30 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             codeSpanStart = 0;
             codeSpanEnd = 0;
             return false;
+        }
+
+        private static bool IsMarkdownBlockBoundary(string text, int lineBreakIndex)
+        {
+            var nextLineStart = lineBreakIndex + 1;
+            if (text[lineBreakIndex] == '\r' && nextLineStart < text.Length && text[nextLineStart] == '\n')
+            {
+                nextLineStart++;
+            }
+
+            var nextLineEnd = nextLineStart;
+            while (nextLineEnd < text.Length && text[nextLineEnd] != '\r' && text[nextLineEnd] != '\n')
+            {
+                nextLineEnd++;
+            }
+
+            var nextLine = text.Substring(nextLineStart, nextLineEnd - nextLineStart);
+            if (string.IsNullOrWhiteSpace(nextLine))
+            {
+                return true;
+            }
+
+            var trimmedLine = nextLine.TrimStart();
+            return trimmedLine.StartsWith("- ", StringComparison.Ordinal) || NumberedListRegex.IsMatch(trimmedLine);
         }
 
         private static int GetBacktickRunEnd(string text, int startIndex)
