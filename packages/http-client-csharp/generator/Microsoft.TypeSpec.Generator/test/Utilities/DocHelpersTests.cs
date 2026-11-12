@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
@@ -76,6 +77,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         public void TestCodeSpansWithFormatting(string markdown, string expected)
         {
             Assert.AreEqual(expected, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [TestCase("\n")]
+        [TestCase("\r\n")]
+        [TestCase("\r")]
+        public void TestMultilineCodeSpansWithWildcards(string newline)
+        {
+            var markdown = $"Use `+@read{newline}~cache:* ~other:*` with *italic*.";
+            var expected = $"Use `+@read{Environment.NewLine}~cache:* ~other:*` with <i>italic</i>.";
+
+            Assert.AreEqual(expected, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [TestCase("`*literal*\n**literal** ***literal***` and *italic*", "`*literal*\n**literal** ***literal***` and <i>italic</i>")]
+        [TestCase("``literal `*\n*` and **bold**`` with *italic*", "``literal `*\n*` and **bold**`` with <i>italic</i>")]
+        [TestCase("\\``+@read\n~cache:* ~other:*` and *italic*", "\\``+@read\n~cache:* ~other:*` and <i>italic</i>")]
+        [TestCase("`+@read\\\n~cache:* ~other:*`", "`+@read\\\n~cache:* ~other:*`")]
+        [TestCase("`\0_*` and `+@read\n~cache:* ~other:*`", "`\0_*` and `+@read\n~cache:* ~other:*`")]
+        [TestCase("`unclosed\n*italic* and **bold**", "`unclosed\n<i>italic</i> and <b>bold</b>")]
+        [TestCase("``mismatched\n*italic*`", "``mismatched\n<i>italic</i>`")]
+        [TestCase("`*literal*`\n*italic*", "`*literal*`\n<i>italic</i>")]
+        [TestCase("- Use `+@read\n~cache:* ~other:*` and *italic*", "<list type=\"bullet\"><item><description>Use `+@read</description></item></list>\n~cache:* ~other:*` and <i>italic</i>")]
+        [TestCase("1. Use `+@read\n~cache:* ~other:*` and **bold**", "<list type=\"number\"><item><description>Use `+@read</description></item></list>\n~cache:* ~other:*` and <b>bold</b>")]
+        public void TestMultilineCodeSpansWithFormatting(string markdown, string expected)
+        {
+            Assert.AreEqual(expected.Replace("\n", Environment.NewLine), DocHelpers.GetDescription(null, markdown));
         }
 
         [Test]

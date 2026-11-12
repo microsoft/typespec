@@ -19,7 +19,10 @@ namespace Sample.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.TestModel"/>. </summary>
-        /// <param name="accessString"> The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified. This is <i>optional</i>. </param>
+        /// <param name="accessString">
+        /// The Redis ACL permissions string applied to this assignment, for example `+@read
+        /// ~cache:* ~other:*`. Defaults to `+@all ~*` if not specified. This is <i>optional</i>.
+        /// </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal TestModel(string accessString, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
@@ -27,7 +30,10 @@ namespace Sample.Models
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        /// <summary> The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified. This is <i>optional</i>. </summary>
+        /// <summary>
+        /// The Redis ACL permissions string applied to this assignment, for example `+@read
+        /// ~cache:* ~other:*`. Defaults to `+@all ~*` if not specified. This is <i>optional</i>.
+        /// </summary>
         public string AccessString { get; set; }
     }
 }

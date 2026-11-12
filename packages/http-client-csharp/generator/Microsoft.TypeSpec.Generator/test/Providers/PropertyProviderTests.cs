@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     InputFactory.Property(
                         "accessString",
                         InputPrimitiveType.String,
-                        doc: "The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified. This is *optional*.")
+                        doc: "The Redis ACL permissions string applied to this assignment, for example `+@read\n~cache:* ~other:*`. Defaults to `+@all ~*` if not specified. This is *optional*.")
                 ]);
 
             var modelProvider = new ModelProvider(inputModel);
