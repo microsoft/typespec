@@ -1099,4 +1099,36 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       ["date", 1609459200],
     ]);
   });
+
+  it("serialize header parameter examples of a derived scalar with the encoding of the header scalar", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      @encode("rfc7231") scalar HttpDate extends utcDateTime;
+      scalar PlainDate extends HttpDate;
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar UnixHttpDate extends HttpDate;
+
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar UnixDate extends utcDateTime;
+      @encode(DateTimeKnownEncoding.rfc3339)
+      scalar IsoUnixDate extends UnixDate;
+
+      @opExample(#{
+        parameters: #{
+          plain: PlainDate.fromISO("2021-01-01T00:00:00Z"),
+          unix: UnixHttpDate.fromISO("2021-01-01T00:00:00Z"),
+          date: IsoUnixDate.fromISO("2021-01-01T00:00:00Z"),
+        },
+      })
+      op read(@header plain: HttpDate, @header unix: HttpDate, @header date: UnixDate): void;
+      `,
+      { "experimental-parameter-examples": "data" },
+    );
+    const parameters = res.paths["/"].get?.parameters as OpenAPI3Parameter[];
+    expect(parameters.map((x) => [x.name, x.example])).toEqual([
+      ["plain", "Fri, 01 Jan 2021 00:00:00 GMT"],
+      ["unix", "Fri, 01 Jan 2021 00:00:00 GMT"],
+      ["date", 1609459200],
+    ]);
+  });
 });

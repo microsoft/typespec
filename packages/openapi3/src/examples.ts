@@ -239,7 +239,7 @@ function findResponseForExample(
 }
 
 /**
- * Only returns an encoding if one is not explicitly defined
+ * Only returns an encoding if one is not explicitly defined on the property
  */
 function getDefaultHeaderEncodeAs(program: Program, header: ModelProperty): EncodeData | undefined {
   // Get existing encoded data if it has been explicitly defined
@@ -255,8 +255,10 @@ function getDefaultHeaderEncodeAs(program: Program, header: ModelProperty): Enco
 
   if (!tk.scalar.is(header.type)) return;
 
-  // A scalar with its own encoding keeps it, as its schema does
-  if (getEncode(program, header.type)) return;
+  // A scalar with its own encoding keeps it, as its schema does, also when the example
+  // value was built with a scalar derived from it
+  const scalarEncodeData = getEncode(program, header.type);
+  if (scalarEncodeData) return scalarEncodeData;
 
   // Use the default encoding for date-time headers
   return {
