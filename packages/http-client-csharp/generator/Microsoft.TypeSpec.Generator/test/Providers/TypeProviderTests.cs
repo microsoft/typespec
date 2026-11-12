@@ -529,8 +529,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, provider.Methods.Count);
             Assert.IsTrue(provider.Methods.Single(m => m.Signature.Parameters.Count == 2).Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
             var previous = provider.Methods.Single(m => m.Signature.Parameters.Count == 1);
-            Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
+            Assert.AreEqual(previouslyObsolete, previous.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            if (previouslyObsolete)
+            {
+                Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
+            }
             Assert.IsTrue(previous.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal(diagnosticId ?? "CS0618").ToDisplayString()));
+        }
+
+        [Test]
+        public async Task DeprecationAppliesToUnchangedLastContractMethods()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
+            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample");
+            var method = new MethodProvider(
+                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null,
+                    [new ParameterProvider("value", $"", typeof(int))],
+                    Attributes: [DeprecationApiHelpers.BuildAttribute("Current message")!]),
+                MethodBodyStatement.Empty, provider);
+            provider = new TestTypeProvider(name: provider.Name, ns: "Sample", methods: [method]);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("\"Current message\"", provider.Methods.Single().Signature.Attributes
+                .Single(DeprecationApiHelpers.IsObsoleteAttribute).Arguments.Single().ToDisplayString());
         }
 
         [TestCase(false)]
