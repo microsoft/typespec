@@ -16,6 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static readonly Regex BoldItalicRegex = new Regex(@"\*\*\*([^*]+?)\*\*\*", RegexOptions.Compiled);
         private static readonly Regex BoldRegex = new Regex(@"\*\*([^*]+?)\*\*", RegexOptions.Compiled);
         private static readonly Regex ItalicRegex = new Regex(@"(?<!\*)\*([^*]+?)\*(?!\*)", RegexOptions.Compiled);
+
         public static string? GetDescription(string? summary, string? doc)
         {
             var description = (summary, doc) switch
