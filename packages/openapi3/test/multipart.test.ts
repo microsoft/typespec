@@ -10,11 +10,9 @@ worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor, emitOpenApiWithDi
       model \`Upload/Form\` { name: HttpPart<string>; }
       op upload(@multipartBody body: \`Upload/Form\`): void;
     `);
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/openapi3/invalid-component-fixed-field-key",
-      },
-    ]);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/invalid-component-fixed-field-key",
+    });
     expect(Object.keys(doc.components!.schemas!)).toEqual(["Upload_Form"]);
     expect(doc.paths["/"].post!.requestBody).toMatchObject({
       content: { "multipart/form-data": { schema: { $ref: "#/components/schemas/Upload_Form" } } },
@@ -28,7 +26,7 @@ worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor, emitOpenApiWithDi
       @route("/a") op first(@multipartBody body: First): void;
       @route("/b") op second(@multipartBody body: Second): void;
     `);
-    expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
+    expectDiagnostics(diagnostics, { code: "@typespec/openapi/duplicate-type-name" });
   });
 
   it("reports collisions between multipart and regular schemas", async () => {
@@ -37,7 +35,7 @@ worksFor(supportedVersions, ({ openApiFor, diagnoseOpenApiFor, emitOpenApiWithDi
       model UploadForm { value: string; }
       op upload(@multipartBody body: Upload): UploadForm;
     `);
-    expectDiagnostics(diagnostics, [{ code: "@typespec/openapi/duplicate-type-name" }]);
+    expectDiagnostics(diagnostics, { code: "@typespec/openapi/duplicate-type-name" });
   });
 
   it("allows repeated references to the same named multipart body", async () => {
