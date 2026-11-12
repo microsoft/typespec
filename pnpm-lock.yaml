@@ -3004,6 +3004,9 @@ importers:
       astro-expressive-code:
         specifier: 'catalog:'
         version: 0.44.3(astro@7.4.2(@astrojs/markdown-remark@7.3.4)(@azure/identity@4.14.1)(@azure/storage-blob@12.34.0)(@types/node@26.6.5)(esbuild@0.28.2)(yaml@2.9.1))
+      cross-env:
+        specifier: 'catalog:'
+        version: 10.1.0
       rehype-mermaid:
         specifier: 'catalog:'
         version: 3.0.0(playwright@1.64.1)
