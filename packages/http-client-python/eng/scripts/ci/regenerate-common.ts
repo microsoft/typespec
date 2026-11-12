@@ -125,6 +125,9 @@ export const AZURE_EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptio
   "azure/client-generator-core/hierarchy-building": {
     namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
   },
+  "azure/core/authentication/configurations": {
+    namespace: "specs.azure.core.authentication.configurations",
+  },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
   },

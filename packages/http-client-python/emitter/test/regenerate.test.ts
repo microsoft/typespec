@@ -1,8 +1,12 @@
-import { mkdtemp, readFile, rm, writeFile } from "fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "fs/promises";
 import { tmpdir } from "os";
-import { join } from "path";
+import { join, resolve } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { compileSpec, type RegenerateContext } from "../../eng/scripts/ci/regenerate-common.js";
+import {
+  buildTaskGroups,
+  compileSpec,
+  type RegenerateContext,
+} from "../../eng/scripts/ci/regenerate-common.js";
 
 describe("typespec-python: regeneration configuration", () => {
   let directory: string;
@@ -96,4 +100,41 @@ options:
       code: "ENOENT",
     });
   });
+
+  it("generates a valid package name for Azure authentication configurations", async () => {
+    const pluginDir = resolve(import.meta.dirname, "../..");
+    const realContext = {
+      ...ctx,
+      pluginDir,
+      emitterName: "@typespec/http-client-python",
+      azureHttpSpecs: join(pluginDir, "node_modules/@azure-tools/azure-http-specs/specs"),
+      httpSpecs: join(pluginDir, "node_modules/@typespec/http-specs/specs"),
+    };
+    const spec = join(
+      realContext.azureHttpSpecs,
+      "azure/core/authentication/configurations/main.tsp",
+    );
+    const [group] = buildTaskGroups([spec], { flavor: "azure", debug: false }, realContext, {
+      emitYamlOnly: true,
+    });
+    const outputDir = join(directory, "output");
+    const task = group.tasks[0];
+    task.outputDir = outputDir;
+    task.options["emitter-output-dir"] = outputDir;
+    let yamlPath: string | undefined;
+
+    try {
+      expect(await compileSpec(task, realContext)).toEqual({ success: true });
+      const pointer = (await readdir(outputDir)).find((name) => name.startsWith(".tsp-codegen-"));
+      const config = JSON.parse(await readFile(join(outputDir, pointer!), "utf8"));
+      yamlPath = config.yamlPath;
+      expect(config.commandArgs["package-name"]).toMatch(
+        /^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?$/,
+      );
+    } finally {
+      if (yamlPath) {
+        await rm(yamlPath, { force: true });
+      }
+    }
+  }, 60_000);
 });

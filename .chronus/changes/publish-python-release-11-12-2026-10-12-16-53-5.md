@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Load each Spector scenario configuration during Python SDK regeneration, preserving compiler feature flags and emitter overrides.
+Load each Spector scenario configuration during Python SDK regeneration, preserving compiler feature flags and emitter overrides. Use a valid Python package namespace for the Azure authentication configurations scenario.
