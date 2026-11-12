@@ -44,6 +44,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
+        public void TestCodeSpansWithWildcards()
+        {
+            const string markdown = "The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified.";
+
+            Assert.AreEqual(markdown, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [TestCase("`*literal*` and `**literal**` and `***literal***`", "`*literal*` and `**literal**` and `***literal***`")]
+        [TestCase("*Before* `cache:*` and *between* `~*` and *after*.", "<i>Before</i> `cache:*` and <i>between</i> `~*` and <i>after</i>.")]
+        [TestCase("*Use `cache:*` here*", "<i>Use `cache:*` here</i>")]
+        [TestCase("**Use `cache:**` here**", "<b>Use `cache:**` here</b>")]
+        [TestCase("***Use `cache:***` here***", "<b><i>Use `cache:***` here</i></b>")]
+        [TestCase("``literal `*` and **bold**`` with *italic*", "``literal `*` and **bold**`` with <i>italic</i>")]
+        [TestCase("\0 `*literal*` and *italic*", "\0 `*literal*` and <i>italic</i>")]
+        [TestCase("`unclosed *italic*", "`unclosed <i>italic</i>")]
+        [TestCase("``mismatched *italic*`", "``mismatched <i>italic</i>`")]
+        [TestCase("- `cache:*` and `~*` with *italic*", "<list type=\"bullet\"><item><description>`cache:*` and `~*` with <i>italic</i></description></item></list>")]
+        [TestCase("1. `cache:*` and `~*` with **bold**", "<list type=\"number\"><item><description>`cache:*` and `~*` with <b>bold</b></description></item></list>")]
+        public void TestCodeSpansWithFormatting(string markdown, string expected)
+        {
+            Assert.AreEqual(expected, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [Test]
         public void TestNestedFormatting()
         {
             var result = DocHelpers.GetDescription(null, "You can combine them like **bold with *italic inside* bold**.");

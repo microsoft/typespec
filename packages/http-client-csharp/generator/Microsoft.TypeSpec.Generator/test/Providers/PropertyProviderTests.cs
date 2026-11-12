@@ -77,6 +77,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void TestPropertyDocumentationPreservesCodeSpans()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "accessString",
+                        InputPrimitiveType.String,
+                        doc: "The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified. This is *optional*.")
+                ]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(modelProvider).Write().Content);
+        }
+
+        [Test]
         public void TestPascalCaseProperty()
         {
             InputModelProperty inputModelProperty = InputFactory.Property("PascalCase", InputPrimitiveType.String, wireName: "PascalCase", isRequired: true);

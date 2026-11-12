@@ -16,6 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static readonly Regex BoldItalicRegex = new Regex(@"\*\*\*([^*]+?)\*\*\*", RegexOptions.Compiled);
         private static readonly Regex BoldRegex = new Regex(@"\*\*([^*]+?)\*\*", RegexOptions.Compiled);
         private static readonly Regex ItalicRegex = new Regex(@"(?<!\*)\*([^*]+?)\*(?!\*)", RegexOptions.Compiled);
+        private static readonly Regex CodeSpanRegex = new Regex(@"(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)", RegexOptions.Compiled);
 
         public static string? GetDescription(string? summary, string? doc)
         {
@@ -153,6 +154,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return text;
             }
 
+            // Protect literal asterisks even when emphasis surrounds a code span.
+            var asteriskPlaceholder = "\0";
+            while (text.Contains(asteriskPlaceholder, StringComparison.Ordinal))
+            {
+                asteriskPlaceholder += "\0";
+            }
+            text = CodeSpanRegex.Replace(text, match => match.Value.Replace("*", asteriskPlaceholder));
+
             // Handle ***bold italic*** (must be done before ** and *)
             text = BoldItalicRegex.Replace(text, "<b><i>$1</i></b>");
 
@@ -162,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // Handle *italic* (but not already processed bold markers)
             text = ItalicRegex.Replace(text, "<i>$1</i>");
 
-            return text;
+            return text.Replace(asteriskPlaceholder, "*");
         }
     }
 }
