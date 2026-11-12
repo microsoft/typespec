@@ -222,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                 if (precedingBackslashes % 2 != 0)
                 {
-                    searchIndex = delimiterEnd;
+                    searchIndex = delimiterStart + 1;
                     continue;
                 }
 
