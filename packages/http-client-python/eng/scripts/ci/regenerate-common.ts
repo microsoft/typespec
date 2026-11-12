@@ -13,7 +13,7 @@
  * from this module.
  */
 
-import { compile, NodeHost } from "@typespec/compiler";
+import { compile, logDiagnostics, NodeHost, resolveCompilerOptions } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { existsSync, rmSync } from "fs";
 import { access, mkdir, readdir, writeFile } from "fs/promises";
@@ -549,12 +549,26 @@ export async function compileSpec(
   const { spec, outputDir, options } = task;
 
   try {
-    const compilerOptions = {
-      emit: [ctx.pluginDir],
-      options: {
-        [ctx.emitterName]: options,
+    const [compilerOptions, diagnostics] = await resolveCompilerOptions(NodeHost, {
+      entrypoint: spec,
+      cwd: process.cwd(),
+      env: process.env,
+      overrides: {
+        emit: [ctx.pluginDir],
+        options: {
+          [ctx.emitterName]: options,
+        },
       },
-    };
+    });
+
+    logDiagnostics(
+      diagnostics.filter((d) => d.severity === "warning"),
+      NodeHost.logSink,
+    );
+    const configErrors = diagnostics.filter((d) => d.severity === "error");
+    if (configErrors.length > 0) {
+      return { success: false, error: configErrors.map((d) => d.message).join("\n") };
+    }
 
     const program = await compile(NodeHost, spec, compilerOptions);
 
