@@ -19,6 +19,91 @@ describe("Operation Converter", () => {
     runner = await createEmitterTestHost();
   });
 
+  it.each([true, false])("preserves selected LRO metadata: %s", async (selected) => {
+    const program = await typeSpecCompile(
+      `
+        model Result { value: string; }
+        model Usage { tokens: int32; }
+        enum OperationState { Running, Succeeded, Failed, Canceled }
+        model MonitorBase {
+          ${selected ? '@lroStatusMetadata @clientName("usageDetails")' : ""}
+          @encodedName("application/json", "usage_details")
+          usage?: Usage;
+        }
+        model Monitor extends MonitorBase {
+          ${selected ? "@lroOperationId" : ""}
+          @encodedName("application/json", "operation_id")
+          id: string;
+          @lroStatus status: OperationState;
+          @lroResult result?: Result;
+        }
+        @get @route("/jobs/{jobId}")
+        op getStatus(${selected ? "@lroOperationId" : ""} @path jobId: string): Monitor;
+        @pollingOperation(getStatus)
+        @post @route("/jobs")
+        op begin(): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: url;
+        };
+      `,
+      runner,
+      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+    );
+    strictEqual(program.diagnostics.filter((d) => d.severity === "error").length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    const method = root.clients[0].methods.find((m) => m.name === "begin");
+    ok(method?.kind === "lro");
+    const metadata = method.lroMetadata;
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const serializedMetadata = serialized.clients[0].methods.find(
+      (m: { name: string }) => m.name === "begin",
+    ).lroMetadata;
+    if (!selected) {
+      strictEqual(serializedMetadata.statusMetadata, undefined);
+      strictEqual(serializedMetadata.operationId, undefined);
+      return;
+    }
+
+    const base = root.models.find((m) => m.name === "MonitorBase")!;
+    const monitor = root.models.find((m) => m.name === "Monitor")!;
+    const usage = base.properties.find((p) => p.name === "usageDetails")!;
+    strictEqual(metadata.statusMetadata?.[0].property, usage);
+    deepStrictEqual(metadata.statusMetadata[0].propertySegments, [usage]);
+    strictEqual(usage.serializedName, "usage_details");
+    strictEqual(usage.optional, true);
+    deepStrictEqual(
+      metadata.operationId?.map((id) => id.kind),
+      ["path", "property"],
+    );
+    const path = metadata.operationId[0];
+    ok(path.kind === "path");
+    strictEqual(path.path, "/jobs/{jobId}");
+    strictEqual(path.source.location, "ResponseHeader");
+    strictEqual(path.source.property.serializedName, "Operation-Location");
+    deepStrictEqual(
+      path.pathParameter,
+      root.clients[0].methods
+        .find((m) => m.name === "getStatus")!
+        .operation.parameters.find((p) => p.name === "jobId"),
+    );
+    const body = metadata.operationId[1];
+    ok(body.kind === "property");
+    strictEqual(
+      body.property,
+      monitor.properties.find((p) => p.name === "id"),
+    );
+    deepStrictEqual(body.propertySegments, [body.property]);
+    strictEqual(body.property.serializedName, "operation_id");
+    ok(serializedMetadata.statusMetadata[0].property.$ref);
+    deepStrictEqual(serializedMetadata.statusMetadata[0].propertySegments, [
+      serializedMetadata.statusMetadata[0].property,
+    ]);
+    ok(serializedMetadata.operationId[0].pathParameter.$id);
+    ok(serializedMetadata.operationId[1].property.$ref);
+  });
+
   it.each([undefined, "", 'Use "read" instead.\nSee C:\\sdk.'])(
     "preserves operation deprecation metadata: %s",
     async (message) => {

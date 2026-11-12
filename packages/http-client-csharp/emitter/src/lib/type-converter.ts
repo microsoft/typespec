@@ -286,13 +286,12 @@ function fromSdkModelType(
   return diagnostics.wrap(inputModelType);
 }
 
-function fromSdkModelProperty(
+export function fromSdkModelProperty(
   sdkContext: CSharpEmitterContext,
   sdkProperty: SdkModelPropertyType,
-  sdkModel: SdkModelType,
-): [InputModelProperty | undefined, readonly Diagnostic[]] {
+  sdkModel?: SdkModelType,
+): [InputModelProperty, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  // TODO -- this returns undefined because some properties we do not support yet.
   let property = sdkContext.__typeCache.properties.get(sdkProperty) as
     InputModelProperty | undefined;
   if (property) {
@@ -316,7 +315,7 @@ function fromSdkModelProperty(
       ? getDeprecated(sdkContext.program, sdkProperty.__raw)
       : undefined,
     type: diagnostics.pipe(
-      fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
+      fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel?.namespace),
     ),
     optional: sdkProperty.optional,
     readOnly: isReadOnly(sdkProperty),

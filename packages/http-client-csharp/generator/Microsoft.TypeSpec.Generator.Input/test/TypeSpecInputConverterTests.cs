@@ -10,6 +10,102 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsLongRunningMetadata(bool selected)
+        {
+            var json = $$"""
+                {
+                  "finalStateVia": 1,
+                  "resultPath": "result",
+                  "futureProperty": { "nested": [1, 2] }
+                  {{(selected ? """
+                  ,"statusMetadata": [{
+                    "property": {
+                      "$id": "usage", "kind": "property", "name": "usageDetails",
+                      "serializedName": "usage_details", "optional": true,
+                      "type": { "$id": "string", "kind": "string", "name": "string" }
+                    },
+                    "propertySegments": [{ "$ref": "usage" }]
+                  }],
+                  "operationId": [{
+                    "$id": "pathId", "kind": "path", "path": "/jobs/{jobId}",
+                    "source": {
+                      "location": "ResponseHeader",
+                      "property": {
+                        "$id": "link", "kind": "property", "name": "location",
+                        "serializedName": "Operation-Location", "type": { "$ref": "string" }
+                      }
+                    },
+                    "pathParameter": {
+                      "$id": "jobId", "kind": "path", "name": "jobId", "serializedName": "jobId",
+                      "type": { "$ref": "string" }, "scope": "method"
+                    }
+                  }, {
+                    "$id": "bodyId", "kind": "property",
+                    "property": { "$ref": "usage" },
+                    "propertySegments": [{ "$ref": "usage" }]
+                  }]
+                  """ : "")}}
+                }
+                """;
+            var input = TypeSpecSerialization.Deserialize($$"""
+                {
+                  "name": "Test",
+                  "clients": [{
+                    "$id": "client", "name": "TestClient",
+                    "methods": [{
+                      "$id": "method", "kind": "lro", "name": "begin",
+                      "crossLanguageDefinitionId": "Test.begin",
+                      "operation": {
+                        "$id": "operation", "name": "begin", "httpMethod": "POST",
+                        "crossLanguageDefinitionId": "Test.begin",
+                        "uri": "https://example.com", "path": "/jobs"
+                      },
+                      "response": {}, "lroMetadata": {{json}}
+                    }]
+                  }]
+                }
+                """)!;
+            var metadata = ((InputLongRunningServiceMethod)input.RootClients.Single().Methods.Single()).LongRunningServiceMetadata;
+
+            Assert.AreEqual(1, metadata.FinalStateVia);
+            Assert.AreEqual("result", metadata.ResultPath);
+            if (!selected)
+            {
+                Assert.IsEmpty(metadata.StatusMetadata);
+                Assert.IsEmpty(metadata.OperationId);
+                return;
+            }
+
+            var status = metadata.StatusMetadata.Single();
+            Assert.AreSame(status.Property, status.PropertySegments.Single());
+            Assert.AreEqual("usageDetails", status.Property.Name);
+            Assert.AreEqual("usage_details", status.Property.SerializedName);
+            Assert.IsFalse(status.Property.IsRequired);
+            Assert.AreEqual(2, metadata.OperationId.Count);
+            var path = (InputLroOperationIdPathMetadata)metadata.OperationId[0];
+            Assert.AreEqual("/jobs/{jobId}", path.Path);
+            Assert.AreEqual("ResponseHeader", path.Source.Location);
+            Assert.AreEqual("Operation-Location", path.Source.Property.SerializedName);
+            Assert.AreEqual("jobId", path.PathParameter.SerializedName);
+            var body = (InputLroOperationIdPropertyMetadata)metadata.OperationId[1];
+            Assert.AreSame(status.Property, body.Property);
+            Assert.AreSame(body.Property, body.PropertySegments.Single());
+        }
+
+        [TestCase("""{"kind":"future"}""")]
+        [TestCase("""{"kind":"property","propertySegments":[]}""")]
+        [TestCase("""{"kind":"path","path":"/jobs/{id}"}""")]
+        public void RejectsInvalidLongRunningOperationId(string json)
+        {
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputLroOperationIdMetadataConverter() }
+            };
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<InputLroOperationIdMetadata>(json, options));
+        }
+
         [Test]
         public void LoadsContinuationTokenMarker(
             [Values("query", "header", "path", "body", "method", "endpoint")] string kind,

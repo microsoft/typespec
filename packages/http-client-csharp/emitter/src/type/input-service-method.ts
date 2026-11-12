@@ -2,7 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import type { InputOperation } from "./input-operation.js";
-import type { InputMethodParameter, InputParameter, InputType } from "./input-type.js";
+import type {
+  InputMethodParameter,
+  InputModelProperty,
+  InputParameter,
+  InputPathParameter,
+  InputType,
+} from "./input-type.js";
 import type { OperationFinalStateVia } from "./operation-final-state-via.js";
 import type { OperationResponse } from "./operation-response.js";
 import type { ResponseLocation } from "./response-location.js";
@@ -75,7 +81,30 @@ export interface InputLongRunningServiceMetadata {
   finalStateVia: OperationFinalStateVia;
   finalResponse: OperationResponse;
   resultPath?: string;
+  statusMetadata?: InputLroStatusMetadata[];
+  operationId?: InputLroOperationIdMetadata[];
 }
+
+export interface InputLroStatusMetadata {
+  property: InputModelProperty;
+  propertySegments: InputModelProperty[];
+}
+
+export type InputLroOperationIdMetadata =
+  | {
+      kind: "path";
+      source: {
+        location: "ResponseHeader" | "ResponseBody" | "Self";
+        property: InputModelProperty;
+      };
+      pathParameter: InputPathParameter;
+      path: string;
+    }
+  | {
+      kind: "property";
+      property: InputModelProperty;
+      propertySegments: InputModelProperty[];
+    };
 
 export interface InputLongRunningPagingServiceMethod extends InputServiceMethodBase {
   kind: "lropaging";

@@ -41,6 +41,7 @@ import {
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
+import { getHeaderFieldName } from "@typespec/http";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -54,6 +55,7 @@ import type {
   InputLongRunningPagingServiceMethod,
   InputLongRunningServiceMetadata,
   InputLongRunningServiceMethod,
+  InputLroOperationIdMetadata,
   InputNextLink,
   InputPagingServiceMetadata,
   InputPagingServiceMethod,
@@ -79,7 +81,7 @@ import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
-import { fromSdkType } from "./type-converter.js";
+import { fromSdkModelProperty, fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
 
 export function fromSdkServiceMethod(
@@ -726,6 +728,58 @@ function loadLongRunningMetadata(
 ): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
+  const metadata = method.lroMetadata;
+  const statusMetadata = metadata.statusMetadata?.length
+    ? metadata.statusMetadata.map((entry) => ({
+        property: diagnostics.pipe(fromSdkModelProperty(sdkContext, entry.property)),
+        propertySegments: entry.propertySegments.map((property) =>
+          diagnostics.pipe(fromSdkModelProperty(sdkContext, property)),
+        ),
+      }))
+    : undefined;
+  const operationId = metadata.operationId?.length
+    ? metadata.operationId.map((entry): InputLroOperationIdMetadata => {
+        if (entry.kind === "property") {
+          return {
+            kind: "property",
+            property: diagnostics.pipe(fromSdkModelProperty(sdkContext, entry.property)),
+            propertySegments: entry.propertySegments.map((property) =>
+              diagnostics.pipe(fromSdkModelProperty(sdkContext, property)),
+            ),
+          };
+        }
+        const step = metadata.statusMonitorStep;
+        const operation =
+          step?.kind === "nextOperationReference" ? step.target.operation : step?.operation;
+        compilerAssert(operation, "An LRO operation ID path requires a linked polling operation.");
+        const parameter = diagnostics.pipe(
+          fromParameter(sdkContext, entry.pathParameter, method.apiVersions),
+        );
+        compilerAssert(
+          parameter?.kind === "path",
+          "An LRO operation ID requires a path parameter.",
+        );
+        const sourceProperty = diagnostics.pipe(
+          fromSdkModelProperty(sdkContext, entry.source.property),
+        );
+        if (entry.source.location === "ResponseHeader" && entry.source.property.__raw) {
+          sourceProperty.serializedName = getHeaderFieldName(
+            sdkContext.program,
+            entry.source.property.__raw,
+          );
+        }
+        return {
+          kind: "path",
+          source: {
+            location: entry.source.location,
+            property: sourceProperty,
+          },
+          pathParameter: parameter,
+          path: operation.path,
+        };
+      })
+    : undefined;
+
   return diagnostics.wrap({
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
     finalResponse: {
@@ -740,6 +794,8 @@ function loadLongRunningMetadata(
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
+    statusMetadata,
+    operationId,
   });
 }
 
