@@ -46,10 +46,11 @@ export class OpenAPI32SchemaEmitter extends OpenAPI31SchemaEmitter {
   discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<OpenAPISchema3_2> {
     let schema: any;
     if (union.options.envelope === "none") {
+      const variants = this.getDiscriminatedUnionVariants(union);
       const items = new ArrayBuilder();
 
       // Add named variants to the oneOf array
-      for (const variant of union.variants.values()) {
+      for (const variant of variants.values()) {
         items.push(this.emitter.emitTypeReference(variant));
       }
 
@@ -59,7 +60,7 @@ export class OpenAPI32SchemaEmitter extends OpenAPI31SchemaEmitter {
       }
 
       // Build discriminator with mapping for named variants
-      const mapping = this.getDiscriminatorMapping(union.variants);
+      const mapping = this.getDiscriminatorMapping(variants);
       const discriminator: OpenAPIDiscriminator3_2 = {
         propertyName: union.options.discriminatorPropertyName,
         mapping,
