@@ -99,3 +99,13 @@ Notes:
 - Plugins loaded via the `plugins` option are applied in addition to any plugins discovered through `node_modules`.
 
 After the assemblies are loaded, every discovered `GeneratorPlugin` has its `Apply` method invoked on the selected generator before generation runs, so all of your registered visitors, rewriters, and references take effect.
+
+## Long-running operation metadata
+
+Custom generators can read TCGC `0.74.0` selections through `InputLongRunningServiceMetadata.StatusMetadata` and `OperationId`. The shared emitter transports these selections; it does not generate poller accessors or change polling behavior.
+
+Each `InputLroStatusMetadata` contains the selected `InputModelProperty` in `Property` and an ordered, typed `PropertySegments` path relative to `pollingInfo.responseModel`, not the final result. Segments preserve client names, wire serialization names, types, and optionality. Status selections retain TCGC's direct-then-inherited order. Consumers must read values from the latest monitor response, including initial monitor, failed, and canceled responses, and clear absent values rather than retain stale ones. Values are not continuation-token state; the next poll repopulates them after rehydration.
+
+`OperationId` preserves TCGC's availability order: `InputLroOperationIdPathMetadata` first, then `InputLroOperationIdPropertyMetadata` when both are selected. The path entry carries `Source` (the polling link's `Location` and `Property`), `PathParameter`, and the modeled monitor route in `PollingPath`. Use the parameter's wire name and route to locate the ID; it need not be the last URI segment. The property entry carries `Property` and typed `PropertySegments`, rooted at the same monitor model as status selections. Keep the URI-derived ID available as a fallback and after rehydration, but continue polling with the complete polling URL, never the extracted ID.
+
+Both collections are empty when selections are absent. Existing LRO constructors and final-response metadata remain unchanged. A custom generator using these fields must consume matching builds of the shared npm emitter and `Microsoft.TypeSpec.Generator.Input` assembly.
