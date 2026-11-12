@@ -40,27 +40,12 @@ jobs:
         artifact: vs-extension-signed
         displayName: Download VS extension(.vsix) from pipeline artifacts
 
-      - task: AzureCLI@2
+      - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-vs-extension-build-task.PublishVisualStudioExtension@5
         displayName: Publish
         inputs:
-          azureSubscription: azure-sdk-vsmarketplace
-          scriptType: pscore
-          scriptLocation: inlineScript
-          workingDirectory: packages/typespec-vs
-          inlineScript: |
-            # 499b84ac-1321-427f-aa17-267ca6975798 is ADO resource id.
-            $aadToken = az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 -o tsv
-            Install-Module VSSetup -Force
-            $vsixPublisher = Join-Path -Path (Get-VSSetupInstance -All | Select-VSSetupInstance -Latest).installationPath -ChildPath "VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe" -Resolve
-            $vsixPath = Resolve-Path "$(Pipeline.Workspace)/vs-extension-signed/Microsoft.Typespec.VS.vsix"  
-            echo "Path to vsix: $vsixPath"
-            $stdout = (& $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $aadToken -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08"  2>&1)
-            Write-Output $stdout
-            if ($LASTEXITCODE -eq 0) {
-              Write-Output "Successfully published VSIX"
-            } elseif ($stdout -match "^VSSDK: error VsixPub0029 :") {
-              Write-Output "Version already exists, skipping publish"
-              exit 0
-            } else {
-              exit 1
-            }
+          connectTo: AzureRM
+          connectedServiceNameAzureRM: azure-sdk-vsmarketplace
+          vsixFile: $(Pipeline.Workspace)/vs-extension-signed/Microsoft.Typespec.VS.vsix
+          manifestFile: $(Build.SourcesDirectory)/packages/typespec-vs/publishManifest.json
+          publisherId: typespec
+          ignoreWarnings: VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08
