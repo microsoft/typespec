@@ -1,5 +1,13 @@
 # Change Log - @typespec/http
 
+## 1.18.0
+
+### Bug Fixes
+
+- [#12225](https://github.com/microsoft/typespec/pull/12225) Preserve source model and property documentation in generated extern signatures.
+- [#12087](https://github.com/microsoft/typespec/pull/12087) Improve HTTP payload resolution performance for models with many properties by avoiding repeated metadata scans.
+
+
 ## 1.17.0
 
 ### Bug Fixes

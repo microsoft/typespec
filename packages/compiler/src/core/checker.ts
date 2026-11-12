@@ -50,6 +50,7 @@ import {
   isNullType,
   isTemplateInstance,
   isType,
+  isTypeRefType,
   isValue,
 } from "./type-utils.js";
 import type {
@@ -168,6 +169,7 @@ import type {
   TypeInstantiationMap,
   TypeMapper,
   TypeOfExpressionNode,
+  TypeRefType,
   TypeReferenceNode,
   TypeSpecScriptNode,
   Union,
@@ -496,6 +498,12 @@ export interface Checker {
 
   /** @internal */
   stats: CheckerStats;
+
+  /**
+   * Get or instantiate the standard `TypeRef<target>` scalar.
+   * @internal
+   */
+  getTypeRefType(target: Type): TypeRefType;
 }
 
 export interface CheckerStats {
@@ -612,6 +620,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     isTypeAssignableTo: undefined!,
     isValueOfType: undefined!,
     stats,
+    getTypeRefType,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
@@ -7764,6 +7773,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case "EnumValue":
       case "NullValue":
       case "ScalarValue":
+      case "TypeRefValue":
       case "Function":
         return value;
     }
@@ -8760,7 +8770,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       !isTypeSpecNamespace(type.namespace)
     )
       return false;
-    if (type.kind === "Scalar") return stdType === undefined || stdType === type.name;
+    if (type.kind === "Scalar") {
+      return !isTypeRefType(program, type) && (stdType === undefined || stdType === type.name);
+    }
     if (stdType === "Array" && type === stdTypes["Array"]) return true;
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     if (type.kind === "Model") return stdType === undefined || stdType === type.name;
@@ -8769,6 +8781,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getValueExactType(value: Value): Type | undefined {
     return valueExactTypes.get(value);
+  }
+
+  function getTypeRefType(target: Type): TypeRefType {
+    const node = typespecNamespaceBinding?.exports?.get("TypeRef")?.declarations[0];
+    compilerAssert(
+      node?.kind === SyntaxKind.ScalarStatement,
+      "The standard TypeRef scalar must have a declaration.",
+    );
+    const parameter = getTypeForNode(node.templateParameters[0]);
+    compilerAssert(parameter.kind === "TemplateParameter", "TypeRef must have a type parameter.");
+    const type = getOrInstantiateTemplate(
+      CheckContext.DEFAULT,
+      node,
+      [parameter],
+      [target],
+      { node, mapper: undefined },
+      undefined,
+    );
+    compilerAssert(isTypeRefType(program, type), "TypeRef must instantiate to a reference scalar.");
+    return type;
   }
 }
 

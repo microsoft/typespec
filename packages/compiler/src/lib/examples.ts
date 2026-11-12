@@ -86,7 +86,7 @@ export interface ValueJsonSerializers {
  *
  * @param encodeAs Encoding override; otherwise uses applicable property or scalar encoding metadata.
  * @param handlers Optional custom scalar serializer.
- * @throws {UnserializableValueError} If a function value cannot be serialized.
+ * @throws {UnserializableValueError} If a function or type-reference value cannot be serialized.
  * @throws {UnsupportedScalarConstructorError} If a recognized scalar uses an unsupported constructor.
  */
 export function serializeValueAsJson(
@@ -128,6 +128,8 @@ export function serializeValueAsJson(
       return serializeScalarValueAsJson(program, value, type, encodeAs, handlers);
     case "Function":
       throw new UnserializableValueError("Cannot serialize a function value as JSON.");
+    case "TypeRefValue":
+      throw new UnserializableValueError("Cannot serialize a type reference value as JSON.");
   }
 }
 

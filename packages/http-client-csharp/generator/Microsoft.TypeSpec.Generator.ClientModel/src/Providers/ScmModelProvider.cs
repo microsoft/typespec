@@ -210,7 +210,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _nullablePropertyPresence[property] = basePresence;
                         property.Update(body: new MethodPropertyBody(
                             Return(Base.Property(baseProperty.Name)),
-                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null));
+                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null),
+                            declarationSuppressions: ExperimentalApiHelpers.GetMemberSuppressions(baseProperty));
                     }
                     continue;
                 }
@@ -639,7 +640,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             ? FileBinaryContentSnippets.New(sourceParam, contentTypeExpr)
                             : FileBinaryContentSnippets.New(sourceParam);
 
-                    assignments.Add(prop.Assign(newExpr).Terminate());
+                    assignments.Add(ExperimentalApiHelpers.Suppress(prop.Assign(newExpr).Terminate(),
+                        ExperimentalApiHelpers.GetMemberSuppressions(prop)));
                 }
                 else
                 {
@@ -649,7 +651,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ValueExpression assignmentValue = CSharpType.RequiresToList(p.Type, p.Property.Type)
                             ? p.ToList()
                             : p;
-                        assignments.Add(p.Property.Assign(assignmentValue).Terminate());
+                        assignments.Add(ExperimentalApiHelpers.Suppress(p.Property.Assign(assignmentValue).Terminate(),
+                            ExperimentalApiHelpers.GetMemberSuppressions(p.Property)));
                     }
                 }
             }

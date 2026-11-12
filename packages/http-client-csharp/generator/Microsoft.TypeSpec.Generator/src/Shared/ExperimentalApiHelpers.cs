@@ -127,7 +127,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         public static SuppressionStatement[] GetMemberSuppressions(PropertyProvider property)
-            => MergeSuppressions(property.Suppressions, GetReferenceSuppressions(property.Type), GetAttributeSuppressions(property.Attributes));
+            => MergeSuppressions(property.Suppressions, GetReferenceSuppressions(property.Type),
+                GetAttributeSuppressions(property.Attributes), GetInheritedObsoleteSuppressions(property));
+
+        private static SuppressionStatement[] GetInheritedObsoleteSuppressions(PropertyProvider property)
+        {
+            if (!property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) &&
+                DeprecationApiHelpers.GetEffectiveObsoleteAttribute(property) is { } attribute)
+            {
+                return DeprecationApiHelpers.GetSuppressions(attribute);
+            }
+            return [];
+        }
 
         public static SuppressionStatement[] GetMemberSuppressions(FieldProvider field)
             => MergeSuppressions(field.Suppressions, GetReferenceSuppressions(field.Type), GetAttributeSuppressions(field.Attributes));

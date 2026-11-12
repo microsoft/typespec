@@ -5099,6 +5099,7 @@
           ],
           "serializedName": "otherName",
           "doc": "name of the ModelWithClientName",
+          "deprecation": "Use replacement instead.",
           "type": {
             "$id": "439",
             "kind": "string",
@@ -10063,6 +10064,7 @@
             "2024-08-16-preview"
           ],
           "serializedName": "previous",
+          "deprecation": "Use \"replacement\" instead.\nSee C:\\sdk.",
           "type": {
             "$id": "703",
             "kind": "array",
@@ -16880,7 +16882,8 @@
                     "isExactName": false
                   }
                 ],
-                "isExactName": false
+                "isExactName": false,
+                "isContinuationToken": true
               },
               {
                 "$id": "1101",
@@ -17047,7 +17050,8 @@
                     "isExactName": false
                   }
                 ],
-                "isExactName": false
+                "isExactName": false,
+                "isContinuationToken": true
               },
               {
                 "$id": "1109",

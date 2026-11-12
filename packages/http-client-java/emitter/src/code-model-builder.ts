@@ -295,6 +295,7 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
+  private readonly specialHeaderNames = new Set(SPECIAL_HEADER_NAMES);
   private readonly javaNamespaceCache = new Map<string, string>();
 
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
@@ -320,7 +321,7 @@ export class CodeModelBuilder {
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
-        SPECIAL_HEADER_NAMES.add(it.toLowerCase()),
+        this.specialHeaderNames.add(it.toLowerCase()),
       );
     }
 
@@ -1612,7 +1613,7 @@ export class CodeModelBuilder {
       clientContext.addGlobalParameter(parameter);
     } else if (
       param.kind === "header" &&
-      SPECIAL_HEADER_NAMES.has(param.serializedName.toLowerCase())
+      this.specialHeaderNames.has(param.serializedName.toLowerCase())
     ) {
       // special headers
       op.specialHeaders = op.specialHeaders ?? [];

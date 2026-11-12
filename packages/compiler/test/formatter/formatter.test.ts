@@ -3423,6 +3423,64 @@ alias F = Foo<
   });
 });
 
+describe("comments in imports and empty literals", () => {
+  it("keeps a block comment between `import` and the path", async () => {
+    await assertFormat({
+      code: `
+import   /* lib */   "./lib.tsp"  ;
+`,
+      expected: `
+import /* lib */ "./lib.tsp";
+`,
+    });
+  });
+
+  it("keeps a line comment between `import` and the path", async () => {
+    await assertFormat({
+      code: `
+import // lib
+"./lib.tsp";
+`,
+      expected: `
+import // lib
+"./lib.tsp";
+`,
+    });
+  });
+
+  it("keeps a line comment inside an empty object literal", async () => {
+    await assertFormat({
+      code: `
+@foo(#{ // note
+})
+model Bar {}
+`,
+      expected: `
+@foo(#{
+  // note
+})
+model Bar {}
+`,
+    });
+  });
+
+  it("keeps a line comment inside an empty array literal", async () => {
+    await assertFormat({
+      code: `
+@foo(#[ // note
+])
+model Bar {}
+`,
+      expected: `
+@foo(#[
+  // note
+])
+model Bar {}
+`,
+    });
+  });
+});
+
 describe("array expression", () => {
   it("format an array expression", async () => {
     await assertFormat({

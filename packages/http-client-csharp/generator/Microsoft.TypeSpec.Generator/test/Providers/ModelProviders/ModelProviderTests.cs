@@ -94,6 +94,220 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, derivedModel2Provider.Properties[0].Modifiers);
         }
 
+        [TestCase(true, false, "CS0672")]
+        [TestCase(false, true, "CS0809")]
+        public void DeprecatedOverrideSuppressesDeclarationWarning(
+            bool baseDeprecated,
+            bool derivedDeprecated,
+            string expectedDiagnostic)
+        {
+            var baseProperty = InputFactory.Property(
+                "value",
+                InputPrimitiveType.String,
+                deprecation: baseDeprecated ? "Base message" : null);
+            var baseModel = InputFactory.Model("BaseModel", properties: [baseProperty]);
+            var derivedProperty = InputFactory.Property(
+                "value",
+                InputPrimitiveType.String,
+                deprecation: derivedDeprecated ? "Derived message" : null);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [derivedProperty], baseModel: baseModel);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+
+            var provider = new ModelProvider(derivedModel);
+            var property = provider.Properties.Single();
+
+            CollectionAssert.Contains(
+                property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                $"\"{expectedDiagnostic}\"");
+            Assert.IsEmpty(property.Suppressions, "Declaration-only diagnostics must not be propagated to property accesses.");
+            StringAssert.Contains($"#pragma warning disable {expectedDiagnostic}", new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [TestCase(true, false, false, true)]
+        [TestCase(false, true, false, true)]
+        [TestCase(false, false, false, false)]
+        [TestCase(true, false, true, false)]
+        public void OverrideReferencesHonorInheritedObsoleteWarnings(
+            bool baseDeprecated, bool derivedDeprecated, bool hidesBase, bool expectSuppression)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", hidesBase ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
+                    deprecation: derivedDeprecated ? "Derived message" : null)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics.Contains("\"CS0618\""), Is.EqualTo(expectSuppression));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0672\""));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0809\""));
+        }
+
+        [TestCase(false, "BASE001")]
+        [TestCase(true, "DERIVED001")]
+        public void OverrideReferencesUseNearestObsoleteDiagnostic(bool derivedDeprecated, string expectedDiagnostic)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: derivedDeprecated ? "Derived message" : null)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+            property.BaseProperty!.Update(attributes:
+            [
+                new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Base message")],
+                    [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("BASE001"))])
+            ]);
+            if (derivedDeprecated)
+            {
+                property.Update(attributes:
+                [
+                    new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Derived message")],
+                        [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("DERIVED001"))])
+                ]);
+            }
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics, Is.EquivalentTo(new[] { $"\"{expectedDiagnostic}\"" }));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OverrideReferencesFindObsoleteGrandparent(bool hasIntermediateWithoutProperty)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var intermediate = InputFactory.Model("Intermediate", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var inherited = InputFactory.Model("Inherited", baseModel: intermediate);
+            var derived = InputFactory.Model("Derived", baseModel: hasIntermediateWithoutProperty ? inherited : intermediate, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, intermediate, inherited, derived]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()), Does.Contain("\"CS0618\""));
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        public void OverrideDeclarationHonorsInheritedObsoleteStatus(bool derivedDeprecated, bool expectCs0672)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var intermediate = InputFactory.Model("Intermediate", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var derived = InputFactory.Model("Derived", baseModel: intermediate, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: derivedDeprecated ? "Derived message" : null)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, intermediate, derived]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+            var diagnostics = property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()).ToArray();
+
+            Assert.That(diagnostics.Contains("\"CS0672\""), Is.EqualTo(expectCs0672));
+            Assert.That(diagnostics, Does.Not.Contain("\"CS0809\""));
+        }
+
+        [Test]
+        public void OverrideReferencesDoNotInheritWarningsAcrossHiddenProperty()
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Base message")]);
+            var intermediate = InputFactory.Model("Intermediate", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.Int32)]);
+            var derived = InputFactory.Model("Derived", baseModel: intermediate, properties:
+                [InputFactory.Property("value", InputPrimitiveType.Int32)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, intermediate, derived]);
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(suppression => suppression.Code.ToDisplayString()), Does.Not.Contain("\"CS0618\""));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ForwardingPropertySuppressesDeprecatedBaseReference(bool baseDeprecated)
+        {
+            var baseModel = InputFactory.Model("BaseModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel]);
+            generator.Object.AddVisitor(new RenameBasePropertyVisitor());
+
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+
+            Assert.That(property.Body, Is.InstanceOf<ExpressionPropertyBody>());
+            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""),
+                Is.EqualTo(baseDeprecated));
+            Assert.That(property.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.False);
+        }
+
+        [TestCase("StableBase", true)]
+        [TestCase("ObsoleteBase", false)]
+        public async Task OverrideDeclarationUsesCustomizedBaseDeprecation(string baseName, bool expectCs0809)
+        {
+            var baseModel = InputFactory.Model(baseName, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Generated base message")]);
+            var derived = InputFactory.Model("Derived", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Derived message")]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var provider = generator.Object.TypeFactory.CreateModel(derived)!;
+            var property = provider.BuildProperties().Single();
+
+            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0809\""),
+                Is.EqualTo(expectCs0809));
+        }
+
+        [TestCase("CustomOverride", "BASE001")]
+        [TestCase("CustomHidden", null)]
+        [TestCase("CustomObsoleteOverride", "DERIVED001")]
+        public async Task CustomizedOverrideReferencesUseBaseObsoleteMetadata(string modelName, string? expectedDiagnostic)
+        {
+            var baseModel = InputFactory.Model("ObsoleteBase", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: "Generated base message")]);
+            var derived = InputFactory.Model(modelName, baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.CanonicalView.Properties.Single();
+
+            var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Select(s => s.Code.ToDisplayString()).ToArray();
+            Assert.That(diagnostics, Is.EquivalentTo(expectedDiagnostic is null ? [] : new[] { $"\"{expectedDiagnostic}\"" }));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomizedOverrideReferencesUseGeneratedBaseDeprecation(bool baseDeprecated)
+        {
+            var baseModel = InputFactory.Model("GeneratedBase", properties:
+                [InputFactory.Property("value", InputPrimitiveType.String, deprecation: baseDeprecated ? "Base message" : null)]);
+            var derived = InputFactory.Model("CustomGeneratedBaseOverride", baseModel: baseModel, properties:
+                [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedObsoleteProperties"));
+            var property = generator.Object.TypeFactory.CreateModel(derived)!.CanonicalView.Properties.Single();
+
+            Assert.That(ExperimentalApiHelpers.GetMemberSuppressions(property)
+                .Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.EqualTo(baseDeprecated));
+        }
+
+        private sealed class RenameBasePropertyVisitor : LibraryVisitor
+        {
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property?.EnclosingType.Name == "BaseModel" && input.Name == "value")
+                {
+                    property.Update(name: "LegacyValue");
+                }
+                return property;
+            }
+        }
+
         [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithNew()
         {
@@ -5660,6 +5874,190 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task BackCompat_ConstructorRelaxedCollectionIsRestored(bool dictionary, bool keepNameRequired)
+        {
+            var name = InputFactory.Property("name", InputPrimitiveType.String, isRequired: true);
+            name.Update(isRequiredInConstructor: keepNameRequired);
+            var resources = InputFactory.Property("resources",
+                dictionary ? InputFactory.Dictionary(InputPrimitiveType.String) : InputFactory.Array(InputPrimitiveType.String),
+                isRequired: true);
+            resources.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    name,
+                    resources,
+                    InputFactory.Property("metadata", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ]);
+            var collectionKind = dictionary ? "Dictionary" : "List";
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(collectionKind));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var currentConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(currentConstructor.Signature.Parameters.Count, Is.EqualTo(keepNameRequired ? 1 : 0));
+            Assert.That(modelProvider.Properties.Single(p => p.Name == "Resources").Body.HasSetter, Is.False);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor, Is.Not.Null);
+            Assert.That(restoredConstructor!.Signature.Parameters[1].Type.AreNamesEqual(
+                new CSharpType(dictionary ? typeof(IDictionary<string, string>) : typeof(IEnumerable<string>))), Is.True);
+            Assert.That(restoredConstructor.Signature.Parameters[1].Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments.Count, Is.EqualTo(keepNameRequired ? 1 : 0));
+            Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(),
+                Does.Contain(dictionary ? "Resources = resources" : "Resources = resources.ToList()"));
+            Assert.That(new TypeProviderWriter(modelProvider).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{collectionKind},{keepNameRequired}")));
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorRelaxedEnumCollectionPreservesBaseInitialization()
+        {
+            var riskCategory = InputFactory.StringEnum("RiskCategory", [("Safety", "safety")]);
+            var targetModel = InputFactory.Model("EvaluationTarget", properties: []);
+            var baseModel = InputFactory.Model("EvaluationTaxonomyInput", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)]);
+            var target = InputFactory.Property("target", targetModel, isRequired: true);
+            target.Update(isRequiredInConstructor: false);
+            var riskCategories = InputFactory.Property("riskCategories", InputFactory.Array(riskCategory), isRequired: true);
+            riskCategories.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("AgentTaxonomyInput",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [target, riskCategories],
+                baseModel: baseModel,
+                discriminatedKind: "agent");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel, targetModel],
+                inputEnumTypes: [riskCategory],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "AgentTaxonomyInput");
+            var currentConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(currentConstructor.Signature.Parameters, Is.Empty);
+            Assert.That(currentConstructor.Signature.Initializer!.IsBase, Is.True);
+            Assert.That(currentConstructor.Signature.Initializer.Arguments.Single().ToDisplayString(), Does.Contain("agent"));
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
+            Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
+            using var writer = new CodeWriter();
+            writer.WriteConstructor(restoredConstructor);
+            Assert.That(writer.ToString(false), Is.EqualTo(Helpers.GetExpectedFromFile()));
+        }
+
+        [TestCase("StringModel")]
+        [TestCase("BoolModel")]
+        [TestCase("IntModel")]
+        public async Task BackCompat_ConstructorNotRestoredForRequiredLiteral(string modelName)
+        {
+            var literalType = modelName switch
+            {
+                "BoolModel" => InputFactory.Literal.Bool(true),
+                "IntModel" => InputFactory.Literal.Int32(3),
+                _ => InputFactory.Literal.String("fixed"),
+            };
+            var inputModel = InputFactory.Model(modelName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("value", literalType, isRequired: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            var property = modelProvider.Properties.Single();
+            Assert.That(property.Type.IsLiteral, Is.True);
+            Assert.That(property.Body.HasSetter, Is.False);
+            Assert.That(((AutoPropertyBody)property.Body).InitializationExpression, Is.Not.Null);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(modelProvider.Constructors.Any(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [TestCase("generatedAuto", true)]
+        [TestCase("localBacking", true)]
+        [TestCase("trackingStorage", true)]
+        [TestCase("inheritedAuto", false)]
+        [TestCase("customGetter", false)]
+        [TestCase("methodGetter", false)]
+        [TestCase("changedElement", false)]
+        [TestCase("incompatibleBacking", false)]
+        [TestCase("unassignableBacking", false)]
+        public async Task BackCompat_CollectionConstructorRestoredOnlyWhenAssignable(string change, bool shouldRestore)
+        {
+            var resources = InputFactory.Property("resources", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            resources.Update(isRequiredInConstructor: false);
+            var baseModel = change == "inheritedAuto"
+                ? InputFactory.Model("BaseModel", properties: [resources])
+                : null;
+            var inputModel = InputFactory.Model("MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: baseModel is null
+                    ? [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true), resources]
+                    : [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: baseModel is null ? [inputModel] : [baseModel, inputModel],
+                compilation: change == "customGetter" ? async () => await Helpers.GetCompilationFromDirectoryAsync() : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("List",
+                    method: nameof(BackCompat_ConstructorRelaxedCollectionIsRestored)));
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var property = (baseModel is null ? modelProvider : modelProvider.BaseModelProvider!)
+                .CanonicalView.Properties.Single(p => p.Name == "Resources");
+            if (change == "changedElement")
+            {
+                property.Update(type: new CSharpType(typeof(IList<int>)));
+                property.SynchronizePropertyShape();
+            }
+            if (change is "methodGetter" or "localBacking" or "trackingStorage")
+            {
+                property.Update(body: new MethodPropertyBody(Snippet.Return(Snippet.Null)));
+            }
+            if (change is "localBacking" or "trackingStorage" or "incompatibleBacking" or "unassignableBacking")
+            {
+                var fieldType = change switch
+                {
+                    "trackingStorage" => property.Type.PropertyInitializationType,
+                    "incompatibleBacking" => new CSharpType(typeof(IList<int>)),
+                    "unassignableBacking" => new CSharpType(typeof(HashSet<string>)),
+                    _ => property.Type,
+                };
+                property.BackingField = new FieldProvider(FieldModifiers.Private, fieldType, "_resources", modelProvider);
+            }
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.AreNamesEqual(new CSharpType(typeof(IEnumerable<string>))), Is.True);
+                var body = restoredConstructor.BodyStatements!.ToDisplayString();
+                Assert.That(body, change == "trackingStorage"
+                    ? Does.Contain("_resources =").And.Contain("new global::Sample.ChangeTrackingList<string>")
+                    : Does.Contain(change == "localBacking" ? "_resources = resources.ToList()" : "Resources = resources.ToList()"));
+            }
         }
 
         [TestCase("FileDataset", "file", false)]

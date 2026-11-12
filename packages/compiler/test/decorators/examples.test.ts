@@ -2,11 +2,11 @@ import { ok } from "assert";
 import { describe, expect, it } from "vitest";
 import type { Operation } from "../../src/index.js";
 import { getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
-import { expectDiagnostics } from "../../src/testing/index.js";
+import { expectDiagnostics, type TestCompileOptions } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
-async function getExamplesFor(code: string) {
-  const { test, program } = (await Tester.compile(code)) as any;
+async function getExamplesFor(code: string, options?: TestCompileOptions) {
+  const { test, program } = (await Tester.compile(code, options)) as any;
 
   ok(test, "Expect to have /*test*/ marker in code.");
   return {
@@ -952,4 +952,28 @@ describe("json serialization of examples", () => {
 
     expect(result).toEqual({ a: { name: "one", other: 123 } });
   });
+});
+
+it("rejects serializing a type-reference value as JSON", async () => {
+  const { program, examples, target } = await getExamplesFor(
+    `
+    model Item {}
+    @example(#{ itemType: typeref(Item) })
+    model /*test*/test { itemType: TypeRef; }
+  `,
+    {
+      compilerOptions: {
+        configFile: {
+          projectRoot: ".",
+          kind: "project",
+          features: ["typeref"],
+          diagnostics: [],
+          outputDir: "tsp-output",
+        },
+      },
+    },
+  );
+  expect(() => serializeValueAsJson(program, examples[0].value, target)).toThrow(
+    "Cannot serialize a type reference value as JSON.",
+  );
 });
