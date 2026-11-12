@@ -42,7 +42,7 @@ export function createSourceFile(text: string, path: string): SourceFile {
 /** Classify `.tsp` as TypeSpec and `.js`, `.mjs`, or `.ts` as JavaScript; other extensions return undefined. */
 export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
   const ext = getAnyExtensionFromPath(path);
-  if (ext === ".js" || ext === ".mjs" || ext === ".ts") {
+  if (ext === ".js" || ext === ".mjs" || ext === ".ts" || ext === ".mts") {
     return "js";
   } else if (ext === ".tsp") {
     return "typespec";
