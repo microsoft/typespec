@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  Eagle,
-  SingleDiscriminatorClient,
-} from "../../../../../generated/type/model/inheritance/single-discriminator/src/index.js";
+import type { Eagle } from "../../../../../generated/type/model/inheritance/single-discriminator/src/index.js";
+import { SingleDiscriminatorClient } from "../../../../../generated/type/model/inheritance/single-discriminator/src/index.js";
 
 describe("Type.Model.Inheritance.SingleDiscriminator", () => {
   const client = new SingleDiscriminatorClient({

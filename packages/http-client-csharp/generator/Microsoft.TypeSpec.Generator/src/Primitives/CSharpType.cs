@@ -11,6 +11,12 @@ using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
+    internal enum UnionItemTypeReferenceKind
+    {
+        PublicSurface,
+        MetadataOnly
+    }
+
     /// <summary>
     /// CSharpType represents the C# type of an input type.
     /// It is constructed from a <see cref="Type"/> and its properties.
@@ -19,8 +25,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     {
         private readonly Type? _type;
         private object? _literal;
-        private readonly Type? _underlyingType;
+        private Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
+        private UnionItemTypeReferenceKind _unionItemTypeReferenceKind;
 
         private bool? _isReadOnlyMemory;
         private bool? _isList;
@@ -35,20 +42,23 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private bool? _isIAsyncEnumerableOfT;
         private bool? _containsBinaryData;
         private int? _hashCode;
+        private string? _clrMetadataName;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
+        private int? _arrayRank;
         private CSharpType? _inputType;
         private CSharpType? _outputType;
         public bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
         public bool IsList => _isList ??= TypeIsList();
         public bool IsArray => _isArray ??= TypeIsArray();
+        internal int ArrayRank => _arrayRank ?? FrameworkType.GetArrayRank();
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
         public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
         public bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
-        internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
+        public bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
         internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
 
         /// <summary>
@@ -174,6 +184,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             ? $"{Namespace}.{Name}"
             : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
+
+        /// <summary>
+        /// Gets the CLR metadata name for this type, including the arity suffix for generic types
+        /// (e.g., <c>Type`1</c>) and the <c>+</c>-separated declaring-type chain for nested types
+        /// (e.g., <c>Outer`1+Inner</c>). This format is compatible with
+        /// <see cref="Microsoft.CodeAnalysis.Compilation.GetTypeByMetadataName"/>.
+        /// </summary>
+        public string ClrMetadataName => _clrMetadataName ??= BuildClrMetadataName();
+
+        private string BuildClrMetadataName()
+        {
+            var simpleName = Arguments.Count > 0 ? $"{Name}`{Arguments.Count}" : Name;
+            return DeclaringType is null
+                ? simpleName
+                : $"{DeclaringType.ClrMetadataName}+{simpleName}";
+        }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
         public bool IsLiteral => _literal is not null;
@@ -221,6 +247,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
         public IReadOnlyList<CSharpType> UnionItemTypes => _unionItemTypes ?? throw new InvalidOperationException("Not a union type");
+        internal UnionItemTypeReferenceKind UnionItemTypeReferenceKind => _unionItemTypeReferenceKind;
 
         private bool TypeIsReadOnlyMemory()
             => IsFrameworkType && _type == typeof(ReadOnlyMemory<>);
@@ -235,7 +262,27 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             => IsReadOnlyList || IsReadWriteList || IsReadOnlyMemory;
 
         private bool TypeIsArray()
-            => IsFrameworkType && FrameworkType.IsArray;
+            => _arrayRank.HasValue || IsFrameworkType && FrameworkType.IsArray;
+
+        internal CSharpType MakeArrayType(int rank = 1)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(rank, 1);
+            if (IsFrameworkType && Arguments.Count == 0)
+            {
+                var elementType = IsValueType && IsNullable
+                    ? typeof(Nullable<>).MakeGenericType(FrameworkType)
+                    : FrameworkType;
+                return new CSharpType(rank == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType(rank));
+            }
+
+            return new CSharpType(
+                Name + "[" + new string(',', rank - 1) + "]", Namespace, false, false,
+                null, [], IsPublic, false, typeof(Array))
+            {
+                _arrayRank = rank,
+                _elementType = this
+            };
+        }
 
         private bool TypeIsReadOnlyDictionary()
             => IsFrameworkType && _type == typeof(IReadOnlyDictionary<,>);
@@ -464,15 +511,23 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 IsPublic == other.IsPublic &&
                 _underlyingType == other._underlyingType &&
                 Equals(DeclaringType, other.DeclaringType) &&
+                IsArray == other.IsArray &&
+                (!IsArray || ArrayRank == other.ArrayRank && ElementType.Equals(other.ElementType)) &&
                 (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public sealed override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
+
             return obj is CSharpType csType && Equals(csType, ignoreNullable: false);
         }
 
@@ -513,12 +568,19 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             // we cache the hashcode since `CSharpType` is meant to be immutable.
             if (_hashCode != null)
+            {
                 return _hashCode.Value;
+            }
 
             var hashCode = new HashCode();
             foreach (var arg in Arguments)
             {
                 hashCode.Add(arg);
+            }
+            if (IsArray)
+            {
+                hashCode.Add(ArrayRank);
+                hashCode.Add(ElementType);
             }
             _hashCode = HashCode.Combine(Name, Namespace, IsValueType, _type, hashCode.ToHashCode(), IsNullable);
 
@@ -541,8 +603,46 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
                 : new CSharpType(Name, Namespace, IsValueType, isNullable, DeclaringType, Arguments, IsPublic, IsStruct, BaseType, _underlyingType);
 
+            // Preserve explicit enum semantics for framework types (e.g. referenced extensible enums,
+            // which are structs and are not recognized as enums via reflection). The framework constructor
+            // recomputes the underlying type from reflection and would otherwise drop it.
+            if (IsFrameworkType && _underlyingType is not null)
+            {
+                type._underlyingType = _underlyingType;
+            }
+
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
+            type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
+            type._arrayRank = _arrayRank;
+            if (IsArray)
+            {
+                type._elementType = ElementType;
+            }
+
+            return type;
+        }
+
+        /// <summary>
+        /// Returns a framework-backed copy of this <see cref="CSharpType"/> that carries explicit enum
+        /// semantics. This is used for referenced (external) extensible enums, which are implemented as
+        /// value-type structs and therefore are not recognized as enums via reflection
+        /// (<see cref="Type.IsEnum"/> is <c>false</c>). Preserving the underlying enum type lets downstream
+        /// serialization treat the type as an enum (inline construction) instead of falling back to a model read.
+        /// </summary>
+        /// <param name="underlyingEnumType">The underlying value type of the enum (e.g. <see cref="string"/> or <see cref="int"/>).</param>
+        internal CSharpType WithUnderlyingEnumType(Type underlyingEnumType)
+        {
+            if (!IsFrameworkType)
+            {
+                throw new InvalidOperationException("WithUnderlyingEnumType is only valid for framework types.");
+            }
+
+            var type = new CSharpType(FrameworkType, Arguments, IsNullable);
+            type._underlyingType = underlyingEnumType;
+            type._literal = _literal;
+            type._unionItemTypes = _unionItemTypes;
+            type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
 
             return type;
         }
@@ -571,6 +671,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <param name="other">The instance to compare to.</param>
         /// <returns><c>true</c> if the instance are equal. <c>false</c> otherwise.</returns>
         public bool AreNamesEqual(CSharpType? other)
+            => AreNamesEqual(other, compareValueTypeNullability: false);
+
+        private bool AreNamesEqual(CSharpType? other, bool compareValueTypeNullability)
         {
             if (ReferenceEquals(this, other))
             {
@@ -582,16 +685,29 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 return false;
             }
 
-            if (!IsNameMatch(other))
+            if (IsArray || other.IsArray)
+            {
+                return IsArray && other.IsArray && ArrayRank == other.ArrayRank &&
+                    ElementType.AreNamesEqual(other.ElementType, compareValueTypeNullability: true);
+            }
+
+            if (!IsNameMatch(other) ||
+                compareValueTypeNullability && (IsValueType || other.IsValueType) && IsNullable != other.IsNullable)
+            {
                 return false;
+            }
 
             if (Arguments.Count != other.Arguments.Count)
+            {
                 return false;
+            }
 
             for (int i = 0; i < Arguments.Count; i++)
             {
-                if (!Arguments[i].AreNamesEqual(other.Arguments[i]))
+                if (!Arguments[i].AreNamesEqual(other.Arguments[i], compareValueTypeNullability))
+                {
                     return false;
+                }
             }
 
             return true;
@@ -606,16 +722,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             return FullyQualifiedName == other.FullyQualifiedName;
         }
-
-        // TO-DO: Implement this once SystemObjectType is implemented: https://github.com/Azure/autorest.csharp/issues/4198
-        // internal static CSharpType FromSystemType(Type type, string defaultNamespace, SourceInputModel? sourceInputModel, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        // {
-        //     var systemObjectType = SystemObjectType.Create(type, defaultNamespace, sourceInputModel, backingProperties);
-        //     return systemObjectType.Type;
-        // }
-
-        // internal static CSharpType FromSystemType(BuildContext context, Type type, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        //     => FromSystemType(type, context.DefaultNamespace, context.SourceInputModel, backingProperties);
 
         /// <summary>
         /// This function is used to create a new CSharpType instance with a literal value.
@@ -656,9 +762,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <param name="isNullable">Flag used to determine if a type is nullable.</param>
         /// <returns>A <see cref="CSharpType"/> instance representing those unioned types.</returns>
         public static CSharpType FromUnion(IReadOnlyList<CSharpType> unionItemTypes, bool isNullable = false)
+            => FromUnion(unionItemTypes, isNullable, UnionItemTypeReferenceKind.PublicSurface);
+
+        internal static CSharpType FromUnion(
+            IReadOnlyList<CSharpType> unionItemTypes,
+            bool isNullable,
+            UnionItemTypeReferenceKind referenceKind)
         {
             var type = new CSharpType(typeof(BinaryData), isNullable);
             type._unionItemTypes = unionItemTypes;
+            type._unionItemTypeReferenceKind = referenceKind;
 
             return type;
         }
@@ -692,7 +805,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        internal static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
+        public static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
 
         public sealed class CSharpTypeIgnoreNullableComparer : IEqualityComparer<CSharpType>
         {

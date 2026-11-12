@@ -4,8 +4,8 @@ import { startServer, testRouterOptions } from "../../../helpers.js";
 import { runScenario } from "../../../spector.js";
 
 import { Temporal } from "temporal-polyfill";
-import { HttpContext } from "../../../../../src/http/index.js";
-import { InnerModel } from "../../../generated/type/dictionary/src/generated/models/all/type/dictionary.js";
+import type { HttpContext } from "../../../../../src/http/index.js";
+import type { InnerModel } from "../../../generated/type/dictionary/src/generated/models/all/type/dictionary.js";
 
 class RecordImpl<T> {
   #assert: (l: T, r: T) => void;

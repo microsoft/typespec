@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { SyntaxKind } from "../../src/core/types.js";
-import { Model } from "../../src/index.js";
+import type { Model } from "../../src/index.js";
 import { expectDiagnostics, extractSquiggles, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

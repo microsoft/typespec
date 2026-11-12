@@ -1,18 +1,16 @@
+import type { EmitContext, Program } from "@typespec/compiler";
 import {
-  EmitContext,
+  getDirectoryPath,
   getNormalizedAbsolutePath,
   NoTarget,
-  Program,
   resolvePath,
 } from "@typespec/compiler";
-import { promises } from "fs";
-import { dump } from "js-yaml";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { CodeModelBuilder, EmitterOptionsDev } from "./code-model-builder.js";
-import { CodeModel } from "./common/code-model.js";
+import { stringify } from "yaml";
+import type { EmitterOptionsDev } from "./code-model-builder.js";
+import { CodeModelBuilder } from "./code-model-builder.js";
+import type { CodeModel } from "./common/code-model.js";
 import { LibName, reportDiagnostic } from "./lib.js";
-import { EmitterOptions } from "./options.js";
+import type { EmitterOptions } from "./options.js";
 import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
 import { validateDependencies } from "./validate.js";
 
@@ -52,8 +50,11 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
     }
 
     if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
-      const __dirname = dirname(fileURLToPath(import.meta.url));
-      const moduleRoot = resolvePath(__dirname, "..", "..");
+      const moduleRoot = resolvePath(
+        getDirectoryPath(program.host.fileURLToPath(import.meta.url)),
+        "..",
+        "..",
+      );
 
       const outputPath = context.emitterOutputDir;
       options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
@@ -65,7 +66,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 
-      await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
+      await program.host.mkdirp(outputPath).catch((err) => {
         if (err.code !== "EISDIR" && err.code !== "EEXIST") {
           reportDiagnostic(program, {
             code: "unknown-error",
@@ -76,7 +77,11 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         }
       });
 
-      await program.host.writeFile(codeModelFileName, dump(codeModel));
+      // Serialize as YAML 1.1 to match the Java generator's consumer, SnakeYAML, which is a
+      // YAML 1.1 parser. YAML 1.2 (the `yaml` package default) drops implicit types that 1.1
+      // keeps, so date-like strings (e.g. api-version "2025-01-02"), yes/no, and base-60
+      // numbers would be emitted unquoted and then re-typed on read (e.g. into a Date).
+      await program.host.writeFile(codeModelFileName, stringify(codeModel, { version: "1.1" }));
 
       trace(program, `Code model file written to ${codeModelFileName}`);
 

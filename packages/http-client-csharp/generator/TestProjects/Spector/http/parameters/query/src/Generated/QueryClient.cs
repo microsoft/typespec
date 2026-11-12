@@ -22,5 +22,7 @@ namespace Parameters.Query
         public ClientPipeline Pipeline => throw null;
 
         public virtual Constant GetConstantClient() => throw null;
+
+        public virtual SpecialChar GetSpecialCharClient() => throw null;
     }
 }

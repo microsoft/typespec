@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import io
 import pytest
 import pytest_asyncio
 from pathlib import Path
@@ -120,6 +121,20 @@ async def test_request_body(client: BytesClient, png_data: bytes):
     )
     await client.request_body.base64_url(
         value=bytes("test", "utf-8"),
+    )
+
+
+@pytest.mark.asyncio
+async def test_request_body_io(client: BytesClient, png_data: bytes):
+    # binary bodies also accept an IO input via the generated overload
+    await client.request_body.default(
+        value=io.BytesIO(png_data),
+    )
+    await client.request_body.octet_stream(
+        value=io.BytesIO(png_data),
+    )
+    await client.request_body.custom_content_type(
+        value=io.BytesIO(png_data),
     )
 
 

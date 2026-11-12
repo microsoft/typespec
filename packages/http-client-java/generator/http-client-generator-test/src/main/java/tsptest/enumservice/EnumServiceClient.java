@@ -52,7 +52,7 @@ public final class EnumServiceClient {
      * 
      * <pre>
      * {@code
-     * String(Red/Blue/Green)
+     * String(Red/Blue/Green/*&#47;)
      * }
      * </pre>
      * 
@@ -75,7 +75,7 @@ public final class EnumServiceClient {
      * 
      * <pre>
      * {@code
-     * String(Red/Blue/Green)
+     * String(Red/*&#47;/Blue/Green)
      * }
      * </pre>
      * 
@@ -103,19 +103,20 @@ public final class EnumServiceClient {
      *     best: boolean (Required)
      *     age: int (Required)
      *     priority: String(100/0) (Required)
-     *     color: String(Red/Blue/Green) (Required)
+     *     color: String(Red/*&#47;/Blue/Green) (Required)
      *     unit: String(1/0.001/1000) (Required)
      *     priorityValue: String(100/0) (Required)
-     *     colorValue: String(Red/Blue/Green) (Required)
-     *     colorModelValue: String(Red/Blue/Green) (Required)
+     *     colorValue: String(Red/Blue/Green/*&#47;) (Required)
+     *     colorModelValue: String(Red/*&#47;/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
      * 
-     * @param color The color parameter. Allowed values: "Red", "Blue", "Green".
+     * @param color The color parameter. Allowed values: "Red", "*&#47;", "Blue", "Green".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -140,14 +141,15 @@ public final class EnumServiceClient {
      *     best: boolean (Required)
      *     age: int (Required)
      *     priority: String(100/0) (Required)
-     *     color: String(Red/Blue/Green) (Required)
+     *     color: String(Red/*&#47;/Blue/Green) (Required)
      *     unit: String(1/0.001/1000) (Required)
      *     priorityValue: String(100/0) (Required)
-     *     colorValue: String(Red/Blue/Green) (Required)
-     *     colorModelValue: String(Red/Blue/Green) (Required)
+     *     colorValue: String(Red/Blue/Green/*&#47;) (Required)
+     *     colorModelValue: String(Red/*&#47;/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -177,14 +179,15 @@ public final class EnumServiceClient {
      *     best: boolean (Required)
      *     age: int (Required)
      *     priority: String(100/0) (Required)
-     *     color: String(Red/Blue/Green) (Required)
+     *     color: String(Red/*&#47;/Blue/Green) (Required)
      *     unit: String(1/0.001/1000) (Required)
      *     priorityValue: String(100/0) (Required)
-     *     colorValue: String(Red/Blue/Green) (Required)
-     *     colorModelValue: String(Red/Blue/Green) (Required)
+     *     colorValue: String(Red/Blue/Green/*&#47;) (Required)
+     *     colorModelValue: String(Red/*&#47;/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -213,14 +216,15 @@ public final class EnumServiceClient {
      *     best: boolean (Required)
      *     age: int (Required)
      *     priority: String(100/0) (Required)
-     *     color: String(Red/Blue/Green) (Required)
+     *     color: String(Red/*&#47;/Blue/Green) (Required)
      *     unit: String(1/0.001/1000) (Required)
      *     priorityValue: String(100/0) (Required)
-     *     colorValue: String(Red/Blue/Green) (Required)
-     *     colorModelValue: String(Red/Blue/Green) (Required)
+     *     colorValue: String(Red/Blue/Green/*&#47;) (Required)
+     *     colorModelValue: String(Red/*&#47;/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>

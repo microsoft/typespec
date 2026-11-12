@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper.clientcore;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.mapper.ProxyParameterMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
@@ -18,7 +17,7 @@ public class ClientCoreProxyParameterMapper extends ProxyParameterMapper {
     }
 
     @Override
-    protected boolean isRemoveModelFromParameter(Parameter parameter, IType clientType) {
+    protected boolean isRemoveModelFromClientType(IType clientType) {
         return false;
     }
 }

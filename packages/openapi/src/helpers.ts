@@ -1,6 +1,14 @@
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
+  Model,
+  ModelProperty,
+  Operation,
+  Program,
+  Type,
+  TypeNameOptions,
+} from "@typespec/compiler";
+import {
   getFriendlyName,
   getLifecycleVisibilityEnum,
   getProperty,
@@ -9,16 +17,15 @@ import {
   isGlobalNamespace,
   isService,
   isTemplateInstance,
-  Model,
-  ModelProperty,
-  Operation,
-  Program,
-  Type,
-  TypeNameOptions,
 } from "@typespec/compiler";
+import {
+  SyntaxKind,
+  type ObjectLiteralNode,
+  type ObjectLiteralPropertyNode,
+} from "@typespec/compiler/ast";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import { ExtensionKey } from "./types.js";
+import type { ExtensionKey } from "./types.js";
 
 /**
  * Determines whether a type will be inlined in OpenAPI rather than defined
@@ -30,6 +37,12 @@ import { ExtensionKey } from "./types.js";
  *
  * A friendly name can be provided by the user using `@friendlyName`
  * decorator, or chosen by default in simple cases.
+ *
+ * Anonymous declaration expressions (e.g. an inline `enum { ... }` or
+ * `scalar extends string` used as a property type) have no name and are
+ * inlined. A *named* declaration expression (e.g. `model Inner { ... }` used as a
+ * property type) keeps its name and is hoisted into a schema like a regular
+ * declaration.
  */
 export function shouldInline(program: Program, type: Type): boolean {
   if (getFriendlyName(program, type)) {
@@ -39,7 +52,7 @@ export function shouldInline(program: Program, type: Type): boolean {
     case "Model":
       return !type.name || isTemplateInstance(type);
     case "Scalar":
-      return program.checker.isStdType(type) || isTemplateInstance(type);
+      return !type.name || program.checker.isStdType(type) || isTemplateInstance(type);
     case "Enum":
     case "Union":
       return !type.name;
@@ -254,16 +267,29 @@ function checkNoAdditionalProperties(
   target: DiagnosticTarget,
   source: Model,
 ): Diagnostic[] {
+  const targetNode = getObjectLiteralNode(target);
+  return checkNoAdditionalPropertiesInternal(jsonObject, target, source, targetNode);
+}
+
+function checkNoAdditionalPropertiesInternal(
+  jsonObject: any,
+  target: DiagnosticTarget,
+  source: Model,
+  targetNode: ObjectLiteralNode | undefined,
+): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
   for (const name of Object.keys(jsonObject)) {
     const sourceProperty = getProperty(source, name);
+    const propertyNode = getObjectLiteralProperty(targetNode, name);
     if (sourceProperty) {
       if (sourceProperty.type.kind === "Model") {
-        const nestedDiagnostics = checkNoAdditionalProperties(
+        const nestedTarget = getObjectLiteralNode(propertyNode?.value);
+        const nestedDiagnostics = checkNoAdditionalPropertiesInternal(
           jsonObject[name],
-          target,
+          propertyNode?.value ?? target,
           sourceProperty.type,
+          nestedTarget,
         );
         diagnostics.push(...nestedDiagnostics);
       }
@@ -272,11 +298,27 @@ function checkNoAdditionalProperties(
         createDiagnostic({
           code: "invalid-extension-key",
           format: { value: name },
-          target,
+          target: propertyNode?.id ?? target,
         }),
       );
     }
   }
 
   return diagnostics;
+}
+
+function getObjectLiteralNode(target: DiagnosticTarget | undefined): ObjectLiteralNode | undefined {
+  return target !== undefined && "kind" in target && target.kind === SyntaxKind.ObjectLiteral
+    ? target
+    : undefined;
+}
+
+function getObjectLiteralProperty(
+  node: ObjectLiteralNode | undefined,
+  name: string,
+): ObjectLiteralPropertyNode | undefined {
+  return node?.properties.find(
+    (property): property is ObjectLiteralPropertyNode =>
+      property.kind === SyntaxKind.ObjectLiteralProperty && property.id.sv === name,
+  );
 }

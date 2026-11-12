@@ -1,15 +1,19 @@
 import type { ServiceDecorator, ServiceOptions } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
 import type { Program } from "../core/program.js";
-import { DecoratorContext, Namespace } from "../core/types.js";
+import type { DecoratorContext, Namespace } from "../core/types.js";
 import { Realm } from "../experimental/realm.js";
 import { useStateMap } from "../utils/index.js";
 
+/** Optional descriptive metadata used when registering or updating a service namespace. */
 export interface ServiceDetails {
+  /** Human-readable service title; no title is synthesized when omitted. */
   title?: string;
 }
 
+/** A registered service namespace and its descriptive metadata. */
 export interface Service extends ServiceDetails {
+  /** Namespace that defines this service, not a model or operation within it. */
   type: Namespace;
 }
 
@@ -18,7 +22,8 @@ const [getService, setService, getServiceMap] = useStateMap<Namespace, Service>(
 );
 
 /**
- * List all the services defined in the TypeSpec program
+ * Lists services in registration order, excluding namespace clones owned by a realm.
+ * Returns a new array containing the stored service records.
  * @param program Program
  * @returns List of service.
  */
@@ -47,7 +52,8 @@ export function isService(program: Program, namespace: Namespace): boolean {
 }
 
 /**
- * Mark the given namespace as a service.
+ * Registers the namespace as a service, merging supplied details over any existing record.
+ * Omitted details preserve existing values; the namespace is always retained as the service's `type`.
  * @param program Program
  * @param namespace Namespace
  * @param details Service details
@@ -62,6 +68,7 @@ export function addService(
   setService(program, namespace, { ...existing, ...details, type: namespace });
 }
 
+/** Marks a namespace as a service and merges its optional descriptive metadata into the service registry. */
 export const $service: ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,

@@ -30,21 +30,22 @@ model Error {
 op listPets(
   /** How many items to return at one time (max 100) */
   @query(#{ explode: true }) limit?: int32,
-): {
-  /** A link to the next page of responses */
-  @header("x-next") xNext?: string;
+):
+  | {
+      /** A link to the next page of responses */
+      @header("x-next") xNext?: string;
 
-  @body body: Pets;
-} | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
+      @body body: Pets;
+    }
+  | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 
 @tag("pets")
 @route("/pets")
 @post
 @summary("Create a pet")
-op createPets(): CreatedResponse | GeneratedHelpers.DefaultResponse<
-  Description = "unexpected error",
-  Body = Error
->;
+op createPets():
+  | CreatedResponse
+  | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 
 @tag("pets")
 @route("/pets/{petId}")

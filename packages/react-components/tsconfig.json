@@ -10,10 +10,9 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "lib": ["DOM", "ES2022"],
-    "types": ["vite/client", "@testing-library/jest-dom"]
+    "types": ["vite/client", "@testing-library/jest-dom/vitest"]
   },
   "include": ["src"]
 }

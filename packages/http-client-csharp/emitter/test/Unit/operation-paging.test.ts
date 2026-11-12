@@ -1,6 +1,6 @@
 vi.resetModules();
 
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -50,6 +50,121 @@ describe("Next link operations", () => {
     strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
     strictEqual(paging.nextLink?.responseSegments.length, 1);
     strictEqual(paging.nextLink?.responseSegments[0], "next");
+  });
+
+  it.each(["query", "header"])(
+    "preserves the request continuation token with a next link and no response token (%s)",
+    async (location) => {
+      const program = await typeSpecCompile(
+        `
+          @list
+          op link(@continuationToken @${location} token?: string, @query filter?: string): {
+            @pageItems items: Foo[];
+            @nextLink next?: url;
+          };
+          model Foo {
+            id: string;
+          }
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const method = root.clients[0].methods[0];
+      strictEqual(method.kind, "paging");
+      ok(method.pagingMetadata.nextLink);
+      strictEqual(method.pagingMetadata.continuationToken, undefined);
+      strictEqual("continuationTokenParameter" in method.pagingMetadata, false);
+      const token = method.operation.parameters.find((p) => p.name === "token");
+      ok(token);
+      strictEqual(token.kind, location);
+      ok(token.kind === "query" || token.kind === "header");
+      strictEqual(token.isContinuationToken, true);
+      strictEqual(token.methodParameterSegments?.[0], method.parameters[0]);
+      const filter = method.operation.parameters.find((p) => p.name === "filter");
+      ok(filter?.kind === "query");
+      strictEqual(filter.isContinuationToken, undefined);
+    },
+  );
+
+  it("does not infer the continuation-token marker from an ordinary query parameter's name", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(@query token?: string): {
+          @pageItems items: string[];
+          @nextLink next?: url;
+        };
+      `,
+      runner,
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const token = root.clients[0].methods[0].operation.parameters[0];
+    ok(token.kind === "query");
+    strictEqual(token.isContinuationToken, undefined);
+  });
+
+  it("marks the HTTP token without marking its containing options bag", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Options {
+          @continuationToken @query token?: string;
+          @query filter?: string;
+        }
+        model Page {
+          @pageItems items: string[];
+          @nextLink next?: url;
+        }
+        @list
+        op link(@continuationToken @query token?: string, @query filter?: string): Page;
+        op customized(options: Options): Page;
+        @@override(Azure.Csharp.Testing.link, Azure.Csharp.Testing.customized);
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods.find((m) => m.name === "link");
+    ok(method);
+    strictEqual(method.kind, "paging");
+    const token = method.operation.parameters.find((p) => p.name === "token");
+    ok(token?.kind === "query");
+    strictEqual(token.isContinuationToken, true);
+    strictEqual(token.methodParameterSegments?.length, 2);
+    strictEqual(token.methodParameterSegments[0], method.parameters[0]);
+    strictEqual("isContinuationToken" in method.parameters[0], false);
+  });
+
+  it("preserves an explicit POST next-link verb", async () => {
+    const program = await typeSpecCompile(
+      `
+        @global.Azure.ClientGenerator.Core.Legacy.nextLinkVerb("POST")
+        @list
+        @post
+        op link(): {
+          @pageItems
+          items: Foo[];
+          @nextLink
+          next?: url;
+        };
+        model Foo {
+          id: string;
+        }
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+    strictEqual(method.operation.httpMethod, "POST");
+    ok(method.pagingMetadata.nextLink);
+    strictEqual(Reflect.get(method.pagingMetadata.nextLink, "verb"), "POST");
   });
 
   it("parameterized next link", async () => {
@@ -234,7 +349,7 @@ describe("Next link operations", () => {
   it("includes protocol-only response model in code model (issue #9391)", async () => {
     const program = await typeSpecCompile(
       `
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         op link(): {
           @pageItems
@@ -261,6 +376,199 @@ describe("Next link operations", () => {
     ok(
       responseModel,
       `Expected response model 'LinkResponse' to be present in code model. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+  });
+
+  it("includes nested enum from protocol-only response model in code model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false, "csharp")
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        enum Status { running, completed, failed };
+        model Foo {
+          name: string;
+          status: Status;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The enum used as a property type of a model only reachable via a
+    // protocol-only paging operation must be included in the code model's
+    // enums list, not just the models list.
+    const statusEnum = root.enums.find((e) => e.name === "Status");
+    ok(
+      statusEnum,
+      `Expected enum 'Status' to be present in code model enums. Found: ${root.enums.map((e) => e.name).join(", ")}`,
+    );
+
+    // The model itself should also be present
+    const fooModel = root.models.find((m) => m.name === "Foo");
+    ok(
+      fooModel,
+      `Expected model 'Foo' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+  });
+
+  it("includes deeply nested enum from protocol-only response model in code model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false, "csharp")
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        enum Priority { low, medium, high };
+        model Bar {
+          priority: Priority;
+        };
+        model Foo {
+          name: string;
+          bar: Bar;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // An enum nested two levels deep (Foo -> Bar -> Priority) must still
+    // be captured when the entire graph is only reachable via a
+    // protocol-only paging operation.
+    const priorityEnum = root.enums.find((e) => e.name === "Priority");
+    ok(
+      priorityEnum,
+      `Expected enum 'Priority' to be present in code model enums. Found: ${root.enums.map((e) => e.name).join(", ")}`,
+    );
+
+    const barModel = root.models.find((m) => m.name === "Bar");
+    ok(
+      barModel,
+      `Expected model 'Bar' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+
+    const fooModel = root.models.find((m) => m.name === "Foo");
+    ok(
+      fooModel,
+      `Expected model 'Foo' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+  });
+
+  it("does not deduplicate enums with the same name but different namespaces", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false, "csharp")
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        enum Status { active, inactive };
+        namespace Sub {
+          enum Status { open, closed };
+        }
+        model Foo {
+          name: string;
+          a: Status;
+          b: Sub.Status;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Two enums share the name "Status" but live in different namespaces.
+    // The namespace-aware key must keep both in the code model.
+    const statusEnums = root.enums.filter((e) => e.name === "Status");
+    strictEqual(
+      statusEnums.length,
+      2,
+      `Expected 2 'Status' enums from different namespaces. Found ${statusEnums.length}: ${root.enums.map((e) => `${e.namespace}.${e.name}`).join(", ")}`,
+    );
+  });
+
+  it("preserves same-named models from different namespaces across two paging operations", async () => {
+    const program = await typeSpecCompile(
+      `
+        namespace NsA {
+          enum Status { active, inactive };
+          model Item {
+            name: string;
+            status: Status;
+          };
+        }
+        namespace NsB {
+          enum Status { open, closed };
+          model Item {
+            id: int32;
+            status: Status;
+          };
+        }
+
+        @convenientAPI(false, "csharp")
+        @list
+        @route("/a")
+        op listA(): {
+          @pageItems
+          items: NsA.Item[];
+          @nextLink
+          next?: url;
+        };
+
+        @convenientAPI(false, "csharp")
+        @list
+        @route("/b")
+        op listB(): {
+          @pageItems
+          items: NsB.Item[];
+          @nextLink
+          next?: url;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Two paging operations reference models named "Item" and enums named
+    // "Status" from different namespaces. All four types must be present.
+    const itemModels = root.models.filter((m) => m.name === "Item");
+    strictEqual(
+      itemModels.length,
+      2,
+      `Expected 2 'Item' models from different namespaces. Found ${itemModels.length}: ${root.models.map((m) => `${m.namespace}.${m.name}`).join(", ")}`,
+    );
+
+    const statusEnums = root.enums.filter((e) => e.name === "Status");
+    strictEqual(
+      statusEnums.length,
+      2,
+      `Expected 2 'Status' enums from different namespaces. Found ${statusEnums.length}: ${root.enums.map((e) => `${e.namespace}.${e.name}`).join(", ")}`,
     );
   });
 });
@@ -301,6 +609,7 @@ describe("Continuation token operations", () => {
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
     strictEqual(continuationToken.parameter.kind, "header");
+    strictEqual(continuationToken.parameter.isContinuationToken, true);
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "next-token");

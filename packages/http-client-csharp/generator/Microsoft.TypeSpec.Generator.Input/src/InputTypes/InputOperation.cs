@@ -13,7 +13,6 @@ namespace Microsoft.TypeSpec.Generator.Input
     {
         public InputOperation(
             string name,
-            string? resourceName,
             string? summary,
             string? doc,
             string? deprecated,
@@ -32,7 +31,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? ns)
         {
             Name = name;
-            ResourceName = resourceName;
             Summary = summary;
             Doc = doc;
             Deprecated = deprecated;
@@ -53,7 +51,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public InputOperation() : this(
             name: string.Empty,
-            resourceName: null,
             summary: string.Empty,
             doc: string.Empty,
             deprecated: null,
@@ -75,10 +72,14 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string Name { get; internal set; }
 
         /// <summary>
+        /// Gets a value indicating whether the operation name should be preserved exactly as-is, without casing transformations.
+        /// </summary>
+        public bool IsExactName { get; internal set; }
+
+        /// <summary>
         /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
         /// </summary>
         public string? OriginalName { get; internal set; }
-        public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
         public string? Deprecated { get; internal set; }
@@ -87,6 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
+        public bool ResponseAsBool { get; internal set; }
         public string Uri { get; internal set; }
         public string Path { get; internal set; }
         public string? ExternalDocsUrl { get; internal set; }
@@ -97,13 +99,13 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string CrossLanguageDefinitionId { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
         public IReadOnlyList<InputOperationExample> Examples { get; internal set; } = new List<InputOperationExample>();
+        public InputExperimentalDetails? Experimental { get; internal set; }
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
 
         public void Update(
             string? name = null,
-            string? resourceName = null,
             string? summary = null,
             string? doc = null,
             string? deprecated = null,
@@ -119,15 +121,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? generateProtocolMethod = null,
             bool? generateConvenienceMethod = null,
             string? crossLanguageDefinitionId = null,
-            string? ns = null)
+            string? ns = null,
+            InputExperimentalDetails? experimental = null,
+            bool? responseAsBool = null)
         {
             if (name != null)
             {
                 Name = name;
-            }
-            if (resourceName != null)
-            {
-                ResourceName = resourceName;
             }
             if (summary != null)
             {
@@ -192,6 +192,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (ns != null)
             {
                 Namespace = ns;
+            }
+            if (experimental != null)
+            {
+                Experimental = experimental;
+            }
+            if (responseAsBool.HasValue)
+            {
+                ResponseAsBool = responseAsBool.Value;
             }
         }
     }

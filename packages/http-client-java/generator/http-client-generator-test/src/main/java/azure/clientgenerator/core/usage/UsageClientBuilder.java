@@ -40,7 +40,12 @@ import java.util.Objects;
 /**
  * A builder for creating a new instance of the UsageClient type.
  */
-@ServiceClientBuilder(serviceClients = { UsageClient.class, UsageAsyncClient.class })
+@ServiceClientBuilder(
+    serviceClients = {
+        ModelInOperationClient.class,
+        NamespaceUsageClient.class,
+        ModelInOperationAsyncClient.class,
+        NamespaceUsageAsyncClient.class })
 public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, ConfigurationTrait<UsageClientBuilder>,
     EndpointTrait<UsageClientBuilder> {
     @Generated
@@ -265,23 +270,43 @@ public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, 
     }
 
     /**
-     * Builds an instance of UsageAsyncClient class.
+     * Builds an instance of ModelInOperationAsyncClient class.
      * 
-     * @return an instance of UsageAsyncClient.
+     * @return an instance of ModelInOperationAsyncClient.
      */
     @Generated
-    public UsageAsyncClient buildAsyncClient() {
-        return new UsageAsyncClient(buildInnerClient().getModelInOperations());
+    public ModelInOperationAsyncClient buildModelInOperationAsyncClient() {
+        return new ModelInOperationAsyncClient(buildInnerClient().getModelInOperations());
     }
 
     /**
-     * Builds an instance of UsageClient class.
+     * Builds an instance of NamespaceUsageAsyncClient class.
      * 
-     * @return an instance of UsageClient.
+     * @return an instance of NamespaceUsageAsyncClient.
      */
     @Generated
-    public UsageClient buildClient() {
-        return new UsageClient(buildInnerClient().getModelInOperations());
+    public NamespaceUsageAsyncClient buildNamespaceUsageAsyncClient() {
+        return new NamespaceUsageAsyncClient(buildInnerClient().getNamespaceUsages());
+    }
+
+    /**
+     * Builds an instance of ModelInOperationClient class.
+     * 
+     * @return an instance of ModelInOperationClient.
+     */
+    @Generated
+    public ModelInOperationClient buildModelInOperationClient() {
+        return new ModelInOperationClient(buildInnerClient().getModelInOperations());
+    }
+
+    /**
+     * Builds an instance of NamespaceUsageClient class.
+     * 
+     * @return an instance of NamespaceUsageClient.
+     */
+    @Generated
+    public NamespaceUsageClient buildNamespaceUsageClient() {
+        return new NamespaceUsageClient(buildInnerClient().getNamespaceUsages());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(UsageClientBuilder.class);

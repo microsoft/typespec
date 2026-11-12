@@ -52,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? doc = null;
             string? serializedName = null;
             bool isApiVersion = false;
+            bool isContinuationToken = false;
             InputConstant? defaultValue = null;
             string? scope = null;
             InputType? type = null;
@@ -63,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? location = null;
             string? paramAlias = null;
+            bool isExactName = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -76,13 +78,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadBoolean("isContinuationToken", ref isContinuationToken)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadComplexType("contentTypes", options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadString("location", ref location)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadString("paramAlias", ref paramAlias);
+                    || reader.TryReadString("paramAlias", ref paramAlias)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -100,8 +104,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Decorators = decorators ?? [];
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputMethodParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
+            parameter.IsContinuationToken = isContinuationToken;
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.IsExactName = isExactName;
 
             if (location == null)
             {

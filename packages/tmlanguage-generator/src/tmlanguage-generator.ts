@@ -1,65 +1,112 @@
 import { readFile } from "fs/promises";
+import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import plist from "plist";
-import * as vscodeOniguruma from "vscode-oniguruma";
+import * as plist from "plist";
+import vscodeOniguruma from "vscode-oniguruma";
+
+const require = createRequire(import.meta.url);
 
 const { loadWASM, createOnigScanner } = vscodeOniguruma;
 
+/** TextMate grammar schema URL to use for {@link Grammar.$schema}. */
 export const schema =
   "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json";
 
 /**
- * Special scope that indicates a larger construct that doesn't get a single color.
- * Expanded to meta.<key>.<grammar name> during emit.
+ * Marks a larger construct that groups tokens without assigning them a single color.
+ * Emitted as `meta.<rule key>.<lowercase grammar name>` using the containing rule's
+ * {@link RuleKey.key} and {@link Grammar.name}.
  */
 export const meta = Symbol("meta");
 
+/** Gives a rule its identity in the emitted grammar's shared repository. */
 export interface RuleKey {
-  /** Rule's unique key through which identifies the rule in the repository. */
+  /**
+   * Repository key used to generate `#<key>` include references.
+   * Reusing the same rule object is supported, including cycles; distinct rule
+   * objects with the same key cause emission to fail.
+   */
   key: string;
 }
 
+/** Assigns a TextMate scope to a rule's match or a captured group. */
 export interface RuleScope<Scope extends string = string> {
   /**
-   * The TextMate scope that gets assigned to a match and colored by a theme.
+   * Scope emitted as the TextMate `name` property, which themes use for coloring.
+   * Use {@link meta} on keyed rules to derive a grouping scope from the rule key.
    * See https://macromates.com/manual/en/language_grammars#naming_conventions
    */
   scope: Scope | typeof meta;
 }
 
+/** Supplies child rules to a grammar, region, rule group, or capture. */
 export interface RulePatterns<Scope extends string = string> {
+  /**
+   * Rules to try in array order. Emission registers each rule in the repository
+   * and replaces each array entry with an include reference to its key.
+   */
   patterns: Rule<Scope>[];
 }
 
+/**
+ * Maps capture group numbers, as strings, to scopes or nested pattern lists.
+ * `"0"` addresses the entire match; other entries address numbered groups.
+ * Omitted groups receive no capture-specific scope or patterns.
+ */
 export type Captures<Scope extends string = string> = Record<
   string,
   RuleScope<Scope> | RulePatterns<Scope>
 >;
 
+/**
+ * A keyed match, begin/end region, or reusable group of rules.
+ * Pattern lists refer to these objects directly rather than to repository-key strings.
+ */
 export type Rule<Scope extends string = string> =
-  | MatchRule<Scope>
-  | BeginEndRule<Scope>
-  | IncludeRule<Scope>;
+  MatchRule<Scope> | BeginEndRule<Scope> | IncludeRule<Scope>;
 
+/** Applies a scope to a single regex match, optionally refining its capture groups. */
 export interface MatchRule<Scope extends string = string> extends RuleScope<Scope>, RuleKey {
+  /** Oniguruma regular expression source, not a JavaScript `RegExp` or slash-delimited literal. */
   match: string;
+  /** Optional scope or nested-pattern overrides for groups matched by {@link MatchRule.match}. */
   captures?: Captures<Scope>;
 }
 
+/**
+ * Applies a scope to a region delimited by two Oniguruma regular expressions.
+ * Optional inherited `patterns` define rules active within the region.
+ */
 export interface BeginEndRule<Scope extends string = string>
   extends RuleKey, RuleScope<Scope>, Partial<RulePatterns<Scope>> {
+  /** Oniguruma regular expression source that starts the region. */
   begin: string;
+  /** Oniguruma regular expression source that terminates the region. */
   end: string;
+  /** Optional capture mappings for the opening delimiter, separate from the region's scope. */
   beginCaptures?: Captures<Scope>;
+  /** Optional capture mappings for the closing delimiter, separate from the region's scope. */
   endCaptures?: Captures<Scope>;
 }
 
+/**
+ * Groups a pattern list under a repository key without adding a match or scope.
+ * Reuse the group object in other pattern lists to include its rules, including recursively.
+ */
 export interface IncludeRule<Scope extends string = string> extends RuleKey, RulePatterns<Scope> {}
 
+/**
+ * Root grammar metadata and ordered entry rules for {@link emitJSON} or {@link emitPList}.
+ * Only rules reachable through pattern lists are added to the generated repository.
+ */
 export interface Grammar<Scope extends string = string> extends RulePatterns<Scope> {
+  /** Schema annotation copied to the output; use the exported {@link schema} URL. */
   $schema: typeof schema;
+  /** Display name, also lowercased when expanding {@link meta} scopes. */
   name: string;
+  /** Root TextMate scope for the language, such as `source.tsp`; copied unchanged. */
   scopeName: string;
+  /** File extensions associated with the grammar, conventionally without a leading dot. */
   fileTypes: string[];
 }
 
@@ -74,12 +121,22 @@ async function initialize() {
   }
 }
 
+/** Controls diagnostics shared by the JSON and PList emitters. */
 export interface EmitOptions {
+  /**
+   * File path printed in invalid-regex diagnostics, with line and column fixed at `(1,1)`.
+   * Defaults to `unknown_file`; this path is not read or used as an output destination.
+   */
   errorSourceFilePath?: string;
 }
 
 /**
- * Emit the given grammar to JSON.
+ * Returns a TextMate grammar as JSON with two-space indentation, without writing a file.
+ * Builds a key-sorted repository and ordered include references without mutating the input.
+ *
+ * Oniguruma validates each `match`, `begin`, and `end` expression. Invalid expressions
+ * are logged using {@link EmitOptions.errorSourceFilePath} and reject the promise;
+ * duplicate keys on distinct rule objects also reject it.
  */
 export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
   await initialize();
@@ -89,7 +146,8 @@ export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Pro
 }
 
 /**
- * Emit the given grammar to PList XML
+ * Returns a TextMate grammar as PList XML, without writing a file.
+ * Uses the same repository conversion and validation as {@link emitJSON}.
  */
 export async function emitPList(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
   await initialize();

@@ -1,11 +1,11 @@
 import type { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
-import {
+import type {
   Decorator,
   Enum,
+  EnumMember,
   FunctionValue,
   Interface,
-  ListenerFlow,
   Model,
   ModelProperty,
   Namespace,
@@ -16,6 +16,7 @@ import {
   StringTemplate,
   StringTemplateSpan,
   TemplateParameter,
+  TemplateParameterAccess,
   Tuple,
   Type,
   TypeListeners,
@@ -23,21 +24,26 @@ import {
   UnionVariant,
   Value,
 } from "./types.js";
+import { ListenerFlow } from "./types.js";
 
+/** Control which template and inheritance relationships a semantic graph traversal follows. */
 export interface NavigationOptions {
   /**
-   * Skip non instantiated templates.
+   * Include uninstantiated template declarations in addition to finished types.
+   * @default false
    */
   includeTemplateDeclaration?: boolean;
   /**
-   * Visit derived types.
+   * Follow a model's derived models as well as its base model and property types.
+   * @default false
    */
   visitDerivedTypes?: boolean;
 }
 
+/** Configure namespace filtering for the callbacks registered during a semantic traversal. */
 export interface NamespaceNavigationOptions {
   /**
-   * Recursively navigate sub namespaces.
+   * Restrict namespace-bearing callbacks to declarations directly in the selected namespace.
    * @default false
    */
   skipSubNamespaces?: boolean;
@@ -80,8 +86,10 @@ export function navigateType(
 }
 
 /**
- * Scope the current navigation to the given namespace.
- * @param namespace Namespace the traversal shouldn't leave.
+ * Filter registered callbacks whose targets have a namespace, including enum members via their enum.
+ * Only those callbacks can prune traversal. Register container callbacks (such as `model` when
+ * collecting `modelProperty`) or check namespace membership in the callbacks you consume.
+ * @param namespace Namespace used to filter callbacks.
  * @param listeners Type listeners.
  * @param options Scope options
  * @returns wrapped listeners that that can be used with `navigateType`
@@ -94,11 +102,12 @@ export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   const wrappedListeners: SemanticNodeListener = {};
   for (const [name, callback] of Object.entries(listeners)) {
     wrappedListeners[name as any as keyof TypeListeners] = (x) => {
-      if (x !== namespace && "namespace" in x) {
-        if (options.skipSubNamespaces && x.namespace !== namespace) {
+      const target = x.kind === "EnumMember" ? x.enum : x;
+      if (target !== namespace && "namespace" in target) {
+        if (options.skipSubNamespaces && target.namespace !== namespace) {
           return ListenerFlow.NoRecursion;
         }
-        if (x.namespace && !isSubNamespace(x.namespace, namespace)) {
+        if (target.namespace && !isSubNamespace(target.namespace, namespace)) {
           return ListenerFlow.NoRecursion;
         }
       }
@@ -108,6 +117,11 @@ export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   return wrappedListeners as any;
 }
 
+/**
+ * Traverse types starting at a namespace, filtering supplied callbacks with {@link scopeNavigationToNamespace}.
+ * Partial listeners do not guarantee namespace isolation: register namespace-bearing container callbacks
+ * to prune references to other namespaces, or check membership in the callbacks you consume.
+ */
 export function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: SemanticNodeListener,
@@ -318,12 +332,20 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
     return;
   }
 
-  context.emit("enum", type);
+  if (context.emit("enum", type) === ListenerFlow.NoRecursion) return;
   for (const member of type.members.values()) {
     navigateTypeInternal(member, context);
   }
 
   context.emit("exitEnum", type);
+}
+
+function navigateEnumMember(type: EnumMember, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("enumMember", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitEnumMember", type);
 }
 
 function navigateUnionType(type: Union, context: NavigationContext) {
@@ -334,6 +356,9 @@ function navigateUnionType(type: Union, context: NavigationContext) {
     return;
   }
   if (context.emit("union", type) === ListenerFlow.NoRecursion) return;
+  if (type.baseType) {
+    navigateTypeInternal(type.baseType, context);
+  }
   for (const variant of type.variants.values()) {
     navigateUnionTypeVariant(variant, context);
   }
@@ -384,6 +409,19 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
     return;
   }
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitTemplateParameter", type);
+}
+
+/** Emit semantic walker events for template parameter access nodes. */
+function navigateTemplateParameterAccess(
+  type: TemplateParameterAccess,
+  context: NavigationContext,
+) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("templateParameterAccess", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitTemplateParameterAccess", type);
 }
 
 function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {
@@ -422,6 +460,8 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
         return navigateInterfaceType(entity, context);
       case "Enum":
         return navigateEnumType(entity, context);
+      case "EnumMember":
+        return navigateEnumMember(entity, context);
       case "Operation":
         return navigateOperationType(entity, context);
       case "Union":
@@ -436,6 +476,8 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
         return navigateStringTemplateSpan(entity, context);
       case "TemplateParameter":
         return navigateTemplateParameter(entity, context);
+      case "TemplateParameterAccess":
+        return navigateTemplateParameterAccess(entity, context);
       case "Decorator":
         return navigateDecoratorDeclaration(entity, context);
       case "ScalarConstructor":
@@ -443,7 +485,6 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
       case "FunctionParameter":
       case "FunctionType":
       case "Boolean":
-      case "EnumMember":
       case "Intrinsic":
       case "Number":
       case "String":
@@ -463,7 +504,7 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
   }
 }
 
-// Return property from type, nesting into baseTypes as needed.
+/** Find a model property by name, searching base models only when no own property matches. */
 export function getProperty(type: Model, propertyName: string): ModelProperty | undefined {
   while (type.baseModel) {
     if (type.properties.has(propertyName)) {
@@ -474,9 +515,11 @@ export function getProperty(type: Model, propertyName: string): ModelProperty | 
   return type.properties.get(propertyName);
 }
 
+/** Dispatch typed events synchronously to listeners in their registration order. */
 export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
   private listeners: Map<keyof T, Array<(...args: any[]) => any>> = new Map();
 
+  /** Register another listener; registering the same callback again adds another invocation. */
   public on<K extends keyof T>(name: K, listener: (...args: Parameters<T[K]>) => any) {
     const array = this.listeners.get(name);
     if (array) {
@@ -486,6 +529,7 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
     }
   }
 
+  /** Invoke listeners for the event, ignoring their return values and propagating thrown errors. */
   public emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
     const listeners = this.listeners.get(name);
     if (listeners) {
@@ -499,7 +543,9 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
 const eventNames: Array<keyof SemanticNodeListener> = [
   "root",
   "templateParameter",
+  "templateParameterAccess",
   "exitTemplateParameter",
+  "exitTemplateParameterAccess",
   "scalar",
   "exitScalar",
   "model",

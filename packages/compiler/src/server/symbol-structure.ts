@@ -6,12 +6,14 @@ import type {
   InterfaceStatementNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
+  NamespaceStatementNode,
+  Node,
   Statement,
   StringLiteralNode,
   TypeSpecScriptNode,
   UnionStatementNode,
 } from "../core/types.js";
-import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
+import { SyntaxKind } from "../core/types.js";
 import { isArray, isDefined } from "../utils/misc.js";
 
 export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
@@ -109,7 +111,10 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
     const start = file.getLineAndCharacterOfPosition(node.pos);
     const end = file.getLineAndCharacterOfPosition(node.end);
     const range = Range.create(start, end);
-    return DocumentSymbol.create(name, undefined, kind, range, range, symbols);
+    // VS Code requires name to be non-empty; use a placeholder for empty/invalid names
+    // that can occur during parse errors or with empty string literal properties.
+    const safeName = name || "<anonymous>";
+    return DocumentSymbol.create(safeName, undefined, kind, range, range, symbols);
   }
 
   function getName(id: IdentifierNode | StringLiteralNode): string {

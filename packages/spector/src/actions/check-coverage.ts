@@ -1,4 +1,4 @@
-import { CoverageReport, ScenarioStatus } from "@typespec/spec-coverage-sdk";
+import type { CoverageReport, ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { readFile, writeFile } from "fs/promises";
 import { loadSpecConfig } from "../config/config.js";
 import { createCoverageReport } from "../coverage/coverage-report.js";

@@ -30,6 +30,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputPrimitiveType? baseType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputExternalTypeMetadata? external = null;
+            InputExperimentalDetails? experimental = null;
+            bool isFileType = false;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
@@ -39,7 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("encode", ref encode)
                     || reader.TryReadComplexType("baseType", options, ref baseType)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("external", options, ref external);
+                    || reader.TryReadComplexType("external", options, ref external)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
+                    || reader.TryReadBoolean("isFileType", ref isFileType);
 
                 if (!isKnownProperty)
                 {
@@ -59,7 +63,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType)
             {
                 Decorators = decorators ?? [],
-                External = external
+                External = external,
+                Experimental = experimental,
+                IsFileType = isFileType
             };
             if (id != null)
             {

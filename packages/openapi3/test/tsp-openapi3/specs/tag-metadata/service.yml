@@ -5,6 +5,8 @@ info:
 tags:
   - name: extensive
     description: An extensive operation
+    x-oai-summary: A summary of the extensive tag
+    x-oai-kind: OperationGroup
 paths:
   /:
     get:

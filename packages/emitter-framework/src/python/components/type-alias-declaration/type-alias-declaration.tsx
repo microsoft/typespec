@@ -7,8 +7,11 @@ import { declarationRefkeys } from "../../utils/refkey.js";
 import { ClassDeclaration } from "../class-declaration/class-declaration.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
+/** Source and declaration identity for a Python TypeAlias, or a class for a model template instance. */
 export interface TypedAliasDeclarationProps extends Omit<py.BaseDeclarationProps, "name"> {
+  /** Type rendered without the initial reference shortcut; model template instances use ClassDeclaration. */
   type: Type;
+  /** Declaration name override; unnamed sources otherwise report a missing-name diagnostic. */
   name?: string;
 }
 

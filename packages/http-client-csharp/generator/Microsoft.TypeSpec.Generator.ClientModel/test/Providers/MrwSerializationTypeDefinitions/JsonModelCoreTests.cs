@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -13,7 +15,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     public class JsonModelCoreTests
     {
-        public JsonModelCoreTests()
+        [SetUp]
+        public void Setup()
         {
             MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider)
                 => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)] : []);
@@ -31,20 +34,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 return [.. base.BuildMethods().Where(m => m.Signature.Name.Equals("JsonModelWriteCore"))];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
             protected override ConstructorProvider[] BuildConstructors() => [];
         }
 
-        [Test]
-        public void KebabCaseSerializedName()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void KebabCaseSerializedName(bool relaxedConstructor)
         {
             var inputModelProperty = InputFactory.Property("kebab-case", InputPrimitiveType.String, wireName: "kebab-case", isRequired: true);
+            if (relaxedConstructor)
+            {
+                inputModelProperty.Update(isRequiredInConstructor: false);
+            }
             var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ConstructorOverrideDoesNotChangeSerialization(bool relaxedConstructor)
+        {
+            var baseProperty = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            var property = InputFactory.Property("value", InputPrimitiveType.String, isRequired: true);
+            if (relaxedConstructor)
+            {
+                property.Update(isRequiredInConstructor: false);
+            }
+            var baseModel = InputFactory.Model("Base", properties: [baseProperty], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("TestModel", properties: [property], baseModel: baseModel, usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            Assert.That(new TypeProviderWriter(mrwProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SerializationSuppressesInheritedObsoletePropertyWarning(bool baseDeprecated)
+        {
+            var valueType = new InputNullableType(InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("Base", properties:
+                [InputFactory.Property("value", valueType, deprecation: baseDeprecated ? "Base message" : null)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("TestModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", valueType)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var model = new ModelProvider(inputModel);
+            var serialization = model.SerializationProviders.First();
+            var code = new TypeProviderWriter(serialization).Write().Content;
+
+            Assert.That(code.Contains("#pragma warning disable CS0618"), Is.EqualTo(baseDeprecated));
+            Assert.That(code, Does.Not.Contain("CS0672"));
+            if (baseDeprecated)
+            {
+                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), code);
+            }
+        }
+
+        [Test]
+        public async Task CustomOverrideSerializationSuppressesInheritedObsoletePropertyWarning()
+        {
+            var valueType = new InputNullableType(InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("Base", properties:
+                [InputFactory.Property("value", valueType, deprecation: "Base message")],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("TestModel", baseModel: baseModel, properties:
+                [InputFactory.Property("value", valueType)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MockMrwProvider(modelType, (ModelProvider)typeProvider)] : []);
+            generator.Object.SourceInputModel = new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null);
+            var model = generator.Object.TypeFactory.CreateModel(inputModel)!;
+            var serialization = new MockMrwProvider(inputModel, model);
+
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(method: nameof(SerializationSuppressesInheritedObsoletePropertyWarning)).ReplaceLineEndings("\n"),
+                new TypeProviderWriter(serialization).Write().Content);
         }
 
         [Test]
@@ -117,6 +187,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     InputFactory.Property("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true, isHttpMetadata: true),
                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                ]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates that duration properties encoded as integer milliseconds/seconds are always
+        // serialized as integers, regardless of the wire-type integer kind (e.g. integer, int64, etc.).
+        [TestCase(nameof(InputPrimitiveType.Int32))]
+        [TestCase(nameof(InputPrimitiveType.Int64))]
+        [TestCase(nameof(InputPrimitiveTypeKind.Integer))]
+        public void DurationMillisecondsIntegerWireTypeWritesAsInt(string wireKindName)
+        {
+            var wireType = wireKindName switch
+            {
+                nameof(InputPrimitiveType.Int32) => InputPrimitiveType.Int32,
+                nameof(InputPrimitiveType.Int64) => InputPrimitiveType.Int64,
+                nameof(InputPrimitiveTypeKind.Integer) => new InputPrimitiveType(InputPrimitiveTypeKind.Integer, "integer", "TypeSpec.integer"),
+                _ => throw new System.ArgumentException(wireKindName),
+            };
+            var durationType = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("audio_end_ms", durationType, wireName: "audio_end_ms", isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
+        }
+
+
+        // Validates that duration properties encoded as float/double milliseconds preserve the
+        // floating-point value (no integer rounding).
+        [TestCase(nameof(InputPrimitiveType.Float32))]
+        [TestCase(nameof(InputPrimitiveType.Float64))]
+        public void DurationMillisecondsFloatWireTypeWritesAsDouble(string wireKindName)
+        {
+            var wireType = wireKindName switch
+            {
+                nameof(InputPrimitiveType.Float32) => InputPrimitiveType.Float32,
+                nameof(InputPrimitiveType.Float64) => InputPrimitiveType.Float64,
+                _ => throw new System.ArgumentException(wireKindName),
+            };
+            var durationType = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("audio_end_ms", durationType, wireName: "audio_end_ms", isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
+        }
+
+        // Validates that a required FileBinaryContent property is serialized via WriteObjectValue.
+        [Test]
+        public void RequiredFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("profileImage", InputFactory.FileType(), isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates that an optional FileBinaryContent property is wrapped in Optional.IsDefined before WriteObjectValue.
+        [Test]
+        public void OptionalFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("profileImage", InputFactory.FileType(), isRequired: false)]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);

@@ -1,5 +1,72 @@
 # Change Log - @typespec/json-schema
 
+## 1.18.0
+
+### Features
+
+- [#12461](https://github.com/microsoft/typespec/pull/12461) Add `typeref(Type)` for referencing types from metadata values. Enable the `typeref` compiler feature in the calling project or library's `tspconfig.yaml`. Its result has type `TypeRef<T>`, where `T` is the referenced type. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to constrain its target. JavaScript implementations and generated signatures use `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler type. Type references are compilation metadata and cannot be represented as JSON values.
+  
+  ```typespec
+  model Item { id: string; }
+  model Registration { name: string; type: TypeRef; }
+  const entry: Registration = #{ name: "item", type: typeref(Item) };
+  ```
+
+### Bug Fixes
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) Enum members use their `application/json` `@encodedName` as their value, including members with an explicit value. An encoded integer member is emitted as a string.
+- [#12330](https://github.com/microsoft/typespec/pull/12330) Report a diagnostic instead of crashing when `@prefixItems` receives an array type rather than a tuple.
+
+
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Support `model`, `enum`, `union`, and `scalar` declarations used in expression position. Anonymous declaration expressions are inlined, while named ones are hoisted into their own schema.
+  
+  ```tsp
+  model Foo {
+    status: enum { active, inactive }; // inlined
+    unit: scalar extends string; // inlined
+    inner: model Inner { x: string }; // hoisted as `Inner.json`
+  }
+  ```
+
+### Bug Fixes
+
+- [#11893](https://github.com/microsoft/typespec/pull/11893) Emit `minItems` and `maxItems` for tuple types so generated schemas enforce the tuple's exact length.
+- [#11915](https://github.com/microsoft/typespec/pull/11915) Emit tuple value referencing a declared model as a `$ref`.
+
+
+## 1.16.0
+
+### Bug Fixes
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize declaration names used as file names so a declaration named with a backticked identifier containing path separators cannot write the schema outside of the emitter output dir.
+
+
+## 1.15.0
+
+### Bug Fixes
+
+- [#11505](https://github.com/microsoft/typespec/pull/11505) Use explicit `@id` values for bundled $defs keys to avoid silent overwrites.
+
+
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+No changes, version bump only.
+
+## 1.12.0
+
+No changes, version bump only.
+
 ## 1.11.0
 
 No changes, version bump only.

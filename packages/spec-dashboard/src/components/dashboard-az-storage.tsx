@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CoverageFromAzureStorageOptions, CoverageSummary, getCoverageSummaries } from "../apis.js";
+import type { CoverageFromAzureStorageOptions, CoverageSummary } from "../apis.js";
+import { getCoverageSummaries } from "../apis.js";
 import { useEffectAsync } from "../utils.js";
 import { Dashboard } from "./dashboard.js";
 
@@ -27,6 +28,7 @@ export const DashboardFromAzureStorage = (props: DashboardFromAzureStorageProps)
           scenarioTierConfig={props.options.tiers}
           showOverview={props.options.showOverview}
           emitterDisplayNames={props.options.emitterDisplayNames}
+          groupEmitters={props.options.groupEmitters}
         ></Dashboard>
       ) : (
         "Loading"

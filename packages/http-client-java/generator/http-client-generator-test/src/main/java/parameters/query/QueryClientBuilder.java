@@ -40,7 +40,12 @@ import parameters.query.implementation.QueryClientImpl;
 /**
  * A builder for creating a new instance of the QueryClient type.
  */
-@ServiceClientBuilder(serviceClients = { QueryClient.class, QueryAsyncClient.class })
+@ServiceClientBuilder(
+    serviceClients = {
+        ConstantClient.class,
+        SpecialCharClient.class,
+        ConstantAsyncClient.class,
+        SpecialCharAsyncClient.class })
 public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, ConfigurationTrait<QueryClientBuilder>,
     EndpointTrait<QueryClientBuilder> {
     @Generated
@@ -264,23 +269,43 @@ public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, 
     }
 
     /**
-     * Builds an instance of QueryAsyncClient class.
+     * Builds an instance of ConstantAsyncClient class.
      * 
-     * @return an instance of QueryAsyncClient.
+     * @return an instance of ConstantAsyncClient.
      */
     @Generated
-    public QueryAsyncClient buildAsyncClient() {
-        return new QueryAsyncClient(buildInnerClient().getConstants());
+    public ConstantAsyncClient buildConstantAsyncClient() {
+        return new ConstantAsyncClient(buildInnerClient().getConstants());
     }
 
     /**
-     * Builds an instance of QueryClient class.
+     * Builds an instance of SpecialCharAsyncClient class.
      * 
-     * @return an instance of QueryClient.
+     * @return an instance of SpecialCharAsyncClient.
      */
     @Generated
-    public QueryClient buildClient() {
-        return new QueryClient(buildInnerClient().getConstants());
+    public SpecialCharAsyncClient buildSpecialCharAsyncClient() {
+        return new SpecialCharAsyncClient(buildInnerClient().getSpecialChars());
+    }
+
+    /**
+     * Builds an instance of ConstantClient class.
+     * 
+     * @return an instance of ConstantClient.
+     */
+    @Generated
+    public ConstantClient buildConstantClient() {
+        return new ConstantClient(buildInnerClient().getConstants());
+    }
+
+    /**
+     * Builds an instance of SpecialCharClient class.
+     * 
+     * @return an instance of SpecialCharClient.
+     */
+    @Generated
+    public SpecialCharClient buildSpecialCharClient() {
+        return new SpecialCharClient(buildInnerClient().getSpecialChars());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(QueryClientBuilder.class);

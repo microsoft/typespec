@@ -48,6 +48,8 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.
 
 If this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.
@@ -56,17 +58,23 @@ If this option is not set to `true`, the `expressMiddleware` property will not b
 
 **Type:** `"temporal-polyfill" | "temporal" | "date-duration"`
 
+**Default:** `"temporal-polyfill"`
+
 The type of datetime models to use for TypeSpecs DateTime and Duration types.
 
 ### `omit-unreachable-types`
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set to `true`, the emitter will only emit those types that are reachable from an HTTP operation.
 
 ### `no-format`
 
 **Type:** `boolean`
+
+**Default:** `false`
 
 If set to `true`, the emitter will not format the generated code using Prettier.
 
@@ -134,9 +142,10 @@ For example, given the following TypeSpec namespace `Users` within the `Todo` se
 namespace Users {
   @route("/users")
   @post
-  op create(
-    user: User,
-  ): WithStandardErrors<UserCreatedResponse | UserExistsResponse | InvalidUserResponse>;
+  op create(user: User): WithStandardErrors<
+    | UserCreatedResponse
+    | UserExistsResponse
+    | InvalidUserResponse>;
 }
 ```
 

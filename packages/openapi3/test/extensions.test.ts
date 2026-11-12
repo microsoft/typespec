@@ -46,6 +46,33 @@ describe("target", () => {
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
   });
 
+  it("does not duplicate parameter extensions on parameter schemas", async () => {
+    const oapi = await openApiFor(
+      `
+      @route("/{id}") @get op get(
+        @extension("x-my-ext", "path") @path id: string,
+        @extension("x-my-ext", "query") @query filter: string,
+      ): void;
+      `,
+    );
+
+    const parameters = oapi.paths["/{id}"].get.parameters as Array<{
+      name: string;
+      schema: Record<string, unknown>;
+      [key: string]: unknown;
+    }>;
+    const pathParam = parameters.find((x) => x.name === "id");
+    const queryParam = parameters.find((x) => x.name === "filter");
+
+    ok(pathParam);
+    ok(queryParam);
+
+    expect(pathParam["x-my-ext"]).toEqual("path");
+    expect(pathParam.schema["x-my-ext"]).toBeUndefined();
+    expect(queryParam["x-my-ext"]).toEqual("query");
+    expect(queryParam.schema["x-my-ext"]).toBeUndefined();
+  });
+
   it("adds at root of document when on namespace", async () => {
     const oapi = await openApiFor(
       `

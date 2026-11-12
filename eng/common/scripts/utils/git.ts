@@ -1,4 +1,4 @@
-import { execAsync, type ExecResult } from "./exec-async.js";
+import { execAsync, type ExecResult } from "./exec-async.ts";
 
 export async function listChangedFilesSince(
   ref: string,

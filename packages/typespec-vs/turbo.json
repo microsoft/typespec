@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["src/**", "scripts/**", "package.json"],
+      "outputs": ["src/bin/**", "src/obj/**", "Microsoft.TypeSpec.VS.vsix"]
+    }
+  }
+}

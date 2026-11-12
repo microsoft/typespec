@@ -3,7 +3,6 @@
 
 package type.file;
 
-import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.nio.file.Path;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
+import type.file.body.UploadFileMultipleContentTypesContentType;
 
 public class FileTests {
 
@@ -54,16 +54,15 @@ public class FileTests {
 
     @Test
     public void testDownloadFileMultipleContentTypes() {
-        BinaryData response
-            = client.downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType.IMAGE_PNG);
+        BinaryData response = client.downloadFileMultipleContentTypes();
         Assertions.assertNotNull(response);
     }
 
     @Test
     public void testUploadFileDefaultContentType() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileDefaultContentTypeWithResponse(fileData, fileData.getLength(),
-            RequestContext.builder().setHeader(HttpHeaderName.CONTENT_TYPE, "image/png").build());
+        client.uploadFileDefaultContentTypeWithResponse(fileData, fileData.getLength(), "image/png",
+            RequestContext.none());
     }
 
     @Test

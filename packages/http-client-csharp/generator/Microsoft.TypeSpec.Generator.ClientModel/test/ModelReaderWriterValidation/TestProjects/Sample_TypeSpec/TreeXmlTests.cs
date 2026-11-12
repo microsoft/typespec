@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -54,6 +58,138 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         [Test]
         public void RoundTripWithModelInterfaceNonGeneric_XML()
             => RoundTripTestXml("X", new ModelInterfaceAsObjectStrategy<Tree>());
+
+        [Test]
+        public void OptionalNullablePropertiesRoundTripXml(
+            [Values("absent", "empty", "populated")] string state,
+            [Values(false, true)] bool useInterface)
+        {
+            var expected = XElement.Parse(XmlPayload);
+            if (state != "absent")
+            {
+                expected.Add(
+                    new XElement("nullableText", state == "empty" ? string.Empty : "value"),
+                    new XElement("nullableLabels", state == "empty" ? null : new XElement("key", "value")));
+            }
+            var options = new ModelReaderWriterOptions("X");
+            var data = BinaryData.FromString(expected.ToString());
+            var model = useInterface
+                ? ((IPersistableModel<Tree>)new Tree("unused", 0, 0)).Create(data, options)!
+                : ModelReaderWriter.Read<Tree>(data, options, SampleTypeSpecContext.Default)!;
+
+            Assert.That(model.NullableText, Is.EqualTo(state == "absent" ? null : state == "empty" ? string.Empty : "value"));
+            Assert.That(model.NullableLabels, Is.Not.Null);
+            Assert.That(model.NullableLabels.Count, Is.EqualTo(state == "populated" ? 1 : 0));
+            if (state == "populated")
+            {
+                Assert.That(model.NullableLabels["key"], Is.EqualTo("value"));
+            }
+
+            var serialized = useInterface
+                ? ((IPersistableModel<Tree>)model).Write(options)
+                : ModelReaderWriter.Write(model, options, SampleTypeSpecContext.Default);
+            Assert.That(XNode.DeepEquals(expected, XElement.Parse(serialized.ToString())), Is.True);
+
+            using var json = JsonDocument.Parse(ModelReaderWriter.Write(model, new ModelReaderWriterOptions("J"), SampleTypeSpecContext.Default));
+            foreach (var name in new[] { "nullableText", "nullableLabels" })
+            {
+                Assert.That(json.RootElement.TryGetProperty(name, out _), Is.EqualTo(state != "absent"), name);
+            }
+        }
+
+        [Test]
+        public void ExplicitNullScalarIsOmittedInXmlButPreservedInJson([Values("J", "W")] string jsonFormat)
+        {
+            var model = new Tree("tree-123", 500, 100) { NullableText = null };
+            var xmlOptions = new ModelReaderWriterOptions("X");
+            var xml = ModelReaderWriter.Write(model, xmlOptions, SampleTypeSpecContext.Default);
+
+            Assert.That(XNode.DeepEquals(XElement.Parse(XmlPayload), XElement.Parse(xml.ToString())), Is.True);
+            using var json = JsonDocument.Parse(ModelReaderWriter.Write(model, new ModelReaderWriterOptions(jsonFormat), SampleTypeSpecContext.Default));
+            Assert.That(json.RootElement.GetProperty("nullableText").ValueKind, Is.EqualTo(JsonValueKind.Null));
+
+            var roundTrip = ModelReaderWriter.Read<Tree>(xml, xmlOptions, SampleTypeSpecContext.Default)!;
+            using var roundTripJson = JsonDocument.Parse(ModelReaderWriter.Write(roundTrip, new ModelReaderWriterOptions(jsonFormat), SampleTypeSpecContext.Default));
+            Assert.That(roundTripJson.RootElement.TryGetProperty("nullableText", out _), Is.False);
+            Assert.That(roundTripJson.RootElement.TryGetProperty("nullableLabels", out _), Is.False);
+        }
+
+        [TestCase("""{"species":"tree","id":"tree-123","height":500,"age":100}""")]
+        [TestCase("""{"species":"tree","id":"tree-123","height":500,"age":100,"nullableText":null,"nullableLabels":null}""")]
+        [TestCase("""{"species":"tree","id":"tree-123","height":500,"age":100,"nullableText":"","nullableLabels":{}}""")]
+        [TestCase("""{"species":"tree","id":"tree-123","height":500,"age":100,"nullableText":"value","nullableLabels":{"key":"value"}}""")]
+        public void OptionalNullablePropertiesRetainJsonPresence(string payload)
+        {
+            var model = ModelReaderWriter.Read<Tree>(BinaryData.FromString(payload), ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default)!;
+            using var expected = JsonDocument.Parse(payload);
+            using var actual = JsonDocument.Parse(ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default));
+
+            Assert.That(actual.RootElement.EnumerateObject().Select(p => p.Name),
+                Is.EquivalentTo(expected.RootElement.EnumerateObject().Select(p => p.Name)));
+            foreach (var property in expected.RootElement.EnumerateObject())
+            {
+                Assert.That(actual.RootElement.GetProperty(property.Name).GetRawText(), Is.EqualTo(property.Value.GetRawText()), property.Name);
+            }
+        }
+
+        [Test]
+        public void NullCollectionsAreOmittedInXmlWithoutChangingJsonPresence(
+            [Values("J", "W")] string jsonFormat,
+            [Values(false, true)] bool deserialize,
+            [Values(false, true)] bool useInterface)
+        {
+            var jsonOptions = new ModelReaderWriterOptions(jsonFormat);
+            var model = deserialize
+                ? ModelReaderWriter.Read<Tree>(
+                    BinaryData.FromString("""{"species":"tree","id":"tree-123","height":500,"age":100,"nullableLabels":null}"""),
+                    jsonOptions, SampleTypeSpecContext.Default)!
+                : new Tree("tree-123", 500, 100) { NullableLabels = null };
+            var xmlOptions = new ModelReaderWriterOptions("X");
+            Assert.That(model.NullableLabels, Is.Null);
+
+            foreach (var state in new[] { "null", "empty", "populated", "null" })
+            {
+                if (state == "empty")
+                {
+                    model.NullableLabels = new Dictionary<string, string>();
+                }
+                else if (state == "populated")
+                {
+                    model.NullableLabels!.Add("key", "value");
+                }
+                else if (model.NullableLabels != null)
+                {
+                    model.NullableLabels = null;
+                }
+
+                var expectedXml = XElement.Parse(XmlPayload);
+                if (state != "null")
+                {
+                    expectedXml.Add(new XElement("nullableLabels", state == "populated" ? new XElement("key", "value") : null));
+                }
+                var xml = useInterface
+                    ? ((IPersistableModel<Tree>)model).Write(xmlOptions)
+                    : ModelReaderWriter.Write(model, xmlOptions, SampleTypeSpecContext.Default);
+                Assert.That(XNode.DeepEquals(expectedXml, XElement.Parse(xml.ToString())), Is.True, state);
+
+                using var json = JsonDocument.Parse(ModelReaderWriter.Write(model, jsonOptions, SampleTypeSpecContext.Default));
+                var labels = json.RootElement.GetProperty("nullableLabels");
+                if (state == "null")
+                {
+                    Assert.That(model.NullableLabels, Is.Null);
+                    Assert.That(labels.ValueKind, Is.EqualTo(JsonValueKind.Null));
+                }
+                else
+                {
+                    Assert.That(labels.ValueKind, Is.EqualTo(JsonValueKind.Object));
+                    Assert.That(labels.EnumerateObject().Count(), Is.EqualTo(state == "populated" ? 1 : 0));
+                    if (state == "populated")
+                    {
+                        Assert.That(labels.GetProperty("key").GetString(), Is.EqualTo("value"));
+                    }
+                }
+            }
+        }
 
         private void RoundTripTestXml(string format, RoundTripStrategy<Tree> strategy)
         {

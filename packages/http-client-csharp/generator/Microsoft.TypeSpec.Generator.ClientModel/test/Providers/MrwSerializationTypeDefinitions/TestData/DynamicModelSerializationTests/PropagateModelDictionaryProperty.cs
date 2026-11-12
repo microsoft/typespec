@@ -20,8 +20,16 @@ namespace Sample
             {
                 int propertyLength = "p1"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P1 == null))
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.AnotherDynamic item))
+                {
+                    return false;
+                }
+                if ((item == null))
                 {
                     return false;
                 }
@@ -40,8 +48,16 @@ namespace Sample
             {
                 int propertyLength = "p1"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P1 == null))
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.AnotherDynamic item))
+                {
+                    return false;
+                }
+                if ((item == null))
                 {
                     return false;
                 }

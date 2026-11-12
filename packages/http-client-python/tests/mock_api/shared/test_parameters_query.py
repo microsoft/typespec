@@ -15,3 +15,7 @@ def client():
 
 def test_constant(client: QueryClient):
     client.constant.post()
+
+
+def test_special_char_dollar_sign(client: QueryClient):
+    client.special_char.dollar_sign(filter="status eq 'active'")

@@ -1,0 +1,52 @@
+package type.union.discriminated.extendsnamespace.enumdiscriminator;
+
+/**
+ * Defines values for PetKind.
+ */
+public enum PetKind {
+    /**
+     * Enum value cat.
+     */
+    CAT("cat"),
+
+    /**
+     * Enum value dog.
+     */
+    DOG("dog");
+
+    /**
+     * The actual serialized value for a PetKind instance.
+     */
+    private final String value;
+
+    PetKind(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Parses a serialized value to a PetKind instance.
+     * 
+     * @param value the serialized value to parse.
+     * @return the parsed PetKind object, or null if unable to parse.
+     */
+    public static PetKind fromString(String value) {
+        if (value == null) {
+            return null;
+        }
+        PetKind[] items = PetKind.values();
+        for (PetKind item : items) {
+            if (item.toString().equalsIgnoreCase(value)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return this.value;
+    }
+}

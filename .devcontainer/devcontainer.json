@@ -1,8 +1,10 @@
 {
   "name": "Standard",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
+  "postCreateCommand": "mise trust && pnpm install",
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {

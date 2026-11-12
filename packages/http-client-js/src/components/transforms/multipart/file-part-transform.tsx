@@ -1,6 +1,7 @@
-import { Children, code } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { HttpOperationPart } from "@typespec/http";
+import type { HttpOperationPart } from "@typespec/http";
 import { getCreateFilePartDescriptorReference } from "../../static-helpers/multipart-helpers.jsx";
 
 export interface FilePartTransformProps {

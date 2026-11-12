@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ClientPipelineExtensionsDefinition : TypeProvider
+    internal class ClientPipelineExtensionsDefinition : InternalHelperProvider
     {
         private ParameterProvider _pipelineParam;
         private ParameterProvider _messageParam;
@@ -30,11 +30,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pipeline = _pipelineParam.ToApi<ClientPipelineApi>();
             _message = _messageParam.ToApi<HttpMessageApi>();
             _options = _requestOptionsParam.ToApi<HttpRequestOptionsApi>();
-        }
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
@@ -78,21 +73,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement GetProcessHeadAsBoolMessageBody(HttpResponseApi response)
         {
+            var errorResult = Return(New.Instance(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, New.Instance(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]));
             return new MethodBodyStatement[]
             {
+                new IfStatement(response.IsError())
+                {
+                    errorResult
+                },
                 new SwitchStatement(new MemberExpression(response, "Status"),
                 [
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
                         Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(True, response))
                     }),
-                    new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
+                    new SwitchCaseStatement(Literal(404), new MethodBodyStatement[]
                     {
                         Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(False, response))
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
-                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
+                        errorResult
                     })
                 ]),
             };

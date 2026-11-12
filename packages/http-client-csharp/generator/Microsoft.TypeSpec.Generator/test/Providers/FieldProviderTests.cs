@@ -1,10 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
-using System;
+using System.Reflection;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -109,6 +113,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "[global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute(\"001\")]\n" +
                 "private int _name;\n";
             Assert.AreEqual(expectedString, writer.ToString(false));
+        }
+
+        [Test]
+        public void ExperimentalFieldTypesHaveScopedSuppressions()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+#pragma warning disable FIELD001, FIELD002 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var experimentalType = new CSharpType(typeof(Sample.ExperimentalFieldType));
+            var genericType = new CSharpType(typeof(Sample.ExperimentalFieldGeneric<>), experimentalType);
+            var nestedType = new CSharpType(typeof(Sample.ExperimentalFieldType.Nested));
+#pragma warning restore FIELD001, FIELD002 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var polyfilledType = new CSharpType(EmitPolyfilledExperimentalFieldType());
+            var provider = new TestTypeProvider("FieldContainer", ns: "Sample");
+            var explicitlySuppressed = new FieldProvider(FieldModifiers.Private, experimentalType, "_explicitlySuppressed", provider);
+            explicitlySuppressed.Update(suppressions:
+            [
+                new SuppressionStatement(null, Snippet.Literal("FIELD001"), "Existing suppression.")
+            ]);
+            provider.Update(fields:
+            [
+                new FieldProvider(FieldModifiers.Private, experimentalType, "_value", provider,
+                    $"The experimental value.", Snippet.New.Instance(experimentalType),
+                    attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]),
+                new FieldProvider(FieldModifiers.Private, experimentalType.WithNullable(true), "_nullable", provider),
+                new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(List<>), experimentalType), "_list", provider),
+                new FieldProvider(FieldModifiers.Private, new CSharpType(experimentalType.FrameworkType.MakeArrayType()), "_array", provider),
+                new FieldProvider(FieldModifiers.Private, nestedType, "_nested", provider),
+                new FieldProvider(FieldModifiers.Private, genericType, "_generic", provider),
+                explicitlySuppressed,
+                new FieldProvider(FieldModifiers.Private, experimentalType, "_experimentalMember", provider,
+                    attributes: [new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("FIELD001"))]),
+                new FieldProvider(FieldModifiers.Private, typeof(string), "_stable", provider),
+                new FieldProvider(FieldModifiers.Private, polyfilledType, "_polyfilled", provider)
+            ]);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(provider).Write().Content);
+        }
+
+        private static Type EmitPolyfilledExperimentalFieldType()
+        {
+            var source = Helpers.GetExpectedFromFile("Input", nameof(ExperimentalFieldTypesHaveScopedSuppressions));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location))
+                .ToList();
+            var compilation = CSharpCompilation.Create(
+                "Polyfilled.ExperimentalFieldTypes",
+                [CSharpSyntaxTree.ParseText(source)],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+
+            using var ms = new MemoryStream();
+            var emitResult = compilation.Emit(ms);
+            Assert.IsTrue(
+                emitResult.Success,
+                "Failed to emit polyfilled experimental field assembly: " +
+                string.Join(Environment.NewLine, emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
+
+            var assembly = Assembly.Load(ms.ToArray());
+            return assembly.GetType("Polyfilled.External.PolyfilledExperimentalFieldType")!;
         }
     }
 }

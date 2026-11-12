@@ -1,5 +1,9 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "noEmit": false
+  },
   "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"],
   "references": [{ "path": "../compiler/tsconfig.build.json" }]
 }

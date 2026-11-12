@@ -15,6 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         internal static ScopedApi<string> WireFormat => Literal("W");
         internal static ScopedApi<string> JsonFormat => Literal("J");
         internal static ScopedApi<string> XmlFormat => Literal("X");
+        internal static ScopedApi<ModelReaderWriterOptions> JsonFormatProperty => Static(typeof(ModelReaderWriterOptions)).Property(nameof(ModelReaderWriterOptions.Json)).As<ModelReaderWriterOptions>();
         internal static ScopedApi<ModelReaderWriterOptions> InitializeWireOptions => New.Instance(typeof(ModelReaderWriterOptions), Wire).As<ModelReaderWriterOptions>();
     }
 }

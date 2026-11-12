@@ -3,13 +3,7 @@ import { resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
 import { bundleTypeSpecLibrary } from "./bundler.js";
 
-try {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await import("source-map-support/register.js");
-} catch {
-  // package only present in dev.
-}
+process.setSourceMapsEnabled(true);
 
 async function main() {
   console.log(`TypeSpec Developer Tools`);

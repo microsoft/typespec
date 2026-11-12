@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   SdkClientType as SdkClientTypeOfT,
   SdkCredentialParameter,
   SdkEndpointParameter,
@@ -9,15 +9,17 @@ import {
   SdkHttpOperation,
   SdkMethodParameter,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
-import { CSharpEmitterContext } from "../sdk-context.js";
+import type { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import type { CSharpEmitterContext } from "../sdk-context.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
-import {
+import type {
   InputClient,
   InputEndpointParameter,
   InputParameter,
   InputType,
 } from "../type/input-type.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import {
   fromMethodParameter,
@@ -71,13 +73,17 @@ function fromSdkClient(
 
   const isMultiService = isMultiServiceClient(client);
   const clientName =
-    !client.parent && isMultiService && !client.name.toLowerCase().endsWith("client")
+    !client.parent &&
+    isMultiService &&
+    !client.isExactName &&
+    !client.name.toLowerCase().endsWith("client")
       ? `${client.name}Client`
       : client.name;
 
   inputClient = {
     kind: "client",
     name: clientName,
+    isExactName: client.isExactName,
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
@@ -96,6 +102,7 @@ function fromSdkClient(
     parent: undefined,
     children: undefined,
     isMultiServiceClient: isMultiService,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, client.__raw.type)),
   };
 
   sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);
@@ -204,6 +211,7 @@ function fromSdkClient(
         methodParameterSegments: diagnostics.pipe(
           getMethodParameterSegments(sdkContext, parameter),
         ),
+        isExactName: parameter.isExactName,
       });
     }
     return diagnostics.wrap(parameters);

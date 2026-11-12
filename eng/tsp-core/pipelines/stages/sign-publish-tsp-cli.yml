@@ -25,12 +25,6 @@ stages:
 
       - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
-          platform: macos-x64
-          artifactName: standalone-macos-signed
-          exePath: standalone-macos-x64/tsp
-
-      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
-        parameters:
           platform: macos-arm64
           artifactName: standalone-macos-signed
           exePath: standalone-macos-arm64/tsp

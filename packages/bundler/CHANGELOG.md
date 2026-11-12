@@ -1,5 +1,23 @@
 # Change Log - @typespec/bundler
 
+## 0.6.1
+
+### Bug Fixes
+
+- [#11489](https://github.com/microsoft/typespec/pull/11489) Include a library's own `tspconfig.yaml` in the generated bundle so per-library opt-ins (such as compiler `features`) are preserved when the library is loaded in the browser (e.g. in the playground).
+
+
+## 0.6.0
+
+### Features
+
+- [#10165](https://github.com/microsoft/typespec/pull/10165) Add support for alloy based emitters
+
+### Bug Fixes
+
+- [#10456](https://github.com/microsoft/typespec/pull/10456) Add support for subpath exports
+
+
 ## 0.5.2
 
 ### Bug Fixes

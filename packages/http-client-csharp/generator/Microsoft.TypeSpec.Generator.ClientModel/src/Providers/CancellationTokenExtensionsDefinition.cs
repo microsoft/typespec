@@ -12,18 +12,13 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class CancellationTokenExtensionsDefinition : TypeProvider
+    internal class CancellationTokenExtensionsDefinition : InternalHelperProvider
     {
         private ParameterProvider _cancellationTokenParam;
 
         public CancellationTokenExtensionsDefinition()
         {
             _cancellationTokenParam = new ParameterProvider("cancellationToken", FormattableStringHelpers.Empty, typeof(CancellationToken));
-        }
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");

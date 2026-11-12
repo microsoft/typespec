@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             JsonElement? rawValue = null;
             InputPrimitiveType? valueType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            bool isExactName = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -36,7 +37,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("namespace", ref ns)
                     || reader.TryReadComplexType("value", options, ref rawValue)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -65,7 +67,8 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             var literalType = new InputLiteralType(name, ns, valueType, value)
             {
-                Decorators = decorators ?? []
+                Decorators = decorators ?? [],
+                IsExactName = isExactName
             };
 
             if (id != null)

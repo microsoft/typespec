@@ -13,8 +13,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly TypeSignatureModifiers? _declarationModifiers;
         private readonly MethodProvider[] _methods;
         private readonly PropertyProvider[] _properties;
+        private readonly FieldProvider[] _fields;
+        private readonly ConstructorProvider[] _constructors;
         private readonly string _name;
         private readonly string _namespace;
+        private readonly CSharpType[]? _implements;
+        private readonly CSharpType? _baseType;
         protected override string BuildRelativeFilePath() => $"{Name}.cs";
 
         protected override string BuildName() => _name;
@@ -24,6 +28,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
         protected internal override PropertyProvider[] BuildProperties() => _properties;
 
         protected internal override MethodProvider[] BuildMethods() => _methods;
+
+        protected internal override FieldProvider[] BuildFields() => _fields;
+
+        protected internal override ConstructorProvider[] BuildConstructors() => _constructors;
+
+        protected internal override CSharpType[] BuildImplements() => _implements ?? base.BuildImplements();
+
+        protected override CSharpType? BuildBaseType() => _baseType ?? base.BuildBaseType();
         protected override TypeProvider[] BuildNestedTypes() => NestedTypesInternal ?? base.BuildNestedTypes();
 
         public static readonly TypeProvider Empty = new TestTypeProvider();
@@ -33,13 +45,21 @@ namespace Microsoft.TypeSpec.Generator.Tests
             TypeSignatureModifiers? declarationModifiers = null,
             IEnumerable<MethodProvider>? methods = null,
             IEnumerable<PropertyProvider>? properties = null,
-            string? ns = null)
+            string? ns = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<CSharpType>? implements = null,
+            CSharpType? baseType = null,
+            IEnumerable<FieldProvider>? fields = null)
         {
             _declarationModifiers = declarationModifiers;
             _methods = methods?.ToArray() ?? [];
             _properties = properties?.ToArray() ?? [];
+            _fields = fields?.ToArray() ?? [];
+            _constructors = constructors?.ToArray() ?? [];
             _name = name ?? "TestName";
             _namespace = ns ?? "Test";
+            _implements = implements?.ToArray();
+            _baseType = baseType;
         }
 
         internal TypeProvider[]? NestedTypesInternal { get; set; }

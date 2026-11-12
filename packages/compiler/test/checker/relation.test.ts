@@ -1,9 +1,10 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import type { FunctionParameterNode } from "../../src/ast/index.js";
-import { Diagnostic, Model, Type, definePackageFlags } from "../../src/index.js";
+import type { Diagnostic, Model, Type } from "../../src/index.js";
+import { definePackageFlags } from "../../src/index.js";
+import type { DiagnosticMatch } from "../../src/testing/index.js";
 import {
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
@@ -1261,6 +1262,7 @@ describe("compiler: checker: type relations", () => {
     testReflectionType("Namespace", "Foo", `namespace Foo {}`);
     testReflectionType("Operation", "foo", `op foo(): void;`);
     testReflectionType("Scalar", "foo", `scalar foo;`);
+    testReflectionType("StringTemplate", '"${string}"', "");
     describe(`Reflection.Union`, () => {
       it(`can assign union expression`, async () => {
         await expectTypeAssignable({
@@ -1284,6 +1286,39 @@ describe("compiler: checker: type relations", () => {
         source: "never",
         target: `TypeSpec.Reflection.Model`,
       });
+    });
+
+    it("rejects a reflection namespace declaration as a model argument", async () => {
+      const diagnostics = await MockTester.import("./mock.js").diagnose(`
+        extern dec mock(target: unknown, value: Reflection.Model);
+        @mock(Reflection.Namespace) model Test {}
+      `);
+      expectDiagnostics(diagnostics, { code: "invalid-argument" });
+    });
+
+    it("accepts a reflection namespace declaration as a namespace argument", async () => {
+      await Tester.compile(`
+        model NamespaceOnly<T extends Reflection.Namespace> {}
+        alias Test = NamespaceOnly<Reflection.Namespace>;
+      `);
+    });
+
+    it("keeps unrecognized reflection models as ordinary types", async () => {
+      await Tester.compile(`
+        namespace TypeSpec.Reflection { model Custom {} }
+        model Accept<T extends Reflection.Custom> {}
+        alias Test = Accept<Reflection.Custom>;
+      `);
+    });
+
+    it("rejects a forwarded namespace constraint as a model argument", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model Target<T extends Reflection.Model> {}
+        model Source<T extends Reflection.Namespace> {
+          value: Target<T>;
+        }
+      `);
+      expectDiagnostics(diagnostics, { code: "invalid-argument" });
     });
   });
 
@@ -1710,6 +1745,155 @@ describe("compiler: checker: type relations", () => {
         ["(valueof {}) | {}", "(valueof {}) | {}"],
       ])(`%s => %s`, async (source, target) => {
         await expectTypeAssignable({ source, target });
+      });
+    });
+
+    describe("recursive types", () => {
+      it("checks mutually recursive models through a template constraint", async () => {
+        const diagnostics = await Tester.diagnose(`
+          model SourceA { b: SourceB }
+          model SourceB { a: SourceA }
+          model TargetA { b: TargetB }
+          model TargetB { a: TargetA }
+
+          model Constrained<T extends TargetA> {}
+          alias Result = Constrained<SourceA>;
+        `);
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("model referencing itself", async () => {
+        await expectTypeAssignable({
+          source: "Source",
+          target: "Target",
+          commonCode: `
+            model Source { self: Source }
+            model Target { self: Target }
+          `,
+        });
+      });
+
+      it("mutually recursive models", async () => {
+        await expectTypeAssignable({
+          source: "SourceA",
+          target: "TargetA",
+          commonCode: `
+            model SourceA { b: SourceB }
+            model SourceB { a: SourceA }
+            model TargetA { b: TargetB }
+            model TargetB { a: TargetA }
+          `,
+        });
+      });
+
+      it("mutually recursive models with a mismatch deep in the cycle", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: "SourceA",
+            target: "TargetA",
+            commonCode: `
+              model SourceA { b: SourceB }
+              model SourceB { a: SourceA, extra: string }
+              model TargetA { b: TargetB }
+              model TargetB { a: TargetA, extra: int32 }
+            `,
+          },
+          { code: "unassignable" },
+        );
+      });
+
+      it("union referencing itself", async () => {
+        // A union whose only variant is itself describes an empty set of values, so like `never`
+        // it is vacuously assignable to anything. What matters here is that it terminates.
+        await expectTypeAssignable({
+          source: "Loop",
+          target: "Target",
+          commonCode: `
+            union Loop { self: Loop }
+            model Target { name: string }
+          `,
+        });
+      });
+
+      it("mutually recursive unions", async () => {
+        await expectTypeAssignable({
+          source: "LoopA",
+          target: "Target",
+          commonCode: `
+            union LoopA { b: LoopB }
+            union LoopB { a: LoopA }
+            model Target { name: string }
+          `,
+        });
+      });
+
+      it("union referencing itself alongside an unassignable variant", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: "Loop",
+            target: "Target",
+            commonCode: `
+              union Loop { self: Loop, other: string }
+              model Target { name: string }
+            `,
+          },
+          { code: "unassignable" },
+        );
+      });
+
+      it("model with a recursive union property", async () => {
+        await expectTypeAssignable({
+          source: "Source",
+          target: "Target",
+          commonCode: `
+            union Loop { self: Loop, name: string }
+            model Source { value: Loop }
+            model Target { value: Loop }
+          `,
+        });
+      });
+
+      it("recursive union as the target", async () => {
+        await expectTypeAssignable({
+          source: "string",
+          target: "Loop",
+          commonCode: `union Loop { self: Loop, s: string }`,
+        });
+      });
+
+      it("recursive union as the target without a matching variant", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: "string",
+            target: "Loop",
+            commonCode: `union Loop { self: Loop }`,
+          },
+          { code: "unassignable" },
+        );
+      });
+
+      it("mutually recursive unions on both sides", async () => {
+        await expectTypeAssignable({
+          source: "SourceA",
+          target: "TargetA",
+          commonCode: `
+            union SourceA { b: SourceB }
+            union SourceB { a: SourceA, s: string }
+            union TargetA { b: TargetB }
+            union TargetB { a: TargetA, s: string }
+          `,
+        });
+      });
+
+      it("model with a recursive array property", async () => {
+        await expectTypeAssignable({
+          source: "Source",
+          target: "Target",
+          commonCode: `
+            model Source { items: Source[] }
+            model Target { items: Target[] }
+          `,
+        });
       });
     });
   });

@@ -1,4 +1,5 @@
-import { Children, code, mapJoin } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { code, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";

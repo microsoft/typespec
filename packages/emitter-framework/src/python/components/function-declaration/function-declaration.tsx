@@ -6,20 +6,24 @@ import type { Model, Operation } from "@typespec/compiler";
 import { DocElement } from "../doc-element/doc-element.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
+/** Operation-backed function options with explicit signature and documentation overrides. */
 export interface FunctionDeclarationPropsWithType extends Omit<
   py.FunctionDeclarationProps,
   "name"
 > {
+  /** Operation supplying parameters, documentation, and the unfiltered return type. */
   type: Operation;
+  /** Name override; otherwise the operation name uses the Python function naming policy. */
   name?: string;
+  /** Alternative parameter model; replaces operation parameters and ignores explicit `parameters`. */
   parametersModel?: Model;
   /** If true, parameters replaces operation parameters instead of adding to them as keyword-only */
   replaceParameters?: boolean;
 }
 
+/** Selects an operation-derived function or an ordinary manually specified Alloy function. */
 export type FunctionDeclarationProps =
-  | FunctionDeclarationPropsWithType
-  | py.FunctionDeclarationProps;
+  FunctionDeclarationPropsWithType | py.FunctionDeclarationProps;
 
 /**
  * A Python function declaration. Pass the `type` prop to create the
@@ -31,7 +35,8 @@ export type FunctionDeclarationProps =
  *   the `parameters` option.
  * - Model-derived parameters include default values when present on the model, and
  *   emit `= None` for optional parameters without an explicit default.
- * - Additional parameters (from `parameters` prop) are always keyword-only.
+ * - Additional parameters are keyword-only when operation parameters exist; without
+ *   operation parameters, additional parameters without defaults remain positional.
  */
 export function FunctionDeclaration(props: FunctionDeclarationProps) {
   const { $ } = useTsp();

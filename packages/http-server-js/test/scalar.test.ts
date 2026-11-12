@@ -1,21 +1,19 @@
-import { ModelProperty, NoTarget, Scalar, resolvePath } from "@typespec/compiler";
-import { BasicTestRunner, createTestRunner, createTester } from "@typespec/compiler/testing";
+import type { ModelProperty, Scalar } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { createTestRunner } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
+import { escapeUnsafeChars } from "../src/common/reference.js";
 import { getJsScalar } from "../src/common/scalar.js";
-import { JsContext, Module, createPathCursor } from "../src/ctx.js";
+import type { JsContext, Module } from "../src/ctx.js";
+import { createPathCursor } from "../src/ctx.js";
+import { HttpServerEmitterTester } from "./tester.js";
 
 import { module as dateTimeModule } from "../generated-defs/helpers/datetime.js";
 import { module as temporalHelpersModule } from "../generated-defs/helpers/temporal/native.js";
 import { module as temporalPolyfillHelpersModule } from "../generated-defs/helpers/temporal/polyfill.js";
-import { JsEmitterOptions } from "../src/lib.js";
-
-const HttpServerEmitterTester = createTester(resolvePath(import.meta.dirname, ".."), {
-  libraries: ["@typespec/http", "@typespec/http-server-js"],
-})
-  .import("@typespec/http")
-  .using("Http")
-  .emit("@typespec/http-server-js");
+import type { JsEmitterOptions } from "../src/lib.js";
 
 describe("scalar", () => {
   let runner: BasicTestRunner;
@@ -193,6 +191,39 @@ describe("scalar", () => {
     );
   });
 
+  it("escapes forward slashes in emitted string literals", () => {
+    expect(escapeUnsafeChars(JSON.stringify("application/zip"))).toBe('"application\\u002Fzip"');
+  });
+
+  it("keeps the escapes JSON.stringify writes when escaping unsafe characters", () => {
+    for (const value of ['a"b', "c\\d", "x\ny", "t\tu", "e\u2028f\u2029g", "</h>"]) {
+      const literal = escapeUnsafeChars(JSON.stringify(value));
+      expect(JSON.parse(literal)).toBe(value);
+      expect(literal).not.toMatch(/[\u2028\u2029]/);
+    }
+  });
+
+  it("emits string literals containing a quote, a backslash or a newline", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        model Cat {
+          quoted: "a\\"b";
+          backslashed: "c\\\\d";
+          multiline: "x\\ny";
+        }
+
+        @get op read(): Cat;
+      }
+    `);
+    const source = outputs["src/generated/models/all/example.ts"];
+
+    expect(source).toContain(`  quoted: 'a"b';`);
+    expect(source).toContain(`  backslashed: "c\\\\d";`);
+    expect(source).toContain(`  multiline: "x\\ny";`);
+  });
+
   it("emits result processing for bare scalar responses", async () => {
     const { outputs } = await HttpServerEmitterTester.compile(`
       @service(#{ title: "Example" })
@@ -207,6 +238,118 @@ describe("scalar", () => {
     expect(serverRaw).toBeDefined();
     expect(serverRaw).toContain('response.setHeader("content-type", "application/json");');
     expect(serverRaw).toMatch(/response\.end\(globalThis\.JSON\.stringify\(__result_\d+\)\);/);
+  });
+
+  it("emits raw bytes responses for bare bytes return types", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        @get op read(): bytes;
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).toContain('response.setHeader("content-type", "application/octet-stream");');
+    expect(serverRaw).toMatch(/response\.end\(__result_\d+\);/);
+    expect(serverRaw).not.toContain("JSON.stringify");
+  });
+
+  it("preserves custom content-type for bytes response bodies", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        @get op exportFile(): {
+          @statusCode statusCode: 200;
+          @header contentType: "application/zip";
+          @body content: bytes;
+        };
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).toMatch(/response\.setHeader\("content-type", "application\/zip"\);/);
+    expect(serverRaw).toMatch(/response\.end\(__result_\d+\.content\);/);
+    expect(serverRaw).not.toMatch(
+      /response\.setHeader\("content-type", __result_\d+\.contentType\);/,
+    );
+    expect(serverRaw).not.toContain("toJsonObject");
+    expect(serverRaw).not.toContain("JSON.stringify");
+  });
+
+  it("keeps JSON bytes responses on the JSON serialization path", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        @get op read(): {
+          @header contentType: "application/json";
+          @body data: bytes;
+        };
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).toMatch(/response\.setHeader\("content-type", "application\/json"\);/);
+    expect(serverRaw).toContain("JSON.stringify");
+    expect(serverRaw).toMatch(/toString\(['"]base64['"]\)/);
+    expect(serverRaw).not.toMatch(
+      /response\.setHeader\("content-type", __result_\d+\.contentType\);/,
+    );
+    expect(serverRaw).not.toMatch(/response\.end\(__result_\d+\.data\);/);
+  });
+
+  it("emits raw Http.File responses", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        @get op download(): Http.File<"application/zip">;
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).toMatch(
+      /response\.setHeader\(\s*"content-type",\s*__result_\d+\.contentType \?\? "application\/zip",?\s*\);/,
+    );
+    expect(serverRaw).toMatch(/response\.end\(__result_\d+\.contents\);/);
+    expect(serverRaw).toMatch(/response\.setHeader\(\s*"content-disposition",/);
+    expect(serverRaw).toContain("formatContentDispositionAttachment");
+    expect(serverRaw).not.toContain("JSON.stringify");
+  });
+
+  it("keeps structured JSON File responses on the JSON serialization path", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        #suppress "@typespec/http/http-file-structured" "Structured file JSON response regression test"
+        @get op download(): {
+          @header contentType: "application/json";
+          @body file: Http.File<"text/plain", string>;
+        };
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).toMatch(/response\.setHeader\("content-type", "application\/json"\)/);
+    expect(serverRaw).toContain("JSON.stringify");
+    expect(serverRaw).not.toMatch(
+      /response\.setHeader\("content-type", __result_\d+\.contentType\);/,
+    );
+    expect(serverRaw).not.toContain('response.setHeader("content-disposition",');
+    expect(serverRaw).not.toMatch(/response\.end\(__result_\d+\.file\.contents\);/);
   });
 
   describe("date/time/duration types", () => {

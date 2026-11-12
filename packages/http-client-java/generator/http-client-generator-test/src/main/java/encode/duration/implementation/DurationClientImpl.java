@@ -100,6 +100,20 @@ public final class DurationClientImpl {
     }
 
     /**
+     * The LossiesImpl object to access its operations.
+     */
+    private final LossiesImpl lossies;
+
+    /**
+     * Gets the LossiesImpl object to access its operations.
+     * 
+     * @return the LossiesImpl object.
+     */
+    public LossiesImpl getLossies() {
+        return this.lossies;
+    }
+
+    /**
      * Initializes an instance of DurationClient client.
      * 
      * @param endpoint Service host.
@@ -133,5 +147,6 @@ public final class DurationClientImpl {
         this.queries = new QueriesImpl(this);
         this.properties = new PropertiesImpl(this);
         this.headers = new HeadersImpl(this);
+        this.lossies = new LossiesImpl(this);
     }
 }

@@ -1,5 +1,7 @@
-import { Children, code, Refkey } from "@alloy-js/core";
-import { BytesKnownEncoding, EncodeData, NoTarget, Scalar } from "@typespec/compiler";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code } from "@alloy-js/core";
+import type { BytesKnownEncoding, EncodeData, Scalar } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { useDefaultEncoding } from "../../context/encoding/encoding-context.jsx";

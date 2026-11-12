@@ -1,72 +1,122 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
-import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
-import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
-import { mkdir, readFile, realpath, writeFile } from "fs/promises";
-import { basename, join, resolve } from "path";
+import { context, type BuildOptions, type BuildResult, type Plugin } from "esbuild";
+import { access, mkdir, readFile, realpath, writeFile } from "fs/promises";
+import { basename, dirname, join, resolve } from "path";
 import { promisify } from "util";
 import { gzip } from "zlib";
 import { relativeTo } from "./utils.js";
 
 const gzipAsync = promisify(gzip);
 
+/**
+ * Package identity and entry-point paths for consuming a bundle.
+ * This metadata is returned separately from the generated JavaScript files.
+ */
 export interface BundleManifest {
+  /** Package name copied from the library's package.json. */
   name: string;
+  /** Package version copied from the library's package.json. */
   version: string;
+  /**
+   * Maps package export keys to JavaScript paths relative to the bundle directory.
+   * The root key `"."` maps to `"./index.js"`; subpath keys such as `"./sub"` map to `"./sub.js"`.
+   */
   imports: Record<string, string>;
 }
 
+/** Resolved on-disk library metadata used to build the bundle and its manifest. */
 export interface TypeSpecBundleDefinition {
+  /** Normalized absolute library directory, with symbolic links resolved. */
   path: string;
+  /** JavaScript entry-point path from package.json's `main`, relative to the library directory. */
   main: string;
+  /** Parsed source package.json, before filtering the exports used for bundling. */
   packageJson: PackageJson;
+  /**
+   * Subpath exports selected for bundling. Excludes the root, `"./testing"`, and
+   * `"./internals"` paths except for `"./internals/prettier-formatter"`.
+   * Empty when the source package has no exports map.
+   */
   exports: Record<string, string | ExportData>;
 }
 
+/**
+ * Package export conditions read when selecting JavaScript and TypeSpec entry points.
+ * Target paths are relative to the library directory.
+ */
 export interface ExportData {
+  /** Fallback JavaScript entry point, used when `import` is absent. */
   default?: string;
+  /** JavaScript entry point preferred over `default` when bundling a subpath. */
   import?: string;
+  /** TypeScript declaration entry point; not used to select the JavaScript bundle input. */
   types?: string;
+  /** TypeSpec entry point compiled to collect source files for a subpath export. */
   typespec?: string;
 }
 
+/** In-memory browser-targeted ES modules and the library metadata needed to consume them. */
 export interface TypeSpecBundle {
   /**
-   * Definition
+   * Source package metadata and the entry points selected for bundling.
    */
   definition: TypeSpecBundleDefinition;
 
   /**
-   * Bundle content
+   * Generated JavaScript entry points and shared chunks. The root `index.js` also
+   * exposes `_TypeSpecLibrary_`, containing JavaScript modules and TypeSpec source
+   * text keyed by paths relative to the library directory.
    */
   files: TypeSpecBundleFile[];
 
   /**
-   * Resolved manifest.
+   * Package identity and relative import paths derived from {@link definition}.
+   * Not included as a file in {@link files}.
    */
   manifest: BundleManifest;
 }
 
+/** One generated JavaScript entry point or shared chunk, ready to serve or write to disk. */
 export interface TypeSpecBundleFile {
+  /**
+   * Original JavaScript target when the output basename matches a key in the
+   * definition's exports map. May be absent even for an entry-point file.
+   */
   export?: string;
+  /** Output path relative to the bundle directory, using forward slashes. */
   filename: string;
+  /** JavaScript module text, minified unless disabled in the bundle options. */
   content: string;
   /** Gzipped content, only present if gzip option is enabled */
   gzipContent?: Buffer;
 }
 
+/** Source package metadata exposed through {@link TypeSpecBundleDefinition.packageJson}. */
 interface PackageJson {
+  /** Package identifier used as the bundle manifest's name. */
   name: string;
+  /** Package version retained in the bundle manifest. */
   version: string;
+  /** JavaScript entry point used for the root bundle, relative to the package directory. */
   main: string;
+  /** TypeSpec entry point used when compiling the package to collect its sources. */
   tspMain?: string;
+  /**
+   * Peer-dependency metadata read from package.json. TypeSpec library peers are
+   * left as external imports; peers that cannot be located are also externalized.
+   */
   peerDependencies: string[];
+  /** Dependency metadata retained from package.json in the embedded source package. */
   dependencies: string[];
+  /** Unfiltered package export map, from which the bundled subpaths are selected. */
   exports?: Record<string, string | ExportData>;
 }
 
+/** Controls JavaScript minification and optional compression of in-memory bundle files. */
 export interface CreateTypeSpecBundleOptions {
   /**
    * Whether to minify the output bundle.
+   * JavaScript function names are preserved even when minification is enabled.
    * @default true
    */
   minify?: boolean;
@@ -79,6 +129,22 @@ export interface CreateTypeSpecBundleOptions {
   gzip?: boolean;
 }
 
+/**
+ * Builds a TypeSpec library into browser-targeted ES modules without writing files to disk.
+ *
+ * The root module re-exports the package's JavaScript `main` and embeds TypeSpec
+ * sources, package.json, and tspconfig.yaml when present in `_TypeSpecLibrary_`.
+ * Selected subpath exports get their own JavaScript entry points; conditional
+ * subpaths must provide an `import` or `default` target. TypeSpec peer libraries
+ * remain external imports rather than being bundled inline.
+ *
+ * @param libraryPath - Library directory containing package.json. Relative paths
+ * are resolved from the process working directory; symbolic links are followed.
+ * @param options - Minification and compression settings; minification defaults to
+ * enabled and gzip to disabled.
+ * @returns Generated files and metadata once bundling completes. The build context
+ * is disposed before the promise settles.
+ */
 export async function createTypeSpecBundle(
   libraryPath: string,
   options?: CreateTypeSpecBundleOptions,
@@ -144,10 +210,17 @@ async function resolveTypeSpecBundleDefinition(
   libraryPath = normalizePath(await realpath(libraryPath));
   const pkg = await readLibraryPackageJson(libraryPath);
 
+  // Only browser-safe exports are bundled for the playground/web. The `./internals` barrel and its
+  // node-only sub-entrypoints (e.g. `./internals/standalone`, which pulls in the CLI runner and Node
+  // built-ins) must be excluded; `./internals/prettier-formatter` is browser-safe and kept so the
+  // prettier plugin can load it in the browser.
   const exports = pkg.exports
     ? Object.fromEntries(
         Object.entries(pkg.exports).filter(
-          ([k, v]) => k !== "." && k !== "./testing" && k !== "./internals",
+          ([k, v]) =>
+            k !== "." &&
+            k !== "./testing" &&
+            (!k.startsWith("./internals") || k === "./internals/prettier-formatter"),
         ),
       )
     : {};
@@ -179,6 +252,13 @@ async function createEsBuildContext(
   const typespecFiles: Record<string, string> = {
     [normalizePath(join(libraryPath, "package.json"))]: JSON.stringify(definition.packageJson),
   };
+
+  // Include the library's own `tspconfig.yaml` so per-library opt-ins (e.g. compiler
+  // `features`) are preserved in the bundle.
+  const tspconfig = await tryReadFile(join(libraryPath, "tspconfig.yaml"));
+  if (tspconfig !== undefined) {
+    typespecFiles[normalizePath(join(libraryPath, "tspconfig.yaml"))] = tspconfig;
+  }
 
   for (const [filename, sourceFile] of program.sourceFiles) {
     typespecFiles[filename] = sourceFile.file.text;
@@ -219,6 +299,8 @@ async function createEsBuildContext(
     }),
   );
 
+  const externalPeerDeps = await resolveExternalPeerDependencies(libraryPath, definition);
+
   const virtualPlugin: Plugin = {
     name: "virtual",
     setup(build) {
@@ -229,10 +311,7 @@ async function createEsBuildContext(
         };
       });
       build.onResolve({ filter: /.*/ }, (args) => {
-        if (
-          definition.packageJson.peerDependencies &&
-          Object.keys(definition.packageJson.peerDependencies).some((x) => args.path.startsWith(x))
-        ) {
+        if (externalPeerDeps.some((x) => args.path === x || args.path.startsWith(x + "/"))) {
           return { path: args.path, external: true };
         }
         return null;
@@ -246,6 +325,25 @@ async function createEsBuildContext(
       });
     },
   };
+
+  // When containing alloy-js, namespace its globalThis.__ALLOY__ singleton
+  // guard so that multiple contained bundles can coexist in the same process.
+  const alloySingletonPlugin: Plugin = {
+    name: "alloy-singleton-namespace",
+    setup(build) {
+      build.onLoad({ filter: /reactivity\.[jt]s$/ }, async (args) => {
+        if (!args.path.includes("@alloy-js/core")) return undefined;
+        const source = await readFile(args.path, "utf-8");
+        const namespaceKey = `__ALLOY_${definition.packageJson.name.replace(/[^a-zA-Z0-9]/g, "_")}__`;
+        const patched = source.replaceAll("__ALLOY__", namespaceKey);
+        return {
+          contents: patched,
+          loader: args.path.endsWith(".ts") ? "ts" : "js",
+        };
+      });
+    },
+  };
+
   return await context({
     write: false,
     entryPoints: {
@@ -260,7 +358,10 @@ async function createEsBuildContext(
     target: "es2024",
     minify,
     keepNames: minify,
-    plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
+    define: {
+      "process.env": "{}",
+    },
+    plugins: [virtualPlugin, alloySingletonPlugin, ...plugins],
   });
 }
 
@@ -310,6 +411,67 @@ function getExportEntryPoint(value: string | ExportData) {
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
   return JSON.parse(file.toString());
+}
+
+/** Read a file, returning `undefined` when it does not exist. */
+async function tryReadFile(path: string): Promise<string | undefined> {
+  try {
+    return (await readFile(path)).toString();
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Resolve which peer dependencies should be treated as external.
+ * Only peer dependencies that are TypeSpec libraries (have `tspMain` in their package.json)
+ * are externalized. Non-TypeSpec peer dependencies (e.g. alloy-js) are bundled inline.
+ */
+async function resolveExternalPeerDependencies(
+  libraryPath: string,
+  definition: TypeSpecBundleDefinition,
+): Promise<string[]> {
+  const peerDeps = definition.packageJson.peerDependencies;
+  if (!peerDeps) {
+    return [];
+  }
+
+  const peerDepNames = Object.keys(peerDeps);
+  const externalDeps: string[] = [];
+
+  for (const depName of peerDepNames) {
+    const isTypeSpec = await isTypeSpecLibrary(libraryPath, depName);
+    if (isTypeSpec) {
+      externalDeps.push(depName);
+    }
+  }
+
+  return externalDeps;
+}
+
+async function isTypeSpecLibrary(libraryPath: string, depName: string): Promise<boolean> {
+  // Walk up from the library path checking node_modules at each level.
+  // This avoids require.resolve which fails when packages have exports maps
+  // that don't expose ./package.json.
+  let dir = libraryPath;
+  while (true) {
+    const pkgJsonPath = join(dir, "node_modules", depName, "package.json");
+    try {
+      await access(pkgJsonPath);
+    } catch {
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+      continue;
+    }
+    const depPkgJson = JSON.parse((await readFile(pkgJsonPath)).toString());
+    return !!depPkgJson.tspMain;
+  }
+  // If we can't resolve the package, externalize to be safe (preserves previous behavior)
+  return true;
 }
 
 /**

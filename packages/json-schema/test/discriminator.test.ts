@@ -573,6 +573,32 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     );
   });
 
+  it("uses the json encoded name of enum members for the catch-all variant", async () => {
+    const schemas = await emitSchema(
+      `
+        enum KnownToolType {
+          @encodedName("application/json", "file_search")
+          fileSearch,
+        }
+
+        @discriminator("type")
+        model Tool {
+          name: string;
+          type: string | KnownToolType;
+        }
+
+        model FileSearch extends Tool {
+          type: KnownToolType.fileSearch;
+          query: string;
+        }
+      `,
+      { "polymorphic-models-strategy": "oneOf" },
+    );
+
+    const catchAll = schemas["Tool.json"].oneOf[1];
+    deepStrictEqual(catchAll.properties.type.not.enum, ["file_search"]);
+  });
+
   it("does not generate catch-all for closed discriminators", async () => {
     const schemas = await emitSchema(
       `

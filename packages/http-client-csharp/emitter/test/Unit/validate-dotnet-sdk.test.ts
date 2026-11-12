@@ -1,10 +1,11 @@
 vi.resetModules();
 
-import { Diagnostic, Program } from "@typespec/compiler";
-import { TestHost } from "@typespec/compiler/testing";
+import type { Diagnostic, Program } from "@typespec/compiler";
+import type { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { execAsync } from "../../src/lib/utils.js";
+import type { Mock } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { execAsync } from "../../src/lib/exec-utils.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -33,7 +34,7 @@ describe("Test _validateDotNetSdk", () => {
     );
     // Restore all mocks before each test
     vi.restoreAllMocks();
-    vi.mock("../../src/lib/utils.js", () => ({
+    vi.mock("../../src/lib/exec-utils.js", () => ({
       execCSharpGenerator: vi.fn(),
       execAsync: vi.fn(),
     }));

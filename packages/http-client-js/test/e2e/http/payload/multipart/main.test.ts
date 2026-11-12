@@ -88,9 +88,7 @@ describe.skip("Payload.MultiPart", () => {
       const address = { city: "X" };
       await client.jsonPart({
         address,
-        profileImage: new Uint8Array([
-          /* file content */
-        ]),
+        profileImage: new Uint8Array([/* file content */]),
       });
     });
 

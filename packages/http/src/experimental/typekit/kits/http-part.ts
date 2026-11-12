@@ -1,6 +1,7 @@
 import type { Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { getHttpPart, HttpPart } from "../../../private.decorators.js";
+import type { HttpPart } from "../../../private.decorators.js";
+import { getHttpPart } from "../../../private.decorators.js";
 
 /**
  * Utilities for working with HTTP Parts.
@@ -13,8 +14,9 @@ export interface HttpPartKit {
    * @param type model to check
    */
   is(type: Type): boolean;
-  /*
-   * Get the HTTP part from the model.
+  /**
+   * Reads the payload type and options wrapped by an `HttpPart` model.
+   * Returns `undefined` when the type is not a registered HTTP part.
    */
   get(type: Type): HttpPart | undefined;
   /**
@@ -26,6 +28,10 @@ export interface HttpPartKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Inspects HTTP part wrappers and unwraps their payload types.
+   * @experimental
+   */
   httpPart: HttpPartKit;
 }
 

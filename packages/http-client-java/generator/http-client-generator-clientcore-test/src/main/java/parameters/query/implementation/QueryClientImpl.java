@@ -64,6 +64,20 @@ public final class QueryClientImpl {
     }
 
     /**
+     * The SpecialCharsImpl object to access its operations.
+     */
+    private final SpecialCharsImpl specialChars;
+
+    /**
+     * Gets the SpecialCharsImpl object to access its operations.
+     * 
+     * @return the SpecialCharsImpl object.
+     */
+    public SpecialCharsImpl getSpecialChars() {
+        return this.specialChars;
+    }
+
+    /**
      * Initializes an instance of QueryClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -75,5 +89,6 @@ public final class QueryClientImpl {
         this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.constants = new ConstantsImpl(this);
+        this.specialChars = new SpecialCharsImpl(this);
     }
 }

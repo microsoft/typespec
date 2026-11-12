@@ -1,8 +1,9 @@
-import { For, List, Refkey, refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { For, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../lib.js";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";

@@ -58,9 +58,7 @@ export interface WellKnownFileOptions {
  * A top-level declaration.
  */
 export type ProtoTopLevelDeclaration =
-  | ProtoServiceDeclaration
-  | ProtoMessageDeclaration
-  | ProtoEnumDeclaration;
+  ProtoServiceDeclaration | ProtoMessageDeclaration | ProtoEnumDeclaration;
 
 /**
  * A declaration. One of `service`, `message`, a field within a message, `one_of`, `enum`, or an `rpc` method.
@@ -231,16 +229,34 @@ export interface ProtoMethodDeclaration extends ProtoDeclarationCommon {
   name: string;
   input: ProtoRef;
   returns: ProtoRef;
+  /**
+   * The method's options, such as `(google.longrunning.operation_info)`, written in the body of the `rpc`.
+   */
+  options?: ProtoOption[];
 }
+
+/**
+ * An `option` statement, such as a custom option `(google.longrunning.operation_info)`.
+ */
+export interface ProtoOption {
+  /**
+   * The option's name. A custom option (an extension) is written in parentheses.
+   */
+  name: string;
+  value: ProtoOptionValue;
+}
+
+/**
+ * The value of an option: a scalar, or a message literal written in the Protobuf text format, whose fields are written
+ * in insertion order.
+ */
+export type ProtoOptionValue = string | number | boolean | { [field: string]: ProtoOptionValue };
 
 /**
  * A declaration that can fit within the body of a message declaration.
  */
 export type ProtoMessageBodyDeclaration =
-  | ProtoFieldDeclaration
-  | ProtoMessageDeclaration
-  | ProtoOneOfDeclaration
-  | ProtoEnumDeclaration;
+  ProtoFieldDeclaration | ProtoMessageDeclaration | ProtoOneOfDeclaration | ProtoEnumDeclaration;
 
 /**
  * A `message` declaration.
@@ -262,6 +278,10 @@ export interface ProtoFieldDeclaration extends ProtoDeclarationCommon {
    * Whether or not the field is repeated (i.e. an array).
    */
   repeated?: boolean;
+  /**
+   * Whether or not the field uses the proto3 `optional` label.
+   */
+  optional?: boolean;
   options?: Partial<DefaultFieldOptions>;
   type: ProtoType;
   index: number;

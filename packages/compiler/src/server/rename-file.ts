@@ -1,7 +1,7 @@
 import { Position, Range, TextEdit } from "vscode-languageserver";
 import { getSourceLocation } from "../core/diagnostics.js";
 import { getDirectoryPath, getRelativePathFromDirectory, resolvePath } from "../core/path-utils.js";
-import { ImportStatementNode } from "../core/types.js";
+import type { ImportStatementNode } from "../core/types.js";
 
 /**
  * Get the LSP TextEdit to update an import statment value.

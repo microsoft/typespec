@@ -1,7 +1,8 @@
-import { Children, code, For, List, Refkey } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code, For, List } from "@alloy-js/core";
 import { isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { getCreateRestErrorRefkey } from "./static-helpers/rest-error.jsx";
 import { ContentTypeEncodingProvider } from "./transforms/content-type-encoding-provider.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";

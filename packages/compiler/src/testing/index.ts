@@ -15,6 +15,7 @@ export {
 } from "./rule-tester.js";
 export { extractCursor, extractSquiggles } from "./source-utils.js";
 export type { TestHostOptions } from "./test-compiler-host.js";
+/* eslint-disable @typescript-eslint/no-deprecated -- exporting deprecated APIs for backward compatibility */
 export { createTestHost, createTestRunner, findFilesFromPattern } from "./test-host.js";
 export {
   createTestLibrary,
@@ -25,9 +26,9 @@ export {
   trimBlankLines,
   type TestWrapperOptions,
 } from "./test-utils.js";
+/* eslint-enable @typescript-eslint/no-deprecated */
 export { createTester } from "./tester.js";
 export type {
-  BasicTestRunner,
   EmitterTester,
   EmitterTesterInstance,
   JsFile,
@@ -36,12 +37,17 @@ export type {
   TestCompileResult,
   TestEmitterCompileResult,
   TestFileSystem as TestFileSystem,
+  Tester,
+  TesterInstance,
+} from "./types.js";
+/* eslint-disable @typescript-eslint/no-deprecated -- exporting deprecated APIs for backward compatibility */
+export type {
+  BasicTestRunner,
   TestFiles,
   TestHost,
   TestHostConfig,
   TestHostError,
-  Tester,
-  TesterInstance,
   TypeSpecTestLibrary,
   TypeSpecTestLibraryInit,
 } from "./types.js";
+/* eslint-enable @typescript-eslint/no-deprecated */

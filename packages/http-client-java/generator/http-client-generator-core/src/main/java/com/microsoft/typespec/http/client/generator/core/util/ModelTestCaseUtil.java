@@ -177,7 +177,9 @@ public class ModelTestCaseUtil {
                 for (int i = 0; i < count; ++i) {
                     Object element = jsonFromType(depth + 1, elementType);
                     if (element != null) {
-                        map.put(randomString(), element);
+                        // use randomKeyString to avoid the random key containing a possible credential phrase
+                        // (e.g. "key"), which would cause the value to be redacted by the test proxy
+                        map.put(randomKeyString(), element);
                     }
                 }
             } // else abort
@@ -193,12 +195,9 @@ public class ModelTestCaseUtil {
 
     public static String redactStringValue(List<String> serializedNames, String value) {
         for (String keyName : serializedNames) {
-            String keyNameLower = keyName.toLowerCase(Locale.ROOT);
-            for (String key : POSSIBLE_CREDENTIAL_KEY) {
-                if (keyNameLower.contains(key)) {
-                    value = "fakeTokenPlaceholder";
-                    break;
-                }
+            if (containsPossibleCredentialKey(keyName)) {
+                value = "fakeTokenPlaceholder";
+                break;
             }
         }
         return value;
@@ -269,13 +268,20 @@ public class ModelTestCaseUtil {
 
     private static void checkCredential(List<String> serializedNames) {
         for (String keyName : serializedNames) {
-            String keyNameLower = keyName.toLowerCase(Locale.ROOT);
-            for (String key : POSSIBLE_CREDENTIAL_KEY) {
-                if (keyNameLower.contains(key)) {
-                    throw new PossibleCredentialException(keyName);
-                }
+            if (containsPossibleCredentialKey(keyName)) {
+                throw new PossibleCredentialException(keyName);
             }
         }
+    }
+
+    private static boolean containsPossibleCredentialKey(String keyName) {
+        String keyNameLower = keyName.toLowerCase(Locale.ROOT);
+        for (String key : POSSIBLE_CREDENTIAL_KEY) {
+            if (keyNameLower.contains(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String randomString() {
@@ -287,6 +293,21 @@ public class ModelTestCaseUtil {
             .limit(targetStringLength)
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
+    }
+
+    /**
+     * Generate a random string to be used as a JSON key (e.g. a Map key), ensuring it does not contain a possible
+     * credential phrase (e.g. "key"). Otherwise the value under this key could be redacted by the test proxy, causing
+     * the test recording to mismatch.
+     *
+     * @return the random string that does not contain a possible credential phrase
+     */
+    private static String randomKeyString() {
+        String result = randomString();
+        while (containsPossibleCredentialKey(result)) {
+            result = randomString();
+        }
+        return result;
     }
 
     private static final OffsetDateTime TIME = OffsetDateTime.parse("2020-12-20T00:00:00.000Z");

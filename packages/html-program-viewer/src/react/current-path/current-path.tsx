@@ -11,7 +11,7 @@ import {
 } from "@fluentui/react-components";
 import { DatabaseRegular } from "@fluentui/react-icons";
 import { getDoc } from "@typespec/compiler";
-import { useCallback, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Fragment } from "react/jsx-runtime";
 import { useProgram } from "../program-context.js";
@@ -24,6 +24,15 @@ export const CurrentPath = () => {
   const nav = useTreeNavigator();
   const segments = nav.selectedPath.split(".");
   const [showInput, setShowInput] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Keep the end of the path, where the selected node is, in view.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.scrollLeft = container.scrollWidth;
+    }
+  }, [nav.selectedPath, showInput]);
 
   useHotkeys("ctrl+shift+f, meta+shift+f", () => {
     setShowInput(true);
@@ -31,6 +40,7 @@ export const CurrentPath = () => {
 
   return (
     <div
+      ref={containerRef}
       className={mergeClasses(style["current-path"], showInput && style["focus"])}
       onClick={() => setShowInput(true)}
     >

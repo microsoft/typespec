@@ -16,7 +16,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal sealed class TypeFormattersDefinition : TypeProvider
+    internal sealed class TypeFormattersDefinition : InternalHelperProvider
     {
         private readonly ValueExpression _invariantCultureExpression = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
         private const string ToStringMethodName = "ToString";
@@ -31,11 +31,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _roundtripZFormatField = new(FieldModifiers.Private | FieldModifiers.Const, typeof(string), "RoundtripZFormat", this, initializationValue: Literal("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
             _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", this, initializationValue: Literal("G"));
-        }
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
@@ -383,13 +378,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Special handling for TimeSpan with duration seconds/milliseconds encoding
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanSeconds),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds")),
-                    ConvertSnippets.InvokeToInt32(timeSpanSeconds.As<TimeSpan>().TotalSeconds()).InvokeToString(invariantCulture)),
+                    ConvertSnippets.InvokeToInt32(MathSnippets.InvokeRound(timeSpanSeconds.As<TimeSpan>().TotalSeconds())).InvokeToString(invariantCulture)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanSecondsLong),
+                    formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds_Int64")),
+                    ConvertSnippets.InvokeToInt64(MathSnippets.InvokeRound(timeSpanSecondsLong.As<TimeSpan>().TotalSeconds())).InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanSecondsFloat),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds_Float")).Or(formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds_Double"))),
                     timeSpanSecondsFloat.As<TimeSpan>().TotalSeconds().InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanMilliseconds),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds")),
-                    ConvertSnippets.InvokeToInt32(timeSpanMilliseconds.As<TimeSpan>().TotalMilliseconds()).InvokeToString(invariantCulture)),
+                    ConvertSnippets.InvokeToInt32(MathSnippets.InvokeRound(timeSpanMilliseconds.As<TimeSpan>().TotalMilliseconds())).InvokeToString(invariantCulture)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanMillisecondsLong),
+                    formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds_Int64")),
+                    ConvertSnippets.InvokeToInt64(MathSnippets.InvokeRound(timeSpanMillisecondsLong.As<TimeSpan>().TotalMilliseconds())).InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanMillisecondsFloat),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds_Float")).Or(formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds_Double"))),
                     timeSpanMillisecondsFloat.As<TimeSpan>().TotalMilliseconds().InvokeToString(invariantCulture)),

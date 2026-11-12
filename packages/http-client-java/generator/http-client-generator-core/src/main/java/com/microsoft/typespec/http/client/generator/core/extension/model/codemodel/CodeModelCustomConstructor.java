@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExamples;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -75,171 +76,191 @@ public class CodeModelCustomConstructor extends Constructor {
 
     class TypeMapConstruct extends Constructor.ConstructMapping {
         @Override
-        public Object construct(Node node) {
-            MappingNode mappingNode = (MappingNode) node;
+        protected Object constructJavaBean2ndStep(MappingNode mappingNode, Object object) {
+            if (object instanceof XmsExamples) {
+                Map<String, Object> examples = new LinkedHashMap<>();
+                for (NodeTuple tuple : mappingNode.getValue()) {
+                    examples.put(((ScalarNode) tuple.getKeyNode()).getValue(), constructObject(tuple.getValueNode()));
+                }
+                ((XmsExamples) object).setExamples(examples);
+                return object;
+            }
+
             for (NodeTuple tuple : mappingNode.getValue()) {
                 ScalarNode key = (ScalarNode) tuple.getKeyNode();
+                if (object instanceof Schemas) {
+                    switch (key.getValue()) {
+                        case "arrays": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ArraySchema.class);
+                            break;
+                        }
+
+                        case "ands": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(AndSchema.class);
+                            break;
+                        }
+
+                        case "ors": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(OrSchema.class);
+                            break;
+                        }
+
+                        case "xors": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(XorSchema.class);
+                            break;
+                        }
+
+                        case "objects": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ObjectSchema.class);
+                            break;
+                        }
+
+                        case "choices": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ChoiceSchema.class);
+                            break;
+                        }
+
+                        case "parameterGroups": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ParameterGroupSchema.class);
+                            break;
+                        }
+
+                        case "sealedChoices": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(SealedChoiceSchema.class);
+                            break;
+                        }
+
+                        case "flags": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(FlagSchema.class);
+                            break;
+                        }
+
+                        case "dictionaries": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(DictionarySchema.class);
+                            break;
+                        }
+
+                        case "constants": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ConstantSchema.class);
+                            break;
+                        }
+
+                        case "primitives": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(Object.class);
+                            break;
+                        }
+
+                        case "binaries": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(BinarySchema.class);
+                            break;
+                        }
+
+                        case "booleans": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(BooleanSchema.class);
+                            break;
+                        }
+
+                        case "bytearrays": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ByteArraySchema.class);
+                            break;
+                        }
+
+                        case "numbers": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(NumberSchema.class);
+                            break;
+                        }
+
+                        case "uris": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(UriSchema.class);
+                            break;
+                        }
+
+                        case "anyObjects":
+                        case "any": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(AnySchema.class);
+                            break;
+                        }
+
+                        case "times": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(TimeSchema.class);
+                            break;
+                        }
+
+                        case "armIds": {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(ArmIdSchema.class);
+                            break;
+                        }
+                    }
+                }
+
                 switch (key.getValue()) {
-                    case "arrays": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ArraySchema.class);
-                        break;
-                    }
-
-                    case "ands": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(AndSchema.class);
-                        break;
-                    }
-
-                    case "ors": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(OrSchema.class);
-                        break;
-                    }
-
-                    case "xors": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(XorSchema.class);
-                        break;
-                    }
-
-                    case "objects": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ObjectSchema.class);
-                        break;
-                    }
-
-                    case "choices": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ChoiceSchema.class);
-                        break;
-                    }
-
-                    case "parameterGroups": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ParameterGroupSchema.class);
-                        break;
-                    }
-
-                    case "sealedChoices": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(SealedChoiceSchema.class);
-                        break;
-                    }
-
-                    case "flags": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(FlagSchema.class);
-                        break;
-                    }
-
-                    case "dictionaries": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(DictionarySchema.class);
-                        break;
-                    }
-
-                    case "constants": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ConstantSchema.class);
-                        break;
-                    }
-
-                    case "primitives": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(Object.class);
-                        break;
-                    }
-
                     case "properties": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(Property.class);
-                        break;
-                    }
-
-                    case "binaries": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(BinarySchema.class);
-                        break;
-                    }
-
-                    case "booleans": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(BooleanSchema.class);
-                        break;
-                    }
-
-                    case "bytearrays": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ByteArraySchema.class);
-                        break;
-                    }
-
-                    case "numbers": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(NumberSchema.class);
-                        break;
-                    }
-
-                    case "uris": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(UriSchema.class);
-                        break;
-                    }
-
-                    case "anyObjects":
-                    case "any": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(AnySchema.class);
-                        break;
-                    }
-
-                    case "times": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(TimeSchema.class);
-                        break;
-                    }
-
-                    case "armIds": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(ArmIdSchema.class);
+                        if (object instanceof ObjectSchema) {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(Property.class);
+                        }
                         break;
                     }
 
                     case "requests": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(Request.class);
+                        if (object instanceof Operation || object instanceof ConvenienceApi) {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(Request.class);
+                        }
                         break;
                     }
 
                     case "exceptions":
                     case "responses": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        value.setListType(Response.class);
+                        if (object instanceof Operation) {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            value.setListType(Response.class);
+                        }
                         break;
                     }
 
                     case "immediate":
                     case "all":
-                        if (tuple.getValueNode() instanceof SequenceNode) {
+                        if (object instanceof Relations) {
                             SequenceNode value = (SequenceNode) tuple.getValueNode();
                             for (Node item : value.getValue()) {
                                 item.setType(getSchemaTypeFromMappingNode((MappingNode) item));
                             }
-                            break;
-                        } else if (tuple.getValueNode() instanceof MappingNode) {
+                        } else if (object instanceof Discriminator) {
                             MappingNode value = (MappingNode) tuple.getValueNode();
                             for (NodeTuple item : value.getValue()) {
-                                item.getValueNode()
-                                    .setType(getSchemaTypeFromMappingNode((MappingNode) (item.getValueNode())));
+                                MappingNode schema = (MappingNode) item.getValueNode();
+                                schema.setType(getSchemaTypeFromMappingNode(schema));
                             }
-                            break;
                         }
+                        break;
+
                     case "allOf": {
-                        SequenceNode value = (SequenceNode) tuple.getValueNode();
-                        for (Node item : value.getValue()) {
-                            item.setType(getSchemaTypeFromMappingNode((MappingNode) item));
+                        if (object instanceof AndSchema) {
+                            SequenceNode value = (SequenceNode) tuple.getValueNode();
+                            for (Node item : value.getValue()) {
+                                item.setType(getSchemaTypeFromMappingNode((MappingNode) item));
+                            }
                         }
                         break;
                     }
@@ -248,12 +269,24 @@ public class CodeModelCustomConstructor extends Constructor {
                     case "elementType":
                     case "valueType":
                     case "schema": {
-                        MappingNode value = (MappingNode) tuple.getValueNode();
-                        value.setType(getSchemaTypeFromMappingNode(value));
+                        if (("choiceType".equals(key.getValue()) && object instanceof ChoiceSchema)
+                            || ("elementType".equals(key.getValue())
+                                && (object instanceof ArraySchema || object instanceof DictionarySchema))
+                            || ("valueType".equals(key.getValue()) && object instanceof ConstantSchema)
+                            || ("schema".equals(key.getValue())
+                                && (object instanceof Value
+                                    || object instanceof Header
+                                    || object instanceof Response))) {
+                            MappingNode value = (MappingNode) tuple.getValueNode();
+                            value.setType(getSchemaTypeFromMappingNode(value));
+                        }
                         break;
                     }
 
                     case "extensions": {
+                        if (!(object instanceof Metadata) && !(object instanceof Header)) {
+                            break;
+                        }
                         MappingNode value = (MappingNode) tuple.getValueNode();
                         List<NodeTuple> actualValues = new ArrayList<>();
                         for (NodeTuple extension : value.getValue()) {
@@ -356,6 +389,9 @@ public class CodeModelCustomConstructor extends Constructor {
                     }
 
                     case "xmsLongRunningOperationOptions": {
+                        if (!(object instanceof XmsExtensions)) {
+                            break;
+                        }
                         MappingNode value = (MappingNode) tuple.getValueNode();
                         List<NodeTuple> actualValues = new ArrayList<>();
                         for (NodeTuple extension : value.getValue()) {
@@ -374,23 +410,7 @@ public class CodeModelCustomConstructor extends Constructor {
                     }
                 }
             }
-            return super.construct(mappingNode);
-        }
-
-        @Override
-        protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
-            if (node.getType().equals(XmsExamples.class)) {
-                // deserialize to Map<String, Object>, while Object would be LinkedHashMap
-                Map<String, Object> examples = new LinkedHashMap<>();
-                for (NodeTuple tuple : node.getValue()) {
-                    examples.put(((ScalarNode) tuple.getKeyNode()).getValue(), constructObject(tuple.getValueNode()));
-                }
-                XmsExamples xmsExamples = new XmsExamples();
-                xmsExamples.setExamples(examples);
-                return xmsExamples;
-            } else {
-                return super.constructJavaBean2ndStep(node, object);
-            }
+            return super.constructJavaBean2ndStep(mappingNode, object);
         }
     }
 

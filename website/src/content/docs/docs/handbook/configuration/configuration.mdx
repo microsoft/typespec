@@ -10,6 +10,49 @@ The TypeSpec compiler and libraries can be configured either via a configuration
 
 TypeSpec configuration can be provided via the `tspconfig.yaml` configuration file.
 
+### Project Configuration
+
+A `tspconfig.yaml` file can be marked as a **project configuration** by setting `kind: project` at the top level:
+
+```yaml title=tspconfig.yaml
+kind: project
+entrypoint: main.tsp
+emit:
+  - "@typespec/openapi3"
+```
+
+A project configuration marks a **project boundary** — it serves the same role as `package.json` does today for boundary detection, but is specific to TypeSpec. When the compiler or IDE encounters a `tspconfig.yaml` with `kind: project`, it treats that directory as the root of a TypeSpec project.
+
+#### `kind`
+
+Set to `"project"` to mark the directory as a TypeSpec project root.
+
+**Constraints:**
+
+- `kind: project` can only be used in files named `tspconfig.yaml`. Custom-named config files (e.g. used with `--config`) cannot be project configs.
+
+#### `entrypoint`
+
+Declares the main TypeSpec file for the project. This is used by both the CLI (`tsp compile <dir>`) and the IDE (language server) to determine which file to compile.
+
+- **Default:** `main.tsp` (when `kind: project` is set but no `entrypoint` is specified)
+- Can only be used when `kind: project` is set.
+
+```yaml title=tspconfig.yaml
+kind: project
+entrypoint: src/service.tsp
+```
+
+#### Entrypoint Resolution Priority
+
+When compiling a directory, the compiler resolves the entrypoint in this order:
+
+1. **Project tspconfig** — If the directory has a `tspconfig.yaml` with `kind: project`, use its `entrypoint` (defaults to `main.tsp`)
+2. **package.json `tspMain`** — If a `package.json` exists with a `tspMain` field, use that
+3. **`main.tsp`** — Fall back to `main.tsp` in the directory
+
+The IDE language server uses the same priority when walking up directories to find the project root for a given TypeSpec file. When a project boundary (`kind: project`) is found, the walk stops — files outside the project boundary are not considered.
+
 ### Discovery
 
 The TypeSpec compiler will look for the closest `tspconfig.yaml` file located in the same directory or closest parent directory from the TypeSpec entrypoint.
@@ -27,9 +70,11 @@ The file is a `yaml` document with the following structure. See the [next sectio
 
 ```typespec
 model TypeSpecProjectSchema {
+  kind?: "project";
+  entrypoint?: string;
   extends?: string;
-  parameters?: Record<{default: string}>
-  `environment-variables`?: Record<{default: string}>
+  parameters?: Record<{default: string}>;
+  `environment-variables`?: Record<{default: string}>;
   `warn-as-error`?: boolean;
   `output-dir`?: string;
   `trace`?: string | string[];
@@ -41,8 +86,8 @@ model TypeSpecProjectSchema {
 }
 
 model LinterConfig {
-  extends?: RuleRef[];
-  enable?: Record<RuleRef, boolean>;
+  extends?: RuleSetRef[];
+  enable?: Record<RuleRef, boolean | object>;
   disable?: Record<RuleRef, string>;
 }
 ```
@@ -105,11 +150,11 @@ options:
 # Extending config (child/tspconfig.yaml)
 extends: ../tspconfig.yaml
 emit:
-  - emitter3  # Completely replaces the emit array
+  - emitter3 # Completely replaces the emit array
 options:
-  emitter1:   # Completely replaces emitter1 options
+  emitter1: # Completely replaces emitter1 options
     option-c: value-c
-  emitter3:   # Added alongside emitter2 from parent
+  emitter3: # Added alongside emitter2 from parent
     option-y: value-y
 
 # Resulting merged config:
@@ -235,17 +280,19 @@ Due to this capability, emitter option names should not contain a `.` in their n
 
 ## TypeSpec Configuration Options
 
-| Config          | Cli                       | Description                                              |
-| --------------- | ------------------------- | -------------------------------------------------------- |
-| `output-dir`    | `--output-dir`            | Default output directory                                 |
-| `config`        | `--config`                | Path to config file or folder to search for config file. |
-| `trace`         | `--trace`                 | Specify tracing area to enable                           |
-| `warn-as-error` | `--warn-as-error`         | Treat warning as error                                   |
-| `imports`       | `--import`                | Additional imports to include                            |
-| `emit`          | `--emit`                  | Emitter configuration                                    |
-| `options`       | `--option` or `--options` | Emitter configuration                                    |
-| `dry-run`       | `--dry-run`               | Tell emitters to run in dryRun mode                      |
-| `linter`        |                           | Linter configuration                                     |
+| Config          | Cli                                                | Description                                              |
+| --------------- | -------------------------------------------------- | -------------------------------------------------------- |
+| `kind`          |                                                    | Set to `"project"` to mark as a project boundary         |
+| `entrypoint`    |                                                    | Main TypeSpec file (requires `kind: project`)            |
+| `output-dir`    | `--output-dir`                                     | Default output directory                                 |
+| `config`        | `--config`                                         | Path to config file or folder to search for config file. |
+| `trace`         | `--trace`                                          | Specify tracing area to enable                           |
+| `warn-as-error` | `--warn-as-error`                                  | Treat warning as error                                   |
+| `imports`       | `--import`                                         | Additional imports to include                            |
+| `emit`          | `--emit`                                           | Emitter configuration                                    |
+| `options`       | `--option` or `--options`                          | Emitter configuration                                    |
+| `dry-run`       | `--dry-run`                                        | Tell emitters to run in dryRun mode                      |
+| `linter`        | `--linter-ruleset`, `--linter-rule`, `--no-linter` | Linter configuration                                     |
 
 ### `output-dir` - Configure the default output dir
 
@@ -374,7 +421,7 @@ See [output directory configuration for mode details](#configuring-output-direct
 
 ### `linter` - Setting Up Linters
 
-This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>:<ruleName>`.
+This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>/<ruleName>`.
 
 ```yaml
 linter:
@@ -387,6 +434,112 @@ linter:
   disable: # Disable some rules defined in one of the ruleset extended.
     "@typespec/best-practices/no-y": "This rule cannot be applied in this project because X"
 ```
+
+You can also reference rules and rulesets using their **short name**, where the package scope is stripped (`@typespec/<name>` &rarr; `<name>`, `@<scope>/typespec-<name>` &rarr; `<name>`) or replaced by a library-declared `alias`. The library must be loaded (imported) for its short name to be resolved. The full name is always accepted.
+
+```yaml
+linter:
+  extends:
+    - "best-practices/recommended"
+  enable:
+    "best-practices/no-x": true
+```
+
+If two loaded libraries would resolve to the same short name, that short name is ambiguous: using it reports a warning and the entry is skipped, so the full name must be used for those libraries.
+
+#### Configuring rule options
+
+Some rules accept options to customize their behavior. To pass options, use an object instead of `true` when enabling the rule:
+
+```yaml
+linter:
+  enable:
+    # Enable with default options
+    "@typespec/my-linter/required-doc": true
+
+    # Enable with custom options
+    "@typespec/my-linter/naming-convention":
+      style: "PascalCase"
+      allowUnderscores: false
+```
+
+When an object is provided, the values are merged with the rule's default options. See each rule's documentation for available options.
+
+#### Extending a ruleset defined in a file
+
+A ruleset can also be defined in a standalone YAML file and referenced with the `file:` prefix. This is useful to share a common set of rules across multiple projects, or to version a ruleset independently of the libraries providing the rules.
+
+```yaml title=tspconfig.yaml
+linter:
+  extends:
+    - "file:../common-rules.yaml"
+```
+
+The referenced file has the same shape as the `linter` config:
+
+```yaml title=common-rules.yaml
+extends:
+  - "@typespec/best-practices/recommended"
+  - "@typespec/http/recommended"
+enable:
+  "@typespec/best-practices/new-rule": true
+disable:
+  "@typespec/best-practices/foo": "This rule is too strict for this repository"
+```
+
+Relative paths are resolved relative to the file declaring them: a `file:` reference in `tspconfig.yaml` resolves relative to the config file, and a `file:` reference inside a ruleset file resolves relative to that ruleset file. Ruleset files may extend other ruleset files, and rulesets defined in libraries, in any combination.
+
+`file:` references can be used in `tspconfig.yaml`, in another ruleset file, or with the `--linter-ruleset` CLI flag. A ruleset defined in a library cannot use them, as it is not anchored to any directory the path could be resolved against.
+
+#### Overriding linter configuration from the CLI
+
+These flags apply only to the current compilation; they do not modify `tspconfig.yaml`.
+
+##### `--linter-ruleset`
+
+Select rulesets using the same library references or `file:` references accepted in `linter.extends`. Repeat the flag to select multiple rulesets:
+
+```bash
+tsp compile . \
+  --linter-ruleset @typespec/http/all \
+  --linter-ruleset file:./team-rules.yaml
+```
+
+The CLI rulesets **replace** the configured `linter.extends` list, in the order supplied. Configured `linter.enable` and `linter.disable` settings still apply on top of the selected rulesets.
+
+Relative `file:` paths supplied on the CLI resolve from the current working directory, not the entrypoint or `--config` directory. References inside a ruleset file still resolve relative to that file. Short library names and aliases follow the same resolution rules as in the configuration file.
+
+##### `--linter-rule`
+
+Override an individual rule with `<rule-reference>=<value>`, where the value is `true`, `false`, or a JSON options object:
+
+```bash
+# Enable a rule with its default options.
+tsp compile . --linter-rule @typespec/compiler/unused-using=true
+
+# Disable a rule, including one enabled by a ruleset.
+tsp compile . --linter-rule @typespec/compiler/unused-using=false
+
+# Enable a rule with custom options.
+tsp compile . \
+  --linter-rule '@typespec/my-linter/naming-convention={"style":"PascalCase"}'
+```
+
+Repeat the flag to override multiple rules. CLI rule overrides take precedence over both selected rulesets and configured rule settings. When the same rule is specified more than once, including through different short/full names, the last CLI value wins.
+
+A JSON options object replaces the configured options for that rule; it is not merged with the config's object. The rule's own default options still apply to omitted properties. Invalid values or options produce diagnostics.
+
+##### `--no-linter`
+
+Disable all linter rules for this compilation:
+
+```bash
+tsp compile . --no-linter
+```
+
+The compiler still checks the source, validates libraries, and runs configured emitters. Compiler and library validation diagnostics are not suppressed. Normal configuration-file validation still runs, but disabled rulesets are not loaded.
+
+`--no-linter` cannot be combined with `--linter-ruleset` or `--linter-rule`. An explicit `--no-linter=false` leaves linting enabled as configured.
 
 ## CLI Flags for Emitter Control
 
@@ -412,11 +565,17 @@ tsp compile . --dry-run
 
 ### `--config`
 
-Specify a different config file
+Specify a different config file for build overrides.
 
 ```bash
 tsp compile . --config ./tspconfig.alt.yaml
 ```
+
+:::note
+`--config` cannot point to a project configuration (one with `kind: project`). Project configs must be named `tspconfig.yaml` and are auto-discovered. Use `--config` with a non-project build config that can optionally use `extends` to inherit from the project config.
+
+When using `--config`, project-specific settings (like `entrypoint`) are automatically inherited from the project `tspconfig.yaml` that would normally apply to the entrypoint — the same project config that would be found if `--config` was not specified. Build settings (like `emit`, `options`, `linter`) are **not** inherited — use `extends` for that.
+:::
 
 ### `--watch`
 

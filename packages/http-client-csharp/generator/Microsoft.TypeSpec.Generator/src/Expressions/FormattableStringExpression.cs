@@ -55,7 +55,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             foreach (var (_, isLiteral) in StringExtensions.GetFormattableStringFormatParts(format))
             {
                 if (!isLiteral)
+                {
                     count++;
+                }
             }
 
             if (count != args.Count)

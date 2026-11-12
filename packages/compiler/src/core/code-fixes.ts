@@ -11,12 +11,17 @@ import type {
   SourceLocation,
 } from "./types.js";
 
+/**
+ * Resolve all fixes and write their combined edits, grouped by source file, through the host.
+ * Edits for a file must use the same original source text and must not overlap.
+ */
 export async function applyCodeFixes(host: CompilerHost, codeFixes: readonly CodeFix[]) {
   if (!codeFixes.length) return;
   const edits = (await Promise.all(codeFixes.map((codeFix) => resolveCodeFix(codeFix)))).flat();
   await applyCodeFixEdits(host, edits);
 }
 
+/** Run a fix callback and normalize its result to an edit array without writing any files. */
 export async function resolveCodeFix(codeFix: CodeFix): Promise<CodeFixEdit[]> {
   const context = createCodeFixContext();
   const values = await codeFix.fix(context);
@@ -24,6 +29,7 @@ export async function resolveCodeFix(codeFix: CodeFix): Promise<CodeFixEdit[]> {
   return textEdit;
 }
 
+/** Resolve a fix and write its edits using the source text retained in each edit's source file. */
 export async function applyCodeFix(host: CompilerHost, codeFix: CodeFix) {
   const edits = await resolveCodeFix(codeFix);
   await applyCodeFixEdits(host, edits);

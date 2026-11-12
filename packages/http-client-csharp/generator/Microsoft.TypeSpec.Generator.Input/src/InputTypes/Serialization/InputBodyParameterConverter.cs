@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 defaultValue: null,
                 scope: default,
                 contentTypes: null!,
-                defaultContentType: null!);
+                defaultContentType: null!,
+                serializationOptions: null);
             resolver.AddReference(id, parameter);
 
             string? name = null;
@@ -53,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? doc = null;
             string? serializedName = null;
             bool isApiVersion = false;
+            bool isContinuationToken = false;
             InputConstant? defaultValue = null;
             string? scope = null;
             InputType? type = null;
@@ -63,6 +65,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? defaultContentType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
+            bool isExactName = false;
+            InputSerializationOptions? serializationOptions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -76,12 +80,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadBoolean("isContinuationToken", ref isContinuationToken)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadComplexType("contentTypes",options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
                 {
@@ -99,11 +106,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Decorators = decorators ?? [];
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
+            parameter.IsContinuationToken = isContinuationToken;
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
             parameter.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
             parameter.MethodParameterSegments = methodParameterSegments;
+            parameter.IsExactName = isExactName;
+            parameter.SerializationOptions = serializationOptions;
 
             return parameter;
         }

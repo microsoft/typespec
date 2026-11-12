@@ -1,14 +1,24 @@
-import { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
-import { unsafe_Mutator } from "@typespec/compiler/experimental";
+import type { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
+import type { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
-import { HttpOperation } from "@typespec/http";
-import { Client, InternalClient } from "./interfaces.js";
+import type { HttpOperation } from "@typespec/http";
+import type { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 
+/**
+ * Collected clients and data types available to components through `ClientLibraryContext`.
+ * Client operations link back to their owning client, and child clients link to their parent.
+ */
 export interface ClientLibrary {
+  /** Roots of the collected hierarchy; empty when no clients could be found. */
   topLevel: Client[];
+  /** Data types reached from client constructors and operation parameters and responses, deduplicated by identity. */
   dataTypes: Array<Model | Union | Enum>;
+  /**
+   * Finds the client associated with this HTTP operation object during library collection.
+   * Returns undefined when the operation has not been associated with a client in this program.
+   */
   getClientForOperation(operation: HttpOperation): Client | undefined;
 }
 

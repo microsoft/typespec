@@ -3,7 +3,8 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createStringMap } from "../utils/misc.js";
-import { createTestCompilerHost, TestHostOptions } from "./test-compiler-host.js";
+import type { TestHostOptions } from "./test-compiler-host.js";
+import { createTestCompilerHost } from "./test-compiler-host.js";
 import { findFilesFromPattern } from "./test-host.js";
 import type { JsFile, MockFile, TestFileSystem, TypeSpecTestLibrary } from "./types.js";
 
@@ -25,6 +26,10 @@ export const mockFile = {
   },
 };
 
+/**
+ * Create an empty, mutable virtual filesystem and its compiler host.
+ * Library files and test decorators are not mounted automatically; {@link createTester} sets them up.
+ */
 export function createTestFileSystem(options?: TestHostOptions): TestFileSystem {
   const virtualFs = createStringMap<string>(!!options?.caseInsensitiveFileSystem);
   const jsImports = createStringMap<Promise<any>>(!!options?.caseInsensitiveFileSystem);
@@ -123,6 +128,7 @@ function createTestFileSystemInternal(
     jsImports.set(key, exports);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   async function addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary) {
     assertNotFrozen();
 

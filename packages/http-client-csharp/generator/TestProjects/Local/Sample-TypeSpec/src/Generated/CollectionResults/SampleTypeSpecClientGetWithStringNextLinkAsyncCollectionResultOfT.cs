@@ -35,10 +35,10 @@ namespace SampleTypeSpec
             Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
+                string nextPageString = ((ListWithStringNextLinkResult)result).Next;
                 if (string.IsNullOrEmpty(nextPageString))
                 {
                     yield break;
@@ -53,7 +53,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithStringNextLinkResponse)page).Next;
+            string nextPage = ((ListWithStringNextLinkResult)page).Next;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
@@ -69,11 +69,18 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithStringNextLinkResponse)page).Things)
+            foreach (Thing item in ((ListWithStringNextLinkResult)page).Things)
             {
                 yield return item;
                 await Task.Yield();
             }
+        }
+
+        /// <summary> Sends the request in the pipeline message and returns the response. </summary>
+        /// <param name="message"> The pipeline message containing the request to send. </param>
+        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
+        {
+            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

@@ -91,6 +91,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
             Assert.IsNotNull(constructor);
             StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+
+            // Also validate that the propagate method is called from the public initialization constructor
+            // so that patch propagation behaves consistently regardless of the construction path.
+            var publicConstructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                    && c.Signature.Parameters.All(p => p.Name != "patch"));
+            Assert.IsNotNull(publicConstructor);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("PublicInitializationConstructor"),
+                publicConstructor!.BodyStatements!.ToDisplayString());
         }
 
         [Test]
@@ -244,6 +254,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task PropagateCustomizedDynamicConcreteListProperty()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Array(otherDynamicModel))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().Single(m => m.Name == "DynamicModel");
+            var serialization = model.SerializationProviders.Single();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization,
+                name => name is "PropagateGet" or "PropagateSet" or "TryResolveProp2Array" or "ActiveProp2"));
+            var actual = writer.Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
         public async Task PropagateCustomizedDynamicListPropertyMixed()
         {
             var otherDynamicModel = InputFactory.Model(
@@ -322,6 +364,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PropagateNullableModelProperty(bool isRequired)
+        {
+            var child = InputFactory.Model("anotherDynamic", isDynamicModel: true);
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("p1", new InputNullableType(child), isRequired: isRequired)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel, child]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = model.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            Assert.That(constructor.Signature.Parameters.Count, Is.EqualTo(isRequired ? 1 : 0));
+            if (isRequired)
+            {
+                Assert.That(constructor.Signature.Parameters[0].Validation, Is.EqualTo(ParameterValidationType.None));
+            }
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor.BodyStatements!.ToDisplayString());
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                model.SerializationProviders.Single(),
+                name => name is "PropagateGet" or "PropagateSet"));
+            Assert.That(writer.Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile(method: nameof(PropagateModelProperty))));
+        }
+
         [Test]
         public void PropagateModelListProperty()
         {
@@ -351,6 +424,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serialization!,
                 name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void PropagateModelListPropertyHelperMethods()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("p1",
+                        InputFactory.Array(InputFactory.Model(
+                            "anotherDynamic",
+                            isDynamicModel: true,
+                            properties:
+                            [
+                                InputFactory.Property("a1", InputPrimitiveType.String, isRequired: true)
+                            ])))
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "TryResolveP1Array" or "ActiveP1"));
 
             var file = writer.Write();
 
@@ -497,6 +605,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void WriteRequiredNullableProperty()
+        {
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                    InputFactory.Property("foo", new InputNullableType(InputPrimitiveType.String), isRequired: true)
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void WriteModelPropertyType()
         {
             var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
@@ -559,6 +694,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Regression test for required root-level collection patch serialization:
+        // write the patched collection through Patch.WriteTo(writer, "$.<prop>") so it is emitted once.
+        [Test]
+        public void WriteRequiredCollectionDoesNotDuplicatePatchedKey()
+        {
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("tools", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore"));
+
+            var content = writer.Write().Content;
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile(), content);
+            StringAssert.DoesNotContain("writer.WriteRawValue(Patch.GetJson(\"$.tools\"u8));", content);
         }
 
         [Test]
@@ -1165,6 +1331,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isDynamicModel.ToString()), file.Content);
+        }
+
+        [TestCase(InputStreamingType.JsonLinesStreamKind, "application/jsonl")]
+        [TestCase(InputStreamingType.SseStreamKind, "text/event-stream")]
+        public void StreamingResponseDoesNotHaveExplicitClientResultOperator(string streamKind, string contentType)
+        {
+            var inputModel = InputFactory.Model(
+               "cat",
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
+               ]);
+            var streamType = new InputStreamingType(
+                "CatStream",
+                "Sample.CatStream",
+                inputModel,
+                [contentType],
+                streamKind);
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var method = InputFactory.BasicServiceMethod(
+                "GetCats",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clients: () => [InputFactory.Client("TestClient", methods: [method])]);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            var serialization = model!.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+            Assert.That(
+                serialization!.Methods.Any(m =>
+                    m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
+                    m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)),
+                Is.False);
         }
 
         [Test]

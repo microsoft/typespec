@@ -5,7 +5,10 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
+using Payload.MultiPart;
 using Payload.MultiPart._FormData.File;
 using Payload.MultiPart._FormData.HttpParts;
 
@@ -23,37 +26,91 @@ namespace Payload.MultiPart._FormData
 
         public virtual Task<ClientResult> BasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult Basic(MultiPartContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> BasicAsync(MultiPartContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult WithWireName(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> WithWireNameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult WithWireName(MultiPartRequestWithWireName body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> WithWireNameAsync(MultiPartRequestWithWireName body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult OptionalParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> OptionalPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult OptionalParts(MultiPartOptionalContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> OptionalPartsAsync(MultiPartOptionalContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> FileArrayAndBasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult FileArrayAndBasic(ComplexPartsContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> FileArrayAndBasicAsync(ComplexPartsContent body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult JsonPart(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> JsonPartAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult JsonPart(JsonPartContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> JsonPartAsync(JsonPartContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult BinaryArrayParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> BinaryArrayPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult BinaryArrayParts(BinaryArrayPartsContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> BinaryArrayPartsAsync(BinaryArrayPartsContent body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult MultiBinaryParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> MultiBinaryPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult MultiBinaryParts(MultiBinaryPartsContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> MultiBinaryPartsAsync(MultiBinaryPartsContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult CheckFileNameAndContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> CheckFileNameAndContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult CheckFileNameAndContentType(MultiPartContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> CheckFileNameAndContentTypeAsync(MultiPartContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult AnonymousModel(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> AnonymousModelAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult AnonymousModel(AnonymousModelContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> AnonymousModelAsync(AnonymousModelContent body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
 

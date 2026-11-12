@@ -1,9 +1,7 @@
-import {
-  SdkContext,
-  SdkType,
-  UnbrandedSdkEmitterOptions,
-} from "@azure-tools/typespec-client-generator-core";
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import type { SdkContext, SdkType } from "@azure-tools/typespec-client-generator-core";
+import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
+import type { JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export interface PythonEmitterOptions {
   "api-version"?: string;
@@ -22,8 +20,16 @@ export interface PythonEmitterOptions {
   "packaging-files-config"?: object;
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
+  "enable-sse-reconnect"?: boolean;
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
+  "generate-typeddict"?: boolean;
+  "keep-pyproject-fields"?: {
+    authors?: boolean;
+    description?: boolean;
+    classifiers?: boolean;
+    urls?: boolean;
+  };
   "clear-output-folder"?: boolean;
   "emit-yaml-only"?: boolean;
 }
@@ -81,6 +87,13 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description: "Whether to return responses from HEAD requests as boolean. Defaults to `true`.",
     },
+    "enable-sse-reconnect": {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description:
+        'Whether to generate automatic reconnection support for Server-Sent Events (SSE). Defaults to `false`: SSE streams end when the response reaches EOF, without sending another request. Set to `true` to generate reconnect callbacks, retry delays, and `Last-Event-ID` resumption. SSE event IDs and retry metadata are parsed in either mode. Transport errors still propagate to the caller.\n\nEnable this generation-time option in `tspconfig.yaml`:\n\n```yaml\nemit:\n  - "@typespec/http-client-python"\noptions:\n  "@typespec/http-client-python":\n    enable-sse-reconnect: true\n```',
+    },
     "use-pyodide": {
       type: "boolean",
       nullable: true,
@@ -97,13 +110,49 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       type: "string",
       nullable: true,
       description:
-        "The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.",
+        'The subdirectory (relative to the package namespace folder) to generate the code in. Use this to keep emitter-generated code separate from hand-written/customized code, so regeneration only overwrites the subdirectory and leaves your customizations untouched. If not specified, the code is generated directly in the package namespace folder. Note: if you\'re using this flag, you will need to add and maintain the versioning file (`_version.py`) yourself.\n\nExample: for `namespace: azure.storage.blob` with `generation-subdir: _generated`, generated code lands in `azure/storage/blob/_generated/` while your customized code lives in `azure/storage/blob/`. A typical `tspconfig.yaml` looks like:\n\n```yaml\noptions:\n  "@azure-tools/typespec-python":\n    emitter-output-dir: "{output-dir}/{service-dir}/azure-storage-blob"\n    namespace: "azure.storage.blob"\n    generation-subdir: "_generated"\n```',
     },
     "keep-setup-py": {
       type: "boolean",
       nullable: true,
       description:
         "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
+    },
+    "generate-typeddict": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to add TypedDict typing for JSON dictionary input in `models-mode: dpg`, instead of accepting only generic JSON. This enriches the typing on the existing overloads rather than adding another request-body overload. Defaults to `true`.",
+    },
+    "keep-pyproject-fields": {
+      type: "object",
+      nullable: true,
+      description:
+        "Which manually customized `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Set a field to `true` to keep it. By default no fields are preserved.",
+      properties: {
+        authors: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `authors` field (e.g. a custom author name and email).",
+        },
+        description: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `description` field.",
+        },
+        classifiers: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `classifiers` field.",
+        },
+        urls: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `[project.urls]` table.",
+        },
+      },
+      required: [],
+      additionalProperties: false,
     },
     "clear-output-folder": {
       type: "boolean",
@@ -139,10 +188,10 @@ const libDef = {
       },
     },
     "no-sdk-clients": {
-      severity: "error",
+      severity: "warning",
       messages: {
         default:
-          "The Python emitter did not find any SDK clients in this TypeSpec program. The current Python generator expects at least one client/service to generate code.",
+          "The Python emitter did not find any SDK clients in this TypeSpec program. No client code will be generated (models can still be emitted). Suppress this warning if this is expected.",
       },
     },
     "browser-runtime-load-failed": {

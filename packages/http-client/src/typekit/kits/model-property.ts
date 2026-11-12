@@ -1,18 +1,27 @@
-import { BaseType, ModelProperty, Value } from "@typespec/compiler";
+import type { BaseType, ModelProperty, Value } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { HttpAuth } from "@typespec/http";
-import { InternalClient as Client } from "../../interfaces.js";
+import type { HttpAuth } from "@typespec/http";
+import type { InternalClient as Client } from "../../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../../types/credential-symbol.js";
-import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
+import type { AccessKit, NameKit } from "./utils.js";
+import { getAccess, getName } from "./utils.js";
 
+/** Associates a synthetic credential type with the HTTP authentication scheme it satisfies. */
 export interface SdkCredential extends BaseType {
+  /** Discriminant distinguishing credential metadata from built-in compiler type kinds. */
   kind: "Credential";
+  /** HTTP authentication scheme represented by this credential. */
   scheme: HttpAuth;
 }
 
+/**
+ * Client-specific property queries added to `$.modelProperty`, including synthetic constructor
+ * credentials, client initialization membership, and discriminator detection.
+ */
 export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<ModelProperty> {
   /**
-   * Get credential information from the model property. Returns undefined if the credential parameter
+   * Gets attached HTTP authentication schemes for a synthetic credential parameter.
+   * Returns undefined for other properties, or an empty array if a credential has no attached schemes.
    */
   getCredentialAuth(type: ModelProperty): HttpAuth[] | undefined;
 
@@ -28,17 +37,19 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
   isCredential(modelProperty: ModelProperty): boolean;
 
   /**
-   * Returns whether the model property is part of the client's initialization or not.
+   * Checks whether a constructor parameter has the same name as this property.
+   * Membership is currently name-based, not a comparison of property identities.
    */
   isOnClient(client: Client, modelProperty: ModelProperty): boolean;
 
   /**
-   * Returns whether the model property has a client default value or not.
+   * Returns the property's default value if it belongs to the client's initialization signature.
+   * Returns undefined for other properties, or when no default is set.
    */
   getClientDefaultValue(client: Client, modelProperty: ModelProperty): Value | undefined;
 
   /**
-   * Get access of a property
+   * Gets the property's client visibility; currently always returns `"public"`.
    */
   getAccess(modelProperty: ModelProperty): "public" | "internal";
 }

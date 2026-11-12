@@ -68,6 +68,7 @@ export class UnionVariantHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /** Supplies the variant's option-based cache key; codecs are selected on its value type instead. */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: UnionVariant,
@@ -83,6 +84,10 @@ export class UnionVariantHttpCanonicalization
     };
   }
 
+  /**
+   * Initializes declaration status and projection nodes for a visible variant.
+   * Use the engine's `canonicalize` method to also traverse and connect its value type.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: UnionVariant,

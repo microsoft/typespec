@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -21,6 +22,19 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.AreEqual(1, inputNamespace.RootClients.Count);
             Assert.AreEqual("Client1", inputNamespace.RootClients[0].Name);
+        }
+
+        [Test]
+        public void DeserializeThrowsDescriptiveErrorWhenNameMissing()
+        {
+            // A code model whose root object has no "name" property (e.g. an incomplete or
+            // truncated payload) must fail with an actionable message naming the missing field,
+            // not a bare "could not be converted to InputNamespace".
+            var json = "{\n  \"$id\": \"1\",\n  \"apiVersions\": []\n}";
+
+            var ex = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(json));
+
+            Assert.That(ex!.Message, Does.Contain("name"));
         }
     }
 }

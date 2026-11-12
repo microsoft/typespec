@@ -410,7 +410,7 @@ public interface ChildResourcesInterfacesClient {
         String topLevelArmResourceName, Context context);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -425,7 +425,7 @@ public interface ChildResourcesInterfacesClient {
         String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -440,7 +440,7 @@ public interface ChildResourcesInterfacesClient {
         String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -455,7 +455,7 @@ public interface ChildResourcesInterfacesClient {
         String childResourceName);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -471,7 +471,7 @@ public interface ChildResourcesInterfacesClient {
         String childResourceName, Context context);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -486,7 +486,7 @@ public interface ChildResourcesInterfacesClient {
         String childResourceName);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -499,7 +499,7 @@ public interface ChildResourcesInterfacesClient {
     void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.

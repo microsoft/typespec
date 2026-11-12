@@ -1,7 +1,7 @@
 import { realpath } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { createSourceFile } from "./source-file.js";
-import { RmOptions, SystemHost } from "./types.js";
+import type { RmOptions, SystemHost } from "./types.js";
 
 /**
  * Implementation of the @see SystemHost using the real file system.

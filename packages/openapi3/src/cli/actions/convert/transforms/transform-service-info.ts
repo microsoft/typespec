@@ -1,13 +1,25 @@
-import { OpenAPI3Info } from "../../../../types.js";
-import { TypeSpecServiceInfo } from "../interfaces.js";
+import type { License } from "@typespec/openapi";
+import type { OpenAPI3Info } from "../../../../types.js";
+import type { TypeSpecServiceInfo } from "../interfaces.js";
 
 export function transformServiceInfo(info: OpenAPI3Info): TypeSpecServiceInfo {
+  let license = info.license;
+  if (license) {
+    // Handle x-oai-license-identifier extension from OpenAPI 3.0
+    const licenseRecord = license as unknown as Record<string, unknown>;
+    const xOaiIdentifier = licenseRecord["x-oai-license-identifier"];
+    if (typeof xOaiIdentifier === "string") {
+      const { "x-oai-license-identifier": _, ...rest } = licenseRecord;
+      license = { ...(rest as unknown as License), identifier: xOaiIdentifier };
+    }
+  }
+
   return {
     name: info.title,
     doc: info.description,
     version: info.version,
     contact: info.contact,
-    license: info.license,
+    license,
     termsOfService: info.termsOfService,
     summary: info.summary,
   };

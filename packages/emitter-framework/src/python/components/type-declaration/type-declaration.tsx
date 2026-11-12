@@ -4,8 +4,11 @@ import type { Type } from "@typespec/compiler";
 import { EnumDeclaration } from "../enum-declaration/enum-declaration.js";
 import { TypeAliasDeclaration } from "../type-alias-declaration/type-alias-declaration.js";
 
+/** TypeSpec source and shared name/documentation options for Python declaration dispatch. */
 export interface TypeDeclarationProps extends Omit<py.BaseDeclarationProps, "name"> {
+  /** Declaration name override forwarded to the selected enum or alias component. */
   name?: string;
+  /** Enums dispatch to EnumDeclaration; all other kinds dispatch to TypeAliasDeclaration. */
   type: Type;
 }
 

@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
@@ -50,11 +51,20 @@ public class ClientMethodExampleWriter {
     public ClientMethodExampleWriter(ClientMethod method, String clientVarName, ProxyMethodExample proxyMethodExample) {
 
         List<MethodParameter> methodParameters = MethodUtil.getParameters(method, true);
-        List<ExampleNode> exampleNodes = methodParameters.stream()
-            .map(methodParameter -> parseNodeFromParameter(method, proxyMethodExample, methodParameter))
-            .collect(Collectors.toList());
-
-        String parameterInvocations = exampleNodes.stream().map(nodeVisitor::accept).collect(Collectors.joining(", "));
+        // Exclude parameters that are hidden from the client method signature (e.g. "maxpagesize", which is set via
+        // PagedIterable/PagedFlux instead). Otherwise the generated sample would pass an argument that the method
+        // signature does not accept, producing invalid code.
+        final MethodPageDetails pageDetails = method.getMethodPageDetails();
+        if (pageDetails != null) {
+            methodParameters = methodParameters.stream()
+                .filter(methodParameter -> !pageDetails.shouldHideParameter(methodParameter.getClientMethodParameter()))
+                .collect(Collectors.toList());
+        }
+        String parameterInvocations = methodParameters.stream()
+            .map(methodParameter -> ExampleWriterUtil.getParameterExpression(
+                methodParameter.getClientMethodParameter().getClientType(),
+                nodeVisitor.accept(parseNodeFromParameter(method, proxyMethodExample, methodParameter))))
+            .collect(Collectors.joining(", "));
 
         // assertion
         this.imports.add("org.junit.jupiter.api.Assertions");

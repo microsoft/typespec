@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public const string Duration_Milliseconds = "Duration_Milliseconds";
         public const string Duration_Milliseconds_Float = "Duration_Milliseconds_Float";
         public const string Duration_Milliseconds_Double = "Duration_Milliseconds_Double";
+        public const string Duration_Seconds_Int64 = "Duration_Seconds_Int64";
+        public const string Duration_Milliseconds_Int64 = "Duration_Milliseconds_Int64";
         public const string Time_ISO8601 = "Time_ISO8601";
         public const string Bytes_Base64Url = "Bytes_Base64Url";
         public const string Bytes_Base64 = "Bytes_Base64";
@@ -43,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "SerializationFormat";
+        protected override FormattableString BuildDescription() => $"The serialization format.";
 
         protected override TypeProvider[] BuildSerializationProviders() => [];
 
@@ -68,6 +72,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (Time_ISO8601, 15, "The ISO8601 time format."),
                 (Bytes_Base64Url, 16, "The Base64Url bytes format."),
                 (Bytes_Base64, 17 , "The Base64 bytes format."),
+                (Duration_Seconds_Int64, 18, "The seconds duration format with int64 precision."),
+                (Duration_Milliseconds_Int64, 19, "The milliseconds duration format with int64 precision."),
             };
 
             var members = new EnumTypeMember[enumValues.Count];

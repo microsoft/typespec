@@ -88,9 +88,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         }
 
         public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer();
+        internal static readonly IEqualityComparer<MethodSignatureBase> SignatureComparerIgnoringOptionalValueTypeNullability
+            = new MethodSignatureBaseEqualityComparer(ignoreOptionalValueTypeParameterNullability: true);
 
         private class MethodSignatureBaseEqualityComparer : IEqualityComparer<MethodSignatureBase>
         {
+            private readonly bool _ignoreOptionalValueTypeParameterNullability;
+
+            public MethodSignatureBaseEqualityComparer(bool ignoreOptionalValueTypeParameterNullability = false)
+            {
+                _ignoreOptionalValueTypeParameterNullability = ignoreOptionalValueTypeParameterNullability;
+            }
+
             public bool Equals(MethodSignatureBase? x, MethodSignatureBase? y)
             {
                 if (ReferenceEquals(x, y))
@@ -103,21 +112,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     return false;
                 }
 
-                if (x.Parameters.Count != y.Parameters.Count || GetFullMethodName(x) != GetFullMethodName(y))
+                if (x.Parameters.Count != y.Parameters.Count)
+                {
+                    return false;
+                }
+
+                bool xIsOperator = x.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                bool yIsOperator = y.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                if (xIsOperator != yIsOperator)
                 {
                     return false;
                 }
 
                 // For operators, we need to also check the return type and operator type (explicit vs implicit)
                 // since operators can have the same "name" (the target type) but different signatures
-                if (x.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                if (xIsOperator)
                 {
-                    // Check if both are operators and of the same type (explicit or implicit)
-                    if (!y.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
-                    {
-                        return false;
-                    }
-
                     // Check explicit vs implicit - both flags must match
                     bool xIsExplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                     bool yIsExplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
@@ -128,10 +138,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                         return false;
                     }
 
-                    // For operators, the return type is crucial for matching
+                    // For operators, the return type is crucial for matching.
+                    // Nullability is part of the conversion-operator signature in C#
+                    // (e.g., `implicit operator T(string)` and `implicit operator T?(string)`
+                    // are distinct), so we compare both the type name and the nullability.
                     if (x.ReturnType != null && y.ReturnType != null)
                     {
-                        if (!x.ReturnType.AreNamesEqual(y.ReturnType))
+                        if (!x.ReturnType.AreNamesEqual(y.ReturnType)
+                            || x.ReturnType.IsNullable != y.ReturnType.IsNullable)
                         {
                             return false;
                         }
@@ -140,11 +154,34 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     {
                         return false;
                     }
+
+                    // Compare user-defined operators by symbol; conversion operators are fully identified by modifiers/return type/params.
+                    if (!xIsImplicit && !xIsExplicit
+                        && NormalizeOperatorName(GetFullMethodName(x)) != NormalizeOperatorName(GetFullMethodName(y)))
+                    {
+                        return false;
+                    }
+                }
+                else if (GetFullMethodName(x) != GetFullMethodName(y))
+                {
+                    return false;
                 }
 
                 for (int i = 0; i < x.Parameters.Count; i++)
                 {
-                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
+                    var xType = x.Parameters[i].Type;
+                    var yType = y.Parameters[i].Type;
+                    if (!xType.AreNamesEqual(yType))
+                    {
+                        return false;
+                    }
+
+                    // Value-type T and T? are distinct overloads, so their nullability matters; reference-type
+                    // nullability is annotation-only and never affects overload identity.
+                    if (xType.IsNullable != yType.IsNullable && (xType.IsValueType || yType.IsValueType)
+                        && !(_ignoreOptionalValueTypeParameterNullability
+                            && x.Parameters[i].DefaultValue is not null
+                            && y.Parameters[i].DefaultValue is not null))
                     {
                         return false;
                     }
@@ -166,6 +203,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
 
                 return method.Name;
+            }
+
+            private static string NormalizeOperatorName(string name)
+            {
+                // Strip Roslyn's "operator " prefix so "operator ==" matches "==".
+                const string operatorPrefix = "operator ";
+                return name.StartsWith(operatorPrefix, StringComparison.Ordinal)
+                    ? name.Substring(operatorPrefix.Length)
+                    : name;
             }
         }
     }

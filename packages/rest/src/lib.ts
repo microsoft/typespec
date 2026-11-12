@@ -1,5 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/** REST library definition, including its diagnostic messages and program state helpers. */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/rest",
   diagnostics: {

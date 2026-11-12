@@ -35,10 +35,11 @@ setup(
         "Development Status :: 4 - Beta",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(
@@ -52,6 +53,6 @@ setup(
         "Jinja2==3.1.6",
         "PyYAML==6.0.1",
         "tomli==2.0.1",
-        "setuptools==75.3.2",
+        "setuptools==83.0.0",
     ],
 )

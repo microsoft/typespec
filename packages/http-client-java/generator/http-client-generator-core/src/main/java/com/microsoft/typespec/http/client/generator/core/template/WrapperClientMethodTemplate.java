@@ -16,6 +16,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -58,6 +59,7 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
         }
 
         addGeneratedAnnotation(typeBlock);
+        ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
         TemplateUtil.writeClientMethodServiceMethodAnnotation(clientMethod, typeBlock);
 
         String methodName = clientMethod.getName();
@@ -70,9 +72,8 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
         Consumer<JavaBlock> method = function -> {
 
             // API comment
-            if (clientMethod.getImplementationDetails() != null
-                && !CoreUtils.isNullOrEmpty(clientMethod.getImplementationDetails().getComment())) {
-                function.line("// " + clientMethod.getImplementationDetails().getComment());
+            if (!CoreUtils.isNullOrEmpty(clientMethod.getApiMetadata().getDevMessage())) {
+                function.line("// " + clientMethod.getApiMetadata().getDevMessage());
             }
 
             boolean shouldReturn = true;
@@ -105,7 +106,11 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
         function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
-            parameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", ")));
+            parameters.stream()
+                .filter(p -> !clientMethod.isPageStreamingType()
+                    || !clientMethod.getMethodPageDetails().shouldHideParameter(p))
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.joining(", ")));
     }
 
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {
@@ -113,6 +118,10 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
             comment.description(clientMethod.getDescription());
             List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
             for (ClientMethodParameter parameter : methodParameters) {
+                if (clientMethod.isPageStreamingType()
+                    && clientMethod.getMethodPageDetails().shouldHideParameter(parameter)) {
+                    continue;
+                }
                 comment.param(parameter.getName(), parameter.getDescription());
             }
             if (clientMethod.hasParameterDeclaration()) {

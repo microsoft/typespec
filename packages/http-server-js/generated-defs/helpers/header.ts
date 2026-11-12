@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Module } from "../../src/ctx.js";
+import type { Module } from "../../src/ctx.js";
 
 export let module: Module = undefined as any;
 
@@ -14,6 +14,17 @@ const lines = [
   "  value: string;",
   "  verbatim: string;",
   "  params: { [k: string]: string };",
+  "}",
+  "",
+  "function replaceInvalidHttpHeaderCharacters(value: string): string {",
+  "  let sanitized = \"\";",
+  "",
+  "  for (const char of value) {",
+  "    const codePoint = char.codePointAt(0)!;",
+  "    sanitized += codePoint < 0x20 || codePoint === 0x7f ? \" \" : char;",
+  "  }",
+  "",
+  "  return sanitized;",
   "}",
   "",
   "/**",
@@ -61,6 +72,19 @@ const lines = [
   "    verbatim: headerValueText,",
   "    params,",
   "  };",
+  "}",
+  "",
+  "/**",
+  " * Formats an attachment Content-Disposition header value for a filename.",
+  " *",
+  " * Control characters are replaced so the header value stays valid for Node's",
+  " * response.setHeader validation, and quotes/backslashes are escaped inside the",
+  " * quoted-string filename parameter.",
+  " */",
+  "export function formatContentDispositionAttachment(filename: string): string {",
+  "  const sanitized = replaceInvalidHttpHeaderCharacters(filename);",
+  "  const escaped = sanitized.replace(/[\"\\\\]/g, \"\\\\$&\");",
+  "  return `attachment; filename=\"${escaped}\"`;",
   "}",
   "",
 ];

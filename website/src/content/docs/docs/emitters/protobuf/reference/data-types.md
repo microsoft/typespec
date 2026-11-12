@@ -40,9 +40,54 @@ model Widget is Extern<"path/to/test.proto", "test.Widget">;
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
+
+### `LongRunningOperation` {#TypeSpec.Protobuf.LongRunningOperation}
+
+A long-running operation ([AIP-151](https://google.aip.dev/151)) whose `response` is a `Response` and whose
+`metadata` is a `Metadata`. Return it from an operation that starts work the client polls until it is done.
+
+This model references `google.longrunning.Operation` from `google/longrunning/operations.proto`. The emitter writes
+both types in the operation's `google.longrunning.operation_info` method option, naming each relative to the
+operation's package (or fully qualified when it is declared in another package), and emits and imports them like any
+other message the operation refers to.
+
+```typespec
+model TypeSpec.Protobuf.LongRunningOperation<Response, Metadata>
+```
+
+#### Template Parameters
+
+| Name     | Description                                                                                                                                                                       |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Response | the message in the `response` of a successful operation, such as<br />[`WellKnown.Empty`](./data-types#TypeSpec.Protobuf.WellKnown.Empty) when there is none                      |
+| Metadata | the message in the `metadata` of the operation, describing its progress. AIP-151 asks for a<br />message of the operation's own, even an empty one, rather than `WellKnown.Empty` |
+
+#### Examples
+
+```typespec
+op importBooks(...ImportBooksRequest): LongRunningOperation<
+  ImportBooksResponse,
+  ImportBooksMetadata
+>;
+```
+
+```protobuf
+rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+  option (google.longrunning.operation_info) = {
+    response_type: "ImportBooksResponse"
+    metadata_type: "ImportBooksMetadata"
+  };
+}
+```
+
+#### Properties
+
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `Map` {#TypeSpec.Protobuf.Map}
 
@@ -51,6 +96,9 @@ in Protobuf.
 
 The key type of a Protobuf `map` must be any integral type or `string`. The value type can be any type other than
 another `Map`.
+
+An object value fills a map, for example in `@opExample` or a `const`: `#{ team: "storage" }`. Its keys are
+strings, as in the Protobuf JSON mapping, so the keys of a map with an integral key type are not checked.
 
 ```typespec
 model TypeSpec.Protobuf.Map<Key, Value>
@@ -69,7 +117,7 @@ None
 
 ### `PackageDetails` {#TypeSpec.Protobuf.PackageDetails}
 
-Details applied to a package definition by the [`@package`](./decorators#
+Details applied to a package definition by the [`@package`](./decorators#%40TypeSpec.Protobuf.package) decorator.
 
 ```typespec
 model TypeSpec.Protobuf.PackageDetails
@@ -91,7 +139,7 @@ The streaming mode of an operation. One of:
 - `Out`: the output of the operation is streaming.
 - `None`: neither the input nor the output are streaming.
 
-See the [`@stream`](./decorators#
+See the [`@stream`](./decorators#%40TypeSpec.Protobuf.stream) decorator.
 
 ```typespec
 enum TypeSpec.Protobuf.StreamMode
@@ -190,9 +238,9 @@ model TypeSpec.Protobuf.WellKnown.Any
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `Empty` {#TypeSpec.Protobuf.WellKnown.Empty}
 
@@ -206,9 +254,9 @@ model TypeSpec.Protobuf.WellKnown.Empty
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `LatLng` {#TypeSpec.Protobuf.WellKnown.LatLng}
 
@@ -222,9 +270,27 @@ model TypeSpec.Protobuf.WellKnown.LatLng
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
+
+### `Operation` {#TypeSpec.Protobuf.WellKnown.Operation}
+
+A long-running operation ([AIP-151](https://google.aip.dev/151)).
+
+This model references `google.longrunning.Operation` from `google/longrunning/operations.proto`. To declare the
+types of a long-running operation's response and metadata, return
+[`LongRunningOperation`](./data-types#TypeSpec.Protobuf.LongRunningOperation) instead.
+
+```typespec
+model TypeSpec.Protobuf.WellKnown.Operation
+```
+
+#### Properties
+
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `Timestamp` {#TypeSpec.Protobuf.WellKnown.Timestamp}
 
@@ -238,6 +304,6 @@ model TypeSpec.Protobuf.WellKnown.Timestamp
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |

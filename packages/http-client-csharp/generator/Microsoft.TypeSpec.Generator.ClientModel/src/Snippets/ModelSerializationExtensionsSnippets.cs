@@ -15,6 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
     {
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
+        private const string WriteBase64UrlStringValueMethodName = "WriteBase64UrlStringValue";
         private const string WriteNumberValueMethodName = "WriteNumberValue";
         private const string WriteObjectValueMethodName = "WriteObjectValue";
         private const string GetCharMethodName = "GetChar";
@@ -46,6 +47,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static MethodBodyStatement WriteBase64StringValue(ScopedApi<Utf8JsonWriter> snippet, ValueExpression value, string? format)
             => snippet.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
+
+        public static MethodBodyStatement WriteBase64UrlStringValue(ScopedApi<Utf8JsonWriter> snippet, ValueExpression value)
+            => snippet.Invoke(WriteBase64UrlStringValueMethodName, [value]).Terminate();
 
         public static ValueExpression GetObject(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element)
             => provider.Invoke(GetObjectMethodName, [element]);

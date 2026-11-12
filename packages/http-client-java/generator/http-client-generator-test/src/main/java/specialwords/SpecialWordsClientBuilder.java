@@ -44,11 +44,13 @@ import specialwords.implementation.SpecialWordsClientImpl;
     serviceClients = {
         ModelsClient.class,
         ModelPropertiesClient.class,
+        ReservedOperationBodyParamsClient.class,
         ExtensibleStringsClient.class,
         OperationsClient.class,
         ParametersClient.class,
         ModelsAsyncClient.class,
         ModelPropertiesAsyncClient.class,
+        ReservedOperationBodyParamsAsyncClient.class,
         ExtensibleStringsAsyncClient.class,
         OperationsAsyncClient.class,
         ParametersAsyncClient.class })
@@ -295,6 +297,16 @@ public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsCl
     }
 
     /**
+     * Builds an instance of ReservedOperationBodyParamsAsyncClient class.
+     * 
+     * @return an instance of ReservedOperationBodyParamsAsyncClient.
+     */
+    @Generated
+    public ReservedOperationBodyParamsAsyncClient buildReservedOperationBodyParamsAsyncClient() {
+        return new ReservedOperationBodyParamsAsyncClient(buildInnerClient().getReservedOperationBodyParams());
+    }
+
+    /**
      * Builds an instance of ExtensibleStringsAsyncClient class.
      * 
      * @return an instance of ExtensibleStringsAsyncClient.
@@ -342,6 +354,16 @@ public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsCl
     @Generated
     public ModelPropertiesClient buildModelPropertiesClient() {
         return new ModelPropertiesClient(buildInnerClient().getModelProperties());
+    }
+
+    /**
+     * Builds an instance of ReservedOperationBodyParamsClient class.
+     * 
+     * @return an instance of ReservedOperationBodyParamsClient.
+     */
+    @Generated
+    public ReservedOperationBodyParamsClient buildReservedOperationBodyParamsClient() {
+        return new ReservedOperationBodyParamsClient(buildInnerClient().getReservedOperationBodyParams());
     }
 
     /**

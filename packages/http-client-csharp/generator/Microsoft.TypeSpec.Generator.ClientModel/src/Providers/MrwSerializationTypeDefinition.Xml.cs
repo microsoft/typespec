@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -20,8 +22,10 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
@@ -44,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat SerializationFormat,
             IEnumerable<AttributeStatement> SerializationAttributes,
             bool IsRequired,
-            bool IsReadOnly);
+            bool IsReadOnly,
+            IReadOnlyList<SuppressionStatement> Suppressions);
 
         private record XmlNamespaceInfo(string Namespace, string VariableName, string Prefix, VariableExpression VariableExpression);
 
@@ -59,13 +64,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private XmlPropertyCategories? _categorizedXmlProperties;
         private XmlPropertyCategories CategorizedXmlProperties => _categorizedXmlProperties ??= CategorizeXmlProperties(ownPropertiesOnly: true);
+        private bool? _shouldOverrideXmlMethods;
+        private bool ShouldOverrideXmlMethods => _shouldOverrideXmlMethods ??= !_isStruct &&
+            (HasGeneratedBaseSerializationMethod(XmlModelWriteCoreMethodName) ||
+                HasGeneratedBaseCustomXmlModelWriteCoreMethod() ||
+                HasCustomBaseXmlModelWriteCoreMethod());
+
+        private bool HasGeneratedBaseSerializationMethod(string methodName)
+            => _model.BaseModelProvider is not null &&
+                _model.BaseModelProvider is not SystemObjectModelProvider &&
+                _model.BaseModelProvider.SerializationProviders
+                    .OfType<MrwSerializationTypeDefinition>()
+                    .Any(serialization => serialization.Methods.Any(method => method.Signature.Name == methodName));
+
+        private bool HasGeneratedBaseCustomXmlModelWriteCoreMethod()
+            => _model.BaseModelProvider is not null &&
+                _model.BaseModelProvider is not SystemObjectModelProvider &&
+                _model.BaseModelProvider.CustomCodeView?.Methods.Any(IsXmlModelWriteCoreMethod) == true;
+
+        private bool IsXmlModelWriteCoreMethod(MethodProvider method)
+            => IsXmlModelWriteCoreSignature(method) &&
+                (method.Signature.Modifiers &
+                    (MethodSignatureModifiers.Public |
+                        MethodSignatureModifiers.Internal |
+                        MethodSignatureModifiers.Protected |
+                        MethodSignatureModifiers.Private)) == MethodSignatureModifiers.Internal &&
+                ModelReaderWriterHelpers.IsOverridable(method.Signature.Modifiers);
+
+        private bool IsXmlModelWriteCoreSignature(MethodProvider method)
+            => method.Signature.Name == XmlModelWriteCoreMethodName &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
+                method.Signature.Parameters.Count == 2 &&
+                method.Signature.Parameters[0].Type.Equals(typeof(XmlWriter)) &&
+                method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
+
+        private bool HasCustomBaseXmlModelWriteCoreMethod()
+            => GetCustomSerializationBaseType() is not null &&
+                _model.BaseType is { } baseType &&
+                ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    IsXmlModelWriteCoreSignature,
+                    baseTypesFirst: false) is { } method &&
+                IsXmlModelWriteCoreMethod(method);
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
-            if (_shouldOverrideMethods)
+            if (ShouldOverrideXmlMethods)
             {
                 modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Override;
             }
@@ -79,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildXmlModelWriteCoreMethodBody()
         {
-            var categorizedProperties = _shouldOverrideMethods
+            var categorizedProperties = ShouldOverrideXmlMethods
                 ? CategorizedXmlProperties
                 : AllCategorizedXmlProperties;
             var statements = new List<MethodBodyStatement>
@@ -88,7 +136,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine
             };
 
-            if (_shouldOverrideMethods)
+            if (ShouldOverrideXmlMethods)
             {
                 statements.Add(Base.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate());
             }
@@ -98,7 +146,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.AttributeProperties)
                 {
-                    statements.Add(CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces));
+                    statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces), prop.Suppressions));
                 }
             }
 
@@ -107,14 +155,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.ElementProperties)
                 {
-                    statements.Add(CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces));
+                    statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces), prop.Suppressions));
                 }
             }
 
             // Write unwrapped content
             if (categorizedProperties.TextContentProperty != null)
             {
-                statements.Add(CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty));
+                statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty),
+                    categorizedProperties.TextContentProperty.Suppressions));
             }
 
             return [.. statements];
@@ -279,6 +328,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? value.As<BinaryData>().ToArray()
                     : value.NullableStructValue(valueType),
                     serializationFormat.ToFormatSpecifier()),
+                Type t when t == typeof(FileBinaryContent)
+                    => _xmlWriterSnippet.WriteObjectValue(value.As<FileBinaryContent>(), _mrwOptionsParameterSnippet),
                 _ => ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat)
             };
         }
@@ -435,6 +486,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType.FrameworkType switch
             {
+                Type t when t == typeof(ulong) => value.CastTo(typeof(decimal)),
                 Type t when t == typeof(DateTimeOffset) => serializationFormat switch
                 {
                     _ => value.Invoke(nameof(ToString), Literal(serializationFormat.ToFormatSpecifier()))
@@ -464,7 +516,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.PropertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop.SerializationExp)
+                ? OptionalSnippets.IsConcreteCollection(prop.PropertyType)
+                    ? prop.SerializationExp.NotEqual(Null)
+                    : prop.SerializationExp.NotEqual(Null).And(OptionalSnippets.IsCollectionDefined(prop.SerializationExp))
                 : OptionalSnippets.IsDefined(prop.SerializationExp);
 
             return new IfStatement(isDefinedCondition)
@@ -574,7 +628,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
                 MethodBodyStatement.EmptyLine,
                 GetXmlNamespaceDeclarations(categorizedProperties.Namespaces),
-                GetPropertyVariableDeclarations(),
+                GetPropertyVariableDeclarations(preserveJsonPresence: false),
                 MethodBodyStatement.EmptyLine
             };
 
@@ -603,7 +657,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
-            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues())));
+            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(preserveJsonPresence: false))));
 
             return [.. statements];
         }
@@ -694,7 +748,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly);
+                var suppressions = parameter.Property is not null
+                    ? ExperimentalApiHelpers.GetMemberSuppressions(parameter.Property)
+                    : ExperimentalApiHelpers.GetMemberSuppressions(parameter.Field!);
+                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly, suppressions);
 
                 // Categorize by XML serialization type
                 if (xmlWireInfo.Attribute == true)
@@ -1026,6 +1083,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : BinaryDataSnippets.FromString(element.Value()),
                 Type t when t == typeof(DateTimeOffset) => element.GetDateTimeOffset(serializationFormat.ToFormatSpecifier()),
                 Type t when t == typeof(TimeSpan) => element.GetTimeSpan(serializationFormat.ToFormatSpecifier()),
+                Type t when t == typeof(FileBinaryContent) =>
+                    New.Instance<FileBinaryContent>(New.Instance<MemoryStream>(ConvertSnippets.InvokeFromBase64String(element.Value()), Literal(false))),
                 Type t when t == typeof(byte) => element.CastTo(typeof(int)).CastTo(typeof(byte)),
                 Type t when t == typeof(sbyte) => element.CastTo(typeof(int)).CastTo(typeof(sbyte)),
                 Type t when t == typeof(short) => element.CastTo(typeof(int)).CastTo(typeof(short)),

@@ -1,4 +1,5 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -419,6 +420,20 @@ Scenarios.SpecialWords_Parameters_cancellationToken = createParametersTests(
   },
   "cancellationToken",
 );
+
+Scenarios.SpecialWords_ReservedOperationBodyParams_withItems = passOnSuccess({
+  uri: "/special-words/operations/body-param-reserved",
+  method: "post",
+  request: {
+    body: json({
+      items: ["item"],
+    }),
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});
 
 Scenarios.SpecialWords_ExtensibleStrings_putExtensibleStringValue = passOnSuccess({
   uri: `/special-words/extensible-strings/string`,

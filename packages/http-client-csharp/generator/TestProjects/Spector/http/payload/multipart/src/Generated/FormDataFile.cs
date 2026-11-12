@@ -5,6 +5,8 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Payload.MultiPart._FormData.File
@@ -21,12 +23,30 @@ namespace Payload.MultiPart._FormData.File
 
         public virtual Task<ClientResult> UploadFileSpecificContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult UploadFileSpecificContentType(UploadFileSpecificContentTypeContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> UploadFileSpecificContentTypeAsync(UploadFileSpecificContentTypeContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult UploadFileRequiredFilename(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> UploadFileRequiredFilenameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        [Experimental("SCME0004")]
+        public virtual ClientResult UploadFileRequiredFilename(UploadFileRequiredFilenameContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> UploadFileRequiredFilenameAsync(UploadFileRequiredFilenameContent body, CancellationToken cancellationToken = default) => throw null;
+
         public virtual ClientResult UploadFileArray(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> UploadFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult UploadFileArray(UploadFileArrayContent body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> UploadFileArrayAsync(UploadFileArrayContent body, CancellationToken cancellationToken = default) => throw null;
     }
 }

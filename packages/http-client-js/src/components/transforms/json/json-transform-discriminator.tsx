@@ -1,6 +1,6 @@
 import { code, mapJoin, refkey, useNamePolicy, type Children, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Discriminator, Model, Union } from "@typespec/compiler";
+import type { Discriminator, Model, Union } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 

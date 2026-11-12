@@ -2,6 +2,22 @@ import * as monaco from "monaco-editor";
 import type * as lsp from "vscode-languageserver";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
+function markupContentToString(value: string | lsp.MarkupContent): string {
+  return typeof value === "string" ? value : value.value;
+}
+
+function markupContentToMonaco(
+  value: string | lsp.MarkupContent | undefined,
+): string | monaco.IMarkdownString | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  return value.kind === "markdown" ? { value: value.value } : value.value;
+}
+
 function range(range: lsp.Range): monaco.IRange {
   return {
     startColumn: range.start.character + 1,
@@ -34,8 +50,13 @@ function signatureHelp(help: lsp.SignatureHelp | undefined): monaco.languages.Si
   return {
     signatures:
       help?.signatures.map((x) => ({
-        ...x,
-        parameters: x.parameters ?? [],
+        label: x.label,
+        documentation: markupContentToMonaco(x.documentation),
+        parameters: (x.parameters ?? []).map((p) => ({
+          label: p.label,
+          documentation: markupContentToMonaco(p.documentation),
+        })),
+        activeParameter: x.activeParameter ?? undefined,
       })) ?? [],
     activeSignature: help?.activeSignature ?? 0,
     activeParameter: help?.activeParameter ?? 0,
@@ -66,7 +87,7 @@ function severity(severity: lsp.DiagnosticSeverity): monaco.MarkerSeverity {
 function diagnostic(diagnostic: lsp.Diagnostic): monaco.editor.IMarkerData {
   return {
     severity: diagnostic.severity ? severity(diagnostic.severity) : monaco.MarkerSeverity.Error,
-    message: diagnostic.message,
+    message: markupContentToString(diagnostic.message),
     code: diagnostic.code?.toString(),
     source: diagnostic.source,
     startLineNumber: diagnostic.range.start.line + 1,
@@ -93,4 +114,5 @@ export const LspToMonaco = {
   signatureHelp,
   codeAction,
   command,
+  markupContentToString,
 } as const;

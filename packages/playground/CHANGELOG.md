@@ -1,5 +1,75 @@
 # Change Log - @typespec/playground
 
+## 0.19.0
+
+### Breaking Changes
+
+- [#12200](https://github.com/microsoft/typespec/pull/12200) Move `registerMonacoDefaultWorkersForVite` from `@typespec/playground` to `@typespec/playground/vite/workers`. Update the import path; the registration call is unchanged.
+  
+  Custom Vite configurations must exclude `@typespec/playground/vite/workers` from `optimizeDeps`. `definePlaygroundViteConfig` configures this automatically.
+
+### Bug Fixes
+
+- [#12201](https://github.com/microsoft/typespec/pull/12201) Highlight folders containing changed output files in the playground, including collapsed ancestor folders.
+- [#12200](https://github.com/microsoft/typespec/pull/12200) Resolve Monaco worker assets through the consuming Vite application so published playground packages work under custom base paths.
+
+
+## 0.18.0
+
+### Features
+
+- [#11810](https://github.com/microsoft/typespec/pull/11810) Clicking the source location of a type in the type graph now selects its declaration in the editor.
+
+
+## 0.17.1
+
+### Bug Fixes
+
+- [#11660](https://github.com/microsoft/typespec/pull/11660) Preserve a sample's preferred emitter and compiler options when loading it in the playground.
+
+
+## 0.17.0
+
+### Features
+
+- [#11468](https://github.com/microsoft/typespec/pull/11468) Add support for the `Fix all: X` code action in the playground, allowing a codefix that appears multiple times in a file to be applied to all instances at once.
+
+### Bug Fixes
+
+- [#11508](https://github.com/microsoft/typespec/pull/11508) Add support for deferring the loading of emitter libraries until they are selected. Configure with the new `deferredEmitters` option to avoid downloading and evaluating large emitters on startup.
+
+
+## 0.16.0
+
+### Features
+
+- [#11016](https://github.com/microsoft/typespec/pull/11016) Make the raw `tspconfig.yaml` editor the source of truth so manual edits (comments, `output-dir`, `warn-as-error`, ordering and any unknown fields) are preserved instead of being reverted, compile by resolving the written `tspconfig.yaml` natively, and add language-server completion to the config editor.
+
+
+## 0.15.1
+
+### Bug Fixes
+
+- [#10697](https://github.com/microsoft/typespec/pull/10697) Don't show file tree view in output when there is only a single file
+- [#10455](https://github.com/microsoft/typespec/pull/10455) Retain the emitter query parameter in the URL when a sample is selected
+- [#10815](https://github.com/microsoft/typespec/pull/10815) Fix unused `using` statements not being dimmed in the playground editor
+
+
+## 0.15.0
+
+### Breaking Changes
+
+- [#10468](https://github.com/microsoft/typespec/pull/10468) Remove the `newChangeDiff` emitter option. Diff highlighting of changed files and lines is now always enabled in the output viewer.
+
+### Features
+
+- [#10349](https://github.com/microsoft/typespec/pull/10349) Add compilation spinner, diff highlighting, and output preservation
+
+### Bug Fixes
+
+- [#10442](https://github.com/microsoft/typespec/pull/10442) Fix line-level diff highlighting not appearing in the playground output editor, and reduce typing freezes by coalescing recompilations triggered while a compile is already running.
+
+
 ## 0.14.0
 
 ### Features

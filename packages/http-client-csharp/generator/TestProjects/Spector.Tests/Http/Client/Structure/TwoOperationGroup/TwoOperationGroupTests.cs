@@ -5,8 +5,8 @@ extern alias ClientStructureTwoOperationGroup;
 using System.ClientModel;
 using System.Linq;
 using System.Threading.Tasks;
-using ClientStructureTwoOperationGroup::Client.Structure.TwoOperationGroup;
 using ClientStructureTwoOperationGroup::Client.Structure.Service;
+using ClientStructureTwoOperationGroup::Client.Structure.TwoOperationGroup;
 using NUnit.Framework;
 
 namespace TestProjects.Spector.Tests.Http.Client.Structure.TwoOperationGroup

@@ -2,19 +2,22 @@ import pc from "picocolors";
 import { typespecVersion } from "../../../../manifest.js";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
-import { CompilerOptions } from "../../../options.js";
+import type { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
-import { Program, compile as compileProgram } from "../../../program.js";
-import { RuntimeStats, Stats } from "../../../stats.js";
-import { CompilerHost, Diagnostic } from "../../../types.js";
-import { CliCompilerHost } from "../../types.js";
+import type { Program } from "../../../program.js";
+import { compile as compileProgram } from "../../../program.js";
+import type { RuntimeStats, Stats } from "../../../stats.js";
+import type { CompilerHost, Diagnostic } from "../../../types.js";
+import type { CliCompilerHost } from "../../types.js";
 import {
   handleInternalCompilerError,
   logDiagnosticCount,
   logInternalCompilerError,
 } from "../../utils.js";
-import { CompileCliArgs, getCompilerOptions } from "./args.js";
-import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./watch.js";
+import type { CompileCliArgs } from "./args.js";
+import { getCompilerOptions } from "./args.js";
+import type { ProjectWatcher, WatchHost } from "./watch.js";
+import { createWatchHost, createWatcher } from "./watch.js";
 
 export async function compileAction(host: CliCompilerHost, args: CompileCliArgs) {
   // eslint-disable-next-line no-console

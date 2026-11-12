@@ -75,10 +75,9 @@ interface PetInsurance extends SingletonResourceOperations<Insurance, Pet, PetSt
 interface Toys extends ResourceRead<Toy, PetStoreError> {
   @autoRoute
   @listsResource(Toy)
-  list(
-    ...ParentKeysOf<Toy>,
-    @query nameFilter: string,
-  ): CollectionWithNextLink<Toy> | PetStoreError;
+  list(...ParentKeysOf<Toy>, @query nameFilter: string):
+    | CollectionWithNextLink<Toy>
+    | PetStoreError;
 }
 
 interface ToyInsurance extends SingletonResourceOperations<Insurance, Toy, PetStoreError> {}

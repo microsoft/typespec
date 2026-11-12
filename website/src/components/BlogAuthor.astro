@@ -11,13 +11,11 @@ const { name, title, avatar } = Astro.props;
 ---
 
 <div class="blog-author">
-  {
-    avatar && (
-      <div class="author-avatar">
-        <Image src={avatar} alt={`${name} headshot`} width={40} height={40} />
-      </div>
-    )
-  }
+  {avatar && (
+    <div class="author-avatar">
+      <Image src={avatar} alt={`${name} headshot`} width={40} height={40} />
+    </div>
+  )}
   <div class="author-info">
     <p class="author-name">{name}</p>
     <p class="author-title">{title}</p>

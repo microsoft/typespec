@@ -1,9 +1,10 @@
 import { joinPaths } from "@typespec/compiler";
-import { ChildProcess, spawn, SpawnOptions } from "child_process";
+import type { ChildProcess, SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
-import jsyaml from "js-yaml";
 import os from "os";
+import { dumpCodeModelToYaml } from "./yaml-utils.js";
 
 const tspCodeGenTempDir = joinPaths(os.tmpdir(), "tsp-codegen");
 
@@ -20,7 +21,7 @@ export function createTempPath(extension: string, prefix: string = "") {
 export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Promise<string> {
   await mkdir(tspCodeGenTempDir, { recursive: true });
   const filename = createTempPath(".yaml", name);
-  const yamlStr = jsyaml.dump(codemodel);
+  const yamlStr = dumpCodeModelToYaml(codemodel);
   await writeFile(filename, yamlStr);
   return filename;
 }

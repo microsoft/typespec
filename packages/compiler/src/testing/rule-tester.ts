@@ -3,19 +3,26 @@ import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createLinterRuleContext } from "../core/linter.js";
 import { navigateProgram } from "../core/semantic-walker.js";
-import {
+import type {
+  CodeFix,
   CompilerHost,
   Diagnostic,
   DiagnosticMessages,
   Entity,
   LinterRuleDefinition,
 } from "../core/types.js";
-import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
-import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
+import type { DiagnosticMatch } from "./expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
+import type { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
-import { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
+import type { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
 
+/** Exercise one linter rule independently of a library's configured rulesets. */
 export interface LinterRuleTester {
+  /**
+   * Prepare assertions for source compiled by the supplied runner.
+   * File records and typed markers require a modern `TesterInstance`; legacy runners accept only strings.
+   */
   expect<
     T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
   >(
@@ -23,22 +30,69 @@ export interface LinterRuleTester {
   ): LinterRuleTestExpect<GetMarkedEntities<T>>;
 }
 
+/** Assertions that compile the input without compiler diagnostics, then run the selected rule. */
 export interface LinterRuleTestExpect<T extends Record<string, Entity> = any> {
+  /** Require the rule to report neither warnings nor errors. */
   toBeValid(): Promise<void>;
+  /**
+   * Match all rule diagnostics in reporting order using {@link expectDiagnostics}.
+   * A callback can derive expected locations from the compilation result, but requires a modern `TesterInstance`.
+   */
   toEmitDiagnostics(
     diagnostics:
       | DiagnosticMatch
       | DiagnosticMatch[]
       | ((res: TestCompileResult<T>) => DiagnosticMatch | DiagnosticMatch[]),
   ): Promise<void>;
+  /** Select a fix by ID from the first rule diagnostic for an expected-source assertion. */
   applyCodeFix(codeFixId: string): ApplyCodeFixExpect;
 }
 
+/** Compare files written by a selected rule code fix, rather than recompiling the fixed source. */
 export interface ApplyCodeFixExpect {
-  toEqual(code: string): Promise<void>;
+  /**
+   * Assert the content of the file(s) after the code fix is applied.
+   * @param code Expected content. Pass a `string` for single-file assertions (main.tsp),
+   * or a `Record<string, string>` to assert on specific files (partial match — only the
+   * specified files are checked).
+   *
+   * @example Single file
+   *
+   * ```ts
+   * await ruleTester
+   *   .expect(`model Foo { name: string; }`)
+   *   .applyCodeFix("rename-model")
+   *   .toEqual(`model Bar { name: string; }`);
+   * ```
+   *
+   * @example Multiple files (e.g. code fix writes augment decorators to a separate file)
+   *
+   * ```ts
+   * await ruleTester
+   *   .expect({
+   *     "main.tsp": `import "./client.tsp";\nmodel Foo { name: string; }`,
+   *     "client.tsp": ``,
+   *   })
+   *   .applyCodeFix("add-client-override")
+   *   .toEqual({
+   *     "client.tsp": `@@override(Foo.name, "clientName");\n`,
+   *   });
+   * ```
+   */
+  toEqual(code: string | Record<string, string>): Promise<void>;
 }
 
+/**
+ * Test a rule with its default options, without enabling a linter ruleset.
+ * Each assertion compiles with comment parsing enabled and requires no compiler diagnostics.
+ * The rule must report through its rule context, not directly to the program.
+ *
+ * @param runner Mutable tester instance, or a legacy runner supporting string inputs only.
+ * @param ruleDef Rule whose visitors and optional `exit` callback are run against the program.
+ * @param libraryName Prefix for diagnostic codes, which take the form `libraryName/ruleName`.
+ */
 export function createLinterRuleTester(
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   runner: BasicTestRunner | TesterInstance,
   ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
   libraryName: string,
@@ -85,10 +139,19 @@ export function createLinterRuleTester(
     function applyCodeFix(fixId: string) {
       return { toEqual };
 
-      async function toEqual(expectedCode: string) {
+      async function toEqual(expectedCode: string | Record<string, string>) {
         const [_, diagnostics] = await compileAndDiagnose(code);
         const codefix = diagnostics[0].codefixes?.find((x) => x.id === fixId);
         ok(codefix, `Codefix with id "${fixId}" not found.`);
+
+        if (typeof expectedCode === "string") {
+          await assertSingleFileCodeFix(codefix, expectedCode);
+        } else {
+          await assertMultiFileCodeFix(codefix, expectedCode);
+        }
+      }
+
+      async function assertSingleFileCodeFix(codefix: CodeFix, expectedCode: string) {
         let content: string | undefined;
         const host: CompilerHost = {
           ...runner.program.host,
@@ -103,6 +166,41 @@ export function createLinterRuleTester(
         const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
         const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code as any);
         strictEqual(trimBlankLines(content.slice(offset)), trimBlankLines(expectedCode));
+      }
+
+      async function assertMultiFileCodeFix(
+        codefix: CodeFix,
+        expectedFiles: Record<string, string>,
+      ) {
+        const writtenFiles = new Map<string, string>();
+        const host: CompilerHost = {
+          ...runner.program.host,
+          writeFile: (name, newContent) => {
+            writtenFiles.set(name, newContent);
+            return Promise.resolve();
+          },
+        };
+        await applyCodeFixReal(host, codefix);
+
+        ok(writtenFiles.size > 0, "No content was written to the host.");
+        const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
+        for (const [filename, expected] of Object.entries(expectedFiles)) {
+          const virtualPath = resolveVirtualPath(filename);
+          const written = writtenFiles.get(virtualPath);
+          ok(
+            written !== undefined,
+            `Expected file "${filename}" to be written by the code fix but it was not. Written files: ${[...writtenFiles.keys()].join(", ")}`,
+          );
+          const inputCode =
+            typeof code === "string" ? code : (code as Record<string, any>)[filename];
+          const originalContent = fs.get(virtualPath);
+          const offset =
+            typeof inputCode === "string" && originalContent
+              ? originalContent.indexOf(inputCode)
+              : undefined;
+          const actual = offset !== undefined && offset >= 0 ? written.slice(offset) : written;
+          strictEqual(trimBlankLines(actual), trimBlankLines(expected));
+        }
       }
     }
   }
@@ -130,7 +228,12 @@ export function createLinterRuleTester(
 
     const diagnostics = createDiagnosticCollector();
     const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };
-    const context = createLinterRuleContext(runner.program, rule, diagnostics);
+    const context = createLinterRuleContext(
+      runner.program,
+      rule,
+      rule.defaultOptions ?? ({} as any),
+      diagnostics,
+    );
     const listener = ruleDef.create(context);
     navigateProgram(runner.program, listener);
     if (listener.exit) {
@@ -142,6 +245,7 @@ export function createLinterRuleTester(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 function isLegacyTestRunner(tester: BasicTestRunner | TesterInstance): tester is BasicTestRunner {
   return "autoCodeOffset" in tester;
 }

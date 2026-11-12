@@ -13,6 +13,7 @@ enum Color {
   Red,
   Blue,
   Green,
+  CommentTerminator: "*/",
 }
 
 union ColorModel {
@@ -24,6 +25,12 @@ union ColorModel {
 union ColorModelBase {
   string,
   Red: "Red",
+  CommentTerminator: "*/",
+}
+
+union ReasoningEffort {
+  "none" | "minimal" | "low" | "medium" | "high" | "xhigh",
+  null,
 }
 
 @access(Access.public)
@@ -74,6 +81,9 @@ model Operation {
   unitValue?: Unit.Milligram;
   olympicRecord?: OlympicRecordModel;
   olympicRecordValue?: OlympicRecordModel.Olympic_100_Meters;
+
+  // there is 2 level of nullable in this property, one of the type, one in the union
+  reasoning_effort?: ReasoningEffort | null;
 }
 
 @client({

@@ -13,11 +13,12 @@ import {
   ChevronDown20Filled,
   ChevronRight20Filled,
 } from "@fluentui/react-icons";
-import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
-import { FunctionComponent, useMemo } from "react";
+import type { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import type { FunctionComponent } from "react";
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import style from "./row-label-cell.module.css";
-import { ManifestTreeNode, TreeTableRow } from "./types.js";
+import type { ManifestTreeNode, TreeTableRow } from "./types.js";
 
 export interface RowLabelCellProps {
   manifest: ScenarioManifest;

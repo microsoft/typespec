@@ -1,5 +1,38 @@
 # Changelog - @typespec/http-client-js
 
+## 0.16.4
+
+### Bug Fixes
+
+- [#12126](https://github.com/microsoft/typespec/pull/12126) Do not emit an unused private `#context` field for clients without operations. This fixes `TS6133` errors for consumers compiling the generated client with `noUnusedLocals`.
+
+
+## 0.16.3
+
+No changes, version bump only.
+
+## 0.16.2
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
+## 0.16.1
+
+No changes, version bump only.
+
+## 0.16.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.15.0
+
+Manual release due to dependencies upgrade.
+
 ## 0.14.1
 
 ### Bump dependencies

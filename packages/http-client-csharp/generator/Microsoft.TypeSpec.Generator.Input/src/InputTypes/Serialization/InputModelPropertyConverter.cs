@@ -47,44 +47,57 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isApiVersion: false,
                 defaultValue: null,
                 serializationOptions: null!,
-                encode: null);
+                encode: null,
+                apiVersions: []);
             resolver.AddReference(id, property);
 
             string? kind = null;
             string? summary = null;
+            string? originalName = null;
             string? doc = null;
+            string? deprecation = null;
             string? serializedName = null;
             bool isApiVersion = false;
             InputConstant? defaultValue = null;
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
+            bool? isRequiredInConstructor = null;
             bool isHttpMetadata = false;
             string? access = null;
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
             string? encodeString = null;
+            bool isExactName = false;
+            IReadOnlyList<string>? apiVersions = null;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("originalName", ref originalName)
                     || reader.TryReadString("kind", ref kind)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadString("deprecation", ref deprecation)
                     || reader.TryReadComplexType("type", options, ref propertyType)
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
                     || reader.TryReadBoolean("optional", ref isOptional)
+                    || reader.TryReadNullableBoolean("requiredInConstructor", ref isRequiredInConstructor)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
-                    || reader.TryReadString("encode", ref encodeString);
+                    || reader.TryReadString("encode", ref encodeString)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -93,10 +106,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
+            property.OriginalName = originalName ?? property.Name;
             property.Summary = summary;
             property.Doc = doc;
+            property.Deprecation = deprecation;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
+            property.IsRequiredInConstructor = isRequiredInConstructor;
             property.IsReadOnly = isReadOnly;
             property.IsHttpMetadata = isHttpMetadata;
             property.Access = access;
@@ -107,6 +123,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.IsApiVersion = isApiVersion;
             property.DefaultValue = defaultValue;
             property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
+            property.IsExactName = isExactName;
+            property.ApiVersions = apiVersions ?? [];
+            property.Experimental = experimental;
 
             return property;
         }

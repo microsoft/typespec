@@ -1,0 +1,65 @@
+import { type Namespace, type Program, validateDecoratorUniqueOnNode } from "@typespec/compiler";
+
+import { useStateMap } from "@typespec/compiler/utils";
+import type { SchemaDecorator } from "../../generated-defs/TypeSpec.GraphQL.js";
+import { GraphQLKeys } from "../lib.js";
+
+export interface SchemaDetails {
+  name?: string;
+}
+
+export interface Schema extends SchemaDetails {
+  type: Namespace;
+}
+
+const [getSchema, setSchema, getSchemaMap] = useStateMap<Namespace, Schema>(GraphQLKeys.schema);
+
+/**
+ * List all the schemas defined in the TypeSpec program
+ * @param program Program
+ * @returns List of schemas.
+ */
+export function listSchemas(program: Program): Schema[] {
+  return [...getSchemaMap(program).values()];
+}
+
+export {
+  /**
+   * Get the schema information for the given namespace.
+   * @param program Program
+   * @param namespace Schema namespace
+   * @returns Schema information or undefined if namespace is not a schema namespace.
+   */
+  getSchema,
+};
+
+/**
+ * Check if the namespace is defined as a schema.
+ * @param program Program
+ * @param namespace Namespace
+ * @returns Boolean
+ */
+export function isSchema(program: Program, namespace: Namespace): boolean {
+  return getSchemaMap(program).has(namespace);
+}
+
+/**
+ * Mark the given namespace as a schema.
+ * @param program Program
+ * @param namespace Namespace
+ * @param details Schema details
+ */
+export function addSchema(
+  program: Program,
+  namespace: Namespace,
+  details: SchemaDetails = {},
+): void {
+  const schemaMap = getSchemaMap(program);
+  const existing = schemaMap.get(namespace) ?? {};
+  setSchema(program, namespace, { ...existing, ...details, type: namespace });
+}
+
+export const $schema: SchemaDecorator = (context, target, options) => {
+  validateDecoratorUniqueOnNode(context, target, $schema);
+  addSchema(context.program, target, options);
+};

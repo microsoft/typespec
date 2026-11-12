@@ -1,5 +1,5 @@
-import vscode from "vscode";
-import { EmitterKind } from "./emitter.js";
+import type vscode from "vscode";
+import type { EmitterKind } from "./emitter.js";
 
 export interface EmitQuickPickItem extends vscode.QuickPickItem {
   language: string;

@@ -1,6 +1,6 @@
-import { Children } from "@alloy-js/core/jsx-runtime";
+import type { Children } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { Output as EFOutput, TransformNamePolicyContext } from "@typespec/emitter-framework";
 import { ClientLibrary } from "@typespec/http-client/components";
 import { EncodingProvider } from "./encoding-provider.jsx";

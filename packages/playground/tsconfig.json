@@ -10,10 +10,9 @@
     "outDir": "dist",
     "rootDir": ".",
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "lib": ["DOM"]
   },
-  "exclude": ["test", "vitest.config.ts"],
+  "exclude": ["dist", "dist-test", "test", "vitest.config.ts"],
   "references": [{ "path": "../compiler/tsconfig.json" }]
 }

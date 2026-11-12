@@ -6,7 +6,7 @@
     {
       "$id": "1",
       "kind": "constant",
-      "name": "getContentType",
+      "name": "GetResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -17,12 +17,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "3",
       "kind": "constant",
-      "name": "GetResponseContentType",
+      "name": "GetResponseContentType1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -33,12 +34,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
       "kind": "constant",
-      "name": "GetResponseContentType1",
+      "name": "GetResponseContentType2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -49,12 +51,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "7",
       "kind": "constant",
-      "name": "GetResponseContentType2",
+      "name": "GetResponseContentType3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -65,12 +68,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
       "kind": "constant",
-      "name": "getContentType1",
+      "name": "GetResponseContentType4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -81,12 +85,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "11",
       "kind": "constant",
-      "name": "GetResponseContentType3",
+      "name": "GetResponseContentType5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -97,12 +102,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
       "kind": "constant",
-      "name": "GetResponseContentType4",
+      "name": "GetResponseContentType6",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -113,12 +119,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "15",
       "kind": "constant",
-      "name": "GetResponseContentType5",
+      "name": "GetResponseContentType7",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -129,12 +136,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
       "kind": "constant",
-      "name": "getContentType2",
+      "name": "GetResponseContentType8",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -145,12 +153,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "19",
       "kind": "constant",
-      "name": "GetResponseContentType6",
+      "name": "GetResponseContentType9",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -161,12 +170,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "21",
       "kind": "constant",
-      "name": "GetResponseContentType7",
+      "name": "GetResponseContentType10",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -177,12 +187,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "23",
       "kind": "constant",
-      "name": "GetResponseContentType8",
+      "name": "GetResponseContentType11",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -193,12 +204,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "25",
       "kind": "constant",
-      "name": "responseBodyContentType",
+      "name": "GetResponseContentType12",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -209,12 +221,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
       "kind": "constant",
-      "name": "GetResponseContentType9",
+      "name": "GetResponseContentType13",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -225,12 +238,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "29",
       "kind": "constant",
-      "name": "GetResponseContentType10",
+      "name": "GetResponseContentType14",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -241,12 +255,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "31",
       "kind": "constant",
-      "name": "GetResponseContentType11",
+      "name": "GetResponseContentType15",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -257,12 +272,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "33",
       "kind": "constant",
-      "name": "responseBodyContentType1",
+      "name": "GetResponseContentType16",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -273,12 +289,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "35",
       "kind": "constant",
-      "name": "GetResponseContentType12",
+      "name": "GetResponseContentType17",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -289,12 +306,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "37",
       "kind": "constant",
-      "name": "GetResponseContentType13",
+      "name": "GetResponseContentType18",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -305,12 +323,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "39",
       "kind": "constant",
-      "name": "GetResponseContentType14",
+      "name": "GetResponseContentType19",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -321,12 +340,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "41",
       "kind": "constant",
-      "name": "prepareVerifyContentType",
+      "name": "GetResponseContentType20",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -337,12 +357,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "43",
       "kind": "constant",
-      "name": "GetResponseContentType15",
+      "name": "GetResponseContentType21",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -353,12 +374,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "45",
       "kind": "constant",
-      "name": "GetResponseContentType16",
+      "name": "GetResponseContentType22",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -369,12 +391,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "47",
       "kind": "constant",
-      "name": "prepareVerifyContentType1",
+      "name": "GetResponseContentType23",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -385,12 +408,13 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "49",
       "kind": "constant",
-      "name": "GetResponseContentType17",
+      "name": "GetResponseContentType24",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -401,7 +425,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [],
@@ -410,6 +435,7 @@
       "$id": "51",
       "kind": "client",
       "name": "ScalarClient",
+      "isExactName": false,
       "namespace": "Type.Scalar",
       "methods": [],
       "parameters": [
@@ -441,7 +467,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Type.Scalar.endpoint"
+          "crossLanguageDefinitionId": "Type.Scalar.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -453,19 +480,21 @@
           "$id": "55",
           "kind": "client",
           "name": "String",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "methods": [
             {
               "$id": "56",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "get string value",
               "operation": {
                 "$id": "57",
                 "name": "get",
-                "resourceName": "String",
+                "isExactName": false,
                 "doc": "get string value",
                 "accessibility": "public",
                 "parameters": [
@@ -500,9 +529,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.String.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -529,7 +560,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -561,13 +597,14 @@
               "$id": "61",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "put string value",
               "operation": {
                 "$id": "62",
                 "name": "put",
-                "resourceName": "String",
+                "isExactName": false,
                 "doc": "put string value",
                 "accessibility": "public",
                 "parameters": [
@@ -602,9 +639,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.String.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "65",
@@ -650,9 +689,16 @@
                         "crossLanguageDefinitionId": "Type.Scalar.String.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -661,7 +707,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -721,7 +768,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.String.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.String.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -737,19 +785,21 @@
           "$id": "72",
           "kind": "client",
           "name": "Boolean",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "methods": [
             {
               "$id": "73",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "get boolean value",
               "operation": {
                 "$id": "74",
                 "name": "get",
-                "resourceName": "Boolean",
+                "isExactName": false,
                 "doc": "get boolean value",
                 "accessibility": "public",
                 "parameters": [
@@ -784,9 +834,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Boolean.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -813,7 +865,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -845,13 +902,14 @@
               "$id": "78",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "put boolean value",
               "operation": {
                 "$id": "79",
                 "name": "put",
-                "resourceName": "Boolean",
+                "isExactName": false,
                 "doc": "put boolean value",
                 "accessibility": "public",
                 "parameters": [
@@ -886,9 +944,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Boolean.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "82",
@@ -934,9 +994,16 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Boolean.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -945,7 +1012,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1005,7 +1073,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.Boolean.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.Boolean.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1021,19 +1090,21 @@
           "$id": "89",
           "kind": "client",
           "name": "Unknown",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "methods": [
             {
               "$id": "90",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "get unknown value",
               "operation": {
                 "$id": "91",
                 "name": "get",
-                "resourceName": "Unknown",
+                "isExactName": false,
                 "doc": "get unknown value",
                 "accessibility": "public",
                 "parameters": [
@@ -1068,9 +1139,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Unknown.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1097,7 +1170,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1129,13 +1207,14 @@
               "$id": "95",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "put unknown value",
               "operation": {
                 "$id": "96",
                 "name": "put",
-                "resourceName": "Unknown",
+                "isExactName": false,
                 "doc": "put unknown value",
                 "accessibility": "public",
                 "parameters": [
@@ -1170,9 +1249,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Unknown.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "99",
@@ -1218,9 +1299,16 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Unknown.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1229,7 +1317,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1289,7 +1378,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.Unknown.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.Unknown.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1305,6 +1395,7 @@
           "$id": "106",
           "kind": "client",
           "name": "DecimalType",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal type",
           "methods": [
@@ -1312,12 +1403,13 @@
               "$id": "107",
               "kind": "basic",
               "name": "responseBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "108",
                 "name": "responseBody",
-                "resourceName": "DecimalType",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1351,9 +1443,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalType.responseBody.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1380,7 +1474,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1412,12 +1511,13 @@
               "$id": "112",
               "kind": "basic",
               "name": "requestBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "113",
                 "name": "requestBody",
-                "resourceName": "DecimalType",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1451,9 +1551,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalType.requestBody.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "116",
@@ -1497,9 +1599,16 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalType.requestBody.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1508,7 +1617,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1542,12 +1652,13 @@
               "$id": "120",
               "kind": "basic",
               "name": "requestParameter",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "121",
                 "name": "requestParameter",
-                "resourceName": "DecimalType",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1589,9 +1700,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalType.requestParameter.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1600,7 +1713,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "GET",
@@ -1654,7 +1768,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.DecimalType.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.DecimalType.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1670,6 +1785,7 @@
           "$id": "129",
           "kind": "client",
           "name": "Decimal128Type",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal128 type",
           "methods": [
@@ -1677,12 +1793,13 @@
               "$id": "130",
               "kind": "basic",
               "name": "responseBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "131",
                 "name": "responseBody",
-                "resourceName": "Decimal128Type",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1716,9 +1833,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.responseBody.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1745,7 +1864,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1777,12 +1901,13 @@
               "$id": "135",
               "kind": "basic",
               "name": "requestBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "136",
                 "name": "requestBody",
-                "resourceName": "Decimal128Type",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1816,9 +1941,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestBody.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "139",
@@ -1862,9 +1989,16 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestBody.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1873,7 +2007,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -1907,12 +2042,13 @@
               "$id": "143",
               "kind": "basic",
               "name": "requestParameter",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "144",
                 "name": "requestParameter",
-                "resourceName": "Decimal128Type",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -1954,9 +2090,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestParameter.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1965,7 +2103,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "GET",
@@ -2019,7 +2158,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2035,6 +2175,7 @@
           "$id": "152",
           "kind": "client",
           "name": "DecimalVerify",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal type verification",
           "methods": [
@@ -2042,12 +2183,13 @@
               "$id": "153",
               "kind": "basic",
               "name": "prepareVerify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "154",
                 "name": "prepareVerify",
-                "resourceName": "DecimalVerify",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2081,9 +2223,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.prepareVerify.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2109,7 +2253,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2141,12 +2290,13 @@
               "$id": "159",
               "kind": "basic",
               "name": "verify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "160",
                 "name": "verify",
-                "resourceName": "DecimalVerify",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2180,9 +2330,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.verify.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "163",
@@ -2226,9 +2378,16 @@
                         "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.verify.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2237,7 +2396,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "POST",
@@ -2297,7 +2457,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2313,6 +2474,7 @@
           "$id": "170",
           "kind": "client",
           "name": "Decimal128Verify",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal128 type verification",
           "methods": [
@@ -2320,12 +2482,13 @@
               "$id": "171",
               "kind": "basic",
               "name": "prepareVerify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "172",
                 "name": "prepareVerify",
-                "resourceName": "Decimal128Verify",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2359,9 +2522,11 @@
                         "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.prepareVerify.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2376,7 +2541,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2408,12 +2578,13 @@
               "$id": "175",
               "kind": "basic",
               "name": "verify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "176",
                 "name": "verify",
-                "resourceName": "Decimal128Verify",
+                "isExactName": false,
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -2435,7 +2606,8 @@
                       {
                         "$ref": "162"
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "178",
@@ -2463,7 +2635,13 @@
                       {
                         "$ref": "165"
                       }
-                    ]
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2472,7 +2650,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "POST",
@@ -2532,7 +2711,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.endpoint"
+              "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

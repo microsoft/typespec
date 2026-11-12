@@ -1,5 +1,5 @@
-import { Contact, License } from "@typespec/openapi";
-import {
+import type { Contact, License } from "@typespec/openapi";
+import type {
   OpenAPI3Encoding,
   OpenAPI3Responses,
   Refable,
@@ -32,6 +32,10 @@ export interface TypeSpecTagMetadata {
   name: string;
   description?: string;
   externalDocs?: TypeSpecExternalDocs;
+  /** Only supported in OpenAPI 3.2. */
+  parent?: string;
+  summary?: string;
+  kind?: string;
 }
 
 export interface TypeSpecExternalDocs {
@@ -88,11 +92,7 @@ export interface TypeSpecAugmentation extends TypeSpecDecorator {
 }
 
 export type TypeSpecDataTypes =
-  | TypeSpecAlias
-  | TypeSpecEnum
-  | TypeSpecModel
-  | TypeSpecScalar
-  | TypeSpecUnion;
+  TypeSpecAlias | TypeSpecEnum | TypeSpecModel | TypeSpecScalar | TypeSpecUnion;
 
 export interface TypeSpecModel extends TypeSpecDeclaration {
   kind: "model";

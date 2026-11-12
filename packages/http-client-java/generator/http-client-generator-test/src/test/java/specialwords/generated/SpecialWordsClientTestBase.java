@@ -18,12 +18,15 @@ import specialwords.ModelPropertiesClient;
 import specialwords.ModelsClient;
 import specialwords.OperationsClient;
 import specialwords.ParametersClient;
+import specialwords.ReservedOperationBodyParamsClient;
 import specialwords.SpecialWordsClientBuilder;
 
 class SpecialWordsClientTestBase extends TestProxyTestBase {
     protected ModelsClient modelsClient;
 
     protected ModelPropertiesClient modelPropertiesClient;
+
+    protected ReservedOperationBodyParamsClient reservedOperationBodyParamsClient;
 
     protected ExtensibleStringsClient extensibleStringsClient;
 
@@ -50,6 +53,16 @@ class SpecialWordsClientTestBase extends TestProxyTestBase {
             modelPropertiesClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         modelPropertiesClient = modelPropertiesClientbuilder.buildModelPropertiesClient();
+
+        SpecialWordsClientBuilder reservedOperationBodyParamsClientbuilder = new SpecialWordsClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            reservedOperationBodyParamsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        reservedOperationBodyParamsClient
+            = reservedOperationBodyParamsClientbuilder.buildReservedOperationBodyParamsClient();
 
         SpecialWordsClientBuilder extensibleStringsClientbuilder = new SpecialWordsClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))

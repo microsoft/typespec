@@ -1,9 +1,9 @@
 import { ApiTester } from "#test/test-host.js";
-import { Diagnostic, Namespace, Program } from "@typespec/compiler";
+import type { Diagnostic, Namespace, Program } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import assert from "node:assert";
 import { convertOpenAPI3Document } from "../../../src/index.js";
-import {
+import type {
   OpenAPI3Document,
   OpenAPI3Header,
   OpenAPI3Parameter,

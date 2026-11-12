@@ -42,16 +42,17 @@ namespace Sample.Models
                 if (!Patch.IsRemoved("$.someSpan"u8))
                 {
                     writer.WritePropertyName("someSpan"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.someSpan"u8));
+                    Patch.WriteTo(writer, "$.someSpan"u8);
                 }
             }
             else if (((options.Format != "W") && global::Sample.Optional.IsDefined(SomeSpan)))
             {
                 writer.WritePropertyName("someSpan"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "someSpan"u8);
                 for (int i = 0; (i < SomeSpan.Span.Length); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.someSpan[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.someSpan[{i}]"))))
                     {
                         continue;
                     }

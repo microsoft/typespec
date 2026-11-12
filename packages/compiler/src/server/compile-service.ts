@@ -1,5 +1,6 @@
-import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
+import type { TextDocumentIdentifier } from "vscode-languageserver";
+import { DiagnosticSeverity, Range } from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
 import {
   defaultConfig,
   findTypeSpecConfigPath,
@@ -7,30 +8,27 @@ import {
   TypeSpecConfigFilename,
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
-import { TypeSpecConfig } from "../config/types.js";
+import type { TypeSpecConfig } from "../config/types.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { deepClone, distinctArray } from "../utils/misc.js";
+import { distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
-import { ClientConfigProvider } from "./client-config-provider.js";
+import type { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
 import { debugLoggers } from "./debug.js";
 import { resolveEntrypointFile } from "./entrypoint-resolver.js";
-import { FileService } from "./file-service.js";
-import { FileSystemCache } from "./file-system-cache.js";
-import {
-  CompileTracker,
-  ServerCompileManager,
-  ServerCompileOptions,
-} from "./server-compile-manager.js";
-import { CompileResult, ServerHost, ServerLog } from "./types.js";
-import { UpdateManager, UpdateType } from "./update-manager.js";
+import type { FileService } from "./file-service.js";
+import type { FileSystemCache } from "./file-system-cache.js";
+import type { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
+import { ServerCompileManager } from "./server-compile-manager.js";
+import type { CompileResult, ServerHost, ServerLog } from "./types.js";
+import type { UpdateManager, UpdateType } from "./update-manager.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -145,7 +143,7 @@ export function createCompileService({
       cwd: getDirectoryPath(path),
     });
     // we need to keep the optionsFromConfig unchanged which will be returned in CompileResult
-    const clone = deepClone(optionsFromConfig);
+    const clone = structuredClone(optionsFromConfig);
     const options: CompilerOptions = {
       ...clone,
       ...serverOptions,
@@ -296,14 +294,14 @@ export function createCompileService({
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
 
+    // JSON round-trip intentionally strips non-serializable values (functions) from the config
     const cached = await fileSystemCache.get(configPath);
-    const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
     if (cached?.data) {
-      return deepCopy(cached.data);
+      return JSON.parse(JSON.stringify(cached.data));
     }
 
     const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    return deepCopy(config);
+    return JSON.parse(JSON.stringify(config));
   }
 
   async function getScript(

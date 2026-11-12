@@ -29,6 +29,8 @@ public class Changelog {
     private static final Pattern UNRELEASED_VERSION_PATTERN
         = Pattern.compile("^## ([0-9][-.a-z|0-9]+) \\(Unreleased\\)");
 
+    private static final Pattern API_VERSION_LINE_PATTERN = Pattern.compile("^- Package api-version .*");
+
     private final List<String> lines;
 
     public Changelog(FluentProject project) {
@@ -56,7 +58,7 @@ public class Changelog {
         boolean beforeUnreleasedSection = true;
         boolean afterUnreleasedSection = false;
         for (String line : this.lines) {
-            if (line.trim().startsWith("## ")) {
+            if (isVersionSectionHeader(line)) {
                 if (beforeUnreleasedSection) {
                     beforeUnreleasedSection = false;
 
@@ -115,8 +117,70 @@ public class Changelog {
         this.lines.addAll(sectionAfter);
     }
 
+    /**
+     * Inserts (or replaces) the api-version line into the top-most (latest) version section.
+     * <p>
+     * This is used for Fluent Premium, where the existing CHANGELOG.md is only annotated with the api-version,
+     * instead of prepending a new version section as {@link #updateForVersion(FluentProject)} does.
+     *
+     * @param apiVersionDescription the api-version description, e.g. "Package api-version 2023-01-01.".
+     */
+    public void updateForVersion(String apiVersionDescription) {
+        if (apiVersionDescription == null || apiVersionDescription.isEmpty()) {
+            return;
+        }
+
+        String apiVersionLine = "- " + apiVersionDescription;
+
+        // find the top-most "## " version section
+        int headerIndex = -1;
+        for (int i = 0; i < this.lines.size(); i++) {
+            if (isVersionSectionHeader(this.lines.get(i))) {
+                headerIndex = i;
+                break;
+            }
+        }
+        if (headerIndex < 0) {
+            // no version section, nothing to update
+            return;
+        }
+
+        // within the top section, replace the existing api-version line if present (idempotent regeneration)
+        for (int i = headerIndex + 1; i < this.lines.size(); i++) {
+            String line = this.lines.get(i).trim();
+            if (isVersionSectionHeader(line)) {
+                // reached the next section
+                break;
+            }
+            if (API_VERSION_LINE_PATTERN.matcher(line).matches()) {
+                this.lines.set(i, apiVersionLine);
+                return;
+            }
+        }
+
+        // insert a new api-version line right after the header, keeping a blank line after the header
+        int insertIndex = headerIndex + 1;
+        if (insertIndex < this.lines.size() && this.lines.get(insertIndex).trim().isEmpty()) {
+            insertIndex++;
+        } else {
+            this.lines.add(insertIndex, "");
+            insertIndex++;
+        }
+        this.lines.add(insertIndex, apiVersionLine);
+
+        // keep a blank line between the inserted bullet and a following heading (e.g. "### Features Added")
+        int nextIndex = insertIndex + 1;
+        if (nextIndex < this.lines.size() && this.lines.get(nextIndex).trim().startsWith("#")) {
+            this.lines.add(nextIndex, "");
+        }
+    }
+
     public String getContent() {
         return String.join("\n", lines) + "\n";
+    }
+
+    private static boolean isVersionSectionHeader(String line) {
+        return line.trim().startsWith("## ");
     }
 
     List<String> getLines() {

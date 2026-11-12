@@ -79,5 +79,21 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
         public virtual ClientResult<Dinosaur> GetLegacyModel(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Dinosaur>> GetLegacyModelAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult GetNoSubtypesModel(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> GetNoSubtypesModelAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult<Fish> GetNoSubtypesModel(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<Fish>> GetNoSubtypesModelAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult PutNoSubtypesModel(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> PutNoSubtypesModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult PutNoSubtypesModel(Fish input, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> PutNoSubtypesModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Interface, Operation, Type, UnionVariant, isErrorModel } from "@typespec/compiler";
-import { JsContext, Module, PathCursor } from "../ctx.js";
+import type { Interface, Operation, Type, UnionVariant } from "@typespec/compiler";
+import { isErrorModel } from "@typespec/compiler";
+import type { JsContext, Module, PathCursor } from "../ctx.js";
 import { canonicalizeHttpOperation } from "../http/operation.js";
 import { parseCase } from "../util/case.js";
 import { getAllProperties } from "../util/extends.js";

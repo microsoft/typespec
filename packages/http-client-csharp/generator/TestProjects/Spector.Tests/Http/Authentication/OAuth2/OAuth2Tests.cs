@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
-using System.Threading.Tasks;
-using Authentication.OAuth2;
 using System.ClientModel;
-using static TestProjects.Spector.Tests.Http.Authentication.OAuth2.OAuth2TestHelper;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Authentication.OAuth2;
+using NUnit.Framework;
+using static TestProjects.Spector.Tests.Http.Authentication.OAuth2.OAuth2TestHelper;
 
 namespace TestProjects.Spector.Tests.Http.Authentication.Oauth2
 {

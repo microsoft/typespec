@@ -322,6 +322,20 @@ namespace TestProjects.Spector.Tests.Http.Encode.Duration
         });
 
         [SpectorTest]
+        public Task LossyInt32Seconds() => Test(async (host) =>
+        {
+            var result = await new DurationClient(host, null).GetLossyClient().IntSecondsAsync(TimeSpan.FromSeconds(36.25));
+            Assert.AreEqual(204, result.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task LossyInt32Milliseconds() => Test(async (host) =>
+        {
+            var result = await new DurationClient(host, null).GetLossyClient().IntMillisecondsAsync(TimeSpan.FromMilliseconds(36250.25));
+            Assert.AreEqual(204, result.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task HeaderInt32Milliseconds() => Test(async (host) =>
         {
             var input = TimeSpan.FromMilliseconds(36000);

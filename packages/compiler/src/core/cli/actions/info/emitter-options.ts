@@ -4,7 +4,8 @@ import { ResolveModuleError, resolveModule } from "../../../../module-resolver/i
 import type { PackageJson } from "../../../../types/package-json.js";
 import { createResolveModuleHost } from "../../../module-host.js";
 import { loadJsFile } from "../../../source-loader.js";
-import { CompilerHost, Diagnostic, NoTarget, TypeSpecLibrary } from "../../../types.js";
+import type { CompilerHost, Diagnostic, TypeSpecLibrary } from "../../../types.js";
+import { NoTarget } from "../../../types.js";
 
 interface ResolvedLibrary {
   library: TypeSpecLibrary<any> | undefined;

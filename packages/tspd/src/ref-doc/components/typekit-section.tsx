@@ -1,6 +1,6 @@
 import { For, Prose } from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
-import { TypekitNamespace } from "../typekit-docs.js";
+import type { TypekitNamespace } from "../typekit-docs.js";
 import { TsDoc } from "./tsdoc.jsx";
 import { TypekitFunction } from "./typekit-function.jsx";
 

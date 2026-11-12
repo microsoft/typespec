@@ -61,7 +61,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             clients ??= [];
 
             return new InputNamespace(
-                name ?? throw new JsonException(),
+                name ?? throw new JsonException(
+                    "Required property 'name' was missing or null on the root InputNamespace. " +
+                    "The input code model is incomplete or was corrupted in transit."),
                 apiVersions,
                 constants,
                 enums,

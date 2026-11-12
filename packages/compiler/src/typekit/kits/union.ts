@@ -1,24 +1,36 @@
 import { ignoreDiagnostics } from "../../core/diagnostics.js";
-import {
-  DiscriminatedUnion,
-  getDiscriminatedUnion,
-} from "../../core/helpers/discriminator-utils.js";
+import type { DiscriminatedUnion } from "../../core/helpers/discriminator-utils.js";
+import { getDiscriminatedUnion } from "../../core/helpers/discriminator-utils.js";
 import type { Entity, Enum, Type, Union, UnionVariant } from "../../core/types.js";
 import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
-import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import type { DecoratorArgs } from "../utils.js";
+import { decoratorApplication, resolveExpressionFlag } from "../utils.js";
 
 /**
  * A descriptor for a union type.
  */
 export interface UnionDescriptor {
   /**
-   * The name of the union. If name is provided, it is a union declaration.
+   * The name of the union. If a non-empty name is provided, it is a union declaration.
    * Otherwise, it is a union expression.
    */
   name?: string;
+
+  /**
+   * Whether the union is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous union (no name or an empty
+   * name) and `false` for a named one. Set this explicitly to create a *named*
+   * union declaration expression (a name that is kept on the type but not
+   * registered in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * union throws.
+   */
+  expression?: boolean;
 
   /**
    * Decorators to apply to the union.
@@ -154,7 +166,7 @@ export const UnionKit = defineKit<TypekitExtension>({
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);
         },
-        expression: descriptor.name === undefined,
+        expression: resolveExpressionFlag("union", descriptor.name, descriptor.expression),
       });
 
       if (Array.isArray(descriptor.variants)) {
@@ -238,7 +250,7 @@ export const UnionKit = defineKit<TypekitExtension>({
     },
 
     isExpression(type) {
-      return type.name === undefined || type.name === "";
+      return type.expression;
     },
     getDiscriminatedUnion: createDiagnosable(function (type) {
       return getDiscriminatedUnion(this.program, type);

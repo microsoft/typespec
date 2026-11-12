@@ -88,6 +88,7 @@ op headModel(@bodyRoot input: VisibilityModel): OkResponse;
 @put
 op putModel(@body input: VisibilityModel): void;
 
+#suppress "@typespec/http/deprecated-implicit-optionality" "for legacy test"
 @scenario
 @scenarioDoc("""
   Generate abd send put model with write/update properties.

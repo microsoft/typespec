@@ -307,16 +307,20 @@ namespace Pets {
   op list(@query skip: int32, @query top: int32): {
     @body pets: Pet[]; // statusCode: 200 Implicit
   };
-  op read(@path petId: int32, @header ifMatch?: string): {
-    @statusCode statusCode: 200;
-    @header eTag: string;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-  };
-  op create(@body pet: Pet): {
-    @statusCode statusCode: 204;
-  } | Error; //statusCode: 4xx,5xx as Error use `@error` decorator
+  op read(@path petId: int32, @header ifMatch?: string):
+    | {
+        @statusCode statusCode: 200;
+        @header eTag: string;
+        @body pet: Pet;
+      }
+    | {
+        @statusCode statusCode: 404;
+      };
+  op create(@body pet: Pet):
+    | {
+        @statusCode statusCode: 204;
+      }
+    | Error; //statusCode: 4xx,5xx as Error use `@error` decorator
 }
 ```
 
@@ -339,9 +343,9 @@ model ETag {
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): OkResponse & Body<Pet[]>;
-  op read(@path petId: int32, @header ifMatch?: string): (OkResponse &
-    Body<Pet> &
-    ETag) | NotFoundResponse;
+  op read(@path petId: int32, @header ifMatch?: string):
+    | (OkResponse & Body<Pet> & ETag)
+    | NotFoundResponse;
   @post
   op create(...Pet): NoContentResponse;
 }

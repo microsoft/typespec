@@ -192,6 +192,8 @@ public class ResourceUpdate extends ResourceOperation {
         if (updateMethod == null) {
             updateMethod
                 = new FluentUpdateMethod(resourceModel, FluentMethodType.UPDATE, this.getResourceLocalVariables());
+            updateMethod.setApiMetadata(
+                getMethodReferencesOfFullParameters().iterator().next().getInnerClientMethod().getApiMetadata());
         }
         return updateMethod;
     }
@@ -229,10 +231,10 @@ public class ResourceUpdate extends ResourceOperation {
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         getUpdateStages().forEach(s -> s.addImportsTo(imports, includeImplementationImports));
+        getUpdateMethod().addImportsTo(imports, includeImplementationImports);
+        getApplyMethods().forEach(m -> m.addImportsTo(imports, includeImplementationImports));
         if (includeImplementationImports) {
             getConstructor().addImportsTo(imports, true);
-            getUpdateMethod().addImportsTo(imports, true);
-            getApplyMethods().forEach(m -> m.addImportsTo(imports, true));
         }
     }
 }

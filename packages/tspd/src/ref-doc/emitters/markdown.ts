@@ -1,16 +1,12 @@
-import {
-  Entity,
-  MixedParameterConstraint,
-  getEntityName,
-  isType,
-  resolvePath,
-} from "@typespec/compiler";
+import type { Entity, MixedParameterConstraint } from "@typespec/compiler";
+import { getEntityName, isType, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
-import {
+import type {
   DecoratorRefDoc,
   DeprecationNotice,
   EmitterOptionRefDoc,
+  EmitterOptionVariantRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   InterfaceRefDoc,
@@ -28,8 +24,8 @@ import {
   TypeSpecRefDocBase,
   UnionRefDoc,
 } from "../types.js";
+import type { MarkdownDoc } from "../utils/markdown.js";
 import {
-  MarkdownDoc,
   codeblock,
   inlinecode,
   link,
@@ -102,28 +98,36 @@ export function groupByNamespace(
 }
 
 /**
- * Github flavored markdown renderer.
+ * Builds composable Markdown fragments from reference records without writing files.
+ * The base renderer uses same-page links. Subclasses can override heading, anchor,
+ * file-selection, and notice hooks for a site's Markdown dialect.
  */
 export class MarkdownRenderer {
+  /** Uses this library's declaration lookup to decide which type references can become links. */
   constructor(protected readonly refDoc: TypeSpecRefDoc) {}
+  /** Formats the visible declaration name as inline code, without an explicit anchor. */
   headingTitle(item: NamedTypeRefDoc): string {
     return inlinecode(item.name);
   }
 
+  /** Derives a same-page anchor by lowercasing the display name and replacing spaces with hyphens. */
   anchorId(item: ReferencableElement): string {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
   }
 
+  /** Formats deprecation text as an italic notice, without adding a heading. */
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
     return `_Deprecated: ${notice.message}_`;
   }
 
+  /** Wraps content in a declaration heading and prepends its deprecation notice when present. */
   typeSection(type: NamedTypeRefDoc, content: MarkdownDoc) {
     const deprecated = type.deprecated ? this.deprecationNotice(type.deprecated) : [];
     return section(this.headingTitle(type), [deprecated, content]);
   }
 
   //#region TypeSpec types
+  /** Renders an operation's description, signature, optional template table, and examples. */
   operation(op: OperationRefDoc) {
     const content: MarkdownDoc = ["", op.doc, codeblock(op.signature, "typespec"), ""];
 
@@ -136,6 +140,7 @@ export class MarkdownRenderer {
     return this.typeSection(op, content);
   }
 
+  /** Renders an interface with operation sections nested inside its declaration section. */
   interface(iface: InterfaceRefDoc) {
     const content: MarkdownDoc = ["", iface.doc, codeblock(iface.signature, "typespec"), ""];
 
@@ -154,6 +159,7 @@ export class MarkdownRenderer {
     return this.typeSection(iface, content);
   }
 
+  /** Renders a model's declaration content followed by its properties section. */
   model(model: ModelRefDoc) {
     const content: MarkdownDoc = ["", model.doc, codeblock(model.signature, "typespec"), ""];
 
@@ -166,6 +172,10 @@ export class MarkdownRenderer {
     return this.typeSection(model, content);
   }
 
+  /**
+   * Builds the properties table, appending an additional-properties row for an indexer.
+   * Returns a section containing `None` when neither properties nor an indexer exist.
+   */
   modelProperties(model: ModelRefDoc) {
     const content: MarkdownDoc = [];
     if (model.properties.size === 0 && model.type.indexer === undefined) {
@@ -192,7 +202,18 @@ export class MarkdownRenderer {
     return section("Properties", content);
   }
 
-  modelPropertyRows(prop: ModelPropertyRefDoc): { name: string; type: string; doc: string }[] {
+  /**
+   * Builds table cells for a property, marking optional and deprecated names.
+   * Anonymous model properties add one level of dotted child rows with empty descriptions.
+   */
+  modelPropertyRows(prop: ModelPropertyRefDoc): {
+    /** Display name with optionality, deprecation markup, or a dotted child path. */
+    name: string;
+    /** Rendered type reference, including a link when the declaration is documented. */
+    type: string;
+    /** Markdown description for this row; empty for flattened child properties. */
+    doc: string;
+  }[] {
     const name = `${prop.name}${prop.type.optional ? "?" : ""}`;
     const base = {
       name: prop.deprecated ? `~~${name}~~ _DEPRECATED_` : name,
@@ -212,6 +233,11 @@ export class MarkdownRenderer {
     return [base];
   }
 
+  /**
+   * Links entities found in the library's compiler-type lookup using {@link filename} and
+   * {@link anchorId}; otherwise returns an inline-code type name. Nonempty anonymous models
+   * display as `{...}`. The optional prefix is part of the visible code label, not the URL.
+   */
   ref(type: Entity, prefix: string = ""): string {
     const namedType = isType(type) && this.refDoc.getNamedTypeRefDoc(type);
     if (namedType) {
@@ -233,6 +259,7 @@ export class MarkdownRenderer {
     );
   }
 
+  /** Renders an enum's declaration, member table, and examples in one section. */
   enum(e: EnumRefDoc): MarkdownDoc {
     const content: MarkdownDoc = [
       "",
@@ -246,6 +273,7 @@ export class MarkdownRenderer {
     return this.typeSection(e, content);
   }
 
+  /** Builds the name/value/description table in member-map iteration order, without a heading. */
   enumMembers(e: EnumRefDoc): MarkdownDoc {
     const rows = [...e.members.values()].map((x) => {
       return [
@@ -261,6 +289,7 @@ export class MarkdownRenderer {
     return table([["Name", "Value", "Description"], ...rows]);
   }
 
+  /** Renders a union's declaration, optional template and named-variant sections, and examples. */
   union(union: UnionRefDoc): MarkdownDoc {
     const content: MarkdownDoc = ["", union.doc, codeblock(union.signature, "typespec"), ""];
 
@@ -268,11 +297,24 @@ export class MarkdownRenderer {
       content.push(this.templateParameters(union.templateParameters));
     }
 
+    if (union.variants.size > 0) {
+      content.push(this.unionVariants(union));
+    }
+
     content.push(this.examples(union.examples));
 
     return this.typeSection(union, content);
   }
 
+  /** Builds a Variants section with linked value types in variant-map iteration order. */
+  unionVariants(union: UnionRefDoc): MarkdownDoc {
+    const rows = [...union.variants.values()].map((v) => {
+      return [v.name, this.ref(v.type.type), v.doc];
+    });
+    return section("Variants", [table([["Name", "Type", "Description"], ...rows])]);
+  }
+
+  /** Renders scalar declaration content, including template documentation when supplied. */
   scalar(scalar: ScalarRefDoc): MarkdownDoc {
     const content: MarkdownDoc = ["", scalar.doc, codeblock(scalar.signature, "typespec"), ""];
 
@@ -285,6 +327,7 @@ export class MarkdownRenderer {
     return this.typeSection(scalar, content);
   }
 
+  /** Builds a Template Parameters section, preserving the supplied parameter order. */
   templateParameters(templateParameters: readonly TemplateParameterRefDoc[]): MarkdownDoc {
     const paramTable: string[][] = [["Name", "Description"]];
     for (const param of templateParameters) {
@@ -294,6 +337,7 @@ export class MarkdownRenderer {
     return section("Template Parameters", [table(paramTable), ""]);
   }
 
+  /** Renders the target separately from invocation parameters, followed by decorator examples. */
   decorator(dec: DecoratorRefDoc) {
     const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
 
@@ -314,6 +358,7 @@ export class MarkdownRenderer {
     return this.typeSection(dec, content);
   }
 
+  /** Joins type and `valueof` alternatives with a union separator, using reference links where possible. */
   MixedParameterConstraint(constraint: MixedParameterConstraint): string {
     return [
       ...(constraint.type ? [this.ref(constraint.type)] : []),
@@ -321,6 +366,7 @@ export class MarkdownRenderer {
     ].join(" | ");
   }
 
+  /** Groups examples under one section, nesting titled examples; returns an empty string for none. */
   examples(examples: readonly ExampleRefDoc[]) {
     const content: MarkdownDoc = [];
     if (examples.length === 0) {
@@ -339,10 +385,13 @@ export class MarkdownRenderer {
   }
   // #endregion TypeSpec types
 
-  /** Render all decorators */
+  /** Groups all decorators by namespace, optionally inserting a linked table of contents per namespace. */
   decoratorsSection(
     refDoc: TypeSpecRefDocBase,
-    options: { includeToc?: boolean } = {},
+    options: {
+      /** Include namespace-local decorator links before the declaration sections; defaults to false. */
+      includeToc?: boolean;
+    } = {},
   ): MarkdownDoc {
     return groupByNamespace(refDoc.namespaces, (namespace) => {
       if (namespace.decorators.length === 0) {
@@ -355,20 +404,24 @@ export class MarkdownRenderer {
     });
   }
 
+  /** Builds Markdown list entries in input order using the same file and anchor hooks as type links. */
   toc(items: readonly (ReferencableElement & RefDocEntity)[]) {
     return items.map(
       (item) => ` - [${inlinecode(item.name)}](${this.filename(item)}#${this.anchorId(item)})`,
     );
   }
 
+  /** Returns the link's file component; the base implementation uses an empty string for same-page links. */
   filename(type: ReferencableElement & RefDocEntity): string {
     return "";
   }
 
+  /** Builds an Install section containing an npm command for the package name. */
   install(refDoc: TypeSpecRefDoc) {
     return section("Install", [codeblock(`npm install ${refDoc.name}`, "bash")]);
   }
 
+  /** Builds CLI/configuration examples and emitter option sections, or no fragments when options are absent. */
   emitterUsage(refDoc: TypeSpecRefDoc) {
     if (refDoc.emitter?.options === undefined) {
       return [];
@@ -390,6 +443,7 @@ export class MarkdownRenderer {
     ];
   }
 
+  /** Builds an Emitter options section, including the compiler's common `emitter-output-dir` option. */
   emitterOptions(options: EmitterOptionRefDoc[]) {
     const content = [];
     content.push(
@@ -401,17 +455,109 @@ export class MarkdownRenderer {
       ]),
     );
     for (const option of options) {
-      content.push(
-        section(`${inlinecode(option.name)}`, [
-          `**Type:** ${inlinecode(option.type)}`,
-          "",
-          option.doc,
-        ]),
-      );
+      content.push(this.emitterOption(option));
     }
     return section("Emitter options", content);
   }
 
+  /** Prefers a nonempty list of allowed literals over the type label and formats the result as code. */
+  emitterOptionTypeDisplay(option: {
+    /** Fallback display type when no allowed literals are provided. */
+    type: string;
+    /** Preformatted literals to join with a union separator. */
+    allowedValues?: readonly string[];
+  }): string {
+    if (option.allowedValues && option.allowedValues.length > 0) {
+      return inlinecode(option.allowedValues.join(" | "));
+    }
+    return inlinecode(option.type);
+  }
+
+  /** Renders one option with deprecation, default, alternatives, and nested-property content when present. */
+  emitterOption(option: EmitterOptionRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = [];
+
+    // Deprecation notice
+    if (option.deprecated !== undefined) {
+      const message = option.deprecated || "This option is deprecated.";
+      content.push(this.deprecationNotice({ message }), "");
+    }
+
+    // Type line
+    content.push(`**Type:** ${this.emitterOptionTypeDisplay(option)}`);
+
+    // Default value
+    if (option.default !== undefined) {
+      content.push("", `**Default:** ${inlinecode(option.default)}`);
+    }
+
+    // Description
+    if (option.doc) {
+      content.push("", option.doc);
+    }
+
+    // Variants (oneOf)
+    if (option.variants && option.variants.length > 0) {
+      content.push("", "**Options:**", "");
+      for (const variant of option.variants) {
+        content.push(this.emitterOptionVariant(variant));
+      }
+    }
+
+    // Nested options
+    if (option.nestedOptions && option.nestedOptions.length > 0) {
+      content.push("", "**Properties:**", "");
+      const rows: string[][] = [["Name", "Type", "Default", "Description"]];
+      for (const nested of option.nestedOptions) {
+        rows.push([
+          inlinecode(nested.name),
+          this.emitterOptionTypeDisplay(nested),
+          nested.default !== undefined ? inlinecode(nested.default) : "",
+          nested.doc,
+        ]);
+      }
+      content.push(table(rows));
+    }
+
+    return section(`${inlinecode(option.name)}`, content);
+  }
+
+  /** Renders a `oneOf` alternative as a list fragment, including its optional nested-property table. */
+  emitterOptionVariant(variant: EmitterOptionVariantRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = [];
+
+    // Variant type/values
+    const typeDisplay = this.emitterOptionTypeDisplay(variant);
+
+    let header = `- ${typeDisplay}`;
+    if (variant.default !== undefined) {
+      header += ` (default: ${inlinecode(variant.default)})`;
+    }
+    content.push(header);
+
+    if (variant.doc) {
+      content.push("", `  ${variant.doc}`);
+    }
+
+    // Nested options for object variants
+    if (variant.nestedOptions && variant.nestedOptions.length > 0) {
+      content.push("");
+      const rows: string[][] = [["Name", "Type", "Default", "Description"]];
+      for (const nested of variant.nestedOptions) {
+        rows.push([
+          inlinecode(nested.name),
+          this.emitterOptionTypeDisplay(nested),
+          nested.default !== undefined ? inlinecode(nested.default) : "",
+          nested.doc,
+        ]);
+      }
+      content.push("  ", table(rows));
+    }
+
+    return content;
+  }
+
+  /** Builds linter setup and rule listings, or no fragments when linter metadata is absent. */
   linterUsage(refDoc: TypeSpecRefDoc) {
     if (refDoc.linter === undefined) {
       return [];
@@ -433,18 +579,21 @@ export class MarkdownRenderer {
     ];
   }
 
+  /** Builds a rule-description table, linking names only when {@link linterRuleLink} provides a URL. */
   linterRuleToc(rules: LinterRuleRefDoc[]) {
     return table([
       ["Name", "Description"],
       ...rules.map((rule) => {
         const name = inlinecode(rule.name);
-        const nameCell = rule.rule.url ? link(name, this.linterRuleLink(rule.rule.url)) : name;
+        const ruleLink = this.linterRuleLink(rule);
+        const nameCell = ruleLink ? link(name, ruleLink) : name;
         return [nameCell, rule.rule.description];
       }),
     ]);
   }
 
-  linterRuleLink(url: string) {
-    return url;
+  /** Returns the rule definition's documentation URL, or undefined to leave its table entry unlinked. */
+  linterRuleLink(rule: LinterRuleRefDoc): string | undefined {
+    return rule.rule.url;
   }
 }

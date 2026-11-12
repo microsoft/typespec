@@ -3,6 +3,8 @@
 
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
@@ -18,9 +20,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
-            using (var ns = writer.SetNamespace(_provider.Type.Namespace))
+            using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
+
+            using (writer.SuppressWarnings(_provider.DisabledFileWarnings))
             {
-                WriteType(writer);
+                using (var ns = writer.SetNamespace(_provider.Type.Namespace))
+                {
+                    WriteType(writer);
+                }
             }
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }
@@ -33,13 +40,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteType(CodeWriter writer)
         {
-            if (IsPublicContext(_provider))
+            using var containment = writer.SuppressWarnings(GetExperimentalContextSuppressions(), emitDirectives: false);
+            if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }
-            foreach (var attribute in _provider.GetAttributes())
+            foreach (var attribute in _provider.GetAttributesForWrite())
             {
                 attribute.Write(writer);
+                if (attribute is AttributeStatement)
+                {
+                    writer.WriteLine();
+                }
             }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
@@ -81,6 +93,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
+        private SuppressionStatement[] GetExperimentalContextSuppressions()
+        {
+            var provider = _provider.SerializationProviderOwner is { } owner && owner.Type.Equals(_provider.Type)
+                ? owner
+                : _provider;
+            return ExperimentalApiHelpers.GetAttributeSuppressions(
+                provider.Attributes.Concat(provider.CustomCodeView?.Attributes ?? []));
+        }
+
         private void WriteClassOrStructContent(CodeWriter writer)
         {
             using (writer.Scope())
@@ -89,22 +110,34 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteFields(writer);
 
                 if (sectionWritten && _provider.Constructors.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteConstructors(writer);
                 sectionWritten |= _provider.Constructors.Any();
 
                 if (sectionWritten && _provider.Properties.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteProperties(writer);
                 sectionWritten |= _provider.Properties.Any();
 
                 if (sectionWritten && _provider.Methods.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteMethods(writer);
                 sectionWritten |= _provider.Methods.Any();
 
                 if (sectionWritten = _provider.NestedTypes.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteNestedTypes(writer);
             }
         }
@@ -115,10 +148,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
+                    using var warnings = writer.SuppressWarnings(_provider.Fields[i].Suppressions);
                     writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
                     foreach (var attr in _provider.Fields[i].Attributes)
                     {
                         attr.Write(writer);
+                        writer.WriteLine();
                     }
                     writer.Append($"{_provider.Fields[i].Name}");
                     if (_provider.Fields[i].InitializationValue != null)
@@ -178,6 +213,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteMethods(CodeWriter writer)
         {
+            if (_provider is ModelFactoryProvider { PreserveLeadingMethodSeparator: true } && _provider.Methods.Count > 0)
+            {
+                writer.WriteLine();
+            }
+
             for (int i = 0; i < _provider.Methods.Count; i++)
             {
                 writer.WriteMethod(_provider.Methods[i]);
@@ -193,7 +233,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             for (int i = 0; i < _provider.NestedTypes.Count; i++)
             {
                 var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i]);
-                nestedWriter.WriteType(writer);
+                using (writer.SuppressWarnings(_provider.NestedTypes[i].DisabledFileWarnings))
+                {
+                    nestedWriter.WriteType(writer);
+                }
                 if (i < _provider.NestedTypes.Count - 1)
                 {
                     writer.WriteLine();

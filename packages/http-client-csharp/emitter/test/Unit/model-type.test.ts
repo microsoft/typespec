@@ -1,10 +1,11 @@
 vi.resetModules();
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import type { InputModelType } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -12,12 +13,406 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
+describe("Request-context constructor requirements", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  const resource = `
+    model Resource {
+      title: string;
+      @visibility(Lifecycle.Read, Lifecycle.Update) state: string;
+      @visibility(Lifecycle.Read, Lifecycle.Create) initialValue: string;
+      @visibility(Lifecycle.Read) id: string;
+      optionalValue?: string;
+    }
+  `;
+
+  it.each([
+    ["@post", ["title", "initialValue"]],
+    ["@put", ["title"]],
+    ["@patch", ["title", "state"]],
+    [
+      '#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."\n@patch(#{ implicitOptionality: true })',
+      [],
+    ],
+    ["@patch(#{ implicitOptionality: false })", ["title", "state"]],
+    ["@parameterVisibility(Lifecycle.Update) @post", ["title", "state"]],
+    ["@parameterVisibility(Lifecycle.Create) @put", ["title", "initialValue"]],
+    ["@parameterVisibility(Lifecycle.Create, Lifecycle.Update) @post", ["title"]],
+    ["@parameterVisibility(Lifecycle.Create) @patch", ["title", "initialValue"]],
+  ])("uses effective contracts for %s", async (decorators, expectedRequired) => {
+    const program = await typeSpecCompile(
+      `${resource} ${decorators} op send(@body body: Resource): Resource;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    deepStrictEqual(
+      model.properties
+        .filter((p) => !p.optional && !p.readOnly && p.requiredInConstructor !== false)
+        .map((p) => p.name),
+      expectedRequired,
+    );
+    deepStrictEqual(
+      model.properties.map((p) => [p.name, p.optional, p.readOnly]),
+      [
+        ["title", false, false],
+        ["state", false, false],
+        ["initialValue", false, false],
+        ["id", false, true],
+        ["optionalValue", true, false],
+      ],
+    );
+  });
+
+  it("intersects separate request contexts without including responses", async () => {
+    const program = await typeSpecCompile(
+      `${resource}
+       @route("/create") @post op create(@body body: Resource): Resource;
+       @route("/update") @parameterVisibility(Lifecycle.Update) @put
+       op update(@body body: Resource): Resource;
+       @route("/read") @get op read(): Resource;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    deepStrictEqual(
+      model.properties
+        .filter((p) => !p.optional && !p.readOnly && p.requiredInConstructor !== false)
+        .map((p) => p.name),
+      ["title"],
+    );
+  });
+
+  it("propagates PATCH to nested and inherited models but not collection items", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Base { baseValue: string; }
+       model Child extends Base { value: string; child?: Child; }
+       model Item { value: string; }
+       model Envelope { child: Child; items: Item[]; values: Record<Item>; }
+       #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+       @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    for (const name of ["Envelope", "Base", "Child"]) {
+      const model = root.models.find((m) => m.name === name)!;
+      ok(model);
+      for (const property of model.properties.filter((p) => !p.optional)) {
+        strictEqual(property.requiredInConstructor, false, `${name}.${property.name}`);
+      }
+    }
+    const item = root.models.find((m) => m.name === "Item")!;
+    ok(item);
+    strictEqual(item.properties[0].requiredInConstructor, undefined);
+  });
+
+  it("does not relax a nested model for an invisible reference", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Child { value: string; }
+       model Envelope { @visibility(Lifecycle.Create) child: Child; title: string; }
+       @route("/create") @post op create(@body body: Envelope): void;
+       #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+       @route("/update") @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const child = root.models.find((m) => m.name === "Child")!;
+    ok(child);
+    strictEqual(child.properties[0].requiredInConstructor, undefined);
+  });
+
+  it.each([
+    { includeBaseRequest: false, rename: false },
+    { includeBaseRequest: true, rename: false },
+    { includeBaseRequest: false, rename: true },
+    { includeBaseRequest: true, rename: true },
+  ])(
+    "does not propagate shadowed inherited references (%o)",
+    async ({ includeBaseRequest, rename }) => {
+      const program = await typeSpecCompile(
+        `
+         model Child { value: string; }
+         model Base { child: Child; }
+         model Middle extends Base {}
+         model Envelope extends Middle {
+           ${rename ? '@clientName("renamedChild", "csharp")' : ""}
+           @visibility(Lifecycle.Create) child: Child;
+           title: string;
+         }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/update") @patch(#{ implicitOptionality: true }) op update(@body body: Envelope): void;
+         @route("/create") @post op create(@body body: Envelope): void;
+         ${
+           includeBaseRequest
+             ? `#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+                @route("/base") @patch(#{ implicitOptionality: true }) op updateBase(@body body: Base): void;`
+             : ""
+         }`,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      ok(
+        root.models
+          .find((m) => m.name === "Envelope")!
+          .properties.some((p) => p.name === (rename ? "renamedChild" : "child")),
+      );
+      const child = root.models.find((m) => m.name === "Child")!;
+      strictEqual(
+        child.properties[0].requiredInConstructor,
+        includeBaseRequest ? false : undefined,
+      );
+    },
+  );
+
+  it("preserves required non-body parameters embedded in a body root", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Resource { value: string; @header requiredHeader: string; @query requiredQuery: string; }
+       @post op send(@bodyRoot body: Resource): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    ok(model);
+    for (const property of model.properties) {
+      strictEqual(property.requiredInConstructor, undefined, property.name);
+    }
+  });
+
+  it.each([false, true])(
+    "preserves override identity independently of SDK names (%s)",
+    async (rename) => {
+      const program = await typeSpecCompile(
+        `
+       model Base { value: string; }
+       model Resource extends Base {
+         ${rename ? '@clientName("renamedValue", "csharp")' : ""}
+         @visibility(Lifecycle.Create) value: string;
+       }
+       @put op send(@body body: Resource): void;`,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const property = root.models.find((m) => m.name === "Resource")!.properties[0];
+      strictEqual(property.name, rename ? "renamedValue" : "value");
+      strictEqual(
+        "originalName" in property ? property.originalName : undefined,
+        rename ? "value" : undefined,
+      );
+      strictEqual(property.requiredInConstructor, false);
+    },
+  );
+
+  it.each([false, true])(
+    "does not visit sibling subtypes through an ancestor (base request: %s)",
+    async (includeBaseRequest) => {
+      const program = await typeSpecCompile(
+        `
+         @discriminator("kind") model Pet { kind: string; }
+         model Cat extends Pet { kind: "cat"; catValue: string; }
+         model Dog extends Pet { kind: "dog"; dogValue: string; }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/cat") @patch(#{ implicitOptionality: true }) op updateCat(@body body: Cat): void;
+         @route("/dog") @post op createDog(@body body: Dog): void;
+         ${
+           includeBaseRequest
+             ? `#suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+                @route("/pet") @patch(#{ implicitOptionality: true }) op updatePet(@body body: Pet): void;`
+             : ""
+         }`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const cat = root.models.find((m) => m.name === "Cat")!;
+      const dog = root.models.find((m) => m.name === "Dog")!;
+      strictEqual(cat.properties.find((p) => p.name === "catValue")!.requiredInConstructor, false);
+      strictEqual(
+        dog.properties.find((p) => p.name === "dogValue")!.requiredInConstructor,
+        includeBaseRequest ? false : undefined,
+      );
+    },
+  );
+
+  it.each(["body", "bodyRoot"])(
+    "honors metadata treatment within @%s and across request contexts",
+    async (bodyDecorator) => {
+      const program = await typeSpecCompile(
+        `
+         model Child { value: string; }
+         model Resource {
+           value: string;
+           #suppress "@typespec/http/metadata-ignored" "Testing explicit body metadata."
+           @header requiredHeader: string;
+           #suppress "@typespec/http/metadata-ignored" "Testing explicit body metadata."
+           @query requiredQuery: string;
+           @bodyIgnore ignored: Child;
+         }
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/root") @patch(#{ implicitOptionality: true }) op updateRoot(@bodyRoot body: Resource): void;
+         #suppress "@typespec/http/deprecated-implicit-optionality" "Testing legacy partial PATCH."
+         @route("/other") @patch(#{ implicitOptionality: true }) op updateOther(@${bodyDecorator} body: Resource): void;
+         @route("/child") @post op createChild(@body body: Child): void;`,
+        runner,
+      );
+      strictEqual(program.diagnostics.length, 0);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const model = root.models.find((m) => m.name === "Resource")!;
+      for (const name of ["requiredHeader", "requiredQuery", "ignored"]) {
+        strictEqual(
+          model.properties.find((p) => p.name === name)!.requiredInConstructor,
+          name === "ignored" || bodyDecorator === "body" ? false : undefined,
+          name,
+        );
+      }
+      const child = root.models.find((m) => m.name === "Child")!;
+      strictEqual(
+        child.properties[0].requiredInConstructor,
+        bodyDecorator === "body" ? false : undefined,
+      );
+    },
+  );
+
+  it("omits ignored body-root fields without relaxing their types or HTTP parameters", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Child { value: string; }
+       model Resource {
+         value: string;
+         @header requiredHeader: string;
+         @query requiredQuery: string;
+         @bodyIgnore ignored: Child;
+       }
+       @post op create(@bodyRoot body: Resource): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    strictEqual(model.properties.find((p) => p.name === "ignored")!.requiredInConstructor, false);
+    for (const name of ["value", "requiredHeader", "requiredQuery"]) {
+      strictEqual(
+        model.properties.find((p) => p.name === name)!.requiredInConstructor,
+        undefined,
+        name,
+      );
+    }
+    const child = root.models.find((m) => m.name === "Child")!;
+    strictEqual(child.properties[0].requiredInConstructor, undefined);
+  });
+
+  it("uses the effective visibility of a redeclared inherited property", async () => {
+    const program = await typeSpecCompile(
+      `
+       model Base { value: string; }
+       model Derived extends Base { @visibility(Lifecycle.Create) value: string; }
+       @put op send(@body body: Derived): void;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    strictEqual(
+      root.models.find((m) => m.name === "Base")!.properties[0].requiredInConstructor,
+      undefined,
+    );
+    strictEqual(
+      root.models.find((m) => m.name === "Derived")!.properties[0].requiredInConstructor,
+      false,
+    );
+  });
+
+  it("uses only request contexts for a model also returned by other operations", async () => {
+    const program = await typeSpecCompile(
+      `${resource}
+       @route("/create") @post op create(@body body: Resource): void;
+       @route("/read") @get op read(): Resource;`,
+      runner,
+    );
+    strictEqual(program.diagnostics.length, 0);
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const model = root.models.find((m) => m.name === "Resource")!;
+    ok(model);
+    strictEqual(
+      model.properties.find((p) => p.name === "initialValue")!.requiredInConstructor,
+      undefined,
+    );
+  });
+});
+
 describe("Discriminator property", () => {
   let runner: TestHost;
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });
+
+  it.each([undefined, "", 'Use "Current" instead.\nSee C:\\sdk.'])(
+    "preserves property deprecation metadata: %s",
+    async (message) => {
+      const directive = message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`;
+      const program = await typeSpecCompile(
+        `model ExampleOptions {
+           ${directive}
+           legacy?: string;
+           replacement?: string;
+         }
+         @get op read(): ExampleOptions;`,
+        runner,
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      const properties = root.models.find((m) => m.name === "ExampleOptions")!.properties;
+      strictEqual(properties.find((p) => p.name === "legacy")?.deprecation, message);
+      strictEqual(properties.find((p) => p.name === "replacement")?.deprecation, undefined);
+    },
+  );
+
+  it.each([undefined, "", 'Use "Current" instead.\nSee C:\\sdk.'])(
+    "preserves model and enum deprecation metadata: %s",
+    async (message) => {
+      const directive = message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`;
+      const program = await typeSpecCompile(
+        `${directive}
+         enum LegacyChoice { one, two }
+         ${directive}
+         model Legacy { choice: LegacyChoice; }
+         #suppress "deprecated" "Testing deprecated model references."
+         @get op read(): Legacy;`,
+        runner,
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      strictEqual(root.models.find((m) => m.name === "Legacy")?.deprecation, message);
+      strictEqual(root.enums.find((e) => e.name === "LegacyChoice")?.deprecation, message);
+    },
+  );
 
   it("Base model has discriminator property", async () => {
     const program = await typeSpecCompile(
@@ -1093,5 +1488,477 @@ describe("XML serialization options", () => {
     strictEqual(itemsProperty.serializationOptions.xml.name, "items");
     ok(itemsProperty.serializationOptions.xml.itemsName);
     strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
+  });
+
+  it("Body parameter with file payload should have binary serializationOptions populated on the body type", async function () {
+    const program = await typeSpecCompile(
+      `
+      model RawData extends File {
+        contentType: "application/octet-stream";
+        contents: bytes;
+      }
+
+      @route("/upload")
+      @post
+      op uploadRawData(@bodyRoot data: RawData): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    // The body parameter itself always has serializationOptions (tcgc populates
+    // json/xml options from content types; for a binary file body neither is set).
+    ok(bodyParam.serializationOptions);
+    strictEqual(bodyParam.serializationOptions.json, undefined);
+    strictEqual(bodyParam.serializationOptions.xml, undefined);
+    // The body's model type carries the binary serialization options.
+    const bodyType = bodyParam.type as InputModelType;
+    ok(bodyType.serializationOptions);
+    ok(bodyType.serializationOptions.binary);
+    strictEqual(bodyType.serializationOptions.binary.isFile, true);
+    // bytes contents → not text
+    strictEqual(bodyType.serializationOptions.binary.isText, false);
+    // contentTypes should be populated from the model's contentType property
+    ok(bodyType.serializationOptions.binary.contentTypes);
+    strictEqual(bodyType.serializationOptions.binary.contentTypes.length, 1);
+    strictEqual(bodyType.serializationOptions.binary.contentTypes[0], "application/octet-stream");
+    // filename should be populated for an Http.File-derived model
+    ok(bodyType.serializationOptions.binary.filename);
+    strictEqual(bodyType.serializationOptions.binary.filename.name, "filename");
+  });
+
+  it("Body parameter with JSON content type should have json serializationOptions populated", async function () {
+    const program = await typeSpecCompile(
+      `
+      @route("/messages")
+      @post
+      op sendMessage(@header contentType: "application/json", @body message: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    ok(bodyParam.serializationOptions);
+    ok(bodyParam.serializationOptions.json);
+  });
+});
+
+describe("Test isExactName propagation", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on property", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Book {
+          @clientName(Azure.ClientGenerator.Core.exact("snake_case_name"), "csharp")
+          name: string;
+        }
+
+        op test(@body input: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bookModel = root.models.find((m) => m.name === "Book");
+    ok(bookModel);
+    const nameProp = bookModel.properties.find((p) => p.name === "snake_case_name");
+    ok(nameProp);
+    strictEqual(nameProp.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("my_exact_model"), "csharp")
+        model Book {
+          name: string;
+        }
+
+        op test(@body input: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bookModel = root.models.find((m) => m.name === "my_exact_model");
+    ok(bookModel);
+    strictEqual(bookModel.isExactName, true);
+  });
+
+  it("does not set isExactName when @clientName decorator does not use exact()", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Book {
+          @clientName("regularName")
+          name: string;
+        }
+
+        op test(@body input: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bookModel = root.models.find((m) => m.name === "Book");
+    ok(bookModel);
+    const nameProp = bookModel.properties.find((p) => p.name === "regularName");
+    ok(nameProp);
+    strictEqual(nameProp.isExactName, false);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on enum", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("my_exact_enum"), "csharp")
+        enum Color {
+          Red,
+          Green,
+          Blue,
+        }
+
+        op test(@body input: Color): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const colorEnum = root.enums.find((e) => e.name === "my_exact_enum");
+    ok(colorEnum);
+    strictEqual(colorEnum.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on union", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("my_exact_union"), "csharp")
+        union Color {
+          string,
+          "red",
+          "green",
+        }
+
+        op test(@body input: Color): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const colorEnum = root.enums.find((e) => e.name === "my_exact_union");
+    ok(colorEnum);
+    strictEqual(colorEnum.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on an enum value", async () => {
+    const program = await typeSpecCompile(
+      `
+        enum Color {
+          Red,
+          @clientName(Azure.ClientGenerator.Core.exact("snake_case_value"), "csharp")
+          Green,
+          Blue,
+        }
+
+        op test(@body input: Color): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const colorEnum = root.enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    const exactValue = colorEnum.values.find((v) => v.name === "snake_case_value");
+    ok(exactValue);
+    strictEqual(exactValue.isExactName, true);
+    const regularValue = colorEnum.values.find((v) => v.name === "Red");
+    ok(regularValue);
+    strictEqual(regularValue.isExactName, false);
+  });
+});
+
+describe("Test isFileType propagation", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("sets isFileType on a multipart File part (model type)", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          profileImage: HttpPart<File>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "profileImage");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "model");
+    strictEqual((fileProperty.type as InputModelType).isFileType, true);
+  });
+
+  it("does not mutate cached bytes types when marking a multipart bytes file part", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          fileData: HttpPart<bytes>;
+        }
+
+        model JsonModel {
+          rawBytes: bytes;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+
+        @post
+        @route("/json")
+        op sendJson(@body body: JsonModel): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The multipart file part carries the file flag on its (cloned) type.
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "fileData");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "bytes");
+    strictEqual((fileProperty.type as { isFileType?: boolean }).isFileType, true);
+
+    // Invariant: no `bytes` type stored in the shared type cache should carry the file flag.
+    // The flag lives only on the per-property clone, so mutating a cached instance (the bug)
+    // would surface here.
+    for (const cachedType of sdkContext.__typeCache.types.values()) {
+      if (cachedType.kind === "bytes") {
+        strictEqual(
+          (cachedType as { isFileType?: boolean }).isFileType,
+          undefined,
+          "A cached bytes type was mutated with isFileType; file-ness must only be set on clones.",
+        );
+      }
+    }
+
+    // And the unrelated JSON bytes property must remain a plain (non-file) bytes type.
+    const jsonModel = root.models.find((m) => m.name === "JsonModel");
+    ok(jsonModel);
+    const rawBytesProperty = jsonModel.properties.find((p) => p.name === "rawBytes");
+    ok(rawBytesProperty);
+    strictEqual(rawBytesProperty.type.kind, "bytes");
+    strictEqual((rawBytesProperty.type as { isFileType?: boolean }).isFileType, undefined);
+  });
+
+  it("does not mutate cached model types when marking a multipart model file part", async () => {
+    // Same invariant as the bytes case, but for model types: `fromSdkType` caches model
+    // instances too, so a model used both as a multipart file part and elsewhere as a
+    // non-file body must not have `isFileType` leaked onto the shared cached instance.
+    const program = await typeSpecCompile(
+      `
+        model MyFile extends File {}
+
+        model MultipartRequest {
+          fileData: HttpPart<MyFile>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+
+        // The same MyFile model is also used as a non-file body elsewhere.
+        @post
+        @route("/raw")
+        op uploadRaw(@bodyRoot data: MyFile): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The multipart file part carries the file flag on its (cloned) type.
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "fileData");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "model");
+    strictEqual((fileProperty.type as InputModelType).isFileType, true);
+
+    // Invariant: the `MyFile` model stored in the shared type cache must NOT be flipped to a
+    // file type by the multipart usage. (The HTTP `File` base model is legitimately a file
+    // type, so we only assert on `MyFile`.)
+    for (const cachedType of sdkContext.__typeCache.types.values()) {
+      if (cachedType.kind === "model" && cachedType.name === "MyFile") {
+        strictEqual(
+          (cachedType as InputModelType).isFileType,
+          undefined,
+          "A cached model type was mutated with isFileType; file-ness must only be set on clones.",
+        );
+      }
+    }
+  });
+
+  it("sets isFileType on a multipart bytes part", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          fileData: HttpPart<bytes>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "fileData");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "bytes");
+    strictEqual((fileProperty.type as { isFileType?: boolean }).isFileType, true);
+  });
+
+  it("sets isFileType on the element type of a multipart array of File parts", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          files: HttpPart<File>[];
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const filesProperty = requestModel.properties.find((p) => p.name === "files");
+    ok(filesProperty);
+    strictEqual(filesProperty.type.kind, "array");
+    strictEqual(filesProperty.type.valueType.kind, "model");
+    strictEqual((filesProperty.type.valueType as InputModelType).isFileType, true);
+  });
+
+  it("does not set isFileType on a non-file multipart part", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          name: HttpPart<string>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const nameProperty = requestModel.properties.find((p) => p.name === "name");
+    ok(nameProperty);
+    strictEqual((nameProperty.type as { isFileType?: boolean }).isFileType, undefined);
+  });
+
+  it("sets isFileType on the Http.File model itself", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/upload")
+        @post
+        op upload(@bodyRoot data: File): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    const bodyType = bodyParam.type as InputModelType;
+    strictEqual(bodyType.kind, "model");
+    strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Http.File");
+    strictEqual(bodyType.isFileType, true);
   });
 });

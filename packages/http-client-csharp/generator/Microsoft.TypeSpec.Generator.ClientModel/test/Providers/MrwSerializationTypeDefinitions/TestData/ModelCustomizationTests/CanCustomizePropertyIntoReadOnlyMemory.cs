@@ -113,7 +113,7 @@ namespace Sample.Models
                         continue;
                     }
                     int index = 0;
-                    global::System.Byte[] array = new byte[prop.Value.GetArrayLength()];
+                    byte[] array = new byte[prop.Value.GetArrayLength()];
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array[index] = item.GetByte();
@@ -124,7 +124,7 @@ namespace Sample.Models
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
             return new global::Sample.Models.MockInputModel(prop1, additionalBinaryDataProperties);

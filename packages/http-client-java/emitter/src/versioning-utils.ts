@@ -1,11 +1,12 @@
 import { isPreviewVersion } from "@azure-tools/typespec-azure-core";
-import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
-import { Namespace, Program } from "@typespec/compiler";
-import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
+import type { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
+import type { Namespace, Program } from "@typespec/compiler";
+import type { Version } from "@typespec/versioning";
+import { findVersionedNamespace, getVersions } from "@typespec/versioning";
 
 /**
  * Sentinel values that describe a client that not have consistent api-versions.
- * Reason is either the service is not versioned, or the client aggregates multiple services of different api-versions.
+ * Reason is either the service is not versioned, or the client uses different API versions.
  */
 export enum InconsistentVersions {
   /**
@@ -13,7 +14,7 @@ export enum InconsistentVersions {
    */
   NotVersioned,
   /**
-   * The client contains multiple services which may have the same set or different set of api-versions.
+   * The client aggregates multiple services or uses different operation-group API versions.
    */
   MixedVersions,
 }
@@ -22,15 +23,17 @@ export enum InconsistentVersions {
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
  * Returns {@link InconsistentVersions.NotVersioned} when the service is not versioned and
  * {@link InconsistentVersions.MixedVersions} when the client aggregates multiple services
- * that disagree on api-version.
+ * or its operations use different API-version defaults.
  *
  * @param program the program
  * @param client the SDK client
+ * @param apiVersion the selected service API version, defaulting to the latest
  * @returns the array of api-version when there is only one service in the SDK client or an {@link InconsistentVersions} indicator when the SDK client is not versioned or has multiple versions.
  */
 export function getServiceApiVersions(
   program: Program,
   client: SdkClientType<SdkHttpOperation>,
+  apiVersion?: string,
 ): Version[] | InconsistentVersions {
   // TODO: use client.apiVersions
 
@@ -61,6 +64,27 @@ export function getServiceApiVersions(
   } else {
     apiVersions = InconsistentVersions.NotVersioned;
   }
+  if (Array.isArray(apiVersions)) {
+    const selectedVersion =
+      apiVersion && !["all", "latest"].includes(apiVersion)
+        ? apiVersions.find((version) => version.value === apiVersion)?.value
+        : apiVersions.at(-1)?.value;
+    const defaults = new Set<string>(selectedVersion ? [selectedVersion] : []);
+    const clients = [client];
+    for (const current of clients) {
+      clients.push(...(current.children ?? []));
+      for (const method of current.methods) {
+        for (const parameter of method.operation.parameters) {
+          if (parameter.isApiVersionParam && typeof parameter.clientDefaultValue === "string") {
+            defaults.add(parameter.clientDefaultValue);
+            if (defaults.size > 1) {
+              return InconsistentVersions.MixedVersions;
+            }
+          }
+        }
+      }
+    }
+  }
   return apiVersions;
 }
 
@@ -69,24 +93,39 @@ export function getServiceApiVersions(
  * TODO(xiaofei) pending TCGC design: https://github.com/Azure/typespec-azure/issues/965
  * We still cannot move to TCGC, due to it only recognizes api-versions from 1 service.
  *
- * @param pinnedApiVersion the api-version to use as filter base
+ * @param program the program
+ * @param targetApiVersion the api-version to use as filter base
  * @param versions api-versions to filter
- * @param excludePreview whether to exclude preview api-versions when pinnedApiVersion is stable, default is `true`
+ * @param excludePreview whether to exclude preview api-versions when targetApiVersion is stable, default is `true`
  * @returns filtered api-versions
  */
 export function getFilteredApiVersions(
   program: Program,
-  pinnedApiVersion: string | undefined,
+  targetApiVersion: string | undefined,
   versions: Version[],
   excludePreview: boolean = true,
 ): Version[] {
-  if (!pinnedApiVersion) {
+  return filterApiVersionsByStability(
+    targetApiVersion,
+    versions,
+    (version) => isStableApiVersion(program, version),
+    excludePreview,
+  );
+}
+
+export function filterApiVersionsByStability(
+  targetApiVersion: string | undefined,
+  versions: Version[],
+  isStableVersion: (version: Version) => boolean,
+  excludePreview: boolean = true,
+): Version[] {
+  if (!targetApiVersion) {
     return versions;
   }
-  const filterPreviewApiVersions = excludePreview && isStableApiVersionString(pinnedApiVersion);
+  const filterPreviewApiVersions = excludePreview && isStableApiVersionString(targetApiVersion);
   return versions
-    .slice(0, versions.findIndex((it) => it.value === pinnedApiVersion) + 1)
-    .filter((version) => !filterPreviewApiVersions || isStableApiVersion(program, version));
+    .slice(0, versions.findIndex((it) => it.value === targetApiVersion) + 1)
+    .filter((version) => !filterPreviewApiVersions || isStableVersion(version));
 }
 
 function isStableApiVersion(program: Program, version: Version): boolean {
@@ -170,6 +209,29 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
 
   // Versions are identical
   return false;
+}
+
+/**
+ * Resolves the emitter "api-version" option to a single string.
+ *
+ * TCGC supports a per-service api-version map (`Record<string, string>`), but the Java
+ * emitter currently only supports a single api-version, "latest", or "all". A map value
+ * is therefore treated as undefined.
+ *
+ * TODO(xiaofei): support the per-service api-version map in a future PR.
+ *
+ * @param apiVersion the api-version option from TCGC, a string, a per-service map, or undefined
+ * @returns the api-version string, or undefined when not set or a per-service map
+ */
+export function resolveApiVersionOption(
+  apiVersion: string | Record<string, string> | undefined,
+): string | undefined {
+  if (apiVersion !== undefined && typeof apiVersion !== "string") {
+    // There is a possibility that the overall package contains multiple api-versions, but this
+    // specific client only includes a single api-version. For this case we will need refinement.
+    return undefined;
+  }
+  return apiVersion;
 }
 
 function isSdkClientVersioned(client: SdkClientType<SdkHttpOperation>): boolean {

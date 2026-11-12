@@ -6,6 +6,18 @@ Before customizing generated code, consider whether your change should be made i
 
 Use C# code customizations (partial classes) when TypeSpec cannot express the behavior you need.
 
+## Optional nullable model properties
+
+For a TypeSpec property such as `feature?: Feature | null`, generated model classes distinguish an omitted property from an explicitly assigned `null` during JSON serialization. Leaving the property untouched omits it; assigning `null` writes `"feature": null`; assigning a value writes that value. Reading JSON preserves the same distinction when the model is serialized again, including nested models and wire-format serialization.
+
+For nullable additional-property values, such as `Record<string | null>`, JSON null entries are retained in `AdditionalProperties` and included when the model is serialized again, including in wire format.
+
+XML serialization omits null optional properties, including collections, rather than emitting explicit-null elements. Writing XML does not change their JSON presence state.
+
+Presence tracking does not change the public property type or constructor/model-factory signatures. Defaulted constructor and model-factory arguments retain their existing behavior: a scalar `null` argument is treated as omitted, since C# cannot distinguish an omitted argument from an explicitly supplied default value. Model factories also retain their existing collection initialization behavior, which can materialize a defaulted list argument as an empty list. To write explicit null for a writable property, assign the property after construction.
+
+A handwritten property or field that replaces a generated member (including a `[CodeGenMember]` replacement) retains its existing customization behavior; the generator cannot observe assignments inside a handwritten setter. There is no presence-tracking opt-in for replacement members. Models customized as readonly structs also retain their existing constructor-only behavior, because readonly structs cannot contain the mutable backing fields and presence flags used by generated classes. Keep the generated class property when its omitted/null distinction is needed. Similarly, plugins that replace generated property bodies or serialization methods must preserve the tracking behavior themselves rather than relying on a replacement auto-property.
+
 ## Make a model internal
 
 Define a class with the same namespace and name as generated model and use the desired accessibility.
@@ -222,6 +234,7 @@ Scenarios that would work:
 2. Float <-> Int (both are numbers)
 3. String <-> Enums (both strings)
 4. String -> Uri
+5. String -> Guid (both strings)
 
 Won't work:
 
@@ -1268,6 +1281,88 @@ namespace Azure.Service.Operations
 {
 -    public partial class ServiceClient { }
 +    public partial class TableClient { }
+}
+```
+
+</details>
+
+## Customize a generated client method's signature
+
+Declare a `partial` method (without a body) on the generated client class with the same name and parameter types as a generated protocol or convenience method. The generator emits a matching partial implementation, taking the modifiers and parameter names from your declaration while keeping its generated body.
+
+This applies specifically to **client methods** (protocol and convenience methods on the generated `*Client` class). Other generated members (model constructors, model serialization methods, model factories, etc.) should be customized using `[CodeGenSuppress]` + a hand-written replacement, or one of the other techniques in this document.
+
+Use this when you want to keep the generated body but tweak the surface — typically:
+
+- Tighten the access modifier (`public` → `internal`).
+- Add `virtual` / `override` / `new` modifiers.
+- Rename a parameter to something more idiomatic.
+
+This is preferred over `[CodeGenSuppress]` + a hand-written replacement when the only thing you want to change is the signature, because you stay in lock-step with the generated body — future regenerations automatically pick up changes (new optional parameters, body changes from spec edits, etc.).
+
+### What is supported
+
+- **Modifier changes** (access modifier, `virtual`, `override`, `new`, `unsafe`).
+- **Parameter renames.** The generator clones each parameter with the customer-chosen name while preserving all internal metadata (parameter location, wire info, spread source, validation, …) so the generated body keeps compiling.
+- Both protocol method overloads and convenience method overloads (sync and async) on the generated client. Each overload must be customized independently.
+
+### What is NOT supported
+
+- **Renaming the method itself.** Matching is by `(method name, ordered parameter type list)`. To rename, use `[CodeGenSuppress]` + a hand-written method that delegates to the underlying request/pipeline machinery.
+- **Changing parameter types.** The parameter type list must match the generated signature exactly (matched by type name). Replacing a parameter type with a different type — even an implicitly convertible one — will simply fail to match and the partial decl will be ignored. To project a different type, use `[CodeGenSuppress]` + a hand-written wrapper that converts and forwards.
+- **Adding/removing/reordering parameters.** The parameter type list must match the generated signature exactly. To restructure, use `[CodeGenSuppress]`.
+- **Default values on the partial implementation.** C# requires partial method implementations to have all parameters required, so any default values on your partial declaration are stripped on the generated impl. Callers still see the defaults from your declaration in custom code.
+- **Non-client members** (models, serialization methods, model factories). Use `[CodeGenSuppress]` for these.
+
+<details>
+
+**Generated code before (Generated/TestClient.cs):**
+
+```C#
+namespace Azure.Service
+{
+    public partial class TestClient
+    {
+        public virtual ClientResult HelloAgain(BinaryContent p1, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+            using PipelineMessage message = CreateRequest(p1, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+    }
+}
+```
+
+**Add customized client (TestClient.cs):**
+
+```C#
+namespace Azure.Service
+{
+    public partial class TestClient
+    {
+        // Renames `p1` to `content` and changes accessibility from public to internal.
+        internal partial ClientResult HelloAgain(BinaryContent content, RequestOptions options);
+    }
+}
+```
+
+**Generated code after (Generated/TestClient.cs):**
+
+```diff
+namespace Azure.Service
+{
+    public partial class TestClient
+    {
+-        public virtual ClientResult HelloAgain(BinaryContent p1, RequestOptions options = null)
++        internal partial ClientResult HelloAgain(BinaryContent content, RequestOptions options)
+        {
+-            Argument.AssertNotNull(p1, nameof(p1));
+-            using PipelineMessage message = CreateRequest(p1, options);
++            Argument.AssertNotNull(content, nameof(content));
++            using PipelineMessage message = CreateRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+    }
 }
 ```
 

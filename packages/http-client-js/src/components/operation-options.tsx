@@ -1,8 +1,8 @@
 import { For, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { ModelProperty } from "@typespec/compiler";
+import type { ModelProperty } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { hasDefaultValue } from "../utils/parameters.jsx";
 import { getOperationOptionsInterfaceRefkey } from "./static-helpers/interfaces.jsx";
 export interface OperationOptionsProps {

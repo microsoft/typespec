@@ -3,13 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -18,6 +24,233 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     public class ClientSettingsProviderTests
     {
+        [TestCase("sourceIpAddress", "SourceIpAddress")]
+        [TestCase("targetDbName", "TargetDbName")]
+        [TestCase("guestOsType", "GuestOsType")]
+        public void ClientScopedAcronymsPreserveConstructorAndSettingsNames(string name, string propertyName)
+        {
+            var parameter = InputFactory.MethodParameter(
+                name, InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client);
+            var inputClient = InputFactory.Client("TestClient", parameters: [parameter]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var constructors = client.Constructors.Where(constructor =>
+                constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && constructor.Signature.Parameters.Any(candidate => ReferenceEquals(candidate.InputParameter, parameter))).ToArray();
+
+            Assert.IsNotEmpty(constructors);
+            foreach (var constructor in constructors)
+            {
+                Assert.AreEqual(name, constructor.Signature.Parameters.Single(candidate =>
+                    ReferenceEquals(candidate.InputParameter, parameter)).Name);
+            }
+            var settings = client.ClientSettings!;
+            Assert.AreEqual(name, settings.OtherRequiredParams.Single().Name);
+            Assert.IsTrue(settings.Properties.Any(property => property.Name == propertyName));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ExperimentalCustomConfigurationBindingsUseContainingExperimentalContext(bool generatedModel)
+        {
+            var inputModel = InputFactory.Model("BindingValue", @namespace: "Sample", properties: []);
+            var inputClient = InputFactory.Client("TestClient");
+            Compilation? customCompilation = null;
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => generatedModel ? [inputModel] : [],
+                clients: () => [inputClient],
+                compilation: async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync());
+            var generator = ScmCodeModelGenerator.Instance;
+            if (generatedModel)
+            {
+                generator.TypeFactory.CreateModel(inputModel);
+            }
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            var settings = client.ClientSettings!;
+            var options = client.ClientOptions!;
+            var files = new TypeProvider[] { settings, options, new ArgumentDefinition() }
+                .Select(provider => new TypeProviderWriter(provider).Write()).ToArray();
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalCustomConfigurationBindings",
+                files.Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name))
+                    .Concat(customCompilation!.SyntaxTrees.Where(tree => tree.FilePath.EndsWith("CustomTypes.cs", StringComparison.Ordinal))),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+
+            foreach (var provider in new TypeProvider[] { settings, options })
+            {
+                Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+                var tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == provider.RelativeFilePath);
+                var root = tree.GetRoot();
+                var creation = root.DescendantNodes().OfType<ObjectCreationExpressionSyntax>()
+                    .Single(expression => expression.Type.ToString() == "global::Sample.BindingValue");
+                MemberDeclarationSyntax bindingMethod = provider == settings
+                    ? creation.Ancestors().OfType<MethodDeclarationSyntax>().Single()
+                    : creation.Ancestors().OfType<ConstructorDeclarationSyntax>().Single();
+                StringAssert.DoesNotContain("#pragma warning disable CUSTOM001", bindingMethod.ToFullString());
+                var containingDeclaration = provider == settings
+                    ? (MemberDeclarationSyntax)creation.Ancestors().OfType<ClassDeclarationSyntax>().Single()
+                    : bindingMethod;
+                var contextSymbol = compilation.GetSemanticModel(tree).GetDeclaredSymbol(containingDeclaration)!;
+                Assert.AreEqual("SCME0002", contextSymbol.GetAttributes().Single(attribute =>
+                    attribute.AttributeClass?.ToDisplayString() == "System.Diagnostics.CodeAnalysis.ExperimentalAttribute").ConstructorArguments[0].Value);
+
+                // Removing the existing experimental context must expose the custom type's diagnostic.
+                var withoutContext = containingDeclaration.WithAttributeLists(default);
+                var unannotatedTree = tree.WithRootAndOptions(root.ReplaceNode(containingDeclaration, withoutContext), tree.Options);
+                var bindingErrors = compilation.ReplaceSyntaxTree(tree, unannotatedTree).GetDiagnostics()
+                    .Where(diagnostic => diagnostic.Id == "CUSTOM001" && diagnostic.Location.SourceTree == unannotatedTree).ToArray();
+                var unannotatedCreation = unannotatedTree.GetRoot().DescendantNodes().OfType<ObjectCreationExpressionSyntax>()
+                    .Single(expression => expression.Type.ToString() == "global::Sample.BindingValue");
+                Assert.IsTrue(bindingErrors.Any(diagnostic => unannotatedCreation.Span.Contains(diagnostic.Location.SourceSpan)));
+                Assert.IsFalse(provider.Methods.SelectMany(member => member.Signature.Attributes)
+                    .Concat(provider.Constructors.SelectMany(member => member.Signature.Attributes))
+                    .Any(attribute => attribute.Arguments.Any(argument => argument.ToDisplayString() == Snippet.Literal("CUSTOM001").ToDisplayString())));
+            }
+            var settingsProperty = settings.Properties.Single(property => property.Name == "Value");
+            Assert.AreEqual(0, settingsProperty.Attributes.Count);
+            var consumer = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile("Consumer"));
+            var consumerErrors = compilation.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsNotEmpty(consumerErrors);
+            Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "CUSTOM001" && diagnostic.Location.SourceTree == consumer));
+        }
+
+        [TestCase("required", false, true)]
+        [TestCase("required", true, true)]
+        [TestCase("optional", false, true)]
+        [TestCase("optional", true, true)]
+        [TestCase("child", false, true)]
+        [TestCase("child", true, true)]
+        [TestCase("required", false, false)]
+        [TestCase("optional", false, false)]
+        public void ExperimentalExternalClientParametersCompileWithScopedSuppressions(string shape, bool nullable, bool annotated)
+        {
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location))
+                .ToArray();
+            var dependency = CSharpCompilation.Create(
+                $"ExperimentalExternalParameter{Guid.NewGuid():N}",
+                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile())],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            using var stream = new MemoryStream();
+            var emitted = dependency.Emit(stream);
+            Assert.IsTrue(emitted.Success, string.Join(Environment.NewLine, emitted.Diagnostics));
+            var image = stream.ToArray();
+            var externalType = Assembly.Load(image).GetType("External.ParameterValue")!;
+            var inputType = InputFactory.Model("ParameterValue", properties: [],
+                external: new InputExternalTypeMetadata("External.ParameterValue", null, null));
+            if (annotated)
+            {
+                InputFactory.Experimental(inputType, "EXTERNAL001", "UNRELATED001");
+            }
+            InputType parameterType = nullable ? new InputNullableType(inputType) : inputType;
+            var required = shape != "optional";
+            var endpoint = InputFactory.EndpointParameter("endpoint", InputPrimitiveType.Url, isEndpoint: true,
+                isRequired: true, scope: InputParameterScope.Client);
+            var parameter = InputFactory.MethodParameter("value", parameterType, isRequired: required,
+                defaultValue: required ? null : new InputConstant(null, parameterType), scope: InputParameterScope.Client);
+            var stable = InputFactory.MethodParameter("stable", InputPrimitiveType.String, isRequired: required,
+                defaultValue: required ? null : InputFactory.Constant.String("stable"), scope: InputParameterScope.Client);
+            var parent = shape == "child" ? InputFactory.Client("ParentClient", parameters: [endpoint]) : null;
+            var input = InputFactory.Client("TestClient", parameters: [endpoint, parameter, stable], parent: parent,
+                initializedBy: parent is null ? InputClientInitializedBy.Individually : InputClientInitializedBy.Parent | InputClientInitializedBy.Individually);
+            var mock = MockHelpers.LoadMockGenerator(clients: () => parent is null ? [input] : [parent, input]);
+            Moq.Mock.Get(mock.Object.TypeFactory).Setup(factory => factory.CreateFrameworkType("External.ParameterValue"))
+                .Returns(externalType);
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(input)!;
+            var configuration = required ? (TypeProvider)client.ClientSettings! : client.ClientOptions!;
+            var files = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition)
+                .Select(provider => new TypeProviderWriter(provider).Write()).ToArray();
+            var compilation = CSharpCompilation.Create(
+                "ExternalClientParameterReferences",
+                files.Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name)),
+                references.Append(MetadataReference.CreateFromImage(image)),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error)
+                    // This no-operation fixture intentionally leaves optional client fields unused.
+                    .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0169"] = ReportDiagnostic.Suppress }));
+            var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            if (!annotated)
+            {
+                Assert.IsNotEmpty(errors);
+                Assert.IsTrue(errors.All(diagnostic => diagnostic.Id == "EXTERNAL001"),
+                    string.Join(Environment.NewLine, errors.Select(diagnostic => diagnostic.ToString())));
+                return;
+            }
+            Assert.IsEmpty(errors.Select(diagnostic => diagnostic.ToString()));
+            Assert.AreEqual(0, configuration.DisabledFileWarnings.Count);
+            Assert.AreEqual(0, client.DisabledFileWarnings.Count);
+            var property = configuration.Properties.Single(property => property.Name == "Value");
+            Assert.AreEqual(0, property.Attributes.Count);
+            CollectionAssert.AreEqual(new[] { Snippet.Literal("EXTERNAL001").ToDisplayString() },
+                property.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            var code = new TypeProviderWriter(configuration).Write().Content;
+            var propertyIndex = code.IndexOf(" Value ", StringComparison.Ordinal);
+            var disable = code.LastIndexOf("#pragma warning disable EXTERNAL001", propertyIndex, StringComparison.Ordinal);
+            var restore = code.IndexOf("#pragma warning restore EXTERNAL001", propertyIndex, StringComparison.Ordinal);
+            Assert.Greater(disable, code.IndexOf($"partial class {configuration.Name}", StringComparison.Ordinal));
+            Assert.Greater(restore, propertyIndex);
+            Assert.Less(restore, code.IndexOf(" Stable ", StringComparison.Ordinal));
+            var binding = code.IndexOf("new global::External.ParameterValue(", StringComparison.Ordinal);
+            Assert.Greater(binding, 0);
+            var bindingRestore = code.IndexOf("#pragma warning restore EXTERNAL001", binding, StringComparison.Ordinal);
+            Assert.Greater(bindingRestore, binding);
+            Assert.Less(bindingRestore, code.IndexOf("section[\"Stable\"]", binding, StringComparison.Ordinal));
+            foreach (var file in files)
+            {
+                StringAssert.DoesNotContain("#pragma warning disable UNRELATED001", file.Content);
+            }
+            var consumer = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile("Consumer"));
+            var consumerErrors = compilation.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsNotEmpty(consumerErrors);
+            Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "EXTERNAL001" && diagnostic.Location.SourceTree == consumer));
+        }
+
+        [Test]
+        public void ExperimentalClientParametersCompileInOptionsAndSettings()
+        {
+            var mode = InputFactory.Experimental(InputFactory.StringEnum("Mode", [("One", "one")], isExtensible: true), "MODE001");
+            var input = InputFactory.Client("TestClient", parameters:
+            [
+                InputFactory.MethodParameter("requiredMode", mode, isRequired: true, scope: InputParameterScope.Client),
+                InputFactory.MethodParameter("optionalMode", mode, defaultValue: new InputConstant("one", mode), scope: InputParameterScope.Client)
+            ]);
+            MockHelpers.LoadMockGenerator(inputEnums: () => [mode], clients: () => [input]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+            var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(mode)!;
+            var options = client.ClientOptions!;
+            var settings = client.ClientSettings!;
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalClientParameters",
+                new TypeProvider[] { enumProvider, options, settings, new ArgumentDefinition() }
+                    .Select(p => CSharpSyntaxTree.ParseText(new TypeProviderWriter(p).Write().Content)),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsEmpty(errors.Select(d => d.ToString()));
+            foreach (var provider in new TypeProvider[] { options, settings })
+            {
+                Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+                StringAssert.Contains("#pragma warning disable MODE001", new TypeProviderWriter(provider).Write().Content);
+            }
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -924,7 +1157,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomAudience");
             Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -954,7 +1187,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomPriority");
             Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -985,7 +1218,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomComplex");
             Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -1047,6 +1280,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
             Assert.IsTrue(bodyString.Contains("ConnectionString"),
                 "BindCore should bind the custom constructor parameter 'ConnectionString' from configuration");
+        }
+
+        [Test]
+        public async Task TestSettings_ExcludesUnsupportedFrameworkConstructorParameters()
+        {
+            using var diagnosticStream = new MemoryStream();
+            using var emitter = new Emitter(diagnosticStream);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settings = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settings);
+            Assert.IsNull(settings!.Properties.FirstOrDefault(p => p.Name == "ClientCertificate"),
+                "Settings should not include custom constructor parameters that cannot be bound from configuration");
+            Assert.IsNotNull(settings.Properties.FirstOrDefault(p => p.Name == "TenantId"),
+                "Settings should continue to include bindable parameters from the same custom constructor");
+
+            var bindCoreMethod = settings.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsFalse(bodyString.Contains("ClientCertificate"),
+                "BindCore should not bind custom constructor parameters that cannot be constructed from IConfigurationSection");
+            Assert.IsTrue(bodyString.Contains("TenantId"),
+                "BindCore should continue to bind supported parameters from the same custom constructor");
+
+            diagnosticStream.Position = 0;
+            using var reader = new StreamReader(diagnosticStream, leaveOpen: true);
+            var diagnostics = reader.ReadToEnd();
+            Assert.That(diagnostics, Does.Contain("\"code\":\"unsupported-client-settings-parameter\""));
+            Assert.That(diagnostics, Does.Contain("omitted custom constructor parameter"));
+            Assert.That(diagnostics, Does.Contain("clientCertificate"));
+            Assert.That(diagnostics, Does.Contain("X509Certificate2"));
+            Assert.That(diagnostics, Does.Contain("\"severity\":\"warning\""));
+            Assert.AreEqual(1, diagnostics.Split("unsupported-client-settings-parameter").Length - 1,
+                "The warning should only be emitted once when both properties and methods are built");
         }
 
         [Test]
@@ -1139,6 +1412,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "BindCore should NOT bind a credential-derived parameter");
             Assert.IsTrue(bodyString.Contains("TenantId"),
                 "BindCore should bind the non-credential parameter 'TenantId'");
+        }
+
+        [Test]
+        public async Task TestBindCoreMethod_HonorsCustomPropertyRename()
+        {
+            // Custom code renames the generated 'Endpoint' settings property to 'ServiceUri'
+            // via [CodeGenMember("Endpoint")]. BindCore should assign to the renamed property
+            // while still reading from the original configuration key.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+            Assert.IsNotNull(settingsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            // The generated 'Endpoint' property should be replaced by the custom 'ServiceUri' property.
+            Assert.IsNull(settingsProvider.Properties.FirstOrDefault(p => p.Name == "Endpoint"),
+                "Generated 'Endpoint' property should be replaced by the custom code rename");
+
+            var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            // Validate full generated output: BindCore should assign to the renamed 'ServiceUri'
+            // property while still reading from the original 'Endpoint' configuration key.
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task TestGeneratedSettings_WithCustomizedBindCore()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}");
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+
+            // BindCore is overridden in custom code, so it should not be generated.
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNull(bindCoreMethod, "BindCore should not be generated when it is overridden in custom code");
+
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+
+            // Validate the full generated output. Even though BindCore (the only other
+            // reference to IConfigurationSection) is removed via custom code, the type
+            // description still references IConfigurationSection, so the
+            // Microsoft.Extensions.Configuration using must still be emitted.
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            StringAssert.Contains("using Microsoft.Extensions.Configuration;", file.Content);
         }
     }
 }

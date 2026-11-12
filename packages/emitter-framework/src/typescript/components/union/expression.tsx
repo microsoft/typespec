@@ -1,7 +1,8 @@
-import { type Children, For, List } from "@alloy-js/core";
+import { For, List, type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   compilerAssert,
+  resolveEncodedEnumMemberValue,
   type Enum,
   type EnumMember,
   type Union,
@@ -11,11 +12,19 @@ import { useTsp } from "../../../core/context/tsp-context.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression.jsx";
 
+/** TypeSpec alternatives and optional extra content for a TypeScript union expression. */
 export interface UnionExpressionProps {
+  /** Union variants or enum members; enum values use their application/json encoded values. */
   type: Union | Enum;
+  /** Additional alternatives appended after a union separator; supply valid TypeScript type content. */
   children?: Children;
 }
 
+/**
+ * Renders union alternatives without declaring an alias.
+ * Discriminated unions use the configured object or no-envelope representation;
+ * enum alternatives are serialized literal values rather than enum-member references.
+ */
 export function UnionExpression({ type, children }: UnionExpressionProps) {
   const { $ } = useTsp();
   const items = ($.union.is(type) ? type.variants : type.members) as Map<
@@ -27,7 +36,11 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
     <For joiner={" | "} each={items}>
       {(_, type) => {
         if ($.enumMember.is(type)) {
-          return <ts.ValueExpression jsValue={type.value ?? type.name} />;
+          return (
+            <ts.ValueExpression
+              jsValue={resolveEncodedEnumMemberValue($.program, type, "application/json")}
+            />
+          );
         }
 
         const discriminatedUnion = $.union.getDiscriminatedUnion(type.union);

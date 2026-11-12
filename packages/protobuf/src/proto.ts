@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
+import type {
   DecoratorContext,
   EmitContext,
   EmitOptionsFor,
@@ -11,21 +11,26 @@ import {
   Namespace,
   Operation,
   Program,
-  resolvePath,
   StringLiteral,
   Type,
+  UnionVariant,
 } from "@typespec/compiler";
+import { resolvePath } from "@typespec/compiler";
 
-import {
+import type {
   FieldDecorator,
   MessageDecorator,
   PackageDecorator,
   ReserveDecorator,
   StreamDecorator,
 } from "../generated-defs/TypeSpec.Protobuf.js";
-import { ExternRefDecorator } from "../generated-defs/TypeSpec.Protobuf.Private.js";
+import type {
+  ExternRefDecorator,
+  LongRunningDecorator,
+} from "../generated-defs/TypeSpec.Protobuf.Private.js";
 import { StreamingMode } from "./ast.js";
-import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
+import type { ProtobufEmitterOptions, TypeSpecProtobufLibrary } from "./lib.js";
+import { reportDiagnostic, state } from "./lib.js";
 import { createProtobufEmitter } from "./transform/index.js";
 
 /**
@@ -47,10 +52,16 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
 /**
  * Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
  *
- * ident = letter \{ letter | decimalDigit | "_" \}
+ * letter = "A" ... "Z" | "a" ... "z" | "_"
+ * ident = letter \{ letter | decimalDigit \}
  * fullIdent = ident \{ "." ident \}
  */
-export const PROTO_FULL_IDENT = /([a-zA-Z][a-zA-Z0-9_]*)+/;
+export const PROTO_FULL_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*$/;
+
+/**
+ * A single Protobuf `ident`, such as a field or `oneof` name. See {@link PROTO_FULL_IDENT}.
+ */
+export const PROTO_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 /**
  * Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.
@@ -62,7 +73,12 @@ export function $service(ctx: DecoratorContext, target: Interface) {
   ctx.program.stateSet(state.service).add(target);
 }
 
+/** Package-name metadata for a namespace annotated with `@package`. */
 export interface PackageDetails {
+  /**
+   * Fully qualified Protobuf package name, also used to determine the emitted file path.
+   * When absent, the file is named `main.proto` and has no `package` declaration.
+   */
   name?: string;
 }
 
@@ -77,6 +93,18 @@ export const $package: PackageDecorator = (
   target: Namespace,
   details?: Type,
 ) => {
+  if (details?.kind === "Model") {
+    const nameProperty = details.properties.get("name");
+    const name = nameProperty?.type;
+    if (nameProperty && name?.kind === "String" && !PROTO_FULL_IDENT.test(name.value)) {
+      reportDiagnostic(ctx.program, {
+        code: "invalid-package-name",
+        format: { name: name.value },
+        target: nameProperty,
+      });
+      return;
+    }
+  }
   ctx.program.stateMap(state.package).set(target, details);
 };
 
@@ -112,6 +140,10 @@ export const $externRef: ExternRefDecorator = (
     .set(target, [(path as StringLiteral).value, (name as StringLiteral).value]);
 };
 
+/**
+ * Records whether a service operation streams its input, output, both, or neither.
+ * Operations without this decorator use the non-streaming `None` mode.
+ */
 export const $stream: StreamDecorator = (ctx: DecoratorContext, target: Operation, mode: Type) => {
   const emitStreamingMode = {
     Duplex: StreamingMode.Duplex,
@@ -123,8 +155,38 @@ export const $stream: StreamDecorator = (ctx: DecoratorContext, target: Operatio
   ctx.program.stateMap(state.stream).set(target, emitStreamingMode);
 };
 
+/**
+ * The response and metadata types of a long-running operation, the arguments of a `LongRunningOperation` instance.
+ */
+export interface LongRunningInfo {
+  responseType: Model;
+  metadataType: Model;
+}
+
+/**
+ * Binds the response and metadata types of a `LongRunningOperation` instance.
+ * @internal
+ */
+export const $longRunning: LongRunningDecorator = (
+  ctx: DecoratorContext,
+  target: Model,
+  responseType: Model,
+  metadataType: Model,
+) => {
+  const info: LongRunningInfo = { responseType, metadataType };
+  ctx.program.stateMap(state.longRunning).set(target, info);
+};
+
+/**
+ * A field name, field index, or inclusive range of field indices reserved against reuse in a message.
+ * A range's `type` property carries TypeSpec type metadata; collision checks use only the numeric bounds.
+ */
 export type Reservation = string | number | ([number, number] & { type: Type });
 
+/**
+ * Records field names, indices, and inclusive index ranges reserved on a model or union wrapper message.
+ * Emission reports a diagnostic if a field uses a reserved name or index.
+ */
 export const $reserve: ReserveDecorator = (
   ctx: DecoratorContext,
   target: Type,
@@ -134,21 +196,25 @@ export const $reserve: ReserveDecorator = (
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
 };
 
+/**
+ * Marks a model or named union for emission even when it is not reachable from a service operation.
+ * A named union is emitted as a wrapper message containing a `oneof value`.
+ */
 export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) => {
   ctx.program.stateSet(state.message).add(target);
 };
 
 /**
- * Decorate a model property with a field index. Field indices are required for all fields of emitted messages.
+ * Decorate a model property or union variant with a field index. Field indices are required for all fields of emitted
+ * messages and all variants of unions that are emitted as a `oneof`.
  *
- * @param param0
- * @param target
- * @param fieldIndex
- * @returns
+ * @param ctx - Decorator context whose program stores the field index.
+ * @param target - Model property or union variant to number.
+ * @param fieldIndex - Positive integer no greater than 2^29 - 1, excluding 19000 through 19999.
  */
 export const $field: FieldDecorator = (
   ctx: DecoratorContext,
-  target: ModelProperty,
+  target: ModelProperty | UnionVariant,
   fieldIndex: number,
 ) => {
   if (!Number.isInteger(fieldIndex) || fieldIndex <= 0) {
@@ -190,9 +256,10 @@ export const $field: FieldDecorator = (
 };
 
 /**
- * Emitter main function.
+ * Compiler emitter hook that converts annotated packages to Protobuf files in the emitter output directory.
+ * Conversion still validates the program when `noEmit` or the compiler's dry-run mode suppresses file writes.
  *
- * @param program - the program to emit
+ * @param ctx - Program, output directory, and options supplied by the compiler.
  */
 export async function $onEmit(ctx: EmitContext<EmitOptionsFor<TypeSpecProtobufLibrary>>) {
   const emitter = createProtobufEmitter(ctx.program);
@@ -201,7 +268,8 @@ export async function $onEmit(ctx: EmitContext<EmitOptionsFor<TypeSpecProtobufLi
 }
 
 /**
- * Validation function
+ * Compiler validation hook that runs Protobuf conversion during a dry run, without writing files.
+ * Outside dry-run mode, conversion and its diagnostics are handled by {@link $onEmit}.
  */
 export async function $onValidate(program: Program) {
   // Is this correct? See https://github.com/microsoft/typespec/issues/1859

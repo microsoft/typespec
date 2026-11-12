@@ -20,17 +20,20 @@ using Http;
 @opExample(#{ returnType: #{ statusCode: 200, name: "Max", age: 3 } })
 @opExample(#{ returnType: #{ statusCode: 404, error: "Not found" } })
 @opExample(#{ returnType: #{ statusCode: 422, error: "Invalid payload" } })
-op read(): {
-  @statusCode statusCode: 200;
-  name: string;
-  age: int32;
-} | {
-  @statusCode statusCode: 404;
-  error: string;
-} | {
-  @statusCode statusCode: 422;
-  error: string;
-};
+op read():
+  | {
+      @statusCode statusCode: 200;
+      name: string;
+      age: int32;
+    }
+  | {
+      @statusCode statusCode: 404;
+      error: string;
+    }
+  | {
+      @statusCode statusCode: 422;
+      error: string;
+    };
 ```
 
 Each `@opExample` decorator specifies:

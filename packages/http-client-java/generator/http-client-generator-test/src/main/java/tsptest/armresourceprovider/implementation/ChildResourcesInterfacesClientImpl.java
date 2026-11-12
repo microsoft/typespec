@@ -860,7 +860,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -881,7 +881,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -900,7 +900,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -919,7 +919,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -939,7 +939,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -958,7 +958,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -978,7 +978,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -996,7 +996,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1011,7 +1011,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     }
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.

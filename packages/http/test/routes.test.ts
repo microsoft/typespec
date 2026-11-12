@@ -1,13 +1,9 @@
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
-import {
-  getRoutePath,
-  HttpOperation,
-  HttpOperationParameter,
-  joinPathSegments,
-} from "../src/index.js";
+import type { PathOptions } from "../generated-defs/TypeSpec.Http.js";
+import type { HttpOperation, HttpOperationParameter } from "../src/index.js";
+import { getRoutePath, joinPathSegments } from "../src/index.js";
 import {
   compileOperations,
   diagnoseOperations,

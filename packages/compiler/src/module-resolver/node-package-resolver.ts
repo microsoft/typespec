@@ -1,5 +1,5 @@
 import { joinPaths, resolvePath } from "../core/path-utils.js";
-import { NodePackage, ResolveModuleHost } from "./types.js";
+import type { NodePackage, ResolveModuleHost } from "./types.js";
 import { isFile, listDirHierarchy, readPackage } from "./utils.js";
 
 /**

@@ -1,5 +1,5 @@
-import { Model, ModelProperty, Program, Type } from "@typespec/compiler";
-import { HttpOperationParameters, HttpOperationResponseContent } from "../types.js";
+import type { Model, ModelProperty, Program, Type } from "@typespec/compiler";
+import type { HttpOperationParameters, HttpOperationResponseContent } from "../types.js";
 let getStreamOf: typeof import("@typespec/streams").getStreamOf;
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -11,6 +11,10 @@ try {
   };
 }
 
+/**
+ * Separates a stream's wire body type from its logical element type and originating stream model.
+ * Returned for explicit stream bodies, including properties spread from a stream model.
+ */
 export interface StreamMetadata {
   /**
    * The `Type` of the property decorated with `@body`.
@@ -35,7 +39,11 @@ export interface StreamMetadata {
 }
 
 /**
- * Gets stream metadata for a given `HttpOperationParameters` or `HttpOperationResponseContent`.
+ * Gets stream metadata for resolved request parameters or a response content alternative.
+ * Returns `undefined` without a body property, media types, or an originating stream model.
+ * Follows source-property links so metadata survives model spreads.
+ *
+ * Requires `@typespec/streams` to be installed when inspecting a potential stream body.
  */
 export function getStreamMetadata(
   program: Program,

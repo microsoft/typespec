@@ -1,5 +1,8 @@
 import { expect, it } from "vitest";
-import { printIdentifier } from "../../../src/core/helpers/syntax-utils.js";
+import {
+  printIdentifier,
+  printMemberExpressionPath,
+} from "../../../src/core/helpers/syntax-utils.js";
 
 it.each([
   ["foo", "foo"],
@@ -25,4 +28,12 @@ it.each([
   ["extern", "extern"],
 ])("%s -> %s (allow-reserved)", (a, b) => {
   expect(printIdentifier(a, "allow-reserved")).toEqual(b);
+});
+
+it.each([
+  ["T", ".", "model", "T.`model`"],
+  ["T.`model`", "::", "type", "T.`model`::type"],
+  ["T::`model`", ".", "x", "T::`model`.x"],
+])("%s%s%s -> %s", (base, selector, id, expected) => {
+  expect(printMemberExpressionPath(base, selector as "." | "::", id)).toEqual(expected);
 });

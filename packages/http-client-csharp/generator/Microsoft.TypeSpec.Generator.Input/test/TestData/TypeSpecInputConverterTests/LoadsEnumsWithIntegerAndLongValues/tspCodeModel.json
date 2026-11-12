@@ -1,0 +1,124 @@
+{
+  "$id": "1",
+  "name": "TestNamespace",
+  "models": [],
+  "clients": [],
+  "enums": [
+    {
+      "$id": "2",
+      "kind": "enum",
+      "name": "WeatherIconCode",
+      "namespace": "TestNamespace",
+      "crossLanguageDefinitionId": "TestNamespace.WeatherIconCode",
+      "valueType": {
+        "$id": "3",
+        "kind": "integer",
+        "name": "integer",
+        "crossLanguageDefinitionId": "TypeSpec.integer",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "4",
+          "kind": "enumvalue",
+          "name": "Sunny",
+          "value": 1,
+          "valueType": { "$ref": "3" },
+          "enumType": { "$ref": "2" },
+          "doc": "Sunny.",
+          "decorators": []
+        },
+        {
+          "$id": "5",
+          "kind": "enumvalue",
+          "name": "MostlySunny",
+          "value": 2,
+          "valueType": { "$ref": "3" },
+          "enumType": { "$ref": "2" },
+          "doc": "Mostly sunny.",
+          "decorators": []
+        }
+      ],
+      "isFixed": false,
+      "isFlags": false,
+      "usage": "Output,Json",
+      "decorators": []
+    },
+    {
+      "$id": "6",
+      "kind": "enum",
+      "name": "Int32WeatherCode",
+      "namespace": "TestNamespace",
+      "crossLanguageDefinitionId": "TestNamespace.Int32WeatherCode",
+      "valueType": {
+        "$id": "7",
+        "kind": "int32",
+        "name": "int32",
+        "crossLanguageDefinitionId": "TypeSpec.int32",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "8",
+          "kind": "enumvalue",
+          "name": "Cold",
+          "value": -10,
+          "valueType": { "$ref": "7" },
+          "enumType": { "$ref": "6" },
+          "decorators": []
+        },
+        {
+          "$id": "9",
+          "kind": "enumvalue",
+          "name": "Hot",
+          "value": 100,
+          "valueType": { "$ref": "7" },
+          "enumType": { "$ref": "6" },
+          "decorators": []
+        }
+      ],
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Output,Json",
+      "decorators": []
+    },
+    {
+      "$id": "10",
+      "kind": "enum",
+      "name": "LongWeatherTimestamp",
+      "namespace": "TestNamespace",
+      "crossLanguageDefinitionId": "TestNamespace.LongWeatherTimestamp",
+      "valueType": {
+        "$id": "11",
+        "kind": "int64",
+        "name": "int64",
+        "crossLanguageDefinitionId": "TypeSpec.int64",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "12",
+          "kind": "enumvalue",
+          "name": "Epoch",
+          "value": 0,
+          "valueType": { "$ref": "11" },
+          "enumType": { "$ref": "10" },
+          "decorators": []
+        },
+        {
+          "$id": "13",
+          "kind": "enumvalue",
+          "name": "MaxValue",
+          "value": 9223372036854775807,
+          "valueType": { "$ref": "11" },
+          "enumType": { "$ref": "10" },
+          "decorators": []
+        }
+      ],
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Output,Json",
+      "decorators": []
+    }
+  ]
+}

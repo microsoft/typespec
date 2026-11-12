@@ -1,7 +1,7 @@
 import { List } from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import * as ts from "@alloy-js/typescript";
-import { TypekitFunctionDoc } from "../typekit-docs.js";
+import type { TypekitFunctionDoc } from "../typekit-docs.js";
 import { DiagnosableTypekitFunction } from "./diagnosable-typekit-function.jsx";
 
 export interface TypekitFunctionProps {

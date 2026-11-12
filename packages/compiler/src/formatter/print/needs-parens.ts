@@ -1,6 +1,7 @@
 import type { AstPath } from "prettier";
-import { Node, SyntaxKind } from "../../core/types.js";
-import { TypeSpecPrettierOptions } from "./types.js";
+import type { Node } from "../../core/types.js";
+import { SyntaxKind } from "../../core/types.js";
+import type { TypeSpecPrettierOptions } from "./types.js";
 
 /**
  * Check if the current path should be wrapped in parentheses

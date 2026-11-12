@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [
+        "dist/**",
+        ".astro/**",
+        "public/install.sh",
+        "public/install.ps1",
+        "temp/turbo-build-skipped"
+      ]
+    }
+  }
+}

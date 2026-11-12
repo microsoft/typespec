@@ -31,12 +31,11 @@ model Example {
   description: string;
 }
 
-model CreateAndReadExample
-  is FilterVisibility<
-    Example,
-    #{ all: #[Lifecycle.Create, Lifecycle.Read] },
-    "CreateAndRead{name}"
-  >;
+model CreateAndReadExample is FilterVisibility<
+  Example,
+  #{ all: #[Lifecycle.Create, Lifecycle.Read] },
+  "CreateAndRead{name}"
+>;
 ```
 
 :::caution

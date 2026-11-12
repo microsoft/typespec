@@ -1,4 +1,4 @@
-import { execAsync, run, RunOptions } from "./common.js";
+import { execAsync, run, type RunOptions } from "./common.js";
 import { MinimumDotnetVersion } from "./constants.js";
 
 export async function runDotnet(

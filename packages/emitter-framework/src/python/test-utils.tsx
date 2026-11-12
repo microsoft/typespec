@@ -18,6 +18,8 @@ export function getOutput(program: Program, children: Children[]): Children {
         abcModule,
         datetimeModule,
         decimalModule,
+        py.pydanticModule,
+        py.pydanticSettingsModule,
         typingModule,
         py.abcModule,
         py.dataclassesModule,

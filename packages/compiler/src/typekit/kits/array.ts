@@ -1,5 +1,5 @@
 import { isArrayModelType } from "../../core/type-utils.js";
-import { ArrayModelType, Entity, Model, Type } from "../../core/types.js";
+import type { ArrayModelType, Entity, Model, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -22,6 +22,9 @@ export interface ArrayKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create and inspect array models with an integer indexer and no named properties.
+   */
   array: ArrayKit;
 }
 

@@ -1,5 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { it } from "vitest";
+import { expect, it } from "vitest";
+import { openApiFor } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
@@ -267,19 +268,41 @@ worksFor(["3.0.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: {},
+      minItems: 2,
+      maxItems: 2,
       default: ["bismarck", 12],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
       items: {},
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       items: {},
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
+    });
+  });
+
+  it("emits minItems and maxItems of 0 for empty tuple", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { names: [] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      items: {},
+      minItems: 0,
+      maxItems: 0,
     });
   });
 });
@@ -368,18 +391,24 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       prefixItems: [{ type: "string" }, { type: "integer", format: "int32" }],
+      minItems: 2,
+      maxItems: 2,
       default: ["bismarck", 12],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
       prefixItems: [{ type: "string" }, { type: "number", format: "decimal" }],
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       prefixItems: [{ type: "string" }, { type: "number", format: "decimal128" }],
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
   });
@@ -400,6 +429,79 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
         { type: "string", enum: ["bismark"] },
         { type: "number", enum: [32] },
       ],
+      minItems: 2,
+      maxItems: 2,
     });
   });
+});
+
+worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
+  it("emits models referenced in tuple values as $ref", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Bar { b: string }
+      model Pet { names: [Bar] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [{ $ref: "#/components/schemas/Bar" }],
+      minItems: 1,
+      maxItems: 1,
+    });
+  });
+
+  it("emits self-referencing tuple as $ref without crashing", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { names?: [Pet] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [{ $ref: "#/components/schemas/Pet" }],
+      minItems: 1,
+      maxItems: 1,
+    });
+  });
+
+  it("emits minItems and maxItems of 0 for empty tuple", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { names: [] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [],
+      minItems: 0,
+      maxItems: 0,
+    });
+  });
+});
+
+it("removes array items when an array property is encoded to a scalar", async () => {
+  const res = await openApiFor(
+    `
+    model Bar {
+      @encode(ArrayEncoding.commaDelimited)
+      prop: string[];
+    }
+
+    op getBar(): Bar;
+    `,
+    { "openapi-versions": ["3.1.0"] },
+  );
+
+  const schema = res.components.schemas.Bar.properties.prop;
+  expect(schema.type).toBe("string");
+  expect(schema.format).toBe("ArrayEncoding.commaDelimited");
+  expect(schema.items).toBeUndefined();
+  expect(schema.prefixItems).toBeUndefined();
 });

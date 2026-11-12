@@ -291,6 +291,28 @@ namespace ModelProperties {
 }
 
 /**
+ * Verify that operation parameters whose names match Python Mapping protocol methods
+ * (e.g., items, keys, values) are sent with the original name on the wire, not mangled.
+ */
+@route("/operations")
+namespace ReservedOperationBodyParams {
+  @scenario
+  @scenarioDoc("""
+    Verify that an operation parameter named "items" is sent with the key "items" on the wire,
+    not mangled to "items_property" or similar.
+    
+    Send
+    
+    ```json
+    {"items": ["item"]}
+    ```
+    """)
+  @post
+  @route("/body-param-reserved")
+  op withItems(items: string[]): void;
+}
+
+/**
  * Verify enum member names that are special words.
  */
 @route("/extensible-strings")

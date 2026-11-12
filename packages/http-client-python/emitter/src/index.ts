@@ -1,2 +1,3 @@
 export * from "./emitter.js";
-export { $lib, PythonEmitterOptions, PythonEmitterOptionsSchema } from "./lib.js";
+export { $lib, PythonEmitterOptionsSchema } from "./lib.js";
+export type { PythonEmitterOptions } from "./lib.js";

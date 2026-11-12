@@ -1,4 +1,4 @@
-export { getAllPackages, getPublishablePackages, type PackageInfo } from "../utils/packages.js";
+export { getAllPackages, getPublishablePackages, type PackageInfo } from "../utils/packages.ts";
 
 /**
  * Critical packages that must be built before other packages.

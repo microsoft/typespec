@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Suppressions>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:System.String</Target>
+  </Suppression>
+</Suppressions>

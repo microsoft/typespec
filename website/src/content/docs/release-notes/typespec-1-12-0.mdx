@@ -1,0 +1,475 @@
+---
+slug: release-notes/typespec-1-12-0
+title: "1.12.0"
+releaseDate: 2026-05-12
+version: "1.12.0"
+---
+
+TypeSpec 1.12.0 adds more flexible configuration, improves everyday workflows in Playground and VS Code, and strengthens correctness across generated HTTP, OpenAPI, Protobuf, and Python outputs.
+
+**Thank you to everyone who contributed feedback and fixes for version 1.12**.
+
+## Highlights
+
+### Configure linter rule options
+
+Linter authors can now define typed rule options with defaults, and projects can override those options directly in `tspconfig.yaml` or rulesets. This makes shared linting policies much more practical for teams that want common standards with room for project-specific tuning.
+
+Define `defaultOptions` when creating a rule, then enable the rule with either `true` or an options object in your linter configuration.
+
+**Example**
+
+Rule authors define defaults once, and projects can either enable the rule as-is or override its options.
+
+```ts
+const myRule = createRule({
+  name: "no-model-with-name",
+  severity: "warning",
+  description: "Bans models with a specific name",
+  messages: { default: "This model name is not allowed" },
+  defaultOptions: { bannedName: "Foo" },
+  create(context) {
+    return {
+      model: (target) => {
+        if (target.name === context.options.bannedName) {
+          context.reportDiagnostic({ target });
+        }
+      },
+    };
+  },
+});
+```
+
+```yaml
+linter:
+  enable:
+    "@typespec/my-lib/no-model-with-name": true
+```
+
+```yaml
+linter:
+  enable:
+    "@typespec/my-lib/no-model-with-name":
+      bannedName: "Bar"
+```
+
+Related PR: [microsoft/typespec#10352 - Add rule options](https://github.com/microsoft/typespec/pull/10352)
+
+### Protobuf output now preserves optional field presence more accurately
+
+Optional TypeSpec properties now map to protobuf `optional` for eligible scalar and enum fields, allowing generated `.proto` files to preserve explicit presence where protobuf supports it. Message fields retain protobuf's existing presence behavior, and lossy cases such as repeated or map fields now produce warnings instead of implying semantics protobuf cannot represent.
+
+Use `?` on protobuf model properties as usual, regenerate your `.proto` files, and review any warnings for optional arrays or maps.
+
+**Example**
+
+Scalars and enums now emit `optional`; message fields keep their normal presence behavior, and optional arrays still cannot preserve explicit presence.
+
+```typespec
+enum Status {
+  active: 0,
+  disabled: 1,
+}
+
+model Details {
+  @field(1)
+  id: int32;
+}
+
+model Example {
+  // int32 is a scalar type, so this optional property will emit `optional` in protobuf.
+  @field(1)
+  count?: int32;
+
+  // Status is an enum type, so this optional property will emit `optional` in protobuf.
+  @field(2)
+  status?: Status;
+
+  // Details is a message type, so this optional property will not emit `optional` in protobuf
+  // (message fields always have explicit presence discipline in protobuf).
+  @field(3)
+  details?: Details;
+
+  // Arrays cannot preserve explicit presence in protobuf, so this optional property will not emit `optional` in protobuf
+  // and will produce a warning.
+  @field(4)
+  tags?: string[];
+}
+```
+
+```proto
+message Example {
+  optional int32 count = 1;
+  optional Status status = 2;
+  Details details = 3;
+  repeated string tags = 4;
+}
+```
+
+Related PR: [microsoft/typespec#10598 - [protobuf] Represent TypeSpec optional properties as `optional` fields](https://github.com/microsoft/typespec/pull/10598)
+
+### Playground keeps context while you iterate
+
+The Playground now shows compilation progress, preserves the last successful output during transient errors, and highlights changed files and lines after recompilation. This makes it easier to compare generated output and keep working through intermediate failures without losing context.
+
+As you edit and recompile, the output pane keeps prior results visible and clearly marks what changed.
+
+Related PR: [microsoft/typespec#10349 - feat(playground): add compilation spinner, diff highlighting, and out…](https://github.com/microsoft/typespec/pull/10349)
+
+### Plain unions can represent a single HTTP response more cleanly
+
+Operations that return a union of types without explicit status codes or content types are now treated as a single HTTP response, and generated OpenAPI examples stay aligned with that model. This better reflects author intent when a union represents alternate payload shapes for the same response rather than multiple distinct HTTP responses.
+
+Model alternate payload shapes as a plain union when they share the same response metadata, then regenerate your HTTP and OpenAPI output.
+
+**Example**
+
+```typespec
+model Cat {
+  kind: "cat";
+  name: string;
+}
+
+model Dog {
+  kind: "dog";
+  name: string;
+  barkVolume: int32;
+}
+
+op readPet(): Cat | Dog;
+```
+
+```yaml
+responses:
+  "200":
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - $ref: "#/components/schemas/Cat"
+            - $ref: "#/components/schemas/Dog"
+```
+
+Related PR: [microsoft/typespec#10180 - Examples multi response](https://github.com/microsoft/typespec/pull/10180)
+
+## Bug fixes
+
+### Bundler now resolves packages that use subpath exports
+
+Packages that rely on subpath exports now resolve correctly in bundler and Playground workflows.
+
+### OpenAPI discriminator mappings stay complete during circular emission
+
+Generated OpenAPI 3.0 and 3.2 output no longer drops the first discriminator mapping entry during circular emission. This keeps discriminated schemas complete and avoids incorrect or incomplete polymorphic output.
+
+**Example of the fix**
+
+```typespec
+@discriminator("classification")
+model Pokemon {
+  classification: string;
+}
+
+model NormalPokemon extends Pokemon {
+  classification: "normal";
+}
+
+model LegendaryPokemon extends Pokemon {
+  classification: "legendary";
+}
+
+model MythicalPokemon extends Pokemon {
+  classification: "mythical";
+}
+
+union PokemonVariant {
+  normal: NormalPokemon,
+  legendary: LegendaryPokemon,
+  mythical: MythicalPokemon,
+}
+```
+
+```yaml
+discriminator:
+  propertyName: classification
+  mapping:
+    normal: "#/components/schemas/NormalPokemon"
+    legendary: "#/components/schemas/LegendaryPokemon"
+    mythical: "#/components/schemas/MythicalPokemon"
+```
+
+### Python `numeric` now maps to `float`
+
+The Python emitter no longer maps TypeSpec `numeric` to `int`. Generated clients now use `float`, avoiding unsound typing for values that may include fractional data.
+
+**Example of the fix**
+
+```typespec
+op example(): numeric;
+```
+
+```python
+def example(self) -> float: ...
+```
+
+### Python paging annotations stay correct when an operation is named `list`
+
+Generated paging methods now use the `List` alias consistently when the operation is named `list` and page items are themselves collections. This avoids confusing or incorrect type annotations in generated Python code.
+
+**Example of the fix**
+
+```python
+List = list
+
+def list(
+    self,
+    *,
+    cls: ClsType[List[List[str]]],
+) -> AsyncItemPaged[List[str]]: ...
+```
+
+### `tsp format` no longer crashes on comment-only parameter lists
+
+Formatting now succeeds when an operation parameter list contains only a dangling block comment, and that comment is preserved.
+
+**Example of the fix**
+
+```typespec
+namespace MyApp;
+
+op find(/* conditions */): unknown;
+```
+
+```typespec
+namespace MyApp;
+
+op find(/* conditions */): unknown;
+```
+
+### Playground diff highlighting is visible and typing is smoother
+
+Line-level diff highlighting in the Playground output editor now renders correctly, and redundant recompilations are coalesced while a compile is already running. This reduces missed visual feedback and helps avoid typing stalls during rapid edits.
+
+### VS Code editing is more reliable and less disruptive
+
+A number of issues around hover, completion, preview, and symbols have been fixed in the VS Code extension. Quick fixes resolve more reliably, and startup progress no longer blocks the UI as a notification.
+
+Related PRs:
+
+- [microsoft/typespec#10567 - fix: handle unhandled exceptions in LSP server and VS Code extension](https://github.com/microsoft/typespec/pull/10567)
+- [microsoft/typespec#10618 - Fix unreliable code fix application by switching to `codeAction/resolve` ](https://github.com/microsoft/typespec/pull/10618)
+- [microsoft/typespec#10523 - Move "Launching TypeSpec language service..." progress to status bar](https://github.com/microsoft/typespec/pull/10523)
+
+## Additional improvements
+
+### `tsp init` now writes concrete current package versions
+
+Newly scaffolded projects now use the current TypeSpec package versions at initialization time, such as `^1.12.0`, instead of a generic placeholder. This makes generated `package.json` files easier to review and more predictable to reproduce.
+
+### The compiler now warns about duplicate and self-imports
+
+Files that import themselves or repeat the same import now produce warnings. These patterns often indicate mistakes, and surfacing them earlier helps keep specs cleaner and easier to maintain.
+
+**Example**
+
+```typespec
+import "./main.tsp";
+import "./other.tsp";
+import "./other.tsp";
+```
+
+```text
+warning: A file cannot import itself.
+warning: Duplicate import of "./other.tsp"
+```
+
+### Long union expressions format more readably
+
+When union expressions wrap, the formatter now prefers a clearer leading-pipe layout. This improves readability in larger specs and reduces manual formatting churn during review.
+
+**Example**
+
+```typespec
+alias Pet = Cat | Dog | Snake | Bird | Fish | Lizard;
+```
+
+```typespec
+alias Pet = Cat | Dog | Snake | Bird | Fish | Lizard;
+```
+
+### Bundler workflows now support alloy-based emitters
+
+Bundler and Playground-style workflows can now load alloy-based emitters, expanding the set of emitters supported in browser-oriented and bundled scenarios.
+
+### `@patch(#{implicitOptionality: true})` is now deprecated
+
+The older implicit patch-optional behavior is now deprecated. Move to an explicit patch model with optional properties if you want the previous shape, or switch to `MergePatchUpdate` or `MergePatchCreateOrUpdate` when you want explicit merge-patch semantics.
+
+**Example**
+
+Replace the deprecated form with an explicit patch model, or switch to explicit merge-patch semantics.
+
+```typespec
+model Pet {
+  name: string;
+  age: int32;
+}
+
+@patch(#{ implicitOptionality: true }) op updatePet(@body patch: Pet): void;
+```
+
+```typespec
+model Pet {
+  name: string;
+  age: int32;
+}
+
+model PetPatch {
+  name?: string;
+  age?: int32;
+}
+
+@patch op updatePet(@body patch: PetPatch): void;
+```
+
+```typespec
+model Pet {
+  name: string;
+  age: int32;
+}
+
+@patch op updatePet(@body patch: MergePatchUpdate<Pet>): void;
+```
+
+If you are upgrading embedded Playground integrations, remove the deprecated diff-highlighting option. For HTTP patch operations, plan a migration away from implicit optionality so future updates remain straightforward.
+
+## Full Changelog
+
+<details>
+  <summary><strong>Show all changes</strong></summary>
+
+### Deprecations
+
+#### @typespec/http
+
+- [#9884](https://github.com/microsoft/typespec/pull/9884) Deprecate use of `@patch(#{implicitOptionality: true})`.
+
+  Migrate using one of the following patterns depending on intended semantics:
+  1. Preserve previous behavior with an explicit patch model (optional properties)
+
+  ```diff lang=typespec
+    model Pet {
+      name: string;
+      age: int32;
+    }
+
+  + model PetPatch {
+  +    name?: string;
+  +    age?: int32;
+  + }
+
+
+  - @patch(#{implicitOptionality: true}) op updatePet(@body patch: Pet): void;
+  + @patch op updatePet(@body patch: PetPatch): void;
+  ```
+
+  2. Use merge-patch semantics explicitly with `MergePatchUpdate<T>`
+
+  ```typespec
+  model Pet {
+    name: string;
+    age: int32;
+  }
+
+  @patch op updatePet(@body patch: MergePatchUpdate<Pet>): void;
+  ```
+
+  Use `MergePatchCreateOrUpdate<T>` when the operation supports create-or-update behavior.
+
+### Features
+
+#### @typespec/compiler
+
+- [#10558](https://github.com/microsoft/typespec/pull/10558) Improve formatting of union expressions
+- [#10352](https://github.com/microsoft/typespec/pull/10352) Add support for configurable options on linter rules
+
+  Linter rules can now define typed options with defaults using `defaultOptions`, and users can pass options when enabling rules in `tspconfig.yaml` or rulesets.
+
+  **Defining a rule with options:**
+
+  ```ts
+  const myRule = createRule({
+    name: "no-model-with-name",
+    severity: "warning",
+    description: "Bans models with a specific name",
+    messages: { default: "This model name is not allowed" },
+    defaultOptions: { bannedName: "Foo" },
+    create(context) {
+      return {
+        model: (target) => {
+          if (target.name === context.options.bannedName) {
+            context.reportDiagnostic({ target });
+          }
+        },
+      };
+    },
+  });
+  ```
+
+  **Configuring options in `tspconfig.yaml`:**
+
+  ```yaml
+  linter:
+    enable:
+      # Enable with default options
+      "@typespec/my-lib/no-model-with-name": true
+      # Enable with custom options
+      "@typespec/my-lib/no-model-with-name":
+        bannedName: "Bar"
+  ```
+
+- [#10431](https://github.com/microsoft/typespec/pull/10431) [init] Package dependencies are now populated with the actual latest version at the time (e.g. `^1.11.0`)
+- [#10581](https://github.com/microsoft/typespec/pull/10581) Added warnings for duplicate imports and self-imports in the same file
+
+  The compiler now warns when a file imports itself or contains duplicate import statements. These are likely mistakes and while they don't cause errors, they add unnecessary noise.
+
+  ```tsp
+  import "./main.tsp"; // Warning: A file cannot import itself.
+
+  import "./other.tsp";
+  import "./other.tsp"; // Warning: Duplicate import of "./other.tsp"
+  ```
+
+#### @typespec/http
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) [API] Operation returning a union of types without status code or content type will be treated as a single response
+
+#### @typespec/protobuf (prerelease)
+
+- [#10598](https://github.com/microsoft/typespec/pull/10598) Map TypeSpec optionality (`?`) to protobuf `optional` where appropriate.
+  - `optional` is applied to fields with protobuf scalar types to set explicit presence.
+  - `optional` is _not_ applied to fields with message types, because they _always_ have explicit presence.
+  - Attempting to convert a TypeSpec optional property where the type is an array or `Protobuf.Map` instance produces a warning, because protobuf cannot differentiate between "empty" and "unset" `repeated`/`map`-typed fields.
+
+### Bug Fixes
+
+#### @typespec/compiler
+
+- [#10618](https://github.com/microsoft/typespec/pull/10618) [LSP] Fix code fixes often not running when selected
+- [#10567](https://github.com/microsoft/typespec/pull/10567) Fix server crashes caused by undefined symbol declarations: add null checks for `getSymNode()` in hover, completion, type-details, and type-signature handlers, and use fallback name for empty DocumentSymbol names
+- [#10351](https://github.com/microsoft/typespec/pull/10351) Fix formatter crash when an operation's parameter list contains only a block comment (e.g. `op find(/* conditions */): unknown;`). Dangling comments in empty parameter lists are now preserved instead of being dropped.
+- [#10556](https://github.com/microsoft/typespec/pull/10556) Fix formatting of decorators on operations and augment decorators. Decorators on operations now break to separate lines when the total line exceeds the print width. Augment decorator arguments are now consistently indented when the line breaks, matching TypeScript/prettier function call formatting.
+- [#10580](https://github.com/microsoft/typespec/pull/10580) Hide cursor during spinner animation to prevent flicker on Windows
+
+#### @typespec/openapi3
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) Fix examples when operation return type have union of response mapping to same status code
+- [#10268](https://github.com/microsoft/typespec/pull/10268) Fix missing discriminator mapping entry when the first union variant causes a circular emit, affecting both the OpenAPI 3.0 and 3.2 emitters.
+
+#### typespec-vscode
+
+- [#10567](https://github.com/microsoft/typespec/pull/10567) Handle unhandled exceptions in VS Code extension: add custom error handler for server crashes with restart notification, wrap commands with graceful exception handling, and add null guards to prevent extension host errors when LSP client is unavailable
+- [#10523](https://github.com/microsoft/typespec/pull/10523) Show "Launching TypeSpec language service..." progress in the status bar instead of as a notification to avoid blocking the UI
+- [#10527](https://github.com/microsoft/typespec/pull/10527) Ensure operation telemetry events always carry a valid `result` value. Previously the `start-extension` event (and any other operation whose callback returned `void`) was sent with `result="undefined"` and classified as an error event. The `doOperationWithTelemetry` callback is now constrained to return `ResultCode | Result<...>`, so the result is always derived from the operation's return value.
+
+</details>

@@ -8,6 +8,76 @@ TypeSpec decorators are implemented as JavaScript functions. The process of crea
 1. [Declare the decorator signature in TypeSpec](#declare-the-decorator-signature) (optional but recommended)
 2. [Implement the decorator in JavaScript](#javascript-decorator-implementation)
 
+Alternatively, for decorators that simply store metadata, you can use [auto decorators](#auto-decorators) which require no JavaScript implementation at all.
+
+## Auto decorators
+
+Auto decorators are a simplified way to declare decorators that only store metadata. They are declared with the `auto` modifier and require no JavaScript implementation — the compiler auto-generates the storage logic.
+
+```typespec
+// A boolean flag (no parameters beyond the target)
+auto dec tracked(target: unknown);
+
+// A single value
+auto dec label(target: Model, value: valueof string);
+
+// Multiple values (stored as a named record)
+auto dec serviceInfo(target: Model, name: valueof string, version: valueof int32);
+```
+
+### How data is stored
+
+Auto decorator arguments are always stored as a record with parameter names as keys in the program's state map, keyed by the decorator's fully-qualified name:
+
+- **No parameters** (flag): stores `{}` (empty record)
+- **One or more parameters**: stores `{ paramName: value, ... }`, e.g. `{ name: "hello", version: 1 }`
+
+### Reading auto decorator values
+
+The compiler provides a generic API to read auto decorator values without any generated code:
+
+```ts
+import { hasAutoDecorator, getAutoDecoratorValue } from "@typespec/compiler";
+
+// Check if a flag decorator was applied
+if (hasAutoDecorator(program, "MyLib.tracked", type)) {
+  // ...
+}
+
+// Get the stored record
+const label = getAutoDecoratorValue(program, "MyLib.label", type) as { value: string };
+
+// Get a multi-arg record
+const info = getAutoDecoratorValue(program, "MyLib.serviceInfo", type) as {
+  name: string;
+  version: number;
+};
+```
+
+### Generated typed accessors
+
+When using `tspd gen-extern-signature`, typed accessor functions are generated for auto decorators:
+
+```ts
+// Generated for: auto dec tracked(target: Model);
+export function isTracked(program: Program, target: Model): boolean;
+
+// Generated for: auto dec label(target: Model, value: valueof string);
+export function getLabel(program: Program, target: Model): string | undefined;
+```
+
+### Combining with `internal`
+
+Auto decorators can be combined with the `internal` modifier:
+
+```typespec
+internal auto dec myInternalFlag(target: Model);
+```
+
+:::note
+`auto` and `extern` are mutually exclusive — a decorator is either auto-implemented (auto) or externally implemented (extern).
+:::
+
 ## Declare the decorator signature
 
 While this step is optional, it offers significant benefits:

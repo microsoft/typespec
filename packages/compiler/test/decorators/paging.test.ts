@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ignoreDiagnostics } from "../../src/index.js";
-import { getPagingOperation, PagingOperation } from "../../src/lib/paging.js";
+import type { PagingOperation } from "../../src/lib/paging.js";
+import { getPagingOperation } from "../../src/lib/paging.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";

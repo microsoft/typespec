@@ -1,10 +1,19 @@
-import { YAMLError, parseDocument } from "yaml";
+import type { YAMLError } from "yaml";
+import { parseDocument } from "yaml";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createSourceFile } from "../core/source-file.js";
-import { Diagnostic, DiagnosticSeverity, SourceFile } from "../core/types.js";
-import { YamlScript } from "./types.js";
+import type { Diagnostic, DiagnosticSeverity, SourceFile } from "../core/types.js";
+import type { YamlScript } from "./types.js";
 
 export function parseYaml(source: string | SourceFile): [YamlScript, readonly Diagnostic[]] {
+  const [{ file, doc }, diagnostics] = parseYamlDocument(source);
+  return [{ kind: "yaml-script", file, value: doc.toJSON(), doc }, diagnostics];
+}
+
+/** Parse YAML without converting the document to JavaScript values. */
+export function parseYamlDocument(
+  source: string | SourceFile,
+): [Pick<YamlScript, "file" | "doc">, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
@@ -18,12 +27,7 @@ export function parseYaml(source: string | SourceFile): [YamlScript, readonly Di
   for (const warning of doc.warnings) {
     diagnostics.add(convertYamlErrorToDiagnostic("warning", warning, file));
   }
-  return diagnostics.wrap({
-    kind: "yaml-script",
-    file,
-    value: doc.toJSON(),
-    doc,
-  });
+  return diagnostics.wrap({ file, doc });
 }
 
 function convertYamlErrorToDiagnostic(

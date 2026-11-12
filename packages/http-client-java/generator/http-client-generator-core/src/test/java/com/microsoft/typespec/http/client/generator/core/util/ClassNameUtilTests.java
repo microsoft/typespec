@@ -13,27 +13,24 @@ public class ClassNameUtilTests {
 
     @Test
     public void testTruncateClassName() {
-        final int maxFileLength = 260 - 38;
+        final int maxFileLength = ClassNameUtil.MAX_PATH_LENGTH - ClassNameUtil.BASE_PATH_LENGTH;
 
-        // truncate class name
+        // names that previously required truncation now fit
         String name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservices",
             "src/samples/java", "com.azure.resourcemanager.deviceprovisioningservices.generated",
             "IotDpsResourceCheckProvisioningServiceNameAvailability", "Samples");
-        Assertions.assertEquals(maxFileLength,
-            ("sdk/deviceprovisioningservices/azure-resourcemanager-deviceprovisioningservices/src/samples/java/com/azure/resourcemanager/deviceprovisioningservices/generated/"
-                + name + ".java").length());
+        Assertions.assertEquals("IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples", name);
 
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.recoveryservicessiterecovery",
             "src/test/java", "com.azure.resourcemanager.recoveryservicessiterecovery.generated",
             "InMageRcmUpdateApplianceForReplicationProtectedItemInput", "Tests");
-        Assertions.assertEquals(maxFileLength,
-            ("sdk/recoveryservicessiterecovery/azure-resourcemanager-recoveryservicessiterecovery/src/test/java/com/azure/resourcemanager/recoveryservicessiterecovery/generated/"
-                + name + ".java").length());
+        Assertions.assertEquals("InMageRcmUpdateApplianceForReplicationProtectedItemInputTests", name);
 
+        // truncate a name that exceeds the relaxed limit
         name = ClassNameUtil.truncateClassName(
             "com.azure.resourcemanager." + KUBERNETES_CONFIGURATION + ".extensiontypes", "src/test/java",
             "com.azure.resourcemanager." + KUBERNETES_CONFIGURATION + ".extensiontypes.generated",
-            "ExtensionTypesLocationGetWithResponse", "MockTests");
+            "ExtensionTypesLocationGetWithResponseAsync", "MockTests");
         Assertions.assertEquals(maxFileLength,
             ("sdk/" + KUBERNETES_CONFIGURATION + "/azure-resourcemanager-" + KUBERNETES_CONFIGURATION
                 + "-extensiontypes/src/test/java/com/azure/resourcemanager/" + KUBERNETES_CONFIGURATION
@@ -53,12 +50,12 @@ public class ClassNameUtilTests {
 
     @Test
     public void testGetDirectoryNameForGraalVmConfig() {
-        // directory length over 210
+        // directory length over 218
         String directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
-            "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypes");
+            "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypesabc");
         Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
 
-        // directory length not over 210, but full filename length over 222
+        // reflect-config.json fits exactly at 230, but resource-config.json exceeds the limit by one
         directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
             "azure-resourcemanager-" + "recovery" + "services" + "data" + "replication");
         Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));

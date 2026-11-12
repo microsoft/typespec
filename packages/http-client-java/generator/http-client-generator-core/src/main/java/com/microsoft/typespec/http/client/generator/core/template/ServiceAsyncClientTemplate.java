@@ -21,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCon
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -60,6 +61,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         ClientBuilder rootClientBuilder = getClientBuilder(asyncClient);
 
         Set<String> imports = new LinkedHashSet<>();
+        ExperimentalAnnotationUtil.addImportsTo(imports, asyncClient.getApiMetadata());
         if (wrapServiceClient) {
             serviceClient.addImportsTo(imports, true, false, settings);
             imports.add(serviceClient.getPackage() + "." + serviceClient.getClassName());
@@ -80,6 +82,14 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
 
         Templates.getConvenienceAsyncMethodTemplate().addImports(imports, asyncClient.getConvenienceMethods());
 
+        final boolean useXmlSerializer
+            = Templates.getConvenienceAsyncMethodTemplate().useXmlSerializerMember(asyncClient.getConvenienceMethods());
+        if (useXmlSerializer) {
+            imports.add("com.azure.core.util.serializer.ObjectSerializer");
+            imports.add(settings.getPackage(settings.getImplementationSubpackage()) + "."
+                + ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME);
+        }
+
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(String
             .format("Initializes a new instance of the asynchronous %1$s type.", serviceClient.getInterfaceName())));
@@ -88,8 +98,15 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             javaFile.annotation(
                 String.format("ServiceClient(builder = %s.class, isAsync = true)", rootClientBuilder.getClassName()));
         }
+        ExperimentalAnnotationUtil.write(javaFile, asyncClient.getApiMetadata());
         javaFile.publicFinalClass(asyncClassName, classBlock -> {
             // Add service client member variable
+            if (useXmlSerializer) {
+                addGeneratedAnnotation(classBlock);
+                classBlock.privateStaticFinalVariable(
+                    "ObjectSerializer " + ConvenienceMethodTemplateBase.XML_SERIALIZER_MEMBER_NAME + " = "
+                        + ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME + ".createInstance()");
+            }
             addGeneratedAnnotation(classBlock);
             if (wrapServiceClient) {
                 classBlock.privateFinalMemberVariable(serviceClient.getClassName(), "serviceClient");

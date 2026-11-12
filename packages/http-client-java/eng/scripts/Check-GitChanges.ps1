@@ -13,6 +13,7 @@ Set-ConsoleEncoding
 $diffExcludes = @(
     "$packageRoot/package.json"
     "$packageRoot/package-lock.json"
+    "*/src/main/resources/META-INF/*_metadata*.json"
 ) | ForEach-Object { "`":(exclude)$_`"" } | Join-String -Separator ' '
 
 Invoke-LoggedCommand "git -c core.safecrlf=false diff --ignore-space-at-eol --exit-code -- $diffExcludes" -IgnoreExitCode

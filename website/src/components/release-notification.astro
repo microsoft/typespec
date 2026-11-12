@@ -37,15 +37,27 @@ import Link from "@typespec/astro-utils/components/link.astro";
   .new-version-banner {
     border: 1px solid var(--colorBrandBackground);
     display: block;
-    padding: 2px 1rem;
+    padding: 2px 0.6rem;
     border-radius: 2px;
-    line-height: 24px;
+    line-height: 22px;
+    font-size: 0.875rem;
+    white-space: nowrap;
   }
   .new-version-banner:hover {
     outline: 1px solid var(--colorBrandBackgroundHover);
   }
   .hide {
     display: none;
+  }
+
+  /* In the desktop header the version banner sits inline with the nav links.
+     Between 1024px and ~1200px there isn't room for it without the header
+     wrapping to a second row, so hide it in that range. Below 1024px it moves
+     into the mobile drawer (a vertical list) where it fits fine. (#10794) */
+  @media (min-width: 1024px) and (max-width: 1200px) {
+    .new-version-banner {
+      display: none;
+    }
   }
 </style>
 

@@ -341,6 +341,81 @@ describe("@param", () => {
     strictEqual(doc, "Doc comment");
   });
 
+  it("preserves @param docs through wrappers over templated operation instances", async () => {
+    const result = (await Tester.compile(`
+      /**
+       * @param wrappedSelection Doc comment
+       */
+      op /*source*/source<T>(wrappedSelection: T, other: string): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      op /*target*/target(...WrappedParameters.value::type): void;
+    `)) as any;
+    const doc = getDoc(result.program, result.target.parameters.properties.get("wrappedSelection"));
+    strictEqual(doc, "Doc comment");
+  });
+
+  it("preserves @param docs through nested wrappers over templated operation instances", async () => {
+    const result = (await Tester.compile(t.code`
+      /**
+       * @param wrappedSelection Doc comment
+       */
+      op source<T>(wrappedSelection: T, other: string): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      model ModelWrapper<M extends Reflection.Model> {
+        value: M;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
+      op ${t.op("target")}(...WrappedAgain.value::type): void;
+    `)) as any;
+    const doc = getDoc(result.program, result.target.parameters.properties.get("wrappedSelection"));
+    strictEqual(doc, "Doc comment");
+  });
+
+  it("preserves @param docs for named parameters through nested operation wrappers", async () => {
+    const result = (await Tester.compile(t.code`
+      /**
+       * @param threadId Doc comment
+       */
+      op source<T>(threadId: T, other: string): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      model ModelWrapper<M extends Reflection.Model> {
+        value: M;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
+      op ${t.op("target")}(...WrappedAgain.value::type): void;
+    `)) as any;
+    const doc = getDoc(result.program, result.target.parameters.properties.get("threadId"));
+    strictEqual(doc, "Doc comment");
+  });
+
+  it("preserves @param docs when augmenting a different operation parameter", async () => {
+    const { program } = (await Tester.files({
+      "source.tsp": `
+        /**
+         * @param threadId Doc comment
+         */
+        op createRun(threadId: string, body: string): void;
+      `,
+    }).compile(`
+      import "./source.tsp";
+      @@doc(createRun::parameters.body, "Renamed body");
+    `)) as any;
+
+    const createRun = program.getGlobalNamespaceType().operations.get("createRun");
+    ok(createRun);
+    strictEqual(getDoc(program, createRun.parameters.properties.get("threadId")!), "Doc comment");
+    strictEqual(getDoc(program, createRun.parameters.properties.get("body")!), "Renamed body");
+  });
+
   it("applies to distinct parameters", async () => {
     // One @param has a hyphen but the other does not (should handle both cases)
     const { addUser, program } = await Tester.compile(t.code`

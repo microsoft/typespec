@@ -46,20 +46,18 @@ const { items } = Astro.props;
 </style>
 
 <div class="items-list">
-  {
-    items?.map(({ image, description, link, title, learnMoreText }) => (
-      <div class="item">
-        {image && <FluentImg class="item-image" name={image} />}
-        <div class="item-content">
-          <NeutralText size={"large"}>{title}</NeutralText>
-          <DescriptionText>{description}</DescriptionText>
-          {link && (
-            <Link href={link}>
-              <Text>{learnMoreText ?? "Learn more"} →</Text>
-            </Link>
-          )}
-        </div>
+  {items?.map(({ image, description, link, title, learnMoreText }) => (
+    <div class="item">
+      {image && <FluentImg class="item-image" name={image} />}
+      <div class="item-content">
+        <NeutralText size={"large"}>{title}</NeutralText>
+        <DescriptionText>{description}</DescriptionText>
+        {link && (
+          <Link href={link}>
+            <Text>{learnMoreText ?? "Learn more"} →</Text>
+          </Link>
+        )}
       </div>
-    ))
-  }
+    </div>
+  ))}
 </div>

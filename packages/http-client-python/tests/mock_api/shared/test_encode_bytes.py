@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import io
 from pathlib import Path
 
 import pytest
@@ -116,6 +117,19 @@ def test_request_body(client: BytesClient, png_data: bytes):
     )
     client.request_body.base64_url(
         value=bytes("test", "utf-8"),
+    )
+
+
+def test_request_body_io(client: BytesClient, png_data: bytes):
+    # binary bodies also accept an IO input via the generated overload
+    client.request_body.default(
+        value=io.BytesIO(png_data),
+    )
+    client.request_body.octet_stream(
+        value=io.BytesIO(png_data),
+    )
+    client.request_body.custom_content_type(
+        value=io.BytesIO(png_data),
     )
 
 

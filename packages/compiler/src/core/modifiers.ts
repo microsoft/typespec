@@ -3,8 +3,16 @@
 
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
-import { Declaration, Modifier, ModifierFlags, SyntaxKind } from "./types.js";
+import type { Program } from "./program.js";
+import type {
+  Declaration,
+  EnumDeclarationExpressionNode,
+  ModelDeclarationExpressionNode,
+  Modifier,
+  ScalarDeclarationExpressionNode,
+  UnionDeclarationExpressionNode,
+} from "./types.js";
+import { ModifierFlags, SyntaxKind } from "./types.js";
 
 /**
  * The compatibility of modifiers for a given declaration node type.
@@ -12,8 +20,10 @@ import { Declaration, Modifier, ModifierFlags, SyntaxKind } from "./types.js";
 interface ModifierCompatibility {
   /** A set of modifier flags that are allowed on the node type. */
   readonly allowed: ModifierFlags;
-  /** A set of modifier flags that are _required_ on the node type. */
+  /** At least one of these modifier flags must be present. */
   readonly required: ModifierFlags;
+  /** Pairs of modifier flags that cannot be used together. */
+  readonly mutuallyExclusive?: readonly [ModifierFlags, ModifierFlags][];
 }
 
 /**
@@ -32,7 +42,19 @@ const NO_MODIFIERS: ModifierCompatibility = {
   required: ModifierFlags.None,
 };
 
-const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibility>> = {
+/**
+ * Declaration nodes whose modifiers can be checked. Includes the statement
+ * declarations as well as the declaration-expression nodes (which never carry
+ * modifiers, but go through the same checking path).
+ */
+type ModifierCheckableNode =
+  | Declaration
+  | ModelDeclarationExpressionNode
+  | ScalarDeclarationExpressionNode
+  | UnionDeclarationExpressionNode
+  | EnumDeclarationExpressionNode;
+
+const SYNTAX_MODIFIERS: Readonly<Record<ModifierCheckableNode["kind"], ModifierCompatibility>> = {
   [SyntaxKind.NamespaceStatement]: NO_MODIFIERS,
   [SyntaxKind.OperationStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ModelStatement]: DEFAULT_COMPATIBILITY,
@@ -42,12 +64,17 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
   [SyntaxKind.EnumStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.AliasStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ConstStatement]: DEFAULT_COMPATIBILITY,
+  [SyntaxKind.ModelDeclarationExpression]: NO_MODIFIERS,
+  [SyntaxKind.ScalarDeclarationExpression]: NO_MODIFIERS,
+  [SyntaxKind.UnionDeclarationExpression]: NO_MODIFIERS,
+  [SyntaxKind.EnumDeclarationExpression]: NO_MODIFIERS,
   [SyntaxKind.DecoratorDeclarationStatement]: {
     allowed: ModifierFlags.All,
-    required: ModifierFlags.Extern,
+    required: ModifierFlags.Extern | ModifierFlags.Auto,
+    mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Auto]],
   },
   [SyntaxKind.FunctionDeclarationStatement]: {
-    allowed: ModifierFlags.All,
+    allowed: ModifierFlags.Extern | ModifierFlags.Internal,
     required: ModifierFlags.Extern,
   },
 };
@@ -61,24 +88,10 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
  * @param node - The declaration node to check.
  * @returns `true` if the modifiers are valid, `false` otherwise.
  */
-export function checkModifiers(program: Program, node: Declaration): boolean {
+export function checkModifiers(program: Program, node: ModifierCheckableNode): boolean {
   const compatibility = SYNTAX_MODIFIERS[node.kind];
 
   let isValid = true;
-
-  // Emit experimental warning for any use of the 'internal' modifier.
-  if (node.modifierFlags & ModifierFlags.Internal) {
-    const internalModifiers = filterModifiersByFlags(node.modifiers, ModifierFlags.Internal);
-    for (const modifier of internalModifiers) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "experimental-feature",
-          messageId: "internal",
-          target: modifier,
-        }),
-      );
-    }
-  }
 
   const invalidModifiers = node.modifierFlags & ~compatibility.allowed;
 
@@ -101,21 +114,51 @@ export function checkModifiers(program: Program, node: Declaration): boolean {
     }
   }
 
-  const missingRequiredModifiers = compatibility.required & ~node.modifierFlags;
-
-  if (missingRequiredModifiers) {
-    // There is at least one required modifier missing from this syntax node.
+  if (compatibility.required && !(node.modifierFlags & compatibility.required)) {
+    // None of the required modifiers are present.
     isValid = false;
 
-    for (const missing of getNamesOfModifierFlags(missingRequiredModifiers)) {
+    const names = getNamesOfModifierFlags(compatibility.required);
+    if (names.length === 1) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "invalid-modifier",
           messageId: "missing-required",
-          format: { modifier: missing, nodeKind: getDeclarationKindText(node.kind) },
+          format: { modifier: names[0], nodeKind: getDeclarationKindText(node.kind) },
           target: node,
         }),
       );
+    } else {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-modifier",
+          messageId: "missing-required-one-of",
+          format: {
+            modifiers: names.map((n) => `'${n}'`).join(" or "),
+            nodeKind: getDeclarationKindText(node.kind),
+          },
+          target: node,
+        }),
+      );
+    }
+  }
+
+  if (compatibility.mutuallyExclusive) {
+    for (const [a, b] of compatibility.mutuallyExclusive) {
+      if (node.modifierFlags & a && node.modifierFlags & b) {
+        isValid = false;
+
+        const nameA = getNamesOfModifierFlags(a)[0];
+        const nameB = getNamesOfModifierFlags(b)[0];
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-modifier",
+            messageId: "mutually-exclusive",
+            format: { modifierA: nameA, modifierB: nameB },
+            target: node,
+          }),
+        );
+      }
     }
   }
 
@@ -148,6 +191,8 @@ function modifierToFlag(modifier: Modifier): ModifierFlags {
       return ModifierFlags.Extern;
     case SyntaxKind.InternalKeyword:
       return ModifierFlags.Internal;
+    case SyntaxKind.AutoKeyword:
+      return ModifierFlags.Auto;
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -159,6 +204,8 @@ function getTextForModifier(modifier: Modifier): string {
       return "extern";
     case SyntaxKind.InternalKeyword:
       return "internal";
+    case SyntaxKind.AutoKeyword:
+      return "auto";
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -172,24 +219,31 @@ function getNamesOfModifierFlags(flags: ModifierFlags): string[] {
   if (flags & ModifierFlags.Internal) {
     names.push("internal");
   }
+  if (flags & ModifierFlags.Auto) {
+    names.push("auto");
+  }
   return names;
 }
 
-function getDeclarationKindText(nodeKind: Declaration["kind"]): string {
+function getDeclarationKindText(nodeKind: ModifierCheckableNode["kind"]): string {
   switch (nodeKind) {
     case SyntaxKind.NamespaceStatement:
       return "namespace";
     case SyntaxKind.OperationStatement:
       return "op";
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
       return "model";
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
       return "scalar";
     case SyntaxKind.InterfaceStatement:
       return "interface";
     case SyntaxKind.UnionStatement:
+    case SyntaxKind.UnionDeclarationExpression:
       return "union";
     case SyntaxKind.EnumStatement:
+    case SyntaxKind.EnumDeclarationExpression:
       return "enum";
     case SyntaxKind.AliasStatement:
       return "alias";

@@ -19,16 +19,6 @@ Write-Host "Parallelization: $Parallelization"
 $generateScript = {
   $tspFile = $_
 
-  if ((($tspFile -match "payload[\\/]pageable[\\/]main\.tsp") -and (-not ($tspFile -match "azure[\\/]payload[\\/]pageable[\\/]main\.tsp"))) -or ($tspFile -match "payload[\\/]xml[\\/]main\.tsp") -or ($tspFile -match "service[\\/]multiple-services[\\/]main\.tsp")) {
-    Write-Host "
-    SKIPPED
-    $tspFile
-    "
-    # xml is not supported
-    # nested pageItems/nextLink/continuationToken is not supported
-    return
-  }
-
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
     $tspFile = $tspClientFile
@@ -38,7 +28,10 @@ $generateScript = {
   # for each test run. We do this by appending a random number to the output directory.
   # Without this, we could have multiple runs trying to write to the same directory which introduces race conditions.
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
-  if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
+  if (($tspFile -match "(azure[\\/]core[\\/]basic|parameters[\\/]basic|payload[\\/]head|payload[\\/]multipart|versioning[\\/]added)[\\/](main|client)\.tsp$") -or ($tspFile -match "tsp[\\/]request-headers\.tsp$")) {
+    # exercise model maximum overloads across representative data-plane E2E and versioning scenarios
+    $tspOptions += " --option ""@typespec/http-client-java.max-overload=model"""
+  } elseif ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
@@ -57,16 +50,18 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
-    $tspOptions += " --option ""@typespec/http-client-java.api-version=all"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]main\.tsp") {
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
-    $tspOptions += " --option ""@typespec/http-client-java.api-version=all"""
   } elseif ($tspFile -match "azure[\\/]resource-manager[\\/].*[\\/]main\.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
     $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
+    if ($tspFile -match "azure[\\/]resource-manager[\\/]example[\\/]main\.tsp$") {
+      # Use the scenario's unified YAML example instead of the shared JSON examples directory.
+      $tspOptions += " --option ""@typespec/http-client-java.examples-dir="""
+    }
   } elseif ($tspFile -match "tsp[\\/]versioning.tsp") {
     # test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
@@ -108,10 +103,26 @@ $generateScript = {
   } elseif ($tspFile -match "tsp[\\/]arm-versioned.tsp") {
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
+  } elseif ($tspFile -match "tsp[\\/]arm-internal\.tsp$") {
+    $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
+  } elseif ($tspFile -match "tsp[\\/]protocol-api-sync-over-async.tsp") {
+    # test hidden protocol methods when sync methods call the async implementation
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
+  } elseif ($tspFile -match "tsp[\\/]max-overload-model.tsp") {
+    # test model-based maximum overloads with advanced versioning
+    $tspOptions += " --option ""@typespec/http-client-java.max-overload=model"""
+    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
   } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
+  } elseif ($tspFile -match "tsp[\\/]experimental\.tsp$") {
+    $tspOptions += " --option ""@typespec/http-client-java.experimental-annotation=tsptest.experimental.annotations.Preview"""
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/ExperimentalCustomization.java"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
@@ -197,6 +208,8 @@ try {
   # generate for http-specs/azure-http-specs test sources
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
+  Get-ChildItem ./specs -Filter tspconfig.yaml -File -Recurse | Remove-Item -Force
+  Copy-Item ./specs/azure/resource-manager/example/examples.yaml ./examples.yaml
 
   $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
   # ensure multi-service client specs are processed even though they do not match the default filter
@@ -208,6 +221,7 @@ try {
   $job | Wait-Job -Timeout 1200
   $job | Receive-Job
 
+  Remove-Item ./examples.yaml -Force
   Remove-Item ./specs -Recurse -Force
 
   Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("ReadmeSamples.java", "module-info.java")

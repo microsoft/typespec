@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 public class CodeSample {
@@ -42,16 +40,15 @@ public class CodeSample {
             boolean embedmeBlockBegin = false;
             String testMethodIndent = "";
             String embedmeBlockIndent = "";
-            for (String line : reader.lines().collect(Collectors.toList())) {
+            String line;
+            while ((line = reader.readLine()) != null) {
                 if (!testMethodBegin) {
                     if (line.trim().equals(TEST_ANNOTATION)) {
                         // first get inside @Test method
 
                         testMethodBegin = true;
                         int indent = line.indexOf(TEST_ANNOTATION);
-                        char[] chars = new char[indent];
-                        Arrays.fill(chars, ' ');
-                        testMethodIndent = String.valueOf(chars);
+                        testMethodIndent = " ".repeat(indent);
                     }
                 } else if (!embedmeBlockBegin) {
                     if (line.startsWith(testMethodIndent + "}")) {
@@ -64,9 +61,7 @@ public class CodeSample {
 
                         embedmeBlockBegin = true;
                         int indent = line.indexOf(EMBEDME_START_COMMENT);
-                        char[] chars = new char[indent];
-                        Arrays.fill(chars, ' ');
-                        embedmeBlockIndent = String.valueOf(chars);
+                        embedmeBlockIndent = " ".repeat(indent);
                     }
                 } else {
                     if (line.startsWith(embedmeBlockIndent + EMBEDME_END_COMMENT)) {

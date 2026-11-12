@@ -34,7 +34,7 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
 
     private final ImplementationDetails implementationDetails;
 
-    private String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
     private final String fromMethodName;
     private final String toMethodName;
 
@@ -50,7 +50,7 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
      */
     private EnumType(String packageKeyword, String name, String description, boolean expandable,
         List<ClientEnumValue> values, IType elementType, ImplementationDetails implementationDetails,
-        String crossLanguageDefinitionId, String fromMethodName, String toMethodName) {
+        ApiMetadata apiMetadata, String fromMethodName, String toMethodName) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
@@ -58,13 +58,13 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
         this.values = values;
         this.elementType = elementType;
         this.implementationDetails = implementationDetails;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = apiMetadata;
         this.fromMethodName = fromMethodName;
         this.toMethodName = toMethodName;
     }
 
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     public final String getName() {
@@ -248,7 +248,7 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
 
         private ImplementationDetails implementationDetails;
 
-        private String crossLanguageDefinitionId;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
         private String fromMethodName;
         private String toMethodName;
 
@@ -331,8 +331,8 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
             return this;
         }
 
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
@@ -351,7 +351,7 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
          */
         public EnumType build() {
             return new EnumType(packageName, name, description, expandable, values, elementType, implementationDetails,
-                crossLanguageDefinitionId, fromMethodName, toMethodName);
+                apiMetadata, fromMethodName, toMethodName);
         }
     }
 }

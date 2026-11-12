@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "composite": true,
+    "verbatimModuleSyntax": true,
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "NodeNext",

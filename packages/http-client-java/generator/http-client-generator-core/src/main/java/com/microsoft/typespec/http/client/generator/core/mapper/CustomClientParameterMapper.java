@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -38,6 +39,7 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
         ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
             .required(parameter.isRequired())
             .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT)
+            .apiMetadata(new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(parameter)).build())
             .annotations(new ArrayList<>());
 
         IType wireType;
@@ -47,7 +49,7 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
             wireType = Mappers.getSchemaMapper().map(parameter.getSchema());
         }
         if (isProtocolMethod) {
-            wireType = SchemaUtil.removeModelFromParameter(parameter.getProtocol().getHttp().getIn(), wireType);
+            wireType = SchemaUtil.removeModelFromClientType(parameter.getProtocol().getHttp().getIn(), wireType);
         }
         if (parameter.isNullable() || !parameter.isRequired()) {
             builder.wireType(wireType.asNullable());

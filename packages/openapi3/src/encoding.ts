@@ -1,5 +1,6 @@
 import { ObjectBuilder } from "@typespec/asset-emitter";
-import { type ModelProperty, Program, type Scalar, getEncode } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
+import { type ModelProperty, type Scalar, getEncode } from "@typespec/compiler";
 import { isHeader, isQueryParam } from "@typespec/http";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -33,6 +34,10 @@ export function applyEncoding(
     }
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     targetObject.type = newType.type;
+    if (newType.type !== "array") {
+      delete targetObject.items;
+      delete targetObject.prefixItems;
+    }
     // If the target already has a format it takes priority. (e.g. int32)
     targetObject[encodedFieldName] = mergeFormatAndEncoding(
       targetObject[encodedFieldName],

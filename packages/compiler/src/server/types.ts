@@ -1,4 +1,4 @@
-import {
+import type {
   ApplyWorkspaceEditParams,
   ApplyWorkspaceEditResult,
   CodeAction,
@@ -12,7 +12,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -48,24 +47,40 @@ import type {
   SourceLocation,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { LoadedCoreTemplates } from "../init/core-templates.js";
-import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
-import { ScaffoldingConfig } from "../init/scaffold.js";
-import { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
+import type { LoadedCoreTemplates } from "../init/core-templates.js";
+import type {
+  EmitterTemplate,
+  InitTemplate,
+  InitTemplateLibrarySpec,
+} from "../init/init-template.js";
+import type { ScaffoldingConfig } from "../init/scaffold.js";
+import type { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
 
+/** Severity or verbosity assigned to a message delivered to the server host. */
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
+/** A server message with optional structured context for the host's logging implementation. */
 export interface ServerLog {
+  /** Severity or verbosity of this message; filtering is left to the host. */
   level: ServerLogLevel;
+  /** Human-readable message, without a separately formatted severity prefix. */
   message: string;
+  /** Additional context, such as an error or configuration object; not necessarily a string. */
   detail?: unknown;
 }
 
+/** Environment and client callbacks needed to embed the TypeSpec language server. */
 export interface ServerHost {
+  /** Base compiler I/O host; the server wraps it to read open documents and cache files. */
   readonly compilerHost: CompilerHost;
+  /** Rethrow unexpected compilation errors instead of publishing error diagnostics. Defaults to false. */
   readonly throwInternalErrors?: boolean;
+  /** Look up the current open document by its original URI; return undefined for closed documents. */
   readonly getOpenDocumentByURL: (url: string) => TextDocument | undefined;
+  /** Publish diagnostics to the client, including empty lists that clear previously reported diagnostics. */
   readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void;
+  /** Receive server messages for display, persistence, or filtering by the embedding application. */
   readonly log: (log: ServerLog) => void;
+  /** Ask the client to apply a workspace edit, for example to repair imports after a file rename. */
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
@@ -77,57 +92,128 @@ export interface ServerHost {
   readonly getDocumentUpdateDebounceDelay?: () => number;
 }
 
+/** Program and document context produced by a language-server compilation. */
 export interface CompileResult {
+  /** Compiled project, which may include more files than the requested document. */
   readonly program: Program;
+  /** Requested open document, if available; this is a host-owned document, not a cloned text snapshot. */
   readonly document: TextDocument | undefined;
+  /** AST for the requested path within the program; absent when that path is not a compiled TypeSpec file. */
   readonly script: TypeSpecScriptNode | undefined;
+  /** Resolved project configuration before server defaults, client settings, and additional options are applied. */
   readonly optionsFromConfig: CompilerOptions;
+  /** Compilation metadata, captured logs, and freshness checks against the server's current change version. */
   readonly tracker: CompileTracker;
 }
 
+/** Compiler diagnostic returned by the custom compilation request, with source information when available. */
 export interface ServerDiagnostic extends Diagnostic {
-  target: (SourceLocation & { position?: { line: number; column: number } }) | typeof NoTarget;
+  /**
+   * Source information when available. Check for a source file before reading offsets,
+   * and honor isSynthetic when interpreting the location. Checking only for NoTarget
+   * does not establish that source fields are available.
+   */
+  target:
+    | (SourceLocation & {
+        /** Human-readable start position when the diagnostic has an associated source file. */
+        position?: {
+          /** One-based line number, unlike the zero-based positions used by LSP. */
+          line: number;
+          /** One-based character offset within the line. */
+          column: number;
+        };
+      })
+    | typeof NoTarget;
 }
 
+/** Result of the custom compilation request, which bypasses server compilation caches. */
 export interface InternalCompileResult {
+  /** Whether the program has errors, or compilation failed to produce a result. */
   readonly hasError: boolean;
+  /** Compiler diagnostics, or an internal-error diagnostic if no compilation result was obtained. */
   readonly diagnostics: ServerDiagnostic[];
+  /** URI of the result's open document, if available; not necessarily the inferred project entry point. */
   readonly entrypoint?: string;
+  /** Effective options used by the returned program; absent when no compilation result was obtained. */
   readonly options?: CompilerOptions;
 }
 
+/**
+ * Language-server handlers and state for an embedding host to connect to LSP.
+ * Initialize the server before enabling document-update processing with {@link Server.initialized}.
+ */
 export interface Server {
+  /** Messages queued before initialized; the queue is flushed through the host when logging resumes. */
   readonly pendingMessages: readonly ServerLog[];
+  /** Current workspace folders, including normalized paths used for project discovery. */
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
+  /**
+   * Compile the inferred project containing a document, falling back to the document itself
+   * if it is not included. Additional options override server defaults and resolved configuration.
+   * Returns undefined for unsupported documents, unresolved entry points, cancelled or stale
+   * requests, or handled compilation failures.
+   */
   compile(
     document: TextDocument | TextDocumentIdentifier,
     additionalOptions: CompilerOptions | undefined,
     serverCompileOptions: ServerCompileOptions,
   ): Promise<CompileResult | undefined>;
+  /** Configure workspace roots and update callbacks, and return LSP and TypeSpec-specific capabilities. */
   initialize(params: InitializeParams): Promise<InitializeResult>;
+  /** Enable debounced updates and flush queued log messages after client initialization completes. */
   initialized(params: InitializedParams): void;
+  /** Apply added and removed workspace folders, resolving normalized paths for newly added roots. */
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
+  /** Invalidate file and package caches for the client's watched-file change notifications. */
   watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
+  /** Format an open TypeSpec document using Prettier configuration, falling back to the client's indentation options. */
   formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
+  /**
+   * Resolve a symbol's declarations or an import's target file.
+   * Returns an empty list when document analysis is unavailable or the position has no definition.
+   * Import lookup requires a resolvable target and rejects if module resolution fails.
+   */
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
+  /** Compute completion items at the requested position, including configuration-file completions. */
   complete(params: CompletionParams): Promise<CompletionList>;
+  /** Find references to the selected symbol across the compiled program's source files. */
   findReferences(params: ReferenceParams): Promise<Location[]>;
+  /** Find occurrences of the selected symbol within the requested document, marked as read highlights. */
   findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
+  /** Return the selected identifier's rename range, or undefined when no identifier can be renamed. */
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
+  /** Build edits renaming references to the selected identifier; applying them is the caller's responsibility. */
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  /** Process renamed files or folders, schedule recompilation, and ask the host to apply import-path repairs. */
   renameFiles(params: RenameFilesParams): Promise<void>;
+  /** Classify TypeSpec source into tokens with absolute source offsets rather than LSP-encoded positions. */
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
+  /** Encode classified tokens as LSP semantic-token data using the legend advertised during initialization. */
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
+  /** Schedule diagnostics for a changed document, ignoring the initial change notification accompanying an open. */
   checkChange(change: TextDocumentChangeEvent<TextDocument>): void;
+  /** Describe the symbol at the requested position; return empty contents when no description is available. */
   getHover(params: HoverParams): Promise<Hover>;
+  /** Return debounced template or decorator signature help, or undefined for superseded requests or unsupported positions. */
   getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
+  /** Compute multiline folding regions for comments, consecutive imports, decorators, and syntax nodes. */
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
+  /** Build the hierarchical symbol outline for a TypeSpec document. */
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
+  /** Forget the document's opening version and clear its published diagnostics. */
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
+  /** Record a document's opening version and schedule its initial diagnostics. */
   documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
+  /** Offer unresolved quick fixes for published diagnostics, including file-wide fixes when applicable. */
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
-  executeCommand(params: ExecuteCommandParams): Promise<void>;
+  /** Populate a previously offered code action's edit from the current diagnostic index. */
+  resolveCodeAction(codeAction: CodeAction): Promise<CodeAction>;
+  /**
+   * Publish diagnostics for the result's open documents and clear stale diagnostics for files without errors.
+   * Does nothing when the result has no open document or that document is tspconfig.yaml.
+   */
   reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
+  /** Queue a message before initialized; afterwards flush queued messages and deliver it to the host. */
   log(log: ServerLog): void;
 
   // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler
@@ -135,84 +221,140 @@ export interface Server {
   // We can't do the tsp init experience by simple cli interface because the experience needs to talk
   // with the compiler for multiple times in different steps (i.e. get core templates, validate the selected template, scaffold the project)
   // and it's not a good idea to expose these capacity in cli interface and call cli again and again.
+  /** Load the built-in project templates used by the editor's project-creation workflow. */
   getInitProjectContext(): Promise<InitProjectContext>;
-  validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
-  initProject(param: { config: InitProjectConfig }): Promise<boolean>;
+  /** Validate a project template against the relaxed template schema, logging any validation diagnostics. */
+  validateInitProjectTemplate(param: {
+    /** Template definition selected or supplied by the client. */
+    template: InitTemplate;
+  }): Promise<boolean>;
+  /** Scaffold a project using the supplied configuration; log unexpected failures and return false on failure. */
+  initProject(param: {
+    /** Resolved project location, template, and user inputs used for scaffolding. */
+    config: InitProjectConfig;
+  }): Promise<boolean>;
+  /** Run a full compilation without reusing cached compilations or old programs, forwarding captured compiler logs to the host. */
   internalCompile(param: {
+    /** Document used to infer the project to compile. */
     doc: TextDocumentIdentifier;
+    /** Compiler options overriding the resolved project and server defaults. */
     options: CompilerOptions;
   }): Promise<InternalCompileResult>;
 }
 
+/** Compiler source file that may have been read from an open editor document instead of disk. */
 export interface ServerSourceFile extends SourceFile {
-  // Keep track of the open document (if any) associated with a source file.
+  /** Open document associated with this file when it was read; absent for files read from disk. */
   readonly document?: TextDocument;
 }
 
+/** Workspace root paired with its normalized local path. */
 export interface ServerWorkspaceFolder extends WorkspaceFolder {
-  // Remember path to URL conversion for workspace folders. This path must
-  // be resolved and normalized as other paths and have a trailing separator
-  // character so that we can test if a path is within a workspace using
-  // startsWith.
+  /** Resolved, normalized path with a trailing separator, suitable for directory-prefix comparisons. */
   path: string;
 }
 
+/**
+ * Token-type indices used by the server's semantic-token legend.
+ * Names map to LSP token types by lowercasing their first character, including docCommentTag.
+ */
 export enum SemanticTokenKind {
+  /** Namespace declarations, using directives, and bases of qualified references. */
   Namespace,
+  /** Scalar declarations and references classified syntactically as types. */
   Type,
+  /** LSP class category, reserved in the legend. */
   Class,
+  /** Enum and union declaration names. */
   Enum,
+  /** Interface declaration names. */
   Interface,
+  /** Model and alias declaration names. */
   Struct,
+  /** Template parameter declarations and named template arguments. */
   TypeParameter,
+  /** Function or decorator parameter declarations. */
   Parameter,
+  /** Constant declarations and parameter or property names in documentation tags. */
   Variable,
+  /** Model, object, and union properties, including union variants. */
   Property,
+  /** Enum member declaration names. */
   EnumMember,
+  /** LSP event category, reserved in the legend. */
   Event,
+  /** Operations, functions, and scalar constructors. */
   Function,
+  /** LSP method category, reserved in the legend. */
   Method,
+  /** Decorator uses and unrecognized documentation tags. */
   Macro,
+  /** Language keywords and compiler directives. */
   Keyword,
+  /** Ordinary comments and documentation text outside classified tags. */
   Comment,
+  /** String literals and the text portions of interpolated strings. */
   String,
+  /** Numeric literals in source. */
   Number,
+  /** LSP regular-expression category, reserved in the legend. */
   Regexp,
+  /** Punctuation and interpolation delimiters. */
   Operator,
 
+  /** Recognized documentation tags, including their leading at sign. */
   DocCommentTag,
 }
 
+/** Classified source span before conversion into the LSP semantic-token encoding. */
 export interface SemanticToken {
+  /** Index into the server's semantic-token legend. */
   kind: SemanticTokenKind;
+  /** Inclusive start offset in UTF-16 code units within the source text. */
   pos: number;
+  /** Exclusive end offset in UTF-16 code units within the source text. */
   end: number;
 }
 
+/** TypeSpec-specific request method names implemented alongside standard LSP handlers. */
 export type CustomRequestName =
   | "typespec/getInitProjectContext"
   | "typespec/initProject"
   | "typespec/validateInitProjectTemplate"
   | "typespec/internalCompile";
+/** Availability flags for the TypeSpec-specific requests advertised by server initialization. */
 export interface ServerCustomCapacities {
+  /** Whether the server can supply built-in project templates. */
   getInitProjectContext?: boolean;
+  /** Whether the server can validate client-supplied project templates. */
   validateInitProjectTemplate?: boolean;
+  /** Whether the server can scaffold a project from a resolved configuration. */
   initProject?: boolean;
+  /** Whether the server supports explicit full compilation with captured diagnostics. */
   internalCompile?: boolean;
 }
 
+/** LSP initialization result extended with TypeSpec requests and compiler installation locations. */
 export interface ServerInitializeResult extends InitializeResult {
+  /** Supported TypeSpec-specific requests; an absent flag does not advertise support. */
   customCapacities?: ServerCustomCapacities;
+  /** Compiler package directory when discoverable from the server module's installed location. */
   compilerRootFolder?: string;
+  /** Path to cmd/tsp.js within that compiler installation; absent when the package root cannot be inferred. */
   compilerCliJsPath?: string;
 }
 
+/** Built-in template information needed to start the editor's project-creation workflow. */
 export interface InitProjectContext {
   /** provide the default templates current compiler/cli supports */
   coreInitTemplates: LoadedCoreTemplates;
 }
 
+/** Resolved scaffolding inputs accepted by the server's project-creation request. */
 export type InitProjectConfig = ScaffoldingConfig;
+/** Project template definition exchanged with editor clients. */
 export type InitProjectTemplate = InitTemplate;
+/** Library dependency specification within an editor project template. */
 export type InitProjectTemplateLibrarySpec = InitTemplateLibrarySpec;
+/** Emitter configuration contributed by an editor project template. */
 export type InitProjectTemplateEmitterTemplate = EmitterTemplate;

@@ -1,4 +1,4 @@
-import vscode, {
+import type {
   CancellationToken,
   OpenDialogOptions,
   Progress,
@@ -7,8 +7,10 @@ import vscode, {
   QuickPickItemButtonEvent,
   QuickPickOptions,
 } from "vscode";
+import vscode from "vscode";
 import logger from "./log/logger.js";
-import { Result, ResultCode } from "./types.js";
+import type { Result } from "./types.js";
+import { ResultCode } from "./types.js";
 import { createPromiseWithCancelAndTimeout, tryReadDir } from "./utils.js";
 
 export interface QuickPickOptionsWithExternalLink extends QuickPickItem {

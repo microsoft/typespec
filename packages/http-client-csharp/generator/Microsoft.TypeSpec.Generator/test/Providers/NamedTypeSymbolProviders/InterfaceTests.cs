@@ -12,6 +12,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 {
     public class InterfaceTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            MockHelpers.LoadMockGenerator();
+        }
+
         [Test]
         public void ValidateMethods()
         {
@@ -60,6 +66,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
+        }
+
+        [Test]
+        public void IncludesInterfacesInheritedFromBaseType()
+        {
+            var baseModel = new TestTypeProvider(
+                "DisposableBaseModel",
+                implements: [typeof(IDisposable)],
+                methods: [new MethodProvider(
+                    new MethodSignature("Dispose", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.ThrowExpression(Snippet.Null),
+                    TestTypeProvider.Empty)]);
+            var derivedModel = new TestTypeProvider("DerivedModel", baseType: baseModel.Type);
+            var compilation = CompilationHelper.LoadCompilation([baseModel, derivedModel], [typeof(IDisposable)]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "DerivedModel");
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+
+            Assert.IsTrue(namedTypeSymbolProvider.Implements.Any(i => i.Equals(typeof(IDisposable))));
         }
 
         private class Model : TypeProvider

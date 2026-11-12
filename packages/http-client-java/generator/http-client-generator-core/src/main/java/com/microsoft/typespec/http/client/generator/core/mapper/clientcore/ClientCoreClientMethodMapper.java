@@ -29,14 +29,14 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected ClientMethodParameter getContextParameter(boolean isProtocolMethod) {
+    protected ClientMethodParameter getContextParameter() {
         return ClientMethodParameter.REQUEST_CONTEXT_PARAMETER;
     }
 
     @Override
     protected ClientMethod addClientMethodWithContext(List<ClientMethod> methods, ClientMethod baseMethod,
         JavaVisibility visibility, boolean isProtocolMethod) {
-        final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
+        final ClientMethodParameter contextParameter = getContextParameter();
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
         if (contextParameter.getClientType().equals(ClassType.REQUEST_CONTEXT)) {
             parameters.add(contextParameter);

@@ -1,9 +1,75 @@
-import { promises } from "fs";
+/* eslint-disable no-console */
+/**
+ * Shared helpers, types, constants, and data tables used by `regenerate.ts`.
+ *
+ * This file is meant to be **byte-identical** between this package and the
+ * upstream `@typespec/http-client-python`. typespec-python syncs it from
+ * <repo-root>/core/packages/http-client-python/eng/scripts/ci/regenerate-common.ts
+ * via `pnpm sync`.
+ *
+ * Per-repo divergence (paths, emitter name, single-phase vs two-phase
+ * orchestration, argv/help text) lives in each repo's own `regenerate.ts`,
+ * which builds a `RegenerateContext` and feeds it into the helpers exported
+ * from this module.
+ */
+
+import { compile, NodeHost } from "@typespec/compiler";
+import { execSync } from "child_process";
+import { existsSync, rmSync } from "fs";
+import { access, mkdir, readdir, writeFile } from "fs/promises";
 import { dirname, join, relative, resolve } from "path";
+import pc from "picocolors";
 
-// ---- Shared constants ----
+// ---- Public types ----
 
-export const SKIP_SPECS: string[] = ["type/file", "service/multiple-services"];
+export interface RegenerateFlags {
+  flavor: string;
+  debug: boolean;
+  name?: string;
+}
+
+export interface CompileTask {
+  spec: string;
+  outputDir: string;
+  options: Record<string, unknown>;
+}
+
+// Group of tasks for the same spec that must run sequentially
+export interface TaskGroup {
+  spec: string;
+  tasks: CompileTask[];
+}
+
+/**
+ * Per-repo context injected into the helpers below.  Every value is repo
+ * specific and must be supplied by the caller's `regenerate.ts`.
+ */
+export interface RegenerateContext {
+  /** Absolute path to the package root (the dir containing `package.json`). */
+  pluginDir: string;
+  /** Absolute path to the azure-http-specs `specs/` dir. */
+  azureHttpSpecs: string;
+  /** Absolute path to the http-specs `specs/` dir. */
+  httpSpecs: string;
+  /** Absolute path to where generated SDKs should go (e.g. `<plugin>/generator`). */
+  generatedFolder: string;
+  /** Emitter name to invoke (e.g. `@azure-tools/typespec-python`). */
+  emitterName: string;
+}
+
+/**
+ * Optional knobs for `buildTaskGroups`.  Kept here so the call site in each
+ * repo's `regenerate.ts` can opt into the upstream two-phase pipeline
+ * (`emitYamlOnly: true`) or the single-phase pipeline (default).
+ */
+export interface BuildTaskGroupsOptions {
+  /** If true, ask the emitter to write YAML only and skip Python codegen. */
+  emitYamlOnly?: boolean;
+}
+
+// ---- Public constants ----
+
+export const SKIP_SPECS: string[] = ["type/file"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -12,12 +78,11 @@ export const SpecialFlags: Record<string, Record<string, any>> = {
   },
 };
 
-// ---- Base emitter options (shared across repos) ----
+// ---- Spec-specific emitter option overrides ----
 
-export const BASE_AZURE_EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+type EmitterOptions = Record<string, string | boolean>;
+
+export const AZURE_EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptions[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
@@ -53,6 +118,9 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
   },
   "azure/client-generator-core/override": {
     namespace: "specs.azure.clientgenerator.core.override",
+  },
+  "azure/client-generator-core/response-replacement": {
+    namespace: "specs.azure.clientgenerator.core.responsereplacement",
   },
   "azure/client-generator-core/hierarchy-building": {
     namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
@@ -105,11 +173,20 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
     "package-name": "client-structure-twooperationgroup",
     namespace: "client.structure.twooperationgroup",
   },
-  "client/naming": {
-    namespace: "client.naming.main",
-  },
+  "client/naming": [
+    {
+      namespace: "client.naming.main",
+    },
+    {
+      "package-name": "client-naming-typeddict",
+      namespace: "client.naming.typeddict",
+    },
+  ],
   "client/overload": {
     namespace: "client.overload",
+  },
+  "encode/boolean": {
+    namespace: "encode.boolean",
   },
   "encode/duration": {
     namespace: "encode.duration",
@@ -138,12 +215,22 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
   "service/multi-service": {
     namespace: "service.multiservice",
   },
+  "client/structure/client-operation-group": {
+    "package-name": "client-structure-clientoperationgroup",
+    namespace: "client.structure.clientoperationgroup",
+  },
 };
 
-export const BASE_EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+export const EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptions[]> = {
+  "streaming/sse": [
+    {
+      "enable-sse-reconnect": true,
+    },
+    {
+      "package-name": "streaming-sse-no-reconnect",
+      namespace: "streaming.ssenoreconnect",
+    },
+  ],
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
     namespace: "resiliency.srv.driven1",
@@ -203,21 +290,32 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-name": "typetest-model-nesteddiscriminator",
     namespace: "typetest.model.nesteddiscriminator",
   },
-  "type/model/inheritance/not-discriminated": {
-    "package-name": "typetest-model-notdiscriminated",
-    namespace: "typetest.model.notdiscriminated",
-  },
-  "type/model/inheritance/single-discriminator": {
-    "package-name": "typetest-model-singlediscriminator",
-    namespace: "typetest.model.singlediscriminator",
-  },
+  "type/model/inheritance/not-discriminated": [
+    {
+      "package-name": "typetest-model-notdiscriminated",
+      namespace: "typetest.model.notdiscriminated",
+    },
+    {
+      "package-name": "typetest-model-notdiscriminated-typeddict",
+      namespace: "typetest.model.notdiscriminated.typeddict",
+    },
+  ],
+  "type/model/inheritance/single-discriminator": [
+    {
+      "package-name": "typetest-model-singlediscriminator",
+      namespace: "typetest.model.singlediscriminator",
+    },
+    {
+      "package-name": "typetest-model-singlediscriminator-typeddict",
+      namespace: "typetest.model.singlediscriminator.typeddict",
+    },
+  ],
   "type/model/inheritance/recursive": [
     {
       "package-name": "typetest-model-recursive",
       namespace: "typetest.model.recursive",
     },
     {
-      // basic test for configuration "generation-subdir"
       "package-name": "generation-subdir",
       namespace: "generation.subdir",
       "generation-subdir": "_generated",
@@ -225,10 +323,17 @@ export const BASE_EMITTER_OPTIONS: Record<
       "clear-output-folder": "true",
     },
   ],
-  "type/model/usage": {
-    "package-name": "typetest-model-usage",
-    namespace: "typetest.model.usage",
-  },
+  "type/model/usage": [
+    {
+      "package-name": "typetest-model-usage",
+      namespace: "typetest.model.usage",
+    },
+    {
+      "package-name": "typetest-model-usage-typeddictonly",
+      namespace: "typetest.model.usage.typeddictonly",
+      "models-mode": "none",
+    },
+  ],
   "type/model/visibility": [
     {
       "package-name": "typetest-model-visibility",
@@ -286,7 +391,6 @@ export const BASE_EMITTER_OPTIONS: Record<
       "package-name": "versioning-added",
       namespace: "versioning.added",
     },
-    // check whether import of _validation.py/_types.py works when "generation-subdir" is configured
     {
       "package-name": "generation-subdir2",
       namespace: "generation.subdir2",
@@ -296,59 +400,49 @@ export const BASE_EMITTER_OPTIONS: Record<
   ],
 };
 
-// ---- Shared interfaces ----
+// ---- Public helpers ----
 
-export interface TspCommand {
-  outputDir: string;
-  command: string | string[];
+export function toPosix(p: string): string {
+  return p.replace(/\\/g, "/");
 }
 
-export interface RegenerateFlagsInput {
-  flavor?: string;
-  debug?: boolean;
-  name?: string;
-  pyodide?: boolean;
-  jobs?: number;
+/**
+ * Whether a spec path belongs to azure-http-specs (vs standard http-specs).
+ * Uses the `azure-http-specs` substring rather than `azure` to avoid false
+ * positives when the working-dir path itself contains "azure" (e.g.
+ * azure-sdk-for-python).
+ */
+export function isAzureSpec(spec: string): boolean {
+  return spec.includes("azure-http-specs");
 }
 
-export interface RegenerateFlags {
-  flavor: string;
-  debug: boolean;
-  name?: string;
-  pyodide?: boolean;
+export function defaultPackageName(spec: string, ctx: RegenerateContext): string {
+  const specDir = isAzureSpec(spec) ? ctx.azureHttpSpecs : ctx.httpSpecs;
+  return toPosix(relative(specDir, dirname(spec)))
+    .replace(/\//g, "-")
+    .toLowerCase();
 }
 
-export interface RegenerateConfig {
-  azureHttpSpecs: string;
-  httpSpecs: string;
-  emitterOptions: Record<string, Record<string, string> | Record<string, string>[]>;
-  azureEmitterOptions: Record<string, Record<string, string> | Record<string, string>[]>;
-  preprocess: (flags: RegenerateFlagsInput) => Promise<void>;
-  getCmdList: (spec: string, flags: RegenerateFlags) => TspCommand[];
-  executeCommand: (cmd: TspCommand) => Promise<void>;
-}
-
-// ---- Shared utility functions ----
-
-export function toPosix(dir: string): string {
-  return dir.replace(/\\/g, "/");
-}
-
-export function getEmitterOption(
+export function getEmitterOptions(
   spec: string,
   flavor: string,
-  config: RegenerateConfig,
-): Record<string, string>[] {
-  const specDir = spec.includes("azure") ? config.azureHttpSpecs : config.httpSpecs;
+  ctx: RegenerateContext,
+): EmitterOptions[] {
+  const specDir = isAzureSpec(spec) ? ctx.azureHttpSpecs : ctx.httpSpecs;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
     : dirname(relativeSpec);
-  const emitter_options = config.emitterOptions[key] ||
-    (flavor === "azure" ? config.azureEmitterOptions[key] : [{}]) || [{}];
-  return Array.isArray(emitter_options) ? emitter_options : [emitter_options];
+  const emitterOpts = EMITTER_OPTIONS[key] ||
+    (flavor === "azure" ? AZURE_EMITTER_OPTIONS[key] : [{}]) || [{}];
+  return Array.isArray(emitterOpts) ? emitterOpts : [emitterOpts];
 }
 
+/**
+ * Walk `baseDir` and collect every TypeSpec entry-point file that the
+ * regenerator should compile (handles `client.tsp`, `main.tsp`, and the
+ * special `resiliency/srv-driven/old.tsp` case).
+ */
 export async function getSubdirectories(
   baseDir: string,
   flags: RegenerateFlags,
@@ -356,7 +450,7 @@ export async function getSubdirectories(
   const subdirectories: string[] = [];
 
   async function searchDir(currentDir: string) {
-    const items = await promises.readdir(currentDir, { withFileTypes: true });
+    const items = await readdir(currentDir, { withFileTypes: true });
 
     const promisesArray = items.map(async (item) => {
       const subDirPath = join(currentDir, item.name);
@@ -368,12 +462,10 @@ export async function getSubdirectories(
 
         if (SKIP_SPECS.some((skipSpec) => mainTspRelativePath.includes(skipSpec))) return;
 
-        const hasMainTsp = await promises
-          .access(mainTspPath)
+        const hasMainTsp = await access(mainTspPath)
           .then(() => true)
           .catch(() => false);
-        const hasClientTsp = await promises
-          .access(clientTspPath)
+        const hasClientTsp = await access(clientTspPath)
           .then(() => true)
           .catch(() => false);
 
@@ -388,7 +480,6 @@ export async function getSubdirectories(
           }
         }
 
-        // Recursively search in the subdirectory
         await searchDir(subDirPath);
       }
     });
@@ -400,97 +491,242 @@ export async function getSubdirectories(
   return subdirectories;
 }
 
-export async function runTaskPool(
-  tasks: Array<() => Promise<void>>,
-  poolLimit: number,
-): Promise<void> {
+export function buildTaskGroups(
+  specs: string[],
+  flags: RegenerateFlags,
+  ctx: RegenerateContext,
+  options: BuildTaskGroupsOptions = {},
+): TaskGroup[] {
+  const groups: TaskGroup[] = [];
+
+  for (const spec of specs) {
+    const tasks: CompileTask[] = [];
+
+    for (const emitterConfig of getEmitterOptions(spec, flags.flavor, ctx)) {
+      // Apply flavor defaults first, then per-spec options so they can override
+      // (e.g. "generate-test": "false")
+      const opts: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
+        opts[k] = v;
+      }
+      Object.assign(opts, emitterConfig);
+
+      opts["flavor"] = flags.flavor;
+
+      // Set output directory - tests/generated/<flavor>/<package> structure.
+      // Always anchored at <generatedFolder>/../tests/generated regardless of
+      // pluginDir, so generator-only checkouts work too.
+      const packageName = (opts["package-name"] as string) || defaultPackageName(spec, ctx);
+      const outputDir =
+        (opts["emitter-output-dir"] as string) ||
+        toPosix(`${ctx.generatedFolder}/../tests/generated/${flags.flavor}/${packageName}`);
+      opts["emitter-output-dir"] = outputDir;
+
+      if (flags.debug) {
+        opts["debug"] = true;
+      }
+
+      opts["examples-dir"] = toPosix(join(dirname(spec), "examples"));
+
+      if (options.emitYamlOnly) {
+        // Emit YAML only - Python processing is batched after all specs compile.
+        opts["emit-yaml-only"] = true;
+      }
+
+      tasks.push({ spec, outputDir, options: opts });
+    }
+
+    groups.push({ spec, tasks });
+  }
+
+  return groups;
+}
+
+export async function compileSpec(
+  task: CompileTask,
+  ctx: RegenerateContext,
+): Promise<{ success: boolean; error?: string }> {
+  const { spec, outputDir, options } = task;
+
+  try {
+    const compilerOptions = {
+      emit: [ctx.pluginDir],
+      options: {
+        [ctx.emitterName]: options,
+      },
+    };
+
+    const program = await compile(NodeHost, spec, compilerOptions);
+
+    if (program.hasError()) {
+      const errors = program.diagnostics
+        .filter((d) => d.severity === "error")
+        .map((d) => d.message)
+        .join("\n");
+      return { success: false, error: errors };
+    }
+
+    return { success: true };
+  } catch (err) {
+    rmSync(outputDir, { recursive: true, force: true });
+    return { success: false, error: String(err) };
+  }
+}
+
+export function renderProgressBar(
+  completed: number,
+  failed: number,
+  total: number,
+  width: number = 40,
+): string {
+  const successCount = completed - failed;
+  const successWidth = Math.round((successCount / total) * width);
+  const failWidth = Math.round((failed / total) * width);
+  const emptyWidth = width - successWidth - failWidth;
+
+  const successBar = pc.bgGreen(" ".repeat(successWidth));
+  const failBar = failed > 0 ? pc.bgRed(" ".repeat(failWidth)) : "";
+  const emptyBar = pc.dim("░".repeat(Math.max(0, emptyWidth)));
+
+  const percent = Math.round((completed / total) * 100);
+  return `${successBar}${failBar}${emptyBar} ${pc.cyan(`${percent}%`)} (${completed}/${total})`;
+}
+
+export async function runParallel(
+  groups: TaskGroup[],
+  maxJobs: number,
+  ctx: RegenerateContext,
+): Promise<Map<string, boolean>> {
+  const results = new Map<string, boolean>();
   const executing: Set<Promise<void>> = new Set();
 
-  for (const task of tasks) {
-    // Start the task and remove from set when done
-    const p: Promise<void> = task().finally(() => executing.delete(p));
+  const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
+  let completed = 0;
+  let failed = 0;
+  const failedSpecs: string[] = [];
+
+  const isTTY = process.stdout.isTTY;
+
+  const updateProgress = () => {
+    if (isTTY) {
+      process.stdout.write(`\r${renderProgressBar(completed, failed, totalTasks)}`);
+    }
+  };
+
+  updateProgress();
+
+  for (const group of groups) {
+    // Each group runs as a unit - tasks within a group run sequentially
+    // to avoid state pollution. Different groups run in parallel.
+    const runGroup = async () => {
+      const specDir = isAzureSpec(group.spec) ? ctx.azureHttpSpecs : ctx.httpSpecs;
+      const shortName = toPosix(relative(specDir, dirname(group.spec)));
+
+      let groupSuccess = true;
+      for (const task of group.tasks) {
+        const packageName = (task.options["package-name"] as string) || shortName;
+
+        const result = await compileSpec(task, ctx);
+        completed++;
+
+        if (!result.success) {
+          failed++;
+          failedSpecs.push(`${packageName}: ${result.error}`);
+          groupSuccess = false;
+        }
+
+        updateProgress();
+      }
+
+      results.set(group.spec, groupSuccess);
+    };
+
+    const p = runGroup().finally(() => executing.delete(p));
     executing.add(p);
 
-    // If at capacity, wait for one to complete
-    if (executing.size >= poolLimit) {
+    if (executing.size >= maxJobs) {
       await Promise.race(executing);
     }
   }
 
-  // Wait for remaining tasks
   await Promise.all(executing);
-}
 
-export async function regenerate(
-  flags: RegenerateFlagsInput,
-  config: RegenerateConfig,
-): Promise<void> {
-  if (flags.flavor === undefined) {
-    await regenerate({ flavor: "azure", ...flags }, config);
-    await regenerate({ flavor: "unbranded", ...flags }, config);
-  } else {
-    await config.preprocess(flags);
-
-    const flagsResolved: RegenerateFlags = { debug: false, flavor: flags.flavor, ...flags };
-    const subdirectoriesForAzure = await getSubdirectories(config.azureHttpSpecs, flagsResolved);
-    const subdirectoriesForNonAzure = await getSubdirectories(config.httpSpecs, flagsResolved);
-    const subdirectories =
-      flags.flavor === "azure"
-        ? [...subdirectoriesForAzure, ...subdirectoriesForNonAzure]
-        : subdirectoriesForNonAzure;
-    const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
-      config.getCmdList(subdirectory, flagsResolved),
-    );
-
-    // Create tasks as functions for the pool
-    const tasks: Array<() => Promise<void>> = cmdList.map((tspCommand) => {
-      return () => config.executeCommand(tspCommand);
-    });
-
-    // Run tasks with a concurrency limit
-    // Default: 30 jobs, or use provided value
-    const poolLimit = flags.jobs ?? 30;
-    await runTaskPool(tasks, poolLimit);
+  if (isTTY) {
+    process.stdout.write("\r" + " ".repeat(60) + "\r");
   }
+
+  if (failedSpecs.length > 0) {
+    console.log(pc.red(`\nFailed specs:`));
+    for (const spec of failedSpecs) {
+      console.log(pc.red(`  • ${spec}`));
+    }
+  }
+
+  return results;
 }
 
-// Preprocess: create files that should be deleted after regeneration (for testing)
+/**
+ * Removes every generated file under `tests/generated`, keeping only the
+ * hand-authored files that are tracked in git. `git clean -xdf` deletes ignored
+ * and untracked files but never tracked ones, so `.gitignore` stays the single
+ * source of truth for which fixtures survive regeneration (each exception there
+ * documents why it cannot be regenerated).
+ */
+export async function cleanGeneratedCode(generatedFolder: string): Promise<void> {
+  const repoDir = resolve(generatedFolder, "..");
+  const testsGeneratedDir = resolve(repoDir, "tests/generated");
+  if (!existsSync(testsGeneratedDir)) return;
+
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Cleaning generated test packages`));
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  execSync(`git clean -x -d -f -q -- "${testsGeneratedDir}"`, {
+    cwd: repoDir,
+    stdio: ["ignore", "inherit", "inherit"],
+  });
+}
+
+/**
+ * Pre-create the marker files that the test harness expects to find before
+ * regeneration so it can verify they're cleared/preserved correctly.
+ */
 export async function preprocess(flavor: string, generatedFolder: string): Promise<void> {
-  if (flavor === "azure") {
-    // Use tests/generated/<flavor>/<package> structure (same as output)
-    const testsGeneratedDir = resolve(generatedFolder, "../tests/generated/azure");
+  if (flavor !== "azure") return;
 
-    const DELETE_CONTENT = "# This file is to be deleted after regeneration";
-    const DELETE_FILE = "to_be_deleted.py";
-    const entries: { folder: string[]; file: string; content: string }[] = [
-      {
-        folder: ["authentication-api-key", "authentication", "apikey", "_operations"],
-        file: DELETE_FILE,
-        content: DELETE_CONTENT,
-      },
-      {
-        folder: ["generation-subdir", "generation", "subdir", "_generated"],
-        file: DELETE_FILE,
-        content: DELETE_CONTENT,
-      },
-      {
-        folder: ["generation-subdir", "generated_tests"],
-        file: DELETE_FILE,
-        content: DELETE_CONTENT,
-      },
-      {
-        folder: ["generation-subdir", "generation", "subdir"],
-        file: "to_be_kept.py",
-        content: "# This file is to be kept after regeneration",
-      },
-    ];
+  const testsGeneratedDir = resolve(generatedFolder, "../tests/generated/azure");
 
-    await Promise.all(
-      entries.map(async ({ folder, file, content }) => {
-        const targetFolder = join(testsGeneratedDir, ...folder);
-        await promises.mkdir(targetFolder, { recursive: true });
-        await promises.writeFile(join(targetFolder, file), content);
-      }),
-    );
-  }
+  const DELETE_CONTENT = "# This file is to be deleted after regeneration";
+  const KEEP_CONTENT = "# This file is to be kept after regeneration";
+  const DELETE_FILE = "to_be_deleted.py";
+  const entries: { folder: string[]; file: string; content: string }[] = [
+    {
+      folder: ["authentication-api-key", "authentication", "apikey", "_operations"],
+      file: DELETE_FILE,
+      content: DELETE_CONTENT,
+    },
+    {
+      folder: ["generation-subdir", "generation", "subdir", "_generated"],
+      file: DELETE_FILE,
+      content: DELETE_CONTENT,
+    },
+    {
+      folder: ["generation-subdir", "generated_tests"],
+      file: DELETE_FILE,
+      content: DELETE_CONTENT,
+    },
+    {
+      folder: ["generation-subdir", "generation", "subdir"],
+      file: "to_be_kept.py",
+      content: KEEP_CONTENT,
+    },
+  ];
+
+  await Promise.all(
+    entries.map(async ({ folder, file, content }) => {
+      const targetFolder = join(testsGeneratedDir, ...folder);
+      await mkdir(targetFolder, { recursive: true });
+      await writeFile(join(targetFolder, file), content);
+    }),
+  );
 }

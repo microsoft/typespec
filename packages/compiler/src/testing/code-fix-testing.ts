@@ -8,7 +8,9 @@ import { extractCursor, extractCursors } from "./source-utils.js";
 import { createTestHost } from "./test-host.js";
 import { trimBlankLines } from "./test-utils.js";
 
+/** Expected-source assertion for a fix constructed from a parsed AST, without type checking. */
 export interface CodeFixExpect {
+  /** Apply the fix to the cursor-free source and compare its output using {@link trimBlankLines}. */
   toChangeTo(code: string): Promise<void>;
 }
 
@@ -48,6 +50,7 @@ export function expectCodeFixOnAst(code: string, callback: (node: Node) => CodeF
     const node = getNodeAtPosition(script, pos);
     ok(node, "Expected node at cursor. Make sure to have ┆ to mark which node.");
     const codefix = callback(node);
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const host = await createTestHost();
     let updatedContent: string | undefined;
     await applyCodeFix(
@@ -90,6 +93,7 @@ export function expectCodeFixesOnAst(
     }
     ok(diagnostics.length > 0, "Expected node at cursor. Make sure to have ┆ to mark which node.");
     const codeFixes = callback(diagnostics);
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const host = await createTestHost();
     let updatedContent: string | undefined;
     await applyCodeFixes(

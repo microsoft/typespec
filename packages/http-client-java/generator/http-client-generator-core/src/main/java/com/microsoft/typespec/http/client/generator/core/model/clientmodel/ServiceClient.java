@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ import java.util.Set;
  * The details of a ServiceClient.
  */
 public class ServiceClient {
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
     /**
      * The package that this service client belongs to.
      */
@@ -110,7 +111,7 @@ public class ServiceClient {
         ClientMethodParameter defaultPollIntervalParameter, String defaultCredentialScopes, boolean builderDisabled,
         String builderPackageName, SecurityInfo securityInfo, String baseUrl,
         PipelinePolicyDetails pipelinePolicyDetails, List<ClientAccessorMethod> clientAccessorMethods,
-        String crossLanguageDefinitionId) {
+        ApiMetadata apiMetadata) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceName = interfaceName;
@@ -132,7 +133,7 @@ public class ServiceClient {
         this.baseUrl = baseUrl;
         this.pipelinePolicyDetails = pipelinePolicyDetails;
         this.clientAccessorMethods = clientAccessorMethods;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = apiMetadata;
     }
 
     public final String getPackage() {
@@ -274,8 +275,8 @@ public class ServiceClient {
         this.syncClient = syncClient;
     }
 
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**
@@ -288,6 +289,7 @@ public class ServiceClient {
     public final void addImportsTo(Set<String> imports, boolean includeImplementationImports,
         boolean includeBuilderImports, JavaSettings settings) {
         if (!includeBuilderImports) {
+            ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
             for (ClientMethod clientMethod : getClientMethods()) {
                 clientMethod.addImportsTo(imports, includeImplementationImports, settings);
             }
@@ -392,7 +394,7 @@ public class ServiceClient {
         protected String baseUrl;
         protected PipelinePolicyDetails pipelinePolicyDetails;
         protected List<ClientAccessorMethod> clientAccessorMethods = List.of();
-        private String crossLanguageDefinitionId;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
 
         /**
          * Sets the package that this service client belongs to.
@@ -608,8 +610,8 @@ public class ServiceClient {
             return this;
         }
 
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
@@ -617,8 +619,7 @@ public class ServiceClient {
             return new ServiceClient(packageName, className, interfaceName, proxy, methodGroupClients, properties,
                 constructors, clientMethods, azureEnvironmentParameter, tokenCredentialParameter, httpPipelineParameter,
                 serializerAdapterParameter, defaultPollIntervalParameter, defaultCredentialScopes, builderDisabled,
-                builderPackageName, securityInfo, baseUrl, pipelinePolicyDetails, clientAccessorMethods,
-                crossLanguageDefinitionId);
+                builderPackageName, securityInfo, baseUrl, pipelinePolicyDetails, clientAccessorMethods, apiMetadata);
         }
     }
 }
