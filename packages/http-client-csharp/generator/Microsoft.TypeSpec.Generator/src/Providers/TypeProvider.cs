@@ -1204,6 +1204,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Update(fields: newFields, properties: newProperties, methods: newMethods, constructors: newConstructors);
             }
 
+            ReconcileMethodDeprecationAttributes();
+
             // Providers whose attributes depend on final generation decisions build their attributes at write
             // time; materialize them here (applying attribute back-compatibility) so reads before the write
             // reflect the result. The generated portion is refreshed again at write against the final state.
@@ -1258,6 +1260,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return result;
         }
 
+        private void ReconcileMethodDeprecationAttributes()
+        {
+            foreach (var method in Methods)
+            {
+                var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
+                if (generatedAttributes.Length > 0
+                    && method.Signature.Attributes.Any(attribute =>
+                        DeprecationApiHelpers.IsObsoleteAttribute(attribute)
+                        && !IsGeneratedMethodDeprecationAttribute(attribute)))
+                {
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
+                        generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
+                }
+            }
+        }
+
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
             => null;
 
@@ -1309,20 +1328,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
             BackCompatHelper.AddBackCompatOverloads(this, methods);
-
-            foreach (var method in methods)
-            {
-                var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
-                if (generatedAttributes.Length > 0
-                    && method.Signature.Attributes.Any(attribute =>
-                        DeprecationApiHelpers.IsObsoleteAttribute(attribute)
-                        && !IsGeneratedMethodDeprecationAttribute(attribute)))
-                {
-                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
-                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
-                        generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
-                }
-            }
 
             return methods;
         }
