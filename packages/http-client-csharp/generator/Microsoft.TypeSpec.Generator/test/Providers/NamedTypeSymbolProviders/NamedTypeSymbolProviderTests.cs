@@ -423,7 +423,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             MockHelpers.LoadMockGenerator(sharedSourceDirectories: [Helpers.GetAssetFileOrDirectoryPath(false)]);
             var compilation = useWorkspace
                 ? await (await GeneratedCodeWorkspace.Create(isCustomCodeProject: true)).GetCompilationAsync()
-                : await Helpers.GetCompilationFromDirectoryAsync(languageVersion: LanguageVersion.Preview);
+                : await Helpers.GetCompilationFromDirectoryAsync();
             var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
             var provider = new NamedTypeSymbolProvider(symbol, compilation);
 

@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public async Task AddInMemoryFile(TypeProvider type)
         {
-            var document = _project.AddDocument(type.Name, GetTree(type, LanguageVersion.Preview).GetRoot(), _generatedFolders);
+            var document = _project.AddDocument(type.Name, GetTree(type).GetRoot(), _generatedFolders);
             await UpdateProject(document);
         }
 
@@ -99,12 +99,11 @@ namespace Microsoft.TypeSpec.Generator
             _project = document.Project;
         }
 
-        internal static SyntaxTree GetTree(TypeProvider provider, LanguageVersion languageVersion = LanguageVersion.Default)
+        internal static SyntaxTree GetTree(TypeProvider provider)
         {
             var writer = new TypeProviderWriter(provider);
             var file = writer.Write();
-            return CSharpSyntaxTree.ParseText(file.Content, new CSharpParseOptions(languageVersion),
-                path: Path.Join(provider.RelativeFilePath, provider.Name + ".cs"));
+            return CSharpSyntaxTree.ParseText(file.Content, path: Path.Join(provider.RelativeFilePath, provider.Name + ".cs"));
         }
 
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
@@ -172,6 +171,7 @@ namespace Microsoft.TypeSpec.Generator
                         (_, name) => name.WithAdditionalAnnotations(Simplifier.Annotation)).WithoutAnnotations(Simplifier.Annotation));
                     document = await Simplifier.ReduceAsync(document);
                     root = await document.GetSyntaxRootAsync();
+                    Debug.Assert(root != null);
                     document = document.WithSyntaxRoot(root.WithAdditionalAnnotations(Simplifier.Annotation));
                 }
                 document = await Simplifier.ReduceAsync(document);
@@ -261,7 +261,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             project = project.WithParseOptions(new CSharpParseOptions(
-                languageVersion: LanguageVersion.Preview,
                 preprocessorSymbols: ["EXPERIMENTAL"],
                 documentationMode: isCustomCodeProject ? DocumentationMode.None : DocumentationMode.Parse));
 

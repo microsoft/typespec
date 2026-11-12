@@ -2323,8 +2323,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(true)]
         public async Task CustomPartialConstructorsPreserveImplementation(bool expressionBody)
         {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync(languageVersion: LanguageVersion.Preview), includeXmlDocs: true);
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync(), includeXmlDocs: true);
             var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
             var identifier = new ParameterProvider("identifier", $"The identifier.", typeof(string));
             var version = new ParameterProvider("version", $"The resource version.", typeof(string), defaultValue: Snippet.Null);
@@ -2361,7 +2360,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreSame(chainedConstructor.Signature.Initializer, typeProvider.Constructors[1].Signature.Initializer);
             typeProvider.Update(constructors: typeProvider.Constructors);
             Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
-            Assert.AreEqual(2, GeneratedCodeWorkspace.GetTree(typeProvider, LanguageVersion.Preview).GetRoot()
+            Assert.AreEqual(2, GeneratedCodeWorkspace.GetTree(typeProvider).GetRoot()
                 .DescendantNodes().OfType<ConstructorDeclarationSyntax>().Count());
         }
 
@@ -2391,8 +2390,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task CustomPartialConstructorsIsolateSharedParameters(bool customizedFirst)
         {
             await MockHelpers.LoadMockGeneratorAsync(
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(CustomPartialConstructorsPreserveImplementation), languageVersion: LanguageVersion.Preview),
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(CustomPartialConstructorsPreserveImplementation)),
                 includeXmlDocs: true);
             var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
             var identifier = new ParameterProvider("identifier", $"The identifier.", typeof(string));
@@ -2422,8 +2420,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(typeof(long), 0)]
         public async Task CustomPartialConstructorsOnlyMergeMatchingDeclarations(Type parameterType, int expectedCount)
         {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync(languageVersion: LanguageVersion.Preview));
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var typeProvider = new TestTypeProvider(name: "CustomPartialConstructorType");
             var constructor = new ConstructorProvider(
                 new ConstructorSignature(typeProvider.Type, null, MethodSignatureModifiers.Internal,

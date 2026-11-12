@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -5215,7 +5214,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 ]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync("Custom", languageVersion: LanguageVersion.Preview),
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync("Custom"),
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync("LastContract"),
                 includeXmlDocs: true);
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -5240,7 +5239,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 ]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync(customizeRestored.ToString(), languageVersion: LanguageVersion.Preview),
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(customizeRestored.ToString()),
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync("LastContract"),
                 includeXmlDocs: true);
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders

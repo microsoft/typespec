@@ -72,11 +72,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public static async Task<Compilation> GetCompilationFromDirectoryAsync(
             string? parameters = null,
             [CallerMemberName] string method = "",
-            [CallerFilePath] string filePath = "",
-            LanguageVersion languageVersion = LanguageVersion.Default)
+            [CallerFilePath] string filePath = "")
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
-            return await GetCompilationFromDirectoriesAsync([directory], Path.Combine(directory, "Generated"), languageVersion);
+            return await GetCompilationFromDirectoriesAsync([directory], Path.Combine(directory, "Generated"));
         }
 
         /// <summary>
@@ -86,11 +85,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         /// </summary>
         public static async Task<Compilation> GetCompilationFromDirectoriesAsync(
             IReadOnlyList<string> directories,
-            string generatedDirectory,
-            LanguageVersion languageVersion = LanguageVersion.Default)
+            string generatedDirectory)
         {
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Sample-TypeSpec", "src", "Generated", "Internal");
-            var project = CreateExistingCodeProject([.. directories, codeGenAttributeFiles], generatedDirectory, languageVersion);
+            var project = CreateExistingCodeProject([.. directories, codeGenAttributeFiles], generatedDirectory);
             var compilation = await project.GetCompilationAsync();
             Assert.That(compilation, Is.Not.Null);
             return compilation!;
@@ -129,16 +127,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return compilation!;
         }
 
-        private static Project CreateExistingCodeProject(
-            IEnumerable<string> projectDirectories,
-            string generatedDirectory,
-            LanguageVersion languageVersion)
+        private static Project CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
         {
             var workspace = new AdhocWorkspace();
             var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
-            Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp)
-                .WithParseOptions(new CSharpParseOptions(languageVersion));
+            Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
 
             foreach (var projectDirectory in projectDirectories)
             {
