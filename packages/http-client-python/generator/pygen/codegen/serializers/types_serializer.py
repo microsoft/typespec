@@ -247,11 +247,8 @@ class TypesSerializer(BaseSerializer):
     def needs_flat_typeddict(model: ModelType) -> bool:
         """Whether a TypedDict must be emitted in flat (non-inheriting) form.
 
-        PEP 589 forbids changing an inherited TypedDict field's requiredness in a subclass. When a
-        child redeclares an inherited field with a different requiredness (e.g. the parent renders it
-        as optional via ``total=False`` while the child needs ``Required[...]``), subclassing would
-        emit an illegal ``Overwriting TypedDict field ... while extending`` construct. Such models are
-        instead rendered as a flat TypedDict that lists every field (inherited + own) directly.
+        TypedDict subclasses cannot change an inherited field's type or requiredness. Such models
+        are rendered as a flat TypedDict that lists every field (inherited + own) directly.
 
         Models with keyword wire_names already flatten all fields via the functional form, so they
         never hit this path.
@@ -273,6 +270,10 @@ class TypesSerializer(BaseSerializer):
                 parent_required = not (parent_prop.optional or parent_prop.client_default_value is not None)
                 child_required = not (child_prop.optional or child_prop.client_default_value is not None)
                 if parent_required != child_required:
+                    return True
+                if parent_prop.type_annotation(
+                    serialize_namespace_type=NamespaceType.TYPES_FILE
+                ) != child_prop.type_annotation(serialize_namespace_type=NamespaceType.TYPES_FILE):
                     return True
         return False
 

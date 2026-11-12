@@ -524,6 +524,40 @@ def test_unions_serializer_no_unions():
     assert "Union" not in output
 
 
+@pytest.mark.parametrize("async_mode", [False, True])
+def test_union_of_token_credentials_does_not_import_unused_union(async_mode):
+    code_model = _make_code_model()
+    credentials = [
+        build_type(
+            {
+                "type": "OAuth2",
+                "policy": {"type": "BearerTokenCredentialPolicy", "credentialScopes": [scope]},
+            },
+            code_model,
+        )
+        for scope in ["scope1", "scope2"]
+    ]
+    union = CombinedType({"type": "combined"}, code_model, credentials)
+
+    output = str(FileImportSerializer(union.imports(async_mode=async_mode)))
+
+    assert "Union" not in output
+    assert ("AsyncTokenCredential" if async_mode else "TokenCredential") in output
+
+
+def test_combined_type_with_distinct_annotations_still_imports_union():
+    code_model = _make_code_model()
+    union = CombinedType(
+        {"type": "combined"},
+        code_model,
+        [build_type({"type": "string"}, code_model), build_type({"type": "integer"}, code_model)],
+    )
+
+    output = str(FileImportSerializer(union.imports()))
+
+    assert "from typing import Union" in output
+
+
 def test_unions_serializer_single_member_alias():
     """A named single-member union must remain a valid static type alias."""
     code_model = _make_code_model(models_mode="dpg")
@@ -1058,6 +1092,43 @@ def test_typeddict_inheritance_without_requiredness_change_still_subclasses():
     env = _make_env()
     output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
     assert "class Derived(Base):" in output
+
+
+@pytest.mark.parametrize("models_mode", ["dpg", "typeddict"])
+def test_typeddict_narrowed_inherited_field_uses_flat_form(models_mode):
+    code_model = _make_code_model(models_mode=models_mode)
+    str_type = build_type({"type": "string"}, code_model)
+    literal_type = build_type(
+        {"type": "constant", "value": "cat", "valueType": {"type": "string"}},
+        code_model,
+    )
+    parent = _make_model(
+        code_model,
+        "Mammal",
+        properties=[
+            _make_typed_property(code_model, "kind", str_type, optional=False),
+            _make_typed_property(code_model, "name", str_type, optional=False),
+        ],
+    )
+    parent.is_typed_dict_only = True
+    child = _make_model(
+        code_model,
+        "Cat",
+        properties=[
+            parent.properties[1],
+            _make_typed_property(code_model, "kind", literal_type, optional=False),
+        ],
+    )
+    child.parents = [parent]
+    child.is_typed_dict_only = True
+    code_model.model_types = [parent, child]
+
+    output = TypesSerializer(code_model=code_model, env=_make_env(), models=[parent, child]).serialize()
+
+    assert "class Cat(TypedDict, total=False):" in output
+    assert "class Cat(Mammal):" not in output
+    assert 'kind: Required[Literal["cat"]]' in output
+    assert "name: Required[str]" in output.split("class Cat(", 1)[1]
 
 
 # ---------- Bug 1: internal enum reference/import in types.py (issue #11626) ----------

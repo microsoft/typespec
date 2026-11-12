@@ -126,7 +126,7 @@ class CombinedType(BaseType):
             return file_import
         for type in self.types:
             file_import.merge(type.imports(**kwargs))
-        if not self._is_union_of_literals:
+        if not self._is_union_of_literals and len({t.type_annotation(**kwargs) for t in self.types}) > 1:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
         return file_import
 
