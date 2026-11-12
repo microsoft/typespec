@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -156,6 +157,23 @@ namespace Microsoft.TypeSpec.Generator
 
             if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
             {
+                // TODO: Remove this workaround when the referenced Roslyn version fixes https://github.com/dotnet/roslyn/issues/86393.
+                var conditionalNames = root.DescendantNodes(node => node is not NameSyntax && !IsCastTypedConditional(node))
+                    .OfType<ConditionalExpressionSyntax>()
+                    .Where(IsCastTypedConditional)
+                    .SelectMany(conditional => conditional.DescendantNodes(
+                        node => node is not QualifiedNameSyntax and not AliasQualifiedNameSyntax))
+                    .Where(node => node is QualifiedNameSyntax or AliasQualifiedNameSyntax)
+                    .ToArray();
+                if (conditionalNames.Length > 0)
+                {
+                    // Simplify qualified names before cast removal changes conditional binding.
+                    document = document.WithSyntaxRoot(root.ReplaceNodes(conditionalNames,
+                        (_, name) => name.WithAdditionalAnnotations(Simplifier.Annotation)).WithoutAnnotations(Simplifier.Annotation));
+                    document = await Simplifier.ReduceAsync(document);
+                    root = await document.GetSyntaxRootAsync();
+                    document = document.WithSyntaxRoot(root.WithAdditionalAnnotations(Simplifier.Annotation));
+                }
                 document = await Simplifier.ReduceAsync(document);
             }
 
@@ -165,6 +183,32 @@ namespace Microsoft.TypeSpec.Generator
                 document = await Formatter.FormatAsync(document);
             }
             return document;
+        }
+
+        // A branch cast gives the conditional its natural type; Roslyn may remove it before simplifying names.
+        private static bool IsCastTypedConditional(SyntaxNode node)
+            => node is ConditionalExpressionSyntax conditional
+                && (IsTypingCast(conditional.WhenTrue) || IsTypingCast(conditional.WhenFalse));
+
+        private static bool IsTypingCast(ExpressionSyntax expression)
+        {
+            expression = WithoutParentheses(expression);
+            return expression switch
+            {
+                CastExpressionSyntax cast => !WithoutParentheses(cast.Expression).IsKind(SyntaxKind.NullLiteralExpression)
+                    && !WithoutParentheses(cast.Expression).IsKind(SyntaxKind.DefaultLiteralExpression),
+                ConditionalExpressionSyntax conditional => IsCastTypedConditional(conditional),
+                _ => false
+            };
+        }
+
+        private static ExpressionSyntax WithoutParentheses(ExpressionSyntax expression)
+        {
+            while (expression is ParenthesizedExpressionSyntax parenthesized)
+            {
+                expression = parenthesized.Expression;
+            }
+            return expression;
         }
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
