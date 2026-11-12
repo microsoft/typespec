@@ -16,8 +16,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static readonly Regex BoldItalicRegex = new Regex(@"\*\*\*([^*]+?)\*\*\*", RegexOptions.Compiled);
         private static readonly Regex BoldRegex = new Regex(@"\*\*([^*]+?)\*\*", RegexOptions.Compiled);
         private static readonly Regex ItalicRegex = new Regex(@"(?<!\*)\*([^*]+?)\*(?!\*)", RegexOptions.Compiled);
-        private static readonly Regex CodeSpanRegex = new Regex(@"(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)", RegexOptions.Compiled);
-
         public static string? GetDescription(string? summary, string? doc)
         {
             var description = (summary, doc) switch
@@ -160,7 +158,35 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 asteriskPlaceholder += "_";
             }
-            text = CodeSpanRegex.Replace(text, match => match.Value.Replace("*", asteriskPlaceholder));
+
+            var protectedAsterisks = new bool[text.Length];
+            var searchIndex = 0;
+            while (FindNextCodeSpan(text, searchIndex, out var codeSpanStart, out var codeSpanEnd))
+            {
+                for (int i = codeSpanStart; i < codeSpanEnd; i++)
+                {
+                    if (text[i] == '*')
+                    {
+                        protectedAsterisks[i] = true;
+                    }
+                }
+
+                searchIndex = codeSpanEnd;
+            }
+
+            var protectedText = new StringBuilder();
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (protectedAsterisks[i])
+                {
+                    protectedText.Append(asteriskPlaceholder);
+                }
+                else
+                {
+                    protectedText.Append(text[i]);
+                }
+            }
+            text = protectedText.ToString();
 
             // Handle ***bold italic*** (must be done before ** and *)
             text = BoldItalicRegex.Replace(text, "<b><i>$1</i></b>");
@@ -172,6 +198,71 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             text = ItalicRegex.Replace(text, "<i>$1</i>");
 
             return text.Replace(asteriskPlaceholder, "*");
+        }
+
+        private static bool FindNextCodeSpan(string text, int searchIndex, out int codeSpanStart, out int codeSpanEnd)
+        {
+            while (searchIndex < text.Length)
+            {
+                if (text[searchIndex] != '`')
+                {
+                    searchIndex++;
+                    continue;
+                }
+
+                var delimiterStart = searchIndex;
+                var delimiterEnd = GetBacktickRunEnd(text, delimiterStart);
+                var delimiterLength = delimiterEnd - delimiterStart;
+
+                var precedingBackslashes = 0;
+                for (int i = delimiterStart - 1; i >= 0 && text[i] == '\\'; i--)
+                {
+                    precedingBackslashes++;
+                }
+
+                if (precedingBackslashes % 2 != 0)
+                {
+                    searchIndex = delimiterEnd;
+                    continue;
+                }
+
+                var closingSearchIndex = delimiterEnd;
+                while (closingSearchIndex < text.Length)
+                {
+                    if (text[closingSearchIndex] != '`')
+                    {
+                        closingSearchIndex++;
+                        continue;
+                    }
+
+                    var closingDelimiterEnd = GetBacktickRunEnd(text, closingSearchIndex);
+                    if (closingDelimiterEnd - closingSearchIndex == delimiterLength)
+                    {
+                        codeSpanStart = delimiterStart;
+                        codeSpanEnd = closingDelimiterEnd;
+                        return true;
+                    }
+
+                    closingSearchIndex = closingDelimiterEnd;
+                }
+
+                searchIndex = delimiterEnd;
+            }
+
+            codeSpanStart = 0;
+            codeSpanEnd = 0;
+            return false;
+        }
+
+        private static int GetBacktickRunEnd(string text, int startIndex)
+        {
+            var endIndex = startIndex;
+            while (endIndex < text.Length && text[endIndex] == '`')
+            {
+                endIndex++;
+            }
+
+            return endIndex;
         }
     }
 }
