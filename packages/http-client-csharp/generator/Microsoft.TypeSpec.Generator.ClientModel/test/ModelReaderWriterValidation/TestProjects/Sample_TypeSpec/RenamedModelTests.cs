@@ -18,7 +18,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 
         protected override void CompareModels(RenamedModelCustom model, RenamedModelCustom model2, string format)
         {
+#pragma warning disable CS0618 // This test intentionally uses a deprecated property.
             Assert.AreEqual(model.OtherName, model2.OtherName);
+#pragma warning restore CS0618
             Assert.AreEqual(model.Name, model2.Name);
 
             if (format == "J")
@@ -34,7 +36,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 
         protected override void VerifyModel(RenamedModelCustom model, string format)
         {
+#pragma warning disable CS0618 // This test intentionally uses a deprecated property.
             Assert.AreEqual("anotherName", model.OtherName);
+#pragma warning restore CS0618
             Assert.AreEqual("projectedModel", model.Name);
 
             var rawData = GetRawData(model);

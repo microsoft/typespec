@@ -23,7 +23,12 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Model } from "@typespec/compiler";
-import { compilerAssert, createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import {
+  compilerAssert,
+  createDiagnosticCollector,
+  getDeprecated,
+  NoTarget,
+} from "@typespec/compiler";
 import { isEvents } from "@typespec/events";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
@@ -308,6 +313,9 @@ function fromSdkModelProperty(
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
+    deprecation: sdkProperty.__raw
+      ? getDeprecated(sdkContext.program, sdkProperty.__raw)
+      : undefined,
     type: diagnostics.pipe(
       fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
     ),

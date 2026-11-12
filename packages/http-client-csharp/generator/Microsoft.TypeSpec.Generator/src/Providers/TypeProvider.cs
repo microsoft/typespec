@@ -1097,8 +1097,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        /// <summary>
+        /// Reconciles generated property deprecation attributes with the last contract before back-compat processing.
+        /// </summary>
+        internal virtual void RefreshPropertyDeprecation()
+        {
+        }
+
         internal void ProcessTypeForBackCompatibility()
         {
+            RefreshPropertyDeprecation();
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
 

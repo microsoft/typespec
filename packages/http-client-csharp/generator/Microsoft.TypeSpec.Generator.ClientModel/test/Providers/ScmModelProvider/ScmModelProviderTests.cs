@@ -25,14 +25,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
-        [TestCase(InputModelTypeUsage.Input, "WidgetRequest")]
+        [TestCase(InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
-        public void ContentSuffixUsageIsReflectedInGeneratedCode(InputModelTypeUsage usage, string expectedName)
+        public void RequestSuffixUsageIsReflectedInGeneratedCode(InputModelTypeUsage usage, string expectedName)
         {
-            var input = InputFactory.Model("WidgetContent",
+            var input = InputFactory.Model("WidgetRequest",
                 usage: usage | InputModelTypeUsage.Json,
-                properties: [InputFactory.Property("serviceContent", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("serviceRequest", InputPrimitiveType.String)]);
             MockHelpers.LoadMockGenerator(inputModels: () => [input]);
             var factory = ScmCodeModelGenerator.Instance.TypeFactory;
             var model = factory.CreateModel(input)!;
@@ -43,16 +43,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.AreSame(model, factory.CSharpTypeMap[model.Type]);
         }
 
-        [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", false)]
-        [TestCase("WidgetRequest", "Sample.Models", true, "WidgetContent", true)]
-        [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", false)]
-        [TestCase("WidgetRequest", "Other.Models", true, "WidgetRequest", true)]
-        [TestCase("IpRequest", "Sample.Models", false, "IPContent", false)]
-        [TestCase("IpRequest", "Sample.Models", true, "IPRequest", true)]
+        [TestCase("WidgetContent", "Sample.Models", true, "WidgetRequest", false)]
+        [TestCase("WidgetContent", "Sample.Models", true, "WidgetRequest", true)]
+        [TestCase("WidgetContent", "Other.Models", true, "WidgetContent", false)]
+        [TestCase("WidgetContent", "Other.Models", true, "WidgetContent", true)]
+        [TestCase("IpContent", "Sample.Models", false, "IPRequest", false)]
+        [TestCase("IpContent", "Sample.Models", true, "IPContent", true)]
         public void ModelSuffixDoesNotCollideWithClient(
             string clientName, string clientNamespace, bool exactName, string expectedName, bool clientFirst)
         {
-            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpContent" : "WidgetContent",
+            var input = InputFactory.Model(clientName.StartsWith("Ip", StringComparison.Ordinal) ? "IpRequest" : "WidgetRequest",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var inputClient = InputFactory.Client(clientName, clientNamespace: clientNamespace, isExactName: exactName);
             MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () => [inputClient]);
@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [TestCase("GadgetClient", "WidgetResponse", "WidgetResponse", "WidgetResult")]
-        [TestCase("WidgetRequest", "WidgetContent", "WidgetContent", "CustomizedRequest")]
+        [TestCase("WidgetContent", "WidgetRequest", "WidgetRequest", "CustomizedContent")]
         public async Task ModelSuffixDoesNotCollideWithCustomizedClient(
             string clientName, string modelName, string expectedName, string expectedClientName)
         {
@@ -92,16 +92,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         [Test]
         public void ModelSuffixFallbackDoesNotCollideWithClient()
         {
-            var input = InputFactory.Model("WidgetContent", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var input = InputFactory.Model("WidgetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             MockHelpers.LoadMockGenerator(inputModels: () => [input], clients: () =>
             [
-                InputFactory.Client("WidgetRequest", clientNamespace: "Sample.Models", isExactName: true),
-                InputFactory.Client("WidgetContent", clientNamespace: "Sample.Models", isExactName: true)
+                InputFactory.Client("WidgetContent", clientNamespace: "Sample.Models", isExactName: true),
+                InputFactory.Client("WidgetRequest", clientNamespace: "Sample.Models", isExactName: true)
             ]);
 
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
 
-            Assert.AreEqual("WidgetContent1", model.Name);
+            Assert.AreEqual("WidgetRequest1", model.Name);
         }
 
         [TestCase(false, "json")]
@@ -607,6 +607,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 Is.EqualTo(FieldModifiers.Private | FieldModifiers.Protected));
             Assert.That(provider.Fields, Is.Empty);
             Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
+        }
+
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        public void OptionalNullableOverrideSuppressesDeprecatedBaseReference(bool baseDeprecated, bool derivedDeprecated)
+        {
+            var baseModel = InputFactory.Model("baseModel", properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String),
+                    deprecation: baseDeprecated ? "Base message" : null)]);
+            var derivedModel = InputFactory.Model("derivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String),
+                    deprecation: derivedDeprecated ? "Derived message" : null)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel]);
+
+            var provider = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel)!;
+            var property = provider.Properties.Single();
+
+            Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
+            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""),
+                Is.EqualTo(baseDeprecated));
+            Assert.That(property.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.False);
+            if (baseDeprecated && !derivedDeprecated)
+            {
+                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                    new TypeProviderWriter(provider).Write().Content);
+            }
+        }
+
+        [Test]
+        public void OptionalNullableOverrideSuppressesCustomBaseDiagnostic()
+        {
+            var baseModel = InputFactory.Model("baseModel", properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String), deprecation: "Base message")]);
+            var derivedModel = InputFactory.Model("derivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel]);
+            generator.Object.AddVisitor(new CustomDeprecatedBaseVisitor());
+
+            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
+
+            Assert.That(property.DeclarationSuppressions.Select(s => s.Code.ToDisplayString()), Does.Contain("\"BASE001\""));
+            Assert.That(property.DeclarationSuppressions.Select(s => s.Code.ToDisplayString()), Does.Not.Contain("\"CS0618\""));
+            Assert.That(property.Suppressions.Select(s => s.Code.ToDisplayString()), Does.Not.Contain("\"BASE001\""));
+        }
+
+        private sealed class CustomDeprecatedBaseVisitor : LibraryVisitor
+        {
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property?.EnclosingType.Name == "BaseModel" && input.Name == "text")
+                {
+                    property.Update(attributes:
+                    [
+                        new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Base message")],
+                            [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("BASE001"))])
+                    ]);
+                }
+                return property;
+            }
         }
 
         [Test]
@@ -1405,6 +1466,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public void TestMultipartFormDataModel_DeprecatedNonFilePartSuppressesFileOverloads()
+        {
+            var filename = InputFactory.Property("filename", InputPrimitiveType.String, isRequired: true);
+            var inputModel = MultipartModel(
+                "DeprecatedPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String, deprecation: "Use something else."),
+                    FilePartProperty("file", filename: filename),
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var file = new TypeProviderWriter(model).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void TestMultipartFormDataModel_MixedJsonAndMultipartUsage()
         {
             var inputModel = MultipartModel(
@@ -1573,13 +1652,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 serializationOptions: InputFactory.Serialization.Options(
                     multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
 
-        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+        private static InputModelProperty NonFilePartProperty(string name, InputType type, string? deprecation = null)
             => InputFactory.Property(
                 name,
                 type,
                 isRequired: true,
                 serializationOptions: InputFactory.Serialization.Options(
-                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])),
+                deprecation: deprecation);
 
         private static InputModelType MultipartModel(
             string name,

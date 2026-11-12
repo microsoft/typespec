@@ -374,7 +374,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputSerializationOptions? serializationOptions = null,
             ArrayKnownEncoding? encode = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null)
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -392,7 +393,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
                 encode: encode,
-                apiVersions: apiVersions ?? [])
+                apiVersions: apiVersions ?? [],
+                deprecation: deprecation)
             {
                 IsExactName = isExactName,
             };

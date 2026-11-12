@@ -68,6 +68,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`${"message"}`,
     },
   },
+  "signature-collision": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`${"message"}`,
+    },
+  },
   "unsupported-endpoint-url": {
     severity: "error",
     messages: {

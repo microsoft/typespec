@@ -1,5 +1,23 @@
 # Change Log - @typespec/json-schema
 
+## 1.18.0
+
+### Features
+
+- [#12461](https://github.com/microsoft/typespec/pull/12461) Add `typeref(Type)` for referencing types from metadata values. Enable the `typeref` compiler feature in the calling project or library's `tspconfig.yaml`. Its result has type `TypeRef<T>`, where `T` is the referenced type. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to constrain its target. JavaScript implementations and generated signatures use `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler type. Type references are compilation metadata and cannot be represented as JSON values.
+  
+  ```typespec
+  model Item { id: string; }
+  model Registration { name: string; type: TypeRef; }
+  const entry: Registration = #{ name: "item", type: typeref(Item) };
+  ```
+
+### Bug Fixes
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) Enum members use their `application/json` `@encodedName` as their value, including members with an explicit value. An encoded integer member is emitted as a string.
+- [#12330](https://github.com/microsoft/typespec/pull/12330) Report a diagnostic instead of crashing when `@prefixItems` receives an array type rather than a tuple.
+
+
 ## 1.17.0
 
 ### Features

@@ -11,12 +11,12 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class MixedUsageRequest
+    public partial class MixedUsageContent
     {
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MixedUsageRequest(string id, string profileImagePath)
+        public MixedUsageContent(string id, string profileImagePath)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
@@ -26,7 +26,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MixedUsageRequest(string id, global::System.IO.Stream profileImage)
+        public MixedUsageContent(string id, global::System.IO.Stream profileImage)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -36,7 +36,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MixedUsageRequest(string id, global::System.BinaryData profileImage)
+        public MixedUsageContent(string id, global::System.BinaryData profileImage)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -46,7 +46,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MixedUsageRequest(string id, global::System.ClientModel.FileBinaryContent profileImage)
+        public MixedUsageContent(string id, global::System.ClientModel.FileBinaryContent profileImage)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -56,7 +56,7 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal MixedUsageRequest(string id, global::System.ClientModel.FileBinaryContent profileImage, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MixedUsageContent(string id, global::System.ClientModel.FileBinaryContent profileImage, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             Id = id;
             ProfileImage = profileImage;

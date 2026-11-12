@@ -1,10 +1,10 @@
 namespace Sample.Models
 {
-    public partial class WidgetRequest
+    public partial class WidgetContent
     {
     }
 
-    public partial class IpRequest
+    public partial class IpContent
     {
     }
 }

@@ -13,8 +13,11 @@ const packages = [
   ["http-client-csharp-provisioning", "Azure.Generator.Provisioning.dll"],
 ];
 
-async function download(url) {
+async function download(url, allowNotFound = false) {
   const response = await fetch(url, { signal: AbortSignal.timeout(300_000) });
+  if (allowNotFound && response.status === 404) {
+    return undefined;
+  }
   if (!response.ok) {
     throw new Error(`Failed to download ${url}: HTTP ${response.status}`);
   }
@@ -30,7 +33,12 @@ export async function installAzureGenerators(
   for (const [packageDirectory, plugin] of packages) {
     const packageName = `@azure-typespec/${packageDirectory}`;
     const indexUrl = new URL(`${packageName}/latest.json`, base);
-    const index = await (await download(indexUrl)).json();
+    const indexResponse = await download(indexUrl, true);
+    if (!indexResponse) {
+      process.stderr.write(`WARNING: Skipping ${packageName}: ${indexUrl} returned HTTP 404.\n`);
+      continue;
+    }
+    const index = await indexResponse.json();
     if (typeof index.version !== "string" || !/^[0-9A-Za-z][0-9A-Za-z.+-]*$/.test(index.version)) {
       throw new Error(`Invalid published version for ${packageName}.`);
     }

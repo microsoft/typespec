@@ -10,10 +10,10 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class FileNamedRequest
+    public partial class FileNamedContent
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public FileNamedRequest(string fileFilename, string filePath)
+        public FileNamedContent(string fileFilename, string filePath)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(fileFilename, nameof(fileFilename));
             global::Sample.Argument.AssertNotNullOrEmpty(filePath, nameof(filePath));
@@ -25,7 +25,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public FileNamedRequest(string fileFilename, global::System.IO.Stream @file)
+        public FileNamedContent(string fileFilename, global::System.IO.Stream @file)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(fileFilename, nameof(fileFilename));
             global::Sample.Argument.AssertNotNull(@file, nameof(@file));
@@ -37,7 +37,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public FileNamedRequest(string fileFilename, global::System.BinaryData @file)
+        public FileNamedContent(string fileFilename, global::System.BinaryData @file)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(fileFilename, nameof(fileFilename));
             global::Sample.Argument.AssertNotNull(@file, nameof(@file));
@@ -49,7 +49,7 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal FileNamedRequest(global::System.ClientModel.FileBinaryContent @file)
+        internal FileNamedContent(global::System.ClientModel.FileBinaryContent @file)
         {
             File = @file;
         }

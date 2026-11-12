@@ -5,6 +5,7 @@
 - [Architecture Overview](#architecture-overview)
 - [Core Components](#core-components)
 - [Generator Pipeline](#generator-pipeline)
+- [Choosing between visitors and emitter options](#choosing-between-visitors-and-emitter-options)
 - [Extensibility Framework](#extensibility-framework)
 - [Testing Strategy](#testing-strategy)
 
@@ -170,6 +171,14 @@ The generation process follows a well-defined pipeline:
    - Write generated files to target directories
    - Preserve custom code and configurations
    - Update project files and dependencies
+
+## Choosing between visitors and emitter options
+
+This guidance is for emitter authors deciding how to implement generation behavior. Library authors can use [plugins](../../docs/plugins.md) to register visitors and other extensions.
+
+- **Enable by default:** If a feature should apply generally, enable it without adding an option.
+- **Emitter option:** Prefer an option when a boolean or value can express a choice and the emitter needs to support both choices. Use options for settings that users may want to mix and match independently, such as enabling or disabling convenience methods.
+- **Visitors:** Use a visitor or a composable set of visitors for a specific scenario that combines several related decisions. This avoids adding multiple boolean options when those decisions do not need to be configured independently. If the scenario becomes common, it can eventually be exposed as a named TypeSpec decorator.
 
 ## Extensibility Framework
 
