@@ -20,7 +20,7 @@ it("lists available compiler features and marks enabled features", () => {
   expect(output).toEqual([
     "Compiler Features",
     "",
-    "  enabled   function-declarations  Allows use of function declarations without experimental warnings in project code.",
+    "  enabled   function-declarations    Allows use of function declarations without experimental warnings in project code.",
     "  disabled  declaration-expressions  Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
     "  disabled  auto-decorators          Allows use of auto decorator declarations without experimental warnings in project code.",
     "  disabled  scoped-decorators        Allows use of `when` clauses on `auto` decorator applications, conditioning the stored metadata on the querying scope (emitter, language, target).",

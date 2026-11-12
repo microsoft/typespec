@@ -7,8 +7,8 @@ import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
-  isDeclarationExpressionStatementKeyword,
   isContextualKeyword,
+  isDeclarationExpressionStatementKeyword,
   isKeyword,
   isModifier,
   isPunctuation,

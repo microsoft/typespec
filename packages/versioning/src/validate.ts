@@ -26,8 +26,8 @@ import {
   getVersion,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
-import { hasChangedOptionality } from "./optionality.js";
 import { registerVersioningScopeAxis } from "./mutator.js";
+import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
 import {

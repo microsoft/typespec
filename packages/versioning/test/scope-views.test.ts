@@ -168,6 +168,9 @@ it("validates a reference to a removed target at every version without an emitte
     .properties.get("target")!;
   expect(view.isPresent(property)).toBe(true);
   expect(view.isPresent(property.type)).toBe(false);
-  expectDiagnostics(diagnostics, { code: "incompatible-scoped-reference" });
+  expectDiagnostics(diagnostics, [
+    { code: "@typespec/versioning/incompatible-versioned-reference", severity: "error" },
+    { code: "incompatible-scoped-reference", severity: "error" },
+  ]);
   expect(diagnostics[0].message).toContain("v2");
 });

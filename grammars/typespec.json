@@ -1614,7 +1614,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=(?:\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*\\??\\s*:)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern|internal)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=(?:\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*\\??\\s*:)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern|internal)\\b|\\b(?:namespace|op|using|import|alias|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"

@@ -510,7 +510,7 @@ async function createProgram(
   // onValidate stage
   currentStage = "validating";
   await runValidators();
-  if (continueToNextStage) validateScopeViews(program);
+  validateScopeViews(program);
 
   validateRequiredImports();
 
