@@ -4000,6 +4000,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void XmlDocsPreserveCodeSpanWildcards()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "prop1",
+                        InputPrimitiveType.String,
+                        doc: "The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified.")
+                ]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var writer = new TypeProviderWriter(modelTypeProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task BackCompat_ReadOnlyCollectionPropertiesAreRetained()
         {
             var inputModel = InputFactory.Model(
