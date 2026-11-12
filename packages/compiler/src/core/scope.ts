@@ -73,6 +73,76 @@ export interface ScopedDecoratorEntry {
 
 export const scopeParentKey = Symbol.for("TypeSpec.Scopes.parent");
 export const scopeUniverseKey = Symbol.for("TypeSpec.Scopes.universe");
+export const scopeAlternativesKey = Symbol.for("TypeSpec.Scopes.alternatives");
+
+/**
+ * An explicit set of scope-conditioned alternatives (`when { cond => ..., else => ... }`).
+ * The unscoped graph keeps every member; a view selects the most specific matching branch.
+ * @experimental
+ */
+export interface ScopeAlternatives {
+  /** The alternatives union for the type form; undefined for operation groups. */
+  readonly owner?: Type;
+  /** Branch types, in source order (union variants or operations). */
+  readonly members: readonly Type[];
+  /** Branch nodes, parallel to `members`. A branch without `when` is the `else` branch. */
+  readonly branches: readonly (Node & { readonly when?: WhenClauseNode })[];
+}
+
+/** @internal */
+export function registerScopeAlternatives(program: Program, group: ScopeAlternatives): void {
+  const map = program.stateMap(scopeAlternativesKey);
+  if (group.owner) map.set(group.owner, group);
+  for (const member of group.members) map.set(member, group);
+}
+
+/**
+ * Get the explicit alternatives group a type owns (alternatives union) or belongs to (branch).
+ * @experimental
+ */
+export function getScopeAlternatives(program: Program, type: Type): ScopeAlternatives | undefined {
+  return program.stateMap(scopeAlternativesKey).get(type) as ScopeAlternatives | undefined;
+}
+
+/**
+ * Pick the most specific condition among those matching `scope`: the one whose finite domain
+ * is a strict subset of every other matching domain. `undefined` entries are `else` branches and
+ * only apply when nothing else matches. Overlaps without a single most specific winner are
+ * ambiguous.
+ * @internal
+ */
+export function selectMostSpecific(
+  program: Program,
+  scope: Scope,
+  sets: readonly (ScopeConditionSet | undefined)[],
+): { index?: number; ambiguous: boolean } {
+  const matching = sets
+    .map((set, index) => ({ set, index }))
+    .filter((x) => x.set !== undefined && matchesScope(scope, x.set, program));
+  if (matching.length === 0) {
+    const fallback = sets.findIndex((x) => x === undefined);
+    return { index: fallback >= 0 ? fallback : undefined, ambiguous: false };
+  }
+  if (matching.length === 1) return { index: matching[0].index, ambiguous: false };
+  const universe = program.stateMap(scopeUniverseKey).get(program.getGlobalNamespaceType()) as
+    Scope[] | undefined;
+  if (!universe) return { ambiguous: true };
+  const domains = matching.map(
+    (x) =>
+      new Set(
+        universe
+          .map((candidate, i) => (matchesScope(candidate, x.set!, program) ? i : -1))
+          .filter((i) => i >= 0),
+      ),
+  );
+  const winners = matching.filter((_, i) =>
+    domains.every(
+      (other, j) =>
+        i === j || (domains[i].size < other.size && [...domains[i]].every((x) => other.has(x))),
+    ),
+  );
+  return winners.length === 1 ? { index: winners[0].index, ambiguous: false } : { ambiguous: true };
+}
 
 export function resolveWhenClause(
   program: Program,
@@ -233,29 +303,18 @@ export function resolveScopedDecoratorValue(
   scope: Scope | undefined,
   program?: Program,
 ): Record<string, unknown> | undefined {
-  if (scope?.selections && program) {
-    const matching = entries.filter(
-      (entry) => entry.scope && matchesScope(scope, entry.scope, program),
+  if (
+    scope?.selections &&
+    program &&
+    program.stateMap(scopeUniverseKey).has(program.getGlobalNamespaceType())
+  ) {
+    const scoped = entries.filter((entry) => entry.scope);
+    const { index } = selectMostSpecific(
+      program,
+      scope,
+      scoped.map((entry) => entry.scope),
     );
-    const universe = program.stateMap(scopeUniverseKey).get(program.getGlobalNamespaceType()) as
-      Scope[] | undefined;
-    if (universe) {
-      const domains = matching.map(
-        (entry) =>
-          new Set(
-            universe
-              .map((candidate, i) => (matchesScope(candidate, entry.scope!, program) ? i : -1))
-              .filter((i) => i >= 0),
-          ),
-      );
-      const winner = matching.find((_, i) =>
-        domains.every(
-          (other, j) =>
-            i === j || (domains[i].size < other.size && [...domains[i]].every((x) => other.has(x))),
-        ),
-      );
-      return winner?.value;
-    }
+    return index === undefined ? undefined : scoped[index].value;
   }
   let result: Record<string, unknown> | undefined;
   for (const entry of entries) {

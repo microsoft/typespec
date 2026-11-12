@@ -41,6 +41,7 @@ import type {
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
   ObjectLiteralSpreadPropertyNode,
+  OperationAlternativesStatementNode,
   OperationSignatureDeclarationNode,
   OperationSignatureReferenceNode,
   OperationStatementNode,
@@ -379,6 +380,16 @@ export function printNode(
       return printCallExpression(path as AstPath<CallExpressionNode>, options, print);
     case SyntaxKind.WhenClause:
       return printWhenClauseNode(path as AstPath<WhenClauseNode>, options, print);
+    case SyntaxKind.ScopeAlternativesExpression:
+      return printScopeAlternatives(path, print, (p) => p.call(print, "value"));
+    case SyntaxKind.ScopeAlternative:
+      return getRawText(node, options);
+    case SyntaxKind.OperationAlternativesStatement:
+      return printOperationAlternatives(
+        path as AstPath<OperationAlternativesStatementNode>,
+        options,
+        print,
+      );
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -706,6 +717,58 @@ export function printWhenClauseNode(
       ),
     ),
   ]);
+}
+
+/** Print `when { cond => value, ..., else => value }`. */
+function printScopeAlternatives(
+  path: AstPath<any>,
+  print: PrettierChildPrint,
+  printValue: (branch: AstPath<any>) => Doc,
+): Doc {
+  const branches: Doc[] = path.map((branch: AstPath<any>) => {
+    const condition =
+      branch.node.when === undefined
+        ? "else"
+        : branch.call((when: AstPath<WhenClauseNode>) => {
+            const conditions = when.map(print, "conditions");
+            return conditions.flatMap((condition, i) =>
+              i === 0 ? [condition] : [` ${when.node.operators?.[i - 1] ?? "|"} `, condition],
+            );
+          }, "when");
+    return [condition, " => ", printValue(branch)];
+  }, "branches");
+  return ["when {", indent([hardline, join([",", hardline], branches), ","]), hardline, "}"];
+}
+
+function printOperationAlternatives(
+  path: AstPath<OperationAlternativesStatementNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+): Doc {
+  const [decorators, modifiers, templateParams] = path.call(
+    (first) => [
+      printDecorators(first as AstPath<DecorableNode>, options, print, { tryInline: true })
+        .decorators,
+      printModifiers(first, options, print),
+      printTemplateParameterDeclarations(first, options, print, "templateParameters"),
+    ],
+    "branches",
+    0,
+  );
+  return [
+    decorators,
+    modifiers,
+    "op ",
+    path.call(print, "id"),
+    templateParams,
+    " ",
+    printScopeAlternatives(path, print, (branch) =>
+      branch.node.signature.kind === SyntaxKind.OperationSignatureReference
+        ? ["is ", branch.call(print, "signature", "baseOperation")]
+        : branch.call(print, "signature"),
+    ),
+    ";",
+  ];
 }
 
 export function printAugmentDecorator(

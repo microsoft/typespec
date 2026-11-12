@@ -7,6 +7,7 @@ import {
   registerScopeViewValidator,
   validateScopeViews,
 } from "../../src/experimental/scope-views.js";
+import { getDoc } from "../../src/lib/decorators.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -303,5 +304,72 @@ describe("integrated scope views", () => {
     const count = program.diagnostics.length;
     validateScopeViews(program);
     expect(program.diagnostics).toHaveLength(count);
+  });
+
+  describe("alternatives", () => {
+    it("selects a property type per view, falls back to else, and is absent without a match", async () => {
+      const program = await compile(`
+        enum Versions { v1, v2, v3 }
+        model Widget {
+          settings: when { Versions.v1 => string, else => int32 };
+          legacy: when { Versions.v1 => boolean };
+        }
+      `);
+      expectDiagnosticEmpty(program.diagnostics);
+      const [v1, v2] = getScopeViews(program).map(
+        (view) => view.getGlobalNamespaceType().models.get("Widget")!.properties,
+      );
+      expect(v1.get("settings")!.type).toMatchObject({ kind: "Scalar", name: "string" });
+      expect(v1.has("legacy")).toBe(true);
+      expect(v2.get("settings")!.type).toMatchObject({ kind: "Scalar", name: "int32" });
+      expect(v2.has("legacy")).toBe(false);
+    });
+
+    it("swaps an operation's 'is' template per view and keeps shared decorators", async () => {
+      const program = await compile(`
+        enum Versions { v1, v2 }
+        op ReadV1(id: string): string;
+        op ReadV2(id: string, expand?: boolean): string;
+        @doc("Read it")
+        op read when {
+          Versions.v1 => is ReadV1,
+          Versions.v2 => is ReadV2,
+        };
+      `);
+      expectDiagnosticEmpty(program.diagnostics);
+      for (const [view, params] of getScopeViews(program).map(
+        (view, i) => [view, i === 0 ? ["id"] : ["id", "expand"]] as const,
+      )) {
+        const read = view.getGlobalNamespaceType().operations.get("read")!;
+        expect([...read.parameters.properties.keys()]).toEqual(params);
+        expect(getDoc(view.getProgram(), read)).toBe("Read it");
+      }
+    });
+
+    it("prefers the most specific overlapping branch", async () => {
+      const program = await compile(`
+        enum Versions { v1, v2, v3 }
+        model Widget {
+          value: when { Versions.v2 | Versions.v3 => string, Versions.v3 => int32 };
+        }
+      `);
+      expectDiagnosticEmpty(program.diagnostics);
+      const types = getScopeViews(program).map(
+        (view) => view.getGlobalNamespaceType().models.get("Widget")!.properties.get("value")?.type,
+      );
+      expect(types[0]).toBeUndefined();
+      expect(types[1]).toMatchObject({ name: "string" });
+      expect(types[2]).toMatchObject({ name: "int32" });
+    });
+
+    it("reports incomparable overlapping branches", async () => {
+      const program = await compile(`
+        enum Versions { v1, v2, v3 }
+        model Widget {
+          value: when { Versions.v1 | Versions.v2 => string, Versions.v2 | Versions.v3 => int32 };
+        }
+      `);
+      expectDiagnostics(program.diagnostics, { code: "ambiguous-scoped-alternative" });
+    });
   });
 });

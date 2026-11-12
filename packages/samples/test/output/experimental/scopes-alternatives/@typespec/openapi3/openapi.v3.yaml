@@ -1,0 +1,69 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  description: |-
+    Alternatives pick exactly one shape per scope. Open the "Scope views" output
+    and switch between versions to see `settings` change type and `getWidget`
+    change template, without
+  version: v3
+tags: []
+paths:
+  /widgets/{id}:
+    get:
+      operationId: getWidget_getWidget_2_getWidget_3
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expand
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Settings:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2
+        - v3
+    Widget:
+      type: object
+      required:
+        - id
+        - settings
+        - legacyCode
+      properties:
+        id:
+          type: string
+        settings:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/Settings'
+        legacyCode:
+          type: integer
+          format: int32

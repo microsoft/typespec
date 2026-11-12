@@ -12,6 +12,7 @@ import { TypeGraph } from "@typespec/html-program-viewer/react";
 import type { OutputViewerProps, ProgramViewer } from "@typespec/playground/react";
 import { useMemo } from "react";
 import {
+  getDeclarationLabel,
   getScopeAxes,
   getScopeDeclarations,
   getScopeGraphPath,
@@ -33,7 +34,7 @@ function ScopeViewer({
   const view = viewerState.scopeMode === "base" ? undefined : selectedView;
   const declarations = useMemo(() => getScopeDeclarations(program), [program]);
   const declaration =
-    declarations.find((t) => getTypeName(t) === viewerState.scopeType) ??
+    declarations.find((t) => getDeclarationLabel(t) === viewerState.scopeType) ??
     declarations.find((t) => t.kind === "Model" && t.name === "Widget") ??
     declarations.find((t) => t.kind === "Model") ??
     declarations[0];
@@ -43,7 +44,7 @@ function ScopeViewer({
       : undefined;
   const changes = declaration ? getScopeMemberChanges(declaration, projected) : [];
   const tab = viewerState.scopeTab ?? "shape";
-  const graphContext = `${view?.name ?? "base"}:${declaration ? getTypeName(declaration) : ""}`;
+  const graphContext = `${view?.name ?? "base"}:${declaration ? getDeclarationLabel(declaration) : ""}`;
   const graphPath =
     viewerState.scopeGraphContext === graphContext
       ? viewerState.scopeGraphPath
@@ -120,12 +121,12 @@ function ScopeViewer({
           Declaration
           <select
             aria-label="Declaration"
-            value={declaration ? getTypeName(declaration) : ""}
+            value={declaration ? getDeclarationLabel(declaration) : ""}
             onChange={(e) => update({ scopeType: e.target.value })}
           >
             {declarations.map((type) => (
-              <option key={getTypeName(type)} value={getTypeName(type)}>
-                {getTypeName(type)}
+              <option key={getDeclarationLabel(type)} value={getDeclarationLabel(type)}>
+                {getDeclarationLabel(type)}
                 {view && !view.isPresent(type) ? " (not present)" : ""}
               </option>
             ))}

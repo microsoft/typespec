@@ -346,6 +346,12 @@ const diagnostics = {
       default: paramMessage`Ambiguous '${"decorator"}' metadata in view '${"view"}'. Add a more specific application covering this overlap.`,
     },
   },
+  "ambiguous-scoped-alternative": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ambiguous alternatives in view '${"view"}': ${"branches"} all match and none is more specific. Add a more specific branch covering this overlap.`,
+    },
+  },
   "incompatible-scoped-reference": {
     severity: "error",
     messages: {

@@ -5,11 +5,15 @@ import { createDiagnostic } from "../core/messages.js";
 import { visitChildren } from "../core/parser.js";
 import type { Program } from "../core/program.js";
 import {
+  getScopeAlternatives,
   matchesScope,
   resolveWhenClause,
+  scopeAlternativesKey,
   scopeParentKey,
   scopeUniverseKey,
+  selectMostSpecific,
   type Scope,
+  type ScopeAlternatives,
   type ScopeConditionSet,
   type ScopedDecoratorEntry,
 } from "../core/scope.js";
@@ -21,9 +25,12 @@ import type {
   EnumMember,
   Namespace,
   Node,
+  Operation,
+  RekeyableMap,
   TemplatedType,
   Type,
 } from "../core/types.js";
+import { SyntaxKind } from "../core/types.js";
 import {
   getDefaultVisibilityClasses,
   getRawVisibilityStore,
@@ -332,8 +339,22 @@ export function validateScopeViews(program: Program): void {
           }
         },
         operation(operation) {
+          // Re-pointing `is` at another branch per view would require re-checking the
+          // derived signature; the prototype reports it instead of using the first branch.
+          if (
+            operation.sourceOperation &&
+            getScopeAlternatives(program, Realm.sourceOf(operation.sourceOperation)) &&
+            !getScopeAlternatives(program, Realm.sourceOf(operation))
+          ) {
+            reportType(
+              operation,
+              "Operations cannot use 'is' with an operation alternatives group in this prototype.",
+              view,
+            );
+          } else {
+            edge(operation, operation.sourceOperation);
+          }
           edge(operation, operation.returnType);
-          edge(operation, operation.sourceOperation);
           checkInstantiation(operation);
           if (operation.sourceOperation) checkInstantiation(operation.sourceOperation);
         },
@@ -360,8 +381,52 @@ export function validateScopeViews(program: Program): void {
       },
       { includeTemplateDeclaration: true },
     );
+    validateAlternatives(program, data, view, scope, reported);
     for (const validator of data.validators) program.reportDiagnostics(validator(view));
   }
+}
+
+function validateAlternatives(
+  program: Program,
+  data: ScopeViewState,
+  view: ScopeView,
+  scope: Scope,
+  reported: Set<string>,
+): void {
+  const groups = new Set(
+    program.stateMap(scopeAlternativesKey).values() as Iterable<ScopeAlternatives>,
+  );
+  for (const group of groups) {
+    const conditions = group.branches.map((branch) =>
+      branch.when ? data.conditions.get(branch) : undefined,
+    );
+    const { ambiguous } = selectMostSpecific(program, scope, conditions);
+    const key = `alternatives:${group.branches[0].pos}:${group.branches[0].end}`;
+    if (!ambiguous || reported.has(key)) continue;
+    reported.add(key);
+    const matching = group.branches.filter(
+      (branch, i) => conditions[i] && matchesScope(scope, conditions[i]!, program),
+    );
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "ambiguous-scoped-alternative",
+        format: {
+          view: view.name,
+          branches: matching.map((branch) => `'${branchText(branch)}'`).join(", "),
+        },
+        target: matching[0] ?? group.branches[0],
+      }),
+    );
+  }
+}
+
+function branchText(node: Node & { readonly when?: Node }): string {
+  let file: Node | undefined = node;
+  while (file && !("file" in file && file.kind === SyntaxKind.TypeSpecScript)) file = file.parent;
+  const target = node.when ?? node;
+  return file && "file" in file && file.kind === SyntaxKind.TypeSpecScript
+    ? file.file.text.slice(target.pos, target.end)
+    : "else";
 }
 
 function createView(
@@ -372,18 +437,44 @@ function createView(
 ): ScopeView {
   const selection = scope.selections!;
   const viewName = selection.map((x) => getTypeName(x)).join(" / ");
+  const selectAlternative = (group: ScopeAlternatives): Type | undefined => {
+    const { index } = selectMostSpecific(
+      program,
+      scope,
+      group.branches.map((branch) => (branch.when ? data.conditions.get(branch) : undefined)),
+    );
+    return index === undefined ? undefined : group.members[index];
+  };
+  const alternativesOf = (type: Type) => getScopeAlternatives(program, Realm.sourceOf(type));
+  const isAlternativesOwner = (type: Type) => {
+    const source = Realm.sourceOf(type);
+    return alternativesOf(source)?.owner === source;
+  };
+  const resolveAlternatives = (type: Type): Type => {
+    if (!isAlternativesOwner(type)) return type;
+    const selected = selectAlternative(alternativesOf(type)!);
+    return selected?.kind === "UnionVariant" ? selected.type : type;
+  };
   const present = (type: Type, seen = new Set<Type>()): boolean => {
     type = Realm.sourceOf(type);
     if (seen.has(type)) return true;
     seen.add(type);
-    const condition = type.node && data.conditions.get(type.node);
-    if (condition && !matchesScope(scope, condition, program)) return false;
+    const group = getScopeAlternatives(program, type);
+    if (group && group.owner !== type) {
+      if (selectAlternative(group) !== type) return false;
+    } else {
+      const condition = type.node && data.conditions.get(type.node);
+      if (condition && !matchesScope(scope, condition, program)) return false;
+    }
     for (const member of selection) {
       if (data.axes.get(member.enum)?.isPresent?.(member, type) === false) return false;
     }
     if ("namespace" in type && type.namespace && !present(type.namespace, seen)) return false;
     switch (type.kind) {
       case "ModelProperty":
+        // A property typed by alternatives with no branch for this view is absent.
+        if (isAlternativesOwner(type.type) && !selectAlternative(alternativesOf(type.type)!))
+          return false;
         if (type.model && !present(type.model, seen)) return false;
         if (type.sourceProperty && !present(type.sourceProperty, seen)) return false;
         for (const member of selection) {
@@ -465,6 +556,12 @@ function createView(
         clone.namespaces,
       ])
         filter(map);
+      // The selected operation alternative takes the group's name in the view.
+      for (const [key, operation] of [...clone.operations]) {
+        if (key !== operation.name && alternativesOf(operation)) {
+          (clone.operations as RekeyableMap<string, Operation>).rekey(key, operation.name);
+        }
+      }
     },
     Model(original, clone) {
       record(original, clone);
@@ -473,6 +570,7 @@ function createView(
     },
     ModelProperty(original, clone) {
       record(original, clone);
+      clone.type = resolveAlternatives(clone.type);
       const type = getAutoDecoratorValue(program, "TypeSpec.Scopes.type", original, scope)?.type;
       if (type && typeof type === "object" && "entityKind" in type && type.entityKind === "Type") {
         clone.type = type as Type;
@@ -487,6 +585,7 @@ function createView(
     },
     Operation(original, clone) {
       record(original, clone);
+      clone.returnType = resolveAlternatives(clone.returnType);
       const type = getAutoDecoratorValue(
         program,
         "TypeSpec.Scopes.returnType",

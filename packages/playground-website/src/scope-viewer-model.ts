@@ -168,3 +168,13 @@ export function renderScopeType(type: Type | undefined): string {
       return getTypeName(type);
   }
 }
+
+/** Unique declaration label; alternative operation branches share a name, so include their branch key. */
+export function getDeclarationLabel(type: Type): string {
+  const name = getTypeName(type);
+  if (type.kind !== "Operation" || !type.namespace) return name;
+  for (const [key, op] of type.namespace.operations) {
+    if (op === type && key !== type.name) return `${name}${key.slice(type.name.length)}`;
+  }
+  return name;
+}

@@ -82,6 +82,7 @@ import type {
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
   ObjectLiteralSpreadPropertyNode,
+  OperationAlternativesStatementNode,
   OperationSignature,
   OperationStatementNode,
   ParenthesizedExpression,
@@ -90,6 +91,8 @@ import type {
   ScalarConstructorNode,
   ScalarDeclarationExpressionNode,
   ScalarStatementNode,
+  ScopeAlternativeNode,
+  ScopeAlternativesExpressionNode,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -875,7 +878,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
     inInterface?: undefined | false,
-  ): OperationStatementNode;
+  ): OperationStatementNode | OperationAlternativesStatementNode;
   function parseOperationStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
@@ -887,7 +890,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[],
     _modifiers: Modifier[] | undefined,
     inInterface?: boolean,
-  ): OperationStatementNode {
+  ): OperationStatementNode | OperationAlternativesStatementNode {
     let modifiers: Modifier[];
     if (inInterface) {
       modifiers = parseModifiers();
@@ -901,34 +904,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
-    // Make sure the next token is one that is expected
-    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
-
-    // Check if we're parsing a declaration or reuse of another operation
-    let signature: OperationSignature;
-    const signaturePos = tokenPos();
-    if (token === Token.OpenParen) {
-      const parameters = parseOperationParameters();
-      parseExpected(Token.Colon);
-      const returnType = parseExpression();
-
-      signature = {
-        kind: SyntaxKind.OperationSignatureDeclaration,
-        parameters,
-        returnType,
-        ...finishNode(signaturePos),
-      };
-    } else {
-      parseExpected(Token.IsKeyword);
-      const opReference = parseReferenceExpression();
-
-      signature = {
-        kind: SyntaxKind.OperationSignatureReference,
-        baseOperation: opReference,
-        ...finishNode(signaturePos),
-      };
+    if (!inInterface && token() === Token.WhenKeyword) {
+      return parseOperationAlternatives(
+        pos,
+        decorators,
+        modifiers,
+        id,
+        templateParameters,
+        templateParametersRange,
+      );
     }
 
+    const signature = parseOperationSignature();
     const when = parseOptionalWhenClause();
     // The interface parser handles semicolon parsing between statements
     if (!inInterface) {
@@ -947,6 +934,109 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
+  }
+
+  function parseOperationSignature(): OperationSignature {
+    // Make sure the next token is one that is expected
+    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
+
+    // Check if we're parsing a declaration or reuse of another operation
+    const signaturePos = tokenPos();
+    if (token === Token.OpenParen) {
+      const parameters = parseOperationParameters();
+      parseExpected(Token.Colon);
+      const returnType = parseExpression();
+
+      return {
+        kind: SyntaxKind.OperationSignatureDeclaration,
+        parameters,
+        returnType,
+        ...finishNode(signaturePos),
+      };
+    } else {
+      parseExpected(Token.IsKeyword);
+      const opReference = parseReferenceExpression();
+
+      return {
+        kind: SyntaxKind.OperationSignatureReference,
+        baseOperation: opReference,
+        ...finishNode(signaturePos),
+      };
+    }
+  }
+
+  /**
+   * Parse `op id when { cond => signature, ..., else => signature };`. Each branch becomes a
+   * complete operation statement sharing the group's name, decorators and modifiers.
+   */
+  function parseOperationAlternatives(
+    pos: number,
+    decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
+    id: IdentifierNode,
+    templateParameters: TemplateParameterDeclarationNode[],
+    templateParametersRange: TextRange,
+  ): OperationAlternativesStatementNode {
+    const branches = parseScopeAlternatives((branchPos, when): OperationStatementNode => ({
+      kind: SyntaxKind.OperationStatement,
+      when,
+      id: { ...id },
+      templateParameters,
+      templateParametersRange,
+      signature: parseOperationSignature(),
+      decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
+      ...finishNode(branchPos),
+    }));
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.OperationAlternativesStatement,
+      id,
+      branches,
+      ...finishNode(pos),
+    };
+  }
+
+  /** Parse `when { cond => T, ..., else => U }` in expression position. */
+  function parseScopeAlternativesExpression(): ScopeAlternativesExpressionNode {
+    const pos = tokenPos();
+    const branches = parseScopeAlternatives((branchPos, when): ScopeAlternativeNode => ({
+      kind: SyntaxKind.ScopeAlternative,
+      when,
+      value: parseExpression(),
+      ...finishNode(branchPos),
+    }));
+    return {
+      kind: SyntaxKind.ScopeAlternativesExpression,
+      branches,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseScopeAlternatives<T>(
+    parseBranch: (pos: number, when: WhenClauseNode | undefined) => T,
+  ): T[] {
+    parseExpected(Token.WhenKeyword);
+    parseExpected(Token.OpenBrace);
+    const branches: T[] = [];
+    while (token() !== Token.CloseBrace && token() !== Token.EndOfFile) {
+      const branchPos = tokenPos();
+      const when = parseOptional(Token.ElseKeyword) ? undefined : parseWhenConditions(branchPos);
+      parseExpected(Token.EqualsGreaterThan);
+      branches.push(parseBranch(branchPos, when));
+      if (!parseOptional(Token.Comma)) break;
+    }
+    parseExpected(Token.CloseBrace);
+    return branches;
+  }
+
+  /** `when` is contextual: only `when {` starts an alternatives expression. */
+  function isScopeAlternativesStart(): boolean {
+    const text = scanner.file.text;
+    let i = scanner.position;
+    while (i < text.length && /\s/.test(text[i])) i++;
+    return text[i] === "{";
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -1808,7 +1898,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (!parseOptional(Token.WhenKeyword)) {
       return undefined;
     }
+    return parseWhenConditions(pos);
+  }
 
+  function parseWhenConditions(pos: number): WhenClauseNode {
     const conditions: WhenConditionNode[] = [parseWhenCondition()];
     const operators: ("|" | "&")[] = [];
     while (token() === Token.Bar || token() === Token.Ampersand) {
@@ -1989,6 +2082,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
+        case Token.WhenKeyword:
+          if (isScopeAlternativesStart()) return parseScopeAlternativesExpression();
+          return parseReferenceExpression("expression");
         case Token.TypeOfKeyword:
           return parseTypeOfExpression();
         case Token.FnKeyword:
@@ -2368,7 +2464,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[],
     docs: DocNode[],
     directives: DirectiveExpressionNode[],
-  ): Declaration | InvalidStatementNode {
+  ): Declaration | OperationAlternativesStatementNode | InvalidStatementNode {
     const modifiers = parseModifiers();
     switch (token()) {
       case Token.ModelKeyword:
@@ -3541,6 +3637,12 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
+    case SyntaxKind.ScopeAlternativesExpression:
+      return visitEach(cb, node.branches);
+    case SyntaxKind.ScopeAlternative:
+      return visitNode(cb, node.value);
+    case SyntaxKind.OperationAlternativesStatement:
+      return visitEach(cb, node.branches);
 
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
