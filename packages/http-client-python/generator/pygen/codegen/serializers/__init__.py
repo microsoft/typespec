@@ -501,6 +501,11 @@ class JinjaSerializer(ReaderAndWriter):
         generation_dir = self.code_model.get_generation_dir(namespace)
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
         utils_folder_path = generation_dir / Path("_utils")
+        if namespace == self.code_model.namespace and self.code_model.has_lro_metadata:
+            self.write_file(
+                generation_dir / "polling.py",
+                env.get_template("polling.py.jinja2").render(code_model=self.code_model),
+            )
         if self.code_model.need_utils_folder(async_mode=False, client_namespace=self.code_model.namespace):
             self.write_file(
                 utils_folder_path / Path("__init__.py"),

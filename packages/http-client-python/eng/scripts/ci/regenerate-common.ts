@@ -125,6 +125,12 @@ export const AZURE_EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptio
   "azure/client-generator-core/hierarchy-building": {
     namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
   },
+  "azure/client-generator-core/lro/metadata": {
+    namespace: "specs.azure.clientgenerator.core.lro.metadata",
+  },
+  "azure/client-generator-core/lro/operation-id": {
+    namespace: "specs.azure.clientgenerator.core.lro.operationid",
+  },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
   },

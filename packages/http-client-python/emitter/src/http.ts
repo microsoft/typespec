@@ -23,9 +23,10 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import { getHttpOperationParameter, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { HttpStatusCodeRange } from "@typespec/http";
+import { getHeaderFieldName } from "@typespec/http";
 import type { PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
-import { getType, KnownTypes } from "./types.js";
+import { emitProperty, getType, KnownTypes } from "./types.js";
 import {
   emitParamBase,
   getAddedOn,
@@ -285,6 +286,43 @@ function emitInitialLroHttpMethod(
   };
 }
 
+function emitLroMetadata(
+  context: PythonSdkContext,
+  method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+) {
+  const metadata = method.lroMetadata;
+  if (!metadata?.statusMetadata?.length && !metadata?.operationId?.length) return undefined;
+  const wirePath = (segments: SdkModelPropertyType[]) =>
+    segments.map((property) => property.serializationOptions.json?.name ?? property.name);
+  const pathId = metadata.operationId?.find((id) => id.kind === "path");
+  const bodyId = metadata.operationId?.find((id) => id.kind === "property");
+  const step = metadata.statusMonitorStep;
+  const pollingOperation =
+    step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
+  return {
+    statusMetadata: metadata.statusMetadata?.map((selection) => ({
+      ...emitProperty(context, selection.property),
+      propertySegments: wirePath(selection.propertySegments),
+    })),
+    operationIdPath: bodyId ? wirePath(bodyId.propertySegments) : undefined,
+    operationIdUri: pathId
+      ? {
+          location: pathId.source.location,
+          property:
+            pathId.source.location === "ResponseHeader" && pathId.source.property.__raw
+              ? getHeaderFieldName(context.program, pathId.source.property.__raw)
+              : (pathId.source.property.serializationOptions.json?.name ??
+                pathId.source.property.name),
+          path: pollingOperation!.path,
+          parameter: pathId.pathParameter.serializedName,
+        }
+      : undefined,
+    initialResponseIsMonitor: method.operation.responses.some(
+      (response) => response.type === metadata.pollingInfo.responseModel,
+    ),
+  };
+}
+
 function addLroInformation(
   context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
@@ -313,6 +351,7 @@ function addLroInformation(
     exposeStreamKeyword: false,
     description: method.doc ?? "",
     summary: method.summary,
+    lroMetadata: emitLroMetadata(context, method),
   };
 }
 
