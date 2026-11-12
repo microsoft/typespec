@@ -1,3 +1,4 @@
+import { Tab, TabList } from "@fluentui/react-components";
 import { BranchRegular } from "@fluentui/react-icons";
 import {
   getAutoDecoratorValue,
@@ -9,44 +10,203 @@ import {
 import { getScopeViews, type ScopeView } from "@typespec/compiler/experimental";
 import { TypeGraph } from "@typespec/html-program-viewer/react";
 import type { OutputViewerProps, ProgramViewer } from "@typespec/playground/react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import {
+  getScopeAxes,
+  getScopeDeclarations,
+  getScopeGraphPath,
+  getScopeMemberChanges,
+  renderScopeType,
+  selectScopeView,
+} from "./scope-viewer-model.js";
+import style from "./scope-viewer.module.css";
 
-function ScopeViewer({ program }: OutputViewerProps) {
+function ScopeViewer({
+  program,
+  viewerState = {},
+  onViewerStateChange,
+  onRevealSource,
+}: OutputViewerProps) {
   const views = getScopeViews(program);
-  const [selected, setSelected] = useState("base");
-  const view = views.find((v) => v.name === selected);
+  const axes = useMemo(() => getScopeAxes(views), [views]);
+  const selectedView = views.find((v) => v.name === viewerState.scopeView) ?? views[0];
+  const view = viewerState.scopeMode === "base" ? undefined : selectedView;
+  const declarations = useMemo(() => getScopeDeclarations(program), [program]);
+  const declaration =
+    declarations.find((t) => getTypeName(t) === viewerState.scopeType) ??
+    declarations.find((t) => t.kind === "Model" && t.name === "Widget") ??
+    declarations.find((t) => t.kind === "Model") ??
+    declarations[0];
+  const projected =
+    declaration && (!view || view.isPresent(declaration))
+      ? (view?.getType(declaration) ?? declaration)
+      : undefined;
+  const changes = declaration ? getScopeMemberChanges(declaration, projected) : [];
+  const tab = viewerState.scopeTab ?? "shape";
+  const graphContext = `${view?.name ?? "base"}:${declaration ? getTypeName(declaration) : ""}`;
+  const graphPath =
+    viewerState.scopeGraphContext === graphContext
+      ? viewerState.scopeGraphPath
+      : getScopeGraphPath(projected);
   const visibleProgram = useMemo(() => view?.getProgram() ?? program, [program, view]);
   const metadata = useMemo(() => collectMetadata(program, view), [program, view]);
+  const update = (state: Record<string, string>) =>
+    onViewerStateChange?.({ ...viewerState, ...state });
+  const selectAxis = (axis: string, member: string) => {
+    const next = selectScopeView(views, selectedView, axis, member);
+    if (!next) return;
+    const linked = next.selections.filter(
+      (s) =>
+        getTypeName(s.enum) !== axis &&
+        selectedView?.selections.some(
+          (previous) =>
+            getTypeName(previous.enum) === getTypeName(s.enum) && previous.name !== s.name,
+        ),
+    );
+    update({
+      scopeView: next.name,
+      scopeMode: "scoped",
+      scopeNotice: linked.length
+        ? `Linked selections adjusted: ${linked.map((s) => getTypeName(s)).join(", ")}.`
+        : "",
+    });
+  };
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "auto" }}>
-      <div style={{ padding: 12 }}>
-        <p>
-          {views.length} concrete views checked during compilation, before selecting a view. Base
-          retains all types, versions and visibilities, but excludes conditioned metadata.
+    <div className={style.root}>
+      <div className={style.controls}>
+        <h2>Scope explorer</h2>
+        <p className={style.hint}>
+          {views.length} concrete views checked during compilation. Selecting a scope only reads an
+          already checked graph.
         </p>
-        <label>
-          Scope view{" "}
+        <div className={style.axes}>
+          <label>
+            Graph
+            <select
+              aria-label="Graph view"
+              value={view ? "scoped" : "base"}
+              onChange={(e) => update({ scopeMode: e.target.value, scopeNotice: "" })}
+            >
+              <option value="scoped" disabled={!selectedView}>
+                Selected scope
+              </option>
+              <option value="base">Base graph</option>
+            </select>
+          </label>
+          {axes.map((axis) => (
+            <label key={axis.name} title={axis.name}>
+              {axis.label}
+              <select
+                aria-label={`Scope: ${axis.name}`}
+                value={
+                  selectedView?.selections.find((s) => getTypeName(s.enum) === axis.name)?.name
+                }
+                onChange={(e) => selectAxis(axis.name, e.target.value)}
+              >
+                {axis.members.map((member) => (
+                  <option key={member.name} value={member.name}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+        <p className={style.hint}>
+          {view?.name ?? "Base: all declarations and visibilities; no conditioned metadata."}
+        </p>
+        <div role="status">{viewerState.scopeNotice}</div>
+        <label className={style.declaration}>
+          Declaration
           <select
-            aria-label="Scope view"
-            value={view?.name ?? "base"}
-            onChange={(e) => setSelected(e.target.value)}
+            aria-label="Declaration"
+            value={declaration ? getTypeName(declaration) : ""}
+            onChange={(e) => update({ scopeType: e.target.value })}
           >
-            <option value="base">Base (all types, unscoped metadata only)</option>
-            {views.map((v) => (
-              <option key={v.name} value={v.name}>
-                {v.name}
+            {declarations.map((type) => (
+              <option key={getTypeName(type)} value={getTypeName(type)}>
+                {getTypeName(type)}
+                {view && !view.isPresent(type) ? " (not present)" : ""}
               </option>
             ))}
           </select>
         </label>
-        <details open>
-          <summary>Resolved readonly metadata</summary>
+        <TabList
+          aria-label="Scope explorer views"
+          selectedValue={tab}
+          onTabSelect={(_, data) => update({ scopeTab: String(data.value) })}
+        >
+          <Tab value="shape">Shape comparison</Tab>
+          <Tab value="graph">Type graph</Tab>
+          <Tab value="metadata">Readonly metadata</Tab>
+        </TabList>
+      </div>
+      {tab === "shape" && (
+        <div className={style.content}>
+          <p className={style.hint}>
+            Shape preview, not emitted output. Inherited properties and union-valued members are
+            expanded to make changes visible.
+          </p>
+          <div className={style.comparison}>
+            <section>
+              <h3>Base</h3>
+              <pre aria-label="Base type shape">{renderScopeType(declaration)}</pre>
+            </section>
+            <section>
+              <h3>{view ? "Selected scope" : "Base (no scope selected)"}</h3>
+              <pre aria-label="Selected type shape">{renderScopeType(projected)}</pre>
+            </section>
+          </div>
+          {changes.length > 0 && (
+            <table className={style.changes} aria-label="Member changes">
+              <thead>
+                <tr>
+                  <th>Change</th>
+                  <th>Base</th>
+                  <th>Selected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {changes.map((change) => (
+                  <tr key={change.name} data-change={change.status}>
+                    <td>{change.status}</td>
+                    <td>
+                      <code>{change.before ?? "-"}</code>
+                    </td>
+                    <td>
+                      <code>{change.after ?? "-"}</code>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+      {tab === "graph" && (
+        <div className={style.graph}>
+          {!projected && (
+            <p className={style.hint}>This declaration is not present in this scope.</p>
+          )}
+          <TypeGraph
+            program={visibleProgram}
+            currentPath={graphPath}
+            onNavigationChange={(path) =>
+              update({ scopeGraphPath: path, scopeGraphContext: graphContext })
+            }
+            onRevealSource={onRevealSource}
+          />
+        </div>
+      )}
+      {tab === "metadata" && (
+        <div className={style.content}>
+          <p className={style.hint}>
+            Readonly metadata for all present declarations. Choose Base graph to verify conditioned
+            values are unavailable by default.
+          </p>
           <pre aria-label="Resolved readonly metadata">{JSON.stringify(metadata, null, 2)}</pre>
-        </details>
-      </div>
-      <div style={{ flex: 1, minHeight: 350 }}>
-        <TypeGraph program={visibleProgram} />
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -47,4 +47,8 @@ model DotnetSettings when Clients.csharp {
 
 // The base view retains all versions and visibilities, but no scoped clientName.
 // Every concrete combination is validated before selecting one in the viewer.
+// In the Scope explorer, compare Versions=v1/v2 and Lifecycle=Read/Create.
+// Widget changes from required oldValue: int32 to optional value?: string.
+// Read keeps id; Create keeps secret. Provisioning inherits C# metadata in v1
+// and overrides it in v2. These are the real versioning/visibility adapters.
 op getWidget(): Widget;

@@ -15,6 +15,8 @@ describe("sample config", () => {
       "JSON Schema",
       "Protobuf kiosk",
       "Conditional scopes: versions and visibility",
+      "Conditional scopes: direct shape facets",
+      "Conditional scopes: declarations only",
       "Conditional scopes: hierarchy",
       "Conditional scopes: validation",
       "HTTP service",

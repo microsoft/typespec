@@ -1,3 +1,3 @@
 title: "Conditional scopes: hierarchy"
-description: Inherited readonly metadata and child overrides. Select Scope views in the output, then compare the base graph and each declared scope.
+description: Inherited readonly metadata and child overrides. Use the Scope explorer to compare base and scoped shapes, inspect the type graph and check readonly metadata.
 llmstxt: false
