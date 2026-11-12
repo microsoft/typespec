@@ -9,22 +9,22 @@ cspell.yaml
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @JoshLove-msft @iscai-msft @timotheeguerin @l0lawrence @xirzec @markcowl @catalinaperalta
-/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @xirzec @timotheeguerin @qiaozha @MaryGao @l0lawrence
+/eng/emitters/                               @JoshLove01 @iscai-msft @timotheeguerin @l0lawrence @xirzec @markcowl @catalinaperalta
+/docs/samples/client/                        @lmazuel @JoshLove01 @iscai-msft @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @xirzec @timotheeguerin @qiaozha @MaryGao @l0lawrence
 
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
-/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
-/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
+/packages/http-client-csharp/                @m-nash @JoshLove01 @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
+/docs/samples/client/csharp                  @JoshLove01 @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove01 @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
 
 ######################
 # Java
 ######################
-/packages/http-client-java/                  @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jogiles @JoshLove-msft
-/website/src/content/docs/docs/emitters/clients/http-client-java/ @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jogiles @JoshLove-msft
-/.github/instructions/http-client-java.instructions.md @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jogiles @JoshLove-msft
+/packages/http-client-java/                  @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jogiles @JoshLove01
+/website/src/content/docs/docs/emitters/clients/http-client-java/ @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jogiles @JoshLove01
+/.github/instructions/http-client-java.instructions.md @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jogiles @JoshLove01
 
 ######################
 # Python
