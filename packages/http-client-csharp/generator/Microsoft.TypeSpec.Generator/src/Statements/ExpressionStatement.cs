@@ -3,6 +3,7 @@
 
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
@@ -17,7 +18,21 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            Expression.Write(writer);
+            var expression = Expression;
+            while (expression is ScopedApi scoped)
+            {
+                expression = scoped.Original;
+            }
+            if (expression is BinaryOperatorExpression { Operator: "=" or "+=" or "-=" or "*=" or "/=" or "%=" or "&=" or "|=" or "^=" or "<<=" or ">>=" or ">>>=" or "??=" } assignment)
+            {
+                // C# statement expressions cannot wrap an assignment in parentheses
+                // (CS0201). Preserve grouping inside its operands and in other uses.
+                assignment.WriteUnparenthesized(writer);
+            }
+            else
+            {
+                Expression.Write(writer);
+            }
             writer.WriteRawLine(";");
         }
 
