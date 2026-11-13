@@ -531,9 +531,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var attribute = customMethod?.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute)
                 ?? currentMethod.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute);
             var obsolete = customMethod?.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute)
-                ?? currentMethod.Signature.Attributes.FirstOrDefault(a => DeprecationApiHelpers.IsObsoleteAttribute(a)
+                ?? currentMethod.Signature.Attributes.LastOrDefault(a => DeprecationApiHelpers.IsObsoleteAttribute(a)
                     && !enclosingType.IsGeneratedMethodDeprecationAttribute(a))
-                ?? currentMethod.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute);
+                ?? currentMethod.Signature.Attributes.LastOrDefault(DeprecationApiHelpers.IsObsoleteAttribute);
 
             // Graduation and custom partial attributes follow the current API, not the last contract.
             overload.Signature.Update(attributes:

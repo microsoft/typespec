@@ -205,26 +205,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
                     method: nameof(DeprecationPreservesObsoleteOverloadsBesideStableSignatures)));
             var generator = ScmCodeModelGenerator.Instance;
-            var visitor = new AppendingMethodDeprecationVisitor();
-            generator.AddVisitor(visitor);
+            var firstVisitor = new AppendingMethodDeprecationVisitor("First visitor message");
+            var lastVisitor = new AppendingMethodDeprecationVisitor("Last visitor message");
+            generator.AddVisitor(firstVisitor);
+            generator.AddVisitor(lastVisitor);
             var client = generator.TypeFactory.CreateClient(inputClient)!;
             client.EnsureBuilt();
 
-            visitor.VisitLibrary(generator.OutputLibrary);
+            firstVisitor.VisitLibrary(generator.OutputLibrary);
+            lastVisitor.VisitLibrary(generator.OutputLibrary);
             client.ProcessTypeForBackCompatibility();
 
             Assert.AreEqual(6, client.Methods.Count);
             foreach (var method in client.Methods)
             {
-                Assert.AreSame(visitor.Attribute,
+                Assert.AreSame(lastVisitor.Attribute,
                     method.Signature.Attributes.Single(attribute => attribute.Type.Equals(typeof(ObsoleteAttribute))));
             }
         }
 
-        private sealed class AppendingMethodDeprecationVisitor : LibraryVisitor
+        private sealed class AppendingMethodDeprecationVisitor(string message) : LibraryVisitor
         {
             public AttributeStatement Attribute { get; } =
-                new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+                new(typeof(ObsoleteAttribute), [Snippet.Literal(message)]);
 
             protected internal override MethodProvider? VisitMethod(MethodProvider method)
             {
