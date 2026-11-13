@@ -194,13 +194,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ExperimentalApiHelpers.GetReferenceSuppressions(type).Select(suppression => suppression.Code.ToDisplayString()));
         }
 
-        [TestCase("StableModel", "model", false)]
+        [TestCase("StableModel", "model", true)]
         [TestCase("ObsoleteModel", "model", true)]
         [TestCase("PreviewModel", "model", true)]
         [TestCase("NewModel", "model", true)]
-        [TestCase("StableEnum", "fixed", false)]
+        [TestCase("StableEnum", "fixed", true)]
         [TestCase("ObsoleteEnum", "fixed", true)]
-        [TestCase("StableChoice", "extensible", false)]
+        [TestCase("StableChoice", "extensible", true)]
         [TestCase("ObsoleteChoice", "extensible", true)]
         public async Task DeprecationPreservesLastContract(string name, string kind, bool obsolete)
         {
@@ -214,10 +214,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(obsolete, provider.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
         }
 
-        [TestCase("previouslyStable", false)]
+        [TestCase("previouslyStable", true)]
         [TestCase("previouslyObsolete", true)]
         [TestCase("newProperty", true)]
-        public async Task PropertyDeprecationPreservesLastContract(string propertyName, bool obsolete)
+        public async Task PropertyDeprecationIgnoresLastContract(string propertyName, bool obsolete)
         {
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
@@ -233,10 +233,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(provider.Properties.Single().Attributes.Any(a => ReferenceEquals(a, visitor.Attribute)), Is.True);
         }
 
-        [TestCase("previouslyStable", false)]
+        [TestCase("previouslyStable", true)]
         [TestCase("previouslyObsolete", true)]
         [TestCase("newProperty", true)]
-        public async Task PropertyDeprecationPreservesInheritedLastContract(string propertyName, bool obsolete)
+        public async Task PropertyDeprecationIgnoresInheritedLastContract(string propertyName, bool obsolete)
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
@@ -251,7 +251,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task OverrideReferencesHonorPreservedBaseProperty()
+        public async Task OverrideReferencesHonorDeprecatedBaseProperty()
         {
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
@@ -263,14 +263,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var diagnostics = ExperimentalApiHelpers.GetMemberSuppressions(property)
                 .Select(suppression => suppression.Code.ToDisplayString());
-            Assert.That(diagnostics, Does.Not.Contain("\"CS0618\""));
-            Assert.That(property.BaseProperty!.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute), Is.False);
+            Assert.That(diagnostics, Does.Contain("\"CS0618\""));
+            Assert.That(property.BaseProperty!.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute), Is.True);
             Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
-                Does.Not.Contain("\"CS0672\""));
+                Does.Contain("\"CS0672\""));
         }
 
         [Test]
-        public async Task DeprecatedOverrideHonorsPreservedBaseProperty()
+        public async Task DeprecatedOverrideMatchesDeprecatedBaseProperty()
         {
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContract)));
@@ -281,11 +281,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var property = generator.Object.TypeFactory.CreateModel(derived)!.Properties.Single();
 
             Assert.That(property.DeclarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
-                Does.Contain("\"CS0809\""));
+                Does.Not.Contain("\"CS0809\""));
         }
 
         [Test]
-        public async Task PropertyDeprecationIsOnlyRemovedForFinalTypeIdentity(
+        public async Task PropertyDeprecationIgnoresTypeIdentity(
             [Values] bool changeNamespace, [Values] bool initiallyPublished, [Values] bool addAttribute)
         {
             await MockHelpers.LoadMockGeneratorAsync(
@@ -296,7 +296,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 @namespace: initialNamespace, properties:
                 [InputFactory.Property("previouslyStable", InputPrimitiveType.String, deprecation: "Generated message")]))!;
             var property = provider.Properties.Single();
-            Assert.AreEqual(!initiallyPublished, property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             var visitorAttribute = new AttributeStatement(typeof(EditorBrowsableAttribute),
                 Snippet.FrameworkEnumValue(EditorBrowsableState.Advanced));
             if (addAttribute)
@@ -310,13 +310,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.ProcessTypeForBackCompatibility();
 
             Assert.AreSame(property, provider.Properties.Single());
-            // Unpublished -> published removes the attribute; published -> unpublished does not restore it because references were already built without its suppressions.
-            Assert.IsFalse(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             Assert.AreEqual(addAttribute, property.Attributes.Contains(visitorAttribute));
 
             provider.Update(name: initialName, @namespace: initialNamespace);
             provider.ProcessTypeForBackCompatibility();
-            Assert.IsFalse(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(property.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             Assert.AreEqual(addAttribute, property.Attributes.Contains(visitorAttribute));
         }
 
@@ -403,7 +402,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task DeprecationFollowsUpdatedTypeIdentity(
+        public async Task DeprecationIgnoresUpdatedTypeIdentity(
             [Values("model", "fixed", "extensible")] string kind,
             [Values] bool changeNamespace,
             [Values] bool initiallyPublished)
@@ -423,22 +422,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     @namespace: initialNamespace, deprecation: "Current message"))!
                 : CodeModelGenerator.Instance.TypeFactory.CreateEnum(InputFactory.StringEnum(initialName,
                     [("One", "one")], clientNamespace: initialNamespace, isExtensible: kind == "extensible", deprecation: "Current message"))!;
-            Assert.AreEqual(!initiallyPublished, provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             var visitorAttribute = new AttributeStatement(typeof(SerializableAttribute));
 
             provider.Update(
                 attributes: [.. provider.Attributes, visitorAttribute],
                 name: changeNamespace ? null : initiallyPublished ? "Unpublished" : publishedName,
                 @namespace: changeNamespace ? initiallyPublished ? "Unpublished" : "Sample.Models" : null);
-            Assert.AreEqual(initiallyPublished, provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             Assert.AreSame(visitorAttribute, provider.Attributes.Single(a => a.Type.Equals(typeof(SerializableAttribute))));
-            Assert.AreEqual(initiallyPublished, provider.CanonicalView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
-            Assert.AreEqual(initiallyPublished,
-                provider.GetAttributesForWrite().OfType<AttributeStatement>().Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(provider.CanonicalView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(provider.GetAttributesForWrite().OfType<AttributeStatement>().Any(DeprecationApiHelpers.IsObsoleteAttribute));
 
             provider.Update(name: initialName, @namespace: initialNamespace);
             provider.ProcessTypeForBackCompatibility();
-            Assert.AreEqual(!initiallyPublished, provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            Assert.IsTrue(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
             Assert.AreSame(visitorAttribute, provider.Attributes.Single(a => a.Type.Equals(typeof(SerializableAttribute))));
         }
 
@@ -503,7 +501,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var visitorAttribute = new AttributeStatement(typeof(SerializableAttribute));
             provider.Update(attributes: [.. originalAttributes, visitorAttribute]);
 
-            Assert.AreSame(visitorAttribute, provider.Attributes.Single());
+            Assert.AreSame(visitorAttribute, provider.Attributes.Single(a => a.Type.Equals(typeof(SerializableAttribute))));
+            Assert.IsTrue(provider.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
         }
 
         [TestCase(false, null)]

@@ -794,8 +794,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private bool ShouldEmitDeprecationAttribute()
-            => CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
-                && (LastContractView is null || LastContractView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            => CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true;
 
         private void RefreshGeneratedDeprecationAttribute()
         {

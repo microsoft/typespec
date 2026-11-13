@@ -1108,7 +1108,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                outputProperty.RefreshDeprecation(this);
+                outputProperty.RefreshDeprecation();
                 outputProperty.RefreshOverrideDeprecationSuppressions();
 
                 if (outputProperty.BackingField is { } sharedField && outputProperty.Type.IsCollection
@@ -1135,7 +1135,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var property in model.Properties)
                 {
-                    property.RefreshDeprecation(model);
+                    property.RefreshDeprecation();
                     property.RefreshOverrideDeprecationSuppressions();
                 }
             }
