@@ -408,10 +408,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 #pragma warning disable CS8602 // Dereference of a possibly null reference
             var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
             var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
-#pragma warning restore CS8602
 
             Assert.AreEqual(1, nullableCount, "Should have exactly 1 nullable implicit operator");
             Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
+
+            var nullableOp = implicitOperators.First(op => op.Signature.ReturnType.IsNullable);
+            Assert.IsInstanceOf<TernaryConditionalExpression>(nullableOp.BodyExpression);
+            var ternary = (TernaryConditionalExpression)nullableOp.BodyExpression!;
+            Assert.IsInstanceOf<CastExpression>(ternary.Consequent);
+            var cast = (CastExpression)ternary.Consequent;
+            Assert.AreEqual(enumType.Type.WithNullable(true), cast.Type);
+#pragma warning restore CS8602
         }
 
         [TestCase]

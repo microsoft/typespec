@@ -45,7 +45,7 @@ namespace SampleTypeSpec
 
         /// <summary> Converts a string to a <see cref="ThingRequiredNullableLiteralString1"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator ThingRequiredNullableLiteralString1?(string value) => value == null ? null : new ThingRequiredNullableLiteralString1(value);
+        public static implicit operator ThingRequiredNullableLiteralString1?(string value) => value == null ? (ThingRequiredNullableLiteralString1?)null : new ThingRequiredNullableLiteralString1(value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
