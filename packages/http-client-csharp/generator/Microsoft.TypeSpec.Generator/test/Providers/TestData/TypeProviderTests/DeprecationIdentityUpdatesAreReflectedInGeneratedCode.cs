@@ -6,6 +6,7 @@ using System;
 
 namespace Sample.Models
 {
+    [global::System.ObsoleteAttribute("Generated message")]
     [global::System.SerializableAttribute]
     public enum StableEnum
     {

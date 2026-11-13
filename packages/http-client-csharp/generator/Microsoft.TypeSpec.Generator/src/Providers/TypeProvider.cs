@@ -794,8 +794,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private bool ShouldEmitDeprecationAttribute()
-            => CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
-                && (LastContractView is null || LastContractView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+            => CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true;
 
         private void RefreshGeneratedDeprecationAttribute()
         {
@@ -1204,6 +1203,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Update(fields: newFields, properties: newProperties, methods: newMethods, constructors: newConstructors);
             }
 
+            ReconcileMethodDeprecationAttributes();
+
             // Providers whose attributes depend on final generation decisions build their attributes at write
             // time; materialize them here (applying attribute back-compatibility) so reads before the write
             // reflect the result. The generated portion is refreshed again at write against the final state.
@@ -1258,6 +1259,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return result;
         }
 
+        /// <summary>
+        /// Replaces generated <see cref="ObsoleteAttribute"/> attributes with the last visitor-supplied
+        /// attribute after all method visitors have run, while preserving the warning suppressions required
+        /// by generated attributes. This also removes duplicate visitor attributes from restored methods.
+        /// </summary>
+        private void ReconcileMethodDeprecationAttributes()
+        {
+            foreach (var method in Methods)
+            {
+                var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
+                var visitorAttribute = method.Signature.Attributes.LastOrDefault(attribute =>
+                    DeprecationApiHelpers.IsObsoleteAttribute(attribute)
+                    && !IsGeneratedMethodDeprecationAttribute(attribute));
+                if (visitorAttribute is not null)
+                {
+                    method.Signature.Update(attributes:
+                    [
+                        .. method.Signature.Attributes.Where(a => !DeprecationApiHelpers.IsObsoleteAttribute(a)),
+                        visitorAttribute
+                    ]);
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
+                        generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
+                }
+            }
+        }
+
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
             => null;
 
@@ -1309,20 +1336,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
             BackCompatHelper.AddBackCompatOverloads(this, methods);
-
-            foreach (var method in methods)
-            {
-                if (method.Signature.Attributes.Any(IsGeneratedMethodDeprecationAttribute)
-                    && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
-                        && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, method.Signature)
-                        && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
-                {
-                    var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
-                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
-                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
-                        generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
-                }
-            }
 
             return methods;
         }

@@ -142,15 +142,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(12, methods.Length);
             foreach (var method in methods)
             {
-                bool expected = method.Signature.Name != "Bar" && method.Signature.Name != "BarAsync"
-                    || method.Signature.Name == "Bar" && method.Kind == ScmMethodKind.Protocol
-                    || method.Signature.Name == "BarAsync" && method.Kind == ScmMethodKind.Convenience;
-                Assert.AreEqual(expected, method.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))),
+                Assert.IsTrue(method.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))),
                     $"{method.Signature.Name} {method.Kind}");
-                if (method.Signature.Name == "Bar" && method.Kind == ScmMethodKind.Convenience)
-                {
-                    Assert.IsTrue(method.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""));
-                }
             }
         }
 
@@ -194,6 +187,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task VisitorDeprecationIsDeduplicatedOnRestoredOverloads()
+        {
+            var operation = InputFactory.Operation("Read", deprecated: "Generated message",
+                parameters:
+                [
+                    InputFactory.QueryParameter("value", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.QueryParameter("added", InputPrimitiveType.Boolean)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
+            [
+                InputFactory.MethodParameter("value", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("added", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)
+            ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(DeprecationPreservesObsoleteOverloadsBesideStableSignatures)));
+            var generator = ScmCodeModelGenerator.Instance;
+            var firstVisitor = new AppendingMethodDeprecationVisitor("First visitor message");
+            var lastVisitor = new AppendingMethodDeprecationVisitor("Last visitor message");
+            generator.AddVisitor(firstVisitor);
+            generator.AddVisitor(lastVisitor);
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            client.EnsureBuilt();
+
+            firstVisitor.VisitLibrary(generator.OutputLibrary);
+            lastVisitor.VisitLibrary(generator.OutputLibrary);
+            client.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(6, client.Methods.Count);
+            foreach (var method in client.Methods)
+            {
+                Assert.AreSame(lastVisitor.Attribute,
+                    method.Signature.Attributes.Single(attribute => attribute.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+        }
+
+        private sealed class AppendingMethodDeprecationVisitor(string message) : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } =
+                new(typeof(ObsoleteAttribute), [Snippet.Literal(message)]);
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name is "Read" or "ReadAsync")
+                {
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes, Attribute]);
+                }
+                return method;
+            }
+        }
+
+        [Test]
         public async Task DeprecationPreservesObsoleteOverloadsBesideStableSignatures()
         {
             var operation = InputFactory.Operation("Read", deprecated: "Current message",
@@ -217,17 +263,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(2, client.Methods.Count(method => method.Signature.Parameters.Count == 2));
             foreach (var method in client.Methods)
             {
-                var obsolete = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
-                if (method.Signature.Parameters.Count == 2)
-                {
-                    Assert.IsNotNull(obsolete, method.Signature.Name);
-                    Assert.AreEqual("\"Current message\"", obsolete!.Arguments.Single().ToDisplayString());
-                }
-                else
-                {
-                    Assert.AreEqual(3, method.Signature.Parameters.Count);
-                    Assert.IsNull(obsolete, method.Signature.Name);
-                }
+                var obsolete = method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                Assert.AreEqual("\"Current message\"", obsolete.Arguments.Single().ToDisplayString());
             }
         }
 
