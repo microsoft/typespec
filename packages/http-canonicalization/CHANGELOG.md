@@ -1,5 +1,9 @@
 # Changelog - @typespec/http-canonicalization
 
+## 0.16.5
+
+No changes, version bump only.
+
 ## 0.16.4
 
 ### Bug Fixes

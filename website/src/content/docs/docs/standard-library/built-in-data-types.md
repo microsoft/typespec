@@ -479,6 +479,15 @@ scalar string
 
 
 
+### `TypeRef` {#TypeRef}
+
+A reference to a type assignable to `T`, created with `typeref`.
+```typespec
+scalar TypeRef
+```
+
+
+
 ### `uint16` {#uint16}
 
 A 16-bit unsigned integer (`0` to `65,535`)

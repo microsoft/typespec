@@ -226,6 +226,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 customProperty.Type = customProperty.Type.ApplyInputSpecProperty(specProperty);
                 customProperty.InputProperty = specProperty;
+                if (customProperty.Modifiers.HasFlag(MethodSignatureModifiers.Override) && customProperty.BaseProperty is null && specProperty is not null)
+                {
+                    customProperty.BaseProperty = generatedPropertiesBySpecName.Values
+                        .FirstOrDefault(p => p.InputProperty == specProperty)?.BaseProperty;
+                }
             }
 
             // Filter out generated properties that have been customized to avoid duplicates.

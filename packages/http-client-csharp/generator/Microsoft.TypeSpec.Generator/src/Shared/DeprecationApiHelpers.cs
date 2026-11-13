@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -17,6 +20,38 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public static AttributeStatement? BuildAttribute(string? message)
             => message is null ? null : new AttributeStatement(typeof(ObsoleteAttribute), [Literal(message)]);
+
+        public static AttributeStatement? GetEffectiveObsoleteAttribute(PropertyProvider property)
+        {
+            HashSet<PropertyProvider> visited = [];
+            while (visited.Add(property))
+            {
+                if (property.Attributes.FirstOrDefault(IsObsoleteAttribute) is { } attribute)
+                {
+                    return attribute;
+                }
+                if (!property.Modifiers.HasFlag(MethodSignatureModifiers.Override) || property.BaseProperty is not { } baseProperty)
+                {
+                    break;
+                }
+                EnsurePropertyInitialized(baseProperty);
+                property = baseProperty;
+            }
+            return null;
+        }
+
+        public static void EnsurePropertyInitialized(PropertyProvider property)
+        {
+            // A cached base property may not have had its own override or last-contract attributes resolved yet.
+            HashSet<ModelProvider> visited = [];
+            for (var model = property.EnclosingType as ModelProvider; model is not null && visited.Add(model); model = model.BaseModelProvider)
+            {
+                if (model.CanonicalView.Properties.Contains(property))
+                {
+                    break;
+                }
+            }
+        }
 
         public static string? GetDiagnosticId(AttributeStatement attribute)
         {
