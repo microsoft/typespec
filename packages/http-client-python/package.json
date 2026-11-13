@@ -35,7 +35,6 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
     "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/build.ts",
-    "build:playground": "npm run build -- --playground",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",
@@ -87,14 +86,6 @@
       {
         "path": "generator/dist/pygen-*.whl",
         "contentType": "application/zip"
-      },
-      {
-        "path": "generator/dist/browser/*.whl",
-        "contentType": "application/zip"
-      },
-      {
-        "path": "generator/dist/browser/manifest.json",
-        "contentType": "application/json"
       }
     ],
     "bundlePeerDependencies": [
