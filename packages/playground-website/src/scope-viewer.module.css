@@ -1,0 +1,104 @@
+.root {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.controls,
+.content {
+  padding: 12px;
+}
+
+.controls {
+  border-bottom: 1px solid var(--colorNeutralStroke2);
+}
+
+.controls h2,
+.content h3 {
+  margin: 0 0 8px;
+}
+
+.hint {
+  color: var(--colorNeutralForeground2);
+  margin: 8px 0;
+  font-size: 12px;
+}
+
+.axes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.controls select {
+  padding: 6px;
+  border: 1px solid var(--colorNeutralStroke1);
+  border-radius: 4px;
+  background: var(--colorNeutralBackground1);
+  color: var(--colorNeutralForeground1);
+  max-width: 100%;
+}
+
+.declaration {
+  margin: 12px 0;
+}
+
+.comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 12px;
+}
+
+.comparison section {
+  min-width: 0;
+}
+
+.root pre {
+  padding: 12px;
+  margin: 0;
+  overflow: auto;
+  background: var(--colorNeutralBackground2);
+  border: 1px solid var(--colorNeutralStroke2);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.changes {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.changes th,
+.changes td {
+  text-align: left;
+  padding: 6px;
+  border-bottom: 1px solid var(--colorNeutralStroke2);
+  overflow-wrap: anywhere;
+}
+
+.changes tr[data-change="removed"] {
+  background: var(--colorPaletteRedBackground1);
+}
+
+.changes tr[data-change="added"] {
+  background: var(--colorPaletteGreenBackground1);
+}
+
+.changes tr[data-change="changed"] {
+  background: var(--colorPaletteYellowBackground1);
+}
+
+.graph {
+  flex: 1;
+  min-height: 400px;
+}

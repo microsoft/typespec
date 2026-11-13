@@ -4,7 +4,10 @@ import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import type { Mutable } from "../utils/misc.js";
 import { MultiKeyMap, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
-import { createAutoDecoratorImplementation } from "./auto-decorator.js";
+import {
+  createAutoDecoratorImplementation,
+  createScopedAutoDecoratorImplementation,
+} from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -41,6 +44,7 @@ import {
   visitChildren,
 } from "./parser.js";
 import type { Program } from "./program.js";
+import { getScopeAlternatives, registerScopeAlternatives, resolveWhenClause } from "./scope.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -131,6 +135,7 @@ import type {
   ObjectValue,
   ObjectValuePropertyDescriptor,
   Operation,
+  OperationAlternativesStatementNode,
   OperationStatementNode,
   Scalar,
   ScalarConstructor,
@@ -138,6 +143,7 @@ import type {
   ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   ScalarValue,
+  ScopeAlternativesExpressionNode,
   SignatureFunctionParameter,
   StdTypeName,
   StdTypes,
@@ -387,7 +393,7 @@ export interface Checker {
     typeDef: T,
   ): T & TypePrototype;
   /** Run a type's decorators and finishing validators, mark it finished, and return the same object. */
-  finishType<T extends Type>(typeDef: T): T;
+  finishType<T extends Type>(typeDef: T, options?: { skipDecorators?: boolean }): T;
   /** Get or create the program's cached string literal type for the supplied value. */
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   /** Get or create a numeric literal type, preserving precise {@link Numeric} values. */
@@ -1103,6 +1109,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkNamespace(ctx, node);
       case SyntaxKind.OperationStatement:
         return checkOperation(ctx, node);
+      case SyntaxKind.OperationAlternativesStatement:
+        return checkOperationAlternatives(ctx, node);
+      case SyntaxKind.ScopeAlternativesExpression:
+        return checkScopeAlternativesExpression(ctx, node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -2098,6 +2108,72 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return union;
   }
 
+  /**
+   * `when { cond => T, ... }` checks every branch and keeps them all, as an explicit
+   * alternatives union. Scope views resolve it to the most specific matching branch.
+   */
+  function checkScopeAlternativesExpression(
+    ctx: CheckContext,
+    node: ScopeAlternativesExpressionNode,
+  ): Union {
+    const unionType: Union = createAndFinishType({
+      kind: "Union",
+      node,
+      get options() {
+        return Array.from(this.variants.values()).map((v) => v.type);
+      },
+      expression: true,
+      namespace: getParentNamespaceType(node),
+      variants: createRekeyableMap(),
+      decorators: [],
+    });
+    const members: UnionVariant[] = [];
+    for (const branch of node.branches) {
+      const variant: UnionVariant = createType({
+        kind: "UnionVariant",
+        type: getTypeForNode(branch.value, ctx),
+        name: Symbol("alternative"),
+        decorators: [],
+        node: undefined,
+        union: unionType,
+      });
+      unionType.variants.set(variant.name, variant);
+      members.push(variant);
+    }
+    linkMapper(unionType, ctx.mapper);
+    registerScopeAlternatives(program, {
+      owner: unionType,
+      members,
+      branches: node.branches,
+    });
+    return unionType;
+  }
+
+  /** Each branch is a complete operation; the group records that they are alternatives. */
+  function checkOperationAlternatives(
+    ctx: CheckContext,
+    node: OperationAlternativesStatementNode,
+  ): Operation {
+    const members = node.branches.map((branch) => checkOperation(ctx, branch));
+    if (ctx.mapper === undefined && !getScopeAlternatives(program, members[0])) {
+      registerScopeAlternatives(program, { members, branches: node.branches });
+    }
+    return members[0];
+  }
+
+  /** Branches keep distinct keys in the unscoped graph; views rekey the selected one. */
+  function getOperationKey(node: OperationStatementNode, name: string): string {
+    if (node.parent?.kind !== SyntaxKind.OperationAlternativesStatement) return name;
+    if (!node.when) return `${name} else`;
+    let file: Node | undefined = node;
+    while (file && file.kind !== SyntaxKind.TypeSpecScript) file = file.parent;
+    const text =
+      file?.kind === SyntaxKind.TypeSpecScript
+        ? file.file.text.slice(node.when.pos, node.when.end)
+        : String(node.pos);
+    return `${name} when ${text}`;
+  }
+
   function checkUnionExpression(ctx: CheckContext, node: UnionExpressionNode): Union {
     const unionType: Union = createAndFinishType({
       kind: "Union",
@@ -2636,6 +2712,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | NamespaceStatementNode
       | JsNamespaceDeclarationNode
       | UnionExpressionNode
+      | ScopeAlternativesExpressionNode
       | OperationStatementNode
       | EnumStatementNode
       | EnumDeclarationExpressionNode
@@ -2653,6 +2730,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node.kind === SyntaxKind.ModelExpression ||
       node.kind === SyntaxKind.IntersectionExpression ||
       node.kind === SyntaxKind.UnionExpression ||
+      node.kind === SyntaxKind.ScopeAlternativesExpression ||
       node.kind === SyntaxKind.ModelDeclarationExpression ||
       node.kind === SyntaxKind.EnumDeclarationExpression ||
       node.kind === SyntaxKind.UnionDeclarationExpression ||
@@ -2670,7 +2748,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           parent.kind === SyntaxKind.UnionStatement ||
           parent.kind === SyntaxKind.ModelExpression ||
           parent.kind === SyntaxKind.IntersectionExpression ||
-          parent.kind === SyntaxKind.UnionExpression
+          parent.kind === SyntaxKind.UnionExpression ||
+          parent.kind === SyntaxKind.ScopeAlternativesExpression
         ) {
           return getParentNamespaceType(parent);
         } else {
@@ -2856,7 +2935,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     linkMapper(operationType, ctx.mapper);
     if (parent.kind !== SyntaxKind.InterfaceStatement && ctx.mapper === undefined) {
-      namespace?.operations.set(name, operationType);
+      namespace?.operations.set(getOperationKey(node, name), operationType);
     }
 
     return operationType;
@@ -7116,13 +7195,74 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const impl = sym.value ?? symbolLinks.declaredType?.implementation;
+    const scopedImpl = checkWhenClause(ctx, decNode, sym, symbolLinks.declaredType);
     return {
       definition: symbolLinks.declaredType,
-      decorator: impl ?? ((...args: any[]) => {}),
+      decorator: scopedImpl ?? impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };
   }
+
+  /**
+   * Validate a decorator's `when` clause and, if valid, build the conditioned implementation
+   * that stores the decorator's arguments against the resolved scope instead of unconditionally.
+   *
+   * Returns `undefined` when there is no clause or the clause is invalid — the decorator's
+   * arguments are still validated either way, only the *storage* is conditioned.
+   */
+  function checkWhenClause(
+    ctx: CheckContext,
+    decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+    sym: Sym,
+    declaration: Decorator | undefined,
+  ): ((ctx: DecoratorContext, target: Type, ...args: unknown[]) => void) | undefined {
+    const when = decNode.when;
+    if (when === undefined) {
+      return undefined;
+    }
+
+    if (!isCompilerFeatureEnabled(program, "scoped-decorators", when)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({ code: "scoped-decorator-disabled", target: when }),
+      );
+      return undefined;
+    }
+
+    if (decNode.kind === SyntaxKind.AugmentDecoratorStatement) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "when-clause-not-allowed",
+          messageId: "augment",
+          target: when,
+        }),
+      );
+      return undefined;
+    }
+
+    const declNode = sym.declarations.find(
+      (x): x is DecoratorDeclarationStatementNode =>
+        x.kind === SyntaxKind.DecoratorDeclarationStatement,
+    );
+    if (declaration?.declarationKind !== "auto" || declNode === undefined) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "when-clause-not-allowed",
+          format: { decorator: `@${sym.name}` },
+          target: when,
+        }),
+      );
+      return undefined;
+    }
+
+    const scope = resolveWhenClause(program, when);
+    if (scope === undefined) {
+      return () => {};
+    }
+
+    return createScopedAutoDecoratorImplementation(sym, declNode, scope, decNode);
+  }
+
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {

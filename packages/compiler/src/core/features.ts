@@ -19,6 +19,10 @@ export const compilerFeatures = {
     description:
       "Allows use of auto decorator declarations without experimental warnings in project code.",
   },
+  "scoped-decorators": {
+    description:
+      "Allows use of `when` clauses on `auto` decorator applications, conditioning the stored metadata on the querying scope (emitter, language, target).",
+  },
   "type-info-provider": {
     description:
       "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
@@ -60,6 +64,8 @@ export function isCompilerFeatureEnabled(
       return program.compilerOptions.configFile?.features?.includes(feature) ?? false;
     case "library":
       return context.features?.includes(feature) ?? false;
+    case "compiler":
+      return true;
     default:
       // compiler (standard library) and synthetic code are never gated.
       return false;

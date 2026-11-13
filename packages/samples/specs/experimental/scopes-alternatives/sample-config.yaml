@@ -1,0 +1,3 @@
+title: "Conditional scopes: alternatives"
+description: Replace @added/@removed/@renamedFrom with explicit `when { ... }` alternatives. A property changes type across versions and an operation switches its `is` template. The most specific matching branch wins, and `else` covers everything else.
+llmstxt: false

@@ -1,0 +1,3 @@
+title: "Conditional scopes: validation"
+description: Conditional declarations and members across models, scalars, enums, unions and operations. Uncomment the marked cases to see eager errors in scopes you did not select.
+llmstxt: false

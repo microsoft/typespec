@@ -1,5 +1,8 @@
 import type { ModelProperty, Namespace, Operation, Program, Type } from "@typespec/compiler";
-import { type unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
+import {
+  registerScopeViewAxis,
+  type unsafe_MutatorWithNamespace as MutatorWithNamespace,
+} from "@typespec/compiler/experimental";
 import {
   getMadeOptionalOn,
   getMadeRequiredOn,
@@ -10,7 +13,71 @@ import {
 import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
-import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
+import {
+  Availability,
+  getAvailabilityMapInTimeline,
+  getVersions,
+  resolveVersions,
+} from "./versioning.js";
+
+/** @internal Bridge existing version projections into the conditional-scope feasibility POC. */
+export function registerVersioningScopeAxis(program: Program, namespace: Namespace): void {
+  const resolutions = resolveVersions(program, namespace);
+  if (!resolutions.some((x) => x.rootVersion)) return;
+  const timeline = new VersioningTimeline(
+    program,
+    resolutions.map((x) => x.versions),
+  );
+  const helper = new VersioningHelper(program, timeline);
+  const snapshots = new Map(
+    resolutions.flatMap((resolution) => {
+      if (!resolution.rootVersion || resolution.versions.size === 0) return [];
+      const moment = timeline.get(resolution.versions.values().next().value!);
+      return [[resolution.rootVersion.enumMember, moment] as const];
+    }),
+  );
+  const first = snapshots.keys().next().value;
+  if (!first) return;
+  const namespaces = new Set(resolutions.flatMap((resolution) => [...resolution.versions.keys()]));
+  const includes = (type: Type) => {
+    let owner = getVersions(program, type)[0];
+    while (owner) {
+      if (namespaces.has(owner)) return true;
+      owner = owner.namespace;
+    }
+    return false;
+  };
+  registerScopeViewAxis(program, {
+    enum: first.enum,
+    ordered: true,
+    isValidSelection(selection, selections) {
+      const resolution = resolutions.find((x) => x.rootVersion?.enumMember === selection)!;
+      return [...resolution.versions.values()].every((version) => {
+        const selected = selections.find((member) => member.enum === version.enumMember.enum);
+        return selected === undefined || selected === version.enumMember;
+      });
+    },
+    project(selection) {
+      const mutator = createVersionMutator(helper, snapshots.get(selection)!);
+      return {
+        ...Object.fromEntries(
+          Object.entries(mutator).map(([kind, record]) => [
+            kind,
+            typeof record === "string"
+              ? record
+              : typeof record === "function"
+                ? { filter: includes, mutate: record }
+                : { ...record, filter: includes },
+          ]),
+        ),
+        name: mutator.name,
+      };
+    },
+    isPresent(selection, type) {
+      return !includes(type) || helper.existsAtVersion(type, snapshots.get(selection)!);
+    },
+  });
+}
 
 /**
  * Snapshot mutators for a service with its own declared versions.

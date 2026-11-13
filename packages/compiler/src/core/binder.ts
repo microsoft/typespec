@@ -560,6 +560,19 @@ export function createBinder(program: Program): Binder {
         SymbolFlags.Operation | SymbolFlags.Member | SymbolFlags.Declaration | internal,
         statement.id.sv,
       );
+    } else if (
+      statement.parent?.kind === SyntaxKind.OperationAlternativesStatement &&
+      statement.parent.branches[0] !== statement
+    ) {
+      // Additional branches of an explicit alternatives group are complete operations, but
+      // only the first branch owns the exported name, so the group is not a duplicate.
+      const parent = scope.kind === SyntaxKind.TypeSpecScript ? fileNamespace : scope;
+      mutate(statement).symbol = createSymbol(
+        statement,
+        statement.id.sv,
+        SymbolFlags.Operation | SymbolFlags.Declaration | internal,
+        parent?.symbol,
+      );
     } else {
       declareSymbol(statement, SymbolFlags.Operation | SymbolFlags.Declaration | internal);
     }

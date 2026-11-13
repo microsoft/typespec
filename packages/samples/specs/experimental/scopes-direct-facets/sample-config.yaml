@@ -1,0 +1,3 @@
+title: "Conditional scopes: direct shape facets"
+description: Change names, property types, optionality and return types with readonly Scopes facets, without legacy versioning or visibility decorators. Compare Versions and Views in the Scope explorer.
+llmstxt: false

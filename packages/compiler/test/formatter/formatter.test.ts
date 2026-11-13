@@ -4,6 +4,33 @@ import { describe, it } from "vitest";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
+
+it("preserves structural conditions and conjunctions while formatting", async () => {
+  await assertFormat({
+    code: `model Item when Clients.csharp { value:string when Lifecycle.Read & Clients.csharp; }
+op get():Item when Clients.csharp;`,
+    expected: `model Item when Clients.csharp {
+  value: string when Lifecycle.Read & Clients.csharp;
+}
+op get(): Item when Clients.csharp;`,
+  });
+});
+it("formats scope alternatives", async () => {
+  await assertFormat({
+    code: `model W { a: when {V.v1=>string,else=>int32}; }
+@doc("x") op get when { V.v1 => is ReadV1<W>, else => (id:string):W };`,
+    expected: `model W {
+  a: when {
+    V.v1 => string,
+    else => int32,
+  };
+}
+@doc("x") op get when {
+  V.v1 => is ReadV1<W>,
+  else => (id: string): W,
+};`,
+  });
+});
 async function format(code: string, parser: TestParser = "typespec"): Promise<string> {
   const output = await prettier.format(code, {
     parser,
@@ -2985,6 +3012,77 @@ extern fn foo(
 });
 
 describe("decorators", () => {
+  describe("when clause", () => {
+    it("normalizes spacing around a when clause", async () => {
+      await assertFormat({
+        code: `
+@clientName("Foo")     when     emitter("csharp")
+model   Foo {}
+        `,
+        expected: `
+@clientName("Foo") when emitter("csharp")
+model Foo {}
+        `,
+      });
+    });
+
+    it("keeps alternatives on one line separated by '|'", async () => {
+      await assertFormat({
+        code: `
+@clientName("Foo") when emitter("cs")|language("cs")   |  target("client")
+model Foo {}
+        `,
+        expected: `
+@clientName("Foo") when emitter("cs") | language("cs") | target("client")
+model Foo {}
+        `,
+      });
+    });
+
+    it("breaks alternatives onto their own lines when too long", async () => {
+      await assertFormat({
+        code: `
+@clientName("Foo") when emitter("@typespec/http-client-csharp") | language("csharp") | target("client")
+model Foo {}
+        `,
+        expected: `
+@clientName("Foo") when emitter("@typespec/http-client-csharp")
+  | language("csharp")
+  | target("client")
+model Foo {}
+        `,
+      });
+    });
+
+    it("formats a when clause on a model property", async () => {
+      await assertFormat({
+        code: `
+model Foo {
+  @clientName("Bar")   when   emitter("csharp")   prop:   string;
+}
+        `,
+        expected: `
+model Foo {
+  @clientName("Bar") when emitter("csharp") prop: string;
+}
+        `,
+      });
+    });
+
+    it("formats a when clause with a member expression condition", async () => {
+      await assertFormat({
+        code: `
+@clientName("Foo")  when  Lifecycle.Read
+model Foo {}
+        `,
+        expected: `
+@clientName("Foo") when Lifecycle.Read
+model Foo {}
+        `,
+      });
+    });
+  });
+
   it("keep simple decorators inline", async () => {
     await assertFormat({
       code: `

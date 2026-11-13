@@ -1,5 +1,6 @@
 import pc from "picocolors";
 import type { EmitterOptions } from "../config/types.js";
+import { validateScopeViews } from "../experimental/scope-views.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
@@ -36,6 +37,7 @@ import type { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createPerfReporter, perf } from "./perf.js";
+import type { Scope } from "./scope.js";
 import type { SourceLoader, SourceResolution } from "./source-loader.js";
 import {
   createSourceLoader,
@@ -508,6 +510,7 @@ async function createProgram(
   // onValidate stage
   currentStage = "validating";
   await runValidators();
+  validateScopeViews(program);
 
   validateRequiredImports();
 
@@ -1183,11 +1186,14 @@ async function emit(
  */
 async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfReporter> {
   const perfReporter = createPerfReporter();
+  const scope: Scope = { emitter: emitter.metadata.name };
   const context: EmitContext<any> = {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
     options: emitter.options,
     perf: perfReporter,
+    scope,
+    createScope: (overrides) => ({ ...scope, ...overrides }),
   };
   try {
     await emitter.emitFunction(context);

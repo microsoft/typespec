@@ -1,0 +1,52 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    get:
+      operationId: getWidget
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Settings:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2
+    Views:
+      type: string
+      enum:
+        - read
+        - write
+    Widget:
+      type: object
+      required:
+        - id
+        - secret
+        - value
+        - settings
+      properties:
+        id:
+          type: string
+        secret:
+          type: string
+        value:
+          type: string
+        settings:
+          $ref: '#/components/schemas/Settings'

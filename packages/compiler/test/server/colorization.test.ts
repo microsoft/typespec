@@ -473,6 +473,22 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeParen,
         ]);
       });
+      it("decorator with a when clause", async () => {
+        const tokens = await tokenize(`@foo when emitter("csharp")`);
+        deepStrictEqual(tokens, [
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.keywords.other("when"),
+          // The TextMate grammar cannot tell a condition from any other identifier;
+          // the semantic classifier sees the call expression.
+          tokenize === tokenizeTMLanguage
+            ? Token.identifiers.type("emitter")
+            : Token.identifiers.functionName("emitter"),
+          Token.punctuation.openParen,
+          Token.literals.stringQuoted("csharp"),
+          Token.punctuation.closeParen,
+        ]);
+      });
     });
 
     describe("augment decorators", () => {

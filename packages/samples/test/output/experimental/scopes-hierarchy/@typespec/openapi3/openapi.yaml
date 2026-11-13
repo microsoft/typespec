@@ -1,0 +1,43 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths: {}
+components:
+  schemas:
+    AzureScopes:
+      type: string
+      enum:
+        - csharp
+        - management
+        - provisioning
+        - python
+    Configuration:
+      type: object
+      required:
+        - dotnet
+      properties:
+        dotnet:
+          $ref: '#/components/schemas/DotnetOptions'
+    DotnetOptions:
+      type: object
+      required:
+        - assembly
+      properties:
+        assembly:
+          type: string
+    Options:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+    Widget:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

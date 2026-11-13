@@ -1,0 +1,3 @@
+title: "Conditional scopes: declarations only"
+description: Version-dependent types and read/create/update shapes using only when clauses, including conditional union variants and operations. No decorators or existing versioning/visibility APIs.
+llmstxt: false

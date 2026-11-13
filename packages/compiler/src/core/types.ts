@@ -5,6 +5,7 @@ import type { FileRef } from "./file-ref.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
+import type { Scope } from "./scope.js";
 
 /**
  * JavaScript-facing type mapping for compiler values.
@@ -883,7 +884,11 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   /** Declared name, when present; expression unions can also retain a declaration-expression name. */
   name?: string;
-  node?: UnionExpressionNode | UnionStatementNode | UnionDeclarationExpressionNode;
+  node?:
+    | UnionExpressionNode
+    | UnionStatementNode
+    | UnionDeclarationExpressionNode
+    | ScopeAlternativesExpressionNode;
   /** Containing namespace, when associated with a namespace. */
   namespace?: Namespace;
 
@@ -1587,6 +1592,13 @@ export enum SyntaxKind {
   UnionDeclarationExpression,
   /** Keyword-form `enum` used as an expression without namespace registration. */
   EnumDeclarationExpression,
+  WhenClause,
+  /** Explicit set of scope-conditioned alternatives: `when { cond => T, else => U }`. */
+  ScopeAlternativesExpression,
+  /** One `cond => value` branch of a scope alternatives construct. */
+  ScopeAlternative,
+  /** Explicit set of scope-conditioned operation signatures: `op get when { ... };`. */
+  OperationAlternativesStatement,
 }
 
 /** Parser error-state and origin bits attached to syntax nodes. */
@@ -1712,6 +1724,8 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
+  | OperationAlternativesStatementNode
+  | ScopeAlternativeNode
   | OperationSignatureDeclarationNode
   | OperationSignatureReferenceNode
   | EnumMemberNode
@@ -1719,6 +1733,7 @@ export type Node =
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
+  | WhenClauseNode
   | Statement
   | Expression
   | FunctionParameterNode
@@ -1854,6 +1869,7 @@ export type Statement =
   | EnumStatementNode
   | AliasStatementNode
   | OperationStatementNode
+  | OperationAlternativesStatementNode
   | DecoratorDeclarationStatementNode
   | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
@@ -1947,6 +1963,28 @@ export interface DecoratorExpressionNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   /** Explicit arguments in source order; the decorated entity is supplied separately by the checker. */
   readonly arguments: readonly Expression[];
+  /** Condition restricting the scopes this decorator applies in. */
+  readonly when?: WhenClauseNode;
+}
+
+/**
+ * A condition in a {@link WhenClauseNode}.
+ *
+ * The grammar is deliberately closed rather than a general expression: it is what
+ * guarantees the clause terminates unambiguously in decorator position.
+ */
+export type WhenConditionNode = IdentifierNode | MemberExpressionNode | CallExpressionNode;
+
+/**
+ * A `when` clause scoping the thing it is attached to.
+ *
+ * Conditions are alternatives, separated by `|`. A comma-separated list is not used
+ * because `,` is the model-property and operation-parameter separator.
+ */
+export interface WhenClauseNode extends BaseNode {
+  readonly kind: SyntaxKind.WhenClause;
+  readonly conditions: readonly WhenConditionNode[];
+  readonly operators?: readonly ("|" | "&")[];
 }
 
 /** An out-of-line decorator application, such as `@@doc(MyModel, "description");`. */
@@ -1960,6 +1998,8 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   /** Remaining source arguments, excluding the decorated entity reference. */
   readonly arguments: readonly Expression[];
   /** Containing file or namespace after binding. */
+  /** Condition restricting the scopes this decorator applies in. */
+  readonly when?: WhenClauseNode;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -1992,6 +2032,7 @@ export type Expression =
   | ArrayLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
+  | ScopeAlternativesExpressionNode
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
@@ -2094,11 +2135,48 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   /** Identifies the named operation node rather than its signature child. */
   readonly kind: SyntaxKind.OperationStatement;
   /** Explicit signature or reference to an operation whose signature is reused. */
+  readonly when?: WhenClauseNode;
   readonly signature: OperationSignature;
   /** Decorator annotations in source order, not their execution order. */
   readonly decorators: readonly DecoratorExpressionNode[];
-  /** File, namespace, or interface syntactically containing this operation after binding. */
-  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode | InterfaceStatementNode;
+  /** File, namespace, interface, or alternatives group syntactically containing this operation. */
+  readonly parent?:
+    | TypeSpecScriptNode
+    | NamespaceStatementNode
+    | InterfaceStatementNode
+    | OperationAlternativesStatementNode;
+}
+
+/**
+ * One branch of a scope alternatives construct. `when` is undefined for the `else` branch.
+ * @experimental
+ */
+export interface ScopeAlternativeNode extends BaseNode {
+  readonly kind: SyntaxKind.ScopeAlternative;
+  readonly when?: WhenClauseNode;
+  readonly value: Expression;
+}
+
+/**
+ * `when { cond => T, ... }`: an explicit set of alternatives. The unscoped graph keeps every
+ * branch; a scope view resolves it to the most specific matching branch.
+ * @experimental
+ */
+export interface ScopeAlternativesExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.ScopeAlternativesExpression;
+  readonly branches: readonly ScopeAlternativeNode[];
+}
+
+/**
+ * `op get when { cond => is A, cond => (...): B };`. Each branch is a complete operation named
+ * after the group, conditioned on the branch condition (`when` is undefined for `else`).
+ * @experimental
+ */
+export interface OperationAlternativesStatementNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationAlternativesStatement;
+  readonly id: IdentifierNode;
+  readonly branches: readonly OperationStatementNode[];
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 /** Named model declaration whose checked type is registered in the enclosing namespace. */
@@ -2106,6 +2184,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   /** Distinguishes a namespace declaration from a keyword-form model in expression position. */
   readonly kind: SyntaxKind.ModelStatement;
   /** Own property declarations and spreads in source order; inherited properties are not inserted here. */
+  readonly when?: WhenClauseNode;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   /** Range including body braces, or `{-1, -1}` when an `is` declaration has no body. */
   readonly bodyRange: TextRange;
@@ -2147,6 +2226,7 @@ export interface ScalarStatementNode extends BaseNode, DeclarationNode, Template
   /** Distinguishes a namespace scalar declaration from a scalar declaration expression. */
   readonly kind: SyntaxKind.ScalarStatement;
   /** Base scalar reference following `extends`, including any template arguments. */
+  readonly when?: WhenClauseNode;
   readonly extends?: TypeReferenceNode;
   /** Decorator annotations on this scalar in source order. */
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -2196,6 +2276,7 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   /** Identifies an interface declaration, not one of its operation members. */
   readonly kind: SyntaxKind.InterfaceStatement;
   /** Operations explicitly written in this body; inherited operations exist only in the checked type. */
+  readonly when?: WhenClauseNode;
   readonly operations: readonly OperationStatementNode[];
   /** Range including the braces surrounding the operation list. */
   readonly bodyRange: TextRange;
@@ -2212,6 +2293,7 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
   /** Distinguishes a named union declaration from an infix `|` expression. */
   readonly kind: SyntaxKind.UnionStatement;
   /** Variant nodes in source order, including both named and unnamed alternatives. */
+  readonly when?: WhenClauseNode;
   readonly options: readonly UnionVariantNode[];
   /**
    * Type that every variant of this union must be assignable to.
@@ -2259,6 +2341,7 @@ export interface UnionVariantNode extends BaseNode {
   /** Identifies a declaration-body alternative rather than an operand of an infix union. */
   readonly kind: SyntaxKind.UnionVariant;
   /** Explicit variant name; absent for an unnamed alternative such as `string`. */
+  readonly when?: WhenClauseNode;
   readonly id?: IdentifierNode;
   /** Type expression for this alternative, whether or not a name was provided. */
   readonly value: Expression;
@@ -2273,6 +2356,7 @@ export interface EnumStatementNode extends BaseNode, DeclarationNode {
   /** Distinguishes a namespace enum declaration from an enum declaration expression. */
   readonly kind: SyntaxKind.EnumStatement;
   /** Members and spread references as written; spreads are not expanded in the syntax tree. */
+  readonly when?: WhenClauseNode;
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   /** Annotations on this enum, separate from member annotations. */
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -2298,6 +2382,7 @@ export interface EnumDeclarationExpressionNode extends BaseNode, OptionallyNamed
 export interface EnumMemberNode extends BaseNode {
   /** Identifies an explicit member rather than an enum spread. */
   readonly kind: SyntaxKind.EnumMember;
+  readonly when?: WhenClauseNode;
   /** Member name, including decoded names accepted through quoted-identifier syntax. */
   readonly id: IdentifierNode;
   /** Explicit literal value; absent when the member is declared by name alone. */
@@ -2397,6 +2482,7 @@ export interface ModelPropertyNode extends BaseNode {
   /** Identifies an explicitly declared property rather than a property spread. */
   readonly kind: SyntaxKind.ModelProperty;
   /** Property name, decoded from identifier or legacy quoted-name syntax. */
+  readonly when?: WhenClauseNode;
   readonly id: IdentifierNode;
   /** Declared type expression following `:`, not the property's default value. */
   readonly value: Expression;
@@ -3954,6 +4040,30 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * The information will be displayed when the compiler is run with `--stats` flag.
    */
   readonly perf: PerfReporter;
+
+  /**
+   * The scope this emitter is running under, used to resolve `when`-conditioned metadata.
+   *
+   * The `emitter` dimension is populated automatically from the emitter's package name. Emitters
+   * that serve a specific language or artifact kind should narrow it further with
+   * {@link EmitContext.createScope}.
+   */
+  readonly scope: Scope;
+
+  /**
+   * Derive a scope from this emitter's scope, overriding the given dimensions.
+   *
+   * Use this when a single emitter produces output for more than one scope — for example a
+   * client emitter that targets several languages, or one that emits both client and server
+   * artifacts from the same program.
+   *
+   * @example
+   * ```ts
+   * const csharp = context.createScope({ language: "csharp", target: "client" });
+   * const name = getAutoDecoratorValue(program, "MyLib.clientName", model, csharp);
+   * ```
+   */
+  readonly createScope: (overrides: Partial<Scope>) => Scope;
 }
 
 /** Elapsed-time measurement handle returned by compiler performance utilities. */

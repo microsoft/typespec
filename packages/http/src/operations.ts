@@ -14,7 +14,10 @@ import {
   listServices,
   navigateProgram,
 } from "@typespec/compiler";
-import { unsafe_useCache as useCache } from "@typespec/compiler/experimental";
+import {
+  unsafe_getScopeAlternatives as getScopeAlternatives,
+  unsafe_useCache as useCache,
+} from "@typespec/compiler/experimental";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
 import { isSharedRoute } from "./decorators/shared-route.js";
@@ -186,6 +189,11 @@ export function validateRouteUnique(
 
   for (const [path, map] of grouped) {
     for (const [verb, routes] of map) {
+      // Branches of one `when { ... }` alternatives group never coexist in a scope view.
+      const group = getScopeAlternatives(program, routes[0].operation);
+      if (group && routes.every((r) => getScopeAlternatives(program, r.operation) === group)) {
+        continue;
+      }
       if (routes.length >= 2) {
         for (const route of routes) {
           diagnostics.add(

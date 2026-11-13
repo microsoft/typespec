@@ -13,6 +13,7 @@ import { registerMonacoDefaultWorkersForVite } from "@typespec/playground/vite/w
 import { createRoot } from "react-dom/client";
 import samples from "../samples/dist/samples.js";
 import { useImportCommandBarItem } from "./import.js";
+import { ScopeViewsViewer } from "./scope-viewer.js";
 import "./style.css";
 
 registerMonacoDefaultWorkersForVite();
@@ -57,6 +58,7 @@ const App = () => {
     <StandalonePlayground
       {...PlaygroundManifest}
       samples={samples}
+      viewers={[ScopeViewsViewer]}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       importConfig={{ useShim: true }}
       footer={<PlaygroundFooter />}

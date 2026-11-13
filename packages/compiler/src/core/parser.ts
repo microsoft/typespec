@@ -7,6 +7,7 @@ import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
+  isContextualKeyword,
   isDeclarationExpressionStatementKeyword,
   isKeyword,
   isModifier,
@@ -81,6 +82,7 @@ import type {
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
   ObjectLiteralSpreadPropertyNode,
+  OperationAlternativesStatementNode,
   OperationSignature,
   OperationStatementNode,
   ParenthesizedExpression,
@@ -89,6 +91,8 @@ import type {
   ScalarConstructorNode,
   ScalarDeclarationExpressionNode,
   ScalarStatementNode,
+  ScopeAlternativeNode,
+  ScopeAlternativesExpressionNode,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -111,6 +115,8 @@ import type {
   UsingStatementNode,
   ValueOfExpressionNode,
   VoidKeywordNode,
+  WhenClauseNode,
+  WhenConditionNode,
 } from "./types.js";
 import { IdentifierKind, ModifierFlags, NodeFlags, SyntaxKind } from "./types.js";
 
@@ -667,6 +673,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+    const when = parseOptionalWhenClause();
 
     let extendList: ListDetail<TypeReferenceNode> = createEmptyList<TypeReferenceNode>();
     if (token() === Token.ExtendsKeyword) {
@@ -685,6 +692,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     return {
       kind: SyntaxKind.InterfaceStatement,
+      when,
       id,
       templateParameters,
       templateParametersRange,
@@ -724,6 +732,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+    const when = parseOptionalWhenClause();
 
     expectTokenIsOneOf(Token.OpenBrace, Token.ExtendsKeyword);
 
@@ -732,6 +741,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     return {
       kind: SyntaxKind.UnionStatement,
+      when,
       id,
       templateParameters,
       templateParametersRange,
@@ -829,9 +839,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
 
       const value = parseExpression();
+      const when = parseOptionalWhenClause();
 
       return {
         kind: SyntaxKind.UnionVariant,
+        when,
         id,
         value,
         decorators,
@@ -841,6 +853,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     return {
       kind: SyntaxKind.UnionVariant,
+      when: parseOptionalWhenClause(),
       id: undefined,
       value: idOrExpr,
       decorators,
@@ -865,7 +878,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
     inInterface?: undefined | false,
-  ): OperationStatementNode;
+  ): OperationStatementNode | OperationAlternativesStatementNode;
   function parseOperationStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
@@ -877,7 +890,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[],
     _modifiers: Modifier[] | undefined,
     inInterface?: boolean,
-  ): OperationStatementNode {
+  ): OperationStatementNode | OperationAlternativesStatementNode {
     let modifiers: Modifier[];
     if (inInterface) {
       modifiers = parseModifiers();
@@ -891,34 +904,19 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
-    // Make sure the next token is one that is expected
-    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
-
-    // Check if we're parsing a declaration or reuse of another operation
-    let signature: OperationSignature;
-    const signaturePos = tokenPos();
-    if (token === Token.OpenParen) {
-      const parameters = parseOperationParameters();
-      parseExpected(Token.Colon);
-      const returnType = parseExpression();
-
-      signature = {
-        kind: SyntaxKind.OperationSignatureDeclaration,
-        parameters,
-        returnType,
-        ...finishNode(signaturePos),
-      };
-    } else {
-      parseExpected(Token.IsKeyword);
-      const opReference = parseReferenceExpression();
-
-      signature = {
-        kind: SyntaxKind.OperationSignatureReference,
-        baseOperation: opReference,
-        ...finishNode(signaturePos),
-      };
+    if (!inInterface && token() === Token.WhenKeyword) {
+      return parseOperationAlternatives(
+        pos,
+        decorators,
+        modifiers,
+        id,
+        templateParameters,
+        templateParametersRange,
+      );
     }
 
+    const signature = parseOperationSignature();
+    const when = parseOptionalWhenClause();
     // The interface parser handles semicolon parsing between statements
     if (!inInterface) {
       parseExpected(Token.Semicolon);
@@ -926,6 +924,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     return {
       kind: SyntaxKind.OperationStatement,
+      when,
       id,
       templateParameters,
       templateParametersRange,
@@ -935,6 +934,109 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
+  }
+
+  function parseOperationSignature(): OperationSignature {
+    // Make sure the next token is one that is expected
+    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
+
+    // Check if we're parsing a declaration or reuse of another operation
+    const signaturePos = tokenPos();
+    if (token === Token.OpenParen) {
+      const parameters = parseOperationParameters();
+      parseExpected(Token.Colon);
+      const returnType = parseExpression();
+
+      return {
+        kind: SyntaxKind.OperationSignatureDeclaration,
+        parameters,
+        returnType,
+        ...finishNode(signaturePos),
+      };
+    } else {
+      parseExpected(Token.IsKeyword);
+      const opReference = parseReferenceExpression();
+
+      return {
+        kind: SyntaxKind.OperationSignatureReference,
+        baseOperation: opReference,
+        ...finishNode(signaturePos),
+      };
+    }
+  }
+
+  /**
+   * Parse `op id when { cond => signature, ..., else => signature };`. Each branch becomes a
+   * complete operation statement sharing the group's name, decorators and modifiers.
+   */
+  function parseOperationAlternatives(
+    pos: number,
+    decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
+    id: IdentifierNode,
+    templateParameters: TemplateParameterDeclarationNode[],
+    templateParametersRange: TextRange,
+  ): OperationAlternativesStatementNode {
+    const branches = parseScopeAlternatives((branchPos, when): OperationStatementNode => ({
+      kind: SyntaxKind.OperationStatement,
+      when,
+      id: { ...id },
+      templateParameters,
+      templateParametersRange,
+      signature: parseOperationSignature(),
+      decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
+      ...finishNode(branchPos),
+    }));
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.OperationAlternativesStatement,
+      id,
+      branches,
+      ...finishNode(pos),
+    };
+  }
+
+  /** Parse `when { cond => T, ..., else => U }` in expression position. */
+  function parseScopeAlternativesExpression(): ScopeAlternativesExpressionNode {
+    const pos = tokenPos();
+    const branches = parseScopeAlternatives((branchPos, when): ScopeAlternativeNode => ({
+      kind: SyntaxKind.ScopeAlternative,
+      when,
+      value: parseExpression(),
+      ...finishNode(branchPos),
+    }));
+    return {
+      kind: SyntaxKind.ScopeAlternativesExpression,
+      branches,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseScopeAlternatives<T>(
+    parseBranch: (pos: number, when: WhenClauseNode | undefined) => T,
+  ): T[] {
+    parseExpected(Token.WhenKeyword);
+    parseExpected(Token.OpenBrace);
+    const branches: T[] = [];
+    while (token() !== Token.CloseBrace && token() !== Token.EndOfFile) {
+      const branchPos = tokenPos();
+      const when = parseOptional(Token.ElseKeyword) ? undefined : parseWhenConditions(branchPos);
+      parseExpected(Token.EqualsGreaterThan);
+      branches.push(parseBranch(branchPos, when));
+      if (!parseOptional(Token.Comma)) break;
+    }
+    parseExpected(Token.CloseBrace);
+    return branches;
+  }
+
+  /** `when` is contextual: only `when {` starts an alternatives expression. */
+  function isScopeAlternativesStart(): boolean {
+    const text = scanner.file.text;
+    let i = scanner.position;
+    while (i < text.length && /\s/.test(text[i])) i++;
+    return text[i] === "{";
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -961,11 +1063,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+    const when = parseOptionalWhenClause();
 
     const { extends: optionalExtends, is: optionalIs, properties, bodyRange } = parseModelBody();
 
     return {
       kind: SyntaxKind.ModelStatement,
+      when,
       id,
       extends: optionalExtends,
       is: optionalIs,
@@ -1162,8 +1266,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     const hasDefault = parseOptional(Token.Equals);
     const defaultValue = hasDefault ? parseExpression() : undefined;
+    const when = parseOptionalWhenClause();
     return {
       kind: SyntaxKind.ModelProperty,
+      when,
       id,
       decorators,
       value,
@@ -1223,12 +1329,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+    const when = parseOptionalWhenClause();
 
     const optionalExtends = parseOptionalScalarExtends();
     const { items: members, range: bodyRange } = parseScalarMembers();
 
     return {
       kind: SyntaxKind.ScalarStatement,
+      when,
       id,
       templateParameters,
       templateParametersRange,
@@ -1314,9 +1422,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
+    const when = parseOptionalWhenClause();
     const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
+      when,
       id,
       decorators,
       modifiers,
@@ -1392,6 +1502,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     return {
       kind: SyntaxKind.EnumMember,
+      when: parseOptionalWhenClause(),
       id,
       value,
       decorators,
@@ -1696,6 +1807,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       allowReservedIdentifierInMember: true,
     });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
+    const when = parseOptionalWhenClause();
     if (args.length === 0) {
       error({ code: "augment-decorator-target" });
       const emptyList = createEmptyList<TemplateArgumentNode>();
@@ -1731,6 +1843,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target,
       targetType: targetEntity,
       arguments: decoratorArgs,
+      when,
       ...finishNode(pos),
     };
   }
@@ -1761,12 +1874,66 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       allowReservedIdentifierInMember: true,
     });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
+    const when = parseOptionalWhenClause();
     return {
       kind: SyntaxKind.DecoratorExpression,
       arguments: args,
       target,
+      when,
       ...finishNode(pos),
     };
+  }
+
+  /**
+   * Parse an optional trailing `when <cond> (| <cond>)*` clause.
+   *
+   * The clause is a suffix so that it binds to the decorator it follows. The condition
+   * grammar is closed (identifier, member expression or call) rather than a general
+   * expression, which is what makes the clause terminate unambiguously: the token that
+   * follows can only be `@`, `#`, a doc comment, or the start of the decorated entity,
+   * none of which can continue a condition.
+   */
+  function parseOptionalWhenClause(): WhenClauseNode | undefined {
+    const pos = tokenPos();
+    if (!parseOptional(Token.WhenKeyword)) {
+      return undefined;
+    }
+    return parseWhenConditions(pos);
+  }
+
+  function parseWhenConditions(pos: number): WhenClauseNode {
+    const conditions: WhenConditionNode[] = [parseWhenCondition()];
+    const operators: ("|" | "&")[] = [];
+    while (token() === Token.Bar || token() === Token.Ampersand) {
+      operators.push(token() === Token.Bar ? "|" : "&");
+      nextToken();
+      conditions.push(parseWhenCondition());
+    }
+
+    return {
+      kind: SyntaxKind.WhenClause,
+      conditions,
+      operators,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseWhenCondition(): WhenConditionNode {
+    const pos = tokenPos();
+    const target = parseIdentifierOrMemberExpression({
+      message: "whenCondition",
+      allowReservedIdentifierInMember: true,
+    });
+    if (token() === Token.OpenParen) {
+      const { items: args } = parseList(ListKind.FunctionArguments, parseExpression);
+      return {
+        kind: SyntaxKind.CallExpression,
+        target,
+        arguments: args,
+        ...finishNode(pos),
+      };
+    }
+    return target;
   }
 
   function parseDirectiveExpression(): DirectiveExpressionNode {
@@ -1915,6 +2082,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
+        case Token.WhenKeyword:
+          if (isScopeAlternativesStart()) return parseScopeAlternativesExpression();
+          return parseReferenceExpression("expression");
         case Token.TypeOfKeyword:
           return parseTypeOfExpression();
         case Token.FnKeyword:
@@ -2257,7 +2427,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     allowReservedIdentifier?: boolean;
   }): IdentifierNode {
     if (isKeyword(token())) {
-      if (!(isModifier(token()) && options?.allowReservedIdentifier)) {
+      if (!(
+        (isModifier(token()) || isContextualKeyword(token())) &&
+        options?.allowReservedIdentifier
+      )) {
         error({ code: "reserved-identifier" });
         return createMissingIdentifier();
       }
@@ -2291,7 +2464,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     decorators: DecoratorExpressionNode[],
     docs: DocNode[],
     directives: DirectiveExpressionNode[],
-  ): Declaration | InvalidStatementNode {
+  ): Declaration | OperationAlternativesStatementNode | InvalidStatementNode {
     const modifiers = parseModifiers();
     switch (token()) {
       case Token.ModelKeyword:
@@ -3278,6 +3451,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     const result = visitEach(cb, node.docs);
     if (result) return result;
   }
+  if ("when" in node && node.when) {
+    const result = visitNode(cb, node.when);
+    if (result) return result;
+  }
 
   switch (node.kind) {
     case SyntaxKind.TypeSpecScript:
@@ -3292,6 +3469,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.DecoratorExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.WhenClause:
+      return visitEach(cb, node.conditions);
     case SyntaxKind.CallExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.DirectiveExpression:
@@ -3458,6 +3637,12 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
+    case SyntaxKind.ScopeAlternativesExpression:
+      return visitEach(cb, node.branches);
+    case SyntaxKind.ScopeAlternative:
+      return visitNode(cb, node.value);
+    case SyntaxKind.OperationAlternativesStatement:
+      return visitEach(cb, node.branches);
 
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);

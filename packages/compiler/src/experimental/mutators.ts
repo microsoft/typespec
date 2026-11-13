@@ -327,6 +327,7 @@ export function mutateSubgraphWithNamespace(
   program: Program,
   mutators: MutatorWithNamespace[],
   type: Namespace,
+  options: { skipDecorators?: boolean } = {},
 ): {
   /**
    * The realm created for this traversal, or null when the root is unchanged.
@@ -340,6 +341,7 @@ export function mutateSubgraphWithNamespace(
 } {
   const engine = createMutatorEngine(program, mutators, {
     mutateNamespaces: true,
+    ...options,
   });
   const mutated = engine.mutate(type);
   if (mutated === type) {
@@ -382,6 +384,7 @@ export function mutateSubgraph<T extends MutableType>(
   program: Program,
   mutators: Mutator[],
   type: T,
+  options: { skipDecorators?: boolean } = {},
 ): {
   /**
    * The realm created for this traversal, or null when the root is unchanged.
@@ -395,6 +398,7 @@ export function mutateSubgraph<T extends MutableType>(
 } {
   const engine = createMutatorEngine(program, mutators, {
     mutateNamespaces: false,
+    ...options,
   });
   const mutated = engine.mutate(type);
   if (mutated === type) {
@@ -405,6 +409,7 @@ export function mutateSubgraph<T extends MutableType>(
 
 interface MutatorEngineOptions {
   readonly mutateNamespaces: boolean;
+  readonly skipDecorators?: boolean;
 }
 
 interface MutatorEngine {
@@ -644,7 +649,12 @@ function createMutatorEngine(
     }
 
     if (type.isFinished) {
-      $(realm).type.finishType(clone!);
+      if (options.skipDecorators) {
+        program.checker.finishType(clone!, { skipDecorators: true });
+        clone!.isFinished = true;
+      } else {
+        $(realm).type.finishType(clone!);
+      }
     }
 
     if (type.kind === "Namespace" && mutateSubNamespace) {
@@ -658,6 +668,7 @@ function createMutatorEngine(
 
     function initializeClone() {
       clone = $(realm).type.clone(type);
+      Realm.sourceForType.set(clone, type);
       mutating = true;
       seen.set([type, activeMutators], clone);
       seen.set([type, mutatorsToApply], clone);

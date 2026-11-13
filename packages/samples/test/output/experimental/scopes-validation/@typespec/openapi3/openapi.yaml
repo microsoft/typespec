@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    get:
+      operationId: Api_common
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      operationId: Api_dotnet
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Private'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  $ref: '#/components/schemas/CsharpId'
+              required:
+                - id
+components:
+  schemas:
+    Ambiguous:
+      type: object
+    Clients:
+      type: string
+      enum:
+        - csharp
+        - python
+    CsharpId:
+      type: string
+    Features:
+      type: string
+      enum:
+        - shared
+        - dotnet
+    Payload:
+      anyOf:
+        - type: string
+        - $ref: '#/components/schemas/Private'
+    Private:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+    Valid:
+      type: object
+      required:
+        - details
+      properties:
+        details:
+          type: object
+          required:
+            - value
+          properties:
+            value:
+              $ref: '#/components/schemas/Private'

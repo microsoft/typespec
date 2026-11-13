@@ -1,3 +1,4 @@
+export { getScopeAlternatives as unsafe_getScopeAlternatives } from "../core/scope.js";
 export { createSourceLoader as unsafe_createSourceLoader } from "../core/source-loader.js";
 export { useCache as unsafe_useCache } from "./cache.js";
 export {
@@ -16,3 +17,10 @@ export type {
   MutatorWithNamespace as unsafe_MutatorWithNamespace,
 } from "./mutators.js";
 export { Realm as unsafe_Realm } from "./realm.js";
+export {
+  getScopeViews,
+  hasScopeConditions,
+  registerScopeViewAxis,
+  registerScopeViewValidator,
+} from "./scope-views.js";
+export type { ScopeView, ScopeViewAxis } from "./scope-views.js";
