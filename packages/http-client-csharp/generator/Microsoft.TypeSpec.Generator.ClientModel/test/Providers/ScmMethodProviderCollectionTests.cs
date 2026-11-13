@@ -32,205 +32,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("Use \"Read\" instead.\nSee C:\\sdk.")]
-        public void DeprecatedOperationsAnnotateAllPublicMethods(string? message)
-        {
-            var operation = InputFactory.Operation("Bar", deprecated: message);
-            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var methods = new ScmMethodProviderCollection(serviceMethod, client);
-
-            Assert.AreEqual(4, methods.Count);
-            foreach (var method in methods.Append(client.RestClient.GetCreateRequestMethod(operation)))
-            {
-                var attribute = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
-                if (message is null || method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest })
-                {
-                    Assert.IsNull(attribute);
-                }
-                else
-                {
-                    Assert.IsNotNull(attribute);
-                    Assert.AreEqual(Snippet.Literal(message).ToDisplayString(), attribute!.Arguments.Single().ToDisplayString());
-                    Assert.IsEmpty(attribute.PositionalArguments);
-                }
-            }
-        }
-
-        [Test]
-        public async Task DeprecatedCustomizedPartialMethodsKeepExistingAttributes()
-        {
-            var operation = InputFactory.Operation("Bar", deprecated: "Generated message");
-            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var methods = new ScmMethodProviderCollection(serviceMethod, client);
-
-            Assert.AreEqual(4, methods.Count);
-            foreach (var method in methods)
-            {
-                Assert.IsTrue(method.IsPartialMethod);
-                Assert.IsFalse(method.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))));
-            }
-            Assert.IsTrue(client.CustomCodeView!.Methods.All(m =>
-                m.Signature.Attributes.Single().Arguments.Single().ToDisplayString() == "\"Custom message\""));
-        }
-
-        [TestCase("Custom", "OBS001", "OBS002")]
-        [TestCase("WithoutMessage", null, null)]
-        [TestCase("Preview", "EXP001", "EXP002")]
-        [TestCase("Combined", "OBS001", "OBS002")]
-        [TestCase("Current", "", "")]
-        public async Task CustomProtocolDiagnosticsAreSuppressedByConvenienceMethods(string name, string? syncId, string? asyncId)
-        {
-            var operation = InputFactory.Operation(name);
-            var serviceMethod = InputFactory.BasicServiceMethod(name, operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var methods = new ScmMethodProviderCollection(serviceMethod, client);
-
-            Assert.AreEqual(4, methods.Count);
-            foreach (var protocol in methods.Where(method => method.Kind == ScmMethodKind.Protocol))
-            {
-                Assert.IsTrue(protocol.IsPartialMethod);
-                Assert.IsEmpty(protocol.Signature.Attributes);
-            }
-            foreach (var method in methods.Where(method => method.Kind == ScmMethodKind.Convenience))
-            {
-                var isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
-                var diagnosticId = isAsync ? asyncId : syncId;
-                string[] expected = diagnosticId switch
-                {
-                    null => ["CS0612", "CS0618"],
-                    "" => [],
-                    _ when name == "Combined" => [isAsync ? "EXP002" : "EXP001", diagnosticId],
-                    _ => [diagnosticId]
-                };
-                Assert.IsEmpty(method.Signature.Attributes);
-                CollectionAssert.AreEqual(expected.Select(id => Snippet.Literal(id).ToDisplayString()),
-                    method.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
-                Assert.IsFalse(method.IsPartialMethod);
-            }
-        }
-
-        [Test]
-        public async Task DeprecationPreservesLastContractMethods()
-        {
-            var operation = InputFactory.Operation("Bar", deprecated: "Current message");
-            var newOperation = InputFactory.Operation("New", deprecated: "Current message");
-            var previewOperation = InputFactory.Operation("Preview", deprecated: "Current message");
-            var inputClient = InputFactory.Client("TestClient", methods:
-            [
-                InputFactory.BasicServiceMethod("Bar", operation),
-                InputFactory.BasicServiceMethod("New", newOperation),
-                InputFactory.BasicServiceMethod("Preview", previewOperation)
-            ]);
-            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
-                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            client.ProcessTypeForBackCompatibility();
-            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
-
-            Assert.AreEqual(12, methods.Length);
-            foreach (var method in methods)
-            {
-                bool expected = method.Signature.Name != "Bar" && method.Signature.Name != "BarAsync"
-                    || method.Signature.Name == "Bar" && method.Kind == ScmMethodKind.Protocol
-                    || method.Signature.Name == "BarAsync" && method.Kind == ScmMethodKind.Convenience;
-                Assert.AreEqual(expected, method.Signature.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))),
-                    $"{method.Signature.Name} {method.Kind}");
-                if (method.Signature.Name == "Bar" && method.Kind == ScmMethodKind.Convenience)
-                {
-                    Assert.IsTrue(method.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""));
-                }
-            }
-        }
-
-        [TestCase(null)]
-        [TestCase("Generated message")]
-        public async Task VisitorDeprecationPreservesPublishedMethods(string? generatedMessage)
-        {
-            var operation = InputFactory.Operation("Bar", deprecated: generatedMessage);
-            var inputClient = InputFactory.Client("TestClient", methods: [InputFactory.BasicServiceMethod("Bar", operation)]);
-            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
-                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContractMethods)));
-            var generator = ScmCodeModelGenerator.Instance;
-            var client = generator.TypeFactory.CreateClient(inputClient)!;
-            client.EnsureBuilt();
-            var visitor = new MethodDeprecationVisitor();
-
-            visitor.VisitLibrary(generator.OutputLibrary);
-            client.ProcessTypeForBackCompatibility();
-
-            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
-            Assert.AreEqual(4, methods.Length);
-            foreach (var method in methods)
-            {
-                Assert.AreSame(visitor.Attribute, method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))));
-            }
-        }
-
-        private sealed class MethodDeprecationVisitor : LibraryVisitor
-        {
-            public AttributeStatement Attribute { get; } = new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")],
-                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("VISITOR001"))]);
-
-            protected internal override MethodProvider? VisitMethod(MethodProvider method)
-            {
-                if (method is ScmMethodProvider { Kind: ScmMethodKind.Protocol or ScmMethodKind.Convenience })
-                {
-                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !a.Type.Equals(typeof(ObsoleteAttribute))), Attribute]);
-                }
-                return method;
-            }
-        }
-
-        [Test]
-        public async Task DeprecationPreservesObsoleteOverloadsBesideStableSignatures()
-        {
-            var operation = InputFactory.Operation("Read", deprecated: "Current message",
-                parameters:
-                [
-                    InputFactory.QueryParameter("value", InputPrimitiveType.Int32, isRequired: true),
-                    InputFactory.QueryParameter("added", InputPrimitiveType.Boolean)
-                ]);
-            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
-            [
-                InputFactory.MethodParameter("value", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query),
-                InputFactory.MethodParameter("added", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)
-            ]);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
-                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            client.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(6, client.Methods.Count);
-            Assert.AreEqual(2, client.Methods.Count(method => method.Signature.Parameters.Count == 2));
-            foreach (var method in client.Methods)
-            {
-                var obsolete = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
-                if (method.Signature.Parameters.Count == 2)
-                {
-                    Assert.IsNotNull(obsolete, method.Signature.Name);
-                    Assert.AreEqual("\"Current message\"", obsolete!.Arguments.Single().ToDisplayString());
-                }
-                else
-                {
-                    Assert.AreEqual(3, method.Signature.Parameters.Count);
-                    Assert.IsNull(obsolete, method.Signature.Name);
-                }
-            }
-        }
-
         [TestCase(true)]
         [TestCase(false)]
         public void HeadResponseAsBoolReturnsTypedResults(bool responseAsBool)
@@ -3964,19 +3765,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // https://github.com/microsoft/typespec/issues/11214
             // When @@override groups an operation's parameters into an options bag, the protocol
             // method should adopt the same grouped shape instead of listing every parameter.
-            var filterProperty = InputFactory.Property(
-                "filter",
-                InputPrimitiveType.String,
-                isRequired: false,
-                isHttpMetadata: true,
-                wireName: "filter",
-                deprecation: "Use another filter.");
             var optionsModel = InputFactory.Model(
                 "GetWidgetOptions",
                 properties:
                 [
                     InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
-                    filterProperty,
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
                     InputFactory.Property("top", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "top"),
                 ]);
 
@@ -4030,9 +3824,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Expected shape: (GetWidgetOptions options, RequestOptions <requestOptions>)
             Assert.AreEqual(2, parameters.Count, $"protocol method should take the options bag, but was: ({actual})");
             Assert.AreEqual("GetWidgetOptions", parameters[0].Type.Name, $"actual: ({actual})");
-            CollectionAssert.Contains(
-                protocolMethod!.Suppressions.Select(suppression => suppression.Code.ToDisplayString()),
-                "\"CS0618\"");
 
             // The trailing request options parameter must not collide with the options bag name.
             Assert.AreNotEqual(parameters[0].Name, parameters[1].Name, $"actual: ({actual})");
@@ -4598,19 +4389,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public async Task CombinedMissingOperationParamsAndNonBodyModelParams()
         {
             // Create a body model with HTTP metadata properties (header/query params)
-            var deprecatedHeader = InputFactory.Property(
-                "x-custom-header",
-                InputPrimitiveType.String,
-                isRequired: true,
-                isHttpMetadata: true,
-                wireName: "x-custom-header",
-                deprecation: "Use another header.");
             var requestModel = InputFactory.Model(
                 "RequestModel",
                 properties:
                 [
                     InputFactory.Property("data", InputPrimitiveType.String, isRequired: true, isHttpMetadata: false),
-                    deprecatedHeader,
+                    InputFactory.Property("x-custom-header", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "x-custom-header"),
                     InputFactory.Property("queryParam", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "queryParam"),
                 ]);
 
@@ -4657,11 +4441,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 => m.Signature.Parameters.All(p => p.Name != "options")
                    && m.Signature.Name == "TestOp");
             Assert.IsNotNull(convenienceMethod);
-            CollectionAssert.Contains(
-                convenienceMethod!.Suppressions.Select(suppression => suppression.Code.ToDisplayString()),
-                "\"CS0618\"");
 
-            var methodBody = convenienceMethod.BodyStatements!.ToDisplayString();
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 

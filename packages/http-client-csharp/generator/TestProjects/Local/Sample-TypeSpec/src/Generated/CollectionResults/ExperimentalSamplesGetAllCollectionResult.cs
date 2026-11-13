@@ -32,30 +32,36 @@ namespace SampleTypeSpec
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetAllRequest(_options);
             yield return GetNextResponse(message);
         }
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
         /// <summary> Gets the continuation token from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The continuation token for the specified page. </returns>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
         }
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         private ClientResult GetNextResponse(PipelineMessage message)
         {
             return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }

@@ -10,6 +10,29 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("Use \"Current\" instead.\nSee C:\\sdk.")]
+        public void LoadsPropertyDeprecationMetadata(string? message)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "value",
+                      {{(message is not null ? $"\"deprecation\": {JsonSerializer.Serialize(message)}," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(message, property.Deprecation);
+        }
+
         [Test]
         public void LoadsContinuationTokenMarker(
             [Values("query", "header", "path", "body", "method", "endpoint")] string kind,

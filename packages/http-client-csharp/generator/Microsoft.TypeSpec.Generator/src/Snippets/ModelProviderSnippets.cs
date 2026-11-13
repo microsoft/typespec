@@ -20,14 +20,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         /// Builds a property-access expression for the given segment path and also returns the leaf
         /// <see cref="PropertyProvider"/> so callers can inspect its type (e.g. to apply enum serialization).
         /// </summary>
-        public static ValueExpression GetPropertyExpression(
-            this ModelProvider model,
-            ValueExpression modelVariable,
-            IReadOnlyList<string> propertySegments,
-            out PropertyProvider leafProperty,
-            out IReadOnlyList<PropertyProvider> accessedProperties)
+        public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments, out PropertyProvider leafProperty)
         {
-            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out leafProperty, out accessedProperties);
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out leafProperty);
         }
 
         public static AssignmentExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
@@ -37,25 +32,13 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments, out PropertyProvider leafProperty)
         {
-            return model.BuildPropertyAccessExpression(modelVariable, propertySegments, out leafProperty, out _);
-        }
-
-        private static ValueExpression BuildPropertyAccessExpression(
-            this ModelProvider model,
-            ValueExpression modelVariable,
-            IReadOnlyList<string> propertySegments,
-            out PropertyProvider leafProperty,
-            out IReadOnlyList<PropertyProvider> accessedProperties)
-        {
             ModelProvider currentModel = model;
             ValueExpression propertyAccessExpression = modelVariable;
             PropertyProvider? property = null;
-            List<PropertyProvider> properties = [];
 
             for (int i = 0; i < propertySegments.Count; i++)
             {
                 property = FindPropertyInModelHierarchy(currentModel, propertySegments[i]);
-                properties.Add(property);
 
                 propertyAccessExpression = propertyAccessExpression.Property(property.Name);
 
@@ -72,7 +55,6 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
             leafProperty = property
                 ?? throw new System.InvalidOperationException("Cannot build a property-access expression from an empty segment path.");
-            accessedProperties = properties;
             return propertyAccessExpression;
         }
 

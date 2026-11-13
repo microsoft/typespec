@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -15,8 +13,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     public class JsonModelCoreTests
     {
-        [SetUp]
-        public void Setup()
+        public JsonModelCoreTests()
         {
             MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider)
                 => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)] : []);
@@ -70,51 +67,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             Assert.That(new TypeProviderWriter(mrwProvider).Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile()).NoClip);
-        }
-
-        [TestCase(false)]
-        [TestCase(true)]
-        public void SerializationSuppressesInheritedObsoletePropertyWarning(bool baseDeprecated)
-        {
-            var valueType = new InputNullableType(InputPrimitiveType.String);
-            var baseModel = InputFactory.Model("Base", properties:
-                [InputFactory.Property("value", valueType, deprecation: baseDeprecated ? "Base message" : null)],
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var inputModel = InputFactory.Model("TestModel", baseModel: baseModel, properties:
-                [InputFactory.Property("value", valueType)],
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var model = new ModelProvider(inputModel);
-            var serialization = model.SerializationProviders.First();
-            var code = new TypeProviderWriter(serialization).Write().Content;
-
-            Assert.That(code.Contains("#pragma warning disable CS0618"), Is.EqualTo(baseDeprecated));
-            Assert.That(code, Does.Not.Contain("CS0672"));
-            if (baseDeprecated)
-            {
-                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), code);
-            }
-        }
-
-        [Test]
-        public async Task CustomOverrideSerializationSuppressesInheritedObsoletePropertyWarning()
-        {
-            var valueType = new InputNullableType(InputPrimitiveType.String);
-            var baseModel = InputFactory.Model("Base", properties:
-                [InputFactory.Property("value", valueType, deprecation: "Base message")],
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var inputModel = InputFactory.Model("TestModel", baseModel: baseModel, properties:
-                [InputFactory.Property("value", valueType)],
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
-            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, inputModel],
-                createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MockMrwProvider(modelType, (ModelProvider)typeProvider)] : []);
-            generator.Object.SourceInputModel = new SourceInputModel(await Helpers.GetCompilationFromDirectoryAsync(), null);
-            var model = generator.Object.TypeFactory.CreateModel(inputModel)!;
-            var serialization = new MockMrwProvider(inputModel, model);
-
-            Assert.AreEqual(
-                Helpers.GetExpectedFromFile(method: nameof(SerializationSuppressesInheritedObsoletePropertyWarning)).ReplaceLineEndings("\n"),
-                new TypeProviderWriter(serialization).Write().Content);
         }
 
         [Test]
