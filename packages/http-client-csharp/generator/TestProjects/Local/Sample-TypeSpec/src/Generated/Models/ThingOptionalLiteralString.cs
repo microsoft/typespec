@@ -45,7 +45,7 @@ namespace SampleTypeSpec
 
         /// <summary> Converts a string to a <see cref="ThingOptionalLiteralString"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator ThingOptionalLiteralString?(string value) => value == null ? null : new ThingOptionalLiteralString(value);
+        public static implicit operator ThingOptionalLiteralString?(string value) => value == null ? (ThingOptionalLiteralString?)null : new ThingOptionalLiteralString(value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
