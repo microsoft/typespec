@@ -84,7 +84,7 @@ foreach ($specFile in Get-Sorted-Specs) {
         continue
     }
     
-    Invoke (Get-TspCommand $specFile $generationDir $Stubbed)
+    Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
