@@ -94,7 +94,7 @@ catalog:
   "@vscode/vsce": ^4.0.0
   ajv: ^8.20.0
   ajv-formats: ^3.0.1
-  astro: ^7.4.2
+  astro: ^7.4.7
   astro-expressive-code: ^0.44.3
   astro-rehype-relative-markdown-links: ^0.19.2
   c8: ^12.0.0
@@ -113,7 +113,7 @@ catalog:
   esbuild-plugins-node-modules-polyfill: ^1.8.3
   execa: ^10.2.1
   express: ^5.3.0
-  fast-xml-parser: ^5.12.0
+  fast-xml-parser: ^5.12.1
   graphql: ^17.0.2
   happy-dom: ^21.0.4
   is-unicode-supported: ^2.1.0
