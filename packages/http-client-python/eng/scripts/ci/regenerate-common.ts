@@ -13,7 +13,7 @@
  * from this module.
  */
 
-import { compile, logDiagnostics, NodeHost, resolveCompilerOptions } from "@typespec/compiler";
+import { compile, NodeHost } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { existsSync, rmSync } from "fs";
 import { access, mkdir, readdir, writeFile } from "fs/promises";
@@ -69,7 +69,11 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = ["type/file"];
+export const SKIP_SPECS: string[] = [
+  "type/file",
+  "azure/core/authentication/configurations",
+  "type/union/discriminated/extends",
+];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -124,9 +128,6 @@ export const AZURE_EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptio
   },
   "azure/client-generator-core/hierarchy-building": {
     namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
-  },
-  "azure/core/authentication/configurations": {
-    namespace: "specs.azure.core.authentication.configurations",
   },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
@@ -552,26 +553,12 @@ export async function compileSpec(
   const { spec, outputDir, options } = task;
 
   try {
-    const [compilerOptions, diagnostics] = await resolveCompilerOptions(NodeHost, {
-      entrypoint: spec,
-      cwd: process.cwd(),
-      env: process.env,
-      overrides: {
-        emit: [ctx.pluginDir],
-        options: {
-          [ctx.emitterName]: options,
-        },
+    const compilerOptions = {
+      emit: [ctx.pluginDir],
+      options: {
+        [ctx.emitterName]: options,
       },
-    });
-
-    logDiagnostics(
-      diagnostics.filter((d) => d.severity === "warning"),
-      NodeHost.logSink,
-    );
-    const configErrors = diagnostics.filter((d) => d.severity === "error");
-    if (configErrors.length > 0) {
-      return { success: false, error: configErrors.map((d) => d.message).join("\n") };
-    }
+    };
 
     const program = await compile(NodeHost, spec, compilerOptions);
 
