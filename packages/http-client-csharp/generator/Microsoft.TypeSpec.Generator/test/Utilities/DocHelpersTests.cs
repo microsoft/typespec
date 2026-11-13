@@ -226,5 +226,38 @@ Another paragraph with *italic* text.";
             var result = DocHelpers.GetDescription("Summary with **bold**", "");
             Assert.AreEqual("Summary with <b>bold</b>", result);
         }
+
+        [Test]
+        public void TestWildcardsInCodeSpansArePreserved()
+        {
+            var result = DocHelpers.GetDescription(null, "The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified.");
+            Assert.AreEqual("The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified.", result);
+        }
+
+        [Test]
+        public void TestEmphasisOutsideCodeSpansIsConverted()
+        {
+            var result = DocHelpers.GetDescription(null, "Use *emphasis* with `~*` and ``a `b` c:*`` and **bold**.");
+            Assert.AreEqual("Use <i>emphasis</i> with `~*` and ``a `b` c:*`` and <b>bold</b>.", result);
+        }
+
+        [Test]
+        public void TestObjectReplacementCharactersArePreserved()
+        {
+            var result = DocHelpers.GetDescription(null, "Copied object \uFFFC0\uFFFC and \uFFFC9\uFFFC plus `~*` and `+@read ~cache:*` with *emphasis*.");
+            Assert.AreEqual("Copied object \uFFFC0\uFFFC and \uFFFC9\uFFFC plus `~*` and `+@read ~cache:*` with <i>emphasis</i>.", result);
+        }
+
+        [Test]
+        public void TestCodeSpansInListItems()
+        {
+            var markdown = @"Values:
+- Default is `+@all ~*`
+- Read only is `+@read ~cache:*` with *emphasis*";
+            var result = DocHelpers.GetDescription(null, markdown);
+
+            Assert.That(result, Does.Contain("<item><description>Default is `+@all ~*`</description></item>"));
+            Assert.That(result, Does.Contain("<item><description>Read only is `+@read ~cache:*` with <i>emphasis</i></description></item>"));
+        }
     }
 }
