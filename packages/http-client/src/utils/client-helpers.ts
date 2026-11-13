@@ -2,7 +2,7 @@ import type { Refkey } from "@alloy-js/core";
 import { refkey } from "@alloy-js/core";
 import type { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
-import { getHttpService, resolveAuthentication } from "@typespec/http";
+import { getHttpService, resolveAuthentication, type HttpAuth } from "@typespec/http";
 import type { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
@@ -29,7 +29,7 @@ export function getCredentialParameter(
     return schemeLiteral;
   });
 
-  const cacheKey = getCredRefkey(credTypes);
+  const cacheKey = getCredRefkey(schemes);
 
   if (credentialCache.has(cacheKey)) {
     return credentialCache.get(cacheKey)!;
@@ -54,8 +54,8 @@ export function getCredentialParameter(
   return credentialParameter;
 }
 
-function getCredRefkey(credentials: StringLiteral[]): Refkey {
-  return refkey(credentials.map((c) => c.value).join());
+function getCredRefkey(schemes: HttpAuth[]): Refkey {
+  return refkey(schemes.map((s) => (s.type === "http" ? `http:${s.scheme}` : s.type)).join());
 }
 
 /**
