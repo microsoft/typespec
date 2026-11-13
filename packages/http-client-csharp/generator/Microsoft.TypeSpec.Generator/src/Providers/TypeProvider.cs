@@ -711,8 +711,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
+            var partialDeclarations = CustomCodeView?.Constructors
+                .Where(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial))
+                .ToArray();
             foreach (var constructor in specConstructors)
             {
+                var matchingPartial = constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
+                    ? null
+                    : partialDeclarations?.FirstOrDefault(partial =>
+                        MethodSignatureBase.SignatureComparer.Equals(partial.Signature, constructor.Signature));
+                if (matchingPartial != null)
+                {
+                    constructors.Add(CreatePartialConstructorFromCustomSignature(matchingPartial.Signature, constructor));
+                    continue;
+                }
+
                 if (ShouldGenerate(constructor))
                 {
                     constructors.Add(constructor);
@@ -720,6 +733,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. constructors];
+        }
+
+        private static ConstructorProvider CreatePartialConstructorFromCustomSignature(ConstructorSignature customSignature, ConstructorProvider generatedConstructor)
+        {
+            var generatedSignature = generatedConstructor.Signature;
+            var signature = new ConstructorSignature(
+                generatedSignature.Type,
+                generatedSignature.Description,
+                customSignature.Modifiers | MethodSignatureModifiers.Partial,
+                generatedSignature.Parameters,
+                generatedSignature.Attributes,
+                generatedSignature.Initializer);
+            signature.Update(nonDocumentComment: generatedSignature.NonDocumentComment);
+
+            return new ConstructorProvider(signature, generatedConstructor);
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -1386,7 +1414,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (int i = 0; i < constructors.Count; i++)
                 {
                     var currentConstructor = constructors[i];
-                    if (!currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
+                    if (currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ||
+                        !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
                         !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                     {
                         continue;

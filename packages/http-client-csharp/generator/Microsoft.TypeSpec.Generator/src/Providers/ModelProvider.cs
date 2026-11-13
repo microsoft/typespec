@@ -1298,7 +1298,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var originalConstructorList = originalConstructors as IReadOnlyList<ConstructorProvider> ?? [.. originalConstructors];
             IReadOnlyList<ConstructorProvider> candidateConstructors = CustomCodeView?.Constructors is { Count: > 0 } customConstructors
-                ? [.. originalConstructorList, .. customConstructors]
+                ? [.. originalConstructorList, .. customConstructors.Where(c => !c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial))]
                 : originalConstructorList;
 
             var restorablePreviousConstructors = previousConstructors
@@ -1399,7 +1399,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var currentConstructor = currentConstructors.FirstOrDefault(c =>
-                    (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)
+                    !c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
+                    && (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)
                         || (c.Signature.Modifiers & privateProtected) == privateProtected)
                     && MethodSignatureBase.SignatureComparer.Equals(c.Signature, previousConstructor.Signature));
                 if (currentConstructor is null)

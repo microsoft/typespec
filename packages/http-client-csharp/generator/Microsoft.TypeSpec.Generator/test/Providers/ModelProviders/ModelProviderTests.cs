@@ -5418,6 +5418,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_PartialConstructorParameterNames()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("identifier", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("version", InputPrimitiveType.String, isRequired: true),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync("LastContract"),
+                includeXmlDocs: true);
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(modelProvider).Write().Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_PartialConstructorWithRestoredOverload(bool customizeRestored)
+        {
+            var count = InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true);
+            count.Update(isRequiredInConstructor: false);
+            var inputModel = InputFactory.Model("MockInputModel", usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    count,
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(customizeRestored.ToString()),
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync("LastContract"),
+                includeXmlDocs: true);
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(customizeRestored.ToString()), new TypeProviderWriter(modelProvider).Write().Content);
+        }
+
+        [Test]
         public async Task BackCompat_ConstructorParameterSwapRestoredBySignatureMatch()
         {
             var inputModel = InputFactory.Model(
