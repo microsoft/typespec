@@ -231,7 +231,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             protected internal override MethodProvider? VisitMethod(MethodProvider method)
             {
-                if (method is ScmMethodProvider { Kind: ScmMethodKind.Protocol or ScmMethodKind.Convenience })
+                if (method.Signature.Name is "Read" or "ReadAsync")
                 {
                     method.Signature.Update(attributes: [.. method.Signature.Attributes, Attribute]);
                 }
