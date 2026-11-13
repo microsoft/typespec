@@ -37,27 +37,28 @@ function needsSlashPrefix(fragment: string) {
   );
 }
 
-function normalizeFragment(fragment: string, trimLast = false) {
+function normalizeFragment(fragment: string) {
   if (needsSlashPrefix(fragment)) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }
 
-  if (trimLast && fragment[fragment.length - 1] === "/") {
-    return fragment.slice(0, -1);
-  }
   return fragment;
 }
 
 /**
  * Joins route fragments, adding a slash when a fragment lacks a recognized separator
- * and trimming one trailing slash from non-final fragments. Preserves URI-template path expansions.
+ * and merging overlapping slashes at fragment boundaries. Preserves URI-template path expansions.
  * An empty input returns an empty string.
  */
 export function joinPathSegments(rest: string[]) {
   let current = "";
-  for (const [index, segment] of rest.entries()) {
-    current += normalizeFragment(segment, index < rest.length - 1);
+  for (const segment of rest) {
+    const normalized = normalizeFragment(segment);
+    if (current.endsWith("/") && (normalized.startsWith("/") || normalized.startsWith("{/"))) {
+      current = current.slice(0, -1);
+    }
+    current += normalized;
   }
   return current;
 }
