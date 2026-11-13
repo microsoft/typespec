@@ -2,6 +2,41 @@ import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
 import { EmitterTester, emitCodeModel } from "./test-host.js";
 
+it.each([
+  ["@body resource: Topic", "resource", "resource"],
+  ['@body @clientName("topic", "python") resource: Topic', "topic", "resource"],
+  ["...Topic", "body", "body"],
+])("preserves body parameter names for %s", async (parameters, clientName, wireName) => {
+  const { codeModel, diagnostics } = await emitCodeModel(`
+    import "@typespec/http";
+    import "@azure-tools/typespec-client-generator-core";
+    using TypeSpec.Http;
+    using Azure.ClientGenerator.Core;
+
+    @service namespace Test;
+    model Topic {
+      title: string;
+      state: string;
+    }
+    @post op createTopic(${parameters}): void;
+  `);
+
+  expectDiagnostics(diagnostics, []);
+  expect(codeModel.clients).toContainEqual(
+    expect.objectContaining({
+      operationGroups: expect.arrayContaining([
+        expect.objectContaining({
+          operations: expect.arrayContaining([
+            expect.objectContaining({
+              bodyParameter: expect.objectContaining({ clientName, wireName }),
+            }),
+          ]),
+        }),
+      ]),
+    }),
+  );
+});
+
 it("preserves numeric property names while fixing numeric enum members", async () => {
   const { codeModel, diagnostics } = await emitCodeModel(`
     import "@typespec/http";
