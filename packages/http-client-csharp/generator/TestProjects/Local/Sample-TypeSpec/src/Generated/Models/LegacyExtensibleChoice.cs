@@ -46,7 +46,7 @@ namespace SampleTypeSpec
 
         /// <summary> Converts a string to a <see cref="LegacyExtensibleChoice"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator LegacyExtensibleChoice?(string value) => value == null ? null : new LegacyExtensibleChoice(value);
+        public static implicit operator LegacyExtensibleChoice?(string value) => value == null ? (LegacyExtensibleChoice?)null : new LegacyExtensibleChoice(value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
