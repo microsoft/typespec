@@ -6109,6 +6109,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         constraint.type,
         "Expected function to have a return type when it did not have a value type constraint",
       );
+      if (relation.isReflectionType(constraint.type) && constraint.type.name !== "Model") {
+        return errorType;
+      }
       // If for some reason we cannot evaluate the call, we will return the type constraint itself as a fallback.
       // This is the strongest thing we can do in the context of an error or a template declaration, since the result
       // of the function call must be assignable to the constraint, and by the transitive property if the constraint
