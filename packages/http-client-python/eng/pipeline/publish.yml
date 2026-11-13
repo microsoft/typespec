@@ -1,3 +1,4 @@
+# Publishes the Python emitter whenever changes under packages/http-client-python/ are merged to main.
 trigger:
   branches:
     include:
