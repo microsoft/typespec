@@ -90,6 +90,29 @@ it("import relative TS file in parent folder", async () => {
   expectFileLoaded(program, { typespec: ["proj/main.tsp"], js: ["blue.ts"] });
 });
 
+it("import relative MTS file", async () => {
+  const { program } = await Tester.files({
+    "blue.mts": mockFile.js({ $blue() {} }),
+  }).compile(`
+      import "./blue.mts";
+      @blue
+      model A {}
+    `);
+  expectFileLoaded(program, { typespec: ["main.tsp"], js: ["blue.mts"] });
+});
+
+it("import relative MTS file in parent folder", async () => {
+  const { program } = await Tester.files({
+    "blue.mts": mockFile.js({ $blue() {} }),
+    "proj/main.tsp": `
+      import "../blue.mts";
+      @blue
+      model A {}
+      `,
+  }).compile(`import "./proj/main.tsp";`);
+  expectFileLoaded(program, { typespec: ["proj/main.tsp"], js: ["blue.mts"] });
+});
+
 it("import directory with main.tsp", async () => {
   const { program } = await Tester.files({
     "test/main.tsp": `model C { }`,
