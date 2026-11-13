@@ -140,10 +140,24 @@ namespace TestProjects.Local.Tests
             void NullableExtensibleEnumMethod(StringExtensibleEnum? e) { }
         }
 
+        [TestCase(null)]
+        [TestCase("ip")]
+        [TestCase("unknown")]
+        [TestCase("")]
+        public void ConvertingStringToNullableExtensibleEnum(string? value)
+        {
+            StringExtensibleEnum? e = value;
+
+            Assert.AreEqual(value is not null, e.HasValue);
+            Assert.AreEqual(value, e?.ToString());
+        }
+
         [Test]
         public void PassingNullArgToExtensibleEnumParameterThrows()
         {
             Assert.Throws<ArgumentNullException>(() => ExtensibleEnumMethod(null));
+            string? value = null;
+            Assert.Throws<ArgumentNullException>(() => ExtensibleEnumMethod(value));
             void ExtensibleEnumMethod(StringExtensibleEnum e) { }
         }
 
