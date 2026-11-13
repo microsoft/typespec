@@ -41,6 +41,7 @@ import {
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
+import { getHeaderFieldName } from "@typespec/http";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -79,7 +80,7 @@ import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
-import { fromSdkType } from "./type-converter.js";
+import { fromSdkModelProperty, fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
 
 export function fromSdkServiceMethod(
@@ -726,6 +727,15 @@ function loadLongRunningMetadata(
 ): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
+  const metadata = method.lroMetadata;
+  const convertProperty = (property: SdkModelPropertyType) => {
+    const converted = diagnostics.pipe(
+      fromSdkModelProperty(sdkContext, property, metadata.pollingInfo.responseModel),
+    );
+    compilerAssert(converted, "LRO metadata must reference a supported model property.");
+    return converted;
+  };
+
   return diagnostics.wrap({
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
     finalResponse: {
@@ -740,6 +750,48 @@ function loadLongRunningMetadata(
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
+    statusMetadata: metadata.statusMetadata?.map((entry) => ({
+      property: convertProperty(entry.property),
+      propertySegments: entry.propertySegments.map(convertProperty),
+    })),
+    operationId: metadata.operationId?.map((entry) => {
+      if (entry.kind === "property") {
+        return {
+          kind: "property",
+          property: convertProperty(entry.property),
+          propertySegments: entry.propertySegments.map(convertProperty),
+        };
+      }
+
+      const step = metadata.statusMonitorStep;
+      const pollingOperation =
+        step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
+      compilerAssert(pollingOperation, "A path operation ID requires a linked polling operation.");
+      const pathParameter = diagnostics.pipe(
+        fromParameter(sdkContext, entry.pathParameter, method.apiVersions),
+      );
+      compilerAssert(pathParameter?.kind === "path", "An operation ID requires a path parameter.");
+      const sourceProperty = convertProperty(entry.source.property);
+      if (entry.source.location === "ResponseHeader") {
+        compilerAssert(
+          entry.source.property.__raw,
+          "A polling header must have a source property.",
+        );
+        sourceProperty.serializedName = getHeaderFieldName(
+          sdkContext.program,
+          entry.source.property.__raw,
+        );
+      }
+      return {
+        kind: "path",
+        source: {
+          location: entry.source.location,
+          property: sourceProperty,
+        },
+        pathParameter,
+        pollingPath: pollingOperation.path,
+      };
+    }),
   });
 }
 

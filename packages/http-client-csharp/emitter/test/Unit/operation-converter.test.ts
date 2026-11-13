@@ -19,6 +19,127 @@ describe("Operation Converter", () => {
     runner = await createEmitterTestHost();
   });
 
+  it.each(["both", "body", "path", "none"])(
+    "preserves selected LRO metadata and ordered operation ID sources: %s",
+    async (selection) => {
+      const selected = selection !== "none";
+      const program = await typeSpecCompile(
+        `
+        model Statistics { completed: int32; }
+        model BaseMonitor {
+          ${selected ? "@lroStatusMetadata" : ""}
+          @clientName("updatedAt")
+          @encodedName("application/json", "last_updated")
+          updated?: utcDateTime;
+        }
+        model Monitor extends BaseMonitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroResult result?: string;
+          ${["both", "body"].includes(selection) ? "@lroOperationId" : ""}
+          @clientName("jobId")
+          @encodedName("application/json", "job_id")
+          id: string;
+          ${selected ? "@lroStatusMetadata" : ""}
+          @clientName("progress")
+          @encodedName("application/json", "percent_complete")
+          percent?: int32;
+          ${selected ? "@lroStatusMetadata" : ""}
+          statistics?: Statistics;
+        }
+        @get @route("/jobs/{jobId}/status")
+        op getStatus(
+          ${["both", "path"].includes(selection) ? "@lroOperationId" : ""}
+          @path("jobId") id: string
+        ): Monitor;
+        @post @route("/jobs")
+        @pollingOperation(getStatus)
+        op begin(): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+        };
+        `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      const method = root.clients[0].methods.find((m) => m.name === "begin");
+      ok(method?.kind === "lro");
+      const metadata = method.lroMetadata;
+      if (!selected) {
+        strictEqual(metadata.statusMetadata, undefined);
+        strictEqual(metadata.operationId, undefined);
+        const json = serializeCodeModel(sdkContext, root);
+        strictEqual(json.includes('"statusMetadata"'), false);
+        strictEqual(json.includes('"operationId"'), false);
+        return;
+      }
+      deepStrictEqual(
+        metadata.statusMetadata?.map((entry) => [
+          entry.property.name,
+          entry.property.optional,
+          entry.propertySegments.map((p) => p.serializedName),
+        ]),
+        [
+          ["progress", true, ["percent_complete"]],
+          ["statistics", true, ["statistics"]],
+          ["updatedAt", true, ["last_updated"]],
+        ],
+      );
+      for (const entry of metadata.statusMetadata!) {
+        strictEqual(entry.propertySegments[0], entry.property);
+      }
+      const statistics = metadata.statusMetadata![1].property.type;
+      strictEqual(
+        statistics,
+        root.models.find((m) => m.name === "Statistics"),
+      );
+      ok(statistics.kind === "model");
+      strictEqual(statistics.properties[0].name, "completed");
+      deepStrictEqual(
+        metadata.operationId?.map((entry) => entry.kind),
+        selection === "both" ? ["path", "property"] : [selection === "body" ? "property" : "path"],
+      );
+      for (const entry of metadata.operationId!) {
+        if (entry.kind === "path") {
+          strictEqual(entry.pollingPath, "/jobs/{jobId}/status");
+          strictEqual(entry.pathParameter.serializedName, "jobId");
+          deepStrictEqual(
+            entry.pathParameter,
+            root.clients[0].methods
+              .find((m) => m.name === "getStatus")!
+              .operation.parameters.find((p) => p.kind === "path"),
+          );
+          strictEqual(entry.source.location, "ResponseHeader");
+          strictEqual(entry.source.property.serializedName, "Operation-Location");
+        } else {
+          strictEqual(entry.property.name, "jobId");
+          strictEqual(entry.propertySegments[0], entry.property);
+          strictEqual(entry.property.serializedName, "job_id");
+        }
+      }
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      const serializedMetadata = serialized.clients[0].methods.find(
+        (m: { name: string }) => m.name === "begin",
+      ).lroMetadata;
+      deepStrictEqual(
+        serializedMetadata.statusMetadata.map(
+          (entry: { property: object; propertySegments: object[] }) => entry.propertySegments[0],
+        ),
+        serializedMetadata.statusMetadata.map(
+          (entry: { property: { $ref: string; $id: string } }) => ({
+            $ref: entry.property.$ref ?? entry.property.$id,
+          }),
+        ),
+      );
+      deepStrictEqual(
+        serializedMetadata.operationId.map((entry: { kind: string }) => entry.kind),
+        metadata.operationId!.map((entry) => entry.kind),
+      );
+    },
+  );
+
   it.each([undefined, "", 'Use "read" instead.\nSee C:\\sdk.'])(
     "preserves operation deprecation metadata: %s",
     async (message) => {
