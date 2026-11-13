@@ -1260,6 +1260,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return result;
         }
 
+        /// <summary>
+        /// Replaces generated <see cref="ObsoleteAttribute"/> attributes with visitor-supplied attributes
+        /// after all method visitors have run, while preserving the warning suppressions required by the
+        /// generated attribute. This prevents duplicate attributes in the emitted code.
+        /// </summary>
         private void ReconcileMethodDeprecationAttributes()
         {
             foreach (var method in Methods)
