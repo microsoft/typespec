@@ -17,6 +17,7 @@ import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
+import { findDirectiveSuppressingOnNode } from "./suppression-tracking.js";
 import type {
   Diagnostic,
   DiagnosticMessages,
@@ -28,6 +29,7 @@ import type {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
+  Node,
   RuleRef,
   SemanticNodeListener,
 } from "./types.js";
@@ -540,12 +542,6 @@ export function createLinterRuleContext<
     reportDiagnostic,
   };
 
-  function findRuleUsageSite(target: DiagnosticTarget): DiagnosticTarget | undefined {
-    const opt = rule.reportAtUsage;
-    if (!opt) return undefined;
-    return findUsageSite(program, target, opt === true ? undefined : opt)?.node;
-  }
-
   function createDiagnostic<M extends keyof DM>(
     diag: LinterRuleDiagnosticReport<DM, M>,
   ): Diagnostic {
@@ -581,16 +577,35 @@ export function createLinterRuleContext<
       diagnosticCollector.add(diagnostic);
       return;
     }
-    // Target is in a library: show it where the project uses it.
+    // Target is in a library. The library owns its declarations: a diagnostic it suppressed there is
+    // dropped. Otherwise show it on the node in the project responsible for it (the template argument
+    // the user supplied, or the spread/`is`/operand that composed it in).
     // See https://github.com/microsoft/typespec/issues/1997
-    const useSite = diag.useSite ?? findRuleUsageSite(diagnostic.target);
+    if (isSuppressedInLibrary(diagnostic.target)) {
+      return;
+    }
+    const useSite = diag.useSite ?? findUsageSite(program, diagnostic.target)?.node;
     if (useSite && getLocationContext(program, useSite).type === "project") {
-      const key = `${rule.id}:${getSourceLocation(useSite).file.path}:${getSourceLocation(useSite).pos}`;
+      const location = getSourceLocation(useSite);
+      const key = `${rule.id}:${location.file.path}:${location.pos}`;
       if (!reportedAtUsage.has(key)) {
         reportedAtUsage.add(key);
         diagnosticCollector.add({ ...diagnostic, target: useSite });
       }
     }
+  }
+
+  function isSuppressedInLibrary(target: DiagnosticTarget): boolean {
+    const node =
+      "kind" in target && typeof target.kind === "number"
+        ? (target as Node)
+        : "node" in target
+          ? (target.node as Node | undefined)
+          : undefined;
+    return (
+      node !== undefined &&
+      findDirectiveSuppressingOnNode(rule.id, node, program.diagnosticCodeResolver) !== undefined
+    );
   }
 }
 

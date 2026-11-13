@@ -47,7 +47,6 @@ const noTopParameter = createLinterRule({
   name: "no-top-parameter",
   description: "",
   severity: "warning",
-  reportAtUsage: true,
   messages: {
     default: "Operation cannot have a 'top' parameter",
   },
@@ -66,7 +65,6 @@ const noUuidProperty = createLinterRule({
   name: "no-uuid-property",
   description: "",
   severity: "warning",
-  reportAtUsage: ["argument"],
   messages: {
     default: "Property cannot be a uuid",
   },
@@ -325,7 +323,7 @@ describe("diagnostic location", () => {
   });
 });
 
-describe("diagnostic with reportAtUsage", () => {
+describe("diagnostic on a library declaration", () => {
   const lib = {
     "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
     "node_modules/my-lib/main.tsp": `
@@ -333,7 +331,12 @@ describe("diagnostic with reportAtUsage", () => {
       model SharedQuery { top?: int32; }
       model Wrapper<T> { value: T; }
       model Items<T> { value: T[]; }
+      model Paged<T> { top: int32; items: T; }
       model Intl { name: string; }
+      model Suppressed {
+        #suppress "@typespec/test-linter/no-top-parameter" "Intended"
+        top?: int32;
+      }
       op ListOp<P extends {}>(...P): void;
     `,
   };
@@ -346,76 +349,53 @@ describe("diagnostic with reportAtUsage", () => {
     return (await linter.lint()).diagnostics;
   }
 
-  describe("composition", () => {
-    it("reports on the spread that brought in a library property", async () => {
-      const main = `import "my-lib"; model Foo { ...SharedQuery; }`;
+  describe("reports on the spread, `is` or operand that composed it in", () => {
+    it.each([
+      ["model spread", `model Foo { ...SharedQuery; }`, "SharedQuery; }"],
+      ["operation parameter spread", `op list(...SharedQuery): void;`, "SharedQuery)"],
+      ["model is", `model Foo is SharedQuery;`, "SharedQuery;"],
+      ["intersection operand", `op list is ListOp<Intl & SharedQuery>;`, "SharedQuery>"],
+      [
+        "model expression argument",
+        `model Foo { w: Wrapper<{ ...SharedQuery }>; }`,
+        "SharedQuery }",
+      ],
+    ])("%s", async (_, code, at) => {
+      const main = `import "my-lib"; ${code}`;
       expectDiagnostics(await lint(main, noTopParameter), {
         code: "@typespec/test-linter/no-top-parameter",
-        pos: main.indexOf("SharedQuery; }"),
-      });
-    });
-
-    it("reports on the operation parameters spreading a library model", async () => {
-      const main = `import "my-lib"; op list(...SharedQuery): void;`;
-      expectDiagnostics(await lint(main, noTopParameter), {
-        code: "@typespec/test-linter/no-top-parameter",
-        pos: main.indexOf("SharedQuery)"),
-      });
-    });
-
-    it("reports on the intersection operand that brought in the property", async () => {
-      const main = `import "my-lib"; op list is ListOp<Intl & SharedQuery>;`;
-      expectDiagnostics(await lint(main, noTopParameter), {
-        code: "@typespec/test-linter/no-top-parameter",
-        pos: main.indexOf("SharedQuery>"),
-      });
-    });
-
-    it("reports on a model expression passed as a template argument", async () => {
-      const main = `import "my-lib"; model Foo { w: Wrapper<{ ...SharedQuery }>; }`;
-      expectDiagnostics(await lint(main, noTopParameter), {
-        code: "@typespec/test-linter/no-top-parameter",
-        pos: main.indexOf("SharedQuery }"),
+        pos: main.indexOf(at),
       });
     });
   });
 
-  describe("argument", () => {
-    it("reports on a library type the user passed as a template argument", async () => {
-      const main = `import "my-lib"; model Foo { w: Wrapper<uuid>; }`;
+  describe("reports on the template argument the property's type came from", () => {
+    it.each([
+      ["declared as the parameter", `model Foo { w: Wrapper<uuid>; }`],
+      ["declared from the parameter", `model Foo { w: Items<uuid>; }`],
+    ])("%s", async (_, code) => {
+      const main = `import "my-lib"; ${code}`;
       expectDiagnostics(await lint(main, noUuidProperty), {
         code: "@typespec/test-linter/no-uuid-property",
         pos: main.indexOf("uuid>"),
       });
     });
 
-    it("reports when the argument is nested in a library declaration", async () => {
-      const main = `import "my-lib"; model Foo { w: Items<uuid>; }`;
-      expectDiagnostics(await lint(main, noUuidProperty), {
-        code: "@typespec/test-linter/no-uuid-property",
-        pos: main.indexOf("uuid>"),
-      });
-    });
-
-    it("doesn't report when the user passed their own type", async () => {
-      const main = `import "my-lib"; scalar myId extends uuid; model Foo { w: Wrapper<myId>; }`;
-      expectDiagnosticEmpty(await lint(main, noUuidProperty));
+    it("not a library property that only shares the argument's type", async () => {
+      expectDiagnosticEmpty(
+        await lint(`import "my-lib"; model Foo { p: Paged<int32>; }`, noTopParameter),
+      );
     });
   });
 
-  it("doesn't report library-internal declarations", async () => {
+  it("doesn't report a diagnostic the library suppressed on its declaration", async () => {
     expectDiagnosticEmpty(
-      await lint(`import "my-lib"; model Foo { w: Wrapper<string>; }`, noUuidProperty),
+      await lint(`import "my-lib"; model Foo { ...Suppressed; }`, noTopParameter),
     );
-    expectDiagnosticEmpty(await lint(`import "my-lib";`, noTopParameter));
   });
 
-  it("only reports the kinds the rule opted in to", async () => {
-    const main = `import "my-lib"; model Foo { ...SharedQuery; w: Wrapper<uuid>; }`;
-    expectDiagnostics(await lint(main, noUuidProperty), {
-      code: "@typespec/test-linter/no-uuid-property",
-      pos: main.indexOf("uuid>"),
-    });
+  it("doesn't report a library declaration the project doesn't compose", async () => {
+    expectDiagnosticEmpty(await lint(`import "my-lib";`, noTopParameter));
   });
 });
 

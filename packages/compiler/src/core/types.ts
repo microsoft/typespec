@@ -3655,15 +3655,6 @@ interface LinterRuleDefinitionBase<
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
   /**
-   * When a diagnostic targets a library declaration, report it on the node in the project that
-   * is responsible for it instead of dropping it. Library-internal declarations are still dropped.
-   * - `argument`: the user wrote a template argument the declaration is built from (`Wrapper<uuid>`).
-   * - `composition`: the user composed it in (`...Shared`, `model A is Shared`, `A & B` as an argument).
-   *
-   * `true` enables both.
-   */
-  reportAtUsage?: boolean | readonly ("argument" | "composition")[];
-  /**
    * JSON Schema for the rule options.
    * When provided, options will be validated against this schema before the rule runs.
    */
@@ -3809,8 +3800,8 @@ export type LinterRuleDiagnosticReport<
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & {
   target: DiagnosticTarget | typeof NoTarget;
   /**
-   * Explicit project node to report at when `target` is declared in a library.
-   * Overrides the automatic lookup enabled by the rule's `reportAtUsage`.
+   * Project node to report at when `target` is declared in a library, overriding the
+   * node the linter would otherwise find (template argument, spread, `is` or intersection operand).
    */
   useSite?: DiagnosticTarget;
 };

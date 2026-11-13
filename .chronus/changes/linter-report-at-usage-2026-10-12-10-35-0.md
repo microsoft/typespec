@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Linter rules can opt in to `reportAtUsage` to have diagnostics on library declarations reported on the node in the project responsible for them (a template argument the user wrote, or a spread, `is` or intersection operand that composed it) instead of being silently dropped. Library-internal declarations are still not reported.
+Linter diagnostics on a library declaration are no longer always dropped. When the project is responsible for the declaration being there, the diagnostic is reported on that node instead: the template argument the property's type came from, or the spread, `is` or intersection operand that composed it in. A library can still `#suppress` a diagnostic on its own declaration to keep it from being reported in projects.

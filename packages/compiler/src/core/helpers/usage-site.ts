@@ -5,6 +5,7 @@ import {
   type DiagnosticTarget,
   type ModelProperty,
   type Node,
+  type TemplateParameter,
   type Type,
   type TypeMapper,
   type TypeReferenceNode,
@@ -23,18 +24,12 @@ export interface UsageSite {
   readonly node: Node;
 }
 
-const allKinds: readonly UsageSiteKind[] = ["argument", "composition"];
-
 /**
  * Find the node the user wrote that is responsible for a library declaration existing in their project.
  * Only nodes in the project are returned, so library-internal declarations (intrinsics, a template's own
  * members, interfaces extended from a library) resolve to nothing.
  */
-export function findUsageSite(
-  program: Program,
-  target: DiagnosticTarget,
-  kinds: readonly UsageSiteKind[] = allKinds,
-): UsageSite | undefined {
+export function findUsageSite(program: Program, target: DiagnosticTarget): UsageSite | undefined {
   if (typeof target !== "object" || !("kind" in target) || typeof target.kind !== "string") {
     return undefined;
   }
@@ -42,10 +37,7 @@ export function findUsageSite(
   if (type.kind !== "ModelProperty") return undefined;
 
   const origins = getOrigins(type);
-  return (
-    (kinds.includes("argument") ? findArgument(program, type, origins) : undefined) ??
-    (kinds.includes("composition") ? findComposition(program, type, origins) : undefined)
-  );
+  return findArgument(program, type, origins) ?? findComposition(program, type, origins);
 }
 
 /** The property and every property it was copied from (spread, `is`, template instantiation). */
@@ -76,27 +68,77 @@ function findArgument(
   prop: ModelProperty,
   origins: ModelProperty[],
 ): UsageSite | undefined {
+  // Only a property whose declared type is written in terms of a template parameter (`value: T`,
+  // `items: T[]`) gets its type from the user. A property that merely has the same type as an
+  // argument (`id: string` next to `Wrapper<string>`) is the library's own declaration.
+  const suppliedTypes = getTemplateParameterArguments(program, origins);
+
   for (const mapper of getMappers(origins)) {
     const reference = mapper.source.node;
     if (reference.kind !== SyntaxKind.TypeReference || !isInProject(program, reference)) {
       continue;
     }
-    const written = (reference as TypeReferenceNode).arguments;
-    for (let i = 0; i < written.length; i++) {
-      const arg = mapper.args[i];
-      if (!arg || !("kind" in arg) || typeof arg.kind !== "string") continue;
-      const node = written[i].argument;
-      // A type the user cannot edit and that this property is built from.
-      if (!isUserOwned(program, arg as Type) && contains(prop.type, arg as Type)) {
-        return { kind: "argument", node };
+    for (const written of (reference as TypeReferenceNode).arguments) {
+      const type = tryGetType(program, written.argument);
+      if (type && suppliedTypes.has(type)) {
+        return { kind: "argument", node: written.argument };
       }
-      // An expression the user wrote (e.g. `A & B`) that this property was copied through.
-      if (isComposedFrom(arg as Type, origins)) {
-        return { kind: "composition", node: narrowToOperand(program, node, origins) };
+      if (type && isComposedFrom(type, origins)) {
+        return { kind: "composition", node: narrowToOperand(program, written.argument, origins) };
       }
     }
   }
   return undefined;
+}
+
+/** Types substituted for the template parameters referenced by the property's declared type. */
+function getTemplateParameterArguments(program: Program, origins: ModelProperty[]): Set<Type> {
+  const result = new Set<Type>();
+  for (const origin of origins) {
+    const node = origin.node;
+    const mapper = origin.model?.templateMapper;
+    if (node?.kind !== SyntaxKind.ModelProperty || !mapper) continue;
+    for (const param of getReferencedTemplateParameters(program, node.value)) {
+      const arg = mapper.getMappedType(param);
+      if (
+        arg &&
+        "kind" in arg &&
+        typeof arg.kind === "string" &&
+        arg.kind !== "TemplateParameter"
+      ) {
+        result.add(arg as Type);
+      }
+    }
+  }
+  return result;
+}
+
+function getReferencedTemplateParameters(
+  program: Program,
+  expr: Node,
+  depth = 0,
+): TemplateParameter[] {
+  if (depth > 4) return [];
+  switch (expr.kind) {
+    case SyntaxKind.TypeReference: {
+      const type = tryGetType(program, expr);
+      return type?.kind === "TemplateParameter" ? [type] : [];
+    }
+    case SyntaxKind.ArrayExpression:
+      return getReferencedTemplateParameters(program, expr.elementType, depth + 1);
+    case SyntaxKind.UnionExpression:
+      return expr.options.flatMap((x) => getReferencedTemplateParameters(program, x, depth + 1));
+    default:
+      return [];
+  }
+}
+
+function tryGetType(program: Program, node: Node): Type | undefined {
+  try {
+    return program.checker.getTypeForNode(node);
+  } catch {
+    return undefined;
+  }
 }
 
 function findComposition(
@@ -117,12 +159,9 @@ function findComposition(
   }
   const sources = new Set<Type>(origins.slice(1).map((x) => x.model as Type));
   for (const candidate of candidates) {
-    try {
-      if (sources.has(program.checker.getTypeForNode(candidate))) {
-        return { kind: "composition", node: candidate };
-      }
-    } catch {
-      // Reference could not be resolved again; ignore.
+    const type = tryGetType(program, candidate);
+    if (type && sources.has(type)) {
+      return { kind: "composition", node: candidate };
     }
   }
   return undefined;
@@ -132,11 +171,8 @@ function findComposition(
 function narrowToOperand(program: Program, node: Node, origins: ModelProperty[]): Node {
   if (node.kind !== SyntaxKind.IntersectionExpression) return node;
   for (const operand of node.options) {
-    try {
-      if (isComposedFrom(program.checker.getTypeForNode(operand), origins)) return operand;
-    } catch {
-      // Operand could not be resolved again; keep the whole expression.
-    }
+    const type = tryGetType(program, operand);
+    if (type && isComposedFrom(type, origins)) return operand;
   }
   return node;
 }
@@ -145,28 +181,6 @@ function isComposedFrom(arg: Type, origins: ModelProperty[]): boolean {
   if (arg.kind !== "Model") return false;
   for (const p of arg.properties.values()) {
     if (getOrigins(p).some((o) => origins.includes(o))) return true;
-  }
-  return false;
-}
-
-/** Whether the type is declared in the project (or is a collection of such types). */
-function isUserOwned(program: Program, type: Type, depth = 0): boolean {
-  if (depth > 4) return false;
-  if (type.kind === "Model" && type.indexer) {
-    return isUserOwned(program, type.indexer.value, depth + 1);
-  }
-  if (type.kind === "Union" && !type.name) {
-    return [...type.variants.values()].some((v) => isUserOwned(program, v.type, depth + 1));
-  }
-  return "node" in type && !!type.node && isInProject(program, type);
-}
-
-function contains(type: Type, needle: Type, depth = 0): boolean {
-  if (type === needle) return true;
-  if (depth > 4) return false;
-  if (type.kind === "Model" && type.indexer) return contains(type.indexer.value, needle, depth + 1);
-  if (type.kind === "Union") {
-    return [...type.variants.values()].some((v) => contains(v.type, needle, depth + 1));
   }
   return false;
 }
