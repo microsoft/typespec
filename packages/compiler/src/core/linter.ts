@@ -4,8 +4,9 @@ import type { YamlScript } from "../yaml/types.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { formatShortNameCandidates } from "./diagnostic-code.js";
 import type { DiagnosticCollector } from "./diagnostics.js";
-import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector, getSourceLocation } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
+import { findUsageSite } from "./helpers/usage-site.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
@@ -16,6 +17,7 @@ import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
+import { findDirectiveSuppressingOnNode } from "./suppression-tracking.js";
 import type {
   Diagnostic,
   DiagnosticMessages,
@@ -27,6 +29,7 @@ import type {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
+  Node,
   RuleRef,
   SemanticNodeListener,
 } from "./types.js";
@@ -531,6 +534,8 @@ export function createLinterRuleContext<
   options: Options,
   diagnosticCollector: DiagnosticCollector,
 ): LinterRuleContext<DM, Options> {
+  const reportedAtUsage = new Set<string>();
+
   return {
     program,
     options,
@@ -565,14 +570,42 @@ export function createLinterRuleContext<
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget) {
-      const context = getLocationContext(program, diagnostic.target);
-      // Only report diagnostic in the user project.
-      // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
-      if (context.type === "project") {
-        diagnosticCollector.add(diagnostic);
+    if (diagnostic.target === NoTarget) {
+      return;
+    }
+    if (getLocationContext(program, diagnostic.target).type === "project") {
+      diagnosticCollector.add(diagnostic);
+      return;
+    }
+    // Target is in a library. The library owns its declarations: a diagnostic it suppressed there is
+    // dropped. Otherwise show it on the node in the project responsible for it (the template argument
+    // the user supplied, or the spread/`is`/operand that composed it in).
+    // See https://github.com/microsoft/typespec/issues/1997
+    if (isSuppressedInLibrary(diagnostic.target)) {
+      return;
+    }
+    const useSite = diag.useSite ?? findUsageSite(program, diagnostic.target)?.node;
+    if (useSite && getLocationContext(program, useSite).type === "project") {
+      const location = getSourceLocation(useSite);
+      const key = `${rule.id}:${location.file.path}:${location.pos}`;
+      if (!reportedAtUsage.has(key)) {
+        reportedAtUsage.add(key);
+        diagnosticCollector.add({ ...diagnostic, target: useSite });
       }
     }
+  }
+
+  function isSuppressedInLibrary(target: DiagnosticTarget): boolean {
+    const node =
+      "kind" in target && typeof target.kind === "number"
+        ? (target as Node)
+        : "node" in target
+          ? (target.node as Node | undefined)
+          : undefined;
+    return (
+      node !== undefined &&
+      findDirectiveSuppressingOnNode(rule.id, node, program.diagnosticCodeResolver) !== undefined
+    );
   }
 }
 

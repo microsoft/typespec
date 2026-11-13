@@ -43,6 +43,44 @@ const noModelFoo = createLinterRule({
   },
 });
 
+const noTopParameter = createLinterRule({
+  name: "no-top-parameter",
+  description: "",
+  severity: "warning",
+  messages: {
+    default: "Operation cannot have a 'top' parameter",
+  },
+  create(context) {
+    return {
+      modelProperty: (prop) => {
+        if (prop.name === "top") {
+          context.reportDiagnostic({ target: prop });
+        }
+      },
+    };
+  },
+});
+
+const noUuidProperty = createLinterRule({
+  name: "no-uuid-property",
+  description: "",
+  severity: "warning",
+  messages: {
+    default: "Property cannot be a uuid",
+  },
+  create(context) {
+    return {
+      modelProperty: (prop) => {
+        const type =
+          prop.type.kind === "Model" && prop.type.indexer ? prop.type.indexer.value : prop.type;
+        if (type.kind === "Scalar" && type.name === "uuid") {
+          context.reportDiagnostic({ target: prop });
+        }
+      },
+    };
+  },
+});
+
 const exitLintRuleSync = createLinterRule({
   name: "exit-lint-rule-sync",
   description: "",
@@ -282,6 +320,82 @@ describe("diagnostic location", () => {
       code: "@typespec/test-linter/no-model-foo",
       message: `Cannot call model 'Foo'`,
     });
+  });
+});
+
+describe("diagnostic on a library declaration", () => {
+  const lib = {
+    "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
+    "node_modules/my-lib/main.tsp": `
+      scalar uuid extends string;
+      model SharedQuery { top?: int32; }
+      model Wrapper<T> { value: T; }
+      model Items<T> { value: T[]; }
+      model Paged<T> { top: int32; items: T; }
+      model Intl { name: string; }
+      model Suppressed {
+        #suppress "@typespec/test-linter/no-top-parameter" "Intended"
+        top?: int32;
+      }
+      op ListOp<P extends {}>(...P): void;
+    `,
+  };
+
+  async function lint(main: string, rule: typeof noTopParameter | typeof noUuidProperty) {
+    const linter = await createTestLinterAndEnableRules(
+      { ...lib, "main.tsp": main },
+      { rules: [rule] },
+    );
+    return (await linter.lint()).diagnostics;
+  }
+
+  describe("reports on the spread, `is` or operand that composed it in", () => {
+    it.each([
+      ["model spread", `model Foo { ...SharedQuery; }`, "SharedQuery; }"],
+      ["operation parameter spread", `op list(...SharedQuery): void;`, "SharedQuery)"],
+      ["model is", `model Foo is SharedQuery;`, "SharedQuery;"],
+      ["intersection operand", `op list is ListOp<Intl & SharedQuery>;`, "SharedQuery>"],
+      [
+        "model expression argument",
+        `model Foo { w: Wrapper<{ ...SharedQuery }>; }`,
+        "SharedQuery }",
+      ],
+    ])("%s", async (_, code, at) => {
+      const main = `import "my-lib"; ${code}`;
+      expectDiagnostics(await lint(main, noTopParameter), {
+        code: "@typespec/test-linter/no-top-parameter",
+        pos: main.indexOf(at),
+      });
+    });
+  });
+
+  describe("reports on the template argument the property's type came from", () => {
+    it.each([
+      ["declared as the parameter", `model Foo { w: Wrapper<uuid>; }`],
+      ["declared from the parameter", `model Foo { w: Items<uuid>; }`],
+    ])("%s", async (_, code) => {
+      const main = `import "my-lib"; ${code}`;
+      expectDiagnostics(await lint(main, noUuidProperty), {
+        code: "@typespec/test-linter/no-uuid-property",
+        pos: main.indexOf("uuid>"),
+      });
+    });
+
+    it("not a library property that only shares the argument's type", async () => {
+      expectDiagnosticEmpty(
+        await lint(`import "my-lib"; model Foo { p: Paged<int32>; }`, noTopParameter),
+      );
+    });
+  });
+
+  it("doesn't report a diagnostic the library suppressed on its declaration", async () => {
+    expectDiagnosticEmpty(
+      await lint(`import "my-lib"; model Foo { ...Suppressed; }`, noTopParameter),
+    );
+  });
+
+  it("doesn't report a library declaration the project doesn't compose", async () => {
+    expectDiagnosticEmpty(await lint(`import "my-lib";`, noTopParameter));
   });
 });
 
