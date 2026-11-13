@@ -2086,6 +2086,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void CustomExperimentalAttributeRemainsOnPartialDeclaration()
+        {
+            var attribute = new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("CUSTOM001"));
+            var customSignature = new MethodSignature(
+                "Preview",
+                null,
+                MethodSignatureModifiers.Public,
+                typeof(int),
+                null,
+                [],
+                [attribute]);
+
+            var implementationSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, []);
+
+            Assert.AreSame(attribute, customSignature.Attributes.Single());
+            Assert.IsEmpty(implementationSignature.Attributes);
+        }
+
+        [Test]
         public async Task TestSpecViewReturnsAllPropertiesEvenWhenSuppressed()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
