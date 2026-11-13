@@ -20,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
@@ -103,6 +104,22 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
+        if (settings.isAzureV1()) {
+            List<ClientModel> sseBaseModels = client.getModels()
+                .stream()
+                .filter(ModelUtil::isGeneratingModel)
+                .filter(model -> model.hasUsage(
+                    com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+                .filter(model -> model.getSseMetadata() != null && model.getSseMetadata().isBaseModel())
+                .collect(Collectors.toList());
+            if (!sseBaseModels.isEmpty()) {
+                String runtimePackage = SseUtil.getRuntimePackage();
+                javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAM_HELPER);
+                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
+                sseBaseModels.forEach(javaPackage::addSseEventSerializer);
+            }
+        }
+
         if (settings.getExperimentalAnnotation() != null) {
             javaPackage.addExperimentalAnnotation();
         }
@@ -438,10 +455,15 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         // Client model
-        client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getApiMetadata().getCrossLanguageDefinitionId());
-        });
+        client.getModels()
+            .stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .filter(model -> !model.hasUsage(
+                com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+            .forEach(model -> {
+                crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                    model.getApiMetadata().getCrossLanguageDefinitionId());
+            });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {

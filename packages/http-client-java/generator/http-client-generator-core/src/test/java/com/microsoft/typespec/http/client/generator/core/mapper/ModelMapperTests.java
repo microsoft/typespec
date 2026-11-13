@@ -25,15 +25,18 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SerializationFormats;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseSchemaMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SseModelMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
@@ -139,6 +142,74 @@ public class ModelMapperTests {
         Assertions.assertEquals(mergePatch, generated.contains("updatedProperties"), generated);
         Assertions.assertEquals(mergePatch, generated.contains("JsonMergePatchHelper"), generated);
         Assertions.assertEquals(mergePatch, generated.contains("toJsonMergePatch"), generated);
+    }
+
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = { false, true })
+    public void mapsSseSchemasIndependentlyWithCanonicalCacheReuse(boolean eventFirst) {
+        SchemaContext sseContext = SchemaContext.fromValue("sse");
+        ObjectSchema baseSchema = object("EventsEvent", null);
+        baseSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, sseContext));
+        ObjectSchema eventSchema = object("UpdateStreamEvent", null);
+        eventSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, sseContext));
+        Relations children = new Relations();
+        children.setImmediate(List.of(eventSchema));
+        children.setAll(List.of(eventSchema));
+        baseSchema.setChildren(children);
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(baseSchema));
+        parents.setAll(List.of(baseSchema));
+        eventSchema.setParents(parents);
+        ModelMapper mapper = ModelMapper.getInstance();
+        Assertions.assertTrue(Assertions.assertThrows(IllegalStateException.class, () -> mapper.map(baseSchema))
+            .getMessage()
+            .contains("without its rendering metadata"));
+        SseSchemaMetadata baseMetadata = new SseSchemaMetadata();
+        baseMetadata.setStreamName("Events");
+        baseSchema.setSseMetadata(baseMetadata);
+        SseSchemaMetadata eventMetadata = new SseSchemaMetadata();
+        eventMetadata.setStreamName("Events");
+        eventMetadata.setEventName("update");
+        eventSchema.setSseMetadata(eventMetadata);
+        ClientModel first = mapper.map(eventFirst ? eventSchema : baseSchema);
+        ClientModel base = mapper.map(baseSchema);
+        ClientModel mappedEvent = mapper.map(eventSchema);
+        List<ClientModel> models = List.of(base, mappedEvent);
+
+        Assertions.assertSame(eventFirst ? mappedEvent : base, first);
+        Assertions.assertSame(mappedEvent, base.getDerivedModels().get(0));
+        Assertions.assertSame(base, mapper.map(baseSchema));
+        Assertions.assertSame(mappedEvent, mapper.map(eventSchema));
+
+        Assertions.assertEquals("sse", ImplementationDetails.Usage.fromValue("sse").value());
+        Assertions.assertEquals(2, models.size());
+        Assertions.assertTrue(models.stream()
+            .allMatch(model -> model.getImplementationDetails()
+                .getUsages()
+                .contains(ImplementationDetails.Usage.fromSchemaContext(sseContext))));
+        Assertions.assertTrue(models.stream().allMatch(model -> model.getSseMetadata() != null));
+        Assertions.assertSame(base, mapper.map(baseSchema));
+        baseMetadata.setStreamName("ConflictingEvents");
+        Assertions.assertTrue(Assertions.assertThrows(IllegalStateException.class, () -> mapper.map(baseSchema))
+            .getMessage()
+            .contains("Conflicting SSE rendering"));
+
+        ObjectSchema otherBase = object("EventsEvent", null);
+        otherBase.setUsage(baseSchema.getUsage());
+        otherBase.setSseMetadata(baseMetadata);
+        Assertions.assertTrue(Assertions.assertThrows(IllegalStateException.class, () -> mapper.map(otherBase))
+            .getMessage()
+            .contains("existing ModelMapper cache entry"));
+    }
+
+    @org.junit.jupiter.api.Test
+    public void mappedSseMetadataDoesNotRetainCodeModelGraphs() {
+        for (Class<?> metadataType : List.of(ClientMethodSseMetadata.class, SseModelMetadata.class)) {
+            Assertions.assertTrue(
+                java.util.Arrays.stream(metadataType.getDeclaredFields())
+                    .noneMatch(field -> field.getType().getPackageName().contains(".extension.model.codemodel")),
+                metadataType.getName());
+        }
     }
 
     @ParameterizedTest

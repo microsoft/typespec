@@ -55,6 +55,11 @@ public class JavaJavadocComment {
         line(processedText);
     }
 
+    public final void paragraph(String paragraph) {
+        addExpectedLineSeparator();
+        line(processText(paragraph));
+    }
+
     /**
      * Adds a line to Javadoc.
      * <p>The characters in the line is not encoded.
@@ -84,6 +89,11 @@ public class JavaJavadocComment {
     public final void methodThrows(String exceptionTypeName, String description) {
         addExpectedLineSeparator();
         contents.line("@throws " + exceptionTypeName + " " + processText(description));
+    }
+
+    public final void see(String reference) {
+        addExpectedLineSeparator();
+        contents.line("@see " + reference);
     }
 
     public final void inheritDoc() {

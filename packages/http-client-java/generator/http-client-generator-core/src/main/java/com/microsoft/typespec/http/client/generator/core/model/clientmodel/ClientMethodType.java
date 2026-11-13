@@ -74,7 +74,15 @@ public enum ClientMethodType {
     /**
      * represents a '[Operation]SinglePage' method that returns PagedResponse&lt;T&gt; or PagedResponseBase&lt;H,T&gt;.
      */
-    PagingSyncSinglePage(16, true, false, true),;
+    PagingSyncSinglePage(16, true, false, true),
+    /**
+     * represents an asynchronous server-sent event method that returns Flux&lt;T&gt;.
+     */
+    SseAsync(17, false, false, false),
+    /**
+     * represents a synchronous server-sent event method that returns CloseableIterableStream&lt;T&gt;.
+     */
+    SseSync(18, false, false, true),;
 
     private static final Map<Integer, ClientMethodType> MAPPINGS;
 

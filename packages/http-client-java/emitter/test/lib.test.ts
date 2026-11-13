@@ -6,6 +6,7 @@ import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
+  EmitterOptionsSchema,
   LIB_NAME,
 } from "../src/options.js";
 
@@ -18,6 +19,16 @@ describe("emitter options", () => {
       $lib,
       $onEmit: () => {},
     }),
+  });
+
+  it("does not expose the Azure wrapper flavor option", () => {
+    expect(EmitterOptionsSchema.properties).not.toHaveProperty("flavor");
+  });
+
+  it("does not expose an SSE developer option", () => {
+    expect(EmitterOptionsSchema.properties["dev-options"]).not.toHaveProperty(
+      "properties.enable-sse",
+    );
   });
 
   it("accepts default unbranded emitter options", async () => {

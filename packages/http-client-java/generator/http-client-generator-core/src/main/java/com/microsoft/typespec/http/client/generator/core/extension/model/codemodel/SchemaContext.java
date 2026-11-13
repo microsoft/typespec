@@ -36,6 +36,11 @@ public enum SchemaContext {
     PAGED("paged"),
 
     /**
+     * The schema is a synthetic server-sent event envelope.
+     */
+    SSE("sse"),
+
+    /**
      * The schema is used internally.
      */
     INTERNAL("internal"),
