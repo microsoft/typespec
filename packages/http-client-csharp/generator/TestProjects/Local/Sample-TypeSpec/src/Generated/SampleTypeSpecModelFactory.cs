@@ -585,6 +585,264 @@ namespace SampleTypeSpec
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 
+        /// <summary> The UnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionCat"/> instance for mocking. </returns>
+        public static UnionCat UnionCat(string name = default, bool meow = default)
+        {
+            return new UnionCat(name, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The UnionDog. </summary>
+        /// <param name="name"></param>
+        /// <param name="bark"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionDog"/> instance for mocking. </returns>
+        public static UnionDog UnionDog(string name = default, bool bark = default)
+        {
+            return new UnionDog(name, additionalBinaryDataProperties: null, bark);
+        }
+
+        /// <summary> The XmlUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionCat"/> instance for mocking. </returns>
+        public static XmlUnionCat XmlUnionCat(string name = default, bool meow = default)
+        {
+            return new XmlUnionCat(name, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The XmlUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlUnionPet"/> instance for mocking. </returns>
+        public static XmlUnionPet XmlUnionPet(string name = default)
+        {
+            return new XmlUnionPet(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The UnionPetContainer. </summary>
+        /// <param name="pet"></param>
+        /// <param name="nullablePet"></param>
+        /// <param name="pets"></param>
+        /// <param name="lookup"></param>
+        /// <param name="alternatePet"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionPetContainer"/> instance for mocking. </returns>
+        public static UnionPetContainer UnionPetContainer(UnionPet pet = default, UnionPet nullablePet = default, IEnumerable<UnionPet> pets = default, IDictionary<string, UnionPet> lookup = default, UnionPet alternatePet = default)
+        {
+            pets ??= new ChangeTrackingList<UnionPet>();
+            lookup ??= new ChangeTrackingDictionary<string, UnionPet>();
+
+            return new UnionPetContainer(
+                pet,
+                nullablePet,
+                pets.ToList(),
+                lookup,
+                alternatePet,
+                additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RawUnionPetContainer. </summary>
+        /// <param name="pet"></param>
+        /// <param name="nullablePet"></param>
+        /// <param name="pets"></param>
+        /// <param name="lookup"></param>
+        /// <param name="rawPets"></param>
+        /// <param name="rawLookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RawUnionPetContainer"/> instance for mocking. </returns>
+        public static RawUnionPetContainer RawUnionPetContainer(BinaryData pet = default, BinaryData nullablePet = default, IEnumerable<BinaryData> pets = default, IDictionary<string, BinaryData> lookup = default, BinaryData rawPets = default, BinaryData rawLookup = default)
+        {
+            pets ??= new ChangeTrackingList<BinaryData>();
+            lookup ??= new ChangeTrackingDictionary<string, BinaryData>();
+
+            return new RawUnionPetContainer(
+                pet,
+                nullablePet,
+                pets.ToList(),
+                lookup,
+                rawPets,
+                rawLookup,
+                additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The NestedMammal. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.NestedMammal"/> instance for mocking. </returns>
+        public static NestedMammal NestedMammal(string name = default)
+        {
+            return new NestedMammal(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ExperimentalUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ExperimentalUnionCat"/> instance for mocking. </returns>
+        [Experimental("UNION001")]
+        public static ExperimentalUnionCat ExperimentalUnionCat(string name = default, bool meow = default)
+        {
+            return new ExperimentalUnionCat(name, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The ExternalUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ExternalUnionCat"/> instance for mocking. </returns>
+        public static ExternalUnionCat ExternalUnionCat(string name = default)
+        {
+            return new ExternalUnionCat(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The DirectUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <param name="deserializeDirectPetsUnion"></param>
+        /// <param name="serializeDirectPetsUnion"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DirectUnionPet"/> instance for mocking. </returns>
+        public static DirectUnionPet DirectUnionPet(string name = default, string deserializeDirectPetsUnion = default, string serializeDirectPetsUnion = default)
+        {
+            return new DirectUnionPet(name, deserializeDirectPetsUnion, serializeDirectPetsUnion, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The DirectUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="deserializeDirectPetsUnion"></param>
+        /// <param name="serializeDirectPetsUnion"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DirectUnionCat"/> instance for mocking. </returns>
+        public static DirectUnionCat DirectUnionCat(string name = default, string deserializeDirectPetsUnion = default, string serializeDirectPetsUnion = default, bool meow = default)
+        {
+            return new DirectUnionCat(name, deserializeDirectPetsUnion, serializeDirectPetsUnion, additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The DirectUnionPetContainer. </summary>
+        /// <param name="pet"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DirectUnionPetContainer"/> instance for mocking. </returns>
+        public static DirectUnionPetContainer DirectUnionPetContainer(DirectUnionPet pet = default)
+        {
+            return new DirectUnionPetContainer(pet, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The DynamicUnionPetContainer. </summary>
+        /// <param name="pets"></param>
+        /// <param name="lookup"></param>
+        /// <param name="nested"></param>
+        /// <param name="nestedLookup"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicUnionPetContainer"/> instance for mocking. </returns>
+        public static DynamicUnionPetContainer DynamicUnionPetContainer(IEnumerable<UnionPet> pets = default, IDictionary<string, UnionPet> lookup = default, IEnumerable<IList<UnionPet>> nested = default, IEnumerable<IDictionary<string, UnionPet>> nestedLookup = default)
+        {
+            pets ??= new ChangeTrackingList<UnionPet>();
+            lookup ??= new ChangeTrackingDictionary<string, UnionPet>();
+            nested ??= new ChangeTrackingList<IList<UnionPet>>();
+            nestedLookup ??= new ChangeTrackingList<IDictionary<string, UnionPet>>();
+
+            return new DynamicUnionPetContainer(pets.ToList(), lookup, nested.ToList(), nestedLookup.ToList(), default);
+        }
+
+        /// <summary> The DescendantUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <param name="deserializeDescendantPetsUnion"></param>
+        /// <param name="serializeDescendantPetsUnion"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DescendantUnionCat"/> instance for mocking. </returns>
+        public static DescendantUnionCat DescendantUnionCat(string name = default, string deserializeDescendantPetsUnion = default, string serializeDescendantPetsUnion = default)
+        {
+            return new DescendantUnionCat(name, additionalBinaryDataProperties: null, deserializeDescendantPetsUnion, serializeDescendantPetsUnion);
+        }
+
+        /// <summary> The IntermediateUnionCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.IntermediateUnionCat"/> instance for mocking. </returns>
+        public static IntermediateUnionCat IntermediateUnionCat(string name = default)
+        {
+            return new IntermediateUnionCat(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The SerializeNamedCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.SerializeNamedCat"/> instance for mocking. </returns>
+        public static SerializeNamedCat SerializeNamedCat(string name = default)
+        {
+            return new SerializeNamedCat(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The DeserializeNamedCat. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DeserializeNamedCat"/> instance for mocking. </returns>
+        public static DeserializeNamedCat DeserializeNamedCat(string name = default)
+        {
+            return new DeserializeNamedCat(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The CustomUnionCat. </summary>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomUnionCat"/> instance for mocking. </returns>
+        public static CustomUnionCat CustomUnionCat(bool meow = default)
+        {
+            return new CustomUnionCat(meow, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The CustomUnionPet. </summary>
+        /// <param name="name"></param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomUnionPet"/> instance for mocking. </returns>
+        public static CustomUnionPet CustomUnionPet(string name = default, IEnumerable<BinaryData> children = default)
+        {
+            children ??= new ChangeTrackingList<BinaryData>();
+
+            return new CustomUnionPet(name, children.ToList(), additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The CustomIntermediateCat. </summary>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomIntermediateCat"/> instance for mocking. </returns>
+        public static CustomIntermediateCat CustomIntermediateCat(bool meow = default)
+        {
+            return new CustomIntermediateCat(additionalBinaryDataProperties: null, meow);
+        }
+
+        /// <summary> The CustomIntermediateMammal. </summary>
+        /// <returns> A new <see cref="SampleTypeSpec.CustomIntermediateMammal"/> instance for mocking. </returns>
+        public static CustomIntermediateMammal CustomIntermediateMammal()
+        {
+            return new CustomIntermediateMammal(additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RebasedUnionA. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionA"/> instance for mocking. </returns>
+        public static RebasedUnionA RebasedUnionA(string name = default)
+        {
+            return new RebasedUnionA(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RebasedUnionB. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionB"/> instance for mocking. </returns>
+        public static RebasedUnionB RebasedUnionB(string name = default)
+        {
+            return new RebasedUnionB(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RebasedUnionALeaf. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionALeaf"/> instance for mocking. </returns>
+        public static RebasedUnionALeaf RebasedUnionALeaf(string name = default)
+        {
+            return new RebasedUnionALeaf(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The RebasedUnionBLeaf. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.RebasedUnionBLeaf"/> instance for mocking. </returns>
+        public static RebasedUnionBLeaf RebasedUnionBLeaf(string name = default)
+        {
+            return new RebasedUnionBLeaf(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The PetsUnion. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.PetsUnion"/> instance for mocking. </returns>
+        public static PetsUnion PetsUnion(string name = default)
+        {
+            return new PetsUnion(name, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> The ConstructorOverride. </summary>
         /// <param name="items"></param>
         /// <param name="value"></param>
