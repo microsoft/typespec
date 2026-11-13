@@ -186,8 +186,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null,
-            string? deprecation = null)
+            IReadOnlyList<string>? apiVersions = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -199,8 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isExtensible: isExtensible,
                 clientNamespace: clientNamespace,
                 external: external,
-                isExactName: isExactName,
-                deprecation: deprecation);
+                isExactName: isExactName);
 
             foreach (var (valueName, value) in values)
             {
@@ -332,15 +330,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null,
-            string? deprecation = null)
+            IReadOnlyList<string>? apiVersions = null)
         {
             var enumType = new InputEnumType(
                 name,
                 clientNamespace,
                 name,
                 access,
-                deprecation,
+                null,
                 "",
                 $"{name} description",
                 usage,
@@ -374,8 +371,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputSerializationOptions? serializationOptions = null,
             ArrayKnownEncoding? encode = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null,
-            string? deprecation = null)
+            IReadOnlyList<string>? apiVersions = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -393,8 +389,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
                 encode: encode,
-                apiVersions: apiVersions ?? [],
-                deprecation: deprecation)
+                apiVersions: apiVersions ?? [])
             {
                 IsExactName = isExactName,
             };
@@ -618,8 +613,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputExternalTypeMetadata? external = null,
             InputSerializationOptions? serializationOptions = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null,
-            string? deprecation = null)
+            IReadOnlyList<string>? apiVersions = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -628,7 +622,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 @namespace,
                 name,
                 access,
-                deprecation,
+                null,
                 "",
                 $"{name} description",
                 usage,
@@ -764,14 +758,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? ns = null,
             bool isExactName = false,
             bool generateProtocolMethod = true,
-            bool bufferResponse = true,
-            string? deprecated = null)
+            bool bufferResponse = true)
         {
             var operation = new InputOperation(
                 name,
                 "",
                 $"{name} description",
-                deprecated,
+                null,
                 access,
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],

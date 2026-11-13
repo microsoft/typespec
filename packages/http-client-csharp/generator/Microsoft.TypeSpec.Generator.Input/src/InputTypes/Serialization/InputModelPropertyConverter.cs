@@ -55,7 +55,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? originalName = null;
             string? doc = null;
-            string? deprecation = null;
             string? serializedName = null;
             bool isApiVersion = false;
             InputConstant? defaultValue = null;
@@ -82,7 +81,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
-                    || reader.TryReadString("deprecation", ref deprecation)
                     || reader.TryReadComplexType("type", options, ref propertyType)
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
@@ -109,7 +107,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.OriginalName = originalName ?? property.Name;
             property.Summary = summary;
             property.Doc = doc;
-            property.Deprecation = deprecation;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
             property.IsRequiredInConstructor = isRequiredInConstructor;

@@ -754,45 +754,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void UpdatePropertyAttributesAcceptsLazySequences()
-        {
-            var property = new PropertyProvider(
-                description: null,
-                modifiers: MethodSignatureModifiers.Public,
-                type: typeof(string),
-                name: "Value",
-                body: new AutoPropertyBody(HasSetter: true),
-                enclosingType: new TestTypeProvider());
-            var obsolete = new AttributeStatement(typeof(ObsoleteAttribute));
-            var other = new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("PREVIEW001"));
-
-            property.Update(attributes: new[] { obsolete, other }.Where(attribute => attribute != obsolete));
-
-            Assert.That(property.Attributes.Count, Is.EqualTo(1));
-            Assert.That(ReferenceEquals(property.Attributes[0], other), Is.True);
-            property.Update(attributes: Enumerable.Empty<AttributeStatement>());
-            Assert.That(property.Attributes, Is.Empty);
-        }
-
-        [Test]
-        public void ConstructorAcceptsLazyPropertyAttributes()
-        {
-            var obsolete = new AttributeStatement(typeof(ObsoleteAttribute));
-            var other = new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("PREVIEW001"));
-            var property = new PropertyProvider(
-                description: null,
-                modifiers: MethodSignatureModifiers.Public,
-                type: typeof(string),
-                name: "Value",
-                body: new AutoPropertyBody(HasSetter: true),
-                enclosingType: new TestTypeProvider(),
-                attributes: new[] { obsolete, other }.Where(attribute => attribute != obsolete));
-
-            Assert.That(property.Attributes.Count, Is.EqualTo(1));
-            Assert.That(ReferenceEquals(property.Attributes[0], other), Is.True);
-        }
-
-        [Test]
         public void TestAttributes()
         {
             var attributes = new List<AttributeStatement>

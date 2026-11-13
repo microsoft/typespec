@@ -291,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(property.Attributes), emitDirectives: false);
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
-                property.Suppressions, property.DeclarationSuppressions, ExperimentalApiHelpers.GetReferenceSuppressions(property.Type),
+                property.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(property.Type),
                 ExperimentalApiHelpers.GetReferenceSuppressions(property.InputProperty?.Type)));
             WriteXmlDocsNoScope(property.XmlDocs);
 

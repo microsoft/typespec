@@ -1478,49 +1478,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [TestCase(false, false)]
-        [TestCase(false, true)]
-        [TestCase(true, true)]
-        public void ExplodedQuerySuppressesDeprecatedPropertyAccesses(bool required, bool deprecated)
-        {
-            var filter = InputFactory.Model("Filter", properties:
-            [
-                InputFactory.Property("legacy", InputPrimitiveType.String, isRequired: required,
-                    deprecation: deprecated ? "Use current." : null),
-                InputFactory.Property("current", InputPrimitiveType.String)
-            ]);
-            var parameter = InputFactory.QueryParameter("filter", filter, isRequired: true, explode: true);
-            var operation = InputFactory.Operation("List", parameters: [parameter]);
-            var client = InputFactory.Client("TestClient", methods: [InputFactory.BasicServiceMethod("List", operation)]);
-            MockHelpers.LoadMockGenerator(inputModels: () => [filter], clients: () => [client]);
-
-            var restClient = new ClientProvider(client).RestClient;
-            var methodName = restClient.Methods.Single().Signature.Name;
-            var code = new TypeProviderWriter(restClient).Write().Content;
-            if (!required && deprecated)
-            {
-                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), code);
-            }
-            var root = CSharpSyntaxTree.ParseText(code).GetRoot();
-            var method = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
-                .Single(m => m.Identifier.ValueText == methodName);
-            var directives = root.DescendantTrivia(descendIntoTrivia: true)
-                .Select(trivia => trivia.GetStructure()).OfType<PragmaWarningDirectiveTriviaSyntax>()
-                .Where(directive => directive.ErrorCodes.Any(id => id.ToString() == "CS0618"))
-                .ToArray();
-            bool IsSuppressed(int position) => directives.LastOrDefault(directive => directive.SpanStart < position)?
-                .DisableOrRestoreKeyword.IsKind(SyntaxKind.DisableKeyword) == true;
-            var accesses = method.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
-                .Where(access => access.Name.Identifier.ValueText == "Legacy").ToArray();
-            var currentAccesses = method.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
-                .Where(access => access.Name.Identifier.ValueText == "Current").ToArray();
-
-            Assert.That(accesses.Length, Is.GreaterThanOrEqualTo(required ? 1 : 2));
-            Assert.That(accesses.All(access => IsSuppressed(access.SpanStart) == deprecated), Is.True);
-            Assert.That(currentAccesses, Is.Not.Empty);
-            Assert.That(currentAccesses.All(access => !IsSuppressed(access.SpanStart)), Is.True);
-        }
-
         [Test]
         public void TestBuildCreateRequestMethodWithPathParameters()
         {

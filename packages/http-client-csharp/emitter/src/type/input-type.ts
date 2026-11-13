@@ -200,7 +200,6 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
-  deprecation?: string;
   /** The declaration name before client-side renaming, when different from name. */
   originalName?: string;
   /** Overrides constructor requiredness without changing the wire contract. */

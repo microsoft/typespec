@@ -23,8 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputConstant? defaultValue,
             InputSerializationOptions serializationOptions,
             ArrayKnownEncoding? encode = null,
-            IReadOnlyList<string>? apiVersions = null,
-            string? deprecation = null)
+            IReadOnlyList<string>? apiVersions = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -39,11 +38,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             SerializationOptions = serializationOptions;
             Encode = encode;
             ApiVersions = apiVersions ?? [];
-            Deprecation = deprecation;
         }
 
         public bool IsDiscriminator { get; internal set; }
-        public string? Deprecation { get; internal set; }
         /// <summary>
         /// The property declaration name before client-side renaming.
         /// </summary>
