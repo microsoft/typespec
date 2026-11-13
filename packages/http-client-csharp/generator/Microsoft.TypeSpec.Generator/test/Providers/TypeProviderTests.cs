@@ -599,45 +599,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task VisitorMethodDeprecationReplacesGeneratedDeprecationOnRestoredOverload()
-        {
-            var generator = await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
-                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
-            var visitor = new AppendingMethodDeprecationVisitor();
-            generator.Object.AddVisitor(visitor);
-            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample");
-            var method = new MethodProvider(
-                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null,
-                [
-                    new ParameterProvider("value", $"", typeof(int)),
-                    new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)
-                ],
-                Attributes: [DeprecationApiHelpers.BuildAttribute("Generated message")!]),
-                MethodBodyStatement.Empty, provider);
-            provider = new TestTypeProvider(name: provider.Name, ns: "Sample", methods: [method]);
-
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(2, provider.Methods.Count);
-            Assert.AreEqual("\"Generated message\"", provider.Methods.Single(m => m.Signature.Parameters.Count == 2)
-                .Signature.Attributes.Single(DeprecationApiHelpers.IsObsoleteAttribute).Arguments.Single().ToDisplayString());
-            Assert.AreSame(visitor.Attribute, provider.Methods.Single(m => m.Signature.Parameters.Count == 1)
-                .Signature.Attributes.Single(DeprecationApiHelpers.IsObsoleteAttribute));
-        }
-
-        private sealed class AppendingMethodDeprecationVisitor : LibraryVisitor
-        {
-            public AttributeStatement Attribute { get; } =
-                new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
-
-            protected internal override MethodProvider? VisitMethod(MethodProvider method)
-            {
-                method.Signature.Update(attributes: [.. method.Signature.Attributes, Attribute]);
-                return method;
-            }
-        }
-
-        [Test]
         public async Task DeprecationAppliesToReorderedLastContractMethods()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>

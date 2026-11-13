@@ -1261,21 +1261,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Replaces generated <see cref="ObsoleteAttribute"/> attributes with visitor-supplied attributes
-        /// after all method visitors have run, while preserving the warning suppressions required by the
-        /// generated attribute. This prevents duplicate attributes in the emitted code.
+        /// Replaces generated <see cref="ObsoleteAttribute"/> attributes with the last visitor-supplied
+        /// attribute after all method visitors have run, while preserving the warning suppressions required
+        /// by generated attributes. This also removes duplicate visitor attributes from restored methods.
         /// </summary>
         private void ReconcileMethodDeprecationAttributes()
         {
             foreach (var method in Methods)
             {
                 var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
-                if (generatedAttributes.Length > 0
-                    && method.Signature.Attributes.Any(attribute =>
-                        DeprecationApiHelpers.IsObsoleteAttribute(attribute)
-                        && !IsGeneratedMethodDeprecationAttribute(attribute)))
+                var visitorAttribute = method.Signature.Attributes.LastOrDefault(attribute =>
+                    DeprecationApiHelpers.IsObsoleteAttribute(attribute)
+                    && !IsGeneratedMethodDeprecationAttribute(attribute));
+                if (visitorAttribute is not null)
                 {
-                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
+                    method.Signature.Update(attributes:
+                    [
+                        .. method.Signature.Attributes.Where(a => !DeprecationApiHelpers.IsObsoleteAttribute(a)),
+                        visitorAttribute
+                    ]);
                     method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                         generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
                 }

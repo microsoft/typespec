@@ -187,6 +187,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task VisitorDeprecationIsDeduplicatedOnRestoredOverloads()
+        {
+            var operation = InputFactory.Operation("Read", deprecated: "Generated message",
+                parameters:
+                [
+                    InputFactory.QueryParameter("value", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.QueryParameter("added", InputPrimitiveType.Boolean)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
+            [
+                InputFactory.MethodParameter("value", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("added", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)
+            ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(DeprecationPreservesObsoleteOverloadsBesideStableSignatures)));
+            var generator = ScmCodeModelGenerator.Instance;
+            var visitor = new AppendingMethodDeprecationVisitor();
+            generator.AddVisitor(visitor);
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            client.EnsureBuilt();
+
+            visitor.VisitLibrary(generator.OutputLibrary);
+            client.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(6, client.Methods.Count);
+            foreach (var method in client.Methods)
+            {
+                Assert.AreSame(visitor.Attribute,
+                    method.Signature.Attributes.Single(attribute => attribute.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+        }
+
+        private sealed class AppendingMethodDeprecationVisitor : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } =
+                new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method is ScmMethodProvider { Kind: ScmMethodKind.Protocol or ScmMethodKind.Convenience })
+                {
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes, Attribute]);
+                }
+                return method;
+            }
+        }
+
+        [Test]
         public async Task DeprecationPreservesObsoleteOverloadsBesideStableSignatures()
         {
             var operation = InputFactory.Operation("Read", deprecated: "Current message",
