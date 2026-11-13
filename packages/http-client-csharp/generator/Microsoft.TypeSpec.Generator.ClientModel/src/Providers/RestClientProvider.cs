@@ -1345,6 +1345,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                if (methodType is ScmMethodKind.Convenience && parameter.Location == ParameterLocation.Body &&
+                    DiscriminatedUnionSerialization.RequiresEnvelope(inputParam.Type) &&
+                    !DiscriminatedUnionSerialization.UsesJsonRequest(operation))
+                {
+                    parameter.Type = new CSharpType(typeof(BinaryData), isNullable: parameter.Type.IsNullable);
+                }
+
                 if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)
                 {
                     if (inputParam is InputBodyParameter || inputParam is InputMethodParameter { Location: InputRequestLocation.Body })

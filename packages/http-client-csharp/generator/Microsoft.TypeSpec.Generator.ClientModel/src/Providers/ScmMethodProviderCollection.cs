@@ -539,6 +539,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
                 ];
             }
+            else if (DiscriminatedUnionSerialization.RequiresEnvelope(ServiceMethod.Response.Type) && UsesJsonUnionResponse())
+            {
+                methodBody =
+                [
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
+                    Declare("result", This.Invoke(protocolMethod.Signature,
+                        [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1])],
+                        isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("data", result.GetRawResponse().Content(), out var data),
+                    UsingDeclare("document", data.Parse(), out var document),
+                    DiscriminatedUnionSerialization.DeserializeValue(
+                        ServiceMethod.Response.Type!, responseBodyType.OutputType, document.RootElement(),
+                        ModelSerializationExtensionsSnippets.Wire, out var value),
+                    Return(result.FromValue(value, result.GetRawResponse()))
+                ];
+            }
             else
             {
                 methodBody =
@@ -613,17 +629,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var isJsonRequest = DiscriminatedUnionSerialization.UsesJsonRequest(ServiceMethod.Operation);
 
             // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
-            void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value)
+            void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value, InputType? inputType = null)
             {
-                statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
-                statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
-                    serializationType,
-                    value,
-                    content.JsonWriter(),
-                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                    SerializationFormat.Default));
+                var options = ModelSerializationExtensionsSnippets.Wire;
+                var optionalBody = inputType != null &&
+                    ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault() is { IsRequired: false };
+                ValueExpression initialization = optionalBody
+                    ? new TernaryConditionalExpression(value.Equal(Null), Null, New.Instance<Utf8JsonBinaryContentDefinition>())
+                    : New.Instance<Utf8JsonBinaryContentDefinition>();
+                var declaration = Declare("content", new Utf8JsonBinaryContentDefinition().Type, initialization, out var content);
+                statements.Add(inputType != null && _pagingServiceMethod is null ? UsingDeclare(content, initialization) : declaration);
+                var serialization = inputType != null
+                    ? DiscriminatedUnionSerialization.SerializeValue(
+                        inputType, serializationType, value, content.As<Utf8JsonBinaryContentDefinition>().JsonWriter(), options)
+                    : ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                        serializationType,
+                        value,
+                        content.As<Utf8JsonBinaryContentDefinition>().JsonWriter(),
+                        options,
+                        SerializationFormat.Default);
+                statements.Add(optionalBody ? new IfStatement(content.NotEqual(Null)) { serialization } : serialization);
                 localDeclarations["content"] = content;
             }
 
@@ -636,18 +664,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (parameter.Location == ParameterLocation.Body)
                 {
-                    if (parameter.Type.IsIAsyncEnumerableOfT)
+                    var inputBodyType = ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault()?.Type;
+                    if (DiscriminatedUnionSerialization.RequiresEnvelope(inputBodyType) && isJsonRequest)
+                    {
+                        AddUtf8JsonContent(parameter.Type, parameter, inputBodyType);
+                    }
+                    else if (parameter.Type.IsIAsyncEnumerableOfT)
                     {
                         var contentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([parameter.Type.Arguments[0]]);
                         var inputParameter = ServiceMethod.Parameters.FirstOrDefault(p =>
                             p.Location == InputRequestLocation.Body &&
                             string.Equals(p.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
+                        ValueExpression[] contentArguments = inputBodyType is InputStreamingType streaming &&
+                            DiscriminatedUnionSerialization.RequiresEnvelope(streaming.ValueType)
+                            ? [parameter, True]
+                            : [parameter];
                         ValueExpression contentExpression = inputParameter is { IsRequired: false }
                             ? new TernaryConditionalExpression(
                                 parameter.Equal(Null),
                                 Null,
-                                New.Instance(contentType, parameter))
-                            : New.Instance(contentType, parameter);
+                                New.Instance(contentType, contentArguments))
+                            : New.Instance(contentType, contentArguments);
                         statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }
@@ -2167,6 +2204,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (streamingType.StreamKind != InputStreamingType.SseStreamKind)
             {
+                if (DiscriminatedUnionSerialization.RequiresEnvelope(streamingType.ValueType))
+                {
+                    return GetRawStreamingItemType(streamingType);
+                }
                 return CreateRequiredCSharpType(
                     streamingType.ValueType,
                     streamingType,
@@ -2247,7 +2288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return AsyncStreamingResultSnippets.CreateSse(response, rawArguments[1..]);
             }
 
-            if (!useConvenienceType)
+            if (!useConvenienceType || DiscriminatedUnionSerialization.RequiresEnvelope(streamingType.ValueType))
             {
                 return AsyncStreamingResultSnippets.CreateJsonLines(
                     response,
@@ -2328,6 +2369,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(responseType) && !UsesJsonUnionResponse())
+            {
+                return typeof(BinaryData);
+            }
+
             if (_pagingServiceMethod != null)
             {
                 var modelType = responseType as InputModelType;
@@ -2369,6 +2415,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(responseType);
         }
+
+        private bool UsesJsonUnionResponse() => ServiceMethod.Operation.Responses
+            .Where(response => !response.IsErrorResponse && response.BodyType is not null)
+            .SelectMany(response => response.ContentTypes)
+            .All(DiscriminatedUnionSerialization.IsJsonMediaType);
 
         private static CSharpType CreateRequiredCSharpType(
             InputType inputType,

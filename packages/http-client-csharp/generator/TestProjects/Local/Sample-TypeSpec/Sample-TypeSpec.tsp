@@ -1130,6 +1130,437 @@ op getAcronymParameters(
 @convenientAPI(true, "csharp")
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
 
+model UnionPet {
+  name: string;
+}
+
+model UnionCat extends UnionPet {
+  meow: boolean;
+}
+
+model UnionDog extends UnionPet {
+  bark: boolean;
+}
+
+@discriminated
+union UnionPets extends UnionPet {
+  cat: UnionCat,
+  dog: UnionDog,
+}
+
+@discriminated(#{ discriminatorPropertyName: "type", envelopePropertyName: "data" })
+union AlternateUnionPets extends UnionPet {
+  feline: UnionCat,
+  canine: UnionDog,
+}
+
+model UnionPetContainer {
+  pet: UnionPets;
+  nullablePet: UnionPets | null;
+  pets?: UnionPets[];
+  lookup?: Record<UnionPets>;
+  alternatePet?: AlternateUnionPets;
+}
+
+model RawUnionPetContainer {
+  pet: UnionPets;
+  nullablePet?: UnionPets | null;
+  pets?: UnionPets[];
+  lookup?: Record<UnionPets>;
+  rawPets?: UnionPets[];
+  rawLookup?: Record<UnionPets>;
+}
+
+model CollisionPetsUnion {
+  name: string;
+}
+
+model NestedMammal extends CollisionPetsUnion {}
+
+@TypeSpec.HttpClient.experimental(#{ diagnosticId: "UNION001" })
+model ExperimentalUnionCat extends NestedMammal {
+  meow: boolean;
+}
+
+@discriminated
+union CollisionPets extends CollisionPetsUnion {
+  mammal: NestedMammal,
+}
+
+@discriminated
+union NestedPets extends NestedMammal {
+  cat: ExperimentalUnionCat,
+}
+
+namespace NestedUnions {
+  @discriminated
+  union CollisionPets extends NestedMammal {
+    cat: ExperimentalUnionCat,
+  }
+}
+
+model XmlUnionPet {
+  name: string;
+}
+
+model XmlUnionCat extends XmlUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union XmlUnionPets extends XmlUnionPet {
+  cat: XmlUnionCat,
+}
+
+model MappedUnionPet {}
+
+model MappedUnionCat extends MappedUnionPet {
+  name: string;
+}
+
+@alternateType(
+  {
+    identity: "System.Text.Json.JsonElement",
+  },
+  "csharp"
+)
+@discriminated
+union MappedUnionPets extends MappedUnionPet {
+  cat: MappedUnionCat,
+}
+
+@alternateType(
+  {
+    identity: "System.Object",
+  },
+  "csharp"
+)
+model ExternalUnionBase {}
+
+model ExternalUnionCat extends ExternalUnionBase {
+  name: string;
+}
+
+@discriminated
+union ExternalBasePets extends ExternalUnionBase {
+  cat: ExternalUnionCat,
+}
+
+model DirectUnionPet {
+  name: string;
+  deserializeDirectPetsUnion?: string;
+  serializeDirectPetsUnion?: string;
+}
+
+model DirectUnionCat extends DirectUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union DirectPets extends DirectUnionPet {
+  cat: DirectUnionCat,
+}
+
+model DirectUnionPetContainer {
+  pet: DirectUnionPet;
+}
+
+@dynamicModel("csharp")
+model DynamicUnionPetContainer {
+  pets?: (UnionPets | null)[];
+  lookup?: Record<UnionPets | null>;
+  nested?: (UnionPets | null)[][];
+  nestedLookup?: Record<UnionPets | null>[];
+}
+
+model DescendantUnionPet {
+  name: string;
+}
+
+model DescendantUnionCat extends DescendantUnionPet {
+  deserializeDescendantPetsUnion?: string;
+  serializeDescendantPetsUnion?: string;
+}
+
+@discriminated
+union DescendantPets extends DescendantUnionPet {
+  cat: DescendantUnionCat,
+}
+
+model IntermediateUnionPet {}
+
+@alternateType(
+  {
+    identity: "System.Object",
+  },
+  "csharp"
+)
+model IntermediateUnionMammal extends IntermediateUnionPet {}
+
+model IntermediateUnionCat extends IntermediateUnionMammal {
+  name: string;
+}
+
+@discriminated
+union IntermediatePets extends IntermediateUnionPet {
+  cat: IntermediateUnionCat,
+}
+
+model ExternalVariantBase {}
+
+@alternateType(
+  {
+    identity: "System.Text.Json.JsonElement",
+  },
+  "csharp"
+)
+model ExternalVariantCat extends ExternalVariantBase {
+  name: string;
+}
+
+@discriminated
+union ExternalVariantPets extends ExternalVariantBase {
+  cat: ExternalVariantCat,
+}
+
+@route("/union-extends")
+interface UnionExtends {
+  @post
+  echo(@body pet: UnionPets): UnionPets;
+
+  @route("/xml-response")
+  @post
+  readXmlUnion(@body pet: XmlUnionPets, @header contentType: "application/xml"): {
+    @header contentType: "application/xml";
+    @body pet: XmlUnionPets;
+  };
+
+  @route("/container")
+  @post
+  echoContainer(@body container: UnionPetContainer): UnionPetContainer;
+
+  @route("/raw-container")
+  @post
+  echoRawContainer(@body container: RawUnionPetContainer): RawUnionPetContainer;
+
+  @route("/nested-outer")
+  @post
+  echoNestedOuter(@body pet: CollisionPets): CollisionPets;
+
+  @route("/nested-inner")
+  @post
+  echoNestedInner(@body pet: NestedPets): NestedPets;
+
+  @route("/nested-same-name")
+  @post
+  echoNestedSameName(@body pet: NestedUnions.CollisionPets): NestedUnions.CollisionPets;
+
+  @route("/xml-pets/json")
+  @post
+  echoXmlPets(@body pet: XmlUnionPets): XmlUnionPets;
+
+  @route("/xml-pets/xml")
+  @post
+  echoXmlBase(@body pet: XmlUnionPet, @header contentType: "application/xml"): {
+    @header contentType: "application/xml";
+    @body pet: XmlUnionPet;
+  };
+
+  @route("/mapped-union")
+  @post
+  echoMappedUnion(@body pet: MappedUnionPets): MappedUnionPets;
+
+  @route("/mapped-base")
+  @post
+  echoMappedBase(@body pet: ExternalBasePets): ExternalBasePets;
+
+  @route("/mapped-variant")
+  @post
+  echoMappedVariant(@body pet: ExternalVariantPets): ExternalVariantPets;
+
+  @route("/direct-base")
+  @post
+  echoDirectBase(@body pet: DirectUnionPet): DirectUnionPet;
+
+  @route("/direct-union")
+  @post
+  echoDirectUnion(@body pet: DirectPets): DirectPets;
+
+  @route("/direct-container")
+  @post
+  echoDirectContainer(@body container: DirectUnionPetContainer): DirectUnionPetContainer;
+
+  @route("/dynamic-container")
+  @post
+  echoDynamicContainer(@body container: DynamicUnionPetContainer): DynamicUnionPetContainer;
+
+  @route("/descendant-members")
+  @post
+  echoDescendantMembers(@body pet: DescendantPets): DescendantPets;
+
+  @route("/mapped-intermediate")
+  @post
+  echoMappedIntermediate(@body pet: IntermediatePets): IntermediatePets;
+
+  @route("/serialize-class-name")
+  @post
+  echoSerializeClassName(@body pet: SerializeClassNames.Pets): SerializeClassNames.Pets;
+
+  @route("/deserialize-class-name")
+  @post
+  echoDeserializeClassName(@body pet: DeserializeClassNames.Pets): DeserializeClassNames.Pets;
+
+  @route("/custom-base")
+  @post
+  echoCustomBase(@body pet: CustomUnionPets): CustomUnionPets;
+
+  @route("/custom-container")
+  @post
+  echoCustomContainer(@body pet: CustomUnionPet): CustomUnionPet;
+
+  @route("/custom-intermediate")
+  @post
+  echoCustomIntermediate(@body pet: CustomIntermediatePets): CustomIntermediatePets;
+
+  @route("/rebased-variants")
+  @post
+  echoRebasedVariants(@body pet: RebasedPets): RebasedPets;
+
+  @route("/rebased-base")
+  @post
+  echoRebasedBase(@body pet: RebasedBase.Pets): RebasedBase.Pets;
+
+  @route("/rebased-derived")
+  @post
+  echoRebasedDerived(@body pet: RebasedDerived.Pets): RebasedDerived.Pets;
+
+  @route("/descendant-deserializer")
+  @post
+  echoDescendantDeserializer(@body pet: DescendantDeserializer.Pets): DescendantDeserializer.Pets;
+
+  @route("/jsonl/send")
+  @post
+  sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
+
+  @route("/jsonl/bytes")
+  @post
+  sendBytes(stream: JsonlStream<bytes>): NoContentResponse;
+
+  @route("/jsonl/receive")
+  @get
+  receivePets(): JsonlStream<UnionPets>;
+
+  @route("/pets")
+  @post
+  echoPets(@body pets: UnionPets[]): UnionPets[];
+
+  @route("/lookup")
+  @post
+  echoLookup(@body pets: Record<UnionPets>): Record<UnionPets>;
+
+  @route("/cat")
+  @get
+  getCat(): UnionCat;
+}
+
+model SerializePetsUnion {
+  name: string;
+}
+
+model SerializeNamedCat extends SerializePetsUnion {}
+
+namespace SerializeClassNames {
+  @discriminated
+  union Pets extends SerializePetsUnion {
+    cat: SerializeNamedCat,
+  }
+}
+
+model DeserializePetsUnion {
+  name: string;
+}
+
+model DeserializeNamedCat extends DeserializePetsUnion {}
+
+namespace DeserializeClassNames {
+  @discriminated
+  union Pets extends DeserializePetsUnion {
+    cat: DeserializeNamedCat,
+  }
+}
+
+model CustomUnionPet {
+  name?: string;
+  children?: CustomUnionPets[];
+}
+
+model CustomUnionCat extends CustomUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union CustomUnionPets extends CustomUnionPet {
+  cat: CustomUnionCat,
+}
+
+model CustomIntermediatePet {}
+
+model CustomIntermediateMammal extends CustomIntermediatePet {}
+
+model CustomIntermediateCat extends CustomIntermediateMammal {
+  meow: boolean;
+}
+
+@discriminated
+union CustomIntermediatePets extends CustomIntermediatePet {
+  cat: CustomIntermediateCat,
+}
+
+model RebasedUnionPet {
+  name: string;
+}
+
+model RebasedUnionA extends RebasedUnionPet {}
+
+model RebasedUnionB extends RebasedUnionPet {}
+
+model RebasedUnionALeaf extends RebasedUnionA {}
+
+model RebasedUnionBLeaf extends RebasedUnionB {}
+
+@discriminated
+union RebasedPets extends RebasedUnionPet {
+  a: RebasedUnionA,
+  b: RebasedUnionB,
+}
+
+namespace RebasedBase {
+  @discriminated
+  union Pets extends RebasedUnionA {
+    a: RebasedUnionALeaf,
+  }
+}
+
+namespace RebasedDerived {
+  @discriminated
+  union Pets extends RebasedUnionB {
+    b: RebasedUnionBLeaf,
+  }
+}
+
+model DeserializerPet {
+  name: string;
+}
+
+model PetsUnion extends DeserializerPet {}
+
+namespace DescendantDeserializer {
+  @discriminated
+  union Pets extends DeserializerPet {
+    pet: PetsUnion,
+  }
+}
+
 model ConstructorBase {
   value: string;
   mode: "fixed";

@@ -226,6 +226,11 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
+                    if (unionType.BaseModel is { } baseModel && HasCompatibleUnionBase(unionType))
+                    {
+                        type = CreateCSharpType(baseModel);
+                        break;
+                    }
                     var unionInputs = new List<CSharpType>();
                     foreach (var variant in unionType.VariantTypes)
                     {
@@ -266,6 +271,68 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return type;
+        }
+
+        /// <summary>
+        /// Determines whether every union payload retains the declared base in its C# hierarchy.
+        /// </summary>
+        /// <param name="union">The union whose payload hierarchy is checked.</param>
+        protected internal bool HasCompatibleUnionBase(InputUnionType union)
+        {
+            if (union.BaseModel is not { External: null } unionBase || union.DiscriminatedSubtypes is null)
+            {
+                return false;
+            }
+
+            var providers = new Dictionary<InputModelType, ModelProvider?>();
+            ModelProvider? GetProvider(InputModelType model)
+            {
+                if (!providers.TryGetValue(model, out var provider))
+                {
+                    // Inspect custom identities without building Type, which can re-enter this check
+                    // while the union base is deciding whether it is abstract.
+                    provider = InputTypeToModelProvider.GetValueOrDefault(model) ?? CreateModelCore(model);
+                    providers.Add(model, provider);
+                }
+                return provider;
+            }
+
+            bool ReachesBase(InputModelType model, HashSet<InputModelType> visited)
+            {
+                if (model.External is not null || !visited.Add(model))
+                {
+                    return false;
+                }
+                if (model == unionBase)
+                {
+                    return true;
+                }
+                var provider = GetProvider(model);
+                if (provider?.CustomCodeView?.BaseType is not { } customBase)
+                {
+                    return model.BaseModel is not null && ReachesBase(model.BaseModel, visited);
+                }
+
+                var visitedTypes = new HashSet<CSharpType>();
+                for (var type = customBase; type is not null && visitedTypes.Add(type);
+                    type = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                        type.Namespace, type.Name, type.DeclaringType?.Name)?.BaseType ?? type.BaseType)
+                {
+                    if (GetProvider(unionBase)?.HasTypeIdentity(type) == true)
+                    {
+                        return true;
+                    }
+                    var inputBase = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models
+                        .FirstOrDefault(candidate => GetProvider(candidate)?.HasTypeIdentity(type) == true);
+                    if (inputBase is not null)
+                    {
+                        return ReachesBase(inputBase, visited);
+                    }
+                }
+                return false;
+            }
+
+            return union.DiscriminatedSubtypes.Values.All(model => ReachesBase(model, []));
         }
 
         /// <summary>

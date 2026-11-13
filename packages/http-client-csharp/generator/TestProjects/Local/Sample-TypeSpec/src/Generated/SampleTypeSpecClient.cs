@@ -41,6 +41,7 @@ namespace SampleTypeSpec
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
+        private UnionExtends _cachedUnionExtends;
         private ConstructorRequirements _cachedConstructorRequirements;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
@@ -2307,6 +2308,12 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(notebook, nameof(notebook));
 
             return new Notebooks(Pipeline, _endpoint, notebook);
+        }
+
+        /// <summary> Initializes a new instance of UnionExtends. </summary>
+        public virtual UnionExtends GetUnionExtendsClient()
+        {
+            return Volatile.Read(ref _cachedUnionExtends) ?? Interlocked.CompareExchange(ref _cachedUnionExtends, new UnionExtends(Pipeline, _endpoint), null) ?? _cachedUnionExtends;
         }
 
         /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
