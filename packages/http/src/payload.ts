@@ -26,7 +26,7 @@ import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from
 import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import type { GetHttpPropertyOptions, HeaderProperty, HttpProperty } from "./http-property.js";
 import { resolvePayloadProperties } from "./http-property.js";
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic } from "./lib.js";
 import type { Visibility } from "./metadata.js";
 import type { HttpFileModel } from "./private.decorators.js";
 import { getHttpFileModel, getHttpPart } from "./private.decorators.js";
@@ -121,13 +121,15 @@ function resolveBody(
       const contentTypes =
         contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty.property));
 
-      reportDiagnostic(program, {
-        code: "http-file-structured",
-        format: {
-          contentTypes: contentTypes!.join(", "),
-        },
-        target: contentTypeProperty.property,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "http-file-structured",
+          format: {
+            contentTypes: contentTypes!.join(", "),
+          },
+          target: contentTypeProperty.property,
+        }),
+      );
     }
   }
 
@@ -260,24 +262,28 @@ function resolveExplicitBodyProperty(
 
         if (file && contentTypeProperty) {
           const contentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
-          reportDiagnostic(program, {
-            code: "http-file-structured",
-            format: {
-              contentTypes: contentTypes!.join(", "),
-            },
-            target: contentTypeProperty.property,
-          });
+          diagnostics.add(
+            createDiagnostic({
+              code: "http-file-structured",
+              format: {
+                contentTypes: contentTypes!.join(", "),
+              },
+              target: contentTypeProperty.property,
+            }),
+          );
         }
 
         if (item.property.type.kind === "Union" && unionContainsFile(program, item.property.type)) {
-          reportDiagnostic(program, {
-            code: "http-file-structured",
-            messageId: "union",
-            target:
-              item.property.node?.kind === SyntaxKind.ModelProperty
-                ? item.property.node.value
-                : item.property,
-          });
+          diagnostics.add(
+            createDiagnostic({
+              code: "http-file-structured",
+              messageId: "union",
+              target:
+                item.property.node?.kind === SyntaxKind.ModelProperty
+                  ? item.property.node.value
+                  : item.property,
+            }),
+          );
         }
 
         resolvedBody ??= isFile

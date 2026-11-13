@@ -3,7 +3,8 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/tes
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import type { HttpOperationResponse } from "../src/index.js";
-import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
+import { getAllHttpServices, getHttpOperation, getResponsesForOperation } from "../src/index.js";
+import { compileOperations, getOperationsWithServiceNamespace, Tester } from "./test-host.js";
 
 async function getResponses(code: string): Promise<HttpOperationResponse[]> {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(code);
@@ -11,6 +12,33 @@ async function getResponses(code: string): Promise<HttpOperationResponse[]> {
   expect(routes).toHaveLength(1);
   return routes[0].responses;
 }
+
+it("returns multiple-status-code diagnostics without reporting them again", async () => {
+  const [{ program }, compilationDiagnostics] = await Tester.compileAndDiagnose(`
+    @service namespace ResponseDiagnostics;
+    @get op example(): {
+      @statusCode first: 200;
+      @statusCode second: 201;
+    };
+  `);
+  const operation = program
+    .getGlobalNamespaceType()
+    .namespaces.get("ResponseDiagnostics")
+    ?.operations.get("example");
+  ok(operation);
+  const expected = { code: "@typespec/http/multiple-status-codes" };
+  expectDiagnostics(compilationDiagnostics, expected);
+
+  const before = [...program.diagnostics];
+  const [, responseDiagnostics] = getResponsesForOperation(program, operation);
+  const [, operationDiagnostics] = getHttpOperation(program, operation);
+  const [, serviceDiagnostics] = getAllHttpServices(program);
+
+  expectDiagnostics(responseDiagnostics, expected);
+  expectDiagnostics(operationDiagnostics, expected);
+  expectDiagnostics(serviceDiagnostics, expected);
+  deepStrictEqual(program.diagnostics, before);
+});
 
 describe("body resolution", () => {
   it("emit diagnostics for duplicate @body decorator", async () => {

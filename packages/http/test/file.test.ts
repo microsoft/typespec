@@ -2,7 +2,14 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/tes
 import { deepStrictEqual, ok, strictEqual } from "node:assert";
 import { describe, expect, it } from "vitest";
 import { isHeader } from "../src/decorators.js";
-import { compileOperationsFull, diagnoseOperations, getOperations } from "./test-host.js";
+import { getAllHttpServices, getHttpOperation, getResponsesForOperation } from "../src/index.js";
+import {
+  compileOperationsFull,
+  diagnoseOperations,
+  getOperations,
+  getOperationsWithServiceNamespace,
+  Tester,
+} from "./test-host.js";
 
 it("does not allow instances that improperly provide contents argument", async () => {
   const { diagnostics } = await compileOperationsFull(`
@@ -967,20 +974,42 @@ describe("custom file model", () => {
 });
 
 describe("structured files", () => {
+  it.each([
+    [
+      "an explicit file body with a content type",
+      `{ @header("content-type") contentType: "application/json"; @body file: Http.File; }`,
+    ],
+    ["a file in an explicit body union", `{ @body file: Http.File | string; }`],
+    [
+      "a file response with a content type",
+      `Http.File & { @header("content-type") wireContentType: "application/json"; }`,
+    ],
+  ])("returns diagnostics for %s without reporting them again", async (_description, response) => {
+    const [{ program }, compilationDiagnostics] = await Tester.compileAndDiagnose(`
+      @service namespace FileDiagnostics;
+      @get op example(): ${response};
+    `);
+    const operation = program
+      .getGlobalNamespaceType()
+      .namespaces.get("FileDiagnostics")
+      ?.operations.get("example");
+    ok(operation);
+    const expected = { code: "@typespec/http/http-file-structured", severity: "warning" as const };
+    expectDiagnostics(compilationDiagnostics, expected);
+
+    const before = [...program.diagnostics];
+    const [, responseDiagnostics] = getResponsesForOperation(program, operation);
+    const [, operationDiagnostics] = getHttpOperation(program, operation);
+    const [, serviceDiagnostics] = getAllHttpServices(program);
+
+    expectDiagnostics(responseDiagnostics, expected);
+    expectDiagnostics(operationDiagnostics, expected);
+    expectDiagnostics(serviceDiagnostics, expected);
+    deepStrictEqual(program.diagnostics, before);
+  });
+
   it("encodes file as JSON if requested", async () => {
-    const {
-      diagnostics,
-      operations: [
-        {
-          parameters: { body: requestBody },
-          responses: [
-            {
-              responses: [{ body: responseBody }],
-            },
-          ],
-        },
-      ],
-    } = await compileOperationsFull(`
+    const [operations, diagnostics] = await getOperationsWithServiceNamespace(`
         op example(
           @header("content-type") contentType: "application/json",
           @body file: Http.File,
@@ -989,6 +1018,16 @@ describe("structured files", () => {
           @body file: Http.File,
         };
       `);
+    const [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ] = operations;
 
     expectDiagnostics(diagnostics, [
       {
@@ -1048,7 +1087,7 @@ describe("structured files", () => {
   });
 
   it("does not recognize a File in a union as a file body", async () => {
-    const { diagnostics } = await compileOperationsFull(`
+    const [, diagnostics] = await getOperationsWithServiceNamespace(`
       op example(@body file: Http.File | string): void;
     `);
 

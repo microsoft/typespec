@@ -23,7 +23,7 @@ import {
   getStatusCodesWithDiagnostics,
 } from "./decorators.js";
 import type { HttpProperty } from "./http-property.js";
-import { HttpStateKeys, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, HttpStateKeys } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import type { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
@@ -219,10 +219,12 @@ function getResponseStatusCodes(
   for (const prop of metadata) {
     if (prop.kind === "statusCode") {
       if (statusFound) {
-        reportDiagnostic(program, {
-          code: "multiple-status-codes",
-          target: responseType,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "multiple-status-codes",
+            target: responseType,
+          }),
+        );
       }
       statusFound = true;
       codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop.property)));
