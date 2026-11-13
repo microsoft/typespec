@@ -153,3 +153,35 @@ function getValue(value: Value | undefined) {
       return undefined;
   }
 }
+
+/**
+ * Gets the name an HTTP parameter has on the wire: the URI template variable for path and query
+ * parameters, or the header name for headers.
+ * @param property HTTP property to get the name for
+ * @returns the wire name, or undefined for other kinds of properties
+ */
+export function getHttpParameterWireName(property: HttpProperty): string | undefined {
+  switch (property.kind) {
+    case "path":
+      return property.options.name;
+    case "query":
+      return escapeUriTemplateParamName(property.options.name);
+    case "header":
+      return property.options.name.toLowerCase();
+    case "contentType":
+      return "content-type";
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Escapes a query parameter name the same way `@typespec/http` does when it builds the URI template,
+ * so that the name matches the template variable.
+ */
+function escapeUriTemplateParamName(name: string): string {
+  return encodeURIComponent(name).replace(
+    /[:-]/g,
+    (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase(),
+  );
+}
