@@ -1,0 +1,7 @@
+# Debugging options for the org.eclipse.equinox.common plugin
+
+# Turn on general debugging for the org.eclipse.equinox.common plugin.
+org.eclipse.equinox.common/debug=false
+
+# Enable diagnostic logging for progress monitoring
+org.eclipse.equinox.common/progress_monitors=false

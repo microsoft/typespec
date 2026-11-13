@@ -1,0 +1,79 @@
+#### Debugging options for org.eclipse.osgi
+
+# Turn on general debugging for org.eclipse.osgi
+org.eclipse.osgi/debug=false
+# Prints out location debug information
+org.eclipse.osgi/debug/location = false
+# Prints out class loading debug information
+org.eclipse.osgi/debug/loader=false
+# Prints out CDS class loading debug information
+org.eclipse.osgi/debug/loader/cds=false
+# Prints out class loading debug information for specified packages. Comma separated list of packages.
+org.eclipse.osgi/debug/loader/packages=
+# Prints out event (FrameworkEvent/BundleEvent/ServiceEvent) and listener debug information
+org.eclipse.osgi/debug/events=false
+# Prints out OSGi service debug information (registration/getting/ungetting etc.)
+org.eclipse.osgi/debug/services=false
+# Prints out security (PermissionAdmin service) debug information
+org.eclipse.osgi/debug/security=false
+# Prints out start level service debug information
+org.eclipse.osgi/debug/startlevel=false
+# Prints out package admin service debug information
+org.eclipse.osgi/debug/packageadmin=false
+# Prints out timing information for loading and calling BundleActivator.start
+org.eclipse.osgi/debug/bundleTime=false
+# Prints out total time for starting a bundle which includes:
+# - loading and calling BundleActivator.start
+# - other time spent resolving bundles and firing bundle events to listeners
+org.eclipse.osgi/debug/bundleStartTime=false
+# Debug the loading of message bundles
+org.eclipse.osgi/debug/messageBundles=false
+# Debug the object pool additions
+org.eclipse.osgi/debug/objectPool/adds=false
+# Debug the object pool duplications
+org.eclipse.osgi/debug/objectPool/dups=false
+# Debug the caching of bundle headers
+org.eclipse.osgi/debug/cachedmanifest = false
+# Debug the lifecycle operations of the framework/systemBundle
+org.eclipse.osgi/debug/systemBundle=false
+# Debug the framework persistent storage
+org.eclipse.osgi/debug/storage=false
+# Debug the bundle file reading
+org.eclipse.osgi/debug/bundleFile=false
+# Debug the bundle file open calls
+org.eclipse.osgi/debug/bundleFile/open=false
+# Debug the bundle file close calls
+org.eclipse.osgi/debug/bundleFile/close=false
+
+# Eclipse adaptor options
+org.eclipse.osgi/eclipseadaptor/debug = false
+org.eclipse.osgi/eclipseadaptor/debug/platformadmin=false
+org.eclipse.osgi/eclipseadaptor/debug/platformadmin/resolver=false
+org.eclipse.osgi/eclipseadaptor/converter/debug = false
+
+### OSGi resolver options
+# General debug option for the resolver. Enabling this option is equivalent to 
+# enabling all other resolver debug options. 
+org.eclipse.osgi/resolver = false
+# Displays the current root bundle which is being resolved
+org.eclipse.osgi/resolver/roots=false
+# Displays information about matching capabilities returned to the resolver and
+# why any were filtered out.
+org.eclipse.osgi/resolver/providers = false
+# Displays information about capabilities or resources that were filtered by 
+# resolver hooks.
+org.eclipse.osgi/resolver/hooks = false
+# Displays information about uses constraint violations.
+org.eclipse.osgi/resolver/uses = false
+# Displays wiring information after the resolve process completes.
+org.eclipse.osgi/resolver/wiring = false
+# Displays the resolution report information.
+org.eclipse.osgi/resolver/report = false
+
+
+#### Monitoring settings
+
+# monitor eager bundle activation
+org.eclipse.osgi/monitor/activation=false
+# monitor lazy bundle activation
+org.eclipse.osgi/monitor/lazy=false

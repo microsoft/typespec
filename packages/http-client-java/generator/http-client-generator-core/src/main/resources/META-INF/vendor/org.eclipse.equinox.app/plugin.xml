@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="org.eclipse.core.runtime.applications" name="%applicationsName" schema="schema/applications.exsd"/>
+   <extension-point id="org.eclipse.core.runtime.products" name="%productsName" schema="schema/products.exsd"/>
+   <extension
+         id="error"
+         point="org.eclipse.core.runtime.applications">
+      <application visible="false">
+         <run class="org.eclipse.equinox.internal.app.ErrorApplication"/>
+      </application>
+   </extension>
+</plugin>

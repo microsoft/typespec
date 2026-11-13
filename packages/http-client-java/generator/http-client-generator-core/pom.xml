@@ -16,12 +16,26 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
 
     <spotless.config.path>../</spotless.config.path>
   </properties>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <configuration>
+          <java>
+            <excludes>
+              <exclude>src/main/java/com/microsoft/typespec/http/client/generator/core/implementation/org/**</exclude>
+            </excludes>
+          </java>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -49,6 +63,36 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>format-vendored</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <configuration>
+              <java>
+                <includes combine.self="override">
+                  <include>src/main/java/com/microsoft/typespec/http/client/generator/core/implementation/org/**/*.java</include>
+                </includes>
+                <excludes combine.self="override"/>
+                <removeUnusedImports/>
+                <importOrder/>
+                <eclipse/>
+                <indent>
+                  <spaces>true</spaces>
+                  <spacesPerTab>4</spacesPerTab>
+                </indent>
+                <trimTrailingWhitespace/>
+              </java>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <dependencies>
     <dependency>
@@ -82,30 +126,6 @@
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
       <version>3.27.0</version>
-    </dependency>
-    <!-- Keep Eclipse formatter dependencies pinned to releases compatible with Java 17. -->
-    <!-- Upgrading the formatter may change generated code formatting. -->
-    <dependency>
-      <groupId>org.eclipse.jdt</groupId>
-      <artifactId>org.eclipse.jdt.core</artifactId>
-      <version>3.47.0</version>
-      <exclusions>
-        <exclusion>
-          <!-- org.eclipse.team.core is optional, exclude it. -->
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.team.core</artifactId>
-        </exclusion>
-        <exclusion>
-          <!-- org.eclipse.ant.core is optional, exclude it. -->
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.ant.core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.platform</groupId>
-      <artifactId>org.eclipse.text</artifactId>
-      <version>3.14.800</version>
     </dependency>
 
     <dependency>

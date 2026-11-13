@@ -1,0 +1,4 @@
+# Turn on debugging for the registry.
+org.eclipse.equinox.registry/debug=false
+# Extension registry change events
+org.eclipse.equinox.registry/debug/events=false

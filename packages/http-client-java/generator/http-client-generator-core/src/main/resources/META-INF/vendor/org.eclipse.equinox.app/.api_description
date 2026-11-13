@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.equinox.app_1.7.600.v20251211-1038" version="1.2">
+    <plugin id="org.eclipse.equinox.app_1.7.600.v20251211-1038"/>
+    <package name="org.eclipse.equinox.app" visibility="1">
+        <type name="IApplicationContext" restrictions="3"/>
+    </package>
+</component>

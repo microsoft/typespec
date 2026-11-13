@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="filesystems" name="%fileSystemsName" schema="schema/filesystems.exsd"/>
+   <extension
+         id="org.eclipse.core.filesystem.local"
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem scheme="file">
+         <run class="org.eclipse.core.internal.filesystem.local.LocalFileSystem"/>
+      </filesystem>
+   </extension>
+   <extension
+         id="org.eclipse.core.filesystem.null"
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem scheme="null">
+         <run class="org.eclipse.core.internal.filesystem.NullFileSystem"/>
+      </filesystem>
+   </extension>
+</plugin>

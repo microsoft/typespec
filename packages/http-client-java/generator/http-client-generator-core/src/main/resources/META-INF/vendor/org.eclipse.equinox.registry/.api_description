@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.equinox.registry_3.12.600.v20250906-0651" version="1.2">
+    <plugin id="org.eclipse.equinox.registry_3.12.600.v20250906-0651"/>
+    <package name="org.eclipse.core.runtime" visibility="1">
+        <type name="ContributorFactoryOSGi" restrictions="4"/>
+        <type name="ContributorFactorySimple" restrictions="4"/>
+        <type name="IConfigurationElement" restrictions="1"/>
+        <type name="IContributor" restrictions="3"/>
+        <type name="IExtension" restrictions="1"/>
+        <type name="IExtensionDelta" restrictions="1"/>
+        <type name="IExtensionPoint" restrictions="1"/>
+        <type name="IExtensionRegistry" restrictions="1"/>
+        <type name="IRegistryChangeEvent" restrictions="1"/>
+        <type name="InvalidRegistryObjectException" restrictions="6"/>
+        <type name="RegistryFactory" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.core.runtime.dynamichelpers" visibility="1">
+        <type name="IExtensionTracker" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.core.runtime.spi" visibility="1">
+        <type name="IDynamicExtensionRegistry" restrictions="3"/>
+    </package>
+</component>

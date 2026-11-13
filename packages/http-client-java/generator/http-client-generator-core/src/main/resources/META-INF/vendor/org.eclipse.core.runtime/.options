@@ -1,0 +1,26 @@
+# Debugging options for the org.eclipse.core.runtime plugin
+
+# Turn on general debugging for the org.eclipse.core.runtime plugin.
+# Also displays overall startup time.
+org.eclipse.core.runtime/debug=false
+
+# Prints out values of OS, WS, NL, and ARCH
+org.eclipse.core.runtime/debug/context=false
+
+# Captures performance event information (See org.eclipse.core.runtime.PerformanceStats)
+org.eclipse.core.runtime/perf=false
+
+# Tracks performance events that run within an acceptable duration
+org.eclipse.core.runtime/perf/success=false
+
+# Turn on debugging for the compatibility layer
+org.eclipse.core.runtime/compatibility/debug=false
+
+# Turn on debugging for plugin preferences
+org.eclipse.core.runtime/preferences/plugin=false
+
+# Turn on debugging in the support for non-local plugins.
+org.eclipse.core.runtime/url/debug=false
+org.eclipse.core.runtime/url/debug/connect=false
+org.eclipse.core.runtime/url/debug/cachelookup=false
+org.eclipse.core.runtime/url/debug/cachecopy=false

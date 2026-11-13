@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.runtime_3.35.0.v20260623-1631" version="1.2">
+    <plugin id="org.eclipse.core.runtime_3.35.0.v20260623-1631"/>
+    <package name="org.eclipse.core.runtime" visibility="1">
+        <type name="ILog" restrictions="1"/>
+        <type name="Preferences" restrictions="2"/>
+    </package>
+</component>

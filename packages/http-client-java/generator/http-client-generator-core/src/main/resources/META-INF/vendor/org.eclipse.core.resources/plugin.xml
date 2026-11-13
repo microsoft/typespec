@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<!--
+    Copyright (c) 2015 IBM Corporation and others.
+
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        IBM Corporation - initial API and implementation
+ -->
+
+<plugin>
+
+   <extension-point id="builders" name="%buildersName" schema="schema/builders.exsd"/>
+   <extension-point id="markers" name="%markersName" schema="schema/markers.exsd"/>
+   <extension-point id="natures" name="%naturesName" schema="schema/natures.exsd"/>
+   <extension-point id="fileModificationValidator" name="%validatorName" schema="schema/fileModificationValidator.exsd"/>
+   <extension-point id="moveDeleteHook" name="%hookName" schema="schema/moveDeleteHook.exsd"/>
+   <extension-point id="teamHook" name="%teamHookName" schema="schema/teamHook.exsd"/>
+   <extension-point id="refreshProviders" name="%refreshProvidersName" schema="schema/refreshProviders.exsd"/>
+   <extension-point id="modelProviders" name="%modelProviders" schema="schema/modelProviders.exsd"/>
+   <extension-point id="filterMatchers" name="%filterMatchers" schema="schema/filterMatchers.exsd"/>
+   <extension-point id="variableResolvers" name="%variableResolvers" schema="schema/variableResolvers.exsd"/>
+
+	<extension id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferencesExtPtName">
+		<scope name="project" class="org.eclipse.core.internal.resources.ProjectPreferences"/>
+		<initializer class="org.eclipse.core.internal.resources.PreferenceInitializer"/>
+	</extension>
+	
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+		<file-association content-type="org.eclipse.core.runtime.xml" file-names=".project"/>
+		<content-type
+			file-extensions="prefs"
+			priority="normal"
+			name="%preferencesContentTypeName"
+			id="preferences"
+			base-type="org.eclipse.core.runtime.properties"/>		
+	</extension>
+
+   <extension
+         id="marker"
+         name="%markerName"
+         point="org.eclipse.core.resources.markers">
+      <attribute
+            name="transient">
+      </attribute>
+      <attribute
+            name="generatedBy">
+      </attribute>
+   </extension>
+   <extension
+         id="problemmarker"
+         name="%problemName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.marker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="severity">
+      </attribute>
+      <attribute
+            name="message">
+      </attribute>
+      <attribute
+            name="location">
+      </attribute>
+   </extension>
+   <extension
+         id="taskmarker"
+         name="%taskName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.marker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="priority">
+      </attribute>
+      <attribute
+            name="message">
+      </attribute>
+      <attribute
+            name="done">
+      </attribute>
+      <attribute
+            name="userEditable">
+      </attribute>
+   </extension>
+   <extension
+         id="bookmark"
+         name="%bookmarkName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.marker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="message">
+      </attribute>
+      <attribute
+            name="location">
+      </attribute>
+   </extension>
+   <extension
+         id="textmarker"
+         name="%textName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.marker">
+      </super>
+      <attribute
+            name="charStart">
+      </attribute>
+      <attribute
+            name="charEnd">
+      </attribute>
+      <attribute
+            name="lineNumber">
+      </attribute>
+   </extension>
+<!-- Tasks -->
+   <extension
+         point="org.eclipse.ant.core.antTasks">
+      <antTask
+            library="ant_tasks/resources-ant.jar"
+            name="eclipse.convertPath"
+            class="org.eclipse.core.resources.ant.ConvertPath">
+      </antTask>
+      <antTask
+            library="ant_tasks/resources-ant.jar"
+            name="eclipse.incrementalBuild"
+            class="org.eclipse.core.resources.ant.IncrementalBuild">
+      </antTask>
+      <antTask
+            library="ant_tasks/resources-ant.jar"
+            name="eclipse.refreshLocal"
+            class="org.eclipse.core.resources.ant.RefreshLocalTask">
+      </antTask>
+   </extension>
+<!-- Extra Classpath -->
+   <extension
+         point="org.eclipse.ant.core.extraClasspathEntries">
+      <extraClasspathEntry
+            library="ant_tasks/resources-ant.jar">
+      </extraClasspathEntry>
+   </extension>
+<!-- IResource to ResourceMapping adapter -->
+      <extension
+         id="org.eclipse.core.resources.resourceMappingAdapters"
+         point="org.eclipse.core.runtime.adapters">
+       <factory
+            class="org.eclipse.core.internal.resources.mapping.ResourceAdapterFactory"
+            adaptableType="org.eclipse.core.resources.IResource">
+            <adapter type="org.eclipse.core.resources.mapping.ResourceMapping"/>
+       </factory>
+   </extension>
+      <extension
+            id="modelProvider"
+            name="%resourceModelName"
+            point="org.eclipse.core.resources.modelProviders">
+         <modelProvider
+               class="org.eclipse.core.internal.resources.mapping.ResourceModelProvider"/>
+          <enablement>
+            <instanceof value="org.eclipse.core.resources.IResource" />
+          </enablement>
+      </extension>
+<!-- Property testers -->
+   <extension
+        point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+           id="org.eclipse.core.resources.resourcePropertyTester"
+           class="org.eclipse.core.internal.propertytester.ResourcePropertyTester"
+           namespace="org.eclipse.core.resources"
+           properties="name,path,extension,readOnly,projectNature,persistentProperty,projectPersistentProperty,sessionProperty,projectSessionProperty"
+           type="org.eclipse.core.resources.IResource"/>
+      <propertyTester
+           id="org.eclipse.core.resources.filePropertyTester"
+           class="org.eclipse.core.internal.propertytester.FilePropertyTester"
+           namespace="org.eclipse.core.resources"
+           properties="contentTypeId"
+           type="org.eclipse.core.resources.IFile"/>
+      <propertyTester
+           id="org.eclipse.core.resources.projectPropertyTester"
+           class="org.eclipse.core.internal.propertytester.ProjectPropertyTester"
+           namespace="org.eclipse.core.resources"
+           properties="open"
+           type="org.eclipse.core.resources.IProject"/>
+      <propertyTester
+            namespace="org.eclipse.core.resources"
+            type="org.eclipse.core.resources.mapping.ResourceMapping"
+            class="org.eclipse.core.internal.propertytester.ResourceMappingPropertyTester"
+            properties="projectPersistentProperty"
+            id="org.eclipse.core.resources.mappingPropertyTester"/>
+   </extension>
+<!-- Filter Matchers-->
+   <extension
+         point="org.eclipse.core.resources.filterMatchers">
+      <filterMatcher
+      		id="org.eclipse.core.resources.regexFilterMatcher"
+            argumentType="string"
+            class="org.eclipse.core.internal.resources.RegexFileInfoMatcher"
+            description="%regexFilterProvider.description"
+            name="%regexFilterProvider.name"
+            ordering="first">
+      </filterMatcher>
+   </extension>
+
+   <extension
+         point="org.eclipse.core.resources.variableResolvers">
+      <variableResolver
+            class="org.eclipse.core.internal.resources.projectvariables.EclipseHomeProjectVariable"
+            variable="ECLIPSE_HOME">
+      </variableResolver>
+      <variableResolver
+            class="org.eclipse.core.internal.resources.projectvariables.ProjectLocationVariableResolver"
+            variable="PROJECT_LOC">
+      </variableResolver>
+      <variableResolver
+            class="org.eclipse.core.internal.resources.projectvariables.WorkspaceLocationVariableResolver"
+            variable="WORKSPACE_LOC">
+      </variableResolver>
+      <variableResolver
+            class="org.eclipse.core.internal.resources.projectvariables.ParentVariableResolver"
+            variable="PARENT">
+      </variableResolver>
+      <variableResolver
+            class="org.eclipse.core.internal.resources.projectvariables.WorkspaceParentLocationVariableResolver"
+            variable="PARENT_LOC">
+      </variableResolver>
+   </extension>
+   <extension
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="virtual">
+         <run
+               class="org.eclipse.core.internal.resources.VirtualFileSystem">
+         </run>
+      </filesystem>
+   </extension>
+   <extension
+         point="org.eclipse.ui.trace.traceComponents">
+      <component
+            id="org.eclipse.core.resources.trace"
+            label="%trace.component.label">
+         <bundle
+               consumed="false"
+               name="org.eclipse.core.resources">
+         </bundle>
+      </component>
+   </extension>
+   <extension
+         id="unknownNature"
+         name="%unknownNatureMarkerName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="natureId">
+      </attribute>
+   </extension>
+   <extension
+         id="noExplicitEncoding"
+         name="%noExplicitEncodingMarkerName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+</plugin>

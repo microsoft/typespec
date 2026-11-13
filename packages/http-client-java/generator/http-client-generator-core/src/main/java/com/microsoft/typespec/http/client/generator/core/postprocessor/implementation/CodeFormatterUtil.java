@@ -36,7 +36,10 @@ import com.github.javaparser.javadoc.description.JavadocInlineTag;
 import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
 import com.github.javaparser.printer.configuration.imports.DefaultImportOrderingStrategy;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import com.microsoft.typespec.http.client.generator.core.util.Constants;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.core.ToolFactory;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.core.formatter.CodeFormatter;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jface.text.IDocument;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.text.edits.TextEdit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -47,11 +50,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.text.edits.TextEdit;
 import org.slf4j.Logger;
 
 /**
@@ -304,11 +302,11 @@ public final class CodeFormatterUtil {
     }
 
     private static String formatCode(String file, boolean isModuleInfo, CodeFormatter codeFormatter) throws Exception {
-        IDocument doc = new Document(file);
+        IDocument doc = new IDocument(file);
 
         int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
         kind |= CodeFormatter.F_INCLUDE_COMMENTS;
-        TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, Constants.NEW_LINE);
+        TextEdit edit = codeFormatter.format(kind, file, file.length());
         edit.apply(doc);
 
         return doc.get();

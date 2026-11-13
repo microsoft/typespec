@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.osgi_3.24.300.v20260721-1251" version="1.2">
+    <plugin id="org.eclipse.osgi_3.24.300.v20260721-1251"/>
+    <package name="org.eclipse.equinox.log" visibility="1">
+        <type name="ExtendedLogService" restrictions="1"/>
+        <type name="Logger" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.container" visibility="1">
+        <type name="ModuleRequirement" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.osgi.container.builders" visibility="1">
+        <type name="OSGiManifestBuilderFactory" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.osgi.container.namespaces" visibility="1">
+        <type name="EclipsePlatformNamespace" restrictions="4"/>
+        <type name="EquinoxFragmentNamespace" restrictions="4"/>
+        <type name="EquinoxModuleDataNamespace" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.osgi.framework.console" visibility="1">
+        <type name="CommandInterpreter" restrictions="1"/>
+        <type name="ConsoleSession" restrictions="0">
+            <method name="close" restrictions="8" signature="()V"/>
+            <method name="doClose" restrictions="8" signature="()V"/>
+            <method name="getInput" restrictions="8" signature="()Ljava/io/InputStream;"/>
+            <method name="getOutput" restrictions="8" signature="()Ljava/io/OutputStream;"/>
+            <method name="getService" restrictions="8" signature="(Lorg/osgi/framework/Bundle;Lorg/osgi/framework/ServiceRegistration;)Ljava/lang/Object;"/>
+            <method name="ungetService" restrictions="8" signature="(Lorg/osgi/framework/Bundle;Lorg/osgi/framework/ServiceRegistration;Ljava/lang/Object;)V"/>
+        </type>
+    </package>
+    <package name="org.eclipse.osgi.framework.eventmgr" visibility="1">
+        <type name="EventListeners" restrictions="2"/>
+        <type name="EventManager" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.osgi.framework.log" visibility="1">
+        <type name="FrameworkLog" restrictions="1"/>
+        <type name="FrameworkLogEntry" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.osgi.report.resolution" visibility="1">
+        <type name="ResolutionReport" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.service.datalocation" visibility="1">
+        <type name="Location" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.service.debug" visibility="1">
+        <type name="DebugOptions" restrictions="3"/>
+        <type name="DebugTrace" restrictions="3"/>
+    </package>
+    <package name="org.eclipse.osgi.service.environment" visibility="1">
+        <type name="Constants" restrictions="3"/>
+        <type name="EnvironmentInfo" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.service.localization" visibility="1">
+        <type name="BundleLocalization" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.service.resolver" visibility="1">
+        <type name="BaseDescription" restrictions="1"/>
+        <type name="BundleDelta" restrictions="1"/>
+        <type name="BundleDescription" restrictions="1"/>
+        <type name="BundleSpecification" restrictions="1"/>
+        <type name="ExportPackageDescription" restrictions="1"/>
+        <type name="GenericDescription" restrictions="1"/>
+        <type name="GenericSpecification" restrictions="1"/>
+        <type name="HostSpecification" restrictions="1"/>
+        <type name="ImportPackageSpecification" restrictions="1"/>
+        <type name="NativeCodeDescription" restrictions="1"/>
+        <type name="NativeCodeSpecification" restrictions="1"/>
+        <type name="PlatformAdmin" restrictions="1"/>
+        <type name="ResolverError" restrictions="1"/>
+        <type name="State" restrictions="1"/>
+        <type name="StateDelta" restrictions="1"/>
+        <type name="StateHelper" restrictions="1"/>
+        <type name="StateObjectFactory" restrictions="1"/>
+        <type name="VersionConstraint" restrictions="1"/>
+        <type name="VersionRange" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.osgi.service.runnable" visibility="1">
+        <type name="ApplicationLauncher" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.signedcontent" visibility="1">
+        <type name="InvalidContentException" restrictions="2"/>
+        <type name="SignedContent" restrictions="1"/>
+        <type name="SignedContentEntry" restrictions="1"/>
+        <type name="SignedContentFactory" restrictions="1"/>
+        <type name="SignerInfo" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.osgi.util" visibility="1">
+        <type name="ManifestElement" restrictions="2"/>
+        <type name="TextProcessor" restrictions="2"/>
+    </package>
+    <package name="org.osgi.service.packageadmin" visibility="1">
+        <type name="ExportedPackage" restrictions="1"/>
+        <type name="PackageAdmin" restrictions="1"/>
+        <type name="RequiredBundle" restrictions="1"/>
+    </package>
+    <package name="org.osgi.service.startlevel" visibility="1">
+        <type name="StartLevel" restrictions="1"/>
+    </package>
+</component>

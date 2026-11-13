@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<!--
+     Copyright (c) 2005, 2010 IBM Corporation and others.
+
+     This program and the accompanying materials
+     are made available under the terms of the Eclipse Public License 2.0
+     which accompanies this distribution, and is available at
+     https://www.eclipse.org/legal/epl-2.0/
+
+     SPDX-License-Identifier: EPL-2.0
+    
+     Contributors:
+         IBM Corporation - initial API and implementation
+ -->
+
+<plugin>
+
+   <extension-point id="extraClasspathEntries" name="%classpathName" schema="schema/extraClasspathEntries.exsd"/>
+   <extension-point id="antTasks" name="%tasksName" schema="schema/antTasks.exsd"/>
+   <extension-point id="antTypes" name="%typesName" schema="schema/antTypes.exsd"/>
+   <extension-point id="antProperties" name="%propertiesName" schema="schema/antProperties.exsd"/>
+   
+<!-- Applications -->
+   <extension
+         id="antRunner"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.eclipse.ant.core.AntRunner">
+         </run>
+      </application>
+   </extension>
+<!-- Extra Classpath -->
+   <extension
+         point="org.eclipse.ant.core.extraClasspathEntries">
+      <extraClasspathEntry
+            library="lib/antsupportlib.jar">
+      </extraClasspathEntry>
+   </extension>
+    <extension
+      	 point="org.eclipse.ant.core.antProperties">
+      <antProperty
+            name="eclipse.home"
+            class="org.eclipse.ant.internal.core.AntPropertyValueProvider">
+      </antProperty>
+       <antProperty
+            name="eclipse.running"
+            class="org.eclipse.ant.internal.core.AntPropertyValueProvider">
+      </antProperty>
+    </extension>
+    
+	<extension 
+		point="org.eclipse.core.contenttype.contentTypes"> 
+		<content-type  
+			id="antBuildFile" 
+			name="%antBuildFileContentType.name" 
+			base-type="org.eclipse.core.runtime.xml"
+			file-names="build.xml"
+			file-extensions="macrodef,ent,xml,ant"
+			priority="normal"> 
+			<describer 
+				class="org.eclipse.ant.internal.core.contentDescriber.AntBuildfileContentDescriber">
+			</describer> 
+		</content-type> 
+	</extension>
+</plugin>

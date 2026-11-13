@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.expressions_3.9.700.v20260710-0925" version="1.2">
+    <plugin id="org.eclipse.core.expressions_3.9.700.v20260710-0925"/>
+    <package name="org.eclipse.core.expressions" visibility="1">
+        <type name="ElementHandler" restrictions="0">
+            <method name="processChildren" restrictions="24" signature="(Lorg/eclipse/core/expressions/ExpressionConverter;Lorg/eclipse/core/runtime/IConfigurationElement;Lorg/eclipse/core/expressions/CompositeExpression;)V"/>
+            <method name="processChildren" restrictions="24" signature="(Lorg/eclipse/core/expressions/ExpressionConverter;Lorg/w3c/dom/Element;Lorg/eclipse/core/expressions/CompositeExpression;)V"/>
+        </type>
+        <type name="EvaluationContext" restrictions="2"/>
+        <type name="EvaluationResult" restrictions="2"/>
+        <type name="ExpressionInfo" restrictions="2"/>
+        <type name="IEvaluationContext" restrictions="3"/>
+        <type name="IPropertyTester" restrictions="3"/>
+        <type name="PropertyTester" restrictions="0">
+            <method name="internalCreateDescriptor" restrictions="8" signature="()Lorg/eclipse/core/internal/expressions/PropertyTesterDescriptor;"/>
+            <method name="internalInitialize" restrictions="8" signature="(Lorg/eclipse/core/internal/expressions/PropertyTesterDescriptor;)V"/>
+        </type>
+    </package>
+</component>

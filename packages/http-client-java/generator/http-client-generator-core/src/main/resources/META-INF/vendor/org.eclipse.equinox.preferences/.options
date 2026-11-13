@@ -1,0 +1,6 @@
+# Debugging options for the org.eclipse.equinox.preferences plugin
+
+# Turn on debugging for preferences
+org.eclipse.equinox.preferences/general=false
+org.eclipse.equinox.preferences/get=false
+org.eclipse.equinox.preferences/set=false

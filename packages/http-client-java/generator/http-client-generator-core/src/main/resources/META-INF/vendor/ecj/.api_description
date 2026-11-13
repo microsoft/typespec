@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.jdt.core.compiler.batch_3.46.100.v20260826-1225" version="1.2">
+    <plugin id="org.eclipse.jdt.core.compiler.batch_3.46.100.v20260826-1225"/>
+    <package name="org.eclipse.jdt.core.compiler" visibility="1">
+        <type name="CharOperation" restrictions="4"/>
+        <type name="IProblem" restrictions="3"/>
+        <type name="InvalidInputException" restrictions="6"/>
+    </package>
+    <package name="org.eclipse.jdt.core.compiler.batch" visibility="1">
+        <type name="BatchCompiler" restrictions="4"/>
+    </package>
+</component>

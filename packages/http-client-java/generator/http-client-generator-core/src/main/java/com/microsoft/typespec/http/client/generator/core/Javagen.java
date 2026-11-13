@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 
 public class Javagen extends NewPlugin {
     private final Logger logger = new PluginLogger(this, Javagen.class);
-    protected static Javagen instance;
+    public static Javagen instance;
 
     public Javagen(Connection connection, String plugin, String sessionId) {
         super(connection, plugin, sessionId);

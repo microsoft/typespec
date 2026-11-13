@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.text_3.14.800.v20260815-0849" version="1.2">
+    <plugin id="org.eclipse.text_3.14.800.v20260815-0849"/>
+    <package name="org.eclipse.jface.text" visibility="1">
+        <type name="ConfigurableLineTracker" restrictions="2"/>
+        <type name="CopyOnWriteTextStore" restrictions="2"/>
+        <type name="DefaultLineTracker" restrictions="2"/>
+        <type name="GapTextStore" restrictions="2"/>
+        <type name="TextUtilities" restrictions="6"/>
+    </package>
+    <package name="org.eclipse.jface.text.link" visibility="1">
+        <type name="InclusivePositionUpdater" restrictions="2"/>
+        <type name="LinkedModeModel" restrictions="2"/>
+        <type name="LinkedPositionGroup" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.jface.text.projection" visibility="1">
+        <type name="ChildDocument" restrictions="6"/>
+        <type name="ChildDocumentManager" restrictions="6"/>
+        <type name="Fragment" restrictions="6"/>
+        <type name="ProjectionDocument" restrictions="6"/>
+        <type name="ProjectionDocumentEvent" restrictions="6"/>
+        <type name="ProjectionDocumentManager" restrictions="2"/>
+        <type name="ProjectionMapping" restrictions="6"/>
+        <type name="Segment" restrictions="6"/>
+    </package>
+    <package name="org.eclipse.jface.text.templates" visibility="1">
+        <type name="Template" restrictions="2"/>
+        <type name="TemplateVariableType" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.text.edits" visibility="1">
+        <type name="TextEdit" restrictions="2"/>
+        <type name="TextEditProcessor" restrictions="2"/>
+        <type name="UndoEdit" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.text.templates" visibility="1">
+        <type name="TemplatePersistenceData" restrictions="2"/>
+        <type name="TemplateReaderWriter" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.text.undo" visibility="1">
+        <type name="DocumentUndoEvent" restrictions="6"/>
+        <type name="DocumentUndoManager" restrictions="2"/>
+        <type name="DocumentUndoManagerRegistry" restrictions="4"/>
+    </package>
+</component>

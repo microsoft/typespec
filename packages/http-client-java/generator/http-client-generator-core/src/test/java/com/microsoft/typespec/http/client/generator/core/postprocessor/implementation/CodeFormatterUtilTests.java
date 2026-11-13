@@ -24,6 +24,23 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class CodeFormatterUtilTests {
+    @Test
+    public void formatsPreformattedAndSnippetJavadocCode() {
+        String source = String.join("\n", "package fixtures;", "public class Documentation {", "/**",
+            " * Formats embedded Java examples.", " * <pre>", " * int[] values={1,2};",
+            " * for(int value:values){System.out.println(value);}", " * </pre>", " * {@snippet :",
+            " * int total=values.length;", " * if(total>0){System.out.println(total);}", " * }", " */",
+            "public void sample(){}", "}");
+        String expected = String.join("\n", "package fixtures;", "", "public class Documentation {", "    /**",
+            "     * Formats embedded Java examples.", "     * ", "     * <pre>", "     * int[] values = { 1, 2 };",
+            "     * for (int value : values) {", "     *     System.out.println(value);", "     * }", "     * </pre>",
+            "     * ", "     * {@snippet :", "     * int total = values.length;", "     * if (total > 0) {",
+            "     *     System.out.println(total);", "     * }", "     * }", "     */", "    public void sample() {",
+            "    }", "}", "");
+
+        assertEquals(expected, CodeFormatterUtil.formatCode(Map.of("Documentation.java", source)).get(0));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = { "module-info.java", "src/main/module-info.java" })
     public void moduleInfoFormatting(String fileName) {

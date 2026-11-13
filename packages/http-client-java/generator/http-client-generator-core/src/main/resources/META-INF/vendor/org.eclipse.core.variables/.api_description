@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.variables_3.6.900.v20260602-0702" version="1.2">
+    <plugin id="org.eclipse.core.variables_3.6.900.v20260602-0702"/>
+    <package name="org.eclipse.core.variables" visibility="1">
+        <type name="IDynamicVariable" restrictions="1"/>
+        <type name="IStringVariable" restrictions="1"/>
+        <type name="IStringVariableManager" restrictions="1"/>
+        <type name="IValueVariable" restrictions="1"/>
+        <type name="VariablesPlugin" restrictions="6"/>
+    </package>
+</component>

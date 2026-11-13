@@ -1,0 +1,23 @@
+# Debugging options for the org.eclipse.core.jobs bundle
+
+# NOTE: There is a deadlock risk when using these debug flags in a workspace
+# launched from Eclipse due to interaction with a lock in the debugger console.
+# For details: https://bugs.eclipse.org/bugs/show_bug.cgi?id=93968
+
+# Prints debug information on running background jobs
+org.eclipse.core.jobs/jobs=false
+# Prints debug information when scheduling rules begin and end, and for mismatched beginRule/endRule pairs
+org.eclipse.core.jobs/jobs/beginend=false
+# Pedantic assertion checking on locks and deadlock reporting
+org.eclipse.core.jobs/jobs/locks=false
+# Throws an IllegalStateException when deadlock occurs
+org.eclipse.core.jobs/jobs/errorondeadlock=false
+# Debug shutdown behaviour
+org.eclipse.core.jobs/jobs/shutdown=false
+# Debug jobs yielding execution so that other (blocked) jobs are given a chance to execute
+org.eclipse.core.jobs/jobs/yielding=false
+org.eclipse.core.jobs/jobs/yielding/detailed=false
+# Debug when jobs are blocked (by other jobs) and unblocked
+org.eclipse.core.jobs/jobs/blockedunblocked=false
+
+

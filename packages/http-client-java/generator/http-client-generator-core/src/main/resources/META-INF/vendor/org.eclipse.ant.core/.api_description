@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.ant.core_3.7.1000.v20260602-0655" version="1.2">
+    <plugin id="org.eclipse.ant.core_3.7.1000.v20260602-0655"/>
+    <package name="org.eclipse.ant.core" visibility="1">
+        <type name="AntCorePlugin" restrictions="6"/>
+        <type name="AntCorePreferences" restrictions="6"/>
+        <type name="AntRunner" restrictions="2"/>
+        <type name="AntSecurityException" restrictions="2"/>
+        <type name="ProjectInfo" restrictions="6"/>
+        <type name="Property" restrictions="2"/>
+        <type name="TargetInfo" restrictions="6"/>
+        <type name="Task" restrictions="2"/>
+        <type name="Type" restrictions="2"/>
+    </package>
+</component>

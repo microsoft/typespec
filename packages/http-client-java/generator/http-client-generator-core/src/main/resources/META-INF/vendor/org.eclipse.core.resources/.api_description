@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.resources_3.24.100.v20260812-0827" version="1.2">
+    <plugin id="org.eclipse.core.resources_3.24.100.v20260812-0827"/>
+    <package name="org.eclipse.core.resources" visibility="1">
+        <type name="IBuildConfiguration" restrictions="3"/>
+        <type name="IBuildContext" restrictions="3"/>
+        <type name="ICommand" restrictions="3"/>
+        <type name="IContainer" restrictions="3"/>
+        <type name="IFile" restrictions="3"/>
+        <type name="IFileState" restrictions="3"/>
+        <type name="IFilterMatcherDescriptor" restrictions="3"/>
+        <type name="IFolder" restrictions="3"/>
+        <type name="IIncrementalProjectBuilder2" restrictions="0">
+            <method name="clean" restrictions="8" signature="(Ljava/util/Map;Lorg/eclipse/core/runtime/IProgressMonitor;)V"/>
+        </type>
+        <type name="IMarker" restrictions="3"/>
+        <type name="IMarkerDelta" restrictions="3"/>
+        <type name="IPathVariableChangeEvent" restrictions="3"/>
+        <type name="IPathVariableManager" restrictions="3"/>
+        <type name="IProject" restrictions="3"/>
+        <type name="IProjectDescription" restrictions="3"/>
+        <type name="IProjectNatureDescriptor" restrictions="3"/>
+        <type name="IResource" restrictions="3"/>
+        <type name="IResourceChangeEvent" restrictions="3"/>
+        <type name="IResourceDelta" restrictions="3"/>
+        <type name="IResourceFilterDescription" restrictions="3"/>
+        <type name="IResourceProxy" restrictions="3"/>
+        <type name="IResourceRuleFactory" restrictions="3"/>
+        <type name="IResourceStatus" restrictions="3"/>
+        <type name="ISaveContext" restrictions="3"/>
+        <type name="ISavedState" restrictions="3"/>
+        <type name="ISynchronizer" restrictions="3"/>
+        <type name="IWorkspace" restrictions="3"/>
+        <type name="IWorkspaceDescription" restrictions="3"/>
+        <type name="IWorkspaceRoot" restrictions="3"/>
+        <type name="IncrementalProjectBuilder" restrictions="0">
+            <method name="getRule" restrictions="8" signature="(ILjava/util/Map;)Lorg/eclipse/core/runtime/jobs/ISchedulingRule;"/>
+        </type>
+        <type name="ResourceAttributes" restrictions="2">
+            <method name="isSet" restrictions="24" signature="(I)Z"/>
+            <method name="set" restrictions="24" signature="(IZ)V"/>
+        </type>
+        <type name="ResourcesPlugin" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.core.resources.mapping" visibility="1">
+        <type name="IModelProviderDescriptor" restrictions="3"/>
+        <type name="IResourceChangeDescriptionFactory" restrictions="3"/>
+        <type name="ModelProvider" restrictions="0">
+            <method name="init" restrictions="8" signature="(Lorg/eclipse/core/resources/mapping/IModelProviderDescriptor;)V"/>
+        </type>
+    </package>
+    <package name="org.eclipse.core.resources.refresh" visibility="1">
+        <type name="IRefreshResult" restrictions="3"/>
+    </package>
+    <package name="org.eclipse.core.resources.team" visibility="1">
+        <type name="IResourceTree" restrictions="1"/>
+    </package>
+    <package name="org.eclipse.core.resources.undo.snapshot" visibility="1">
+        <type name="IContainerSnapshot" restrictions="3"/>
+        <type name="IMarkerSnapshot" restrictions="3"/>
+        <type name="IResourceSnapshot" restrictions="3"/>
+    </package>
+</component>

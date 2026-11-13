@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   
+     <extension-point id="propertyTesters" name="%propertyTesterExtensionPoint" schema="schema/propertyTesters.exsd"/>
+     <extension-point id="definitions" name="%defintionsExtensionPoint" schema="schema/definitions.exsd"/>
+ 
+     <extension
+           point="org.eclipse.core.expressions.propertyTesters">
+        <propertyTester
+              id="org.eclipse.core.expressions.bundlePropertyTester"
+              type="org.eclipse.core.runtime.Platform"
+              namespace="org.eclipse.core.runtime"
+              properties="product,isBundleInstalled,bundleState"
+              class="org.eclipse.core.internal.expressions.propertytester.PlatformPropertyTester">
+        </propertyTester>
+     </extension>
+
+</plugin>

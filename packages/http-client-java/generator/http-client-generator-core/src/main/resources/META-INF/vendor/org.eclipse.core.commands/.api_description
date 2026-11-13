@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.commands_3.13.0.v20260605-1749" version="1.2">
+    <plugin id="org.eclipse.core.commands_3.13.0.v20260605-1749"/>
+    <package name="org.eclipse.core.commands.common" visibility="1">
+        <type name="CommandException" restrictions="2"/>
+    </package>
+</component>

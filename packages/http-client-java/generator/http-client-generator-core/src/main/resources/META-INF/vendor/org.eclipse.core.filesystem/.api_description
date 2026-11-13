@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.filesystem_1.11.500.v20260721-1509" version="1.2">
+    <plugin id="org.eclipse.core.filesystem_1.11.500.v20260721-1509"/>
+    <package name="org.eclipse.core.filesystem" visibility="1">
+        <type name="EFS" restrictions="6"/>
+        <type name="IFileInfo" restrictions="1"/>
+        <type name="IFileStore" restrictions="1"/>
+        <type name="IFileSystem" restrictions="1"/>
+        <type name="IFileTree" restrictions="1"/>
+        <type name="URIUtil" restrictions="6"/>
+    </package>
+    <package name="org.eclipse.core.filesystem.provider" visibility="1">
+        <type name="FileInfo" restrictions="2"/>
+    </package>
+</component>

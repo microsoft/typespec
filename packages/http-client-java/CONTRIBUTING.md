@@ -21,6 +21,11 @@ Java code is packaged into a JAR file, and included in the Node.js package. The 
 Generated Java is analyzed with JavaParser to remove unused imports and order the remaining imports, then formatted with Eclipse JDT using `generator\eclipse-format-azure-sdk-for-java.xml`.
 Import cleanup does not require resolving the generated SDK's dependencies.
 
+The Eclipse JDT formatter, its ECJ parser, and the Equinox and JFace text sources they need are compiled in `http-client-generator-core` under `com.microsoft.typespec.http.client.generator.core.implementation`.
+All vendored Java code stays in this implementation package, and only code reachable from the generator's formatter entry point is kept.
+Vendored diagnostics and messages are English-only Java constants/tables; no translated resource bundles are loaded, and the JVM default locale is not changed.
+See `generator\http-client-generator-core\implementation\UPSTREAM.md` for source provenance, licenses, and maintenance instructions.
+
 ## Build and Pack
 
 ["Setup.ps1" script](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/Setup.ps1) builds TypeScript code and Java code, and packs them into "typespec-http-client-java-[version].tgz".

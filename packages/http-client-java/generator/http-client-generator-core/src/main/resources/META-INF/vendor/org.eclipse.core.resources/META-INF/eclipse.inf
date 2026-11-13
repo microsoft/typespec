@@ -1,0 +1,3 @@
+#Temporarily exclude from packing due to pack200 bug. See bug 394478.
+jarprocessor.exclude.pack=true
+jarprocessor.exclude.children.pack=true

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.jobs_3.15.900.v20260604-0622" version="1.2">
+    <plugin id="org.eclipse.core.jobs_3.15.900.v20260604-0622"/>
+    <package name="org.eclipse.core.runtime.jobs" visibility="1">
+        <type name="IJobChangeEvent" restrictions="3"/>
+        <type name="IJobManager" restrictions="3"/>
+        <type name="IJobStatus" restrictions="3"/>
+        <type name="ILock" restrictions="3"/>
+        <type name="MultiRule" restrictions="2"/>
+    </package>
+</component>

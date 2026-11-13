@@ -69,6 +69,11 @@ packages/http-client-csharp/generator/**/TestProjects/**/*.json
 packages/http-client-java/generator/http-client-generator-test/**/*.json
 packages/http-client-java/generator/http-client-generator-clientcore-test/**/*.json
 
+# Vendored Java uses Spotless; preserve upstream metadata and resource formatting.
+packages/http-client-java/generator/http-client-generator-core/src/main/java/com/microsoft/typespec/http/client/generator/core/implementation/org/**
+packages/http-client-java/generator/http-client-generator-core/src/main/resources/META-INF/vendor/**
+packages/http-client-java/generator/http-client-generator-core/src/main/resources/com/microsoft/typespec/http/client/generator/core/implementation/**
+
 # Files with invalid sh syntax
 packages/http-client-java/**/*.properties
 

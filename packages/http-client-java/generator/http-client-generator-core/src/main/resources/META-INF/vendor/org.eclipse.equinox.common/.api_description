@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.equinox.common_3.21.0.v20260604-1221" version="1.2">
+    <plugin id="org.eclipse.equinox.common_3.21.0.v20260604-1221"/>
+    <package name="org.eclipse.core.runtime" visibility="1">
+        <type name="Assert" restrictions="4"/>
+        <type name="AssertionFailedException" restrictions="6"/>
+        <type name="FileLocator" restrictions="4"/>
+        <type name="IAdapterManager" restrictions="3"/>
+        <type name="IPath" restrictions="3"/>
+        <type name="URIUtil" restrictions="4"/>
+    </package>
+</component>

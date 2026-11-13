@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="contentTypes" name="%contentTypesName" schema="schema/contentTypes.exsd"/>
+   
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+		<content-type id="org.eclipse.core.runtime.text" name="%textContentTypeName" 
+			priority="high"
+			file-extensions="txt">
+			<describer class="org.eclipse.core.internal.content.TextContentDescriber"/>			
+			<property name="org.eclipse.core.runtime.bom"/>
+			<property name="org.eclipse.core.runtime.charset"/>
+		</content-type>
+		<content-type id="org.eclipse.core.runtime.xml" name="%xmlContentTypeName" 	
+			base-type="org.eclipse.core.runtime.text"
+			priority="high"
+			file-extensions="xml">			
+			<property name="org.eclipse.core.runtime.charset" default="UTF-8"/>
+			<describer class="org.eclipse.core.runtime.content.XMLContentDescriber"/>
+		</content-type>
+		<!-- a placeholder for setups where JDT's official type is not available -->			
+		<content-type id="org.eclipse.core.runtime.properties" name="%propertiesContentTypeName" 
+			base-type="org.eclipse.core.runtime.text"
+			alias-for="org.eclipse.jdt.core.javaProperties"
+			file-extensions="properties">
+			<property name="org.eclipse.core.runtime.charset" default="ISO-8859-1"/>
+		</content-type>			
+	</extension>
+	<extension point="org.eclipse.equinox.preferences.preferences">
+		<modifier class="org.eclipse.core.internal.content.PreferenceModifyListener"/>
+	</extension>
+</plugin>

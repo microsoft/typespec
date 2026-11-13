@@ -1,0 +1,5 @@
+# Debugging options for the org.eclipse.core.contenttype plugin
+
+# Turn on debugging for content types
+org.eclipse.core.contenttype/debug=false
+

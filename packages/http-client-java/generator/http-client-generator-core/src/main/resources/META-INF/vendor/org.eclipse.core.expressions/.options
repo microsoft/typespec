@@ -1,0 +1,4 @@
+# Traces property resolving in the hierarchy of type
+# extensions
+org.eclipse.core.expressions/tracePropertyResolving=false
+org.eclipse.core.expressions/debug/TypeExtensionManager=false

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.trace.traceComponents">
+      <component
+            id="org.eclipse.osgi.trace"
+            label="%trace.component.label">
+         <bundle
+               consumed="false"
+               name="org.eclipse.osgi">
+         </bundle>
+      </component>
+   </extension>
+
+</plugin>

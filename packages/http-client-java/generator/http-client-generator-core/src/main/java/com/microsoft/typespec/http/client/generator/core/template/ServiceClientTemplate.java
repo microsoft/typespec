@@ -43,7 +43,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
     private static final ServiceClientTemplate INSTANCE = new ServiceClientTemplate();
 
     // Extension for additional class methods
-    protected List<MethodTemplate> additionalMethods = new ArrayList<>();
+    public List<MethodTemplate> additionalMethods = new ArrayList<>();
 
     protected ServiceClientTemplate() {
     }

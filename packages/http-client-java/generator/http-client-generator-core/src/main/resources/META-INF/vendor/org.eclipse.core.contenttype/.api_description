@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.core.contenttype_3.9.900.v20260617-0626" version="1.2">
+    <plugin id="org.eclipse.core.contenttype_3.9.900.v20260617-0626"/>
+    <package name="org.eclipse.core.runtime.content" visibility="1">
+        <type name="IContentType" restrictions="1"/>
+        <type name="IContentTypeManager" restrictions="1"/>
+        <type name="IContentTypeSettings" restrictions="1"/>
+        <type name="XMLContentDescriber" restrictions="4"/>
+        <type name="XMLRootElementContentDescriber" restrictions="4">
+            <method name="describe" restrictions="8" signature="(Ljava/io/InputStream;Lorg/eclipse/core/runtime/content/IContentDescription;Ljava/util/Map;)I"/>
+            <method name="describe" restrictions="8" signature="(Ljava/io/Reader;Lorg/eclipse/core/runtime/content/IContentDescription;Ljava/util/Map;)I"/>
+        </type>
+        <type name="XMLRootElementContentDescriber2" restrictions="4">
+            <method name="describe" restrictions="8" signature="(Ljava/io/InputStream;Lorg/eclipse/core/runtime/content/IContentDescription;Ljava/util/Map;)I"/>
+            <method name="describe" restrictions="8" signature="(Ljava/io/Reader;Lorg/eclipse/core/runtime/content/IContentDescription;Ljava/util/Map;)I"/>
+        </type>
+    </package>
+</component>

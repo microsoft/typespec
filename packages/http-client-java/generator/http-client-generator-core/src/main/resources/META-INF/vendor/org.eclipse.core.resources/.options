@@ -1,0 +1,94 @@
+# Debugging options for the org.eclipse.core.resources plugin.
+
+# Turn on debugging for the org.eclipse.core.resources plugin.
+org.eclipse.core.resources/debug=false
+
+# Monitor builders and gather time statistics etc.
+org.eclipse.core.resources/perf/builders=10000
+
+# Monitor resource change listeners and gather time statistics etc.
+org.eclipse.core.resources/perf/listeners=500
+
+# Monitor workspace snapshot and gather time statistics etc.
+org.eclipse.core.resources/perf/snapshot=1000
+
+# Monitor workspace snapshot and gather time statistics etc.
+org.eclipse.core.resources/perf/save.participants=500
+
+# Monitor workspace refresh and trace if it takes longer than the specified time in milliseconds.
+org.eclipse.core.resources/perf/refresh=500
+
+# Debug build failure cases such as failure to retrieve deltas.
+org.eclipse.core.resources/build/failure=false
+
+# Reports the cause of autobuild interruption
+org.eclipse.core.resources/build/interrupt=false
+
+# Reports the start and end of all builder invocations
+org.eclipse.core.resources/build/invoking=false
+
+# Reports the start and end of build delta calculations
+org.eclipse.core.resources/build/delta=false
+
+# Reports build cycles
+org.eclipse.core.resources/build/cycle=false
+
+# For incremental builds, displays which builder is being run
+# and because of changes in which project.
+org.eclipse.core.resources/build/needbuild=false
+
+# For incremental builds, print all delta tree nodes that cause a builder to run.
+# Requires org.eclipse.core.resources/build/needbuild=true
+org.eclipse.core.resources/build/needbuilddelta=false
+
+# Prints a stack trace every time an operation finishes that requires a build
+org.eclipse.core.resources/build/needbuildstack=false
+
+# Prints a stack trace every time a build API method is called
+org.eclipse.core.resources/build/stacktrace=false
+
+# Reports configuration and deconfiguration of project natures
+org.eclipse.core.resources/natures=false
+
+# Report history store debugging.
+org.eclipse.core.resources/history=false
+
+# Report debugging for project preferences.
+org.eclipse.core.resources/preferences=false
+
+# Prints debug information (elapsed time, estimated savings) from string compaction
+org.eclipse.core.resources/strings=false
+
+# Report timings for restoring the workspace state
+org.eclipse.core.resources/restore=false
+org.eclipse.core.resources/restore/markers=false
+org.eclipse.core.resources/restore/syncinfo=false
+org.eclipse.core.resources/restore/tree=false
+org.eclipse.core.resources/restore/metainfo=false
+org.eclipse.core.resources/restore/snapshots=false
+org.eclipse.core.resources/restore/mastertable=false
+
+# Report timings for saving and snapshots on the workspace state
+org.eclipse.core.resources/save=false
+org.eclipse.core.resources/save/markers=false
+org.eclipse.core.resources/save/syncinfo=false
+org.eclipse.core.resources/save/tree=false
+org.eclipse.core.resources/save/metainfo=false
+org.eclipse.core.resources/save/mastertable=false
+
+# Report debug of workspace auto-refresh
+org.eclipse.core.resources/refresh=false
+
+# Prints debug information on resource content description
+org.eclipse.core.resources/contenttype=false
+org.eclipse.core.resources/contenttype/cache=false
+
+# Prints debug information about resource change event notifications
+org.eclipse.core.resources/notifications=false
+
+# Reports calls to AbstractDataTree.immutable()
+org.eclipse.core.resources/tree/immutable=false
+
+# Prints stack trace for calls to AbstractDataTree.immutable()
+# Requires org.eclipse.core.resources/tree/immutable=true
+org.eclipse.core.resources/tree/immutablestack=false
