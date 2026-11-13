@@ -352,6 +352,12 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType))
                 .experimental(SchemaUtil.getExperimental(compositeType))
                 .build());
+            if (settings.isAzureV1()
+                && !settings.isFluent()
+                && compositeType.getExtensions() != null
+                && compositeType.getExtensions().getXmsLroOperationId() != null) {
+                builder.lroOperationId(compositeType.getExtensions().getXmsLroOperationId());
+            }
 
             result = builder.build();
 

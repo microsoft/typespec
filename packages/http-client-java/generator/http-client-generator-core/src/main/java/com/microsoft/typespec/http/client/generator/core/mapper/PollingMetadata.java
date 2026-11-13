@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningOperationIdMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
@@ -14,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import io.clientcore.core.http.models.HttpMethod;
 
@@ -28,6 +30,7 @@ final class PollingMetadata {
     private final IType finalResultType;
     private final int pollIntervalInSeconds;
     private final HttpMethod httpMethod;
+    private final LongRunningOperationIdMetadata operationId;
 
     /**
      * Creates long-running polling metadata for an {@link Operation}.
@@ -56,7 +59,7 @@ final class PollingMetadata {
             if (settings.isFluent()) {
                 return new PollingMetadata(pollingSettings.getPollingStrategy(),
                     pollingSettings.getSyncPollingStrategy(), operationResponseType.asNullable(),
-                    operationResponseType.asNullable(), pollingSettings.getPollIntervalInSeconds(), httpMethod);
+                    operationResponseType.asNullable(), pollingSettings.getPollIntervalInSeconds(), httpMethod, null);
             }
 
             final IType pollResultType = getPollResultType(pollingSettings, operationResponseType);
@@ -67,7 +70,7 @@ final class PollingMetadata {
                 finalResultType = getFinalResultType(pollingSettings, operationResponseType);
             }
             return new PollingMetadata(pollingSettings.getPollingStrategy(), pollingSettings.getSyncPollingStrategy(),
-                pollResultType, finalResultType, pollingSettings.getPollIntervalInSeconds(), httpMethod);
+                pollResultType, finalResultType, pollingSettings.getPollIntervalInSeconds(), httpMethod, null);
         } else {
             // Create 'PollingMetadata' from TypeSpec long-running metadata.
             // Note: Only TypeSpec would have 'Operation::LongRunningMetadata' available.
@@ -87,6 +90,21 @@ final class PollingMetadata {
      * @return the polling metadata.
      */
     MethodPollingDetails asMethodPollingDetails() {
+        if (operationId != null && operationId.hasPathSource()) {
+            // Wrap the polling strategy to populate the operation ID on the poll result, from the polling URL.
+            final JavaSettings settings = JavaSettings.getInstance();
+            final String packageName = settings.getPackage(settings.getImplementationSubpackage());
+            final String pathTemplateArg = ClassType.STRING.defaultValueExpression(operationId.getPathTemplate());
+            final String pathParameterArg
+                = ClassType.STRING.defaultValueExpression(operationId.getPathParameterSerializedName());
+            final String operationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s)", packageName,
+                ClientModelUtil.OPERATION_ID_POLLING_STRATEGY, pollingStrategy, pathTemplateArg, pathParameterArg);
+            final String syncOperationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s)", packageName,
+                ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY, syncPollingStrategy, pathTemplateArg,
+                pathParameterArg);
+            return new MethodPollingDetails(operationIdPollingStrategy, syncOperationIdPollingStrategy, pollResultType,
+                finalResultType, pollIntervalInSeconds);
+        }
         return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,
             pollIntervalInSeconds);
     }
@@ -236,8 +254,14 @@ final class PollingMetadata {
             syncPollingStrategy = pollingSettings.getSyncPollingStrategy();
         }
 
+        // The operation ID is only populated on the poll result model generated from TypeSpec, for azure-core.
+        final LongRunningOperationIdMetadata operationId
+            = settings.isAzureV1() && !settings.isFluent() && pollingSettings.getPollResultType() == null
+                ? lroMetadata.getOperationId()
+                : null;
+
         return new PollingMetadata(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,
-            pollingSettings.getPollIntervalInSeconds(), httpMethod);
+            pollingSettings.getPollIntervalInSeconds(), httpMethod, operationId);
     }
 
     private static IType createTypeFromModelName(String modelName) {
@@ -257,12 +281,14 @@ final class PollingMetadata {
     }
 
     private PollingMetadata(String pollingStrategy, String syncPollingStrategy, IType pollResultType,
-        IType finalResultType, int pollIntervalInSeconds, HttpMethod httpMethod) {
+        IType finalResultType, int pollIntervalInSeconds, HttpMethod httpMethod,
+        LongRunningOperationIdMetadata operationId) {
         this.pollResultType = pollResultType;
         this.finalResultType = finalResultType;
         this.pollingStrategy = pollingStrategy;
         this.syncPollingStrategy = syncPollingStrategy;
         this.pollIntervalInSeconds = pollIntervalInSeconds;
         this.httpMethod = httpMethod;
+        this.operationId = operationId;
     }
 }

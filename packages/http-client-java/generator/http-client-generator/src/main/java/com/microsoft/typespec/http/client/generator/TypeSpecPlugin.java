@@ -162,6 +162,16 @@ public class TypeSpecPlugin extends Javagen {
             }
 
         }
+
+        // OperationIdPollingStrategy
+        if (JavaSettings.getInstance().isAzureV1()
+            && !JavaSettings.getInstance().isFluent()
+            && ClientModelUtil.requireOperationIdPollingStrategy(codeModel)) {
+            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.OPERATION_ID_POLLING_STRATEGY);
+            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY);
+        }
     }
 
     @Override

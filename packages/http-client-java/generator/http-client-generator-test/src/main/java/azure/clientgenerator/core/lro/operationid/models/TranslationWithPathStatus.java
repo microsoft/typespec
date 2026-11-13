@@ -4,6 +4,7 @@
 
 package azure.clientgenerator.core.lro.operationid.models;
 
+import azure.clientgenerator.core.lro.operationid.implementation.OperationIdPollingStrategy;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
@@ -75,6 +76,29 @@ public final class TranslationWithPathStatus implements JsonSerializable<Transla
     @Generated
     public TranslationResult getResult() {
         return this.result;
+    }
+
+    /*
+     * The ID of the long-running operation, from the polling URL.
+     */
+    @Generated
+    private String operationId;
+
+    static {
+        OperationIdPollingStrategy.setOperationIdAccessor(TranslationWithPathStatus.class,
+            (model, operationId) -> model.operationId = operationId);
+    }
+
+    /**
+     * Get the ID of the long-running operation, from the {@code id} property, or from the polling URL if the property
+     * is absent.
+     * 
+     * @return the ID of the long-running operation.
+     */
+    @Generated
+    public String getOperationId() {
+        String propertyValue = this.getId();
+        return propertyValue != null ? propertyValue : this.operationId;
     }
 
     /**
