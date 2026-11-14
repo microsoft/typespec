@@ -1,4 +1,4 @@
-import type { Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
+import type { Operation, Type, VoidType } from "@typespec/compiler";
 import {
   createDiagnosable,
   defineKit,
@@ -99,8 +99,8 @@ defineKit<TypekitExtension>({
         return voidType;
       }
 
-      if (responses.length > 1) {
-        const res = [...new Set(responses.map((r) => r.responseContent.body?.type))];
+      const res = [...new Set(responses.map((r) => r.responseContent.body?.type))];
+      if (res.length > 1) {
         httpReturnType = this.union.create({
           variants: res.map((t) => {
             return this.unionVariant.create({
@@ -109,7 +109,7 @@ defineKit<TypekitExtension>({
           }),
         });
       } else {
-        httpReturnType = getEffectiveType(this, responses[0].responseContent.body?.type);
+        httpReturnType = getEffectiveType(this, res[0]);
       }
 
       return httpReturnType;
@@ -121,21 +121,25 @@ defineKit<TypekitExtension>({
           const contentTypeProperty = responseContent.properties.find(
             (property) => property.kind === "contentType",
           );
-
-          let contentType: string | undefined;
-
+          let contentTypes: (string | undefined)[];
           if (contentTypeProperty) {
-            contentType = (contentTypeProperty.property.type as StringLiteral).value;
-          } else if (responseContent.body) {
-            contentType = "application/json";
+            const propertyType = contentTypeProperty.property.type;
+            contentTypes =
+              propertyType.kind === "String"
+                ? [propertyType.value]
+                : (responseContent.body?.contentTypes ?? [undefined]);
+          } else {
+            contentTypes = [responseContent.body ? "application/json" : undefined];
           }
 
-          responsesMap.push({
-            statusCode: response.statusCodes,
-            contentType,
-            responseContent,
-            type: response.type,
-          });
+          for (const contentType of contentTypes) {
+            responsesMap.push({
+              statusCode: response.statusCodes,
+              contentType,
+              responseContent,
+              type: response.type,
+            });
+          }
         }
       }
 
