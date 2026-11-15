@@ -80,6 +80,10 @@ function buildClientParameterDescriptor(
  * the alternatives in the auth union that applies to each of them. The credential schemes are
  * collected service-wide, so a `noAuth` scheme alone is not enough: an operation in a nested
  * namespace using `@useAuth(NoAuth)` must not make the credential optional for the other operations.
+ *
+ * Each operation's auth already falls back to its interface or namespace auth, so the service default
+ * only applies when no operation resolved any auth. Checking it otherwise would keep the credential
+ * required when every operation overrides the service auth with a union that includes `NoAuth`.
  */
 function clientAllowsAnonymousAccess(client: cl.Client, authSchemes: HttpAuth[]): boolean {
   const { $ } = useTsp();
@@ -88,7 +92,9 @@ function clientAllowsAnonymousAccess(client: cl.Client, authSchemes: HttpAuth[])
   }
 
   const auth = $.client.getAuth(client);
-  return [auth.defaultAuth, ...auth.operationsAuth.values()].every(allowsAnonymousAccess);
+  const effectiveAuth =
+    auth.operationsAuth.size > 0 ? [...auth.operationsAuth.values()] : [auth.defaultAuth];
+  return effectiveAuth.every(allowsAnonymousAccess);
 }
 
 function allowsAnonymousAccess(reference: AuthenticationReference): boolean {

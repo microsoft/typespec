@@ -66,3 +66,80 @@ export function createTestClientContext(
   });
 }
 ```
+
+# Makes the credential optional when every operation overrides the service auth with NoAuth
+
+This test validates that an operation-level `@useAuth` replaces the service default when deciding whether the credential is optional. The service requires a Bearer token, but its only operation also accepts anonymous requests.
+
+## Typespec
+
+```tsp
+@service(#{ title: "Test Service" })
+@useAuth(BearerAuth)
+namespace Test;
+
+@route("/valid")
+@get
+@useAuth(BearerAuth | NoAuth)
+op valid(): NoContentResponse;
+```
+
+## TypeScript
+
+### Client
+
+The client signature should include an optional positional parameter for credential
+
+```ts src/testClient.ts class TestClient
+export class TestClient {
+  #context: TestClientContext;
+  constructor(endpoint: string, credential?: BearerTokenCredential, options?: TestClientOptions) {
+    this.#context = createTestClientContext(endpoint, credential, options);
+  }
+  async valid(options?: ValidOptions) {
+    return valid(this.#context, options);
+  }
+}
+```
+
+# Keeps the credential required when only some operations allow NoAuth
+
+This test validates that the credential stays required when one operation inherits the service auth and another overrides it with a union that includes `NoAuth`.
+
+## Typespec
+
+```tsp
+@service(#{ title: "Test Service" })
+@useAuth(BearerAuth)
+namespace Test;
+
+@route("/valid")
+@get
+op valid(): NoContentResponse;
+
+@route("/anonymous")
+@get
+@useAuth(BearerAuth | NoAuth)
+op anonymous(): NoContentResponse;
+```
+
+## TypeScript
+
+### Client
+
+The client signature should include a required positional parameter for credential
+
+```ts src/testClient.ts class TestClient
+export class TestClient {
+  #context: TestClientContext;
+  constructor(endpoint: string, credential: BearerTokenCredential, options?: TestClientOptions) {
+    this.#context = createTestClientContext(endpoint, credential, options);
+  }
+  async valid(options?: ValidOptions) {
+    return valid(this.#context, options);
+  }
+  async anonymous(options?: AnonymousOptions) {
+    return anonymous(this.#context, options);
+  }
+}
+```
