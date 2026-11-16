@@ -148,6 +148,20 @@ namespace TestProjects.Local.Tests
         }
 
         [Test]
+        public void ConvertingNullStringToNullableExtensibleEnumDoesNotThrow()
+        {
+            string? value = null;
+            StringExtensibleEnum? e = value;
+            Assert.IsNull(e);
+
+            Assert.DoesNotThrow(() => NullableExtensibleEnumMethod(value));
+            void NullableExtensibleEnumMethod(StringExtensibleEnum? param)
+            {
+                Assert.IsNull(param);
+            }
+        }
+
+        [Test]
         public void NoAmbiguityWithExtensibleEnum()
         {
             StringExtensibleEnum foo = "foo";

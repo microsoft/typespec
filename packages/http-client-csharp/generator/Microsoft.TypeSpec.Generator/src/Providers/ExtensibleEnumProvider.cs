@@ -187,10 +187,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ReturnDescription: null,
                     Parameters: [nullableValueParameter]);
 
-                // Create method body: if (value == null) return null; return new MyEnum(value);
+                // Create method body: if (value == null) return (MyEnum?)null; return new MyEnum(value);
                 var nullCheck = new TernaryConditionalExpression(
                     nullableValueParameter.As<bool>().Equal(Null),
-                    Null,
+                    Null.CastTo(Type.WithNullable(true)),
                     New.Instance(Type, nullableValueParameter));
 
                 methods.Add(new(nullableCastSignature, nullCheck, this));
