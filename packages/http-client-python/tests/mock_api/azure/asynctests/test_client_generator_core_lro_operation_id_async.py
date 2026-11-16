@@ -28,19 +28,7 @@ async def test_polling_uri_id_and_resume(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "with_path",
-    [
-        False,
-        pytest.param(
-            True,
-            marks=pytest.mark.xfail(
-                reason="Published mock route `translations:start` intercepts `translations:start-with-path`; fixed by Azure/typespec-azure#6070",
-                strict=False,
-            ),
-        ),
-    ],
-)
+@pytest.mark.parametrize("with_path", [False, True])
 async def test_monitor_body_id(client, with_path):
     begin = client.begin_start_translation_with_path if with_path else client.begin_start_translation
     poller = await begin(polling_interval=0)
