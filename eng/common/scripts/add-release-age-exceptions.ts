@@ -44,8 +44,10 @@ function addExcludes(specs: string[]) {
   if (index === -1) {
     const ageIndex = lines.findIndex((l) => l.startsWith("minimumReleaseAge:"));
     if (ageIndex === -1) throw new Error("`minimumReleaseAge` not found in pnpm-workspace.yaml");
-    lines.splice(ageIndex + 1, 0, excludeKey);
+    // Insert after the release-age block (settings and their comments) to keep comments attached.
     index = ageIndex + 1;
+    while (index < lines.length && /^(#|minimumReleaseAge)/.test(lines[index])) index++;
+    lines.splice(index, 0, excludeKey);
   }
   let end = index + 1;
   while (end < lines.length && /^\s+(-|#)/.test(lines[end])) end++;
