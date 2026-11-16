@@ -37,12 +37,37 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
 
 /** @internal */
 export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
-  return getDiagnosticTemplateInstantitationTrace(diagnostic.target).map((x) => {
+  const related: RelatedSourceLocation[] = getDiagnosticTemplateInstantitationTrace(
+    diagnostic.target,
+  ).map((x) => {
     return {
       message: "occurred while instantiating template",
       location: getSourceLocation(x),
     };
   });
+  const declaration = getTypeTargetDeclaration(diagnostic.target);
+  if (declaration) {
+    related.push({ message: "declared here", location: declaration });
+  }
+  return related;
+}
+
+/**
+ * Where the type of a {@link TypeTarget} is declared, when the target is reported somewhere else.
+ * @internal
+ */
+export function getTypeTargetDeclaration(
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+): SourceLocation | undefined {
+  if (typeof target !== "object" || !("targetKind" in target) || target.targetKind !== "type") {
+    return undefined;
+  }
+  const declaration = target.type.node;
+  if (declaration === undefined || declaration === target.node) {
+    return undefined;
+  }
+  const location = getSourceLocation(declaration);
+  return location.isSynthetic ? undefined : location;
 }
 
 /**
@@ -50,6 +75,7 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
  *
  * This function extracts the AST node from various types of diagnostic targets:
  * - For template instance targets: returns the node of the template declaration
+ * - For type targets: returns the node the target is reported at
  * - For symbols: returns the first declaration node (or symbol source for using symbols)
  * - For AST nodes: returns the node itself
  * - For entities: returns the most relevant node associated with the entity
@@ -61,7 +87,7 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
  */
 export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
   if (!("kind" in target) && !("entityKind" in target)) {
-    // TemplateInstanceTarget
+    // TemplateInstanceTarget or TypeTarget
     if (!("declarations" in target)) {
       return target.node;
     }

@@ -6,6 +6,7 @@ import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.
 import type { Linter } from "../../src/core/linter.js";
 import { createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
+  typeTarget,
   type Diagnostic,
   type EnumMember,
   type Interface,
@@ -281,6 +282,39 @@ describe("diagnostic location", () => {
       severity: "warning",
       code: "@typespec/test-linter/no-model-foo",
       message: `Cannot call model 'Foo'`,
+    });
+  });
+
+  it("emit diagnostic on a library declaration targeted through the user code", async () => {
+    const main = `
+          import "my-lib";
+          op list(...SharedQuery): void;
+        `;
+    const noTopParameter = createLinterRule({
+      name: "no-top-parameter",
+      description: "",
+      severity: "warning",
+      messages: { default: "Operation cannot have a top parameter" },
+      create(context) {
+        return {
+          operation(op) {
+            const target = typeTarget(context.program, op, "parameters").property("top");
+            if (target) context.reportDiagnostic({ target });
+          },
+        };
+      },
+    });
+    const linter = await createTestLinterAndEnableRules(
+      {
+        "main.tsp": main,
+        "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
+        "node_modules/my-lib/main.tsp": "model SharedQuery { top?: int32; }",
+      },
+      { rules: [noTopParameter] },
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-top-parameter",
+      pos: main.indexOf("SharedQuery"),
     });
   });
 });

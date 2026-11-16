@@ -3074,7 +3074,7 @@ export interface SourceLocation extends TextRange {
 export const NoTarget = Symbol.for("NoTarget");
 
 /** Diagnostic target that can be used when working with TypeSpec types.  */
-export type TypeSpecDiagnosticTarget = Node | Entity | Sym | TemplateInstanceTarget;
+export type TypeSpecDiagnosticTarget = Node | Entity | Sym | TemplateInstanceTarget | TypeTarget;
 
 /** Represent a diagnostic target that happens in a template instance context.  */
 export interface TemplateInstanceTarget {
@@ -3082,6 +3082,69 @@ export interface TemplateInstanceTarget {
   readonly node: Node;
   /** Template mapper used. */
   readonly templateMapper: TypeMapper;
+}
+
+/** Edges {@link TypeTarget.pipe} can follow, with the type each one leads to, by type kind. */
+export interface TypeTargetEdges {
+  Operation: {
+    returnType: Type;
+    parameters: Model;
+    sourceOperation: Operation | undefined;
+  };
+  Model: {
+    baseModel: Model | undefined;
+    sourceModel: Model | undefined;
+    indexerValue: Type | undefined;
+  };
+  ModelProperty: { type: Type };
+  Scalar: { baseScalar: Scalar | undefined };
+  UnionVariant: { type: Type };
+}
+
+/** Edge names {@link TypeTarget.pipe} accepts for `T`. */
+export type TypeTargetEdge<T extends Type> = T extends {
+  kind: infer K extends keyof TypeTargetEdges;
+}
+  ? keyof TypeTargetEdges[K] & string
+  : never;
+
+type TypeTargetEdgeValue<T extends Type, E> = T extends {
+  kind: infer K extends keyof TypeTargetEdges;
+}
+  ? E extends keyof TypeTargetEdges[K]
+    ? TypeTargetEdges[K][E]
+    : never
+  : never;
+
+/** Result of following edge `E` from `T`, `undefined` when the edge is optional and absent. */
+export type TypeTargetEdgeResult<T extends Type, E> =
+  undefined extends TypeTargetEdgeValue<T, E>
+    ? TypeTarget<Exclude<TypeTargetEdgeValue<T, E>, undefined>> | undefined
+    : TypeTarget<TypeTargetEdgeValue<T, E> & Type>;
+
+/**
+ * Diagnostic target for a type reached by following edges (return type, parameters, a property, its type, ...)
+ * from a root type. It is located at the syntax that expresses the path in the root's own code, rather than
+ * where the reached type is declared. Create one with `typeTarget`.
+ *
+ * When the path crosses into another package, for example a library model spread into a project operation,
+ * the location stays on the last syntax in the root's package: the spread, the `is` reference, the
+ * intersection operand or the template argument that brought the declaration in.
+ */
+export interface TypeTarget<T extends Type = Type> {
+  readonly targetKind: "type";
+  /** Type the path leads to. */
+  readonly type: T;
+  /** Type the path started from. */
+  readonly root: Type;
+  /** Edges and property names followed from the root. */
+  readonly path: readonly string[];
+  /** Syntax where a diagnostic on this target is reported. */
+  readonly node: Node | undefined;
+  /** Follow an edge of the current type. */
+  pipe<E extends TypeTargetEdge<T>>(edge: E): TypeTargetEdgeResult<T, E>;
+  /** Follow a model property by name. `undefined` if the current type isn't a model with that property. */
+  property(name: string): TypeTarget<ModelProperty> | undefined;
 }
 
 /** Semantic or syntax target resolved to a location when reporting, or an explicit source range. */
