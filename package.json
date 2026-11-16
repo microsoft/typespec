@@ -8,6 +8,7 @@
     "build": "turbo build && pnpm check:eng && pnpm gen-compiler-extern-signature",
     "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
     "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" --filter \"@typespec/tspd...\" run build",
+    "add-release-age-exceptions": "node eng/common/scripts/add-release-age-exceptions.ts",
     "check-catalog": "node eng/common/scripts/check-catalog.ts",
     "check-lockfile": "node eng/common/scripts/check-lockfile.ts",
     "change": "chronus",

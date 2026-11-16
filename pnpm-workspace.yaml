@@ -181,6 +181,10 @@ catalog:
   yargs: ^18.2.0
 
 minimumReleaseAge: 10080 # 7 days
+# Reviewed exceptions for updates (e.g. security fixes) that cannot wait for the release-age
+# quarantine. Exact versions only; add them with `pnpm add-release-age-exceptions` and request the
+# same exceptions on the azure-sdk-for-js feed. Stale entries are pruned automatically.
+minimumReleaseAgeExcludePrune: true
 
 packageExtensions:
   "@alloy-js/cli@0.25.0":
