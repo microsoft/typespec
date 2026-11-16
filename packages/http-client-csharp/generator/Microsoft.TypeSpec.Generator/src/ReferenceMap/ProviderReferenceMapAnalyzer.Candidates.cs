@@ -440,6 +440,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             discriminatorBaseNames.UnionWith(generatedDiscriminatorBaseNames);
+            var unionVariants = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                .Where(union => union.External == null &&
+                    CodeModelGenerator.Instance.TypeFactory.HasCompatibleUnionBase(union))
+                .GroupBy(union => union.BaseModel!)
+                .ToDictionary(group => group.Key, group => group
+                    .SelectMany(union => union.DiscriminatedSubtypes!.Values).ToHashSet());
             var addedReference = true;
             while (addedReference)
             {
@@ -487,6 +493,20 @@ namespace Microsoft.TypeSpec.Generator
                     if (!nodes.Contains(providerName))
                     {
                         continue;
+                    }
+
+                    if (publicBaseModels.Contains(providerName) &&
+                        unionVariants.TryGetValue(provider.InputModel, out var variants))
+                    {
+                        foreach (var variant in modelProviders.Where(model => variants.Contains(model.InputModel)))
+                        {
+                            var unionReferenceCount = references[providerName].Count;
+                            AddTypeReference(references[providerName], variant.Type, nodes);
+                            if (publicBaseModels.Add(GetProviderTypeName(variant.Type)) || references[providerName].Count != unionReferenceCount)
+                            {
+                                addedReference = true;
+                            }
+                        }
                     }
 
                     var baseTypeName = provider.BaseType == null ? null : GetProviderTypeName(provider.BaseType);

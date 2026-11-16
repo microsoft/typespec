@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-client-python
 
+## 0.40.1
+
+### Bug Fixes
+
+- [#12504](https://github.com/microsoft/typespec/pull/12504) Fix wire names with quotes in generated request-builder code by escaping them through the shared string-literal helper, preserving the existing single-quoted output for popped header/query kwargs.
+- [#12484](https://github.com/microsoft/typespec/pull/12484) Fix Python playground generation when package downloads are blocked on corporate networks. Publish browser-compatible dependency wheels with the emitter instead of querying PyPI or CFS at runtime. Prepare these assets only for playground builds.
+
+
 ## 0.40.0
 
 ### Features

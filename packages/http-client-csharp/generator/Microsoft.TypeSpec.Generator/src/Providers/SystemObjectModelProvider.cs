@@ -212,7 +212,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
 
         /// <inheritdoc/>
-        protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
+        protected override CSharpType? BuildBaseType() => _systemType?.BaseType;
 
         /// <inheritdoc/>
         private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
