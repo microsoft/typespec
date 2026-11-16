@@ -117,6 +117,31 @@ The emitter bridges TypeSpec and Python code generation.
 5. Generate intermediate YAML representation
 6. Invoke Python generator with YAML input
 
+#### Browser runtime
+
+The playground loads the generator and its pure-Python dependencies from the
+emitter's published `generator/dist/browser/manifest.json` and wheel assets using
+Pyodide's `loadPackage`. PyYAML and MarkupSafe come from the existing Pyodide CDN.
+Browser generation does not query PyPI or CFS, avoiding blocked package downloads
+on corporate networks. The Pyodide CDN and emitter asset host must still be reachable.
+
+`npm run build:playground` resolves these wheels for Pyodide's Python version and
+platform, not the build machine. The playground publication pipeline runs this
+command; ordinary `npm run build` skips browser-wheel preparation.
+Playground builds also provision a pinned pip in the temporary build environment,
+including unseeded environments created by uv.
+Resolution honors `PIP_INDEX_URL` or `UV_DEFAULT_INDEX`, defaulting to the public
+`azure-sdk-for-python` CFS feed. Native dependencies match the Pyodide lockfile;
+the browser-only `platformdirs` pin avoids its unsupported `os.geteuid` API.
+The build reads `pyodide-lock.json` from the pinned `pyodide` npm dependency and
+satisfies PyYAML and MarkupSafe with metadata-only placeholder wheels, which are
+never published. The build therefore never contacts the Pyodide CDN, which the
+network-isolated release pipeline blocks.
+
+Publish the browser manifest and wheels together with the emitter bundle under
+the same package version. Previously published bundles do not pick up this fix
+until a new version is uploaded and the playground's latest package index is updated.
+
 ### 2. Generator (Python)
 
 **Location**: `packages/http-client-python/generator/pygen/`
