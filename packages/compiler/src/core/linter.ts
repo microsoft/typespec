@@ -356,11 +356,14 @@ export function createLinter(
 
     const timer = perf.startTimer();
     const exitCallbacks = [];
+    const flushCallbacks = [];
     const EXIT_EVENT_NAME = "exit";
     const allPromises: Promise<any>[] = [];
     for (const { rule, options } of filteredRules.values()) {
       const createTiming = perf.startTimer();
-      const listener = rule.create(createLinterRuleContext(program, rule, options, diagnostics));
+      const context = createLinterRuleContext(program, rule, options, diagnostics);
+      flushCallbacks.push(context.flushDiagnostics);
+      const listener = rule.create(context);
       stats.runtime.rules[rule.id] = createTiming.end();
       for (const [name, cb] of Object.entries(listener)) {
         const timedCb = (...args: any[]) => {
@@ -395,6 +398,9 @@ export function createLinter(
     }
     if (allPromises.length > 0) {
       await Promise.all(allPromises);
+    }
+    for (const flush of flushCallbacks) {
+      flush();
     }
 
     stats.runtime.total = timer.end();
@@ -533,13 +539,20 @@ export function createLinterRuleContext<
   rule: LinterRule<N, DM, Options>,
   options: Options,
   diagnosticCollector: DiagnosticCollector,
-): LinterRuleContext<DM, Options> {
+): LinterRuleContext<DM, Options> & { flushDiagnostics(): void } {
   const reportedAtUsage = new Set<string>();
+  const libraryTargets = new Set<DiagnosticTarget>();
+  const pending: {
+    diagnostic: Diagnostic;
+    useSite: DiagnosticTarget;
+    composition: boolean;
+  }[] = [];
 
   return {
     program,
     options,
     reportDiagnostic,
+    flushDiagnostics,
   };
 
   function createDiagnostic<M extends keyof DM>(
@@ -577,15 +590,24 @@ export function createLinterRuleContext<
       diagnosticCollector.add(diagnostic);
       return;
     }
-    // Target is in a library. The library owns its declarations: a diagnostic it suppressed there is
-    // dropped. Otherwise show it on the node in the project responsible for it (the template argument
-    // the user supplied, or the spread/`is`/operand that composed it in).
-    // See https://github.com/microsoft/typespec/issues/1997
+    libraryTargets.add(diagnostic.target);
     if (isSuppressedInLibrary(diagnostic.target)) {
       return;
     }
-    const useSite = diag.useSite ?? findUsageSite(program, diagnostic.target)?.node;
+    const usage = diag.useSite ? undefined : findUsageSite(program, diagnostic.target);
+    const useSite = diag.useSite ?? usage?.node;
     if (useSite && getLocationContext(program, useSite).type === "project") {
+      pending.push({ diagnostic, useSite, composition: usage?.kind === "composition" });
+    }
+  }
+
+  function flushDiagnostics(): void {
+    for (const { diagnostic, useSite, composition } of pending) {
+      // Reusing a declaration doesn't make its existing library violation the consumer's fault.
+      // Compare semantic ancestors, not source nodes: distinct template instances share syntax.
+      if (composition && hasViolatingOrigin(diagnostic.target)) {
+        continue;
+      }
       const location = getSourceLocation(useSite);
       const key = `${rule.id}:${location.file.path}:${location.pos}`;
       if (!reportedAtUsage.has(key)) {
@@ -593,6 +615,23 @@ export function createLinterRuleContext<
         diagnosticCollector.add({ ...diagnostic, target: useSite });
       }
     }
+    pending.length = 0;
+  }
+
+  function hasViolatingOrigin(target: DiagnosticTarget | typeof NoTarget): boolean {
+    if (target === NoTarget || !("kind" in target) || target.kind !== "ModelProperty") {
+      return false;
+    }
+    const seen = new Set<DiagnosticTarget>();
+    for (
+      let source = target.sourceProperty;
+      source && !seen.has(source);
+      source = source.sourceProperty
+    ) {
+      if (libraryTargets.has(source)) return true;
+      seen.add(source);
+    }
+    return false;
   }
 
   function isSuppressedInLibrary(target: DiagnosticTarget): boolean {
