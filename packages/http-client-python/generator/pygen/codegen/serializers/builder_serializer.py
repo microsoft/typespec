@@ -1918,13 +1918,18 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
             retval.append(f"        {metadata_argument}")
         retval.append("    )")
         retval.append(f"return {builder.get_poller_with_response_type(self.async_mode)}(")
-        retval.append(
-            "    self._client, raw_result, get_long_running_output, polling_method"
-            + ("," if metadata_argument else "")
-            + "  # type: ignore"
-        )
         if metadata_argument:
-            retval.append(f"    {metadata_argument}")
+            retval.extend(
+                [
+                    "    self._client,",
+                    "    raw_result,  # type: ignore",
+                    "    get_long_running_output,",
+                    "    polling_method,",
+                    f"    {metadata_argument}",
+                ]
+            )
+        else:
+            retval.append("    self._client, raw_result, get_long_running_output, polling_method  # type: ignore")
         retval.append("    )")
         return retval
 

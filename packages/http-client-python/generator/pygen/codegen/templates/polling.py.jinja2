@@ -168,12 +168,9 @@ class {{ prefix }}MetadataLROPoller({{ prefix }}LROPoller[T]):
         :param polling_method: The polling strategy.
         :type polling_method: ~azure.core.polling.{{ prefix }}PollingMethod
         :param str continuation_token: The opaque continuation token.
-        :keyword client: The pipeline client.
-        :paramtype client: any
-        :keyword deserialization_callback: Callback for the final result.
-        :paramtype deserialization_callback: callable
-        :keyword lro_metadata: Generated metadata selection and deserializers.
-        :paramtype lro_metadata: any
+        :keyword dict[str, Any] ``**kwargs``: The ``client`` pipeline client,
+            ``deserialization_callback`` for the final result, and generated
+            ``lro_metadata`` selection and deserializers.
         :rtype: ~{{ prefix }}MetadataLROPoller
         :return: The resumed poller.
         """
