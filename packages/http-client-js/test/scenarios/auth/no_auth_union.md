@@ -143,3 +143,65 @@ export class TestClient {
   }
 }
 ```
+
+# Keeps an optional server parameter named credential in the options bag
+
+This test validates that only the auth credential stays positional when optional. A service with no auth whose `@server` template has an optional `credential` URL parameter should keep the `(options?)` constructor and read the parameter from the options bag.
+
+## Typespec
+
+```tsp
+@service(#{ title: "Test Service" })
+@server(
+  "http://localhost:3000/{credential}",
+  "Test server with an optional parameter named credential.",
+  {
+    credential?: string = "anonymous",
+  }
+)
+namespace Test;
+
+@route("/valid")
+@get
+op valid(): NoContentResponse;
+```
+
+## TypeScript
+
+### Client
+
+The client constructor should only take the options bag
+
+```ts src/testClient.ts class TestClient
+export class TestClient {
+  #context: TestClientContext;
+  constructor(options?: TestClientOptions) {
+    this.#context = createTestClientContext(options);
+  }
+  async valid(options?: ValidOptions) {
+    return valid(this.#context, options);
+  }
+}
+```
+
+### ClientContext
+
+The client context should read the parameter from the options bag and fall back to its default
+
+```ts src/api/testClientContext.ts function createTestClientContext
+export function createTestClientContext(options?: TestClientOptions): TestClientContext {
+  const params: Record<string, any> = {
+    credential: options?.credential ?? "anonymous",
+  };
+  const resolvedEndpoint = "http://localhost:3000/{credential}".replace(/{([^}]+)}/g, (_, key) =>
+    key in params
+      ? String(params[key])
+      : (() => {
+          throw new Error(`Missing parameter: ${key}`);
+        })(),
+  );
+  return getClient(resolvedEndpoint, {
+    ...options,
+  });
+}
+```

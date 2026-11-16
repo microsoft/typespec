@@ -23,13 +23,17 @@ export function buildClientParameters(
   const parameters = $.operation.getClientSignature(client, clientConstructor);
   const descriptors = parameters.flatMap((param) => {
     const descriptor = buildClientParameterDescriptor(client, param, suffixRefkey);
-    return descriptor ? [descriptor] : [];
+    return descriptor ? [{ descriptor, isCredential: $.modelProperty.isCredential(param) }] : [];
   });
 
   // Optional parameters are passed through the options bag, except for the credential, which stays
-  // positional. It goes after the required parameters so the signature remains valid.
-  const params = descriptors.filter((d) => !d.optional);
-  params.push(...descriptors.filter((d) => d.optional && d.name === "credential"));
+  // positional. It goes after the required parameters so the signature remains valid. Only the auth
+  // credential gets this exception: an optional server URL parameter that happens to be named
+  // `credential` is still read from the options bag by the client context.
+  const params = descriptors.filter((d) => !d.descriptor.optional).map((d) => d.descriptor);
+  params.push(
+    ...descriptors.filter((d) => d.descriptor.optional && d.isCredential).map((d) => d.descriptor),
+  );
 
   if (!params.some((p) => p.name === "options")) {
     params.push({
