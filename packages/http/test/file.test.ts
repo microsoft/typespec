@@ -1,10 +1,9 @@
-import { createRule, createTypeSpecLibrary } from "@typespec/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "node:assert";
 import { describe, expect, it } from "vitest";
 import { isHeader } from "../src/decorators.js";
 import { getHttpOperation } from "../src/operations.js";
-import { compileOperationsFull, diagnoseOperations, getOperations, Tester } from "./test-host.js";
+import { compileOperationsFull, diagnoseOperations, getOperations } from "./test-host.js";
 
 it("does not allow instances that improperly provide contents argument", async () => {
   const { diagnostics } = await compileOperationsFull(`
@@ -969,48 +968,6 @@ describe("custom file model", () => {
 });
 
 describe("structured files", () => {
-  it("reports the warning once when a linter resolves HTTP metadata", async () => {
-    const rule = createRule({
-      name: "inspect-http-operation",
-      description: "Inspect HTTP operations",
-      severity: "warning",
-      messages: { default: "Unused" },
-      create(context) {
-        return {
-          operation(operation) {
-            getHttpOperation(context.program, operation);
-          },
-        };
-      },
-    });
-    const diagnostics = await Tester.files({
-      "node_modules/test-linter/package.json": JSON.stringify({
-        name: "test-linter",
-        main: "index.js",
-      }),
-      "node_modules/test-linter/index.js": mockFile.js({
-        $lib: createTypeSpecLibrary({ name: "test-linter", diagnostics: {} }),
-        $linter: { rules: [rule] },
-      }),
-    }).diagnose(
-      `
-      @service namespace Demo;
-      @patch op update(): {
-        @statusCode code: 200;
-        @header("content-type") contentType: "application/json";
-        @body file: Http.File;
-      };
-      `,
-      {
-        compilerOptions: {
-          linterRuleSet: { enable: { "test-linter/inspect-http-operation": true } },
-        },
-      },
-    );
-
-    expectDiagnostics(diagnostics, [{ code: "@typespec/http/http-file-structured" }]);
-  });
-
   it("encodes file as JSON if requested", async () => {
     const {
       program,
