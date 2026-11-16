@@ -1,8 +1,10 @@
-import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { createRule, createTypeSpecLibrary } from "@typespec/compiler";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "node:assert";
 import { describe, expect, it } from "vitest";
 import { isHeader } from "../src/decorators.js";
-import { compileOperationsFull, diagnoseOperations, getOperations } from "./test-host.js";
+import { getHttpOperation } from "../src/operations.js";
+import { compileOperationsFull, diagnoseOperations, getOperations, Tester } from "./test-host.js";
 
 it("does not allow instances that improperly provide contents argument", async () => {
   const { diagnostics } = await compileOperationsFull(`
@@ -967,11 +969,54 @@ describe("custom file model", () => {
 });
 
 describe("structured files", () => {
+  it("reports the warning once when a linter resolves HTTP metadata", async () => {
+    const rule = createRule({
+      name: "inspect-http-operation",
+      description: "Inspect HTTP operations",
+      severity: "warning",
+      messages: { default: "Unused" },
+      create(context) {
+        return {
+          operation(operation) {
+            getHttpOperation(context.program, operation);
+          },
+        };
+      },
+    });
+    const diagnostics = await Tester.files({
+      "node_modules/test-linter/package.json": JSON.stringify({
+        name: "test-linter",
+        main: "index.js",
+      }),
+      "node_modules/test-linter/index.js": mockFile.js({
+        $lib: createTypeSpecLibrary({ name: "test-linter", diagnostics: {} }),
+        $linter: { rules: [rule] },
+      }),
+    }).diagnose(
+      `
+      @service namespace Demo;
+      @patch op update(): {
+        @statusCode code: 200;
+        @header("content-type") contentType: "application/json";
+        @body file: Http.File;
+      };
+      `,
+      {
+        compilerOptions: {
+          linterRuleSet: { enable: { "test-linter/inspect-http-operation": true } },
+        },
+      },
+    );
+
+    expectDiagnostics(diagnostics, [{ code: "@typespec/http/http-file-structured" }]);
+  });
+
   it("encodes file as JSON if requested", async () => {
     const {
-      diagnostics,
+      program,
       operations: [
         {
+          operation,
           parameters: { body: requestBody },
           responses: [
             {
@@ -990,20 +1035,15 @@ describe("structured files", () => {
         };
       `);
 
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/http/http-file-structured",
-        severity: "warning",
-        message:
-          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
-      },
-      {
-        code: "@typespec/http/http-file-structured",
-        severity: "warning",
-        message:
-          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
-      },
-    ]);
+    const warning = {
+      code: "@typespec/http/http-file-structured",
+      severity: "warning" as const,
+      message:
+        "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
+    };
+    const [, diagnostics] = getHttpOperation(program, operation);
+    expectDiagnostics(diagnostics, [warning, warning]);
+    expectDiagnostics(program.diagnostics, [warning, warning]);
 
     strictEqual(requestBody?.bodyKind, "single");
     ok(requestBody?.property);
@@ -1048,18 +1088,39 @@ describe("structured files", () => {
   });
 
   it("does not recognize a File in a union as a file body", async () => {
-    const { diagnostics } = await compileOperationsFull(`
+    const {
+      program,
+      operations: [{ operation }],
+    } = await compileOperationsFull(`
       op example(@body file: Http.File | string): void;
     `);
 
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/http/http-file-structured",
-        severity: "warning",
-        message:
-          "An HTTP File in a union is serialized as a structured model instead of being treated as the contents of a file. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
-      },
-    ]);
+    const warning = {
+      code: "@typespec/http/http-file-structured",
+      severity: "warning" as const,
+      message:
+        "An HTTP File in a union is serialized as a structured model instead of being treated as the contents of a file. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
+    };
+    const [, diagnostics] = getHttpOperation(program, operation);
+    expectDiagnostics(diagnostics, [warning]);
+    expectDiagnostics(program.diagnostics, [warning]);
+  });
+
+  it("returns diagnostics for a File response with an explicit content type", async () => {
+    const {
+      program,
+      operations: [{ operation }],
+    } = await compileOperationsFull(`
+      op example(): {
+        ...Http.File;
+        @header("content-type") mediaType: "application/json";
+      };
+    `);
+
+    const warning = { code: "@typespec/http/http-file-structured", severity: "warning" as const };
+    const [, diagnostics] = getHttpOperation(program, operation);
+    expectDiagnostics(diagnostics, [warning]);
+    expectDiagnostics(program.diagnostics, [warning]);
   });
 
   it("does not recognize intersection with non-metadata fields as a file body", async () => {

@@ -1,5 +1,20 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
+import { diagnoseOpenApiFor } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
+
+it("reports a structured file warning once during OpenAPI emission", async () => {
+  const diagnostics = await diagnoseOpenApiFor(`
+    @service namespace Demo;
+    @patch op update(): {
+      @statusCode code: 200;
+      @header("content-type") contentType: "application/json";
+      @body file: Http.File;
+    };
+  `);
+
+  expectDiagnostics(diagnostics, [{ code: "@typespec/http/http-file-structured" }]);
+});
 
 worksFor(supportedVersions, ({ openApiFor, version }) => {
   function getRawBinarySchema<T extends string>(contentMediaType?: T) {
