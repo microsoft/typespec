@@ -7,12 +7,14 @@ import {
   type Program,
   type Type,
 } from "@typespec/compiler";
-import { getScopeViews, type ScopeView } from "@typespec/compiler/experimental";
+import { getScopeViews } from "@typespec/compiler/experimental";
 import { TypeGraph } from "@typespec/html-program-viewer/react";
 import type { OutputViewerProps, ProgramViewer } from "@typespec/playground/react";
 import { useMemo } from "react";
 import {
+  findScopeDeclaration,
   getScopeAxes,
+  getScopeDeclarationNames,
   getScopeDeclarations,
   getScopeGraphPath,
   getScopeMemberChanges,
@@ -31,25 +33,45 @@ function ScopeViewer({
   const axes = useMemo(() => getScopeAxes(views), [views]);
   const selectedView = views.find((v) => v.name === viewerState.scopeView) ?? views[0];
   const view = viewerState.scopeMode === "base" ? undefined : selectedView;
-  const declarations = useMemo(() => getScopeDeclarations(program), [program]);
-  const declaration =
-    declarations.find((t) => getTypeName(t) === viewerState.scopeType) ??
-    declarations.find((t) => t.kind === "Model" && t.name === "Widget") ??
-    declarations.find((t) => t.kind === "Model") ??
-    declarations[0];
-  const projected =
-    declaration && (!view || view.isPresent(declaration))
-      ? (view?.getType(declaration) ?? declaration)
-      : undefined;
-  const changes = declaration ? getScopeMemberChanges(declaration, projected) : [];
+  const baseDeclarations = useMemo(() => getScopeDeclarations(program), [program]);
+  const viewDeclarations = useMemo(
+    () => (view ? getScopeDeclarations(view.program, view.getGlobalNamespaceType()) : undefined),
+    [view],
+  );
+  const allDeclarations = useMemo(
+    () => [...new Set(views.map((v) => v.program))].map((p) => getScopeDeclarations(p)),
+    [views],
+  );
+  const names = getScopeDeclarationNames(
+    baseDeclarations,
+    viewDeclarations ?? [],
+    ...allDeclarations,
+  );
+  const declarationName =
+    names.find((name) => name === viewerState.scopeType) ??
+    names.find((name) => name === "Widget" || name.endsWith(".Widget")) ??
+    names.find((name) => findScopeDeclaration(baseDeclarations, name)?.kind === "Model") ??
+    names[0];
+  const declaration = findScopeDeclaration(baseDeclarations, declarationName);
+  const projected = view
+    ? findScopeDeclaration(viewDeclarations ?? [], declarationName)
+    : declaration;
+  const changes = getScopeMemberChanges(declaration, projected);
   const tab = viewerState.scopeTab ?? "shape";
-  const graphContext = `${view?.name ?? "base"}:${declaration ? getTypeName(declaration) : ""}`;
+  const graphContext = `${view?.name ?? "base"}:${declarationName ?? ""}`;
   const graphPath =
     viewerState.scopeGraphContext === graphContext
       ? viewerState.scopeGraphPath
       : getScopeGraphPath(projected);
-  const visibleProgram = useMemo(() => view?.getProgram() ?? program, [program, view]);
-  const metadata = useMemo(() => collectMetadata(program, view), [program, view]);
+  const visibleProgram = view?.program ?? program;
+  const metadata = useMemo(
+    () =>
+      collectMetadata(
+        view?.program ?? program,
+        view?.getGlobalNamespaceType() ?? program.getGlobalNamespaceType(),
+      ),
+    [program, view],
+  );
   const update = (state: Record<string, string>) =>
     onViewerStateChange?.({ ...viewerState, ...state });
   const selectAxis = (axis: string, member: string) => {
@@ -90,7 +112,7 @@ function ScopeViewer({
               <option value="scoped" disabled={!selectedView}>
                 Selected scope
               </option>
-              <option value="base">Base graph</option>
+              <option value="base">Default view</option>
             </select>
           </label>
           {axes.map((axis) => (
@@ -113,20 +135,25 @@ function ScopeViewer({
           ))}
         </div>
         <p className={style.hint}>
-          {view?.name ?? "Base: all declarations and visibilities; no conditioned metadata."}
+          {view?.name ??
+            "Default view: every `when` condition is false, so conditioned declarations, members and metadata are absent."}
         </p>
         <div role="status">{viewerState.scopeNotice}</div>
         <label className={style.declaration}>
           Declaration
           <select
             aria-label="Declaration"
-            value={declaration ? getTypeName(declaration) : ""}
+            value={declarationName ?? ""}
             onChange={(e) => update({ scopeType: e.target.value })}
           >
-            {declarations.map((type) => (
-              <option key={getTypeName(type)} value={getTypeName(type)}>
-                {getTypeName(type)}
-                {view && !view.isPresent(type) ? " (not present)" : ""}
+            {names.map((name) => (
+              <option key={name} value={name}>
+                {name}
+                {view && !findScopeDeclaration(viewDeclarations ?? [], name)
+                  ? " (not present)"
+                  : !findScopeDeclaration(baseDeclarations, name)
+                    ? " (scoped only)"
+                    : ""}
               </option>
             ))}
           </select>
@@ -149,11 +176,11 @@ function ScopeViewer({
           </p>
           <div className={style.comparison}>
             <section>
-              <h3>Base</h3>
+              <h3>Default</h3>
               <pre aria-label="Base type shape">{renderScopeType(declaration)}</pre>
             </section>
             <section>
-              <h3>{view ? "Selected scope" : "Base (no scope selected)"}</h3>
+              <h3>{view ? "Selected scope" : "Default (no scope selected)"}</h3>
               <pre aria-label="Selected type shape">{renderScopeType(projected)}</pre>
             </section>
           </div>
@@ -162,7 +189,7 @@ function ScopeViewer({
               <thead>
                 <tr>
                   <th>Change</th>
-                  <th>Base</th>
+                  <th>Default</th>
                   <th>Selected</th>
                 </tr>
               </thead>
@@ -201,8 +228,8 @@ function ScopeViewer({
       {tab === "metadata" && (
         <div className={style.content}>
           <p className={style.hint}>
-            Readonly metadata for all present declarations. Choose Base graph to verify conditioned
-            values are unavailable by default.
+            Readonly metadata for all present declarations. Choose the default view to verify
+            conditioned values are unavailable by default.
           </p>
           <pre aria-label="Resolved readonly metadata">{JSON.stringify(metadata, null, 2)}</pre>
         </div>
@@ -211,19 +238,16 @@ function ScopeViewer({
   );
 }
 
-function collectMetadata(program: Program, view: ScopeView | undefined) {
+function collectMetadata(program: Program, root: Namespace) {
   const decorators = new Set<string>();
   const stateMaps = (program as Program & { stateMaps: Map<symbol, Map<Type, unknown>> }).stateMaps;
   for (const key of stateMaps.keys()) {
     if (key.description?.startsWith("dec:")) decorators.add(key.description.slice(4));
-    if (key.description?.startsWith("dec-scoped:")) decorators.add(key.description.slice(11));
   }
   const output: Record<string, unknown> = {};
   const add = (type: Type) => {
     for (const decorator of decorators) {
-      const value = view
-        ? view.getAutoDecoratorValue(decorator, type)
-        : getAutoDecoratorValue(program, decorator, type);
+      const value = getAutoDecoratorValue(program, decorator, type);
       if (value !== undefined) output[`${getTypeName(type)} @${decorator}`] = formatValue(value);
     }
   };
@@ -244,7 +268,7 @@ function collectMetadata(program: Program, view: ScopeView | undefined) {
     }
     for (const child of namespace.namespaces.values()) visit(child);
   };
-  visit(view?.getGlobalNamespaceType() ?? program.getGlobalNamespaceType());
+  visit(root);
   return output;
 }
 

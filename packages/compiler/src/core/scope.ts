@@ -1,83 +1,61 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT License.
 
+import { isCompilerFeatureEnabled } from "./features.js";
 import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
-import { SyntaxKind, type EnumMember, type Node, type Type, type WhenClauseNode } from "./types.js";
+import { SyntaxKind, type EnumMember, type Node, type WhenClauseNode } from "./types.js";
 
 /**
- * The scope dimensions a `when` clause can filter on.
- *
- * Deliberately a closed set. Dimensions are unordered and independent; a scope matches a
- * condition when the condition's dimension value equals the scope's value for that dimension.
- */
-export interface Scope {
-  /** Selections on declared enum axes. Omitted axes expose no conditioned metadata. */
-  readonly selections?: readonly EnumMember[];
-  /** Fully qualified emitter package name, e.g. `@typespec/http-client-csharp`. */
-  readonly emitter?: string;
-  /** Target language, e.g. `csharp`. */
-  readonly language?: string;
-  /** Kind of artifact being produced, e.g. `client` or `server`. */
-  readonly target?: string;
-}
-
-/** Names of the built-in `when` filters, in declaration order. */
-export const whenFilterNames = ["emitter", "language", "target"] as const;
-
-export type WhenFilterName = (typeof whenFilterNames)[number];
-
-const whenFilterNameSet = new Set<string>(whenFilterNames);
-
-export function isWhenFilterName(name: string): name is WhenFilterName {
-  return whenFilterNameSet.has(name);
-}
-
-/**
- * A single resolved condition: one dimension constrained to one value.
+ * One literal of a `when` clause: an enum member, or an open-ended range of an ordered axis.
  * @internal
  */
-export type ScopeCondition =
-  | {
-      readonly dimension: WhenFilterName;
-      readonly value: string;
-    }
-  | {
-      readonly dimension: "enum";
-      readonly value: EnumMember;
-      readonly relation?: "since" | "before";
-    };
+export interface ScopeCondition {
+  readonly member: EnumMember;
+  readonly relation?: "since" | "before";
+}
 
 /**
- * A resolved `when` clause. The conditions are alternatives — the clause matches a scope
- * if *any* condition matches (the `|` in the source is a disjunction).
+ * A resolved `when` clause in disjunctive normal form. `[[]]` is the always-true condition
+ * used for unconditioned applications.
  * @internal
  */
 export interface ScopeConditionSet {
-  readonly conditions: readonly ScopeCondition[];
-  /** Disjunction of conjunctions. Legacy clauses contain singleton groups. */
-  readonly groups?: readonly (readonly ScopeCondition[])[];
-}
-
-/**
- * One conditioned value stored for an auto decorator.
- * @internal
- */
-export interface ScopedDecoratorEntry {
-  /** The `{ paramName: value }` record the decorator would have stored unconditionally. */
-  readonly value: Record<string, unknown>;
-  /** `undefined` for an unscoped application, which acts as the default. */
-  readonly scope: ScopeConditionSet | undefined;
-  readonly node?: Node;
+  readonly groups: readonly (readonly ScopeCondition[])[];
 }
 
 export const scopeParentKey = Symbol.for("TypeSpec.Scopes.parent");
-export const scopeUniverseKey = Symbol.for("TypeSpec.Scopes.universe");
 
-export function resolveWhenClause(
+const alwaysTrue: ScopeConditionSet = { groups: [[]] };
+const conditionCache = new WeakMap<Program, Map<WhenClauseNode, ScopeConditionSet | null>>();
+const selectionCache = new WeakMap<Program, readonly EnumMember[]>();
+
+/**
+ * Resolve a `when` clause. Diagnostics are reported once per program; an invalid or disabled
+ * clause resolves to `undefined` and is treated as never active.
+ * @internal
+ */
+export function getWhenCondition(
   program: Program,
   when: WhenClauseNode,
 ): ScopeConditionSet | undefined {
+  let cache = conditionCache.get(program);
+  if (!cache) {
+    cache = new Map();
+    conditionCache.set(program, cache);
+  }
+  if (!cache.has(when)) {
+    cache.set(when, null);
+    cache.set(when, resolveWhenClause(program, when) ?? null);
+  }
+  return cache.get(when) ?? undefined;
+}
+
+function resolveWhenClause(program: Program, when: WhenClauseNode): ScopeConditionSet | undefined {
+  if (!isCompilerFeatureEnabled(program, "scoped-decorators", when)) {
+    program.reportDiagnostic(createDiagnostic({ code: "scoped-decorator-disabled", target: when }));
+    return undefined;
+  }
   const resolveMember = (node: Node) =>
     program.checker.getTypeForNode(
       node.kind === SyntaxKind.Identifier || node.kind === SyntaxKind.MemberExpression
@@ -90,181 +68,179 @@ export function resolveWhenClause(
       const member = resolveMember(condition);
       if (member.kind !== "EnumMember") {
         program.reportDiagnostic(
-          createDiagnostic({
-            code: "invalid-scope-condition",
-            target: condition,
-          }),
-        );
-        return undefined;
-      }
-      conditions.push({ dimension: "enum", value: member });
-      continue;
-    }
-    const name = condition.target.kind === SyntaxKind.Identifier ? condition.target.sv : "";
-    if (name === "since" || name === "before") {
-      const member =
-        condition.arguments.length === 1 ? resolveMember(condition.arguments[0]) : undefined;
-      if (member?.kind !== "EnumMember") {
-        program.reportDiagnostic(
           createDiagnostic({ code: "invalid-scope-condition", target: condition }),
         );
         return undefined;
       }
-      conditions.push({ dimension: "enum", value: member, relation: name });
+      conditions.push({ member });
       continue;
     }
-    if (!isWhenFilterName(name)) {
+    const name = condition.target.kind === SyntaxKind.Identifier ? condition.target.sv : "";
+    if (name !== "since" && name !== "before") {
       program.reportDiagnostic(
         createDiagnostic({
           code: "unknown-when-filter",
-          format: { name, expected: `${whenFilterNames.join(", ")}, enum member, since, before` },
+          format: { name, expected: "enum member, since, before" },
           target: condition.target,
         }),
       );
       return undefined;
     }
-    if (
-      condition.arguments.length !== 1 ||
-      condition.arguments[0].kind !== SyntaxKind.StringLiteral
-    ) {
+    const member =
+      condition.arguments.length === 1 ? resolveMember(condition.arguments[0]) : undefined;
+    if (member?.kind !== "EnumMember") {
       program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-when-condition",
-          format: { name },
-          messageId: condition.arguments.length === 1 ? "notAValue" : "default",
-          target: condition,
-        }),
+        createDiagnostic({ code: "invalid-scope-condition", target: condition }),
       );
       return undefined;
     }
-    conditions.push({ dimension: name, value: condition.arguments[0].value });
+    conditions.push({ member, relation: name });
   }
   const groups: ScopeCondition[][] = [[]];
   for (let i = 0; i < conditions.length; i++) {
     if (i > 0 && (when.operators?.[i - 1] ?? "|") === "|") groups.push([]);
     groups[groups.length - 1].push(conditions[i]);
   }
-  return { conditions, groups };
+  return { groups };
 }
 
 /**
- * State key for the conditioned entries of an auto decorator.
- *
- * Deliberately a *separate* key from the unscoped auto decorator state key: the unscoped state map
- * keeps its existing `Record<paramName, value>` shape so that `getAutoDecoratorValue` retains
- * its contract and the `auto` <-> `extern` migration story is unaffected.
+ * The enum members selecting the view this program checks. Empty for the default view.
  * @internal
  */
-export function getScopedDecoratorStateKey(decoratorFqn: string): symbol {
-  return Symbol.for(`dec-scoped:${decoratorFqn}`);
-}
-
-/** Does `condition` hold for `scope`? */
-function matchesCondition(scope: Scope, condition: ScopeCondition, program?: Program): boolean {
-  if (condition.dimension === "enum") {
-    let selected = scope.selections?.find((x) => x.enum === condition.value.enum);
-    if (selected === undefined) return false;
-    if (condition.relation) {
-      const values = [...condition.value.enum.members.values()];
-      return condition.relation === "since"
-        ? values.indexOf(selected) >= values.indexOf(condition.value)
-        : values.indexOf(selected) < values.indexOf(condition.value);
-    }
-    const seen = new Set<EnumMember>();
-    while (selected && !seen.has(selected)) {
-      if (selected === condition.value) return true;
-      seen.add(selected);
-      selected = program?.stateMap(scopeParentKey).get(selected);
-    }
-    return false;
+export function getScopeSelection(program: Program): readonly EnumMember[] {
+  let selection = selectionCache.get(program);
+  if (!selection) {
+    selection = (program.compilerOptions.scopeSelection ?? []).flatMap((reference) => {
+      const [type] = program.resolveTypeReference(reference);
+      return type?.kind === "EnumMember" ? [type] : [];
+    });
+    selectionCache.set(program, selection);
   }
-  return scope[condition.dimension] === condition.value;
+  return selection;
 }
 
-/** Does any alternative in `set` hold for `scope`? */
-export function matchesScope(scope: Scope, set: ScopeConditionSet, program?: Program): boolean {
-  return (set.groups ?? set.conditions.map((c) => [c])).some((group) =>
-    group.every((c) => matchesCondition(scope, c, program)),
+/** Direct parents declared with `@Scopes.parent`. */
+export function getScopeParents(program: Program, member: EnumMember): readonly EnumMember[] {
+  return (program.stateMap(scopeParentKey).get(member) as EnumMember[] | undefined) ?? [];
+}
+
+/** The member and every transitive parent. */
+export function getScopeAncestors(program: Program, member: EnumMember): Set<EnumMember> {
+  const result = new Set<EnumMember>();
+  const visit = (current: EnumMember) => {
+    if (result.has(current)) return;
+    result.add(current);
+    for (const parent of getScopeParents(program, current)) visit(parent);
+  };
+  visit(member);
+  return result;
+}
+
+function indexOf(member: EnumMember): number {
+  return [...member.enum.members.values()].indexOf(member);
+}
+
+function matchesCondition(
+  program: Program,
+  selection: readonly EnumMember[],
+  condition: ScopeCondition,
+): boolean {
+  if (condition.relation) {
+    const selected = selection.find((x) => x.enum === condition.member.enum);
+    if (selected === undefined) return false;
+    return condition.relation === "since"
+      ? indexOf(selected) >= indexOf(condition.member)
+      : indexOf(selected) < indexOf(condition.member);
+  }
+  return selection.some((selected) => getScopeAncestors(program, selected).has(condition.member));
+}
+
+/** @internal */
+export function matchesScope(
+  program: Program,
+  selection: readonly EnumMember[],
+  set: ScopeConditionSet,
+): boolean {
+  return set.groups.some((group) =>
+    group.every((condition) => matchesCondition(program, selection, condition)),
   );
 }
 
 /**
- * Record a conditioned auto decorator application.
+ * Whether a `when` clause holds in the view this program checks. Nodes without a clause are
+ * always active; invalid clauses never are.
  * @internal
  */
-export function addScopedDecoratorEntry(
-  program: Program,
-  decoratorFqn: string,
-  target: Type,
-  entry: ScopedDecoratorEntry,
-): void {
-  const stateMap = program.stateMap(getScopedDecoratorStateKey(decoratorFqn));
-  const existing = stateMap.get(target) as ScopedDecoratorEntry[] | undefined;
-  if (existing === undefined) {
-    stateMap.set(target, [entry]);
-  } else {
-    existing.push(entry);
+export function isWhenActive(program: Program, when: WhenClauseNode | undefined): boolean {
+  if (when === undefined) return true;
+  const condition = getWhenCondition(program, when);
+  return condition !== undefined && matchesScope(program, getScopeSelection(program), condition);
+}
+
+/** Interval of member indexes on an ordered axis; versions are open-ended. */
+function interval(condition: ScopeCondition): [number, number] {
+  const index = indexOf(condition.member);
+  switch (condition.relation) {
+    case "since":
+      return [index, Infinity];
+    case "before":
+      return [0, index];
+    default:
+      return [index, index + 1];
   }
 }
 
-/**
- * Get every conditioned entry recorded for an auto decorator on a target, in source order.
- * @internal
- */
-export function getScopedDecoratorEntries(
-  program: Program,
-  decoratorFqn: string,
-  target: Type,
-): readonly ScopedDecoratorEntry[] | undefined {
-  return program.stateMap(getScopedDecoratorStateKey(decoratorFqn)).get(target) as
-    ScopedDecoratorEntry[] | undefined;
+function literalImplies(program: Program, a: ScopeCondition, b: ScopeCondition): boolean {
+  if (!a.relation && !b.relation) return getScopeAncestors(program, a.member).has(b.member);
+  if (a.member.enum !== b.member.enum) return false;
+  const [aStart, aEnd] = interval(a);
+  const [bStart, bEnd] = interval(b);
+  return aStart >= bStart && aEnd <= bEnd;
 }
 
 /**
- * Resolve the value of an auto decorator for a given scope.
- *
- * An unscoped application is the default; a scoped application whose condition matches
- * overrides it. When several scoped applications match, the last one in source order wins,
- * mirroring the last-write-wins behavior of repeated unscoped applications.
+ * Sound, syntactic implication between conditions. It depends only on the conditions, the
+ * declared hierarchy and member order, never on which views currently exist.
  * @internal
  */
-export function resolveScopedDecoratorValue(
-  entries: readonly ScopedDecoratorEntry[],
-  scope: Scope | undefined,
-  program?: Program,
-): Record<string, unknown> | undefined {
-  if (scope?.selections && program) {
-    const matching = entries.filter(
-      (entry) => entry.scope && matchesScope(scope, entry.scope, program),
-    );
-    const universe = program.stateMap(scopeUniverseKey).get(program.getGlobalNamespaceType()) as
-      Scope[] | undefined;
-    if (universe) {
-      const domains = matching.map(
-        (entry) =>
-          new Set(
-            universe
-              .map((candidate, i) => (matchesScope(candidate, entry.scope!, program) ? i : -1))
-              .filter((i) => i >= 0),
-          ),
-      );
-      const winner = matching.find((_, i) =>
-        domains.every(
-          (other, j) =>
-            i === j || (domains[i].size < other.size && [...domains[i]].every((x) => other.has(x))),
-        ),
-      );
-      return winner?.value;
-    }
+export function conditionImplies(
+  program: Program,
+  a: ScopeConditionSet,
+  b: ScopeConditionSet,
+): boolean {
+  return a.groups.every((left) =>
+    b.groups.some((right) =>
+      right.every((literal) =>
+        left.some((candidate) => literalImplies(program, candidate, literal)),
+      ),
+    ),
+  );
+}
+
+/**
+ * Choose among active applications of the same decorator: the unique most specific condition
+ * wins and an unconditioned application acts as the always-true default. Returns `undefined`
+ * as `winner` when the choice is ambiguous.
+ * @internal
+ */
+export function selectMostSpecific<T>(
+  program: Program,
+  entries: readonly { readonly item: T; readonly condition?: ScopeConditionSet }[],
+): { readonly selected: readonly T[]; readonly ambiguous: boolean } {
+  if (entries.every((entry) => entry.condition === undefined)) {
+    return { selected: entries.map((entry) => entry.item), ambiguous: false };
   }
-  let result: Record<string, unknown> | undefined;
-  for (const entry of entries) {
-    if (entry.scope === undefined) {
-      // Unscoped default: only fills in if nothing scoped has matched yet.
-      result ??= entry.value;
-    } else if (scope !== undefined && matchesScope(scope, entry.scope, program)) {
-      result = entry.value;
-    }
-  }
-  return result;
+  const condition = (entry: (typeof entries)[number]) => entry.condition ?? alwaysTrue;
+  const winners = entries.filter((winner) =>
+    entries.every(
+      (other) =>
+        other === winner ||
+        (conditionImplies(program, condition(winner), condition(other)) &&
+          !conditionImplies(program, condition(other), condition(winner))),
+    ),
+  );
+  if (winners.length === 1) return { selected: [winners[0].item], ambiguous: false };
+  const last = [...entries].reverse().find((entry) => entry.condition !== undefined)!;
+  return { selected: [last.item], ambiguous: true };
 }

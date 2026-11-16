@@ -1,4 +1,11 @@
-import type { ModelProperty, Namespace, Operation, Program, Type } from "@typespec/compiler";
+import type {
+  EnumMember,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Program,
+  Type,
+} from "@typespec/compiler";
 import {
   registerScopeViewAxis,
   type unsafe_MutatorWithNamespace as MutatorWithNamespace,
@@ -9,6 +16,7 @@ import {
   getRenamedFrom,
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
+  getVersion,
 } from "./decorators.js";
 import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
@@ -20,24 +28,47 @@ import {
   resolveVersions,
 } from "./versioning.js";
 
-/** @internal Bridge existing version projections into the conditional-scope feasibility POC. */
-export function registerVersioningScopeAxis(program: Program, namespace: Namespace): void {
-  const resolutions = resolveVersions(program, namespace);
-  if (!resolutions.some((x) => x.rootVersion)) return;
+/**
+ * Register the version axes of a program with the conditional-scope views. Only root services
+ * contribute an axis: dependency versions are implied by the root version and pinned
+ * `@useDependency` versions are the only selectable member of their axis.
+ * @internal
+ */
+export function registerVersioningScopeAxes(
+  program: Program,
+  namespaces: readonly Namespace[],
+): void {
+  const versioned = namespaces.filter((namespace) => getVersion(program, namespace));
+  const dependencies = new Set<Namespace>();
+  for (const namespace of namespaces) {
+    for (const resolution of resolveVersions(program, namespace)) {
+      for (const [dependency, version] of resolution.versions) {
+        if (dependency === namespace) continue;
+        dependencies.add(dependency);
+        if (!resolution.rootVersion) {
+          registerScopeViewAxis(program, {
+            enum: version.enumMember.enum,
+            members: [version.enumMember],
+          });
+        }
+      }
+    }
+  }
+  for (const namespace of versioned) {
+    if (!dependencies.has(namespace)) registerRootAxis(program, namespace);
+  }
+}
+
+function registerRootAxis(program: Program, namespace: Namespace): void {
+  const resolutions = resolveVersions(program, namespace).filter((x) => x.rootVersion);
+  if (resolutions.length === 0) return;
   const timeline = new VersioningTimeline(
     program,
     resolutions.map((x) => x.versions),
   );
   const helper = new VersioningHelper(program, timeline);
-  const snapshots = new Map(
-    resolutions.flatMap((resolution) => {
-      if (!resolution.rootVersion || resolution.versions.size === 0) return [];
-      const moment = timeline.get(resolution.versions.values().next().value!);
-      return [[resolution.rootVersion.enumMember, moment] as const];
-    }),
-  );
-  const first = snapshots.keys().next().value;
-  if (!first) return;
+  const byMember = new Map(resolutions.map((x) => [x.rootVersion!.enumMember, x] as const));
+  const momentOf = (member: EnumMember) => timeline.get(byMember.get(member)!.rootVersion!);
   const namespaces = new Set(resolutions.flatMap((resolution) => [...resolution.versions.keys()]));
   const includes = (type: Type) => {
     let owner = getVersions(program, type)[0];
@@ -48,17 +79,18 @@ export function registerVersioningScopeAxis(program: Program, namespace: Namespa
     return false;
   };
   registerScopeViewAxis(program, {
-    enum: first.enum,
-    ordered: true,
-    isValidSelection(selection, selections) {
-      const resolution = resolutions.find((x) => x.rootVersion?.enumMember === selection)!;
-      return [...resolution.versions.values()].every((version) => {
-        const selected = selections.find((member) => member.enum === version.enumMember.enum);
-        return selected === undefined || selected === version.enumMember;
-      });
+    enum: resolutions[0].rootVersion!.enumMember.enum,
+    implied(member) {
+      const resolution = byMember.get(member);
+      return resolution ? [...resolution.versions.values()].map((x) => x.enumMember) : [];
     },
-    project(selection) {
-      const mutator = createVersionMutator(helper, snapshots.get(selection)!);
+    isPresent(member, type) {
+      return (
+        !byMember.has(member) || !includes(type) || helper.existsAtVersion(type, momentOf(member))
+      );
+    },
+    project(member) {
+      const mutator = createVersionMutator(helper, momentOf(member));
       return {
         ...Object.fromEntries(
           Object.entries(mutator).map(([kind, record]) => [
@@ -72,9 +104,6 @@ export function registerVersioningScopeAxis(program: Program, namespace: Namespa
         ),
         name: mutator.name,
       };
-    },
-    isPresent(selection, type) {
-      return !includes(type) || helper.existsAtVersion(type, snapshots.get(selection)!);
     },
   });
 }

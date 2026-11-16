@@ -316,7 +316,7 @@ const identifierExpression: MatchRule = {
 };
 
 /**
- * A `when` clause suffix on a decorator: `@dec(...) when emitter("x") | language("y")`.
+ * A `when` clause on a declaration, member or decorator: `@dec(...) when Targets.csharp | Versions.v2`.
  *
  * `when` is a contextual keyword, so this rule has to work out where the clause ends. A clause
  * is followed either by something `universalEnd` already covers (a statement keyword, `@`, `}`,
@@ -331,7 +331,7 @@ const whenClause: BeginEndRule = {
     "1": { scope: "keyword.other.tsp" },
   },
   end: `(?=(?:${identifier})\\s*\\??\\s*:)|${universalEnd}`,
-  patterns: [token, parenthesizedExpression, identifierExpression],
+  patterns: [token, parenthesizedExpression, identifierExpression, punctuationAccessor],
 };
 
 const valueOfExpression: BeginEndRule = {

@@ -48,7 +48,11 @@ export function selectScopeView(
   );
 }
 
-export function getScopeDeclarations(program: Program): Type[] {
+/** Project declarations of a (possibly projected) global namespace. */
+export function getScopeDeclarations(
+  program: Program,
+  root: Namespace = program.getGlobalNamespaceType(),
+): Type[] {
   const result: Type[] = [];
   const visit = (namespace: Namespace) => {
     for (const collection of [
@@ -65,8 +69,17 @@ export function getScopeDeclarations(program: Program): Type[] {
     }
     for (const child of namespace.namespaces.values()) visit(child);
   };
-  visit(program.getGlobalNamespaceType());
+  visit(root);
   return result;
+}
+
+/** Union of declaration names across graphs, keeping first-seen order. */
+export function getScopeDeclarationNames(...graphs: readonly Type[][]): string[] {
+  return [...new Set(graphs.flat().map((type) => getTypeName(type)))];
+}
+
+export function findScopeDeclaration(declarations: readonly Type[], name: string | undefined) {
+  return name === undefined ? undefined : declarations.find((type) => getTypeName(type) === name);
 }
 
 export function getScopeGraphPath(type: Type | undefined): string {
@@ -120,7 +133,7 @@ function members(type: Type | undefined): Map<string, string> {
   }
 }
 
-export function getScopeMemberChanges(base: Type, selected: Type | undefined) {
+export function getScopeMemberChanges(base: Type | undefined, selected: Type | undefined) {
   const before = members(base);
   const after = members(selected);
   return [...new Set([...before.keys(), ...after.keys()])].map((name) => ({

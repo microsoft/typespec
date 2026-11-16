@@ -13,7 +13,7 @@ enum AzureScopes {
 auto dec clientName(target: unknown, name: valueof string);
 
 // Source order does not decide which value wins. The narrower scope wins.
-// In the base view this decorator has no value at all.
+// In the default view this decorator has no value at all.
 @clientName("ProvisioningWidget") when AzureScopes.provisioning
 @clientName("ManagementWidget") when AzureScopes.management
 @clientName("CsharpWidget") when AzureScopes.csharp

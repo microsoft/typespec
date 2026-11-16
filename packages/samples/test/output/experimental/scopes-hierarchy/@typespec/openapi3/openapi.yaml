@@ -15,18 +15,6 @@ components:
         - python
     Configuration:
       type: object
-      required:
-        - dotnet
-      properties:
-        dotnet:
-          $ref: '#/components/schemas/DotnetOptions'
-    DotnetOptions:
-      type: object
-      required:
-        - assembly
-      properties:
-        assembly:
-          type: string
     Options:
       type: object
       required:

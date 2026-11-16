@@ -21,7 +21,7 @@ export const compilerFeatures = {
   },
   "scoped-decorators": {
     description:
-      "Allows use of `when` clauses on `auto` decorator applications, conditioning the stored metadata on the querying scope (emitter, language, target).",
+      "Allows `when` clauses that make declarations, members and decorators conditional on declared scopes (enum members). Each distinct scope view is checked independently.",
   },
   "type-info-provider": {
     description:

@@ -4,10 +4,7 @@ import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import type { Mutable } from "../utils/misc.js";
 import { MultiKeyMap, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
-import {
-  createAutoDecoratorImplementation,
-  createScopedAutoDecoratorImplementation,
-} from "./auto-decorator.js";
+import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -44,7 +41,7 @@ import {
   visitChildren,
 } from "./parser.js";
 import type { Program } from "./program.js";
-import { resolveWhenClause } from "./scope.js";
+import { getWhenCondition, isWhenActive, selectMostSpecific } from "./scope.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -188,6 +185,7 @@ import type {
   Value,
   ValueWithTemplate,
   VoidType,
+  WhenClauseNode,
 } from "./types.js";
 import {
   IdentifierKind,
@@ -391,7 +389,7 @@ export interface Checker {
     typeDef: T,
   ): T & TypePrototype;
   /** Run a type's decorators and finishing validators, mark it finished, and return the same object. */
-  finishType<T extends Type>(typeDef: T, options?: { skipDecorators?: boolean }): T;
+  finishType<T extends Type>(typeDef: T): T;
   /** Get or create the program's cached string literal type for the supplied value. */
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   /** Get or create a numeric literal type, preserving precise {@link Numeric} values. */
@@ -485,11 +483,13 @@ export interface Checker {
   /** @internal */
   getTypeOrValueForNode(node: Node): Type | Value | null;
 
-  /** @internal Type of a property default expression before assignment to its declared type. */
-  getDefaultValueSourceType(value: Value): Type | undefined;
-
   /** @internal */
   getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
+  /**
+   * References to declarations absent from the checked scope view, in check order.
+   * @internal
+   */
+  getAbsentScopeReferences(): readonly AbsentScopeReference[];
   /** @internal */
   readonly errorType: ErrorType;
   /** @internal */
@@ -559,7 +559,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     Sym | undefined
   >();
   const valueExactTypes = new WeakMap<ValueWithTemplate, Type>();
-  const defaultValueSourceTypes = new WeakMap<Value, Type>();
+  const absentScopeReferences: AbsentScopeReference[] = [];
+  const reportedAmbiguousScopes = new Set<Node>();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -624,8 +625,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
-    getDefaultValueSourceType: (value) => defaultValueSourceTypes.get(value),
     getTemplateParameterUsageMap,
+    getAbsentScopeReferences: () => absentScopeReferences,
     isTypeAssignableTo: undefined!,
     isValueOfType: undefined!,
     stats,
@@ -842,30 +843,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: Node,
     mapperOrContext?: TypeMapper | CheckContext,
     constraint?: CheckValueConstraint,
-    captureSourceType?: (type: Type) => void,
   ): Value | null {
     const ctx = CheckContext.from(mapperOrContext);
     const initial = checkNode(ctx, node, constraint);
     if (initial === null || initial === errorType) {
       return null;
-    }
-    if (captureSourceType) {
-      if (initial.entityKind === "Indeterminate") {
-        let type: Type = initial.type;
-        while (type.kind === "UnionVariant") type = type.type;
-        captureSourceType(type);
-      } else if (isValue(initial)) {
-        captureSourceType(
-          node.kind === SyntaxKind.ObjectLiteral || node.kind === SyntaxKind.ArrayLiteral
-            ? (valueExactTypes.get(initial) ?? initial.type)
-            : initial.type,
-        );
-      } else if (
-        (initial.kind === "TemplateParameter" || initial.kind === "TemplateParameterAccess") &&
-        initial.constraint?.valueType
-      ) {
-        captureSourceType(initial.constraint.valueType);
-      }
     }
     let entity: Type | Value | null;
     if (initial.entityKind === "Indeterminate") {
@@ -1097,6 +1079,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: Node,
     valueConstraint?: CheckValueConstraint | undefined,
   ): Type | Value | IndeterminateEntity | null {
+    if ("when" in node && isScopedDeclarationNode(node) && !isWhenActive(program, node.when)) {
+      // Declarations whose `when` is false do not exist in the scope view being checked.
+      return errorType;
+    }
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(ctx, node);
@@ -1794,6 +1780,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (sym.flags & SymbolFlags.Function) {
       return getValueForNode(sym.declarations[0], ctx);
+    }
+
+    const declaration = sym.declarations[0] ?? sym.node;
+    if (declaration && !isNodeInScope(declaration)) {
+      if (!ctx.hasFlags(CheckFlags.InTemplateDeclaration)) {
+        absentScopeReferences.push({ node, target: sym });
+      }
+      return errorType;
     }
 
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
@@ -2840,10 +2834,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
       });
     }
+    const signatureFacet = getActiveScopeFacet(node, "signature");
+    const baseOperationRef =
+      signatureFacet?.kind === SyntaxKind.TypeReference
+        ? signatureFacet
+        : node.signature.kind === SyntaxKind.OperationSignatureReference
+          ? node.signature.baseOperation
+          : undefined;
+    const returnTypeFacet = getActiveScopeFacet(node, "returnType");
     // Is this a definition or reference?
-    if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
+    if (baseOperationRef) {
       // Attempt to resolve the operation
-      const baseOperation = checkOperationIs(ctx, node, node.signature.baseOperation);
+      const baseOperation = checkOperationIs(ctx, node, baseOperationRef);
       if (baseOperation) {
         ensureResolved([baseOperation], operationType, () => {
           operationType.sourceOperation = baseOperation;
@@ -2862,7 +2864,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             ]),
           );
           operationType.parameters = finishType(clone);
-          operationType.returnType = baseOperation.returnType;
+          operationType.returnType = returnTypeFacet
+            ? getTypeForNode(returnTypeFacet, ctx)
+            : baseOperation.returnType;
 
           // Copy decorators from the base operation, inserting the base decorators first
           operationType.decorators.push(...baseOperation.decorators);
@@ -2875,8 +2879,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         finishOperation();
       }
     } else {
+      compilerAssert(
+        node.signature.kind === SyntaxKind.OperationSignatureDeclaration,
+        "Expected an operation signature declaration",
+      );
       operationType.parameters = getTypeForNode(node.signature.parameters, ctx) as Model;
-      operationType.returnType = getTypeForNode(node.signature.returnType, ctx);
+      operationType.returnType = getTypeForNode(returnTypeFacet ?? node.signature.returnType, ctx);
       ensureResolved([operationType.parameters], operationType, () => {
         finishOperation();
       });
@@ -5425,6 +5433,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let spreadIndexers: ModelIndexer[] | undefined;
     for (const prop of node.properties!) {
       if ("id" in prop) {
+        if (!isWhenActive(program, prop.when)) continue;
         const newProp = checkModelProperty(ctx, prop);
         newProp.model = parentModel;
         checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
@@ -6935,13 +6944,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links && links.declaredType && ctx.mapper === undefined) {
       return links.declaredType as ModelProperty;
     }
-    const name = prop.id.sv;
+    const nameFacet = getActiveScopeFacet(prop, "name");
+    const optionalFacet = getActiveScopeFacet(prop, "optional");
+    const typeFacet = getActiveScopeFacet(prop, "type");
+    const name = nameFacet?.kind === SyntaxKind.StringLiteral ? nameFacet.value : prop.id.sv;
 
     const type: ModelProperty = createType({
       kind: "ModelProperty",
       name,
       node: prop,
-      optional: prop.optional,
+      optional:
+        optionalFacet?.kind === SyntaxKind.BooleanLiteral ? optionalFacet.value : prop.optional,
       type: undefined!,
       decorators: [],
     });
@@ -6952,7 +6965,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       linkType(ctx, links, type);
     }
 
-    type.type = getTypeForNode(prop.value, ctx);
+    type.type = getTypeForNode(typeFacet ?? prop.value, ctx);
+    if (typeFacet && !isValidScopedPropertyType(type.type)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-scoped-type",
+          format: { kind: type.type.kind },
+          target: typeFacet,
+        }),
+      );
+      type.type = errorType;
+    }
 
     // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
     if (hasPropertyTypeCycle(type)) {
@@ -7074,13 +7097,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    let sourceType: Type | undefined;
-    const defaultValue = getValueForNode(
-      defaultNode,
-      ctx,
-      { kind: "assignment", type },
-      (source) => (sourceType = source),
-    );
+    const defaultValue = getValueForNode(defaultNode, ctx, {
+      kind: "assignment",
+      type,
+    });
     if (defaultValue === null) {
       return null;
     }
@@ -7093,9 +7113,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // And as interating with the template declaration is not a supported feature we can just drop it.
       return null;
     } else {
-      const checked = { ...defaultValue, type };
-      if (sourceType) defaultValueSourceTypes.set(checked, sourceType);
-      return checked;
+      return { ...defaultValue, type };
     }
   }
 
@@ -7149,74 +7167,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const impl = sym.value ?? symbolLinks.declaredType?.implementation;
-    const scopedImpl = checkWhenClause(ctx, decNode, sym, symbolLinks.declaredType);
     return {
       definition: symbolLinks.declaredType,
-      decorator: scopedImpl ?? impl ?? ((...args: any[]) => {}),
+      decorator: impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };
   }
-
-  /**
-   * Validate a decorator's `when` clause and, if valid, build the conditioned implementation
-   * that stores the decorator's arguments against the resolved scope instead of unconditionally.
-   *
-   * Returns `undefined` when there is no clause or the clause is invalid — the decorator's
-   * arguments are still validated either way, only the *storage* is conditioned.
-   */
-  function checkWhenClause(
-    ctx: CheckContext,
-    decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
-    sym: Sym,
-    declaration: Decorator | undefined,
-  ): ((ctx: DecoratorContext, target: Type, ...args: unknown[]) => void) | undefined {
-    const when = decNode.when;
-    if (when === undefined) {
-      return undefined;
-    }
-
-    if (!isCompilerFeatureEnabled(program, "scoped-decorators", when)) {
-      reportCheckerDiagnostic(
-        createDiagnostic({ code: "scoped-decorator-disabled", target: when }),
-      );
-      return undefined;
-    }
-
-    if (decNode.kind === SyntaxKind.AugmentDecoratorStatement) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "when-clause-not-allowed",
-          messageId: "augment",
-          target: when,
-        }),
-      );
-      return undefined;
-    }
-
-    const declNode = sym.declarations.find(
-      (x): x is DecoratorDeclarationStatementNode =>
-        x.kind === SyntaxKind.DecoratorDeclarationStatement,
-    );
-    if (declaration?.declarationKind !== "auto" || declNode === undefined) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "when-clause-not-allowed",
-          format: { decorator: `@${sym.name}` },
-          target: when,
-        }),
-      );
-      return undefined;
-    }
-
-    const scope = resolveWhenClause(program, when);
-    if (scope === undefined) {
-      return () => {};
-    }
-
-    return createScopedAutoDecoratorImplementation(sym, declNode, scope, decNode);
-  }
-
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {
@@ -7444,7 +7401,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     sym: Sym,
     targetType: Type,
   ): DecoratorApplication[] {
-    const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
+    const augmentDecoratorNodes = selectScopedDecoratorNodes(
+      resolver.getAugmentDecoratorsForSym(sym),
+    );
     const decorators: DecoratorApplication[] = [];
 
     for (const decNode of augmentDecoratorNodes) {
@@ -7554,6 +7513,90 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return node?.kind === SyntaxKind.UsingStatement && node.scopeNamespace === undefined;
   }
 
+  /** Whether a node and every enclosing declaration exist in the scope view being checked. */
+  function isNodeInScope(node: Node): boolean {
+    for (let current: Node | undefined = node; current; current = current.parent) {
+      if ("when" in current && isScopedDeclarationNode(current)) {
+        if (!isWhenActive(program, current.when)) return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Keep the decorator applications that exist in the scope view being checked. Inactive
+   * applications are dropped; when several active applications of the same decorator include a
+   * conditioned one, only the most specific is kept, an unconditioned application being the
+   * least specific default.
+   */
+  function selectScopedDecoratorNodes<
+    T extends DecoratorExpressionNode | AugmentDecoratorStatementNode,
+  >(nodes: readonly T[]): T[] {
+    if (!nodes.some((node) => node.when)) return [...nodes];
+    const groups = new Map<unknown, T[]>();
+    for (const node of nodes) {
+      if (!isWhenActive(program, node.when)) continue;
+      const key = resolveTypeReferenceSym(CheckContext.DEFAULT, node.target, true) ?? node;
+      groups.set(key, [...(groups.get(key) ?? []), node]);
+    }
+    const selected = new Set<T>();
+    for (const [key, group] of groups) {
+      const { selected: winners, ambiguous } = selectMostSpecific(
+        program,
+        group.map((item) => ({
+          item,
+          condition: item.when ? getWhenCondition(program, item.when) : undefined,
+        })),
+      );
+      winners.forEach((winner) => selected.add(winner));
+      if (ambiguous && !reportedAmbiguousScopes.has(winners[0])) {
+        reportedAmbiguousScopes.add(winners[0]);
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "ambiguous-scoped-value",
+            format: {
+              decorator: `@${getFullyQualifiedSymbolName(key as Sym)}`,
+            },
+            target: winners[0],
+          }),
+        );
+      }
+    }
+    return nodes.filter((node) => selected.has(node));
+  }
+
+  /** Argument of the active `TypeSpec.Scopes.<facet>` decorator applied to a declaration. */
+  function getActiveScopeFacet(
+    node: Node & { decorators: readonly DecoratorExpressionNode[] },
+    facet: "type" | "optional" | "name" | "returnType" | "signature",
+  ): Expression | undefined {
+    const sym = isMemberNode(node)
+      ? (getSymbolForMember(node) ?? node.symbol)
+      : getMergedSymbol(node.symbol);
+    const candidates = selectScopedDecoratorNodes([
+      ...(sym ? resolver.getAugmentDecoratorsForSym(sym) : []),
+      ...node.decorators,
+    ]);
+    const applications = candidates.filter((decorator) => {
+      const decoratorSym = resolveTypeReferenceSym(CheckContext.DEFAULT, decorator.target, true);
+      return getFullyQualifiedSymbolName(decoratorSym) === `TypeSpec.Scopes.${facet}`;
+    });
+    return applications.at(-1)?.arguments[0];
+  }
+
+  function isValidScopedPropertyType(type: Type): boolean {
+    switch (type.kind) {
+      case "Namespace":
+      case "Operation":
+      case "Interface":
+      case "Decorator":
+      case "FunctionParameter":
+        return false;
+      default:
+        return true;
+    }
+  }
+
   function checkDecorators(
     ctx: CheckContext,
     targetType: Type,
@@ -7565,10 +7608,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const decorators: DecoratorApplication[] = [];
 
     const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
-    const decoratorNodes = [
+    const decoratorNodes = selectScopedDecoratorNodes([
       ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
-    ];
+    ]);
     for (const decNode of decoratorNodes) {
       const decorator = checkDecoratorApplication(ctx, targetType, decNode);
       if (decorator) {
@@ -7904,6 +7947,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     for (const member of node.members) {
       if (member.kind === SyntaxKind.EnumMember) {
+        if (!isWhenActive(program, member.when)) continue;
         const memberType = checkEnumMember(ctx, member, enumType);
         if (memberNames.has(memberType.name)) {
           reportCheckerDiagnostic(
@@ -8046,6 +8090,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
     for (const opNode of node.operations) {
+      if (!isWhenActive(program, opNode.when)) continue;
       const opType = checkOperation(ctx, opNode, interfaceType);
       if (ownMembers.has(opType.name)) {
         reportCheckerDiagnostic(
@@ -8138,6 +8183,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     variants: Map<string, UnionVariant>,
   ) {
     for (const variantNode of node.options) {
+      if (!isWhenActive(program, variantNode.when)) continue;
       const variantType = checkUnionVariant(ctx, variantNode);
       variantType.union = parentUnion;
       if (variants.has(variantType.name as string)) {
@@ -9366,6 +9412,30 @@ function createFunctionContext(program: Program, fnCall: CallExpressionNode): Fu
       return fn(passthrough.function, ...args);
     },
   };
+}
+
+/** A reference to a declaration absent from the checked scope view. @internal */
+export interface AbsentScopeReference {
+  readonly node: Node;
+  readonly target: Sym;
+}
+
+/** Nodes whose own `when` clause makes them conditionally exist (as opposed to decorators). */
+function isScopedDeclarationNode(node: Node): node is Node & { when?: WhenClauseNode } {
+  switch (node.kind) {
+    case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
+    case SyntaxKind.InterfaceStatement:
+    case SyntaxKind.UnionStatement:
+    case SyntaxKind.EnumStatement:
+    case SyntaxKind.OperationStatement:
+    case SyntaxKind.ModelProperty:
+    case SyntaxKind.UnionVariant:
+    case SyntaxKind.EnumMember:
+      return true;
+    default:
+      return false;
+  }
 }
 
 function isTemplatedNode(node: Node | undefined): node is TemplateableNode {

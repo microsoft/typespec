@@ -14,7 +14,7 @@ describe("sample config", () => {
       "GraphQL",
       "JSON Schema",
       "Protobuf kiosk",
-      "Conditional scopes: versions and visibility",
+      "Conditional scopes: versioning composition",
       "Conditional scopes: direct shape facets",
       "Conditional scopes: declarations only",
       "Conditional scopes: hierarchy",

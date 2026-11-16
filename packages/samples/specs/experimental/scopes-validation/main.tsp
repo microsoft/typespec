@@ -3,6 +3,11 @@ enum Clients {
   python,
 }
 
+enum Stages {
+  preview,
+  stable,
+}
+
 model Private when Clients.csharp {
   value: string;
 }
@@ -32,7 +37,7 @@ model Valid {
   details: Wrapper<Private> when Clients.csharp;
 }
 
-// Uncomment: this is invalid in python even if csharp is selected in the viewer.
+// Uncomment: Private is absent in the default view and in python.
 // model Invalid { details: Private; }
 
 // Uncomment: the default type satisfies this constraint, but python does not.
@@ -54,7 +59,7 @@ auto dec label(target: unknown, value: valueof string);
 
 // Uncomment both: these overlap, but neither is more specific.
 // @label("Csharp") when Clients.csharp
-// @label("Read") when Lifecycle.Read
+// @label("Preview") when Stages.preview
 model Ambiguous {}
 
 // Readonly decorator arguments are checked even if their scope is never selected.

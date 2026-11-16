@@ -159,7 +159,7 @@ const diagnostics = {
       property: "Property expected.",
       enumMember: "Enum member expected.",
       whenCondition:
-        "'when' condition expected. A condition must be a filter call (e.g. `emitter(\"name\")`) or an enum member reference (e.g. `Lifecycle.read`).",
+        "'when' condition expected. A condition must be an enum member reference (e.g. `Clients.csharp`) or `since(...)`/`before(...)`.",
       typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
@@ -303,14 +303,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default:
-        "'when' clauses on decorators require the 'scoped-decorators' feature to be enabled. Add 'scoped-decorators' to the 'features' list in your tspconfig.yaml.",
-    },
-  },
-  "when-clause-not-allowed": {
-    severity: "error",
-    messages: {
-      default: paramMessage`'when' clause is only allowed on 'auto' decorators. '${"decorator"}' is declared with 'extern dec', which may have side effects that cannot be deferred to query time.`,
-      augment: "'when' clause is not supported on augment decorators.",
+        "'when' clauses require the 'scoped-decorators' feature to be enabled. Add 'scoped-decorators' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "unknown-when-filter": {
@@ -319,45 +312,47 @@ const diagnostics = {
       default: paramMessage`Unknown 'when' filter '${"name"}'. Expected one of: ${"expected"}.`,
     },
   },
-  "invalid-when-condition": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Filter '${"name"}' expects a single string argument.`,
-      notAValue: paramMessage`Filter '${"name"}' expects a string literal argument.`,
-    },
-  },
   "invalid-scope-condition": {
     severity: "error",
     messages: {
-      default: "A declared scope condition must reference an enum member.",
-      emptyUniverse: "The declared scope axes have no valid concrete views to validate.",
-      range: "'since' and 'before' require an ordered versioning axis.",
-      legacySelector:
-        "String selectors are supported only by the original metadata spike. Use declared enum scopes for structural views; do not mix the two scope systems.",
+      default: "A scope condition must reference an enum member.",
+      range: "'since' and 'before' require a member of an ordered (versioning) axis.",
+      visibility: paramMessage`'${"name"}' is a visibility class. Visibility is selected per property set by '@visibility' and visibility filters, not by scope views.`,
+    },
+  },
+  "unreachable-scope-condition": {
+    severity: "warning",
+    messages: {
+      default:
+        "This 'when' condition is not satisfied by any scope view, so the annotated element is never present.",
     },
   },
   "invalid-scope-hierarchy": {
     severity: "error",
-    messages: { default: "Scope parents must form an acyclic hierarchy within the same enum." },
+    messages: {
+      default: "Scope parents must form an acyclic hierarchy.",
+      root: paramMessage`Scope '${"member"}' has parents in different axes ('${"first"}' and '${"second"}'). All parents must share the same root axis.`,
+    },
   },
   "ambiguous-scoped-value": {
     severity: "error",
     messages: {
-      default: paramMessage`Ambiguous '${"decorator"}' metadata in view '${"view"}'. Add a more specific application covering this overlap.`,
+      default: paramMessage`Ambiguous '${"decorator"}' application. Add a more specific application covering this overlap.`,
     },
   },
   "incompatible-scoped-reference": {
     severity: "error",
     messages: {
-      default: paramMessage`'${"source"}' references '${"target"}', which is absent in view '${"view"}'.`,
+      default: paramMessage`'${"target"}' is not present in scope view '${"view"}'.`,
     },
   },
   "invalid-scoped-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Invalid type relationship in view '${"view"}': ${"reason"}`,
+      default: paramMessage`A ${"kind"} cannot be used as a scoped property type.`,
     },
   },
+
   "using-invalid-ref": {
     severity: "error",
     messages: {

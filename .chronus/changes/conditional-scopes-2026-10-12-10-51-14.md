@@ -4,10 +4,10 @@ packages:
   - "@typespec/compiler"
 ---
 
-Add an experimental proof of concept for hierarchical scopes, hidden-by-default readonly metadata, and eagerly validated structural views, behind the auto-decorators and scoped-decorators feature flags.
+Add an experimental proof of concept for conditional scopes behind the `scoped-decorators` feature flag. A `when` clause makes declarations, members and decorator applications conditional on enum members, which can form a hierarchy through `@Scopes.parent`. The default view has every condition false, and each distinct scope view is compiled and checked on its own.
 
 ```tsp
-enum Clients { csharp, python }
+enum Clients { csharp, @Scopes.parent(Clients.csharp) provisioning, python }
 auto dec clientName(target: unknown, name: valueof string);
 @clientName("CsharpWidget") when Clients.csharp
 model Widget {
@@ -15,5 +15,3 @@ model Widget {
   id: string;
 }
 ```
-
-`@Scopes.type` and `@Scopes.signature` select scoped property types and operation signatures. Views check template constraints, model indexers, and property defaults after the ordinary source graph has been checked.

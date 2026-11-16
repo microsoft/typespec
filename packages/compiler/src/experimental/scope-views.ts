@@ -1,776 +1,452 @@
-import { getAutoDecoratorValue } from "../core/auto-decorator.js";
-import { isCompilerFeatureEnabled } from "../core/features.js";
+import type { AbsentScopeReference } from "../core/checker.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { visitChildren } from "../core/parser.js";
 import type { Program } from "../core/program.js";
 import {
+  getScopeParents,
+  getWhenCondition,
   matchesScope,
-  resolveWhenClause,
   scopeParentKey,
-  scopeUniverseKey,
-  type Scope,
   type ScopeConditionSet,
-  type ScopedDecoratorEntry,
 } from "../core/scope.js";
-import { navigateProgram, navigateType } from "../core/semantic-walker.js";
-import { isTemplateDeclaration, isType } from "../core/type-utils.js";
-import type {
-  Diagnostic,
-  Enum,
-  EnumMember,
-  Namespace,
-  Node,
-  Operation,
-  TemplatedType,
-  Type,
+import { navigateProgram } from "../core/semantic-walker.js";
+import {
+  SyntaxKind,
+  type Diagnostic,
+  type Enum,
+  type EnumMember,
+  type Namespace,
+  type Node,
+  type Type,
+  type WhenClauseNode,
 } from "../core/types.js";
-import {
-  getDefaultVisibilityClasses,
-  getRawVisibilityStore,
-  isVisible,
-} from "../core/visibility/core.js";
-import {
-  mutateSubgraph,
-  mutateSubgraphWithNamespace,
-  type MutatorWithNamespace,
-} from "./mutators.js";
-import { Realm } from "./realm.js";
+import { getRawVisibilityStore } from "../core/visibility/core.js";
+import { getLifecycleVisibilityEnum } from "../core/visibility/lifecycle.js";
+import { mutateSubgraphWithNamespace, type MutatorWithNamespace } from "./mutators.js";
 
-/** An adapter contributes an existing library's projection, not a second compilation. */
+/**
+ * Lets a library describe an axis it owns (e.g. service versions). Axes are registered by each
+ * program, so view programs register their own adapters against their own types.
+ */
 export interface ScopeViewAxis {
   readonly enum: Enum;
-  readonly ordered?: boolean;
-  readonly isValidSelection?: (selection: EnumMember, selections: readonly EnumMember[]) => boolean;
-  readonly project?: (selection: EnumMember) => MutatorWithNamespace;
-  readonly isPresent?: (selection: EnumMember, type: Type) => boolean;
+  /** Restrict the selectable members, e.g. a pinned dependency version. */
+  readonly members?: readonly EnumMember[];
+  /** Members of other axes implied by selecting `member`, e.g. dependency versions. */
+  readonly implied?: (member: EnumMember) => readonly EnumMember[];
+  /** Whether `type` exists when `member` is selected. Used to scope reference errors. */
+  readonly isPresent?: (member: EnumMember, type: Type) => boolean;
+  /** Projection applied to the view program when displaying `member`. */
+  readonly project?: (member: EnumMember) => MutatorWithNamespace;
 }
 
+/** One concrete scope selection and the program checked for it. */
 export interface ScopeView {
   readonly name: string;
+  /** Selected members, from the program that enumerated the views. */
   readonly selections: readonly EnumMember[];
-  isPresent(type: Type): boolean;
-  getType<T extends Type>(type: T): T;
+  /** Program checked with this selection. Views with identical conditions share a program. */
+  readonly program: Program;
+  /** Global namespace of {@link ScopeView.program} with library projections (e.g. versioning) applied. */
   getGlobalNamespaceType(): Namespace;
-  /** Query-only facade for existing library APIs. The original checker is not view-aware. */
-  getProgram(): Program;
-  getAutoDecoratorValue(decorator: string, type: Type): Record<string, unknown> | undefined;
 }
 
 interface ScopeViewState {
-  axes: Map<Enum, ScopeViewAxis>;
-  conditions: Map<Node, ScopeConditionSet>;
-  views: ScopeView[];
-  validated: boolean;
-  validators: ((view: ScopeView) => readonly Diagnostic[])[];
+  readonly axes: ScopeViewAxis[];
+  views: readonly ScopeView[];
 }
 
-const stateKey = Symbol.for("TypeSpec.Scopes.views");
+/** Upper bound on enumerated selections; distinct programs are usually far fewer. */
+const maxSelections = 4096;
+// Shared through the global symbol registry: the playground and libraries may load separate
+// copies of this module while operating on the same program.
+const states: WeakMap<Program, ScopeViewState> = ((globalThis as any)[
+  Symbol.for("TypeSpec.scopeViews")
+] ??= new WeakMap());
+const whenClauses = new WeakMap<Program, readonly WhenClauseNode[]>();
 
 function state(program: Program): ScopeViewState {
-  const map = program.stateMap(stateKey);
-  const root = program.getGlobalNamespaceType();
-  let value = map.get(root) as ScopeViewState | undefined;
-  if (!value) {
-    value = { axes: new Map(), conditions: new Map(), views: [], validated: false, validators: [] };
-    map.set(root, value);
+  let result = states.get(program);
+  if (!result) {
+    result = { axes: [], views: [] };
+    states.set(program, result);
   }
-  return value;
+  return result;
 }
 
-/** Register during compilation/validation, never when an emitter first requests a view. */
 export function registerScopeViewAxis(program: Program, axis: ScopeViewAxis): void {
-  state(program).axes.set(axis.enum, axis);
+  state(program).axes.push(axis);
 }
 
-/** Opt-in library rules run on every view, independent of emitter/viewer selection. */
-export function registerScopeViewValidator(
-  program: Program,
-  validator: (view: ScopeView) => readonly Diagnostic[],
-): void {
-  state(program).validators.push(validator);
-}
-
-/** Returns the views already checked by the compiler. Does not trigger validation. */
+/** Scope views of a program, available after validation. Empty without `when` clauses. */
 export function getScopeViews(program: Program): readonly ScopeView[] {
   return state(program).views;
 }
 
 export function hasScopeConditions(program: Program): boolean {
-  let found = false;
-  const visit = (node: Node): void => {
-    if ("when" in node && node.when) found = true;
-    if (!found) visitChildren(node, visit);
-  };
-  for (const file of program.sourceFiles.values()) {
-    if (!found) visit(file);
-  }
-  return found;
+  return getWhenClauses(program).length > 0;
 }
 
-/** Exhaustive finite enumeration is intentional in this feasibility POC. */
-export function validateScopeViews(program: Program): void {
-  if (!hasScopeConditions(program)) return;
-  const data = state(program);
-  if (data.validated) return;
-  data.validated = true;
+function getWhenClauses(program: Program): readonly WhenClauseNode[] {
+  let result = whenClauses.get(program);
+  if (!result) {
+    const found: WhenClauseNode[] = [];
+    const visit = (node: Node): undefined => {
+      if (node.kind === SyntaxKind.WhenClause) {
+        found.push(node);
+        return;
+      }
+      if ("when" in node && node.when) found.push(node.when as WhenClauseNode);
+      visitChildren(node, visit);
+      return;
+    };
+    for (const file of program.sourceFiles.values()) visit(file);
+    result = [...new Set(found)];
+    whenClauses.set(program, result);
+  }
+  return result;
+}
 
-  const collect = (node: Node): void => {
-    if ("when" in node && node.when) {
-      if (!isCompilerFeatureEnabled(program, "scoped-decorators", node.when)) {
-        // Decorator clauses are already checked by the checker.
-        if (!("arguments" in node)) {
+function memberName(member: EnumMember): string {
+  return getTypeName(member);
+}
+
+function viewName(selection: readonly EnumMember[]): string {
+  return selection.map(memberName).join(" + ");
+}
+
+/**
+ * Check every distinct scope view by compiling the program again with the view selected, so
+ * that the real checker, decorators, validators and linters run on each view.
+ * @internal
+ */
+export async function validateScopeViews(
+  program: Program,
+  compileView: (selection: readonly string[]) => Promise<Program>,
+): Promise<void> {
+  if (program.compilerOptions.scopeSelection) return;
+  const clauses = getWhenClauses(program);
+  if (clauses.length === 0) return;
+
+  const conditions: { node: WhenClauseNode; condition: ScopeConditionSet }[] = [];
+  const visibilityClasses = getVisibilityClasses(program);
+  for (const node of clauses) {
+    const condition = getWhenCondition(program, node);
+    if (!condition) continue;
+    const visibilityMember = condition.groups
+      .flat()
+      .find((literal) => visibilityClasses.has(literal.member.enum));
+    if (visibilityMember) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-scope-condition",
+          messageId: "visibility",
+          format: { name: visibilityMember.member.enum.name },
+          target: node,
+        }),
+      );
+      continue;
+    }
+    conditions.push({ node, condition });
+  }
+  if (conditions.length === 0) return;
+
+  const hierarchy = buildHierarchy(program, conditions);
+  const selections = enumerateSelections(program, conditions, hierarchy);
+
+  const groups = new Map<string, EnumMember[][]>();
+  const reachable = new Set<number>();
+  for (const selection of selections) {
+    const vector = conditions.map(({ condition }, index) => {
+      const value = matchesScope(program, selection, condition);
+      if (value) reachable.add(index);
+      return value ? "1" : "0";
+    });
+    const key = vector.join("");
+    groups.set(key, [...(groups.get(key) ?? []), selection]);
+  }
+  conditions.forEach(({ node }, index) => {
+    if (!reachable.has(index)) {
+      program.reportDiagnostic(
+        createDiagnostic({ code: "unreachable-scope-condition", target: node }),
+      );
+    }
+  });
+
+  const reported = new Set(program.diagnostics.map(diagnosticKey));
+  const report = (diagnostic: Diagnostic, view?: string) => {
+    const key = diagnosticKey(diagnostic);
+    if (reported.has(key)) return;
+    reported.add(key);
+    program.reportDiagnostic(
+      view
+        ? { ...diagnostic, message: `${diagnostic.message} (in scope view: ${view})` }
+        : diagnostic,
+    );
+  };
+
+  reportAbsentReferences(
+    program,
+    program.checker.getAbsentScopeReferences(),
+    report,
+    [],
+    "default",
+  );
+
+  const views: ScopeView[] = [];
+  for (const group of groups.values()) {
+    const viewProgram = await compileView(group[0].map((member) => getTypeName(member)));
+    const name = viewName(group[0]);
+    for (const diagnostic of viewProgram.diagnostics) report(diagnostic, name);
+    reportAbsentReferences(
+      viewProgram,
+      viewProgram.checker.getAbsentScopeReferences(),
+      report,
+      group,
+      undefined,
+    );
+    for (const selection of group) views.push(createView(viewProgram, selection));
+  }
+  state(program).views = views.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function diagnosticKey(diagnostic: Diagnostic): string {
+  const target = diagnostic.target;
+  const location =
+    typeof target === "object" && target !== null && "kind" in target && "pos" in target
+      ? `${(target as Node).pos}:${getFilePath(target as Node)}`
+      : typeof target === "object" && target !== null && "file" in target
+        ? `${(target as { pos: number }).pos}:${(target as { file: { path: string } }).file.path}`
+        : "";
+  return `${diagnostic.code}|${location}|${location ? "" : diagnostic.message}`;
+}
+
+function getFilePath(node: Node): string {
+  let current: Node | undefined = node;
+  while (current?.parent) current = current.parent;
+  return current?.kind === SyntaxKind.TypeSpecScript ? current.file.path : "";
+}
+
+interface Hierarchy {
+  readonly axisOf: (member: EnumMember) => Enum;
+  readonly concrete: Map<Enum, EnumMember[]>;
+}
+
+function buildHierarchy(
+  program: Program,
+  conditions: readonly { condition: ScopeConditionSet }[],
+): Hierarchy {
+  const axes = new Map<EnumMember, Enum>();
+  const visiting = new Set<EnumMember>();
+  const axisOf = (member: EnumMember): Enum => {
+    const cached = axes.get(member);
+    if (cached) return cached;
+    if (visiting.has(member)) {
+      program.reportDiagnostic(
+        createDiagnostic({ code: "invalid-scope-hierarchy", target: member }),
+      );
+      return member.enum;
+    }
+    visiting.add(member);
+    const parents = getScopeParents(program, member);
+    let axis = member.enum;
+    if (parents.length > 0) {
+      axis = axisOf(parents[0]);
+      for (const parent of parents.slice(1)) {
+        const other = axisOf(parent);
+        if (other !== axis) {
           program.reportDiagnostic(
-            createDiagnostic({ code: "scoped-decorator-disabled", target: node.when }),
+            createDiagnostic({
+              code: "invalid-scope-hierarchy",
+              messageId: "root",
+              format: { member: memberName(member), first: axis.name, second: other.name },
+              target: member,
+            }),
           );
         }
-      } else {
-        const condition = resolveWhenClause(program, node.when);
-        if (condition) {
-          data.conditions.set(node, condition);
-          for (const item of condition.conditions) {
-            if (item.dimension === "enum" && !data.axes.has(item.value.enum)) {
-              data.axes.set(item.value.enum, { enum: item.value.enum });
-            }
-          }
-        }
       }
     }
-    visitChildren(node, collect);
+    visiting.delete(member);
+    axes.set(member, axis);
+    return axis;
   };
-  for (const file of program.sourceFiles.values()) collect(file);
 
-  // String selectors remain supported by the original metadata spike. They do not
-  // establish a closed universe and therefore are not used for structural views.
-  for (const [node, condition] of data.conditions) {
-    if (
-      condition.conditions.some((c) => c.dimension !== "enum") &&
-      (!("arguments" in node) || data.axes.size > 0)
-    ) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-scope-condition",
-          messageId: "legacySelector",
-          target: node,
-        }),
-      );
-      return;
-    }
-    if (
-      condition.conditions.some(
-        (c) => c.dimension === "enum" && c.relation && !data.axes.get(c.value.enum)?.ordered,
-      )
-    ) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-scope-condition",
-          messageId: "range",
-          target: node,
-        }),
-      );
-      return;
-    }
+  const members = new Set<EnumMember>();
+  const parents = new Set<EnumMember>();
+  for (const [child, childParents] of program.stateMap(scopeParentKey) as Map<
+    EnumMember,
+    EnumMember[]
+  >) {
+    members.add(child);
+    childParents.forEach((parent) => parents.add(parent));
   }
-  if (data.axes.size === 0) return;
-  let hierarchyError = false;
-  for (const [member, parent] of program.stateMap(scopeParentKey) as Map<EnumMember, EnumMember>) {
-    const seen = new Set<EnumMember>([member]);
-    let current: EnumMember | undefined = parent;
-    while (current) {
-      if (current.enum !== member.enum || seen.has(current)) {
-        program.reportDiagnostic(
-          createDiagnostic({ code: "invalid-scope-hierarchy", target: member }),
-        );
-        hierarchyError = true;
-        break;
-      }
-      seen.add(current);
-      current = program.stateMap(scopeParentKey).get(current);
-    }
-    if (hierarchyError) break;
+  for (const { condition } of conditions) {
+    for (const literal of condition.groups.flat()) members.add(literal.member);
   }
-  if (hierarchyError) return;
-
-  const allTypes = new Set<Type>();
-  const remember = (type: Type) => {
-    allTypes.add(type);
-  };
-  navigateProgram(program, {
-    namespace: remember,
-    model: remember,
-    modelProperty: remember,
-    operation: remember,
-    interface: remember,
-    scalar: remember,
-    enum: remember,
-    enumMember: remember,
-    union: remember,
-    unionVariant: remember,
-    tuple: remember,
-  });
-  for (const type of allTypes) {
-    if (type.kind !== "ModelProperty") continue;
-    for (const axis of getRawVisibilityStore(program, type)?.keys() ?? []) {
-      if (!data.axes.has(axis)) data.axes.set(axis, { enum: axis });
-    }
+  for (const member of [...members]) {
+    for (const sibling of axisOf(member).members.values()) members.add(sibling);
   }
 
-  for (const axis of getDefaultVisibilityClasses(program)) {
-    if (!data.axes.has(axis)) data.axes.set(axis, { enum: axis });
+  const concrete = new Map<Enum, EnumMember[]>();
+  for (const member of members) {
+    if (parents.has(member)) continue;
+    const axis = axisOf(member);
+    concrete.set(axis, [...(concrete.get(axis) ?? []), member]);
+  }
+  return { axisOf, concrete };
+}
+
+function enumerateSelections(
+  program: Program,
+  conditions: readonly { condition: ScopeConditionSet }[],
+  hierarchy: Hierarchy,
+): EnumMember[][] {
+  const adapters = state(program).axes;
+  const axes = new Set<Enum>();
+  for (const { condition } of conditions) {
+    for (const literal of condition.groups.flat()) axes.add(hierarchy.axisOf(literal.member));
+  }
+  const implies = (member: EnumMember) =>
+    adapters.flatMap((adapter) =>
+      adapter.enum === member.enum ? (adapter.implied?.(member) ?? []) : [],
+    );
+
+  // Axes implied by another axis (e.g. dependency versions) follow that axis instead of
+  // multiplying the views.
+  const derived = new Set<Enum>();
+  for (const axis of axes) {
+    for (const member of hierarchy.concrete.get(axis) ?? []) {
+      for (const implied of implies(member)) if (implied.enum !== axis) derived.add(implied.enum);
+    }
+  }
+  for (const adapter of adapters) {
+    if (adapter.members && axes.has(adapter.enum))
+      hierarchy.concrete.set(adapter.enum, [...adapter.members]);
   }
 
   let selections: EnumMember[][] = [[]];
-  for (const axis of data.axes.values()) {
-    selections = selections.flatMap((selection) =>
-      [...axis.enum.members.values()].map((member) => [...selection, member]),
-    );
+  for (const axis of axes) {
+    if (derived.has(axis)) continue;
+    const members = hierarchy.concrete.get(axis) ?? [];
+    selections = selections.flatMap((selection) => members.map((member) => [...selection, member]));
+    if (selections.length > maxSelections) {
+      selections = selections.slice(0, maxSelections);
+      break;
+    }
   }
-  selections = selections.filter((selection) =>
-    selection.every(
-      (member) => data.axes.get(member.enum)?.isValidSelection?.(member, selection) !== false,
-    ),
-  );
-  if (selections.length === 0) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "invalid-scope-condition",
-        messageId: "emptyUniverse",
-        target: data.axes.values().next().value!.enum,
-      }),
-    );
-    return;
-  }
-  program.stateMap(scopeUniverseKey).set(
-    program.getGlobalNamespaceType(),
-    selections.map((selection) => ({ selections: selection })),
-  );
+  return selections.map((selection) => {
+    const result = [...selection];
+    for (const member of selection) {
+      for (const implied of implies(member)) {
+        if (!result.some((x) => x.enum === implied.enum)) result.push(implied);
+      }
+    }
+    return result;
+  });
+}
 
-  const reported = new Set<string>();
-  function reportReference(source: Type, target: Type, view: ScopeView) {
-    const key = `${getTypeName(source)}:${getTypeName(target)}`;
-    if (reported.has(key)) return;
-    reported.add(key);
-    program.reportDiagnostic(
+function getVisibilityClasses(program: Program): Set<Enum> {
+  const classes = new Set<Enum>([getLifecycleVisibilityEnum(program)]);
+  navigateProgram(program, {
+    modelProperty(property) {
+      for (const visibilityClass of getRawVisibilityStore(program, property)?.keys() ?? []) {
+        classes.add(visibilityClass);
+      }
+    },
+  });
+  return classes;
+}
+
+/**
+ * Report references to declarations absent from a view, only when the referencing site itself
+ * exists in that view according to the registered axes (e.g. it is not removed by versioning).
+ * The default view selects no member; its sites must exist in every member of each axis.
+ */
+function reportAbsentReferences(
+  viewProgram: Program,
+  references: readonly AbsentScopeReference[],
+  report: (diagnostic: Diagnostic, view?: string) => void,
+  group: readonly (readonly EnumMember[])[],
+  defaultName: string | undefined,
+): void {
+  const adapters = state(viewProgram).axes.filter((adapter) => adapter.isPresent);
+  const resolve = (member: EnumMember) => {
+    const [type] = viewProgram.resolveTypeReference(getTypeName(member));
+    return type?.kind === "EnumMember" ? type : undefined;
+  };
+  for (const reference of references) {
+    const site = getSiteType(viewProgram, reference.node);
+    let view = defaultName;
+    if (site && defaultName) {
+      const present = adapters.every((adapter) =>
+        [...adapter.enum.members.values()].every((member) => adapter.isPresent!(member, site)),
+      );
+      if (!present) continue;
+    } else if (site) {
+      const selection = group.find((selection) =>
+        adapters.every((adapter) => {
+          const member = selection.map(resolve).find((x) => x?.enum === adapter.enum);
+          return member === undefined || adapter.isPresent!(member, site);
+        }),
+      );
+      if (!selection) continue;
+      view = viewName(selection);
+    } else {
+      view ??= viewName(group[0]);
+    }
+    report(
       createDiagnostic({
         code: "incompatible-scoped-reference",
-        format: { source: getTypeName(source), target: getTypeName(target), view: view.name },
-        target: Realm.sourceOf(source),
+        format: { target: reference.target.name, view: view! },
+        target: reference.node,
       }),
     );
-  }
-  function reportType(source: Type, reason: string, view: ScopeView) {
-    const key = `relationship:${getTypeName(source)}:${reason}`;
-    if (reported.has(key)) return;
-    reported.add(key);
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "invalid-scoped-type",
-        format: { view: view.name, reason },
-        target: Realm.sourceOf(source),
-      }),
-    );
-  }
-
-  for (const selection of selections) {
-    const scope: Scope = { selections: selection };
-    const view = createView(program, data, scope, reported);
-    data.views.push(view);
-    validateMetadata(program, view, scope, reported, reportReference);
-    const root = view.getGlobalNamespaceType();
-    const edge = (source: Type, target: Type | undefined) => {
-      if (target && view.isPresent(source) && !view.isPresent(target))
-        reportReference(source, target, view);
-    };
-    const checkInstantiation = (type: TemplatedType) => {
-      if (!view.isPresent(type) || !type.templateMapper || isTemplateDeclaration(type)) return;
-      for (const [parameter, argument] of type.templateMapper.map) {
-        if (parameter.node.parent !== type.node) continue;
-        if (argument.entityKind !== "Type") continue;
-        edge(type, argument);
-        if (!parameter.constraint?.type) continue;
-        const [valid, diagnostics] = program.checker.isTypeAssignableTo(
-          view.getType(argument),
-          view.getType(parameter.constraint.type),
-          type,
-        );
-        if (!valid) reportType(type, diagnostics.map((d) => d.message).join(" "), view);
-      }
-    };
-    navigateType(
-      root,
-      {
-        model(model) {
-          edge(model, model.baseModel);
-          for (const source of model.sourceModels) {
-            edge(model, source.model);
-            checkInstantiation(source.model);
-          }
-          if (model.indexer) edge(model, model.indexer.value);
-          checkInstantiation(model);
-        },
-        modelProperty(property) {
-          edge(property, property.type);
-          if (!view.isPresent(property)) return;
-          const source = Realm.sourceOf(property);
-          const defaultValue = source.kind === "ModelProperty" ? source.defaultValue : undefined;
-          const defaultType =
-            defaultValue && program.checker.getDefaultValueSourceType(defaultValue);
-          if (defaultType) {
-            const [valid, diagnostics] = program.checker.isTypeAssignableTo(
-              view.getType(defaultType),
-              property.type,
-              property,
-            );
-            if (!valid) {
-              reportType(
-                property,
-                `Default value of '${property.name}' is incompatible with its scoped type. ${diagnostics.map((d) => d.message).join(" ")}`,
-                view,
-              );
-            } else if (property.defaultValue) {
-              property.defaultValue = { ...property.defaultValue, type: property.type };
-            }
-          }
-          let indexedModel = property.model;
-          while (indexedModel && !indexedModel.indexer) indexedModel = indexedModel.baseModel;
-          const indexer = indexedModel?.indexer;
-          if (indexer && indexer.key.name !== "integer") {
-            const [valid, diagnostics] = program.checker.isTypeAssignableTo(
-              property.type,
-              indexer.value,
-              property,
-            );
-            if (!valid) {
-              reportType(
-                property,
-                `Property '${property.name}' is incompatible with its indexer. ${diagnostics.map((d) => d.message).join(" ")}`,
-                view,
-              );
-            }
-          }
-          let base = property.model?.baseModel;
-          while (base) {
-            const inherited = base.properties.get(property.name);
-            if (inherited) {
-              const [valid] = program.checker.isTypeAssignableTo(
-                property.type,
-                inherited.type,
-                property,
-              );
-              if (!valid || (!inherited.optional && property.optional)) {
-                reportType(
-                  property,
-                  `Property '${property.name}' is incompatible with its base property.`,
-                  view,
-                );
-              }
-              break;
-            }
-            base = base.baseModel;
-          }
-        },
-        operation(operation) {
-          edge(operation, operation.returnType);
-          edge(operation, operation.sourceOperation);
-          checkInstantiation(operation);
-          if (operation.sourceOperation) checkInstantiation(operation.sourceOperation);
-        },
-        interface(type) {
-          checkInstantiation(type);
-          for (const source of type.sourceInterfaces) {
-            edge(type, source);
-            checkInstantiation(source);
-          }
-        },
-        scalar(scalar) {
-          edge(scalar, scalar.baseScalar);
-          checkInstantiation(scalar);
-        },
-        union(union) {
-          checkInstantiation(union);
-        },
-        unionVariant(variant) {
-          edge(variant, variant.type);
-        },
-        tuple(tuple) {
-          for (const value of tuple.values) edge(tuple, value);
-        },
-      },
-      { includeTemplateDeclaration: true },
-    );
-    for (const validator of data.validators) program.reportDiagnostics(validator(view));
   }
 }
 
-function createView(
-  program: Program,
-  data: ScopeViewState,
-  scope: Scope,
-  reported: Set<string>,
-): ScopeView {
-  const selection = scope.selections!;
-  const viewName = selection.map((x) => getTypeName(x)).join(" / ");
-  const resolveSignature = (operation: Operation) => {
-    const seen = new Set<Type>();
-    let current = operation;
-    let first: Operation | undefined;
-    let returnType: Type | undefined;
-    while (true) {
-      const source = Realm.sourceOf(current);
-      if (seen.has(source)) {
-        const key = `signature-cycle:${[...seen]
-          .map((type) => getTypeName(type))
-          .sort()
-          .join(":")}`;
-        if (!reported.has(key)) {
-          reported.add(key);
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "invalid-scoped-type",
-              format: { view: viewName, reason: "Operation signature overrides are cyclic." },
-              target: Realm.sourceOf(operation),
-            }),
-          );
-        }
-        return undefined;
-      }
-      seen.add(source);
-      if (first && !returnType) {
-        const type = getAutoDecoratorValue(
-          program,
-          "TypeSpec.Scopes.returnType",
-          current,
-          scope,
-        )?.type;
-        if (
-          type &&
-          typeof type === "object" &&
-          "entityKind" in type &&
-          type.entityKind === "Type"
-        ) {
-          returnType = type as Type;
-        }
-      }
-      const next = getAutoDecoratorValue(program, "TypeSpec.Scopes.signature", current, scope)
-        ?.operation as Type | undefined;
-      if (!next || !isType(next) || next.kind !== "Operation") {
-        return first
-          ? { first, selected: current, returnType: returnType ?? current.returnType }
-          : undefined;
-      }
-      first ??= next;
-      current = next;
+function getSiteType(program: Program, node: Node): Type | undefined {
+  for (let current: Node | undefined = node; current; current = current.parent) {
+    switch (current.kind) {
+      case SyntaxKind.ModelProperty:
+      case SyntaxKind.OperationStatement:
+      case SyntaxKind.ModelStatement:
+      case SyntaxKind.ScalarStatement:
+      case SyntaxKind.UnionVariant:
+      case SyntaxKind.UnionStatement:
+      case SyntaxKind.InterfaceStatement:
+      case SyntaxKind.EnumMember:
+        return program.checker.getTypeForNode(current);
     }
-  };
-  const present = (type: Type, seen = new Set<Type>()): boolean => {
-    type = Realm.sourceOf(type);
-    if (seen.has(type)) return true;
-    seen.add(type);
-    const condition = type.node && data.conditions.get(type.node);
-    if (condition && !matchesScope(scope, condition, program)) return false;
-    for (const member of selection) {
-      if (data.axes.get(member.enum)?.isPresent?.(member, type) === false) return false;
-    }
-    if ("namespace" in type && type.namespace && !present(type.namespace, seen)) return false;
-    switch (type.kind) {
-      case "ModelProperty":
-        if (type.model && !present(type.model, seen)) return false;
-        if (type.sourceProperty && !present(type.sourceProperty, seen)) return false;
-        for (const member of selection) {
-          if (!isVisible(program, type, { any: new Set([member]) })) return false;
-        }
-        return true;
-      case "UnionVariant":
-        return present(type.union, seen);
-      case "EnumMember":
-        return present(type.enum, seen);
-      case "Operation":
-        return !type.interface || present(type.interface, seen);
-      default:
-        return true;
-    }
-  };
-  const projected = new Map<Type, Type>();
-  const siblingNames = new Map<Type, Map<string | symbol, Type>>();
-  let root: Namespace | undefined;
-  const record = (original: Type, clone: Type) => {
-    projected.set(original, clone);
-    const name = getAutoDecoratorValue(program, "TypeSpec.Scopes.name", original, scope)?.name;
-    if ("name" in clone && typeof name === "string") clone.name = name;
-    const owner =
-      original.kind === "ModelProperty"
-        ? original.model
-        : original.kind === "EnumMember"
-          ? original.enum
-          : original.kind === "UnionVariant"
-            ? original.union
-            : original.kind === "Operation"
-              ? (original.interface ?? original.namespace)
-              : "namespace" in original
-                ? original.namespace
-                : undefined;
-    if (
-      owner &&
-      "name" in clone &&
-      clone.name !== undefined &&
-      clone.name !== "" &&
-      present(original)
-    ) {
-      const names = siblingNames.get(owner) ?? new Map<string | symbol, Type>();
-      const previous = names.get(clone.name);
-      if (previous && previous !== original && previous.node !== original.node) {
-        const key = `name:${getTypeName(original)}`;
-        if (!reported.has(key)) {
-          reported.add(key);
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "invalid-scoped-type",
-              format: {
-                view: viewName,
-                reason: `Name '${String(clone.name)}' collides with '${getTypeName(previous)}'.`,
-              },
-              target: original,
-            }),
-          );
-        }
-      }
-      names.set(clone.name, original);
-      siblingNames.set(owner, names);
-    }
-  };
-  const filter = <K>(map: Map<K, Type>) => {
-    for (const [key, type] of map) if (!present(type)) map.delete(key);
-  };
-  const mutator: MutatorWithNamespace = {
-    name: "Conditional scope view",
-    Namespace(original, clone) {
-      record(original, clone);
-      for (const map of [
-        clone.models,
-        clone.scalars,
-        clone.operations,
-        clone.interfaces,
-        clone.enums,
-        clone.unions,
-        clone.namespaces,
-      ])
-        filter(map);
-    },
-    Model(original, clone) {
-      record(original, clone);
-      filter(clone.properties);
-      clone.derivedModels = clone.derivedModels.filter((x) => present(x));
-    },
-    ModelProperty(original, clone) {
-      record(original, clone);
-      const type = getAutoDecoratorValue(program, "TypeSpec.Scopes.type", original, scope)?.type;
-      if (type && typeof type === "object" && "entityKind" in type && type.entityKind === "Type") {
-        clone.type = type as Type;
-      }
-      const optional = getAutoDecoratorValue(
-        program,
-        "TypeSpec.Scopes.optional",
-        original,
-        scope,
-      )?.optional;
-      if (typeof optional === "boolean") clone.optional = optional;
-    },
-    Operation(original, clone) {
-      record(original, clone);
-      const signature = resolveSignature(original);
-      if (signature) {
-        clone.sourceOperation = signature.first;
-        clone.parameters = signature.selected.parameters;
-        clone.returnType = signature.returnType;
-      }
-      const type = getAutoDecoratorValue(
-        program,
-        "TypeSpec.Scopes.returnType",
-        original,
-        scope,
-      )?.type;
-      if (type && typeof type === "object" && "entityKind" in type && type.entityKind === "Type") {
-        clone.returnType = type as Type;
-      }
-    },
-    Scalar(original, clone) {
-      record(original, clone);
-      clone.derivedScalars = clone.derivedScalars.filter((x) => present(x));
-    },
-    Interface(original, clone) {
-      record(original, clone);
-      filter(clone.operations);
-    },
-    Enum(original, clone) {
-      record(original, clone);
-      filter(clone.members);
-    },
-    EnumMember: record,
-    Union(original, clone) {
-      record(original, clone);
-      filter(clone.variants);
-    },
-    UnionVariant: record,
-    Tuple: record,
-  };
-  const materialize = () => {
-    if (!root) {
-      const mutators = selection.flatMap((member) => {
-        const project = data.axes.get(member.enum)?.project;
-        return project ? [project(member)] : [];
-      });
-      root = mutateSubgraphWithNamespace(
-        program,
-        [...mutators, mutator],
-        program.getGlobalNamespaceType(),
-        { skipDecorators: true },
-      ).type as Namespace;
-    }
-    return root;
-  };
-  let queryProgram: Program | undefined;
-  const view: ScopeView = {
-    name: viewName,
+  }
+  return undefined;
+}
+
+function createView(program: Program, selection: readonly EnumMember[]): ScopeView {
+  let namespace: Namespace | undefined;
+  return {
+    name: viewName(selection),
     selections: selection,
-    isPresent: present,
-    getGlobalNamespaceType: materialize,
-    getType<T extends Type>(type: T): T {
-      materialize();
-      const source = Realm.sourceOf(type);
-      if (
-        !projected.has(source) &&
-        source.kind !== "Namespace" &&
-        source.kind !== "Intrinsic" &&
-        source.kind !== "TemplateParameter" &&
-        source.kind !== "Decorator" &&
-        source.kind !== "FunctionParameter"
-      ) {
-        const mutators = selection.flatMap((member) => {
-          const project = data.axes.get(member.enum)?.project;
-          return project ? [project(member)] : [];
-        });
-        return mutateSubgraph(program, [...mutators, mutator], source, { skipDecorators: true })
-          .type as T;
+    program,
+    getGlobalNamespaceType() {
+      if (namespace) return namespace;
+      const mutators: MutatorWithNamespace[] = [];
+      for (const adapter of state(program).axes) {
+        if (!adapter.project) continue;
+        const adapterEnum = getTypeName(adapter.enum);
+        const selected = selection.find((member) => getTypeName(member.enum) === adapterEnum);
+        const [member] = selected ? program.resolveTypeReference(getTypeName(selected)) : [];
+        if (member?.kind !== "EnumMember" || member.enum !== adapter.enum) continue;
+        mutators.push(adapter.project(member));
       }
-      return (projected.get(source) ?? type) as T;
-    },
-    getAutoDecoratorValue(decorator, type) {
-      return present(type) ? getAutoDecoratorValue(program, decorator, type, scope) : undefined;
-    },
-    getProgram() {
-      if (!queryProgram) {
-        const stateMaps = new Map<symbol, Map<Type, unknown>>();
-        for (const [key, entries] of program.stateMaps) {
-          if (
-            key.description?.startsWith("dec-scoped:") ||
-            key.description?.startsWith("TypeSpec.Scopes.")
-          )
-            continue;
-          const map = new Map<Type, unknown>();
-          for (const [type, value] of entries) {
-            if (Realm.sourceOf(type) !== type || !present(type)) continue;
-            map.set(view.getType(type), value);
-          }
-          stateMaps.set(key, map);
-        }
-        for (const [key, entries] of program.stateMaps) {
-          if (!key.description?.startsWith("dec-scoped:")) continue;
-          const decorator = key.description.slice(11);
-          const mapKey = Symbol.for(`dec:${decorator}`);
-          const map = stateMaps.get(mapKey) ?? new Map<Type, unknown>();
-          for (const type of entries.keys()) {
-            if (Realm.sourceOf(type) !== type || !present(type)) continue;
-            const value = view.getAutoDecoratorValue(decorator, type);
-            if (value !== undefined) map.set(view.getType(type), value);
-          }
-          stateMaps.set(mapKey, map);
-        }
-        for (const map of stateMaps.values()) {
-          const get = map.get.bind(map);
-          const has = map.has.bind(map);
-          map.get = (type) => get(view.getType(type));
-          map.has = (type) => has(view.getType(type));
-        }
-        queryProgram = {
-          ...program,
-          stateMaps,
-          getGlobalNamespaceType: materialize,
-          stateMap(key) {
-            return stateMaps.get(key) ?? new Map();
-          },
-          stateSet(key) {
-            return new Set(
-              [...program.stateSet(key)]
-                .filter((type) => present(type))
-                .map((type) => view.getType(type)),
-            );
-          },
-        };
-      }
-      return queryProgram;
+      // Projections run in one pass: versioning state is keyed by source types, so a second
+      // pass over already-projected clones would not recognize them.
+      namespace =
+        mutators.length === 0
+          ? program.getGlobalNamespaceType()
+          : (mutateSubgraphWithNamespace(program, mutators, program.getGlobalNamespaceType())
+              .type as Namespace);
+      return namespace;
     },
   };
-  return view;
-}
-
-function validateMetadata(
-  program: Program,
-  view: ScopeView,
-  scope: Scope,
-  reported: Set<string>,
-  reportReference: (source: Type, target: Type, view: ScopeView) => void,
-): void {
-  const universe = program
-    .stateMap(scopeUniverseKey)
-    .get(program.getGlobalNamespaceType()) as Scope[];
-  for (const [key, map] of [...program.stateMaps]) {
-    const decorator = key.description?.startsWith("dec-scoped:")
-      ? key.description.slice(11)
-      : undefined;
-    if (!decorator) continue;
-    for (const [target, rawEntries] of [...map]) {
-      if (Realm.sourceOf(target) !== target || !view.isPresent(target)) continue;
-      const entries = rawEntries as ScopedDecoratorEntry[];
-      const matching = entries.filter(
-        (entry) => entry.scope && matchesScope(scope, entry.scope, program),
-      );
-      const domains = matching.map(
-        (entry) =>
-          new Set(
-            universe
-              .map((candidate, i) => (matchesScope(candidate, entry.scope!, program) ? i : -1))
-              .filter((i) => i >= 0),
-          ),
-      );
-      const winners = matching.filter((_, i) =>
-        domains.every(
-          (other, j) =>
-            i === j || (domains[i].size < other.size && [...domains[i]].every((x) => other.has(x))),
-        ),
-      );
-      const id = `${decorator}:${getTypeName(target)}`;
-      if (matching.length > 1 && winners.length !== 1 && !reported.has(id)) {
-        reported.add(id);
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "ambiguous-scoped-value",
-            format: { decorator, view: view.name },
-            target: matching[0].node ?? target,
-          }),
-        );
-      }
-      const value = view.getAutoDecoratorValue(decorator, target);
-      const visited = new Set<object>();
-      const inspect = (arg: unknown): void => {
-        if (!arg || typeof arg !== "object" || visited.has(arg)) return;
-        visited.add(arg);
-        if ("entityKind" in arg && arg.entityKind === "Type" && isType(arg as Type)) {
-          if (!view.isPresent(arg as Type)) reportReference(target, arg as Type, view);
-        } else {
-          for (const child of Object.values(arg)) inspect(child);
-        }
-      };
-      inspect(value);
-    }
-  }
 }

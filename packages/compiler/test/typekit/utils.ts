@@ -15,8 +15,6 @@ export async function createContextMock(program?: Program): Promise<EmitContext<
     emitterOutputDir: "",
     options: {},
     perf: createPerfReporter(),
-    scope: {},
-    createScope: (overrides) => ({ ...overrides }),
   };
 }
 

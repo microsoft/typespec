@@ -209,6 +209,11 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         }
         classify(node.target, SemanticTokenKind.Keyword);
         break;
+      case SyntaxKind.WhenClause: {
+        const whenToken = tokens.get(node.pos);
+        if (whenToken) whenToken.kind = SemanticTokenKind.Keyword;
+        break;
+      }
       case SyntaxKind.TemplateParameterDeclaration:
         classify(node.id, SemanticTokenKind.TypeParameter);
         break;

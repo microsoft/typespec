@@ -58,14 +58,14 @@ model DotnetSettings when Clients.csharp {
 op ReadV1<T>(@query id: string): T;
 op ReadV2<T>(@query id: string, @query expand?: boolean): T;
 
-// The base view retains all versions and visibilities, but no scoped clientName.
-// Every concrete combination is validated before selecting one in the viewer.
-// In the Scope explorer, compare Versions=v1/v2 and Lifecycle=Read/Create.
-// Widget changes from required oldValue: int32 to optional value?: string.
-// Read keeps id; Create keeps secret. Provisioning inherits C# metadata in v1
-// and overrides it in v2. v1 also uses a different property type and signature
-// through scope decorators. These are the real versioning/visibility adapters.
-// The signature replacement does not replace operation-level decorators.
+// The default view has every condition false: no clientName, no settings and
+// no DotnetSettings. Every distinct view is compiled and checked on its own.
+// In the Scope explorer, compare Versions=v1/v2 with each client.
+// Widget changes from required oldValue: int32 to optional value?: string through
+// the real versioning projection. Provisioning inherits C# metadata in v1 and
+// overrides it in v2. v1 also uses a different property type and signature.
+// Visibility stays a projection (@visibility), not a scope axis.
+// Operation-level decorators (@get) still apply with the selected signature.
 @get
 @Scopes.signature(ReadV1<Widget>) when before(Versions.v2)
 op getWidget is ReadV2<Widget>;

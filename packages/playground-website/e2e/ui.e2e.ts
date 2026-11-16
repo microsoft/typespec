@@ -30,29 +30,29 @@ test.describe("playground UI tests", () => {
       await expect(page.getByRole("heading", { name: "Scope explorer" })).toBeVisible();
     };
 
-    await open("Conditional scopes: versions and visibility");
+    await open("Conditional scopes: versioning composition");
     await page.getByLabel("Scope: Example.Versions").selectOption("v1");
-    await page.getByLabel("Scope: Lifecycle").selectOption("Read");
+    await page.getByLabel("Scope: Example.Clients").selectOption("provisioning");
     await expect(shape).toContainText("oldValue: int32;");
-    await expect(shape).toContainText("id: string;");
-    await expect(shape).not.toContainText("secret:");
+    await expect(shape).toContainText("preferences: string;");
+    await expect(shape).not.toContainText("settings:");
     await page.getByLabel("Scope: Example.Versions").selectOption("v2");
-    await page.getByLabel("Scope: Lifecycle").selectOption("Create");
     await expect(shape).toContainText("value?: string;");
-    await expect(shape).toContainText("secret: string;");
-    await expect(shape).not.toContainText("id:");
+    await expect(shape).toContainText("settings: Example.DotnetSettings;");
+    await page.getByLabel("Scope: Example.Clients").selectOption("python");
+    await expect(shape).not.toContainText("settings:");
 
     await open("Conditional scopes: direct shape facets");
     await page.getByLabel("Scope: DirectFacets.Versions").selectOption("v1");
-    await expect(shape).toContainText("model LegacyWidget");
-    await expect(shape).toContainText("value: int32;");
+    await expect(shape).toContainText("amount: int32;");
     await page
       .getByRole("tablist", { name: "Scope explorer views" })
       .getByRole("tab", { name: "Type graph", exact: true })
       .click();
-    await expect(
-      page.getByRole("treeitem", { name: "M LegacyWidget", exact: true }),
-    ).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByRole("treeitem", { name: "M Widget", exact: true })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await page.getByRole("tab", { name: "Shape comparison", exact: true }).click();
     await page.getByLabel("Scope: DirectFacets.Versions").selectOption("v2");
     await page.getByLabel("Scope: DirectFacets.Views").selectOption("write");
@@ -65,21 +65,21 @@ test.describe("playground UI tests", () => {
 
     await open("Conditional scopes: declarations only");
     await page.getByLabel("Scope: DirectSyntax.Versions").selectOption("v1");
-    await page.getByLabel("Scope: DirectSyntax.Visibility").selectOption("read");
+    await page.getByLabel("Scope: DirectSyntax.Operations").selectOption("read");
     await expect(shape).toContainText("value: int32;");
     await page.getByLabel("Scope: DirectSyntax.Versions").selectOption("v2");
-    await page.getByLabel("Scope: DirectSyntax.Visibility").selectOption("create");
+    await page.getByLabel("Scope: DirectSyntax.Operations").selectOption("create");
     await expect(shape).toContainText("value: string;");
     await expect(shape).toContainText("secret: string;");
     await expect(shape).not.toContainText("id:");
     await page.getByLabel("Declaration", { exact: true }).selectOption("DirectSyntax.ServerState");
     await expect(shape).toContainText("not present");
-    await page.getByLabel("Scope: DirectSyntax.Visibility").selectOption("read");
+    await page.getByLabel("Scope: DirectSyntax.Operations").selectOption("read");
     await expect(shape).toContainText("generation: int32;");
     await page.getByLabel("Graph view", { exact: true }).selectOption("base");
     await page.getByLabel("Declaration", { exact: true }).selectOption("DirectSyntax.Value");
-    await expect(shape).toContainText("legacy: int32,");
-    await expect(shape).toContainText("current: string,");
+    await expect(shape).not.toContainText("legacy:");
+    await expect(shape).not.toContainText("current:");
 
     await open("Conditional scopes: hierarchy");
     await page.getByRole("tab", { name: "Readonly metadata", exact: true }).click();
@@ -121,7 +121,9 @@ test.describe("playground UI tests", () => {
     await page.keyboard.insertText("model Invalid { details: Private; }");
     const errors = page.getByRole("button", { name: /1 error/ });
     await errors.click();
-    await expect(page.getByText(/which is absent in view 'Clients.python'/).first()).toBeVisible();
+    await expect(
+      page.getByText(/'Private' is not present in scope view 'default'/).first(),
+    ).toBeVisible();
     await expect(clients).toHaveValue("csharp");
     await expect(page.getByLabel("Declaration", { exact: true })).toHaveValue("Widget");
   });

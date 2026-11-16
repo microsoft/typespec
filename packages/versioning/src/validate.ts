@@ -23,10 +23,9 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
   getUseDependencies,
-  getVersion,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
-import { registerVersioningScopeAxis } from "./mutator.js";
+import { registerVersioningScopeAxes } from "./mutator.js";
 import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
@@ -59,11 +58,9 @@ export function getCachedNamespaceDependencies(
  */
 export function $onValidate(program: Program) {
   if (hasScopeConditions(program)) {
-    navigateProgram(program, {
-      namespace(namespace) {
-        if (getVersion(program, namespace)) registerVersioningScopeAxis(program, namespace);
-      },
-    });
+    const namespaces: Namespace[] = [];
+    navigateProgram(program, { namespace: (namespace) => void namespaces.push(namespace) });
+    registerVersioningScopeAxes(program, namespaces);
   }
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 

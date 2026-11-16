@@ -29,13 +29,6 @@ paths:
                 $ref: '#/components/schemas/Widget'
 components:
   schemas:
-    Settings:
-      type: object
-      required:
-        - enabled
-      properties:
-        enabled:
-          type: boolean
     Versions:
       type: string
       enum:
@@ -49,16 +42,7 @@ components:
     Widget:
       type: object
       required:
-        - id
-        - secret
         - value
-        - settings
       properties:
-        id:
-          type: string
-        secret:
-          type: string
         value:
           type: string
-        settings:
-          $ref: '#/components/schemas/Settings'

@@ -474,19 +474,14 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
       it("decorator with a when clause", async () => {
-        const tokens = await tokenize(`@foo when emitter("csharp")`);
+        const tokens = await tokenize(`@foo when Targets.csharp`);
         deepStrictEqual(tokens, [
           Token.identifiers.tag("@"),
           Token.identifiers.tag("foo"),
           Token.keywords.other("when"),
-          // The TextMate grammar cannot tell a condition from any other identifier;
-          // the semantic classifier sees the call expression.
-          tokenize === tokenizeTMLanguage
-            ? Token.identifiers.type("emitter")
-            : Token.identifiers.functionName("emitter"),
-          Token.punctuation.openParen,
-          Token.literals.stringQuoted("csharp"),
-          Token.punctuation.closeParen,
+          Token.identifiers.type("Targets"),
+          Token.punctuation.accessor,
+          Token.identifiers.type("csharp"),
         ]);
       });
     });

@@ -79,7 +79,8 @@ export const $functions = {
 export const $decorators = {
   "TypeSpec.Scopes": {
     parent(context: DecoratorContext, target: EnumMember, parent: EnumMember) {
-      context.program.stateMap(scopeParentKey).set(target, parent);
+      const parents = context.program.stateMap(scopeParentKey);
+      parents.set(target, [...(parents.get(target) ?? []), parent]);
     },
   },
   TypeSpec: {

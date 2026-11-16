@@ -184,7 +184,6 @@ export async function getOpenAPI3(
   program: Program,
   options: Omit<OpenAPI3EmitterOptions, IrrelevantOpenAPI3EmitterOptionsForObject> = {},
 ): Promise<OpenAPI3ServiceRecord[]> {
-  const scope = { emitter: "@typespec/openapi3" };
   const context: EmitContext<any> = {
     program,
 
@@ -193,8 +192,6 @@ export async function getOpenAPI3(
 
     options: options,
     perf: createPerfReporter(),
-    scope,
-    createScope: (overrides) => ({ ...scope, ...overrides }),
   };
 
   const resolvedOptions = resolveOptions(context);

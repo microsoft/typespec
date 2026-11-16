@@ -5,7 +5,6 @@ import type { FileRef } from "./file-ref.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
-import type { Scope } from "./scope.js";
 
 /**
  * JavaScript-facing type mapping for compiler values.
@@ -1984,9 +1983,9 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   readonly targetType: TypeReferenceNode;
   /** Remaining source arguments, excluding the decorated entity reference. */
   readonly arguments: readonly Expression[];
-  /** Containing file or namespace after binding. */
   /** Condition restricting the scopes this decorator applies in. */
   readonly when?: WhenClauseNode;
+  /** Containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -2120,8 +2119,9 @@ export type OperationSignature =
 export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   /** Identifies the named operation node rather than its signature child. */
   readonly kind: SyntaxKind.OperationStatement;
-  /** Explicit signature or reference to an operation whose signature is reused. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Explicit signature or reference to an operation whose signature is reused. */
   readonly signature: OperationSignature;
   /** Decorator annotations in source order, not their execution order. */
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -2133,8 +2133,9 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   /** Distinguishes a namespace declaration from a keyword-form model in expression position. */
   readonly kind: SyntaxKind.ModelStatement;
-  /** Own property declarations and spreads in source order; inherited properties are not inserted here. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Own property declarations and spreads in source order; inherited properties are not inserted here. */
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   /** Range including body braces, or `{-1, -1}` when an `is` declaration has no body. */
   readonly bodyRange: TextRange;
@@ -2175,8 +2176,9 @@ export interface ModelDeclarationExpressionNode
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   /** Distinguishes a namespace scalar declaration from a scalar declaration expression. */
   readonly kind: SyntaxKind.ScalarStatement;
-  /** Base scalar reference following `extends`, including any template arguments. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Base scalar reference following `extends`, including any template arguments. */
   readonly extends?: TypeReferenceNode;
   /** Decorator annotations on this scalar in source order. */
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -2225,8 +2227,9 @@ export interface ScalarConstructorNode extends BaseNode {
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   /** Identifies an interface declaration, not one of its operation members. */
   readonly kind: SyntaxKind.InterfaceStatement;
-  /** Operations explicitly written in this body; inherited operations exist only in the checked type. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Operations explicitly written in this body; inherited operations exist only in the checked type. */
   readonly operations: readonly OperationStatementNode[];
   /** Range including the braces surrounding the operation list. */
   readonly bodyRange: TextRange;
@@ -2242,8 +2245,9 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   /** Distinguishes a named union declaration from an infix `|` expression. */
   readonly kind: SyntaxKind.UnionStatement;
-  /** Variant nodes in source order, including both named and unnamed alternatives. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Variant nodes in source order, including both named and unnamed alternatives. */
   readonly options: readonly UnionVariantNode[];
   /**
    * Type that every variant of this union must be assignable to.
@@ -2290,8 +2294,9 @@ export interface UnionDeclarationExpressionNode
 export interface UnionVariantNode extends BaseNode {
   /** Identifies a declaration-body alternative rather than an operand of an infix union. */
   readonly kind: SyntaxKind.UnionVariant;
-  /** Explicit variant name; absent for an unnamed alternative such as `string`. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Explicit variant name; absent for an unnamed alternative such as `string`. */
   readonly id?: IdentifierNode;
   /** Type expression for this alternative, whether or not a name was provided. */
   readonly value: Expression;
@@ -2305,8 +2310,9 @@ export interface UnionVariantNode extends BaseNode {
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   /** Distinguishes a namespace enum declaration from an enum declaration expression. */
   readonly kind: SyntaxKind.EnumStatement;
-  /** Members and spread references as written; spreads are not expanded in the syntax tree. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Members and spread references as written; spreads are not expanded in the syntax tree. */
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   /** Annotations on this enum, separate from member annotations. */
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -2332,6 +2338,7 @@ export interface EnumDeclarationExpressionNode extends BaseNode, OptionallyNamed
 export interface EnumMemberNode extends BaseNode {
   /** Identifies an explicit member rather than an enum spread. */
   readonly kind: SyntaxKind.EnumMember;
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
   /** Member name, including decoded names accepted through quoted-identifier syntax. */
   readonly id: IdentifierNode;
@@ -2431,8 +2438,9 @@ export interface TupleExpressionNode extends BaseNode {
 export interface ModelPropertyNode extends BaseNode {
   /** Identifies an explicitly declared property rather than a property spread. */
   readonly kind: SyntaxKind.ModelProperty;
-  /** Property name, decoded from identifier or legacy quoted-name syntax. */
+  /** Condition restricting the scope views this declaration exists in. */
   readonly when?: WhenClauseNode;
+  /** Property name, decoded from identifier or legacy quoted-name syntax. */
   readonly id: IdentifierNode;
   /** Declared type expression following `:`, not the property's default value. */
   readonly value: Expression;
@@ -3990,30 +3998,6 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * The information will be displayed when the compiler is run with `--stats` flag.
    */
   readonly perf: PerfReporter;
-
-  /**
-   * The scope this emitter is running under, used to resolve `when`-conditioned metadata.
-   *
-   * The `emitter` dimension is populated automatically from the emitter's package name. Emitters
-   * that serve a specific language or artifact kind should narrow it further with
-   * {@link EmitContext.createScope}.
-   */
-  readonly scope: Scope;
-
-  /**
-   * Derive a scope from this emitter's scope, overriding the given dimensions.
-   *
-   * Use this when a single emitter produces output for more than one scope — for example a
-   * client emitter that targets several languages, or one that emits both client and server
-   * artifacts from the same program.
-   *
-   * @example
-   * ```ts
-   * const csharp = context.createScope({ language: "csharp", target: "client" });
-   * const name = getAutoDecoratorValue(program, "MyLib.clientName", model, csharp);
-   * ```
-   */
-  readonly createScope: (overrides: Partial<Scope>) => Scope;
 }
 
 /** Elapsed-time measurement handle returned by compiler performance utilities. */

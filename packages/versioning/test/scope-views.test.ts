@@ -1,5 +1,5 @@
-import { getAutoDecoratorValue } from "@typespec/compiler";
-import { getScopeViews } from "@typespec/compiler/experimental";
+import { getAutoDecoratorValue, type Program } from "@typespec/compiler";
+import { getScopeViews, type ScopeView } from "@typespec/compiler/experimental";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
 import { Tester } from "./test-host.js";
@@ -14,6 +14,14 @@ const compilerOptions = {
     outputDir: "tsp-output",
   },
 };
+
+function findView(program: Program, ...names: string[]): ScopeView {
+  const view = getScopeViews(program).find((candidate) =>
+    names.every((name) => candidate.selections.some((selection) => selection.name === name)),
+  );
+  expect(view, `view with ${names.join(", ")}`).toBeDefined();
+  return view!;
+}
 
 it("selects scoped type and operation signatures with an explicit default", async () => {
   const { program } = await Tester.compile(
@@ -45,10 +53,7 @@ it("selects scoped type and operation signatures with an explicit default", asyn
     ["v1", "string", ["id"]],
     ["v2", "Settings", ["id", "expand"]],
   ] as const) {
-    const view = getScopeViews(program).find((candidate) =>
-      candidate.selections.some((selection) => selection.name === version),
-    )!;
-    const service = view.getGlobalNamespaceType().namespaces.get("Service")!;
+    const service = findView(program, version).getGlobalNamespaceType().namespaces.get("Service")!;
     const widget = service.models.get("Widget")!;
     const operation = service.operations.get("getWidget")!;
     expect(widget.properties.get("settings")!.type).toMatchObject({ name: settings });
@@ -57,7 +62,7 @@ it("selects scoped type and operation signatures with an explicit default", asyn
   }
 });
 
-it("composes scoped metadata and members with real versioning and visibility", async () => {
+it("composes scoped metadata and members with versioning projections", async () => {
   const { program } = await Tester.compile(
     `
     @versioned(Versions)
@@ -72,7 +77,6 @@ it("composes scoped metadata and members with real versioning and visibility", a
     @clientName("CsWidget") when Clients.csharp
     @clientName("ProvisioningWidget") when Clients.provisioning & since(Versions.v2)
     model Widget {
-      @visibility(Lifecycle.Read) id: string;
       @renamedFrom(Versions.v2, "oldValue")
       @typeChangedFrom(Versions.v2, int32)
       @madeOptional(Versions.v2)
@@ -83,53 +87,33 @@ it("composes scoped metadata and members with real versioning and visibility", a
   `,
     { compilerOptions },
   );
-  const service = program.getGlobalNamespaceType().namespaces.get("Service")!;
-  const widget = service.models.get("Widget")!;
-  const views = getScopeViews(program);
-  expect(views).toHaveLength(30);
-  const readV1 = views.find(
-    (v) =>
-      v.selections.some((s) => s.name === "v1") &&
-      v.selections.some((s) => s.name === "provisioning") &&
-      v.selections.some((s) => s.name === "Read"),
-  )!;
-  const viewWidget = readV1
-    .getGlobalNamespaceType()
-    .namespaces.get("Service")!
-    .models.get("Widget")!;
-  expect(readV1.getAutoDecoratorValue("Service.clientName", viewWidget)?.name).toBe("CsWidget");
-  expect(viewWidget.properties.get("oldValue")!.type).toMatchObject({
-    kind: "Scalar",
-    name: "int32",
-  });
-  expect(viewWidget.properties.get("oldValue")!.optional).toBe(false);
-  expect(viewWidget.properties.has("extra")).toBe(false);
-  const createV2 = views.find(
-    (v) =>
-      v.selections.some((s) => s.name === "v2") &&
-      v.selections.some((s) => s.name === "provisioning") &&
-      v.selections.some((s) => s.name === "Create"),
-  )!;
-  const createWidget = createV2.getType(widget);
-  expect(createV2.getAutoDecoratorValue("Service.clientName", createWidget)?.name).toBe(
-    "ProvisioningWidget",
-  );
-  expect(createWidget.properties.has("id")).toBe(false);
-  expect(createWidget.properties.has("extra")).toBe(true);
-  expect(createWidget.properties.get("value")!.type).toMatchObject({
-    kind: "Scalar",
-    name: "string",
-  });
-  expect(createWidget.properties.get("value")!.optional).toBe(true);
-  expect([...widget.properties.keys()]).toEqual(["id", "value", "extra"]);
+  const widgetIn = (view: ScopeView) =>
+    view.getGlobalNamespaceType().namespaces.get("Service")!.models.get("Widget")!;
+  const clientName = (view: ScopeView) =>
+    getAutoDecoratorValue(view.program, "Service.clientName", widgetIn(view))?.name;
+
+  const v1 = findView(program, "v1", "provisioning");
+  expect(clientName(v1)).toBe("CsWidget");
+  expect(widgetIn(v1).properties.get("oldValue")!.type).toMatchObject({ name: "int32" });
+  expect(widgetIn(v1).properties.get("oldValue")!.optional).toBe(false);
+  expect(widgetIn(v1).properties.has("extra")).toBe(false);
+
+  const v2 = findView(program, "v2", "provisioning");
+  expect(clientName(v2)).toBe("ProvisioningWidget");
+  expect(widgetIn(v2).properties.get("value")!.optional).toBe(true);
+  expect(widgetIn(v2).properties.has("extra")).toBe(true);
+
+  expect(clientName(findView(program, "v2", "python"))).toBeUndefined();
+  const widget = program.getGlobalNamespaceType().namespaces.get("Service")!.models.get("Widget")!;
+  expect([...widget.properties.keys()]).toEqual(["value"]);
   expect(getAutoDecoratorValue(program, "Service.clientName", widget)).toBeUndefined();
 });
 
-it("keeps independent timelines separate and honors dependency version selections", async () => {
+it("implies dependency versions from the root service and keeps unrelated services separate", async () => {
   const { program } = await Tester.compile(
     `
-    enum Clients { csharp, python }
-    model Marker when Clients.csharp {}
+    model ServiceMarker when since(Service.Versions.v2) {}
+    model OtherMarker when since(Other.Versions.o2) {}
     @versioned(Versions)
     namespace Library {
       enum Versions { l1, l2 }
@@ -156,24 +140,45 @@ it("keeps independent timelines separate and honors dependency version selection
     { compilerOptions },
   );
   const views = getScopeViews(program);
-  expect(views).toHaveLength(8);
+  expect(views).toHaveLength(4);
+  for (const view of views) {
+    const names = view.selections.map((s) => s.name);
+    expect(names.includes("l2")).toBe(names.includes("v2"));
+  }
   for (const view of views) {
     const root = view.getGlobalNamespaceType();
-    const hasLibraryExtra = root.namespaces
-      .get("Library")!
-      .models.get("Item")!
-      .properties.has("extra");
-    const hasOtherExtra = root.namespaces
-      .get("Other")!
-      .models.get("Unrelated")!
-      .properties.has("extra");
-    expect(hasLibraryExtra).toBe(view.selections.some((s) => s.name === "v2"));
-    expect(hasOtherExtra).toBe(view.selections.some((s) => s.name === "o2"));
+    const libraryItem = root.namespaces.get("Library")!.models.get("Item")!;
+    const unrelated = root.namespaces.get("Other")!.models.get("Unrelated")!;
+    expect(libraryItem.properties.has("extra")).toBe(view.selections.some((s) => s.name === "v2"));
+    expect(unrelated.properties.has("extra")).toBe(view.selections.some((s) => s.name === "o2"));
   }
 });
 
-it("validates a reference to a removed target at every version without an emitter", async () => {
-  const [{ program }, diagnostics] = await Tester.compileAndDiagnose(
+it("only offers the pinned version of a dependency used by an unversioned service", async () => {
+  const { program } = await Tester.compile(
+    `
+    enum Clients { csharp, python }
+    @versioned(Versions)
+    namespace Library {
+      enum Versions { l1, l2 }
+      model Item {
+        @added(Versions.l2) extra: string;
+      }
+    }
+    @useDependency(Library.Versions.l1)
+    namespace Service {
+      model Request { item: Library.Item when Clients.csharp; }
+    }
+  `,
+    { compilerOptions },
+  );
+  for (const view of getScopeViews(program)) {
+    expect(view.selections.some((s) => s.name === "l2")).toBe(false);
+  }
+});
+
+it("reports a scoped reference to a removed type once, from the versioning validator", async () => {
+  const diagnostics = await Tester.diagnose(
     `
     @versioned(Versions)
     namespace Service;
@@ -181,38 +186,14 @@ it("validates a reference to a removed target at every version without an emitte
     enum Clients { csharp, python }
     @removed(Versions.v2)
     model Target {}
-    @added(Versions.v1)
     model Source {
       target: Target when Clients.csharp;
     }
   `,
     { compilerOptions },
   );
-  const views = getScopeViews(program);
-  expect(views).toHaveLength(6);
-  const view = views.find(
-    (v) =>
-      v.selections.some((s) => s.name === "v2") && v.selections.some((s) => s.name === "csharp"),
-  )!;
-  const target = program.getGlobalNamespaceType().namespaces.get("Service")!.models.get("Target")!;
-  expect(view.isPresent(target)).toBe(false);
-  expect(
-    view
-      .getGlobalNamespaceType()
-      .namespaces.get("Service")!
-      .models.get("Source")!
-      .properties.has("target"),
-  ).toBe(true);
-  const property = view
-    .getGlobalNamespaceType()
-    .namespaces.get("Service")!
-    .models.get("Source")!
-    .properties.get("target")!;
-  expect(view.isPresent(property)).toBe(true);
-  expect(view.isPresent(property.type)).toBe(false);
   expectDiagnostics(diagnostics, [
     { code: "@typespec/versioning/incompatible-versioned-reference", severity: "error" },
-    { code: "incompatible-scoped-reference", severity: "error" },
   ]);
-  expect(diagnostics[0].message).toContain("v2");
+  expect(diagnostics[0].message).toContain("csharp");
 });

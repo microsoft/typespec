@@ -4,9 +4,9 @@ packages:
   - "@typespec/versioning"
 ---
 
-Compose existing version projections with experimental compiler scope views, including version dependencies and validation before emitter selection.
+Register service versions as experimental scope view axes, so `when since(Versions.v2)` conditions are checked per version, with dependency versions implied by the root service and pinned `@useDependency` versions respected.
 
 ```ts
 import { getScopeViews } from "@typespec/compiler/experimental";
-const checkedViews = getScopeViews(program);
+const service = getScopeViews(program)[0].getGlobalNamespaceType();
 ```

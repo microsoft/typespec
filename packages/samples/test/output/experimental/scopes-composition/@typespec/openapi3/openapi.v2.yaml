@@ -35,13 +35,6 @@ components:
         - csharp
         - provisioning
         - python
-    DotnetSettings:
-      type: object
-      required:
-        - assembly
-      properties:
-        assembly:
-          type: string
     Preferences:
       type: object
       required:
@@ -59,7 +52,6 @@ components:
       required:
         - id
         - preferences
-        - settings
       properties:
         id:
           type: string
@@ -68,5 +60,3 @@ components:
           type: string
         preferences:
           $ref: '#/components/schemas/Preferences'
-        settings:
-          $ref: '#/components/schemas/DotnetSettings'

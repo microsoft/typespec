@@ -5,28 +5,27 @@ using TypeSpec.Reflection;
 namespace TypeSpec.Scopes;
 
 /**
- * Declares a scope hierarchy edge. Child scopes inherit metadata from their parent.
- * The parent must belong to the same enum. Experimental conditional-scope POC.
+ * Declares a scope hierarchy edge: selecting `target` also satisfies conditions on `parent`.
+ * A member can have several parents, possibly from another enum, as long as they share the
+ * same root axis. Members with children are abstract and are not checked as views themselves.
  */
 extern dec parent(target: EnumMember, parent: EnumMember);
 
-/**
- * Experimental view-only property type override. The base graph is unchanged.
- * This POC annotation exercises structural facets without committing to variant syntax.
- */
+/** Replace the property type in the scope views where this application is active. */
 auto dec type(target: ModelProperty, type: unknown);
 
-/** Experimental view-only optionality override. */
+/** Replace the property optionality in the scope views where this application is active. */
 auto dec optional(target: ModelProperty, optional: valueof boolean);
 
-/** Experimental view-only name override. */
-auto dec name(target: unknown, name: valueof string);
+/** Rename the property in the scope views where this application is active. */
+auto dec name(target: ModelProperty, name: valueof string);
 
-/** Experimental view-only operation return type override. */
+/** Replace the operation return type in the scope views where this application is active. */
 auto dec returnType(target: Operation, type: unknown);
 
 /**
- * Experimental view-only operation parameter and return type override.
- * The selected operation's operation-level decorators are not reapplied.
+ * Take the operation signature from `operation`, like `op x is operation`, in the scope views
+ * where this application is active. The operation-level decorators of `operation` are applied
+ * first, as with `is`.
  */
 auto dec signature(target: Operation, operation: Operation);

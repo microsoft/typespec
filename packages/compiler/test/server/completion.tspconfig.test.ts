@@ -191,7 +191,7 @@ describe("Test completion items for features", () => {
         "Allows use of auto decorator declarations without experimental warnings in project code.",
         "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
         "Allows use of function declarations without experimental warnings in project code.",
-        "Allows use of `when` clauses on `auto` decorator applications, conditioning the stored metadata on the querying scope (emitter, language, target).",
+        "Allows `when` clauses that make declarations, members and decorators conditional on declared scopes (enum members). Each distinct scope view is checked independently.",
         "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
         "Enables experimental union `extends` clauses in project code.",
         "Enables the typeref function for creating type-reference values.",

@@ -1,5 +1,11 @@
 import { isArray, mutate } from "../utils/misc.js";
-import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
+import {
+  codePointBefore,
+  isIdentifierContinue,
+  isIdentifierStart,
+  isWhiteSpace,
+  trim,
+} from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import type { CompilerDiagnostics } from "./messages.js";
 import { createDiagnostic } from "./messages.js";
@@ -7,7 +13,6 @@ import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
-  isContextualKeyword,
   isDeclarationExpressionStatementKeyword,
   isKeyword,
   isModifier,
@@ -1805,9 +1810,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
    */
   function parseOptionalWhenClause(): WhenClauseNode | undefined {
     const pos = tokenPos();
-    if (!parseOptional(Token.WhenKeyword)) {
+    if (!isWhenClauseStart()) {
       return undefined;
     }
+    nextToken();
 
     const conditions: WhenConditionNode[] = [parseWhenCondition()];
     const operators: ("|" | "&")[] = [];
@@ -1823,6 +1829,37 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       operators,
       ...finishNode(pos),
     };
+  }
+
+  /**
+   * `when` is not a keyword: it starts a clause only when directly followed by a condition, so
+   * `when: string` and an enum member named `when` keep parsing as identifiers.
+   */
+  function isWhenClauseStart(): boolean {
+    if (
+      token() !== Token.Identifier ||
+      tokenFlags() & TokenFlags.Backticked ||
+      tokenValue() !== "when"
+    ) {
+      return false;
+    }
+    const text = scanner.file.text;
+    let index = tokenEnd();
+    while (index < text.length) {
+      const ch = text.charCodeAt(index);
+      if (isWhiteSpace(ch) || ch === 10 || ch === 13) {
+        index++;
+      } else if (text.startsWith("//", index)) {
+        const end = text.indexOf("\n", index);
+        index = end === -1 ? text.length : end;
+      } else if (text.startsWith("/*", index)) {
+        const end = text.indexOf("*/", index + 2);
+        index = end === -1 ? text.length : end + 2;
+      } else {
+        return isIdentifierStart(text.codePointAt(index)!) || ch === 96;
+      }
+    }
+    return false;
   }
 
   function parseWhenCondition(): WhenConditionNode {
@@ -2331,10 +2368,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     allowReservedIdentifier?: boolean;
   }): IdentifierNode {
     if (isKeyword(token())) {
-      if (!(
-        (isModifier(token()) || isContextualKeyword(token())) &&
-        options?.allowReservedIdentifier
-      )) {
+      if (!(isModifier(token()) && options?.allowReservedIdentifier)) {
         error({ code: "reserved-identifier" });
         return createMissingIdentifier();
       }

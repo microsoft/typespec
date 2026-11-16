@@ -1,8 +1,11 @@
-import { getScopeViews } from "@typespec/compiler/experimental";
+import type { CompilerOptions, Program } from "@typespec/compiler";
+import { getScopeViews, type ScopeView } from "@typespec/compiler/experimental";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { expect, it } from "vitest";
 import {
+  findScopeDeclaration,
+  getScopeDeclarations,
   getScopeMemberChanges,
   renderScopeType,
   selectScopeView,
@@ -20,9 +23,17 @@ async function compile(source: string) {
       diagnostics: [],
       features: ["auto-decorators", "scoped-decorators"],
     },
-  });
+  } as CompilerOptions);
   expectDiagnosticEmpty(diagnostics);
   return host.program;
+}
+
+function typeIn(view: ScopeView | Program, name: string) {
+  const declarations =
+    "selections" in view
+      ? getScopeDeclarations(view.program, view.getGlobalNamespaceType())
+      : getScopeDeclarations(view);
+  return findScopeDeclaration(declarations, name);
 }
 
 it("renders resolved version types and visibility changes without legacy decorators", async () => {
@@ -39,19 +50,18 @@ it("renders resolved version types and visibility changes without legacy decorat
       secret: string when Views.write;
     }
   `);
-  const original = program.getGlobalNamespaceType().models.get("Widget")!;
+  const original = typeIn(program, "Widget");
   const views = getScopeViews(program);
   const v1 = selectScopeView(views, views[0], "Versions", "v1")!;
   const read = selectScopeView(views, v1, "Views", "read")!;
   const v2 = selectScopeView(views, read, "Versions", "v2")!;
   const write = selectScopeView(views, v2, "Views", "write")!;
-  expect(renderScopeType(read.getType(original))).toContain("value: int32;");
-  expect(renderScopeType(write.getType(original))).toContain("value: string;");
-  expect(renderScopeType(write.getType(original))).not.toContain("id:");
-  expect(getScopeMemberChanges(original, write.getType(original))).toMatchObject([
+  expect(renderScopeType(typeIn(read, "Widget"))).toContain("value: int32;");
+  expect(renderScopeType(typeIn(write, "Widget"))).toContain("value: string;");
+  expect(renderScopeType(typeIn(write, "Widget"))).not.toContain("id:");
+  expect(getScopeMemberChanges(original, typeIn(write, "Widget"))).toMatchObject([
     { name: "value", status: "changed" },
-    { name: "id", status: "removed" },
-    { name: "secret", status: "unchanged" },
+    { name: "secret", status: "added" },
   ]);
 });
 
@@ -60,7 +70,7 @@ it("adjusts dependent version axes while preserving independent selections", asy
     import "@typespec/versioning";
     using Versioning;
     enum Clients { csharp, python }
-    model Marker when Clients.csharp {}
+    model Marker when Clients.csharp & since(Service.Versions.v2) {}
     @versioned(Versions)
     namespace Library {
       enum Versions { l1, l2 }
@@ -89,23 +99,20 @@ it("adjusts dependent version axes while preserving independent selections", asy
 it("renders view-only type, optionality and name facets and absent declarations", async () => {
   const program = await compile(`
     enum Views { read, write }
-    @Scopes.name("Request") when Views.write
     model Widget {
+      @Scopes.name("amount") when Views.write
       @Scopes.type(int32) when Views.write
       @Scopes.optional(true) when Views.write
       value: string;
     }
     model Result when Views.read { id: string; }
   `);
-  const view = getScopeViews(program).find((v) => v.selections[0].name === "write")!;
-  const original = program.getGlobalNamespaceType().models.get("Widget")!;
-  const result = program.getGlobalNamespaceType().models.get("Result")!;
-  expect(renderScopeType(view.getType(original))).toContain("model Request");
-  expect(renderScopeType(view.getType(original))).toContain("value?: int32;");
-  expect(getScopeMemberChanges(original, view.getType(original))).toMatchObject([
-    { name: "value", status: "changed" },
+  const write = getScopeViews(program).find((v) => v.selections[0].name === "write")!;
+  expect(renderScopeType(typeIn(write, "Widget"))).toContain("amount?: int32;");
+  expect(getScopeMemberChanges(typeIn(program, "Widget"), typeIn(write, "Widget"))).toMatchObject([
+    { name: "value", status: "removed" },
+    { name: "amount", status: "added" },
   ]);
-  expect(renderScopeType(view.isPresent(result) ? view.getType(result) : undefined)).toContain(
-    "not present",
-  );
+  expect(typeIn(program, "Result")).toBeUndefined();
+  expect(renderScopeType(typeIn(write, "Result"))).toContain("not present");
 });

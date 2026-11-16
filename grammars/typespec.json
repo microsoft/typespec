@@ -1624,6 +1624,9 @@
         },
         {
           "include": "#identifier-expression"
+        },
+        {
+          "include": "#punctuation-accessor"
         }
       ]
     }

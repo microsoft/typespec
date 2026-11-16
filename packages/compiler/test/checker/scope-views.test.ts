@@ -1,507 +1,225 @@
 import { describe, expect, it } from "vitest";
-import { getAutoDecoratorValue } from "../../src/core/auto-decorator.js";
 import type { CompilerOptions } from "../../src/core/options.js";
 import type { Program } from "../../src/core/program.js";
-import {
-  getScopeViews,
-  registerScopeViewValidator,
-  validateScopeViews,
-} from "../../src/experimental/scope-views.js";
+import { getScopeViews } from "../../src/experimental/scope-views.js";
+import { getDoc } from "../../src/lib/decorators.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "../../src/testing/index.js";
 
-const options: CompilerOptions = {
-  noEmit: true,
-  configFile: {
-    projectRoot: ".",
-    kind: "project",
-    features: ["auto-decorators", "scoped-decorators"],
-    diagnostics: [],
-    outputDir: "tsp-output",
-  },
-};
+function options(features = ["auto-decorators", "scoped-decorators"]): CompilerOptions {
+  return {
+    noEmit: true,
+    configFile: { projectRoot: ".", kind: "project", features, diagnostics: [], outputDir: "out" },
+  };
+}
 
-async function compile(code: string) {
+async function compile(code: string, features?: string[]) {
   const host = await createTestHost();
   host.addTypeSpecFile("main.tsp", code);
-  await host.compileAndDiagnose("main.tsp", options);
+  await host.compileAndDiagnose("main.tsp", options(features));
   return host.program;
 }
 
-describe("integrated scope views", () => {
-  it("inherits metadata, prefers a child regardless of source order, and keeps base metadata private", async () => {
-    const program = await compile(`
-      enum Clients {
-        csharp,
-        @Scopes.parent(Clients.csharp) provisioning,
-        python
-      }
-      auto dec clientName(target: unknown, name: valueof string);
-      @clientName("ProvisioningWidget") when Clients.provisioning
-      @clientName("CsharpWidget") when Clients.csharp
-      model Widget {}
-    `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const widget = program.getGlobalNamespaceType().models.get("Widget")!;
-    const views = getScopeViews(program);
-    const names = views.map((view) => view.getAutoDecoratorValue("clientName", widget)?.name);
-    expect(names).toEqual(["CsharpWidget", "ProvisioningWidget", undefined]);
-    expect(getAutoDecoratorValue(program, "clientName", widget)).toBeUndefined();
-    const scopedProgram = views[1].getProgram();
-    expect(getAutoDecoratorValue(scopedProgram, "clientName", widget)?.name).toBe(
-      "ProvisioningWidget",
-    );
-  });
+function view(program: Program, name: string) {
+  const result = getScopeViews(program).find((x) => x.name === name);
+  expect(result, `view ${name}`).toBeDefined();
+  return result!;
+}
 
-  it("reports incomparable overlapping metadata without an emitter requesting the view", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      auto dec clientName(target: unknown, name: valueof string);
-      @clientName("Csharp") when Clients.csharp
-      @clientName("Read") when Lifecycle.Read
-      model Widget {}
-    `);
-    expectDiagnostics(program.diagnostics, { code: "ambiguous-scoped-value" });
-  });
+function model(program: Program, name: string) {
+  return program.getGlobalNamespaceType().models.get(name);
+}
 
-  it("allows an explicit intersection to resolve an overlap", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      auto dec clientName(target: unknown, name: valueof string);
-      @clientName("Both") when Clients.csharp & Lifecycle.Read
-      @clientName("Csharp") when Clients.csharp
-      @clientName("Read") when Lifecycle.Read
-      model Widget {}
-    `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const view = getScopeViews(program).find(
-      (v) =>
-        v.selections.some((s) => s.name === "csharp") &&
-        v.selections.some((s) => s.name === "Read"),
-    )!;
-    const widget = program.getGlobalNamespaceType().models.get("Widget")!;
-    expect(view.getAutoDecoratorValue("clientName", widget)?.name).toBe("Both");
-  });
+const clients = `enum Clients { csharp, python, java }`;
 
-  it("checks references in an unselected scope", async () => {
+describe("default view", () => {
+  it("excludes conditional declarations and members", async () => {
     const program = await compile(`
-      enum Clients { csharp, python }
-      model Private when Clients.csharp { value: string; }
-      model Common { value: Private; }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "incompatible-scoped-reference" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("filters cloned members and real visibility modifiers without changing the base graph", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Original {
-        @visibility(Lifecycle.Read) id: string;
-        extra: string when Clients.csharp;
-      }
-      model Copy is Original;
-      model Spread { ...Original; }
-      model Derived extends Original {}
-    `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const view = getScopeViews(program).find(
-      (v) =>
-        v.selections.some((s) => s.name === "python") &&
-        v.selections.some((s) => s.name === "Create"),
-    )!;
-    const root = view.getGlobalNamespaceType();
-    expect([...root.models.get("Copy")!.properties]).toEqual([]);
-    expect([...root.models.get("Spread")!.properties]).toEqual([]);
-    expect([...root.models.get("Derived")!.baseModel!.properties]).toEqual([]);
-    expect(program.getGlobalNamespaceType().models.get("Original")!.properties.size).toBe(2);
-  });
-
-  it("discovers default visibility classes and filters otherwise unannotated properties", async () => {
-    const program = await compile(`
-      enum Clients { csharp }
-      @defaultVisibility(Views.read)
-      enum Views { read, write }
-      model Marker when Clients.csharp {}
-      model Widget { shared: string; }
-    `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const views = getScopeViews(program);
-    expect(views).toHaveLength(2);
-    for (const view of views) {
-      expect(view.getGlobalNamespaceType().models.get("Widget")!.properties.has("shared")).toBe(
-        view.selections.some((s) => s.name === "read"),
-      );
-    }
-    expect(program.getGlobalNamespaceType().models.get("Widget")!.properties.has("shared")).toBe(
-      true,
-    );
-  });
-
-  it("rejects an empty view universe rather than silently skipping validation", async () => {
-    const program = await compile(`
-      enum Clients { csharp }
-      @defaultVisibility()
-      enum Views {}
-      model Marker when Clients.csharp {}
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scope-condition" });
-    expect(program.diagnostics[0].message).toContain("no valid concrete views");
-  });
-
-  it("rejects a hierarchy cycle rather than recursing forever", async () => {
-    const program = await compile(`
-      enum Clients {
-        @Scopes.parent(Clients.b) a,
-        @Scopes.parent(Clients.a) b
-      }
-      auto dec label(target: unknown, value: valueof string);
-      @label("x") when Clients.a
-      model Widget {}
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scope-hierarchy" });
-  });
-
-  it("rechecks template constraints against every filtered graph", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Required { id: string; }
-      model Value { id: string when Clients.csharp; }
-      model Box<T extends Required> { value: T; }
-      model Use { box: Box<Value>; }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("rechecks template constraints after a scoped property type override without an emitter", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Required { id: string; }
-      model Value {
-        @Scopes.type(int32) when Clients.python
+      ${clients}
+      model Csharp when Clients.csharp {}
+      model Widget {
         id: string;
-      }
-      model Box<T extends Required> { value: T; }
-      model Use { box: Box<Value>; }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("rechecks indexer compatibility after a scoped property type override", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Value extends Record<string> {
-        @Scopes.type(int32) when Clients.python
-        id: string;
-      }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-    expect(program.diagnostics[0].message).toContain("indexer");
-  });
-
-  it("rechecks property defaults after a scoped type override", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Value {
-        @Scopes.type(int32) when Clients.python
-        id: string = "hello";
-      }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-    expect(program.diagnostics[0].message).toContain("Default");
-  });
-
-  it("accepts a scoped type that includes the property's default value", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Value {
-        @Scopes.type("hello") when Clients.python
-        id: string = "hello";
+        name: string when Clients.csharp;
+        name: int32 when Clients.python;
       }
     `);
     expectDiagnosticEmpty(program.diagnostics);
-    const python = getScopeViews(program).find((view) =>
-      view.selections.some((selection) => selection.name === "python"),
-    )!;
-    const property = python.getGlobalNamespaceType().models.get("Value")!.properties.get("id")!;
-    expect(property.defaultValue?.type).toBe(property.type);
+    expect(model(program, "Csharp")).toBeUndefined();
+    expect([...model(program, "Widget")!.properties.keys()]).toEqual(["id"]);
+
+    const csharp = view(program, "Clients.csharp").program;
+    expect(model(csharp, "Csharp")).toBeDefined();
+    expect(model(csharp, "Widget")!.properties.get("name")!.type).toMatchObject({ name: "string" });
+    const python = view(program, "Clients.python").program;
+    expect(model(python, "Widget")!.properties.get("name")!.type).toMatchObject({ name: "int32" });
   });
 
-  it("uses a typed constant's declared type when rechecking a scoped default", async () => {
+  it("reports references to declarations absent from the default view", async () => {
     const program = await compile(`
-      enum Clients { csharp, python }
-      const greeting: string = "hello";
-      model Value {
-        @Scopes.type("hello") when Clients.python
-        id: string = greeting;
+      ${clients}
+      model Csharp when Clients.csharp {}
+      model Widget {
+        ok: Csharp when Clients.csharp;
+        bad: Csharp;
       }
     `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("rechecks an object default when a nested scoped type changes", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Details {
-        @Scopes.type(int32) when Clients.python
-        id: string;
-      }
-      model Value {
-        details: Details = #{ id: "hello" };
-      }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("propagates scoped types through model composition and operation is", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Value {
-        @Scopes.type(int32) when Clients.python
-        id: string;
-      }
-      model Copy is Value;
-      model Spread { ...Value; }
-      @Scopes.returnType(int32) when Clients.python
-      op original(): string;
-      op copied is original;
-    `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const [csharp, python] = getScopeViews(program);
-    for (const [view, name] of [
-      [csharp, "string"],
-      [python, "int32"],
-    ] as const) {
-      const root = view.getGlobalNamespaceType();
-      for (const model of ["Value", "Copy", "Spread"]) {
-        expect(root.models.get(model)!.properties.get("id")!.type).toMatchObject({ name });
-      }
-      expect(root.operations.get("copied")!.returnType).toMatchObject({ name });
-    }
-  });
-
-  it("checks structural declaration references, not only property types", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Private when Clients.csharp {}
-      model Copy is Private;
-    `);
-    expectDiagnostics(program.diagnostics, { code: "incompatible-scoped-reference" });
-  });
-
-  it.each([
-    "op request<T extends Required>(value: T): T; op use is request<Value>;",
-    "interface Box<T extends Required> { get(): T; } interface Use extends Box<Value> {}",
-  ])("rechecks non-model template constraints: %s", async (declarations) => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Required { id: string; }
-      model Value { id: string when Clients.csharp; }
-      ${declarations}
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("does not execute extern decorators again while constructing scope views", async () => {
-    const host = await createTestHost();
-    let calls = 0;
-    host.addJsFile("decorators.js", {
-      $count() {
-        calls++;
-      },
+    expectDiagnostics(program.diagnostics, {
+      code: "incompatible-scoped-reference",
+      message: "'Csharp' is not present in scope view 'default'.",
     });
-    host.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./decorators.js";
-      extern dec count(target: unknown);
-      enum Clients { csharp, python }
-      @count model Widget when Clients.csharp {}
-    `,
-    );
-    await host.compile("main.tsp", options);
-    expect(getScopeViews(host.program)).toHaveLength(2);
-    expect(calls).toBe(1);
   });
+});
 
-  it("runs opt-in library validation on every view without an emitter", async () => {
-    const host = await createTestHost();
-    const checked: string[] = [];
-    host.addJsFile("validation.js", {
-      $onValidate(program: Program) {
-        registerScopeViewValidator(program, (view) => {
-          checked.push(view.name);
-          return [];
-        });
-      },
-    });
-    host.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./validation.js";
-      enum Clients { csharp, python }
-      model Widget when Clients.csharp {}
-    `,
-    );
-    await host.compile("main.tsp", options);
-    expect(checked).toEqual(["Clients.csharp", "Clients.python"]);
-  });
-
-  it("resolves structural facets without redefining symbols or changing the base graph", async () => {
+describe("per-view checking", () => {
+  it("re-runs decorator validation with the view's types", async () => {
     const program = await compile(`
-      enum Clients { csharp, python }
-      @Scopes.name("CsWidget") when Clients.csharp
+      ${clients}
       model Widget {
-        @Scopes.type(int32) when Clients.csharp
-        @Scopes.optional(true) when Clients.python
-        value: string;
+        @pattern("^a") @Scopes.type(int32) when Clients.python name: string;
       }
-      @Scopes.returnType(Widget) when Clients.csharp
-      op get(): string;
     `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const [csharp, python] = getScopeViews(program);
-    const root = csharp.getGlobalNamespaceType();
-    const widget = root.models.get("CsWidget")!;
-    expect(widget.properties.get("value")!.type).toMatchObject({ kind: "Scalar", name: "int32" });
-    expect(root.operations.get("get")!.returnType).toBe(widget);
-    expect(
-      python.getGlobalNamespaceType().models.get("Widget")!.properties.get("value")!.optional,
-    ).toBe(true);
-    const base = program.getGlobalNamespaceType().models.get("Widget")!;
-    expect(base.properties.get("value")!.type).toMatchObject({ kind: "Scalar", name: "string" });
-    expect(base.properties.get("value")!.optional).toBe(false);
+    expectDiagnostics(program.diagnostics, {
+      code: "decorator-wrong-target",
+      message: /\(in scope view: Clients.python\)$/,
+    });
   });
 
-  it("uses a scoped operation template instead of the default signature", async () => {
+  it("recomputes template instances per view", async () => {
     const program = await compile(`
-      enum Versions { v1, v2 }
-      model Widget {}
-      op ReadV1<T>(id: string): T;
-      op ReadV2<T>(id: string, expand?: boolean): T;
-      @Scopes.signature(ReadV1<Widget>) when Versions.v1
-      op getWidget is ReadV2<Widget>;
-      op copied is getWidget;
+      ${clients}
+      model Copy<T> { ...T }
+      model Widget { id: string; extra: string when Clients.csharp; }
+      model WidgetCopy is Copy<Widget>;
     `);
     expectDiagnosticEmpty(program.diagnostics);
-    const base = program.getGlobalNamespaceType().operations.get("getWidget")!;
-    expect([...base.parameters.properties.keys()]).toEqual(["id", "expand"]);
-    for (const [view, expected] of getScopeViews(program).map(
-      (view, index) => [view, index === 0 ? ["id"] : ["id", "expand"]] as const,
-    )) {
-      const root = view.getGlobalNamespaceType();
-      for (const name of ["getWidget", "copied"]) {
-        const operation = root.operations.get(name)!;
-        expect([...operation.parameters.properties.keys()]).toEqual(expected);
-        expect(operation.returnType).toBe(root.models.get("Widget"));
-      }
+    expect([...model(program, "WidgetCopy")!.properties.keys()]).toEqual(["id"]);
+    const csharp = view(program, "Clients.csharp").program;
+    expect([...model(csharp, "WidgetCopy")!.properties.keys()]).toEqual(["id", "extra"]);
+  });
+
+  it("detects collisions introduced by a scoped rename in either order", async () => {
+    for (const body of [
+      `@Scopes.name("b") when Clients.csharp a: string; b: string;`,
+      `b: string; @Scopes.name("b") when Clients.csharp a: string;`,
+    ]) {
+      const program = await compile(`${clients} model Widget { ${body} }`);
+      expectDiagnostics(program.diagnostics, { code: "duplicate-property" });
     }
   });
 
-  it("checks a scoped operation template against scoped argument types without an emitter", async () => {
+  it("applies the signature facet like 'is', including the operation decorators", async () => {
     const program = await compile(`
-      enum Clients { csharp, python }
-      model Required { id: string; }
-      model Widget {
-        @Scopes.type(int32) when Clients.python
-        id: string;
-      }
-      op ReadTemplate<T extends Required>(input: T): T;
-      op Default(): string;
-      @Scopes.signature(ReadTemplate<Widget>) when Clients.python
-      op fetch is Default;
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("python");
-  });
-
-  it("resolves a chain of scoped operation signatures", async () => {
-    const program = await compile(`
-      enum Versions { v1, v2 }
-      op Legacy(id: string): string;
-      op Current(id: string, expand?: boolean): string;
-      @Scopes.signature(Legacy) when Versions.v1
-      op intermediate is Current;
-      @Scopes.signature(intermediate) when Versions.v1
-      op final is Current;
+      ${clients}
+      @doc("v2 read") op readV2(id: string, expand: boolean): string;
+      @Scopes.signature(readV2) when Clients.csharp
+      op read(id: string): string;
     `);
     expectDiagnosticEmpty(program.diagnostics);
-    const [v1, v2] = getScopeViews(program);
-    expect([
-      ...v1.getGlobalNamespaceType().operations.get("final")!.parameters.properties.keys(),
-    ]).toEqual(["id"]);
-    expect([
-      ...v2.getGlobalNamespaceType().operations.get("final")!.parameters.properties.keys(),
-    ]).toEqual(["id", "expand"]);
+    const csharp = view(program, "Clients.csharp").program;
+    const read = csharp.getGlobalNamespaceType().operations.get("read")!;
+    expect([...read.parameters.properties.keys()]).toEqual(["id", "expand"]);
+    expect(getDoc(csharp, read)).toBe("v2 read");
   });
 
-  it("composes return type overrides on a selected signature", async () => {
+  it("merges views that have the same truth value for every condition", async () => {
     const program = await compile(`
-      enum Versions { v1, v2 }
-      @Scopes.returnType(int32) when Versions.v1
-      op Legacy(): string;
-      @Scopes.signature(Legacy) when Versions.v1
-      op current(): string;
-      @Scopes.returnType(boolean) when Versions.v1
-      op preferred is current;
+      ${clients}
+      model Widget { name: string when Clients.csharp; }
     `);
-    expectDiagnosticEmpty(program.diagnostics);
-    const root = getScopeViews(program)[0].getGlobalNamespaceType();
-    expect(root.operations.get("current")!.returnType).toMatchObject({ name: "int32" });
-    expect(root.operations.get("preferred")!.returnType).toMatchObject({ name: "boolean" });
+    const views = getScopeViews(program);
+    expect(views.map((x) => x.name)).toEqual(["Clients.csharp", "Clients.java", "Clients.python"]);
+    expect(new Set(views.map((x) => x.program)).size).toBe(2);
   });
+});
 
-  it("reports a cyclic scoped operation signature without an emitter", async () => {
+describe("decorator selection", () => {
+  it("picks the most specific application of any decorator kind, including augments", async () => {
     const program = await compile(`
-      enum Versions { v1, v2 }
-      @Scopes.signature(read) when Versions.v1
-      op read(): string;
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("cyclic");
-  });
-
-  it("rejects names that collide only in a scoped view", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      model Widget {
-        first: string;
-        @Scopes.name("first") when Clients.csharp
-        second: string;
-      }
-    `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-scoped-type" });
-    expect(program.diagnostics[0].message).toContain("collides");
-  });
-
-  it("checks arguments even when no consumer requests the scoped metadata", async () => {
-    const program = await compile(`
-      enum Clients { csharp, python }
-      auto dec label(target: unknown, value: valueof string);
-      @label(123) when Clients.python
+      enum Clients { csharp, @Scopes.parent(Clients.csharp) provisioning, python }
+      @@doc(Widget, "provisioning") when Clients.provisioning;
+      @doc("csharp") when Clients.csharp
+      @doc("default")
       model Widget {}
     `);
-    expectDiagnostics(program.diagnostics, { code: "invalid-argument" });
+    expectDiagnosticEmpty(program.diagnostics);
+    const docOf = (p: Program) => getDoc(p, model(p, "Widget")!);
+    expect(docOf(program)).toBe("default");
+    expect(docOf(view(program, "Clients.python").program)).toBe("default");
+    expect(docOf(view(program, "Clients.provisioning").program)).toBe("provisioning");
+    // `csharp` has a child, so it is abstract and not a view of its own.
+    expect(getScopeViews(program).map((x) => x.name)).toEqual([
+      "Clients.provisioning",
+      "Clients.python",
+    ]);
   });
 
-  it("does not accumulate diagnostics when validation is requested again", async () => {
+  it("reports incomparable overlapping applications", async () => {
     const program = await compile(`
-      enum Clients { csharp, python }
-      model Private when Clients.csharp {}
-      model Common { value: Private; }
+      ${clients}
+      enum Targets { client, server }
+      @doc("a") when Clients.csharp
+      @doc("b") when Targets.client
+      model Widget {}
     `);
-    const count = program.diagnostics.length;
-    validateScopeViews(program);
-    expect(program.diagnostics).toHaveLength(count);
+    expectDiagnostics(program.diagnostics, {
+      code: "ambiguous-scoped-value",
+      message: /in scope view: Clients.csharp \+ Targets.client/,
+    });
+  });
+
+  it("orders ranges by implication, independent of the declared versions", async () => {
+    const program = await compile(`
+      enum Versions { v1, v2, v3 }
+      @doc("since v1") when since(Versions.v1)
+      @doc("since v2") when since(Versions.v2)
+      model Widget {}
+    `);
+    expectDiagnosticEmpty(program.diagnostics);
+    const docOf = (name: string) => {
+      const p = view(program, name).program;
+      return getDoc(p, model(p, "Widget")!);
+    };
+    expect([docOf("Versions.v1"), docOf("Versions.v2"), docOf("Versions.v3")]).toEqual([
+      "since v1",
+      "since v2",
+      "since v2",
+    ]);
+  });
+});
+
+describe("validation", () => {
+  it("rejects visibility classes as scope axes", async () => {
+    const program = await compile(`
+      model Widget { @visibility(Lifecycle.Read) id: string when Lifecycle.Read; }
+    `);
+    expectDiagnostics(program.diagnostics, {
+      code: "invalid-scope-condition",
+      message: /visibility class/,
+    });
+  });
+
+  it("warns about conditions no view satisfies", async () => {
+    const program = await compile(`
+      ${clients}
+      model Widget { name: string when Clients.csharp & Clients.python; }
+    `);
+    expectDiagnostics(program.diagnostics, { code: "unreachable-scope-condition" });
+  });
+
+  it("requires the scoped-decorators feature", async () => {
+    const program = await compile(`${clients} model Widget { a: string when Clients.csharp; }`, []);
+    expectDiagnostics(program.diagnostics, { code: "scoped-decorator-disabled" });
+  });
+
+  it("keeps 'when' usable as an identifier", async () => {
+    const program = await compile(`
+      enum Kind { when, other }
+      model Event { @doc("x") when: utcDateTime; }
+    `);
+    expectDiagnosticEmpty(program.diagnostics);
+    expect(model(program, "Event")!.properties.has("when")).toBe(true);
   });
 });
