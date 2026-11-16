@@ -4,7 +4,11 @@ import { pathToFileURL } from "url";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createStringMap } from "../utils/misc.js";
 import type { TestHostOptions } from "./test-compiler-host.js";
-import { createTestCompilerHost } from "./test-compiler-host.js";
+import {
+  createSourceCache,
+  createTestCompilerHost,
+  type TestSourceCache,
+} from "./test-compiler-host.js";
 import { findFilesFromPattern } from "./test-host.js";
 import type { JsFile, MockFile, TestFileSystem, TypeSpecTestLibrary } from "./types.js";
 
@@ -33,15 +37,16 @@ export const mockFile = {
 export function createTestFileSystem(options?: TestHostOptions): TestFileSystem {
   const virtualFs = createStringMap<string>(!!options?.caseInsensitiveFileSystem);
   const jsImports = createStringMap<Promise<any>>(!!options?.caseInsensitiveFileSystem);
-  return createTestFileSystemInternal(virtualFs, jsImports, options);
+  return createTestFileSystemInternal(virtualFs, jsImports, createSourceCache(), options);
 }
 
 function createTestFileSystemInternal(
   virtualFs: Map<string, string>,
   jsImports: Map<string, Record<string, any>>,
+  sourceCache: TestSourceCache,
   options?: TestHostOptions,
 ): TestFileSystem {
-  const compilerHost = createTestCompilerHost(virtualFs, jsImports, options);
+  const compilerHost = createTestCompilerHost(virtualFs, jsImports, options, sourceCache);
 
   let frozen = false;
   return {
@@ -157,6 +162,11 @@ function createTestFileSystemInternal(
   }
 
   function clone() {
-    return createTestFileSystemInternal(new Map(virtualFs), new Map(jsImports), options);
+    return createTestFileSystemInternal(
+      new Map(virtualFs),
+      new Map(jsImports),
+      sourceCache,
+      options,
+    );
   }
 }
