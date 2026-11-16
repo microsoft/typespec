@@ -7,7 +7,19 @@ paths:
   /:
     get:
       operationId: getWidget
-      parameters: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: expand
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
       responses:
         '200':
           description: The request has succeeded.
@@ -30,6 +42,13 @@ components:
       properties:
         assembly:
           type: string
+    Preferences:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
     Versions:
       type: string
       enum:
@@ -39,6 +58,7 @@ components:
       type: object
       required:
         - id
+        - preferences
         - settings
       properties:
         id:
@@ -46,5 +66,7 @@ components:
           readOnly: true
         value:
           type: string
+        preferences:
+          $ref: '#/components/schemas/Preferences'
         settings:
           $ref: '#/components/schemas/DotnetSettings'

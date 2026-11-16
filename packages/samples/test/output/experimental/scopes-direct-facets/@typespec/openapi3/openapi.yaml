@@ -7,7 +7,19 @@ paths:
   /:
     get:
       operationId: getWidget
-      parameters: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: expand
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
       responses:
         '200':
           description: The request has succeeded.

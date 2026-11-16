@@ -35,11 +35,20 @@ model Valid {
 // Uncomment: this is invalid in python even if csharp is selected in the viewer.
 // model Invalid { details: Private; }
 
-// Uncomment: the unconditioned graph satisfies this constraint, but python does not.
+// Uncomment: the default type satisfies this constraint, but python does not.
 // model Required { id: string; }
-// model Value { id: string when Clients.csharp; }
+// model Value {
+//   @Scopes.type(int32) when Clients.python
+//   id: string;
+// }
 // model Box<T extends Required> { value: T; }
 // model InvalidTemplate { box: Box<Value>; }
+
+// Uncomment: the default value is invalid when python changes the property type.
+// model InvalidDefault {
+//   @Scopes.type(int32) when Clients.python
+//   id: string = "hello";
+// }
 
 auto dec label(target: unknown, value: valueof string);
 

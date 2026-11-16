@@ -15,6 +15,48 @@ const compilerOptions = {
   },
 };
 
+it("selects scoped type and operation signatures with an explicit default", async () => {
+  const { program } = await Tester.compile(
+    `
+    @versioned(Versions)
+    namespace Service;
+    enum Versions { v1, v2 }
+    model Settings { enabled: boolean; }
+    model Widget {
+      @Scopes.type(string) when before(Versions.v2)
+      settings: Settings;
+    }
+    op ReadV1<T>(id: string): T;
+    op ReadV2<T>(id: string, expand?: boolean): T;
+    @Scopes.signature(ReadV1<Widget>) when before(Versions.v2)
+    op getWidget is ReadV2<Widget>;
+  `,
+    { compilerOptions },
+  );
+  const base = program.getGlobalNamespaceType().namespaces.get("Service")!;
+  expect(base.models.get("Widget")!.properties.get("settings")!.type).toMatchObject({
+    name: "Settings",
+  });
+  expect([...base.operations.get("getWidget")!.parameters.properties.keys()]).toEqual([
+    "id",
+    "expand",
+  ]);
+  for (const [version, settings, parameters] of [
+    ["v1", "string", ["id"]],
+    ["v2", "Settings", ["id", "expand"]],
+  ] as const) {
+    const view = getScopeViews(program).find((candidate) =>
+      candidate.selections.some((selection) => selection.name === version),
+    )!;
+    const service = view.getGlobalNamespaceType().namespaces.get("Service")!;
+    const widget = service.models.get("Widget")!;
+    const operation = service.operations.get("getWidget")!;
+    expect(widget.properties.get("settings")!.type).toMatchObject({ name: settings });
+    expect([...operation.parameters.properties.keys()]).toEqual(parameters);
+    expect(operation.returnType).toBe(widget);
+  }
+});
+
 it("composes scoped metadata and members with real versioning and visibility", async () => {
   const { program } = await Tester.compile(
     `

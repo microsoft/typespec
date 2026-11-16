@@ -1,5 +1,0 @@
-kind: project
-features:
-  - scoped-decorators
-emit:
-  - "@typespec/openapi3"

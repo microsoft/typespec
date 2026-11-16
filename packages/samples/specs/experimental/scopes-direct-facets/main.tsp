@@ -1,3 +1,6 @@
+import "@typespec/http";
+using Http;
+
 @service
 namespace DirectFacets;
 
@@ -30,8 +33,15 @@ model Settings when Versions.v2 {
   enabled: boolean;
 }
 
+op ReadV1<T>(@query id: string): T;
+op ReadV2<T>(@query id: string, @query expand?: boolean): T;
+
+// v1 uses ReadV1, while the declared ReadV2 signature remains the default.
+// Operation-level decorators are not replaced with the selected signature.
+@get
+@Scopes.signature(ReadV1<Widget>) when Versions.v1
 @Scopes.returnType(string) when Versions.v1
-op getWidget(): Widget;
+op getWidget is ReadV2<Widget>;
 
 // The base still has value: string, both id and secret, and settings.
 // No legacy versioning/visibility decorators or library adapters are involved.

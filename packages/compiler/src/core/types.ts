@@ -884,11 +884,7 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   /** Declared name, when present; expression unions can also retain a declaration-expression name. */
   name?: string;
-  node?:
-    | UnionExpressionNode
-    | UnionStatementNode
-    | UnionDeclarationExpressionNode
-    | ScopeAlternativesExpressionNode;
+  node?: UnionExpressionNode | UnionStatementNode | UnionDeclarationExpressionNode;
   /** Containing namespace, when associated with a namespace. */
   namespace?: Namespace;
 
@@ -1593,12 +1589,6 @@ export enum SyntaxKind {
   /** Keyword-form `enum` used as an expression without namespace registration. */
   EnumDeclarationExpression,
   WhenClause,
-  /** Explicit set of scope-conditioned alternatives: `when { cond => T, else => U }`. */
-  ScopeAlternativesExpression,
-  /** One `cond => value` branch of a scope alternatives construct. */
-  ScopeAlternative,
-  /** Explicit set of scope-conditioned operation signatures: `op get when { ... };`. */
-  OperationAlternativesStatement,
 }
 
 /** Parser error-state and origin bits attached to syntax nodes. */
@@ -1724,8 +1714,6 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
-  | OperationAlternativesStatementNode
-  | ScopeAlternativeNode
   | OperationSignatureDeclarationNode
   | OperationSignatureReferenceNode
   | EnumMemberNode
@@ -1869,7 +1857,6 @@ export type Statement =
   | EnumStatementNode
   | AliasStatementNode
   | OperationStatementNode
-  | OperationAlternativesStatementNode
   | DecoratorDeclarationStatementNode
   | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
@@ -2032,7 +2019,6 @@ export type Expression =
   | ArrayLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
-  | ScopeAlternativesExpressionNode
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
@@ -2139,44 +2125,8 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   readonly signature: OperationSignature;
   /** Decorator annotations in source order, not their execution order. */
   readonly decorators: readonly DecoratorExpressionNode[];
-  /** File, namespace, interface, or alternatives group syntactically containing this operation. */
-  readonly parent?:
-    | TypeSpecScriptNode
-    | NamespaceStatementNode
-    | InterfaceStatementNode
-    | OperationAlternativesStatementNode;
-}
-
-/**
- * One branch of a scope alternatives construct. `when` is undefined for the `else` branch.
- * @experimental
- */
-export interface ScopeAlternativeNode extends BaseNode {
-  readonly kind: SyntaxKind.ScopeAlternative;
-  readonly when?: WhenClauseNode;
-  readonly value: Expression;
-}
-
-/**
- * `when { cond => T, ... }`: an explicit set of alternatives. The unscoped graph keeps every
- * branch; a scope view resolves it to the most specific matching branch.
- * @experimental
- */
-export interface ScopeAlternativesExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ScopeAlternativesExpression;
-  readonly branches: readonly ScopeAlternativeNode[];
-}
-
-/**
- * `op get when { cond => is A, cond => (...): B };`. Each branch is a complete operation named
- * after the group, conditioned on the branch condition (`when` is undefined for `else`).
- * @experimental
- */
-export interface OperationAlternativesStatementNode extends BaseNode {
-  readonly kind: SyntaxKind.OperationAlternativesStatement;
-  readonly id: IdentifierNode;
-  readonly branches: readonly OperationStatementNode[];
-  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+  /** File, namespace, or interface syntactically containing this operation after binding. */
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
 /** Named model declaration whose checked type is registered in the enclosing namespace. */

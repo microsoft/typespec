@@ -1,4 +1,6 @@
+import "@typespec/http";
 import "@typespec/versioning";
+using Http;
 using Versioning;
 
 @service
@@ -21,6 +23,10 @@ enum Clients {
 
 auto dec clientName(target: unknown, name: valueof string);
 
+model Preferences {
+  enabled: boolean;
+}
+
 @clientName("CsharpWidget") when Clients.csharp
 @clientName("ProvisioningWidget") when Clients.provisioning & since(Versions.v2)
 @clientName("widget") when Clients.python
@@ -36,6 +42,10 @@ model Widget {
   @madeOptional(Versions.v2)
   value?: string;
 
+  // The default is Preferences; v1 uses string without a renamed property.
+  @Scopes.type(string) when before(Versions.v2)
+  preferences: Preferences;
+
   @added(Versions.v2)
   settings: DotnetSettings when Clients.csharp;
 }
@@ -45,10 +55,17 @@ model DotnetSettings when Clients.csharp {
   assembly: string;
 }
 
+op ReadV1<T>(@query id: string): T;
+op ReadV2<T>(@query id: string, @query expand?: boolean): T;
+
 // The base view retains all versions and visibilities, but no scoped clientName.
 // Every concrete combination is validated before selecting one in the viewer.
 // In the Scope explorer, compare Versions=v1/v2 and Lifecycle=Read/Create.
 // Widget changes from required oldValue: int32 to optional value?: string.
 // Read keeps id; Create keeps secret. Provisioning inherits C# metadata in v1
-// and overrides it in v2. These are the real versioning/visibility adapters.
-op getWidget(): Widget;
+// and overrides it in v2. v1 also uses a different property type and signature
+// through scope decorators. These are the real versioning/visibility adapters.
+// The signature replacement does not replace operation-level decorators.
+@get
+@Scopes.signature(ReadV1<Widget>) when before(Versions.v2)
+op getWidget is ReadV2<Widget>;

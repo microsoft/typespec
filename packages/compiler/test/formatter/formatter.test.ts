@@ -15,22 +15,6 @@ op get():Item when Clients.csharp;`,
 op get(): Item when Clients.csharp;`,
   });
 });
-it("formats scope alternatives", async () => {
-  await assertFormat({
-    code: `model W { a: when {V.v1=>string,else=>int32}; }
-@doc("x") op get when { V.v1 => is ReadV1<W>, else => (id:string):W };`,
-    expected: `model W {
-  a: when {
-    V.v1 => string,
-    else => int32,
-  };
-}
-@doc("x") op get when {
-  V.v1 => is ReadV1<W>,
-  else => (id: string): W,
-};`,
-  });
-});
 async function format(code: string, parser: TestParser = "typespec"): Promise<string> {
   const output = await prettier.format(code, {
     parser,

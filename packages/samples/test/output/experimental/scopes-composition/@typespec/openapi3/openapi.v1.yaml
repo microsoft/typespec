@@ -7,7 +7,19 @@ paths:
   /:
     get:
       operationId: getWidget
-      parameters: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: expand
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
       responses:
         '200':
           description: The request has succeeded.
@@ -23,6 +35,13 @@ components:
         - csharp
         - provisioning
         - python
+    Preferences:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
     Versions:
       type: string
       enum:
@@ -33,6 +52,7 @@ components:
       required:
         - id
         - oldValue
+        - preferences
       properties:
         id:
           type: string
@@ -40,3 +60,5 @@ components:
         oldValue:
           type: integer
           format: int32
+        preferences:
+          $ref: '#/components/schemas/Preferences'

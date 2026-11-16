@@ -44,7 +44,7 @@ import {
   visitChildren,
 } from "./parser.js";
 import type { Program } from "./program.js";
-import { getScopeAlternatives, registerScopeAlternatives, resolveWhenClause } from "./scope.js";
+import { resolveWhenClause } from "./scope.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -135,7 +135,6 @@ import type {
   ObjectValue,
   ObjectValuePropertyDescriptor,
   Operation,
-  OperationAlternativesStatementNode,
   OperationStatementNode,
   Scalar,
   ScalarConstructor,
@@ -143,7 +142,6 @@ import type {
   ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   ScalarValue,
-  ScopeAlternativesExpressionNode,
   SignatureFunctionParameter,
   StdTypeName,
   StdTypes,
@@ -487,6 +485,9 @@ export interface Checker {
   /** @internal */
   getTypeOrValueForNode(node: Node): Type | Value | null;
 
+  /** @internal Type of a property default expression before assignment to its declared type. */
+  getDefaultValueSourceType(value: Value): Type | undefined;
+
   /** @internal */
   getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
   /** @internal */
@@ -558,6 +559,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     Sym | undefined
   >();
   const valueExactTypes = new WeakMap<ValueWithTemplate, Type>();
+  const defaultValueSourceTypes = new WeakMap<Value, Type>();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -622,6 +624,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
+    getDefaultValueSourceType: (value) => defaultValueSourceTypes.get(value),
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
     isValueOfType: undefined!,
@@ -839,11 +842,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: Node,
     mapperOrContext?: TypeMapper | CheckContext,
     constraint?: CheckValueConstraint,
+    captureSourceType?: (type: Type) => void,
   ): Value | null {
     const ctx = CheckContext.from(mapperOrContext);
     const initial = checkNode(ctx, node, constraint);
     if (initial === null || initial === errorType) {
       return null;
+    }
+    if (captureSourceType) {
+      if (initial.entityKind === "Indeterminate") {
+        let type: Type = initial.type;
+        while (type.kind === "UnionVariant") type = type.type;
+        captureSourceType(type);
+      } else if (isValue(initial)) {
+        captureSourceType(
+          node.kind === SyntaxKind.ObjectLiteral || node.kind === SyntaxKind.ArrayLiteral
+            ? (valueExactTypes.get(initial) ?? initial.type)
+            : initial.type,
+        );
+      } else if (
+        (initial.kind === "TemplateParameter" || initial.kind === "TemplateParameterAccess") &&
+        initial.constraint?.valueType
+      ) {
+        captureSourceType(initial.constraint.valueType);
+      }
     }
     let entity: Type | Value | null;
     if (initial.entityKind === "Indeterminate") {
@@ -1109,10 +1131,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkNamespace(ctx, node);
       case SyntaxKind.OperationStatement:
         return checkOperation(ctx, node);
-      case SyntaxKind.OperationAlternativesStatement:
-        return checkOperationAlternatives(ctx, node);
-      case SyntaxKind.ScopeAlternativesExpression:
-        return checkScopeAlternativesExpression(ctx, node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -2108,72 +2126,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return union;
   }
 
-  /**
-   * `when { cond => T, ... }` checks every branch and keeps them all, as an explicit
-   * alternatives union. Scope views resolve it to the most specific matching branch.
-   */
-  function checkScopeAlternativesExpression(
-    ctx: CheckContext,
-    node: ScopeAlternativesExpressionNode,
-  ): Union {
-    const unionType: Union = createAndFinishType({
-      kind: "Union",
-      node,
-      get options() {
-        return Array.from(this.variants.values()).map((v) => v.type);
-      },
-      expression: true,
-      namespace: getParentNamespaceType(node),
-      variants: createRekeyableMap(),
-      decorators: [],
-    });
-    const members: UnionVariant[] = [];
-    for (const branch of node.branches) {
-      const variant: UnionVariant = createType({
-        kind: "UnionVariant",
-        type: getTypeForNode(branch.value, ctx),
-        name: Symbol("alternative"),
-        decorators: [],
-        node: undefined,
-        union: unionType,
-      });
-      unionType.variants.set(variant.name, variant);
-      members.push(variant);
-    }
-    linkMapper(unionType, ctx.mapper);
-    registerScopeAlternatives(program, {
-      owner: unionType,
-      members,
-      branches: node.branches,
-    });
-    return unionType;
-  }
-
-  /** Each branch is a complete operation; the group records that they are alternatives. */
-  function checkOperationAlternatives(
-    ctx: CheckContext,
-    node: OperationAlternativesStatementNode,
-  ): Operation {
-    const members = node.branches.map((branch) => checkOperation(ctx, branch));
-    if (ctx.mapper === undefined && !getScopeAlternatives(program, members[0])) {
-      registerScopeAlternatives(program, { members, branches: node.branches });
-    }
-    return members[0];
-  }
-
-  /** Branches keep distinct keys in the unscoped graph; views rekey the selected one. */
-  function getOperationKey(node: OperationStatementNode, name: string): string {
-    if (node.parent?.kind !== SyntaxKind.OperationAlternativesStatement) return name;
-    if (!node.when) return `${name} else`;
-    let file: Node | undefined = node;
-    while (file && file.kind !== SyntaxKind.TypeSpecScript) file = file.parent;
-    const text =
-      file?.kind === SyntaxKind.TypeSpecScript
-        ? file.file.text.slice(node.when.pos, node.when.end)
-        : String(node.pos);
-    return `${name} when ${text}`;
-  }
-
   function checkUnionExpression(ctx: CheckContext, node: UnionExpressionNode): Union {
     const unionType: Union = createAndFinishType({
       kind: "Union",
@@ -2712,7 +2664,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | NamespaceStatementNode
       | JsNamespaceDeclarationNode
       | UnionExpressionNode
-      | ScopeAlternativesExpressionNode
       | OperationStatementNode
       | EnumStatementNode
       | EnumDeclarationExpressionNode
@@ -2730,7 +2681,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node.kind === SyntaxKind.ModelExpression ||
       node.kind === SyntaxKind.IntersectionExpression ||
       node.kind === SyntaxKind.UnionExpression ||
-      node.kind === SyntaxKind.ScopeAlternativesExpression ||
       node.kind === SyntaxKind.ModelDeclarationExpression ||
       node.kind === SyntaxKind.EnumDeclarationExpression ||
       node.kind === SyntaxKind.UnionDeclarationExpression ||
@@ -2748,8 +2698,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           parent.kind === SyntaxKind.UnionStatement ||
           parent.kind === SyntaxKind.ModelExpression ||
           parent.kind === SyntaxKind.IntersectionExpression ||
-          parent.kind === SyntaxKind.UnionExpression ||
-          parent.kind === SyntaxKind.ScopeAlternativesExpression
+          parent.kind === SyntaxKind.UnionExpression
         ) {
           return getParentNamespaceType(parent);
         } else {
@@ -2935,7 +2884,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     linkMapper(operationType, ctx.mapper);
     if (parent.kind !== SyntaxKind.InterfaceStatement && ctx.mapper === undefined) {
-      namespace?.operations.set(getOperationKey(node, name), operationType);
+      namespace?.operations.set(name, operationType);
     }
 
     return operationType;
@@ -7125,10 +7074,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(defaultNode, ctx, {
-      kind: "assignment",
-      type,
-    });
+    let sourceType: Type | undefined;
+    const defaultValue = getValueForNode(
+      defaultNode,
+      ctx,
+      { kind: "assignment", type },
+      (source) => (sourceType = source),
+    );
     if (defaultValue === null) {
       return null;
     }
@@ -7141,7 +7093,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // And as interating with the template declaration is not a supported feature we can just drop it.
       return null;
     } else {
-      return { ...defaultValue, type };
+      const checked = { ...defaultValue, type };
+      if (sourceType) defaultValueSourceTypes.set(checked, sourceType);
+      return checked;
     }
   }
 

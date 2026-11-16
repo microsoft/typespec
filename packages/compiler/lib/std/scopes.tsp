@@ -24,3 +24,9 @@ auto dec name(target: unknown, name: valueof string);
 
 /** Experimental view-only operation return type override. */
 auto dec returnType(target: Operation, type: unknown);
+
+/**
+ * Experimental view-only operation parameter and return type override.
+ * The selected operation's operation-level decorators are not reapplied.
+ */
+auto dec signature(target: Operation, operation: Operation);
