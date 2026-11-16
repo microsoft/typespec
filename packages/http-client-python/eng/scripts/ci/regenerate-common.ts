@@ -69,7 +69,11 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = ["type/file"];
+export const SKIP_SPECS: string[] = [
+  "type/file",
+  "azure/core/authentication/configurations",
+  "type/union/discriminated/extends",
+];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {

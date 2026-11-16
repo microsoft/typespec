@@ -134,6 +134,8 @@ public class ClientModel {
      */
     private final LongRunningOperationIdMetadata lroOperationId;
 
+    private final SseModelMetadata sseMetadata;
+
     // Set of non-final properties that are set on access.
     // This pattern is used as when the ClientModel is initialized the ModelMapper may not have mapped all models
     // related to the one being initialized. When that happens some properties may not be set correctly. For example,
@@ -187,7 +189,7 @@ public class ClientModel {
         String xmlName, String xmlNamespace, List<ClientModelProperty> properties,
         List<ClientModelPropertyReference> propertyReferences, IType modelType, boolean stronglyTypedHeader,
         ImplementationDetails implementationDetails, boolean usedInXml, Set<String> serializationFormats,
-        ApiMetadata apiMetadata, LongRunningOperationIdMetadata lroOperationId) {
+        ApiMetadata apiMetadata, SseModelMetadata sseMetadata, LongRunningOperationIdMetadata lroOperationId) {
         this.packageName = packageKeyword;
         this.name = name;
         this.fullName = packageName + "." + name;
@@ -213,6 +215,7 @@ public class ClientModel {
         this.apiMetadata = apiMetadata;
         this.lroOperationId = lroOperationId;
         this.serializationFormats = serializationFormats;
+        this.sseMetadata = sseMetadata;
     }
 
     /**
@@ -222,6 +225,10 @@ public class ClientModel {
      */
     public ApiMetadata getApiMetadata() {
         return apiMetadata;
+    }
+
+    public SseModelMetadata getSseMetadata() {
+        return sseMetadata;
     }
 
     /**
@@ -703,6 +710,7 @@ public class ClientModel {
         private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
         private Set<String> serializationFormats = Set.of();
         private LongRunningOperationIdMetadata lroOperationId;
+        private SseModelMetadata sseMetadata;
 
         /**
          * Sets the package that this model class belongs to.
@@ -940,6 +948,11 @@ public class ClientModel {
             return this;
         }
 
+        public Builder sseMetadata(SseModelMetadata sseMetadata) {
+            this.sseMetadata = sseMetadata;
+            return this;
+        }
+
         /**
          * Build a new ClientModel instance with the provided properties.
          *
@@ -949,7 +962,7 @@ public class ClientModel {
             return new ClientModel(packageName, name, imports, description, isPolymorphic, polymorphicDiscriminator,
                 polymorphicDiscriminatorName, serializedName, needsFlatten, parentModelName, derivedModels, xmlName,
                 xmlNamespace, properties, propertyReferences, modelType, stronglyTypedHeader, implementationDetails,
-                usedInXml, serializationFormats, apiMetadata, lroOperationId);
+                usedInXml, serializationFormats, apiMetadata, sseMetadata, lroOperationId);
         }
     }
 }

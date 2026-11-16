@@ -38,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputLiteralType> Constants { get; init; }
         public IReadOnlyList<InputEnumType> Enums { get; init; }
         public IReadOnlyList<InputModelType> Models { get; init; }
+        public IReadOnlyList<InputUnionType> Unions { get; init; } = [];
         public IReadOnlyList<InputClient> RootClients { get; init; }
 
         public IReadOnlyList<InputClient> Clients => _clients.Value;
