@@ -1553,7 +1553,7 @@ export class CodeModelBuilder {
 
       // operation ID, only for poll result model (not the PollOperationDetails, which already has it)
       let operationId: LongRunningOperationIdMetadata | undefined = undefined;
-      if (pollingSchema && pollingSchema !== this.pollResultSchema) {
+      if (pollingSchema && pollingSchema !== this._pollResultSchema) {
         operationId = this.processLroOperationIdMetadata(lroMetadata);
         if (operationId) {
           pollingSchema.extensions = pollingSchema.extensions ?? {};
