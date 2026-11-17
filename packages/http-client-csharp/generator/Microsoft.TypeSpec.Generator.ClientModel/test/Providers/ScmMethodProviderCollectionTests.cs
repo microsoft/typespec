@@ -557,6 +557,105 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void SseEventsUnionExtendingModelUsesBaseAndParsesByEventType()
+        {
+            var baseEvent = InputFactory.Model(
+                "ResponseEvent",
+                properties: [InputFactory.Property("sequence", InputPrimitiveType.Int32, isRequired: true)]);
+            var created = InputFactory.Model(
+                "ResponseCreated",
+                baseModel: baseEvent,
+                properties: [InputFactory.Property("id", InputPrimitiveType.String, isRequired: true)]);
+            var delta = InputFactory.Model(
+                "ResponseDelta",
+                baseModel: baseEvent,
+                properties: [InputFactory.Property("text", InputPrimitiveType.String, isRequired: true)]);
+            var eventUnion = InputFactory.Union(
+                [created, delta],
+                "ResponseEvents",
+                baseModel: baseEvent,
+                discriminatedSubtypes: new Dictionary<string, InputModelType>
+                {
+                    ["response.created"] = created,
+                    ["message"] = delta,
+                });
+            var (convenienceMethod, protocolMethod) = CreateSseMethods(eventUnion, [baseEvent, created, delta]);
+
+            Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(CreateSseReturnType(
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseEvent)!)));
+            Assert.IsTrue(protocolMethod.Signature.ReturnType!.Equals(CreateSseReturnType(typeof(BinaryData))));
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().TrimEnd(),
+                convenienceMethod.BodyStatements!.ToDisplayString().TrimEnd());
+        }
+
+        [Test]
+        public void SseEventsUnionWithIncompatibleBaseUsesBinaryData()
+        {
+            var baseEvent = InputFactory.Model(
+                "ResponseEvent",
+                properties: [InputFactory.Property("sequence", InputPrimitiveType.Int32, isRequired: true)]);
+            var created = InputFactory.Model(
+                "ResponseCreated",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String, isRequired: true)]);
+            var delta = InputFactory.Model(
+                "ResponseDelta",
+                baseModel: baseEvent,
+                properties: [InputFactory.Property("text", InputPrimitiveType.String, isRequired: true)]);
+            var eventUnion = InputFactory.Union(
+                [created, delta],
+                "ResponseEvents",
+                baseModel: baseEvent,
+                discriminatedSubtypes: new Dictionary<string, InputModelType>
+                {
+                    ["response.created"] = created,
+                    ["message"] = delta,
+                });
+            var (convenienceMethod, _) = CreateSseMethods(eventUnion, [baseEvent, created, delta]);
+
+            Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(CreateSseReturnType(typeof(BinaryData))));
+            StringAssert.DoesNotContain("switch", convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
+        private static CSharpType CreateSseReturnType(CSharpType payloadType)
+            => new(
+                typeof(Task<>),
+                new CSharpType(typeof(AsyncStreamingResult<>), new CSharpType(typeof(SseItem<>), payloadType)));
+
+        private static (MethodProvider Convenience, MethodProvider Protocol) CreateSseMethods(
+            InputType eventUnion,
+            InputModelType[] models)
+        {
+            var streamType = new InputStreamingType(
+                "SseStream",
+                "Streaming.Sse.SseStream",
+                eventUnion,
+                ["text/event-stream"],
+                streamKind: "sse");
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => models, clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            return (
+                methodCollection.Single(method =>
+                    method.Signature.Name == "ReceiveAsync" &&
+                    method.Signature.Parameters.All(parameter => parameter.Name != "options")),
+                methodCollection.Single(method =>
+                    method.Signature.Name == "ReceiveAsync" &&
+                    method.Signature.Parameters.Any(parameter => parameter.Name == "options")));
+        }
+
+        [Test]
         public void JsonLinesPrimitiveResponseUsesValueDeserializer()
         {
             var streamType = new InputStreamingType(

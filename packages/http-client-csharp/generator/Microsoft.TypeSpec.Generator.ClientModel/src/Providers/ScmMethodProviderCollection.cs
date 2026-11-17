@@ -2234,6 +2234,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return streamingType.ValueType;
             }
 
+            if (GetSseEventSubtypes(streamingType) != null)
+            {
+                return unionType;
+            }
+
             var payloadTypes = unionType.VariantTypes
                 .Where(type => type is not InputLiteralType literal ||
                     !Equals(literal.Value, streamingType.TerminalEventValue))
@@ -2270,7 +2275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         payloadType,
                         streamingType,
                         "Unable to resolve SSE stream item type.");
-                    var parser = CreateSseParser(payloadCSharpType);
+                    var parser = CreateSseParser(payloadCSharpType, streamingType);
                     var arguments = cancellationToken != null
                         ? new ValueExpression[] { response, parser, terminalPredicate, cancellationToken }
                         : [response, parser, terminalPredicate];
@@ -2347,19 +2352,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new FuncExpression([item.Declaration], isTerminal);
         }
 
-        private static ValueExpression CreateSseParser(CSharpType payloadCSharpType)
+        /// <summary>
+        /// Gets the event type to variant mapping of an <c>@events</c> union that extends a model,
+        /// or <c>null</c> when the union's events are not exposed through that base model.
+        /// </summary>
+        private static IReadOnlyDictionary<string, InputModelType>? GetSseEventSubtypes(InputStreamingType streamingType)
+            => streamingType.ValueType is InputUnionType
+            {
+                External: null,
+                BaseModel: { External: null },
+                DiscriminatedSubtypes: { Count: > 0 } subtypes,
+                DiscriminatorPropertyName: null,
+                EnvelopePropertyName: null,
+            } union &&
+                ScmCodeModelGenerator.Instance.TypeFactory.HasCompatibleDiscriminatedUnionBase(union)
+                ? subtypes
+                : null;
+
+        private static ValueExpression CreateSseParser(
+            CSharpType payloadCSharpType,
+            InputStreamingType streamingType)
         {
-            var eventType = new VariableExpression(typeof(string), "_");
+            var eventSubtypes = GetSseEventSubtypes(streamingType);
+            var eventType = new VariableExpression(typeof(string), eventSubtypes is null ? "_" : "eventType");
             var data = new VariableExpression(typeof(ReadOnlySpan<byte>), "data");
             var binaryData = Static(typeof(BinaryData)).Invoke(
                 "FromBytes",
                 [data.Invoke("ToArray")]);
-            return new FuncExpression(
-                [eventType.Declaration, data.Declaration],
-                ModelReaderWriterSnippets.Read(
-                    payloadCSharpType,
-                    binaryData,
-                    ModelSerializationExtensionsSnippets.Wire));
+            ValueExpression Read(CSharpType type) => ModelReaderWriterSnippets.Read(
+                type,
+                binaryData,
+                ModelSerializationExtensionsSnippets.Wire);
+
+            ValueExpression body = Read(payloadCSharpType);
+            if (eventSubtypes is not null)
+            {
+                SwitchCaseExpression[] cases =
+                [
+                    .. eventSubtypes.Select(subtype => new SwitchCaseExpression(
+                        Literal(subtype.Key),
+                        Read(CreateRequiredCSharpType(
+                            subtype.Value,
+                            streamingType,
+                            "Unable to resolve SSE event type.")))),
+                    SwitchCaseExpression.Default(body)
+                ];
+                body = new SwitchExpression(eventType, cases);
+            }
+
+            return new FuncExpression([eventType.Declaration, data.Declaration], body);
         }
 
         private CSharpType? GetResponseBodyType(InputType? responseType)
