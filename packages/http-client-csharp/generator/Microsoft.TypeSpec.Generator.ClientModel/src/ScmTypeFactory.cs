@@ -63,16 +63,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 {
                     yield return ResolveCustomName($"{name}Settings", ns);
                 }
-                var pagingMethods = client.Methods.OfType<InputPagingServiceMethod>().ToArray();
-                var operationNames = pagingMethods.Length > 0 ? ClientProvider.GetOperationNamesForCollisionCheck(client) : null;
-                foreach (var method in pagingMethods)
+                foreach (var method in client.Methods.OfType<InputPagingServiceMethod>())
                 {
-                    foreach (var isAsync in new[] { false, true })
+                    foreach (var operationName in ClientProvider.GetOperationNameCandidatesForCollisionCheck(method))
                     {
-                        yield return ResolveCustomName(CollectionResultDefinition.GetGeneratedName(client, name, method.Operation, isAsync, false, operationNames), ns);
-                        if (method.Operation.GenerateConvenienceMethod)
+                        foreach (var isAsync in new[] { false, true })
                         {
-                            yield return ResolveCustomName(CollectionResultDefinition.GetGeneratedName(client, name, method.Operation, isAsync, true, operationNames), ns);
+                            yield return ResolveCustomName(CollectionResultDefinition.GetGeneratedName(name, operationName, isAsync, false), ns);
+                            if (method.Operation.GenerateConvenienceMethod)
+                            {
+                                yield return ResolveCustomName(CollectionResultDefinition.GetGeneratedName(name, operationName, isAsync, true), ns);
+                            }
                         }
                     }
                 }

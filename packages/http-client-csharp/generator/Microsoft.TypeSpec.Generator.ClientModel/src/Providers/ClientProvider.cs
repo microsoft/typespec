@@ -217,30 +217,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void CleanOperationNames(InputClient inputClient)
         {
-            foreach (var (serviceMethod, name) in GetOperationNames(inputClient, HasExistingName))
-            {
-                serviceMethod.Update(name: name);
-                serviceMethod.Operation.Update(name: name);
-            }
-        }
-
-        internal static IReadOnlyDictionary<InputOperation, string> GetOperationNamesForCollisionCheck(InputClient inputClient)
-        {
-            var (name, ns, _) = GetNameForCollisionCheck(inputClient);
-            var source = ScmCodeModelGenerator.Instance.SourceInputModel;
-            var custom = source.FindForTypeInCurrentCompilation(ns, name);
-            var lastContract = source.FindForTypeInLastContract(ns, name);
-            return GetOperationNames(inputClient, operationName => HasExistingName(operationName, lastContract, custom))
-                .GroupBy(pair => pair.ServiceMethod.Operation)
-                .ToDictionary(group => group.Key, group => group.Last().Name);
-        }
-
-        private static IEnumerable<(InputServiceMethod ServiceMethod, string Name)> GetOperationNames(InputClient inputClient, Func<string, bool> hasExistingName)
-        {
             var projectedNames = inputClient.Methods.Select(serviceMethod => (
                 ServiceMethod: serviceMethod,
-                OriginalName: GetOperationName(inputClient, serviceMethod, hasExistingName, normalizePublicName: false),
-                UpdatedName: GetOperationName(inputClient, serviceMethod, hasExistingName))).ToArray();
+                OriginalName: GetOperationName(serviceMethod, normalizePublicName: false),
+                UpdatedName: GetOperationName(serviceMethod))).ToArray();
 
             foreach (var projectedName in projectedNames)
             {
@@ -253,14 +233,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     updatedOperationName = projectedName.OriginalName;
                 }
 
-                yield return (projectedName.ServiceMethod, updatedOperationName);
+                projectedName.ServiceMethod.Update(name: updatedOperationName);
+                projectedName.ServiceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
         private static bool OperationNamesCollide(string firstName, string secondName)
             => firstName == secondName || firstName == $"{secondName}Async" || $"{firstName}Async" == secondName;
 
-        private static string GetOperationName(InputClient inputClient, InputServiceMethod serviceMethod, Func<string, bool> hasExistingName, bool normalizePublicName = true)
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizePublicName = true)
         {
             if (serviceMethod.IsExactName)
             {
@@ -268,7 +249,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            var operationName = TryNormalizeListOperationName(inputClient, serviceMethod, originalName, hasExistingName, out var listNormalizedName)
+            var operationName = TryNormalizeListOperationName(serviceMethod, originalName, out var listNormalizedName)
                 ? listNormalizedName
                 : originalName;
 
@@ -277,10 +258,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return operationName;
             }
 
-            return ProjectPublicName(serviceMethod, operationName, hasExistingName);
+            return ProjectPublicName(serviceMethod, operationName);
         }
 
-        private static string ProjectPublicName(InputServiceMethod serviceMethod, string operationName, Func<string, bool> hasExistingName)
+        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName)
         {
             if (serviceMethod.IsExactName)
             {
@@ -294,13 +275,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return operationName;
             }
 
-            if (hasExistingName(operationName))
+            if (HasExistingName(operationName))
             {
                 return operationName;
             }
 
             // Previous generators may already have normalized Url to Uri without normalizing acronyms.
-            if (urlNormalizedName != operationName && hasExistingName(urlNormalizedName))
+            if (urlNormalizedName != operationName && HasExistingName(urlNormalizedName))
             {
                 return urlNormalizedName;
             }
@@ -308,11 +289,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return normalizedName;
         }
 
-        private static bool TryNormalizeListOperationName(
-            InputClient inputClient,
+        private bool TryNormalizeListOperationName(
             InputServiceMethod serviceMethod,
             string originalName,
-            Func<string, bool> hasExistingName,
             out string normalizedName,
             bool checkPublicCollisions = true)
         {
@@ -323,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Keep distinct input operations distinct before public names and request builders are projected.
-            foreach (var other in inputClient.Methods)
+            foreach (var other in _inputClient.Methods)
             {
                 if (ReferenceEquals(serviceMethod, other))
                 {
@@ -353,8 +332,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var otherName = other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName);
-                var candidatePublicNames = GetProtocolMethodNames(serviceMethod, ProjectPublicName(serviceMethod, normalizedName, hasExistingName));
-                var otherPublicNames = GetProtocolMethodNames(other, ProjectPublicName(other, otherName, hasExistingName));
+                var candidatePublicNames = GetProtocolMethodNames(serviceMethod, ProjectPublicName(serviceMethod, normalizedName));
+                var otherPublicNames = GetProtocolMethodNames(other, ProjectPublicName(other, otherName));
                 var candidateNamesBeforeProjection = GetProtocolMethodNames(serviceMethod, normalizedName);
                 var otherNamesBeforeProjection = GetProtocolMethodNames(other, otherName);
                 if (candidatePublicNames.Intersect(otherPublicNames, StringComparer.Ordinal).Any() &&
@@ -406,12 +385,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private bool HasExistingName(string name)
-            => HasExistingName(name, BackCompatProvider.LastContractView ?? LastContractView, BackCompatProvider.CustomCodeView ?? CustomCodeView);
-
-        private static bool HasExistingName(string name, TypeProvider? lastContract, TypeProvider? custom)
         {
             var asyncName = $"{name}Async";
-            var lastContractMethods = lastContract?.Methods;
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
             foreach (var method in lastContractMethods ?? [])
             {
                 if (MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers) &&
@@ -421,7 +397,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            var customMethods = custom?.Methods;
+            var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
             foreach (var method in customMethods ?? [])
             {
                 if (method.Signature.Name == name || method.Signature.Name == asyncName)
@@ -445,10 +421,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
             return TryNormalizeListOperationName(
-                _inputClient,
                 serviceMethod,
                 originalName,
-                HasExistingName,
                 out var normalizedName,
                 checkPublicCollisions: false)
                 ? normalizedName.ToIdentifierName()
@@ -487,6 +461,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 inputClient.Name.ToIdentifierName(), typeNamespace, null, static name => name.NormalizeCSharpAcronyms());
             var customType = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, name);
             return (customType?.Name ?? name, customType?.Type.Namespace ?? typeNamespace, name);
+        }
+
+        internal static IEnumerable<string> GetOperationNameCandidatesForCollisionCheck(InputServiceMethod method)
+        {
+            var originalName = (method.IsExactName ? method.Operation.Name : method.Operation.OriginalName ?? method.Operation.Name).ToIdentifierName();
+            if (method.IsExactName)
+            {
+                return [originalName];
+            }
+
+            // Cross-client backcompat views can change which spelling is preserved after model names
+            // are fixed, so reserve each possible projection without constructing a client.
+            return new[] { originalName, NormalizeName(originalName) }
+                .SelectMany(name => new[] { name, name.NormalizeCSharpUrlSuffix(), name.NormalizeCSharpUrlSuffix().NormalizeCSharpAcronyms() })
+                .Distinct(StringComparer.Ordinal);
         }
 
         /// <summary>

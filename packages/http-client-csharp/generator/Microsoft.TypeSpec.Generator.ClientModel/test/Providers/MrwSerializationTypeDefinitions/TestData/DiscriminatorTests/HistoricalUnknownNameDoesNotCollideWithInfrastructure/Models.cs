@@ -28,4 +28,18 @@ namespace Sample
     [PersistableModelProxy(typeof(ServiceClientGetAllAsyncCollectionResultOfT))]
     public abstract class PagingCollision { }
     internal class ServiceClientGetAllAsyncCollectionResultOfT : PagingCollision { }
+
+    [PersistableModelProxy(typeof(ServiceClientGetUriAsyncCollectionResultOfT))]
+    public abstract class PagingBackCompatCollision { }
+    internal class ServiceClientGetUriAsyncCollectionResultOfT : PagingBackCompatCollision { }
+
+    public class ServiceClient
+    {
+        public void GetUrl() { }
+    }
+
+    public class OtherClient
+    {
+        public void OtherMethod() { }
+    }
 }
