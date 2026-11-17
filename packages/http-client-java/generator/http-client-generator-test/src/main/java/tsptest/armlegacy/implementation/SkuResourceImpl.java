@@ -18,6 +18,30 @@ public final class SkuResourceImpl implements SkuResource, SkuResource.Definitio
     SkuResourceImpl(SkuResourceInner innerObject, tsptest.armlegacy.ArmLegacyManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.providerNamespace = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
+            "providerNamespace");
+        if (this.providerNamespace == null) {
+            this.providerNamespace = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}",
+                "providerNamespace");
+        }
+        this.resourceType = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
+            "resourceType");
+        if (this.resourceType == null) {
+            this.resourceType = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}",
+                "resourceType");
+        }
+        this.sku = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
+            "sku");
+        if (this.sku == null) {
+            this.sku = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+                "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}",
+                "sku");
+        }
     }
 
     public String id() {
