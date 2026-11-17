@@ -128,7 +128,7 @@ namespace SampleTypeSpec
             {
                 if (prop.NameEquals("child"u8))
                 {
-                    child = OptionalNullableProperties.DeserializeOptionalNullableProperties(prop.Value, options);
+                    child = options.ShouldReadThroughProxy(typeof(OptionalNullableProperties), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<OptionalNullableProperties>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : OptionalNullableProperties.DeserializeOptionalNullableProperties(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")

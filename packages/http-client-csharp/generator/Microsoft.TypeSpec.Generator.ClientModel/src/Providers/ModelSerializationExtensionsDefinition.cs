@@ -191,6 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
                 BuildGetUtf8BytesMethodProvider(),
+                BuildShouldReadThroughProxyMethodProvider(),
                 .. BuildDynamicModelHelpers(),
                 .. BuildXmlExtensionMethods(),
             ];
@@ -673,11 +674,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
             cases.Add(
                 BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel",
-                    jsonModel => new MethodBodyStatement[]
+                    jsonModel =>
                     {
-                        jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer,
-                            options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate(),
-                        Break
+                        var mrwOptions = options.As<ModelReaderWriterOptions>();
+                        return new MethodBodyStatement[]
+                        {
+                            options.Assign(ModelSerializationExtensionsSnippets.Wire, nullCoalesce: true).Terminate(),
+                            new IfStatement(mrwOptions.ProxiesCount().GreaterThan(Int(0)))
+                            {
+                                jsonModel.Assign(mrwOptions.ResolveProxy(jsonModel)).Terminate()
+                            },
+                            jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, options).Terminate(),
+                            Break
+                        };
                     }));
             cases.AddRange(new[]
             {
@@ -944,6 +953,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(New.Instance<BinaryData>(Static(typeof(JsonMarshal)).Invoke(nameof(JsonMarshal.GetRawUtf8Value), elementParameter).Invoke("ToArray"))),
                     Return(BinaryDataSnippets.FromString(elementParameter.As<JsonElement>().GetRawText()))),
             };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildShouldReadThroughProxyMethodProvider()
+        {
+            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
+            var modelTypeParameter = new ParameterProvider("modelType", FormattableStringHelpers.Empty, typeof(Type));
+            var contextParameter = new ParameterProvider("context", FormattableStringHelpers.Empty, typeof(ModelReaderWriterContext));
+            var signature = new MethodSignature(
+                Name: ModelSerializationExtensionsSnippets.ShouldReadThroughProxyMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [optionsParameter, modelTypeParameter, contextParameter],
+                ReturnType: typeof(bool),
+                Description: null,
+                ReturnDescription: null);
+
+            // Nested models can only be read through ModelReaderWriter when the context can build them.
+            var canBuildModel = contextParameter.Invoke(
+                nameof(ModelReaderWriterContext.TryGetTypeBuilder),
+                [modelTypeParameter, Identifier("_").AsArgument(isOut: true)]);
+            var body = Return(optionsParameter.As<ModelReaderWriterOptions>().ProxiesCount().GreaterThan(Int(0)).And(canBuildModel));
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }

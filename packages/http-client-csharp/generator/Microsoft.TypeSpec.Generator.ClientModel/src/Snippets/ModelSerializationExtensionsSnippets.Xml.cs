@@ -45,5 +45,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static InvokeMethodExpression GetBytesFromBase64(ScopedApi<XElement> element, string? format)
             => element.Invoke(GetBytesFromBase64MethodName, Literal(format));
+
+        public static InvokeMethodExpression GetUtf8Bytes(ScopedApi<XElement> element)
+            => element.Invoke(GetUtf8BytesMethodName);
     }
 }

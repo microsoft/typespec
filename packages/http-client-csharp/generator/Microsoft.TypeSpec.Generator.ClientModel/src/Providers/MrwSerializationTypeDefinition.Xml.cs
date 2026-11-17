@@ -1111,10 +1111,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!underlyingType.IsFrameworkType)
             {
-                return GetDeserializationMethodInvocationForType(underlyingType, element, null, mrwOptions);
+                return GetProxyAwareXmlDeserializationMethodInvocation(underlyingType, element, mrwOptions);
             }
 
             return CreateXmlDeserializePrimitiveExpression(element, valueType, format);
+        }
+
+        /// <summary>
+        /// XML counterpart of <see cref="GetProxyAwareDeserializationMethodInvocation"/>. A model that also supports JSON
+        /// reports "J" as its wire format, so it is only read through <see cref="ModelReaderWriter"/> when XML is
+        /// requested explicitly; otherwise the XML payload would be parsed as JSON.
+        /// </summary>
+        private static ValueExpression GetProxyAwareXmlDeserializationMethodInvocation(
+            CSharpType valueType,
+            ScopedApi<XElement> element,
+            ScopedApi<ModelReaderWriterOptions> options)
+        {
+            var deserialize = GetDeserializationMethodInvocationForType(valueType, element, null, options);
+            if (!TryGetProxyableModelSerialization(valueType, out var serialization))
+            {
+                return deserialize;
+            }
+
+            var modelType = valueType.WithNullable(false);
+            var shouldReadThroughProxy = options.ShouldReadThroughProxy(modelType);
+            if (serialization.SupportsJson)
+            {
+                shouldReadThroughProxy = options.Format().Equal(ModelReaderWriterOptionsSnippets.XmlFormat).And(shouldReadThroughProxy);
+            }
+
+            return new TernaryConditionalExpression(
+                shouldReadThroughProxy,
+                ModelReaderWriterSnippets.Read(modelType, element.GetUtf8Bytes(), options),
+                deserialize);
         }
 
         internal static MethodBodyStatement SerializeXmlValueCore(

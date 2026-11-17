@@ -145,7 +145,7 @@ namespace SampleTypeSpec
                     List<Thing> array = new List<Thing>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(Thing.DeserializeThing(item, options));
+                        array.Add(options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(item, options));
                     }
                     things = array;
                     continue;

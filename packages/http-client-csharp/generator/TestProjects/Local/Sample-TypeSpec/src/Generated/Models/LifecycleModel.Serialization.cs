@@ -155,7 +155,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    preview = PreviewDetails.DeserializePreviewDetails(prop.Value, options);
+                    preview = options.ShouldReadThroughProxy(typeof(PreviewDetails), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<PreviewDetails>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : PreviewDetails.DeserializePreviewDetails(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("choice"u8))

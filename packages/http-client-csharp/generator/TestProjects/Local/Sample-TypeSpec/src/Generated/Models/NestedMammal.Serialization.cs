@@ -173,7 +173,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(ExperimentalUnionCat), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ExperimentalUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'NestedPets'.");
             }
@@ -221,7 +221,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(ExperimentalUnionCat), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ExperimentalUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'CollisionPets'.");
             }

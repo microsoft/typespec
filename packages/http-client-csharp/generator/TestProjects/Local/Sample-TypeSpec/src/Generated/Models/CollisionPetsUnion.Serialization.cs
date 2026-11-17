@@ -162,7 +162,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "mammal":
-                    return NestedMammal.DeserializeNestedMammal(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(NestedMammal), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<NestedMammal>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : NestedMammal.DeserializeNestedMammal(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'CollisionPets'.");
             }

@@ -250,7 +250,12 @@ namespace SampleTypeSpec
                     writer.WriteNullValue();
                     break;
                 case IJsonModel<T> jsonModel:
-                    jsonModel.Write(writer, options ?? WireOptions);
+                    options ??= WireOptions;
+                    if (options.Proxies.Count > 0)
+                    {
+                        jsonModel = options.ResolveProxy(jsonModel);
+                    }
+                    jsonModel.Write(writer, options);
                     break;
                 case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);
@@ -347,6 +352,11 @@ namespace SampleTypeSpec
 #else
             return BinaryData.FromString(element.GetRawText());
 #endif
+        }
+
+        public static bool ShouldReadThroughProxy(this ModelReaderWriterOptions options, Type modelType, ModelReaderWriterContext context)
+        {
+            return options.Proxies.Count > 0 && context.TryGetTypeBuilder(modelType, out _);
         }
 
         public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
@@ -449,6 +459,8 @@ namespace SampleTypeSpec
             "D" => Convert.FromBase64String(element.Value),
             _ => throw new ArgumentException("Format is not supported: ", nameof(format))
         };
+
+        public static BinaryData GetUtf8Bytes(this XElement element) => BinaryData.FromString(element.ToString(SaveOptions.DisableFormatting));
 
         public static void WriteStringValue(this XmlWriter writer, DateTimeOffset value, string format)
         {

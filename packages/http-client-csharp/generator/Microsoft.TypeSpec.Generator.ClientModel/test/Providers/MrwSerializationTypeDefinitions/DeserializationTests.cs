@@ -160,6 +160,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
         }
 
+        // Validates that nested model properties, list items and dictionary values keep the static
+        // deserializer when no proxies are registered and otherwise read through ModelReaderWriter.
+        [Test]
+        public void NestedModelReadsRouteThroughModelProxies()
+        {
+            var nestedModel = InputFactory.Model("NestedModel", properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var inputModel = InputFactory.Model("TestModel", properties:
+            [
+                InputFactory.Property("nested", nestedModel, isRequired: true),
+                InputFactory.Property("nestedList", InputFactory.Array(nestedModel)),
+                InputFactory.Property("nestedDictionary", InputFactory.Dictionary(nestedModel)),
+                InputFactory.Property("name", InputPrimitiveType.String)
+            ]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // The discriminator switch selects the concrete deserializer for the model that was already resolved,
+        // so it must not re-enter proxy resolution.
+        [Test]
+        public void DiscriminatorDispatchDoesNotRouteThroughModelProxies()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+            ]);
+            var petModel = InputFactory.Model(
+                "pet",
+                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+
+            var serialization = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(petModel)!.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(serialization);
+            var deserializeMethod = serialization!.Methods.FirstOrDefault(m => m.Signature.Name == "DeserializePet");
+            Assert.IsNotNull(deserializeMethod);
+
+            var methodBody = deserializeMethod!.BodyStatements!.ToDisplayString();
+            Assert.That(methodBody, Does.Contain("global::Sample.Models.Cat.DeserializeCat(element, options)"));
+            Assert.That(methodBody, Does.Not.Contain("ShouldReadThroughProxy"));
+            Assert.That(methodBody, Does.Not.Contain("ModelReaderWriter.Read"));
+        }
+
         // Validates the deserialize body produced for a required FileBinaryContent property.
         [Test]
         public void RequiredFileBinaryContentProperty()

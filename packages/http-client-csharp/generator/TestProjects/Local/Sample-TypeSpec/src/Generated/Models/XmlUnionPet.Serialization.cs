@@ -240,7 +240,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return XmlUnionCat.DeserializeXmlUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(XmlUnionCat), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlUnionCat.DeserializeXmlUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'XmlUnionPets'.");
             }

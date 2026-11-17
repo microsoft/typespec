@@ -170,7 +170,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "a":
-                    return RebasedUnionALeaf.DeserializeRebasedUnionALeaf(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(RebasedUnionALeaf), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<RebasedUnionALeaf>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : RebasedUnionALeaf.DeserializeRebasedUnionALeaf(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'Pets'.");
             }

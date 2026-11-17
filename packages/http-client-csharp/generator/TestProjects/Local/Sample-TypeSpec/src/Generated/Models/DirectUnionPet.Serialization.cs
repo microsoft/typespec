@@ -218,7 +218,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return DirectUnionCat.DeserializeDirectUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(DirectUnionCat), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<DirectUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : DirectUnionCat.DeserializeDirectUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'DirectPets'.");
             }

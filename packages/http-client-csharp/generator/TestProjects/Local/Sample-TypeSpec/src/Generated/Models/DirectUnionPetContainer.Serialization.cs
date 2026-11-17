@@ -147,7 +147,7 @@ namespace SampleTypeSpec
             {
                 if (prop.NameEquals("pet"u8))
                 {
-                    pet = DirectUnionPet.DeserializeDirectUnionPet(prop.Value, options);
+                    pet = options.ShouldReadThroughProxy(typeof(DirectUnionPet), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<DirectUnionPet>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : DirectUnionPet.DeserializeDirectUnionPet(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")

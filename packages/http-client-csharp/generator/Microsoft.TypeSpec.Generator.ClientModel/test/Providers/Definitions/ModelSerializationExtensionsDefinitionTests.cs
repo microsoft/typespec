@@ -591,6 +591,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsTrue(writeStringValueMethods.Count == 1);
         }
 
+        // Snapshot of the GetUtf8Bytes overloads; the XElement overload re-serializes nested XML models so they can be
+        // read through ModelReaderWriter proxies.
+        [Test]
+        public void ValidateGetUtf8BytesMethodsWithXmlModels()
+        {
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == "GetUtf8Bytes"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public void ValidateXmlWriteBase64StringVAlueMethodIsGenerated()
         {
@@ -752,6 +769,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             var definition = new ModelSerializationExtensionsDefinition();
             var method = definition.Methods.SingleOrDefault(m => m.Signature.Name == "WriteFileBinaryContent");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Snapshot of the helper that decides whether nested models are read through ModelReaderWriter:
+        // only when proxies are registered and the context can build the requested type.
+        [Test]
+        public void ValidateShouldReadThroughProxyMethod()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == "ShouldReadThroughProxy"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Snapshot of the WriteObjectValue<T> switch — verifies nested JSON models resolve registered proxies
+        // and keep writing the model directly when none are registered.
+        [Test]
+        public void ValidateWriteObjectValueResolvesModelProxies()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var method = definition.Methods
+                .Where(m => m.Signature.Name == "WriteObjectValue" && m.Signature.GenericArguments?.Count > 0)
+                .SingleOrDefault();
             Assert.IsNotNull(method);
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));

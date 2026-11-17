@@ -142,6 +142,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // A nested model that also supports JSON reports "J" for the wire format, so it is only read through
+        // ModelReaderWriter proxies when the options explicitly request XML.
+        [Test]
+        public void XmlDeserializationMethodRoutesDualFormatNestedModelOnlyForXmlFormat()
+        {
+            var innerModel = InputFactory.Model(
+                "InnerModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("value")))]);
+            var outerModel = InputFactory.Model(
+                "OuterModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("inner", innerModel, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("inner")))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [innerModel, outerModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "OuterModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public async Task XmlDeserializationMethodHandlesUnwrappedListProperty()
         {

@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
-            new("System.ClientModel", "1.16.0"),
+            new("System.ClientModel", "1.17.0-alpha.20261117.1"),
         };
 
         protected virtual string GetSolutionFileContent()

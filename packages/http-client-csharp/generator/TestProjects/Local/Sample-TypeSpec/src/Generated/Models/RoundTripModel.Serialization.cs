@@ -408,7 +408,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredModel"u8))
                 {
-                    requiredModel = Thing.DeserializeThing(prop.Value, options);
+                    requiredModel = options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnum"u8))
@@ -622,7 +622,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("modelWithRequiredNullable"u8))
                 {
-                    modelWithRequiredNullable = ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
+                    modelWithRequiredNullable = options.ShouldReadThroughProxy(typeof(ModelWithRequiredNullableProperties), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("requiredBytes"u8))

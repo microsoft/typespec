@@ -130,7 +130,7 @@ namespace SampleTypeSpec
             {
                 if (prop.NameEquals("action"u8))
                 {
-                    action = RoundTripModel.DeserializeRoundTripModel(prop.Value, options);
+                    action = options.ShouldReadThroughProxy(typeof(RoundTripModel), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<RoundTripModel>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : RoundTripModel.DeserializeRoundTripModel(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")

@@ -172,9 +172,9 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "a":
-                    return RebasedUnionA.DeserializeRebasedUnionA(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(RebasedUnionA), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<RebasedUnionA>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : RebasedUnionA.DeserializeRebasedUnionA(discriminator0, options);
                 case "b":
-                    return RebasedUnionB.DeserializeRebasedUnionB(discriminator0, options);
+                    return options.ShouldReadThroughProxy(typeof(RebasedUnionB), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<RebasedUnionB>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : RebasedUnionB.DeserializeRebasedUnionB(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'RebasedPets'.");
             }
