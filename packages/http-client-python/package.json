@@ -36,6 +36,7 @@
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
     "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/build.ts",
     "build:playground": "npm run build -- --playground",
+    "update:playground-wheels": "npm run build -- --update-browser-wheels",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",

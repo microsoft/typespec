@@ -25,9 +25,13 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     strictEqual(loadPyodide.mock.calls.length, 0);
   });
 
-  it("installs published dependency wheels without querying a package index", async () => {
+  it("installs all published dependency wheels from emitter assets", async () => {
     vi.stubGlobal("window", globalThis);
-    const wheels = ["pygen-0.1.0-py3-none-any.whl", "black-26.3.1-py3-none-any.whl"];
+    const wheels = [
+      "pygen-0.1.0-py3-none-any.whl",
+      "PyYAML-6.0.1-cp312-cp312-pyodide_2024_0_wasm32.whl",
+      "MarkupSafe-2.1.5-cp312-cp312-pyodide_2024_0_wasm32.whl",
+    ];
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ wheels }),
@@ -56,14 +60,10 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     expect(fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/generator\/dist\/browser\/manifest\.json$/),
     );
-    expect(pyodide.loadPackage).toHaveBeenNthCalledWith(
-      1,
+    expect(pyodide.loadPackage).toHaveBeenCalledExactlyOnceWith(
       wheels.map((name) => expect.stringMatching(new RegExp(`/browser/${name}$`))),
       { errorCallback: expect.any(Function) },
     );
-    expect(pyodide.loadPackage).toHaveBeenNthCalledWith(2, ["pyyaml", "markupsafe"], {
-      errorCallback: expect.any(Function),
-    });
     expect(pyodide.runPythonAsync).toHaveBeenCalledOnce();
   });
 
@@ -157,7 +157,7 @@ describe("typespec-python: browser pyodide bootstrap", () => {
       const [, success] = await EmitterTester.compileAndDiagnose(source);
       expectDiagnostics(success, []);
       expect(loadPyodide).toHaveBeenCalledTimes(2);
-      expect(loadPackage).toHaveBeenCalledTimes(3);
+      expect(loadPackage).toHaveBeenCalledTimes(2);
     },
   );
 });

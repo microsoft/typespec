@@ -323,7 +323,6 @@ async function setupPyodideCallBrowser() {
     throw new Error("Invalid Python browser wheel manifest.");
   }
   await loadBrowserPackages(pyodide, manifest.wheels.map(getBrowserAssetUrl));
-  await loadBrowserPackages(pyodide, ["pyyaml", "markupsafe"]);
 
   return pyodide;
 }
