@@ -11,5 +11,3 @@ For example, `value: string | null` now emits:
 ```json
 { "type": ["string", "null"] }
 ```
-
-Fixes [microsoft/typespec#2656](https://github.com/microsoft/typespec/issues/2656).
