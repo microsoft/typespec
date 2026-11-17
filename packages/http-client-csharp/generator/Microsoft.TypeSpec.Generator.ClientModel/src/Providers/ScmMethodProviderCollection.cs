@@ -2236,7 +2236,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (GetSseEventSubtypes(streamingType) != null)
             {
-                return unionType;
+                return unionType.BaseModel;
             }
 
             var payloadTypes = unionType.VariantTypes

@@ -617,6 +617,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             StringAssert.DoesNotContain("switch", convenienceMethod.BodyStatements!.ToDisplayString());
         }
 
+        [Test]
+        public void SseEventsUnionKeepsExistingRepresentationOutsideSse()
+        {
+            var baseEvent = InputFactory.Model(
+                "ResponseEvent",
+                properties: [InputFactory.Property("sequence", InputPrimitiveType.Int32, isRequired: true)]);
+            var created = InputFactory.Model(
+                "ResponseCreated",
+                baseModel: baseEvent,
+                properties: [InputFactory.Property("id", InputPrimitiveType.String, isRequired: true)]);
+            var eventUnion = InputFactory.Union(
+                [created],
+                "ResponseEvents",
+                baseModel: baseEvent,
+                discriminatedSubtypes: new Dictionary<string, InputModelType> { ["response.created"] = created });
+            var (convenienceMethod, _) = CreateSseMethods(eventUnion, [baseEvent, created], "jsonl");
+
+            // Only SSE carries the event type needed to pick a variant, so other uses must not collapse to the base.
+            var baseType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseEvent)!;
+            Assert.IsFalse(baseType.Equals(ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(eventUnion)!));
+            Assert.IsFalse(baseType.Equals(convenienceMethod.Signature.ReturnType!.Arguments[0].Arguments[0]));
+        }
+
         private static CSharpType CreateSseReturnType(CSharpType payloadType)
             => new(
                 typeof(Task<>),
@@ -624,14 +647,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         private static (MethodProvider Convenience, MethodProvider Protocol) CreateSseMethods(
             InputType eventUnion,
-            InputModelType[] models)
+            InputModelType[] models,
+            string streamKind = "sse")
         {
-            var streamType = new InputStreamingType(
-                "SseStream",
-                "Streaming.Sse.SseStream",
-                eventUnion,
-                ["text/event-stream"],
-                streamKind: "sse");
+            var streamType = streamKind == "sse"
+                ? new InputStreamingType(
+                    "SseStream",
+                    "Streaming.Sse.SseStream",
+                    eventUnion,
+                    ["text/event-stream"],
+                    streamKind: "sse")
+                : new InputStreamingType(
+                    "JsonlStream",
+                    "Streaming.Jsonl.JsonlStream",
+                    eventUnion,
+                    ["application/jsonl"]);
             var operation = InputFactory.Operation(
                 "Receive",
                 responses: [InputFactory.OperationResponse([200], streamType)],

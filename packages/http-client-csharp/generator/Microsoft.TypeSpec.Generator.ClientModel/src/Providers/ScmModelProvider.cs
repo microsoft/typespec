@@ -116,6 +116,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     InputNullableType nullable => UsesBase(nullable.Type),
                     InputArrayType array => UsesBase(array.ValueType),
                     InputDictionaryType dictionary => UsesBase(dictionary.ValueType),
+                    // Unknown SSE events are read as the events union's base, which must stay concrete.
+                    InputStreamingType { ValueType: InputUnionType { DiscriminatorPropertyName: null, DiscriminatedSubtypes: not null } events }
+                        when ReferenceEquals(events.BaseModel, _inputModel) => true,
                     InputStreamingType streaming => UsesBase(streaming.ValueType),
                     InputUnionType union when !DiscriminatedUnionSerialization.RequiresEnvelope(union) =>
                         union.VariantTypes.Any(UsesBase),
