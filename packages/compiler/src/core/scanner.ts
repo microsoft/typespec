@@ -406,7 +406,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["scenario", Token.ScenarioKeyword],
   ["pub", Token.PubKeyword],
   ["sub", Token.SubKeyword],
-  ["typeref", Token.TypeRefKeyword],
   ["trait", Token.TraitKeyword],
   ["this", Token.ThisKeyword],
   ["self", Token.SelfKeyword],

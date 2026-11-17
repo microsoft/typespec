@@ -455,14 +455,42 @@ async function createProgram(
     diagnosticCodeResolver,
   );
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
-  if (options.linterRuleSet) {
+  const linterOverrides = options.linterRuleSetOverrides;
+  // Resolve aliases before applying last-wins overrides, separate from the configured ruleset.
+  const ruleOverrides = new Map(
+    linterOverrides?.rules.map(([ref, value]) => [diagnosticCodeResolver.resolveCode(ref), value]),
+  );
+  const excludeRules = new Set(ruleOverrides.keys());
+  if (linterOverrides?.extends !== undefined) {
     program.reportDiagnostics(
-      await linter.extendRuleSet(options.linterRuleSet, {
+      await linter.extendRuleSet({ extends: linterOverrides.extends }, { excludeRules }),
+    );
+  }
+  if (options.linterRuleSet) {
+    const ruleSet =
+      linterOverrides?.extends !== undefined
+        ? {
+            ...options.linterRuleSet,
+            extends: undefined,
+          }
+        : options.linterRuleSet;
+    program.reportDiagnostics(
+      await linter.extendRuleSet(ruleSet, {
         baseDir: program.projectRoot,
         source: options.configFile?.file
           ? { script: options.configFile.file, path: ["linter"] }
           : undefined,
+        excludeRules,
       }),
+    );
+  }
+  for (const [ref, value] of ruleOverrides) {
+    program.reportDiagnostics(
+      await linter.extendRuleSet(
+        value === false
+          ? { disable: { [ref]: "Disabled via --linter-rule." } }
+          : { enable: { [ref]: value } },
+      ),
     );
   }
 

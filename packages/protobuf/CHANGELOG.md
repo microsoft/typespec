@@ -1,5 +1,29 @@
 # Change Log - @typespec/protobuf
 
+## 0.88.0
+
+### Features
+
+- [#12131](https://github.com/microsoft/typespec/pull/12131) Add `LongRunningOperation<Response, Metadata>` for long-running operations ([AIP-151](https://google.aip.dev/151)), and `WellKnown.Operation`. An operation that returns `LongRunningOperation` returns a `google.longrunning.Operation`, and the emitter writes its response and metadata types in the method's `google.longrunning.operation_info` option.
+  
+  ```tsp
+  importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+  ```
+  
+  ```proto
+  rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+    option (google.longrunning.operation_info) = {
+      response_type: "ImportBooksResponse"
+      metadata_type: "ImportBooksMetadata"
+    };
+  }
+  ```
+
+### Bug Fixes
+
+- [#12191](https://github.com/microsoft/typespec/pull/12191) An object value, such as an `@opExample` or `const` value, can now fill a `Map<Key, Value>`: `Map` is a `Record` of its values. The emitted `map` is unchanged.
+
+
 ## 0.87.0
 
 ### Features

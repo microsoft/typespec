@@ -41,7 +41,6 @@ import {
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
-import { resolveRequestVisibility, Visibility } from "@typespec/http";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -232,12 +231,6 @@ export function fromSdkServiceMethodOperation(
       fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     ),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
-    requestVisibility:
-      resolveRequestVisibility(
-        sdkContext.program,
-        method.operation.__raw.operation,
-        method.operation.verb,
-      ) & Visibility.All,
     responseAsBool: getResponseAsBool(sdkContext, method.operation.__raw.operation)
       ? true
       : undefined,
@@ -986,11 +979,7 @@ function loadPagingServiceMetadata(
   }
 
   let continuationToken: InputContinuationToken | undefined;
-
-  if (
-    method.pagingMetadata.continuationTokenParameterSegments &&
-    method.pagingMetadata.continuationTokenResponseSegments
-  ) {
+  if (method.pagingMetadata.continuationTokenParameterSegments) {
     // The last segment of the service method parameter can be used to map back to the protocol parameter
     const lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
@@ -1003,19 +992,22 @@ function loadPagingServiceMetadata(
       ),
     );
     if (continuationTokenParameter) {
-      continuationToken = {
-        parameter: continuationTokenParameter,
-        responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
-          getResponseSegmentName(segment),
-        ),
-        responseLocation: diagnostics.pipe(
-          getResponseLocation(
-            context,
-            method,
-            method.pagingMetadata.continuationTokenResponseSegments?.[0],
+      continuationTokenParameter.isContinuationToken = true;
+      if (method.pagingMetadata.continuationTokenResponseSegments) {
+        continuationToken = {
+          parameter: continuationTokenParameter,
+          responseSegments: method.pagingMetadata.continuationTokenResponseSegments.map((segment) =>
+            getResponseSegmentName(segment),
           ),
-        ),
-      };
+          responseLocation: diagnostics.pipe(
+            getResponseLocation(
+              context,
+              method,
+              method.pagingMetadata.continuationTokenResponseSegments[0],
+            ),
+          ),
+        };
+      }
     }
   }
 

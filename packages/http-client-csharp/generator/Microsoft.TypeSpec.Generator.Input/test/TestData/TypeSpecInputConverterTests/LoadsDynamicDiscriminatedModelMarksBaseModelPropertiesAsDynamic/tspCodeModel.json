@@ -180,8 +180,8 @@
       "doc": "Derived model with dynamic decorator",
       "decorators": [
         {
-          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
-          "arguments": {}
+          "name": "Azure.ClientGenerator.Core.@dynamicModel",
+          "arguments": { "scope": "csharp" }
         }
       ],
       "baseModel": {

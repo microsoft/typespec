@@ -1,5 +1,19 @@
 # Change Log - @typespec/playground
 
+## 0.19.0
+
+### Breaking Changes
+
+- [#12200](https://github.com/microsoft/typespec/pull/12200) Move `registerMonacoDefaultWorkersForVite` from `@typespec/playground` to `@typespec/playground/vite/workers`. Update the import path; the registration call is unchanged.
+  
+  Custom Vite configurations must exclude `@typespec/playground/vite/workers` from `optimizeDeps`. `definePlaygroundViteConfig` configures this automatically.
+
+### Bug Fixes
+
+- [#12201](https://github.com/microsoft/typespec/pull/12201) Highlight folders containing changed output files in the playground, including collapsed ancestor folders.
+- [#12200](https://github.com/microsoft/typespec/pull/12200) Resolve Monaco worker assets through the consuming Vite application so published playground packages work under custom base paths.
+
+
 ## 0.18.0
 
 ### Features

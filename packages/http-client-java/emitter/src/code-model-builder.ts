@@ -18,12 +18,14 @@ import type {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodResponse,
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkSseMetadata,
   SdkType,
   SdkUnionType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -40,6 +42,7 @@ import {
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
 import type {
+  DiagnosticTarget,
   EmitContext,
   Interface,
   Namespace,
@@ -51,6 +54,7 @@ import type {
 } from "@typespec/compiler";
 import {
   NoTarget,
+  compilerAssert,
   getDoc,
   getNamespaceFullName,
   getOverloadedOperation,
@@ -65,7 +69,6 @@ import { Visibility, getAuthentication } from "@typespec/http";
 import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
-import { fail } from "assert";
 import type {
   Client as CodeModelClient,
   EncodedProperty,
@@ -82,7 +85,7 @@ import type { CodeModel } from "./common/code-model.js";
 import { addGlobalParameter, createCodeModel } from "./common/code-model.js";
 import type { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { createLongRunningMetadata } from "./common/long-running-metadata.js";
-import type { Operation as CodeModelOperation, Request } from "./common/operation.js";
+import type { Operation as CodeModelOperation, Request, SseMetadata } from "./common/operation.js";
 import {
   addException,
   addOperation,
@@ -193,6 +196,7 @@ import {
 } from "./operation-utils.js";
 import type { DevOptions, EmitterOptions } from "./options.js";
 import { LIB_NAME } from "./options.js";
+import { createSseSchemas, type SseSchemas } from "./sse-utils.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -284,6 +288,11 @@ type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
 
+interface SseSchemaBundle {
+  owner: object;
+  schemas: SseSchemas;
+}
+
 export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
@@ -295,7 +304,9 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
+  private readonly specialHeaderNames = new Set(SPECIAL_HEADER_NAMES);
   private readonly javaNamespaceCache = new Map<string, string>();
+  private readonly sseSchemaBundles = new Map<string, SseSchemaBundle>();
 
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
@@ -320,7 +331,7 @@ export class CodeModelBuilder {
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
-        SPECIAL_HEADER_NAMES.add(it.toLowerCase()),
+        this.specialHeaderNames.add(it.toLowerCase()),
       );
     }
 
@@ -434,6 +445,8 @@ export class CodeModelBuilder {
     this.processClients();
 
     this.processModels();
+
+    this.registerSseSchemas();
 
     this.processSchemaUsage();
 
@@ -642,7 +655,9 @@ export class CodeModelBuilder {
   }
 
   private processSchemaUsage() {
-    this.codeModel.schemas.objects?.forEach((it) => this.propagateSchemaUsage(it));
+    this.codeModel.schemas.objects
+      ?.filter((it) => !it.usage?.includes(SchemaContext.Sse))
+      .forEach((it) => this.propagateSchemaUsage(it));
 
     // post process for schema usage
     this.codeModel.schemas.objects?.forEach((it) => this.resolveSchemaUsage(it));
@@ -651,6 +666,13 @@ export class CodeModelBuilder {
     this.codeModel.schemas.sealedChoices?.forEach((it) => this.resolveSchemaUsage(it));
     this.codeModel.schemas.ors?.forEach((it) => this.resolveSchemaUsage(it));
     this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
+  }
+
+  private registerSseSchemas() {
+    for (const bundle of this.sseSchemaBundles.values()) {
+      addSchema(this.codeModel.schemas, bundle.schemas.baseSchema);
+      bundle.schemas.eventSchemas.forEach((schema) => addSchema(this.codeModel.schemas, schema));
+    }
   }
 
   private deduplicateSchemaName() {
@@ -690,12 +712,19 @@ export class CodeModelBuilder {
         }
       }
     };
-    this.codeModel.schemas.objects?.forEach((it) => deduplicateName(it));
+    const ordinaryObjects = this.codeModel.schemas.objects?.filter(
+      (it) => !it.usage?.includes(SchemaContext.Sse),
+    );
+    const sseObjects = this.codeModel.schemas.objects?.filter((it) =>
+      it.usage?.includes(SchemaContext.Sse),
+    );
+    ordinaryObjects?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.groups?.forEach((it) => deduplicateName(it)); // it may contain RequestConditions under "com.azure.core."
     this.codeModel.schemas.choices?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.sealedChoices?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.ors?.forEach((it) => deduplicateName(it));
     this.codeModel.schemas.constants?.forEach((it) => deduplicateName(it));
+    sseObjects?.forEach((it) => deduplicateName(it));
   }
 
   private resolveSchemaUsage(schema: Schema) {
@@ -1084,6 +1113,10 @@ export class CodeModelBuilder {
       sdkMethod.crossLanguageDefinitionId;
     this.applyExperimental(httpOperation.__raw.operation, codeModelOperation);
     codeModelOperation.internalApi = sdkMethod.access === "internal";
+    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response, sdkMethod.__raw);
+    if (codeModelOperation.sseMetadata) {
+      this.reportNonstandardSseStatusCodes(sdkMethod);
+    }
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
@@ -1160,6 +1193,9 @@ export class CodeModelBuilder {
         }
       }
     }
+    if (codeModelOperation.convenienceApi && codeModelOperation.sseMetadata) {
+      this.trackSseSchemaUsage(codeModelOperation.sseMetadata);
+    }
     if (diagnostic) {
       codeModelOperation.language.java = codeModelOperation.language.java ?? {};
       codeModelOperation.language.java.comment = diagnostic.message;
@@ -1216,6 +1252,7 @@ export class CodeModelBuilder {
         codeModelOperation,
         sdkMethod,
         httpOperation.bodyParam,
+        clientContext,
       );
     }
 
@@ -1285,6 +1322,210 @@ export class CodeModelBuilder {
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
 
     return codeModelOperation;
+  }
+
+  private reportNonstandardSseStatusCodes(sdkMethod: SdkServiceMethod<SdkHttpOperation>): void {
+    const statusCodes = [
+      ...new Set(
+        sdkMethod.operation.responses
+          .filter((response) => response.streamMetadata?.contentTypes.includes("text/event-stream"))
+          .flatMap((response) => this.getStatusCodes(response.statusCodes))
+          .filter((statusCode) => statusCode !== "200" && statusCode !== "204"),
+      ),
+    ].sort((left, right) => Number(left) - Number(right));
+    if (statusCodes.length > 0) {
+      reportDiagnostic(this.program, {
+        code: "sse-nonstandard-status-code",
+        format: { operationName: sdkMethod.name, statusCodes: statusCodes.join(", ") },
+        target: sdkMethod.__raw ?? sdkMethod.operation.__raw.operation,
+      });
+    }
+  }
+
+  private processSseMetadata(
+    response: SdkMethodResponse,
+    diagnosticTarget: DiagnosticTarget | undefined,
+  ): SseMetadata | undefined {
+    if (!this.isAzureV1() || this.sdkContext.arm) {
+      return undefined;
+    }
+
+    if (!response.streamMetadata?.contentTypes.includes("text/event-stream")) {
+      return undefined;
+    }
+
+    const unsupported = () => {
+      reportDiagnostic(this.program, {
+        code: "sse-unsupported",
+        target: diagnosticTarget ?? NoTarget,
+      });
+      return undefined;
+    };
+    if (this.options["stream-style-serialization"] === false) {
+      return unsupported();
+    }
+    const sseMetadata: SdkSseMetadata | undefined = response.sseMetadata;
+    if (!sseMetadata || sseMetadata.events.length === 0) {
+      return unsupported();
+    }
+
+    const streamType = response.streamMetadata.streamType;
+    if (streamType.kind !== "union" || !streamType.name) {
+      return unsupported();
+    }
+    const id = streamType.crossLanguageDefinitionId;
+    if (!id) {
+      throw new Error(`SSE union '${streamType.name}' has no cross-language definition ID.`);
+    }
+    const seenEventNames = new Set<string>();
+    for (const event of sseMetadata.events) {
+      const contentType = (event.payloadContentType ?? "application/json")
+        .split(";")[0]
+        .trim()
+        .toLowerCase();
+      const isJson = /^application\/(?:[\w.+-]+\+)?json$/.test(contentType);
+      // TODO(xiaofei): Typed SSE is limited to nonliteral application/json or +json payloads; add event literals in a future PR.
+      if (
+        typeof event.eventType !== "string" ||
+        event.eventType.length === 0 ||
+        event.payloadType.kind === "constant" ||
+        this.hasUnsupportedSseNullablePayload(event.payloadType) ||
+        !isJson ||
+        seenEventNames.has(event.eventType)
+      ) {
+        return unsupported();
+      }
+      seenEventNames.add(event.eventType);
+    }
+
+    const events = sseMetadata.events.map((event) => {
+      const payloadSchemaNameHint = event
+        .eventType!.split(/[^A-Za-z0-9]+/)
+        .filter((segment) => segment.length > 0)
+        .map(pascalCase)
+        .join("");
+      const payload = this.processSchema(event.payloadType, `${payloadSchemaNameHint}EventPayload`);
+      const explicitClientName =
+        event.type.kind === "model" && event.type.__raw
+          ? getClientNameOverride(this.sdkContext, event.type.__raw)
+          : undefined;
+      const envelope =
+        event.isEventEnvelope &&
+        event.type.kind === "model" &&
+        event.type.name.trim().length > 0 &&
+        (!event.type.isGeneratedName || explicitClientName !== undefined)
+          ? {
+              schemaName: event.type.name,
+              isExactName: event.type.isExactName,
+            }
+          : {};
+      return {
+        event,
+        payload,
+        ...envelope,
+      };
+    });
+    const supportedEvents = events;
+    const modelNamespaces = new Set(
+      supportedEvents.map(({ event }) => {
+        if (
+          event.type.kind !== "model" &&
+          event.type.kind !== "enum" &&
+          event.type.kind !== "union"
+        ) {
+          return undefined;
+        }
+        return this.getJavaNamespace(event.type);
+      }),
+    );
+    modelNamespaces.delete(undefined);
+    if (modelNamespaces.size > 1) {
+      return unsupported();
+    }
+    const modelNamespace =
+      modelNamespaces.values().next().value ?? this.getJavaNamespace(streamType);
+    if (!modelNamespace) {
+      return unsupported();
+    }
+
+    // TCGC may produce repeated SDK wrappers for the same effective source union.
+    const owner = streamType.__raw ?? streamType;
+    const existingBundle = this.sseSchemaBundles.get(id);
+    // Distinct supported generic union instantiations can share a TCGC CID while carrying different payloads.
+    if (existingBundle && existingBundle.owner !== owner) {
+      throw new Error(`Distinct SSE unions claim cross-language definition ID '${id}'.`);
+    }
+
+    let bundle = existingBundle;
+    if (!bundle) {
+      bundle = {
+        owner,
+        schemas: createSseSchemas({
+          streamName: streamType.name,
+          sourceNamespace: getNamespace(streamType.__raw),
+          javaNamespace: modelNamespace,
+          events: supportedEvents.map(({ event, payload, schemaName, isExactName }) => ({
+            name: event.eventType!,
+            payload,
+            terminal: event.isTerminalEvent,
+            schemaName,
+            isExactName,
+          })),
+        }),
+      };
+      this.sseSchemaBundles.set(id, bundle);
+    }
+
+    const metadata: SseMetadata = {
+      sseStreamId: id,
+      streamName: streamType.name,
+      baseSchema: bundle.schemas.baseSchema,
+      events: supportedEvents.map(({ event }) => {
+        const eventSchema = bundle.schemas.eventSchemas.get(event.eventType!);
+        if (!eventSchema) {
+          throw new Error(
+            `SSE union '${streamType.name}' has no cached schema for event '${event.eventType}'.`,
+          );
+        }
+        return {
+          name: event.eventType!,
+          eventSchema,
+          terminal: event.isTerminalEvent,
+        };
+      }),
+    };
+    return metadata;
+  }
+
+  private hasUnsupportedSseNullablePayload(type: SdkType): boolean {
+    if (type.kind === "nullable") {
+      return true;
+    }
+    if (type.kind === "array" || type.kind === "dict") {
+      return this.hasUnsupportedSseNullablePayload(type.valueType);
+    }
+    return false;
+  }
+
+  private trackSseSchemaUsage(metadata: SseMetadata): void {
+    this.trackSchemaUsage(metadata.baseSchema, {
+      usage: [SchemaContext.Output, SchemaContext.Public],
+    });
+    for (const event of metadata.events) {
+      this.trackSchemaUsage(event.eventSchema, {
+        usage: [SchemaContext.Output, SchemaContext.Public],
+      });
+      const payload = event.eventSchema.properties?.find(
+        (property) => property.serializedName === "value",
+      )?.schema;
+      if (!payload) {
+        throw new Error(`SSE event '${event.name}' has no value property schema.`);
+      }
+      this.trackSchemaUsage(payload, {
+        usage: [SchemaContext.Output, SchemaContext.Public],
+        serializationFormats: [KnownMediaType.Json],
+      });
+    }
   }
 
   private processRouteForPaged(
@@ -1611,7 +1852,7 @@ export class CodeModelBuilder {
       clientContext.addGlobalParameter(parameter);
     } else if (
       param.kind === "header" &&
-      SPECIAL_HEADER_NAMES.has(param.serializedName.toLowerCase())
+      this.specialHeaderNames.has(param.serializedName.toLowerCase())
     ) {
       // special headers
       op.specialHeaders = op.specialHeaders ?? [];
@@ -1648,18 +1889,6 @@ export class CodeModelBuilder {
         if (collectionHeaderPrefix) {
           extensions = extensions ?? {};
           extensions["x-ms-header-collection-prefix"] = collectionHeaderPrefix;
-        }
-      }
-
-      if (this.supportsAdvancedVersioning() && param.__raw) {
-        // versioning
-        const addedOn = getAddedOnVersions(this.program, param.__raw);
-        if (addedOn) {
-          extensions = extensions ?? {};
-          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
-            param.__raw,
-            addedOn,
-          );
         }
       }
 
@@ -1752,6 +1981,7 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      this.applyParameterVersioning(param, parameter, clientContext);
       this.applyExperimental(param.__raw, parameter);
       if (param.isExactName) {
         parameter.language.java = parameter.language.java ?? {};
@@ -2208,10 +2438,28 @@ export class CodeModelBuilder {
     }
   }
 
+  private applyParameterVersioning(
+    source: SdkHttpOperationParameterType | SdkBodyParameter,
+    parameter: Parameter,
+    clientContext: ClientContext,
+  ) {
+    if (this.supportsAdvancedVersioning() && source.__raw) {
+      const addedOn = getAddedOnVersions(this.program, source.__raw);
+      if (addedOn) {
+        parameter.extensions = parameter.extensions ?? {};
+        parameter.extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
+          source.__raw,
+          [...addedOn],
+        );
+      }
+    }
+  }
+
   private processParameterBody(
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkBody: SdkBodyParameter,
+    clientContext: ClientContext,
   ): boolean {
     let bodyParameterFlattened = false;
 
@@ -2273,6 +2521,9 @@ export class CodeModelBuilder {
         http: createHttpParameter(ParameterLocation.Body),
       },
     });
+    if (!parameter.required) {
+      this.applyParameterVersioning(sdkBody, parameter, clientContext);
+    }
     this.applyExperimental(sdkBody.__raw, parameter);
     addParameter(op, parameter);
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
@@ -2488,7 +2739,10 @@ export class CodeModelBuilder {
           }
           break;
         default:
-          fail(`Unsupported response replacement: ${responseReplacement satisfies never}`);
+          compilerAssert(
+            false,
+            `Unsupported response replacement: ${responseReplacement satisfies never}`,
+          );
       }
     }
 
@@ -2704,7 +2958,9 @@ export class CodeModelBuilder {
   }
 
   private processSchema(type: SdkType, nameHint: string): Schema {
-    return this.schemaCache.process(type, nameHint) || fail("Unable to process schema.");
+    const schema = this.schemaCache.process(type, nameHint);
+    compilerAssert(schema, "Unable to process schema.");
+    return schema;
   }
 
   private processSchemaImpl(type: SdkType, nameHint: string): Schema {
@@ -2957,9 +3213,7 @@ export class CodeModelBuilder {
     const rawEnumType = type.__raw;
     const namespace = getNamespace(rawEnumType);
     const valueType = this.processSchema(type.valueType, type.valueType.kind);
-    if (!isPrimitiveSchema(valueType)) {
-      fail("Choice values must use a primitive schema.");
-    }
+    compilerAssert(isPrimitiveSchema(valueType), "Choice values must use a primitive schema.");
     const choices: ChoiceValue[] = [];
     type.values.forEach((it: SdkEnumValueType) => {
       const choice = createChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
@@ -3898,8 +4152,10 @@ export class CodeModelBuilder {
           }
         }
       } else if (schema.type === SchemaType.Dictionary) {
-        if (!schema.elementType)
-          fail("Dictionary element type must be resolved before propagating usage.");
+        compilerAssert(
+          schema.elementType,
+          "Dictionary element type must be resolved before propagating usage.",
+        );
         innerApplySchemaUsage(schema.elementType, schemaUsage);
       } else if (schema.type === SchemaType.Array) {
         innerApplySchemaUsage(schema.elementType, schemaUsage);
@@ -3912,7 +4168,8 @@ export class CodeModelBuilder {
 
     // Exclude context that not to be propagated
     const updatedSchemaUsage = (schema as SchemaUsage).usage?.filter(
-      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread,
+      (it) =>
+        it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread && it !== SchemaContext.Sse,
     );
     const indexSpread = (schema as SchemaUsage).usage?.indexOf(SchemaContext.PublicSpread);
     if (
@@ -3953,8 +4210,10 @@ export class CodeModelBuilder {
         );
       }
     } else if (schema.type === SchemaType.Dictionary) {
-      if (!schema.elementType)
-        fail("Dictionary element type must be resolved before tracking usage.");
+      compilerAssert(
+        schema.elementType,
+        "Dictionary element type must be resolved before tracking usage.",
+      );
       this.trackSchemaUsage(schema.elementType, schemaUsage);
     } else if (schema.type === SchemaType.Array) {
       this.trackSchemaUsage(schema.elementType, schemaUsage);

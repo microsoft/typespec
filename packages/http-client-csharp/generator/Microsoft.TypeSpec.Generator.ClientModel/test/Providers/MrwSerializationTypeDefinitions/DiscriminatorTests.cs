@@ -36,6 +36,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catModel }, { "dog", _dogModel } });
 
         [Test]
+        public void IntermediateModelForwardsInheritedDiscriminator()
+        {
+            var pet = InputFactory.Model("pet", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+            ]);
+            var mammal = InputFactory.Model("mammal", baseModel: pet, properties: []);
+            var cat = InputFactory.Model("cat", baseModel: mammal, discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("meow", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [pet, mammal, cat]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var mammalConstructor = factory.CreateModel(mammal)!.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual(new[] { "kind", "name" }, mammalConstructor.Signature.Parameters.Select(p => p.Name));
+            var catConstructor = factory.CreateModel(cat)!.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual(new[] { "name", "meow" }, catConstructor.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("\"cat\"", catConstructor.Signature.Initializer!.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
         public void UnknownVariantIJsonModelTShouldBeBase()
         {
             MockHelpers.LoadMockGenerator(inputModels: () => [_baseModel, _catModel, _dogModel]);

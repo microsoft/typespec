@@ -10,10 +10,10 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class MultiPartRequest
+    public partial class MultiPartContent
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MultiPartRequest(string id, string profileImagePath)
+        public MultiPartContent(string id, string profileImagePath)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
@@ -23,7 +23,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MultiPartRequest(string id, global::System.IO.Stream profileImage)
+        public MultiPartContent(string id, global::System.IO.Stream profileImage)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -33,7 +33,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MultiPartRequest(string id, global::System.BinaryData profileImage)
+        public MultiPartContent(string id, global::System.BinaryData profileImage)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -43,7 +43,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public MultiPartRequest(string id, global::System.ClientModel.FileBinaryContent profileImage)
+        public MultiPartContent(string id, global::System.ClientModel.FileBinaryContent profileImage)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(profileImage, nameof(profileImage));

@@ -1,8 +1,8 @@
-import chokidar from "chokidar";
-import { resolve } from "path";
+import { statSync, watch, type WatchOptions } from "fs";
+import { dirname, resolve } from "path";
 import { clearScreen, logWithTime } from "./common.js";
 
-export function runWatch(pattern: string, build: any, options?: any) {
+export function runWatch(pattern: string, build: any, options?: WatchOptions) {
   let lastBuildTime: Date;
   pattern = resolve(pattern);
 
@@ -12,12 +12,20 @@ export function runWatch(pattern: string, build: any, options?: any) {
     // build once up-front
     runBuild();
 
-    const watcher = chokidar.watch(pattern, { interval: 0.2, ...options });
+    const isDirectory = statSync(pattern, { throwIfNoEntry: false })?.isDirectory() ?? false;
+    // Watch a file's parent so replacing the file doesn't detach the watcher.
+    const watchPath = isDirectory ? pattern : dirname(pattern);
 
     // then build again on any change
-    watcher.on("add", (file) => runBuild(`${file} created`));
-    watcher.on("unlink", (file) => runBuild(`${file} removed`));
-    watcher.on("change", (file, stats) => runBuild(`${file} changed`, stats?.mtime));
+    watch(watchPath, { recursive: isDirectory, ...options }, (event, filename) => {
+      const file = filename === null ? pattern : resolve(watchPath, filename.toString());
+      if (!isDirectory && file !== pattern) {
+        return;
+      }
+      const changeTime =
+        event === "change" ? statSync(file, { throwIfNoEntry: false })?.mtime : undefined;
+      runBuild(`${file} ${event === "rename" ? "created or removed" : "changed"}`, changeTime);
+    });
   }
 
   function runBuild(changeDescription?: string, changeTime?: Date) {

@@ -13,19 +13,20 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodSseMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalDocumentation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -249,7 +250,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     // Create Simple Client Methods.
                     //
-                    if (proxyMethod.isSync()) {
+                    if (!isProtocolMethod && SseUtil.isSseOperation(operation)) {
+                        if (SseUtil.shouldGenerateSyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods(),
+                            settings.isSyncStackEnabled())) {
+                            createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
+                            createSseClientMethods(true, operation, baseMethod, methods, createMethodArgs);
+                        }
+                        if (SseUtil.shouldGenerateAsyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods())) {
+                            createSimpleWithResponseClientMethods(false, baseMethod, methods, createMethodArgs);
+                            createSseClientMethods(false, operation, baseMethod, methods, createMethodArgs);
+                        }
+                    } else if (proxyMethod.isSync()) {
                         createSimpleClientMethods(true, baseMethod, methods, createMethodArgs);
                     } else {
                         if (settings.getSyncMethods() != SyncMethodsGeneration.SYNC_ONLY) {
@@ -266,8 +277,37 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         return methods.stream()
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
+            .map(m -> settings.isFluent()
+                && operation.getInternalApi() == Boolean.TRUE
+                && m.getMethodVisibility() == JavaVisibility.Public
+                    ? m.newBuilder().methodVisibility(JavaVisibility.PackagePrivate).build()
+                    : m)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
+        ClassType eventType = Mappers.getObjectMapper().map(operation.getSseMetadata().getBaseSchema());
+        IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
+        MethodNamer methodNamer = createMethodArgs.methodNamer;
+        String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
+        ClientMethodType methodType = isSync ? ClientMethodType.SseSync : ClientMethodType.SseAsync;
+
+        ClientMethod sseMethod = baseMethod.newBuilder()
+            .name(methodName)
+            .type(methodType)
+            .returnValue(new ReturnValue("the stream of server-sent events", returnType))
+            .methodVisibility(JavaVisibility.Public)
+            .sseMetadata(new ClientMethodSseMetadata(eventType,
+                SseUtil.getSerializerType(operation.getSseMetadata().getBaseSchema()),
+                SseUtil.getTerminalEventNames(operation.getSseMetadata())))
+            .build();
+        methods.add(sseMethod);
+        if (createMethodArgs.generateRequiredOnlyParamsMethodOverload) {
+            methods.add(sseMethod.newBuilder().onlyRequiredParameters(true).build());
+        }
+        createOverloadForVersioning(methods, sseMethod, sseMethod, sseMethod.getMethodVisibility(), null, false, false);
     }
 
     /**
@@ -383,6 +423,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
                 // versioning of @added exists
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
+                // Collect historical overload candidates, including any Context parameter, before deduplicating.
+                final List<ClientMethod> overloadMethods = new ArrayList<>();
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
                     if (JavaSettings.getInstance().isDataPlaneClient()) {
                         // DPG
@@ -390,7 +432,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             .overloadedClientMethod(overloadedMethod)
                             .parameters(overloadedParameters)
                             .build();
-                        methods.add(overloadMethod);
+                        overloadMethods.add(overloadMethod);
                     } else {
                         // non-DPG
                         ClientMethod.Builder overloadedMethodBuilder = baseMethod.newBuilder()
@@ -401,10 +443,22 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                         final ClientMethod overloadMethod = overloadedMethodBuilder.build();
                         if (addContextParameter) {
-                            addClientMethodWithContext(methods, overloadMethod, methodVisibility, isProtocolMethod);
+                            addClientMethodWithContext(overloadMethods, overloadMethod, methodVisibility,
+                                isProtocolMethod);
                         } else {
-                            methods.add(overloadMethod);
+                            overloadMethods.add(overloadMethod);
                         }
+                    }
+                }
+                // A historical signature may match an existing required-only overload. Compare the constructed
+                // methods so that an existing overload without Context does not suppress one with Context.
+                for (ClientMethod overloadMethod : overloadMethods) {
+                    if (methods.stream()
+                        .noneMatch(method -> method.getMethodVisibility() != NOT_GENERATE
+                            && method.getType() == overloadMethod.getType()
+                            && method.getName().equals(overloadMethod.getName())
+                            && method.getParametersDeclaration().equals(overloadMethod.getParametersDeclaration()))) {
+                        methods.add(overloadMethod);
                     }
                 }
             }
@@ -413,9 +467,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     static List<List<ClientMethodParameter>> findOverloadedSignatures(List<ClientMethodParameter> allParameters) {
         List<List<ClientMethodParameter>> signatures = new ArrayList<>();
-
-        List<ClientMethodParameter> requiredParameters
-            = allParameters.stream().filter(MethodParameter::isRequired).collect(Collectors.toList());
 
         List<String> versions = allParameters.stream().flatMap(p -> {
             if (p.getVersioning() != null && p.getVersioning().getAdded() != null) {
@@ -434,10 +485,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         && p.getVersioning().getAdded().contains(version)))
                 .collect(Collectors.toList());
 
-            if (!overloadedParameters.equals(allParameters)
-                && !overloadedParameters.equals(requiredParameters)
-                && !signatures.contains(overloadedParameters)) {
-                // take the signature not same as required-only, not same as full, not same as anything already there
+            if (!overloadedParameters.equals(allParameters) && !signatures.contains(overloadedParameters)) {
+                // Exclude the full signature and duplicate historical signatures.
                 signatures.add(overloadedParameters);
             }
         }

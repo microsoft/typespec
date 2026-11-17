@@ -23,6 +23,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         CSharpType ClientCollectionAsyncResponseOfTType { get; }
 
+        /// <summary>
+        /// Gets whether paging collections support resuming enumeration from a continuation token.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, a paging method that has both a next-link response and a request parameter marked
+        /// as the continuation token omits that parameter from its new public signatures. Callers resume
+        /// through the returned collection instead, for example with Azure's <c>AsPages(continuationToken)</c>.
+        /// Published token-bearing overloads are retained when compatible with custom partial implementations.
+        /// If removing the parameter would cause a signature collision or ambiguous call, it is retained with
+        /// a warning. An explicit custom partial implementation takes precedence over a conflicting generated overload.
+        /// Token-based paging without a next link, and next-link methods without a marked token parameter,
+        /// are unaffected. Defaults to false to preserve existing method signatures.
+        /// </remarks>
+        bool SupportsPageResumption => false;
+
         string ResponseParameterName { get; }
 
         TypeProvider CreateClientCollectionResultDefinition(

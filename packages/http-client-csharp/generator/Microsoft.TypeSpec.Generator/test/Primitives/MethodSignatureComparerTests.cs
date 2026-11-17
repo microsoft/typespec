@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
@@ -13,6 +15,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         public MethodSignatureComparerTests()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [TestCase(typeof(int[]), typeof(int?[]), false)]
+        [TestCase(typeof(int[][]), typeof(int?[][]), false)]
+        [TestCase(typeof(List<int>[]), typeof(List<int?>[]), false)]
+        [TestCase(typeof(List<int[]>), typeof(List<int?[]>), false)]
+        [TestCase(typeof(int?[]), typeof(int?[]), true)]
+        public void OptionalArrayParametersPreserveValueElementIdentity(Type left, Type right, bool equal)
+        {
+            var a = new MethodSignature("Apply", null, MethodSignatureModifiers.Public, null, null,
+                [new ParameterProvider("values", $"The values.", left, defaultValue: Default)]);
+            var b = new MethodSignature("Apply", null, MethodSignatureModifiers.Public, null, null,
+                [new ParameterProvider("values", $"The values.", right, defaultValue: Default)]);
+
+            Assert.That(MethodSignatureBase.SignatureComparer.Equals(a, b), Is.EqualTo(equal));
+            Assert.That(MethodSignatureBase.SignatureComparer.Equals(b, a), Is.EqualTo(equal));
+            Assert.That(MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(a, b), Is.EqualTo(equal));
+            Assert.That(MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(b, a), Is.EqualTo(equal));
         }
 
         // Validates that a generated `==` operator (Name = "==") matches a customization
@@ -166,4 +186,3 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         }
     }
 }
-

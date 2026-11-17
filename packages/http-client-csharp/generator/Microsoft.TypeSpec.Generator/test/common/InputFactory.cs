@@ -374,7 +374,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputSerializationOptions? serializationOptions = null,
             ArrayKnownEncoding? encode = null,
             bool isExactName = false,
-            IReadOnlyList<string>? apiVersions = null)
+            IReadOnlyList<string>? apiVersions = null,
+            string? deprecation = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -392,7 +393,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
                 encode: encode,
-                apiVersions: apiVersions ?? [])
+                apiVersions: apiVersions ?? [],
+                deprecation: deprecation)
             {
                 IsExactName = isExactName,
             };
@@ -680,9 +682,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return dictionary;
         }
 
-        public static InputType Union(IList<InputType> types, string name = "union", InputExternalTypeMetadata? external = null)
+        public static InputType Union(IList<InputType> types, string name = "union", InputExternalTypeMetadata? external = null,
+            InputModelType? baseModel = null, string? discriminatorPropertyName = null, string? envelopePropertyName = null,
+            IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null)
         {
-            var union = new InputUnionType(name, [.. types]);
+            var union = new InputUnionType(name, [.. types], baseModel, discriminatorPropertyName, envelopePropertyName, discriminatedSubtypes);
             if (external != null)
             {
                 union.External = external;

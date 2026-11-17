@@ -122,7 +122,15 @@ and acronym rules can still apply:
 The `From`/`To` exclusion checks a prefix, not a word boundary. The `StatusTimestamp` exclusion is
 an exact-name exclusion: `lastSyncTimestamp` still becomes `LastSyncOn` as a property.
 
-## Model names ending in Response
+## Model names ending in Request or Response
+
+A model whose generated name ends with the case-sensitive suffix `Request` uses `Content`
+instead. For example, `WidgetRequest` becomes `WidgetContent`, and `IpRequest` becomes `IPContent`.
+This applies regardless of model usage, including input, output, shared, and error models. This changes
+only the final suffix, not property names or occurrences of `Request` elsewhere in the name.
+
+An exact name, an existing handwritten type, or a previous contract can retain the `Request`
+spelling.
 
 A non-error model whose generated name ends with the case-sensitive suffix `Response` uses `Result`
 instead. For example, `WidgetResponse` becomes `WidgetResult`. This rule is not limited to models
@@ -131,6 +139,22 @@ used only as operation outputs.
 The emitter keeps `Response` when the model is an error model, has an exact name, or an existing
 handwritten type or previous contract requires the `Response` spelling. Acronym normalization can
 combine with this rule: a new `IpResponse` model becomes `IPResult`.
+
+Before applying either suffix conversion, the generator reserves the generated model and enum names,
+including synthesized unknown-discriminator models, acronym normalization, exact names, custom names,
+and previous contract spellings. Explicit customizations retain ownership of their names; when a
+direct input name and an implicit suffix conversion match the same customization, the direct input
+owns that customization and the implicit conversion is reverted.
+The comparison ignores case and namespace because model files share an output directory and must
+remain distinct on case-insensitive file systems. If the converted name is already in use, the model
+retains its name before suffix conversion. For example, a library containing both `WidgetRequest` and `WidgetContent`
+generates two distinct types with those names, rather than overwriting `WidgetContent`. Likewise,
+`WidgetResponse` stays `WidgetResponse` if another model already uses `WidgetResult`. If the name before
+suffix conversion is also occupied, the generator appends `1`, `2`, and subsequent numeric suffixes
+until the filename is available and the name does not claim another input's customization lookup
+name. Resolved client names are also reserved within their namespaces to
+prevent a model's suffix conversion from merging unrelated client and model declarations. A client
+with the same name in another namespace does not block the conversion.
 
 ## Operation names
 
@@ -346,7 +370,7 @@ for `[CodeGenType]`, `[CodeGenMember]`, and partial-method customization.
 When a prior published contract is available, the generator preserves compatible existing names
 rather than treating the tables above as a migration:
 
-- Matching type names can retain their previous acronym or `Response` spelling.
+- Matching type names can retain their previous acronym, `Request`, or `Response` spelling.
 - Matching public properties can retain their pre-normalization name. Date/time properties can
   also match a previous `<Stem>On` spelling when the type and semantic stem agree and no sibling or
   explicit customization owns the name.

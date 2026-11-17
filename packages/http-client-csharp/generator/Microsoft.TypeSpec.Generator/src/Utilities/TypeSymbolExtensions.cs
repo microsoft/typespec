@@ -47,6 +47,11 @@ namespace Microsoft.TypeSpec.Generator
 
         private static CSharpType GetCSharpType(this ITypeSymbol typeSymbol, HashSet<ITypeSymbol> visited)
         {
+            if (typeSymbol is IArrayTypeSymbol arrayType)
+            {
+                return GetCSharpType(arrayType.ElementType, visited).MakeArrayType(arrayType.Rank);
+            }
+
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
@@ -121,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator
             // Handle array types
             if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
             {
-                return GetFullyQualifiedName(arrayTypeSymbol.ElementType) + "[]";
+                return GetFullyQualifiedName(arrayTypeSymbol.ElementType) + "[" + new string(',', arrayTypeSymbol.Rank - 1) + "]";
             }
             // Handle tuples & generic types
             if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
