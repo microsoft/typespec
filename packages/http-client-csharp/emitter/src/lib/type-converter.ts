@@ -521,6 +521,9 @@ function fromUnionType(
   return diagnostics.wrap(inputUnion);
 }
 
+/** SSE events without an `event:` field default to the "message" event type. */
+const DefaultSseEventType = "message";
+
 /**
  * Maps each event type of an `@events` union to its variant when the union explicitly extends a
  * named model that every variant nominally inherits, and each event's JSON payload is the variant itself.
@@ -544,16 +547,15 @@ function getEventsUnionVariants(sdkContext: CSharpEmitterContext, union: SdkUnio
 
   const variants = new Map<string, SdkModelType>();
   for (const definition of definitions) {
-    // SSE events without an `event:` field default to the "message" event type.
-    const eventType = definition.eventType ?? "message";
+    const eventType = definition.eventType ?? DefaultSseEventType;
     const variant = union.variantTypes.find(
       (type): type is SdkModelType => type.kind === "model" && type.__raw === definition.type,
     );
     if (
       !variant ||
+      variants.has(eventType) ||
       definition.isEventEnvelope ||
       !isJsonContentType(definition.contentType) ||
-      variants.has(eventType) ||
       !inheritsFrom(variant, base)
     ) {
       return undefined;

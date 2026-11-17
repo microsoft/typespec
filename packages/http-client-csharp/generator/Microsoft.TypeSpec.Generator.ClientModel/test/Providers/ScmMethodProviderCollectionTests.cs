@@ -584,9 +584,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(CreateSseReturnType(
                 ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseEvent)!)));
             Assert.IsTrue(protocolMethod.Signature.ReturnType!.Equals(CreateSseReturnType(typeof(BinaryData))));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenienceMethod);
             Assert.AreEqual(
-                Helpers.GetExpectedFromFile().TrimEnd(),
-                convenienceMethod.BodyStatements!.ToDisplayString().TrimEnd());
+                Helpers.GetExpectedFromFile(),
+                writer.ToString(false));
         }
 
         [Test]
