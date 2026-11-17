@@ -218,6 +218,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
         }
 
+        [TestCase("FactoryCollision")]
+        [TestCase("ContextCollision")]
+        [TestCase("OptionsCollision")]
+        [TestCase("SettingsCollision")]
+        [TestCase("HelperCollision")]
+        public async Task HistoricalUnknownNameDoesNotCollideWithInfrastructure(string modelName)
+        {
+            var input = InputFactory.Model(modelName, @namespace: "Sample", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                clients: () => [InputFactory.Client("ServiceClient", clientNamespace: "Sample", isExactName: true)],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual($"Unknown{modelName}", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
+        }
+
         [Test]
         public void BaseShouldHaveProxyAttribute()
         {

@@ -778,6 +778,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        internal (string Name, string Namespace) GetTypeNameForCollisionCheck()
+            => (CustomCodeView?.Name ?? BuildName(), CustomCodeView?.Type.Namespace ?? BuildNamespace());
+
         /// <summary>
         /// Gets the original identifier for compatibility lookup before acronym normalization,
         /// or null when the name must be used exactly as specified.

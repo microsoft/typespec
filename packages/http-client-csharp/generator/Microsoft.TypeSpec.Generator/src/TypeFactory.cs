@@ -43,6 +43,22 @@ namespace Microsoft.TypeSpec.Generator
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
 
+        protected static (string Name, string Namespace) GetHelperTypeName(TypeProvider provider)
+            => provider.GetTypeNameForCollisionCheck();
+
+        protected virtual IEnumerable<(string Name, string Namespace)> GetReservedHelperTypeNames()
+        {
+            TypeProvider[] helpers = [
+                new ChangeTrackingListDefinition(),
+                new ChangeTrackingDictionaryDefinition(),
+                new ArgumentDefinition(),
+                new OptionalDefinition(),
+                CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value,
+                .. CodeModelGenerator.Instance.CustomCodeAttributeProviders
+            ];
+            return helpers.Select(GetHelperTypeName);
+        }
+
         private IReadOnlyDictionary<InputModelType, string> BuildModelNames()
         {
             var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
@@ -132,6 +148,7 @@ namespace Microsoft.TypeSpec.Generator
             var emittedTypes = candidates.ToDictionary(
                 pair => pair.Key,
                 pair => (pair.Value.FinalName == pair.Value.Name ? result[pair.Key] : pair.Value.FinalName, pair.Value.FinalNamespace));
+            HashSet<(string Name, string Namespace)>? helperTypes = null;
             foreach (var (model, candidate) in candidates)
             {
                 if (!model.IsUnknownDiscriminatorModel || model.BaseModel is not { } baseModel ||
@@ -166,7 +183,8 @@ namespace Microsoft.TypeSpec.Generator
                     reason = "the proxy type is an accepted removal in the ApiCompat baseline";
                 }
                 else if (emittedTypes.Any(pair => pair.Key != model && pair.Value == (finalName, finalNamespace)) ||
-                    reservedTypes.Contains((finalName, finalNamespace)))
+                    reservedTypes.Contains((finalName, finalNamespace)) ||
+                    (helperTypes ??= GetReservedHelperTypeNames().ToHashSet()).Contains((finalName, finalNamespace)))
                 {
                     reason = "the name is already used by another generated type";
                 }

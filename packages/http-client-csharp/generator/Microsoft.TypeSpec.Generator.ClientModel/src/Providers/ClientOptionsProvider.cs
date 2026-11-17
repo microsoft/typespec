@@ -289,16 +289,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
             => modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
 
-        protected override string BuildName()
+        protected override string BuildName() => GetGeneratedName(_inputClient, _clientProvider.Name);
+
+        internal static string GetGeneratedName(InputClient inputClient, string clientName)
         {
-            if (UseSingletonInstance(_inputClient))
+            if (UseSingletonInstance(inputClient))
             {
                 // Use namespace-based naming for singleton
                 return $"{ScmCodeModelGenerator.Instance.TypeFactory.ServiceName}ClientOptions";
             }
 
             // Use client-specific naming
-            return $"{_clientProvider.Name}Options";
+            return $"{clientName}Options";
         }
 
         protected override string BuildNamespace() => _clientProvider.Type.Namespace;

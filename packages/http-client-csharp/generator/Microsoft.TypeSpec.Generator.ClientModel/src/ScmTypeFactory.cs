@@ -28,6 +28,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected override IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames()
             => ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Select(ClientProvider.GetNameForCollisionCheck);
 
+        protected override IEnumerable<(string Name, string Namespace)> GetReservedHelperTypeNames()
+        {
+            var generator = ScmCodeModelGenerator.Instance;
+            TypeProvider[] helpers = [
+                generator.ModelSerializationExtensionsDefinition,
+                generator.SerializationFormatDefinition,
+                generator.TypeFormattersDefinition,
+                new ErrorResultDefinition(),
+                new ClientUriBuilderDefinition(),
+                new Utf8JsonBinaryContentDefinition(),
+                new BinaryContentHelperDefinition(),
+                generator.ClientPipelineExtensionsDefinition,
+                new CancellationTokenExtensionsDefinition(),
+                generator.PipelineRequestHeadersExtensionsDefinition,
+                new ModelReaderWriterContextDefinition()
+            ];
+            foreach (var name in base.GetReservedHelperTypeNames().Concat(helpers.Select(GetHelperTypeName)))
+            {
+                yield return name;
+            }
+
+            var clients = generator.InputLibrary.InputNamespace.Clients;
+            foreach (var client in clients)
+            {
+                var (name, ns, _) = ClientProvider.GetNameForCollisionCheck(client);
+                if (client.Parent is null)
+                {
+                    yield return ResolveCustomName(ClientOptionsProvider.GetGeneratedName(client, name), ns);
+                }
+                var custom = generator.SourceInputModel.FindForTypeInCurrentCompilation(ns, name);
+                if (client.InitializedBy.HasFlag(InputClientInitializedBy.Individually) &&
+                    (custom is null || custom.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)))
+                {
+                    yield return ResolveCustomName($"{name}Settings", ns);
+                }
+            }
+
+            if (generator.InputLibrary.HasMultipartFormDataOperation)
+            {
+                yield return GetHelperTypeName(new MultiPartFormDataBinaryContentDefinition());
+                yield return GetHelperTypeName(new MultipartFormDataHelperDefinition());
+            }
+            if (clients.SelectMany(client => client.Methods).Any(method => method.Parameters.Any(parameter =>
+                parameter.Type is InputStreamingType { StreamKind: InputStreamingType.JsonLinesStreamKind })))
+            {
+                yield return GetHelperTypeName(new JsonLinesBinaryContentDefinition());
+            }
+
+            (string Name, string Namespace) ResolveCustomName(string name, string ns)
+            {
+                var custom = generator.SourceInputModel.FindForTypeInCurrentCompilation(ns, name);
+                return (custom?.Name ?? name, custom?.Type.Namespace ?? ns);
+            }
+        }
+
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
