@@ -13,6 +13,9 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceImplementation;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentConstructorByInner;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
@@ -44,6 +47,16 @@ public class FluentResourceModelImplementationTemplate implements IJavaTemplate<
          * imports.add(managerType.getFullName());
          */
         model.addImportsTo(imports, true);
+        ResourceCreate resourceCreate = model.getResourceCreate();
+        FluentConstructorByInner constructor = null;
+        if (model.getCategory() != ModelCategory.IMMUTABLE
+            && model.getResourceUpdate() == null
+            && resourceCreate != null) {
+            constructor
+                = new FluentConstructorByInner(model, FluentMethodType.CONSTRUCTOR, resourceCreate.getPathParameters(),
+                    resourceCreate.getResourceLocalVariables(), managerType, resourceCreate.getUrlPathSegments());
+            constructor.addImportsTo(imports, true);
+        }
         javaFile.declareImport(imports);
 
         List<String> implementInterfaces = new ArrayList<>();
@@ -57,6 +70,7 @@ public class FluentResourceModelImplementationTemplate implements IJavaTemplate<
                 ModelNaming.MODEL_FLUENT_INTERFACE_UPDATE));
         }
 
+        FluentConstructorByInner createOnlyConstructor = constructor;
         javaFile.publicFinalClass(String.format("%1$s implements %2$s", model.getImplementationType().getName(),
             String.join(", ", implementInterfaces)), classBlock -> {
                 // variable for inner model
@@ -65,8 +79,9 @@ public class FluentResourceModelImplementationTemplate implements IJavaTemplate<
                 // variable for manager
                 classBlock.privateFinalMemberVariable(managerType.getFullName(), ModelNaming.MODEL_PROPERTY_MANAGER);
 
-                // if resource is updatable, use the constructor from resourceUpdate
-                if (model.getCategory() == ModelCategory.IMMUTABLE || model.getResourceUpdate() == null) {
+                if (createOnlyConstructor != null) {
+                    createOnlyConstructor.getMethodTemplate().writeMethod(classBlock);
+                } else if (model.getCategory() == ModelCategory.IMMUTABLE || model.getResourceUpdate() == null) {
                     // constructor
                     classBlock.packagePrivateConstructor(
                         String.format("%1$s(%2$s %3$s, %4$s %5$s)", model.getImplementationType().getName(),
