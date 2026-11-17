@@ -93,11 +93,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
 
             IEnumerable<PropertyProvider> properties = _model.CanonicalView.Properties;
-            if (_inputModel.BaseModel is null && _model.CustomCodeView?.BaseType is null &&
-                _model.BaseModelProvider is SystemObjectModelProvider mappedBase)
+            if (_model.BaseModelProvider is SystemObjectModelProvider mappedBase &&
+                (mappedBase.IsMappedBaseUpgrade ||
+                    (_inputModel.BaseModel is null && _model.CustomCodeView?.BaseType is null)))
             {
-                // Flat restoration moves wire properties onto a model-local mapped base.
-                // Multipart has no base-writer delegation, so emit those projected parts here.
                 properties = mappedBase.CanonicalView.Properties.Concat(properties);
             }
 

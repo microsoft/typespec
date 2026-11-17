@@ -34,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Keep the projection model-local so source properties retain their original owner.
         internal bool HasInputPropertyProjection => _mappedInputProperties is not null;
         internal bool HasFlatInputProjection => HasInputPropertyProjection && !_isMappedBaseUpgrade;
+        public bool IsMappedBaseUpgrade => _isMappedBaseUpgrade;
         // An upgrade projects optional child properties too; they need not all be constructor inputs.
         private IReadOnlyList<InputModelProperty> ConstructorInputProperties =>
             HasFlatInputProjection ? MappedInputProperties : InputModel.Properties;

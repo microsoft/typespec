@@ -115,6 +115,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             });
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MultipartMappedBaseUpgradeRetainsProjectedPart(bool restoreBase)
+        {
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            var input = InputFactory.Model("DerivedModel", baseModel: current, properties:
+                [InputFactory.Property("location", InputPrimitiveType.String, serializedName: "wireLocation"),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData);
+            var generator = CreateGenerator(input, restoreBase, frameworkType: typeof(NoWriterHistoricalBase));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(NoWriterCurrentBase)), model)
+                    : new ClientModelProvider(model));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            Assert.That(model.BaseType?.Name, Is.EqualTo(restoreBase ? nameof(NoWriterHistoricalBase) : nameof(NoWriterCurrentBase)));
+            var multipart = model.SerializationProviders.OfType<MultipartFormDataSerializationDefinition>().Single();
+            var source = new TypeProviderWriter(multipart).Write().Content;
+            TestContext.WriteLine(source);
+            Assert.Multiple(() =>
+            {
+                Assert.That(source, Does.Contain("content.Add(\"wireLocation\","));
+                Assert.That(source, Does.Contain("content.Add(\"child\","));
+                Assert.That(CSharpSyntaxTree.ParseText(source).GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Count(invocation => invocation.Expression.ToString() == "content.Add"), Is.EqualTo(2),
+                    "Projected and model-owned parts must each be emitted exactly once.");
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MultipartMappedBaseUpgradePreservesMultiPartMetadata(bool restoreBase)
+        {
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            var input = InputFactory.Model("DerivedModel", baseModel: current, properties:
+                [InputFactory.Property("tags", InputFactory.Array(InputPrimitiveType.String), serializedName: "wireTags",
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("wireTags", isFilePart: false, isMulti: true,
+                            defaultContentTypes: ["text/plain"]))),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData);
+            var generator = CreateGenerator(input, restoreBase, frameworkType: typeof(NoWriterHistoricalBase));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(NoWriterCurrentBase)), model)
+                    : new ClientModelProvider(model));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            Assert.That(model.BaseType?.Name, Is.EqualTo(restoreBase ? nameof(NoWriterHistoricalBase) : nameof(NoWriterCurrentBase)));
+            var source = new TypeProviderWriter(model.SerializationProviders.OfType<MultipartFormDataSerializationDefinition>().Single()).Write().Content;
+            TestContext.WriteLine(source);
+            Assert.That(source, Does.Contain("foreach ("));
+            Assert.That(source, Does.Contain("content.Add(\"wireTags\", item"));
+            Assert.That(source, Does.Contain("IsCollectionDefined(Tags)"));
+            Assert.That(source, Does.Contain("content.Add(\"child\","));
+        }
+
         [TestCase(false, false)]
         [TestCase(false, true)]
         [TestCase(true, false)]
@@ -327,6 +385,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         [TestCase(false)]
         [TestCase(true)]
+        public void MappedBaseUpgradeWithoutWriterRetainsProjectedJsonProperty(bool restoreBase)
+        {
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            var input = InputFactory.Model("DerivedModel", baseModel: current, properties:
+                [InputFactory.Property("location", InputPrimitiveType.String, serializedName: "wireLocation"),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var generator = CreateGenerator(input, restoreBase, frameworkType: typeof(NoWriterHistoricalBase));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(NoWriterCurrentBase)), model)
+                    : new ClientModelProvider(model));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            Assert.That(model.BaseType?.Name, Is.EqualTo(restoreBase ? nameof(NoWriterHistoricalBase) : nameof(NoWriterCurrentBase)));
+            var generatedType = CompileModel(generator, model);
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            generatedType.GetProperty("Location")!.SetValue(instance, "west");
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var options = new ModelReaderWriterOptions("J");
+            var data = (BinaryData)persistable.GetMethod("Write")!.Invoke(instance, [options])!;
+            using var document = JsonDocument.Parse(data);
+            Assert.That(document.RootElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(new[] { "wireLocation", "child" }), "Each current wire property must be written once.");
+            Assert.That(document.RootElement.GetProperty("wireLocation").GetString(), Is.EqualTo("west"));
+            var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
+            Assert.That(generatedType.GetProperty("Location")!.GetValue(restored), Is.EqualTo("west"));
+        }
+
+        [TestCase("J", true)]
+        [TestCase("W", false)]
+        public void MappedBaseUpgradeWithoutWriterHonorsReadOnlyJsonProperty(string format, bool expectLocation)
+        {
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            var input = InputFactory.Model("DerivedModel", baseModel: current, properties:
+                [InputFactory.Property("location", InputPrimitiveType.String, serializedName: "wireLocation", isReadOnly: true),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var generator = CreateGenerator(input, frameworkType: typeof(ReadOnlyNoWriterHistoricalBase));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType model) => ReferenceEquals(model, current)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(NoWriterCurrentBase)), model)
+                    : new ClientModelProvider(model));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            Assert.That(model.BaseType?.Name, Is.EqualTo(nameof(ReadOnlyNoWriterHistoricalBase)));
+            var generatedType = CompileModel(generator, model);
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var restored = persistable.GetMethod("Create")!.Invoke(instance,
+                [BinaryData.FromString("""{"wireLocation":"west","child":"payload"}"""), new ModelReaderWriterOptions("J")])!;
+            var data = (BinaryData)persistable.GetMethod("Write")!.Invoke(restored, [new ModelReaderWriterOptions(format)])!;
+            using var document = JsonDocument.Parse(data);
+            Assert.That(document.RootElement.TryGetProperty("wireLocation", out _), Is.EqualTo(expectLocation));
+            Assert.That(document.RootElement.GetProperty("child").GetString(), Is.EqualTo("payload"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public void MappedBaseUpgradeRetainsProjectedPropertiesOnReads(bool readOnly)
             => AssertMappedBaseUpgradeRoundTrip(readOnly);
 
@@ -422,6 +539,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 var serialized = (BinaryData)persistable.GetMethod("Write")!.Invoke(restored, [options])!;
                 using var document = JsonDocument.Parse(serialized);
+                Assert.That(document.RootElement.EnumerateObject().Count(property => property.Name == "location"), Is.EqualTo(1),
+                    "A framework base writer must remain the sole writer for its projected property.");
                 Assert.That(document.RootElement.GetProperty("location").GetString(), Is.EqualTo("west"));
                 Assert.That(document.RootElement.GetProperty("child").GetString(), Is.EqualTo("payload"));
                 if (ancestorValue)
@@ -540,6 +659,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
     public sealed class WirePathAttribute : Attribute
     {
         public WirePathAttribute(string path) { }
+    }
+
+    public class NoWriterCurrentBase { }
+
+    public class NoWriterHistoricalBase : NoWriterCurrentBase
+    {
+        public string? Location { get; set; }
+        public IList<string>? Tags { get; set; }
+    }
+
+    public class ReadOnlyNoWriterHistoricalBase : NoWriterCurrentBase
+    {
+        public ReadOnlyNoWriterHistoricalBase() { }
+        protected ReadOnlyNoWriterHistoricalBase(string location) => Location = location;
+        public string? Location { get; }
     }
 
     public class UpgradedMrwBase : FlatMrwBase
