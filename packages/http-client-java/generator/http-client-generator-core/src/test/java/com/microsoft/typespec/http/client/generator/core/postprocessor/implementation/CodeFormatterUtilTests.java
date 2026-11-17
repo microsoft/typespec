@@ -25,7 +25,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class CodeFormatterUtilTests {
     @Test
-    public void formatsPreformattedAndSnippetJavadocCode() {
+    public void formatsPreformattedJavadocCodeButNotSnippets() {
+        // {@snippet} needs Java 18, and generated code targets at most Java 11, so snippet bodies are left as written.
         String source = String.join("\n", "package fixtures;", "public class Documentation {", "/**",
             " * Formats embedded Java examples.", " * <pre>", " * int[] values={1,2};",
             " * for(int value:values){System.out.println(value);}", " * </pre>", " * {@snippet :",
@@ -34,8 +35,8 @@ public class CodeFormatterUtilTests {
         String expected = String.join("\n", "package fixtures;", "", "public class Documentation {", "    /**",
             "     * Formats embedded Java examples.", "     * ", "     * <pre>", "     * int[] values = { 1, 2 };",
             "     * for (int value : values) {", "     *     System.out.println(value);", "     * }", "     * </pre>",
-            "     * ", "     * {@snippet :", "     * int total = values.length;", "     * if (total > 0) {",
-            "     *     System.out.println(total);", "     * }", "     * }", "     */", "    public void sample() {",
+            "     * ", "     * {@snippet :", "     * int total=values.length;",
+            "     * if(total>0){System.out.println(total);}", "     * }", "     */", "    public void sample() {",
             "    }", "}", "");
 
         assertEquals(expected, CodeFormatterUtil.formatCode(Map.of("Documentation.java", source)).get(0));

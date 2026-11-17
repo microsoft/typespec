@@ -36,10 +36,7 @@ import com.github.javaparser.javadoc.description.JavadocInlineTag;
 import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
 import com.github.javaparser.printer.configuration.imports.DefaultImportOrderingStrategy;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.core.ToolFactory;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.core.formatter.CodeFormatter;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jface.text.IDocument;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.text.edits.TextEdit;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.CodeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -86,7 +83,7 @@ public final class CodeFormatterUtil {
 
         // Reuse the stateful parser and formatter only within this sequential batch, never across concurrent
         // calls or parallel stream elements. Each call owns these instances and uses the caller's parser settings.
-        CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(loadEclipseSettings());
+        CodeFormatter codeFormatter = new CodeFormatter(loadEclipseSettings());
         // Keep token/range storage and comment handling: import reordering relies on source positions, so disabling
         // tokens to reduce parser allocations would change behavior even though we do not print the AST.
         JavaParser javaParser = new JavaParser(StaticJavaParser.getParserConfiguration());
@@ -301,15 +298,9 @@ public final class CodeFormatterUtil {
         return sb.toString();
     }
 
-    private static String formatCode(String file, boolean isModuleInfo, CodeFormatter codeFormatter) throws Exception {
-        IDocument doc = new IDocument(file);
-
+    private static String formatCode(String file, boolean isModuleInfo, CodeFormatter codeFormatter) {
         int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
-        kind |= CodeFormatter.F_INCLUDE_COMMENTS;
-        TextEdit edit = codeFormatter.format(kind, file, file.length());
-        edit.apply(doc);
-
-        return doc.get();
+        return codeFormatter.format(kind, file);
     }
 
     private static void collectJavadocReferences(Javadoc javadoc, JavaParser parser, Set<String> usedNames) {
