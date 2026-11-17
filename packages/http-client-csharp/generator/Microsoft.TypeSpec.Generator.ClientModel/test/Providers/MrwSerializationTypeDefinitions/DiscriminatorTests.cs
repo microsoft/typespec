@@ -218,60 +218,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
         }
 
-        [TestCase("FactoryCollision")]
-        [TestCase("ContextCollision")]
-        [TestCase("OptionsCollision")]
-        [TestCase("SettingsCollision")]
-        [TestCase("HelperCollision")]
-        public async Task HistoricalUnknownNameDoesNotCollideWithInfrastructure(string modelName)
-        {
-            var input = InputFactory.Model(modelName, @namespace: "Sample", properties:
-                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [input],
-                clients: () => [InputFactory.Client("ServiceClient", clientNamespace: "Sample", isExactName: true)],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
-
-            Assert.AreEqual($"Unknown{modelName}", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
-        }
-
-        [TestCase("PagingCollision", "List", "ServiceClientGetAllAsyncCollectionResultOfT")]
-        [TestCase("PagingBackCompatCollision", "GetUrl", "ServiceClientGetUriAsyncCollectionResultOfT")]
-        public async Task HistoricalUnknownNameDoesNotCollideWithPagingCollection(string modelName, string operationName, string helperName)
-        {
-            var input = InputFactory.Model(modelName, @namespace: "Sample", properties:
-                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            var page = InputFactory.Model("Page", properties:
-                [InputFactory.Property("items", InputFactory.Array(input))]);
-            var operation = InputFactory.Operation(operationName, responses: [InputFactory.OperationResponse(bodytype: page)]);
-            var method = InputFactory.PagingServiceMethod(operationName, operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
-            var clientInput = InputFactory.Client("ServiceClient", clientNamespace: "Sample", methods: [method], isExactName: true);
-            var otherClientInput = InputFactory.Client("OtherClient", clientNamespace: "Sample", isExactName: true);
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [input, page],
-                clients: () => [clientInput, otherClientInput],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(HistoricalUnknownNameDoesNotCollideWithInfrastructure)));
-            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
-            var model = factory.CreateModel(input)!;
-
-            Assert.AreEqual($"Unknown{modelName}", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
-            if (operationName == "GetUrl")
-            {
-                var client = factory.CreateClient(clientInput)!;
-                client.GetMethodCollectionByOperation(operation, factory.CreateClient(otherClientInput));
-                Assert.AreEqual("GetUri", operation.Name);
-                CollectionAssert.Contains(client.Methods.OfType<ScmMethodProvider>()
-                    .Select(method => method.CollectionDefinition?.Name).ToArray(), helperName);
-            }
-            else
-            {
-                CollectionAssert.Contains(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>()
-                    .Select(type => type.Name).ToArray(), helperName);
-            }
-        }
-
         [Test]
         public void BaseShouldHaveProxyAttribute()
         {

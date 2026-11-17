@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -43,22 +42,6 @@ namespace Microsoft.TypeSpec.Generator
             => _restoredUnknownModelOriginalNames.GetValueOrDefault(model);
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
-
-        protected static (string Name, string Namespace) GetHelperTypeName(TypeProvider provider)
-            => provider.GetTypeNameForCollisionCheck();
-
-        protected virtual IEnumerable<(string Name, string Namespace)> GetReservedHelperTypeNames()
-        {
-            TypeProvider[] helpers = [
-                new ChangeTrackingListDefinition(),
-                new ChangeTrackingDictionaryDefinition(),
-                new ArgumentDefinition(),
-                new OptionalDefinition(),
-                CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value,
-                .. CodeModelGenerator.Instance.CustomCodeAttributeProviders
-            ];
-            return helpers.Select(GetHelperTypeName);
-        }
 
         private IReadOnlyDictionary<InputModelType, string> BuildModelNames()
         {
@@ -146,14 +129,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // Resolve historical unknown names only after all base names are fixed. These lookups
             // must not construct generated types or depend on an unknown model's name.
-            var defaultTypes = candidates.ToDictionary(
+            var emittedTypes = candidates.ToDictionary(
                 pair => pair.Key,
-                pair => (Name: pair.Value.FinalName == pair.Value.Name ? result[pair.Key] : pair.Value.FinalName, Namespace: pair.Value.FinalNamespace));
-            var emittedTypes = new Dictionary<InputModelType, (string Name, string Namespace)>(defaultTypes);
-            var restorations = new Dictionary<InputModelType, (string Name, string DisplayName, string BaseName, string BaseNamespace)>();
-            var proxyTypes = new Dictionary<InputModelType, INamedTypeSymbol?>();
-            var reservedOutputNames = reservedTypes.Select(type => type.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            HashSet<string>? helperNames = null;
+                pair => (pair.Value.FinalName == pair.Value.Name ? result[pair.Key] : pair.Value.FinalName, pair.Value.FinalNamespace));
             foreach (var (model, candidate) in candidates)
             {
                 if (!model.IsUnknownDiscriminatorModel || model.BaseModel is not { } baseModel ||
@@ -162,12 +140,8 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                var (baseName, baseNamespace) = defaultTypes[baseModel];
-                if (!proxyTypes.TryGetValue(baseModel, out var proxyType))
-                {
-                    proxyType = providers[baseModel].GetLastContractProxyType(baseName, baseNamespace);
-                    proxyTypes.Add(baseModel, proxyType);
-                }
+                var (baseName, baseNamespace) = emittedTypes[baseModel];
+                var proxyType = providers[baseModel].GetLastContractProxyType(baseName, baseNamespace);
                 if (proxyType is null)
                 {
                     continue;
@@ -176,10 +150,10 @@ namespace Microsoft.TypeSpec.Generator
                 var proxyNamespace = proxyType.ContainingNamespace.ToDisplayString();
                 var custom = source.FindForTypeInCurrentCompilation(candidate.Namespace, proxyType.Name);
                 var legacyCustom = source.FindForTypeInCurrentCompilation(candidate.Namespace, result[model]);
-                var finalName = legacyCustom?.Name ?? custom?.Name ?? proxyType.Name;
-                var finalNamespace = legacyCustom?.Type.Namespace ?? custom?.Type.Namespace ?? candidate.Namespace;
+                var finalName = custom?.Name ?? proxyType.Name;
+                var finalNamespace = custom?.Type.Namespace ?? candidate.Namespace;
                 string? reason = null;
-                if (proxyNamespace != finalNamespace)
+                if (proxyNamespace != candidate.FinalNamespace)
                 {
                     reason = "the proxy type is in a different namespace";
                 }
@@ -191,8 +165,8 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     reason = "the proxy type is an accepted removal in the ApiCompat baseline";
                 }
-                else if (reservedOutputNames.Contains(finalName) ||
-                    (helperNames ??= GetReservedHelperTypeNames().Select(type => type.Name).ToHashSet(StringComparer.OrdinalIgnoreCase)).Contains(finalName))
+                else if (emittedTypes.Any(pair => pair.Key != model && pair.Value == (finalName, finalNamespace)) ||
+                    reservedTypes.Contains((finalName, finalNamespace)))
                 {
                     reason = "the name is already used by another generated type";
                 }
@@ -210,43 +184,14 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                restorations.Add(model, (proxyType.Name, proxyType.ToDisplayString(), baseName, baseNamespace));
-                emittedTypes[model] = (finalName, finalNamespace);
-            }
-
-            // Check proposed final names together so chains and swaps can vacate default names.
-            // Reject every competing proposal at once, then recheck the defaults they retain.
-            while (true)
-            {
-                var collisions = emittedTypes.GroupBy(pair => pair.Value.Name, StringComparer.OrdinalIgnoreCase)
-                    .Where(group => group.Count() > 1)
-                    .SelectMany(group => group.Select(pair => pair.Key))
-                    .Where(restorations.ContainsKey).ToArray();
-                if (collisions.Length == 0)
-                {
-                    break;
-                }
-
-                foreach (var model in collisions)
-                {
-                    var restoration = restorations[model];
-                    restorations.Remove(model);
-                    emittedTypes[model] = defaultTypes[model];
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat unknown discriminator model name '{restoration.DisplayName}' for '{restoration.BaseNamespace}.{restoration.BaseName}'; the name is already used by another generated type.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                }
-            }
-
-            foreach (var (model, restoration) in restorations)
-            {
-                if (result[model] != restoration.Name)
+                if (result[model] != proxyType.Name)
                 {
                     CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed unknown discriminator model name from '{result[model]}' to '{restoration.Name}' for '{restoration.BaseNamespace}.{restoration.BaseName}' to match the last contract.",
+                        $"Changed unknown discriminator model name from '{result[model]}' to '{proxyType.Name}' for '{baseNamespace}.{baseName}' to match the last contract.",
                         BackCompatibilityChangeCategory.UnknownDiscriminatorModelNamePreserved);
                     _restoredUnknownModelOriginalNames[model] = result[model];
-                    result[model] = restoration.Name;
+                    result[model] = proxyType.Name;
+                    emittedTypes[model] = (legacyCustom?.Name ?? finalName, legacyCustom?.Type.Namespace ?? finalNamespace);
                 }
             }
 

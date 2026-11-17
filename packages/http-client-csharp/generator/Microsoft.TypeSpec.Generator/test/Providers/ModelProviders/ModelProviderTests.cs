@@ -423,136 +423,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("PipelineActivity", rootUnknown.BaseModelProvider!.Name);
         }
 
-        [TestCase("Pair", false)]
-        [TestCase("Pair", true)]
-        [TestCase("Chain", false)]
-        [TestCase("Chain", true)]
-        [TestCase("Swap", false)]
-        [TestCase("Swap", true)]
-        [TestCase("Cycle", false)]
-        [TestCase("Cycle", true)]
-        public async Task UnknownDiscriminatorNamesResolvedTogether(string scenario, bool reverseOrder)
-        {
-            string[] names = scenario switch
-            {
-                "Pair" => ["PipelineActivity", "Activity"],
-                "Chain" => ["Tail", "PipelineActivity", "Activity"],
-                "Swap" => ["SwapFirst", "SwapSecond"],
-                _ => ["CycleFirst", "CycleSecond", "CycleThird"]
-            };
-            string[] expected = scenario switch
-            {
-                "Pair" => ["UnknownActivity", "OldUnknownActivity"],
-                "Chain" => ["UnknownPipelineActivity", "UnknownActivity", "OldUnknownActivity"],
-                "Swap" => ["UnknownSwapSecond", "UnknownSwapFirst"],
-                _ => ["UnknownCycleSecond", "UnknownCycleThird", "UnknownCycleFirst"]
-            };
-            var models = names.Select(name => InputFactory.Model(name, properties:
-                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)])).ToArray();
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: reverseOrder ? models.Reverse().ToArray() : models,
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
-            var factory = CodeModelGenerator.Instance.TypeFactory;
-            var unknowns = models.Select(model => factory.CreateModel(
-                model.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!).ToArray();
-
-            Assert.AreEqual(expected, unknowns.Select(model => model.Name));
-            Assert.AreEqual(expected.Select(name => $"{name}.cs"), unknowns.Select(model => Path.GetFileName(model.RelativeFilePath)));
-            foreach (var unknown in unknowns)
-            {
-                Assert.AreSame(unknown, factory.CSharpTypeMap[unknown.Type]);
-                Assert.AreSame(unknown, factory.TypeProvidersByName[unknown.Name]);
-            }
-        }
-
-        [TestCase("Model", false)]
-        [TestCase("Model", true)]
-        [TestCase("Enum", false)]
-        [TestCase("Enum", true)]
-        [TestCase("AcceptedRemoval", false)]
-        [TestCase("AcceptedRemoval", true)]
-        [TestCase("CompetingTargets", false)]
-        [TestCase("CompetingTargets", true)]
-        [TestCase("CaseOnlyOtherNamespace", false)]
-        [TestCase("CaseOnlyOtherNamespace", true)]
-        [TestCase("LegacyCustomization", false)]
-        [TestCase("LegacyCustomization", true)]
-        public async Task UnknownDiscriminatorNamesRejectedTogether(string collision, bool reverseOrder)
-        {
-            string[] names = collision is "CompetingTargets" or "CaseOnlyOtherNamespace"
-                ? ["CompetingTail", "CompetingFirst", collision == "CompetingTargets" ? "CompetingSecond" : "CaseCompeting"]
-                : ["Tail", "PipelineActivity", "Activity"];
-            var models = names.Select(name => InputFactory.Model(name,
-                @namespace: name == "CaseCompeting" ? "Other.Models" : "Sample.Models",
-                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)])).ToArray();
-            InputModelType[] inputs = collision == "Model" ? [.. models, InputFactory.Model("OldUnknownActivity")] : models;
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: reverseOrder ? inputs.Reverse().ToArray() : inputs,
-                inputEnumTypes: collision == "Enum" ? [InputFactory.StringEnum("OldUnknownActivity", [("One", "one")])] : [],
-                compilation: collision == "LegacyCustomization"
-                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(collision) : null,
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    "LastContract", method: nameof(UnknownDiscriminatorNamesResolvedTogether)),
-                apiCompatBaseline: collision == "AcceptedRemoval"
-                    ? ApiCompatBaseline.Parse(["TypesMustExist : Type 'Sample.Models.OldUnknownActivity' does not exist in the implementation."])
-                    : null);
-            var factory = CodeModelGenerator.Instance.TypeFactory;
-            var unknowns = models.Select(model => factory.CreateModel(
-                model.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!).ToArray();
-
-            Assert.AreEqual(names.Select(name => $"Unknown{name}"), unknowns.Select(model => model.Name));
-            Assert.AreEqual(unknowns.Length, unknowns.Select(model => model.RelativeFilePath).Distinct(StringComparer.OrdinalIgnoreCase).Count());
-            foreach (var unknown in unknowns)
-            {
-                Assert.AreSame(unknown, factory.CSharpTypeMap[unknown.Type]);
-            }
-        }
-
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task UnknownDiscriminatorNameCollisionUsesLegacyCustomization(bool reverseOrder)
-        {
-            var input = InputFactory.Model("PipelineActivity", properties:
-                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            var other = InputFactory.Model("UnknownActivity");
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: reverseOrder ? [other, input] : [input, other],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));
-            var factory = CodeModelGenerator.Instance.TypeFactory;
-            var unknownInput = input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel);
-            var unknown = factory.CreateModel(unknownInput)!;
-
-            Assert.AreEqual("UnknownActivity", factory.ModelNames[unknownInput]);
-            Assert.AreEqual("CustomizedPipelineActivity", unknown.Name);
-            Assert.IsNotNull(unknown.CustomCodeView);
-            Assert.AreEqual("UnknownActivity", factory.CreateModel(other)!.Name);
-            Assert.AreSame(unknown, factory.CSharpTypeMap[unknown.Type]);
-        }
-
         [TestCase("Model", false)]
         [TestCase("Model", true)]
         [TestCase("Enum", false)]
         [TestCase("Custom", false)]
         [TestCase("MappedModel", false)]
         [TestCase("UnrelatedMapping", false)]
-        [TestCase("MovedCustomization", false)]
-        [TestCase("OtherNamespace", false)]
-        [TestCase("CaseOnly", false)]
         public async Task UnknownDiscriminatorNameCollisionSkipped(string collision, bool reverseOrder)
         {
             var input = InputFactory.Model("PipelineActivity", properties:
                 [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            var other = InputFactory.Model(
-                collision == "MappedModel" ? "OtherModel" : collision == "CaseOnly" ? "Unknownactivity" : "UnknownActivity",
-                @namespace: collision == "OtherNamespace" ? "Other.Models" : "Sample.Models");
-            InputModelType[] models = collision is "Model" or "MappedModel" or "OtherNamespace" or "CaseOnly"
+            var other = InputFactory.Model(collision == "MappedModel" ? "OtherModel" : "UnknownActivity");
+            InputModelType[] models = collision is "Model" or "MappedModel"
                 ? (reverseOrder ? [other, input] : [input, other]) : [input];
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: models,
                 inputEnumTypes: collision == "Enum" ? [InputFactory.StringEnum("UnknownActivity", [("One", "one")])] : [],
-                compilation: collision is "Custom" or "MappedModel" or "UnrelatedMapping" or "MovedCustomization"
+                compilation: collision is "Custom" or "MappedModel" or "UnrelatedMapping"
                     ? async () => await Helpers.GetCompilationFromDirectoryAsync(collision) : null,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
                     "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));

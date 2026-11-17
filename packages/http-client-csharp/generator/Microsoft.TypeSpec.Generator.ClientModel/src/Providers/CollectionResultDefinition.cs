@@ -197,11 +197,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
             }
-            return GetGeneratedName(Client.Type.Name, operationName, IsAsync, ItemModelType is not null);
+            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
         }
-
-        internal static string GetGeneratedName(string clientName, string operationName, bool isAsync, bool isGeneric)
-            => $"{clientName}{operationName}{(isAsync ? "Async" : "")}CollectionResult{(isGeneric ? "OfT" : "")}";
 
         private bool HasPagingOperationNameCollision(string operationName)
         {

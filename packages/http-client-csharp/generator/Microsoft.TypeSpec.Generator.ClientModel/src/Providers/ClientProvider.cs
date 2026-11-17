@@ -463,21 +463,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return (customType?.Name ?? name, customType?.Type.Namespace ?? typeNamespace, name);
         }
 
-        internal static IEnumerable<string> GetOperationNameCandidatesForCollisionCheck(InputServiceMethod method)
-        {
-            var originalName = (method.IsExactName ? method.Operation.Name : method.Operation.OriginalName ?? method.Operation.Name).ToIdentifierName();
-            if (method.IsExactName)
-            {
-                return [originalName];
-            }
-
-            // Cross-client backcompat views can change which spelling is preserved after model names
-            // are fixed, so reserve each possible projection without constructing a client.
-            return new[] { originalName, NormalizeName(originalName) }
-                .SelectMany(name => new[] { name, name.NormalizeCSharpUrlSuffix(), name.NormalizeCSharpUrlSuffix().NormalizeCSharpAcronyms() })
-                .Distinct(StringComparer.Ordinal);
-        }
-
         /// <summary>
         /// Checks if two namespaces share the same last segment
         /// </summary>
