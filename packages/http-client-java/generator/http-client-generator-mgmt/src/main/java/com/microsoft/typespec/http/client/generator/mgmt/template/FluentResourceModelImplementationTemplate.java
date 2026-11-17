@@ -79,10 +79,12 @@ public class FluentResourceModelImplementationTemplate implements IJavaTemplate<
                 // variable for manager
                 classBlock.privateFinalMemberVariable(managerType.getFullName(), ModelNaming.MODEL_PROPERTY_MANAGER);
 
+                // If resource is updatable, use the constructor from resourceUpdate in the fluent-method list below.
                 if (createOnlyConstructor != null) {
+                    // Create-only resources initialize routing fields from the inner model's resource ID.
                     createOnlyConstructor.getMethodTemplate().writeMethod(classBlock);
                 } else if (model.getCategory() == ModelCategory.IMMUTABLE || model.getResourceUpdate() == null) {
-                    // constructor
+                    // Immutable models and models without create/update operations only wrap the inner model.
                     classBlock.packagePrivateConstructor(
                         String.format("%1$s(%2$s %3$s, %4$s %5$s)", model.getImplementationType().getName(),
                             model.getInnerModel().getName(), ModelNaming.MODEL_PROPERTY_INNER,
