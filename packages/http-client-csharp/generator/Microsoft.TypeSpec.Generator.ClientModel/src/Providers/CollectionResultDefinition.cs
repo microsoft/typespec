@@ -189,24 +189,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => ExperimentalApiHelpers.GetReferenceSuppressions(ItemModelType);
 
         protected override string BuildName()
+            => GetGeneratedName(Client.InputClient, Client.Type.Name, Operation, IsAsync, ItemModelType is not null);
+
+        internal static string GetGeneratedName(InputClient client, string clientName, InputOperation operation, bool isAsync, bool isGeneric,
+            IReadOnlyDictionary<InputOperation, string>? operationNames = null)
         {
-            var operationName = Operation.Name.ToIdentifierName();
+            var operationName = (operationNames?.GetValueOrDefault(operation) ?? operation.Name).ToIdentifierName();
             // Check if there is another paging operation in the same client whose name would produce a collision.
             // If so, use the OriginalName to differentiate.
-            if (HasPagingOperationNameCollision(operationName))
+            if (HasPagingOperationNameCollision(client, operationName, operationNames))
             {
-                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+                operationName = (operation.OriginalName ?? operation.Name).ToIdentifierName();
             }
-            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+            return $"{clientName}{operationName}{(isAsync ? "Async" : "")}CollectionResult{(isGeneric ? "OfT" : "")}";
         }
 
-        private bool HasPagingOperationNameCollision(string operationName)
+        private static bool HasPagingOperationNameCollision(InputClient client, string operationName, IReadOnlyDictionary<InputOperation, string>? operationNames)
         {
-            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
+            var pagingMethods = client.Methods.OfType<InputPagingServiceMethod>();
             int count = 0;
             foreach (var method in pagingMethods)
             {
-                if (method.Operation.Name.ToIdentifierName() == operationName)
+                if ((operationNames?.GetValueOrDefault(method.Operation) ?? method.Operation.Name).ToIdentifierName() == operationName)
                 {
                     count++;
                     if (count > 1)

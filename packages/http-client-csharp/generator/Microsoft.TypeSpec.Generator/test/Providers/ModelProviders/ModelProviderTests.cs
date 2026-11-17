@@ -429,17 +429,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("Custom", false)]
         [TestCase("MappedModel", false)]
         [TestCase("UnrelatedMapping", false)]
+        [TestCase("MovedCustomization", false)]
+        [TestCase("OtherNamespace", false)]
+        [TestCase("CaseOnly", false)]
         public async Task UnknownDiscriminatorNameCollisionSkipped(string collision, bool reverseOrder)
         {
             var input = InputFactory.Model("PipelineActivity", properties:
                 [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            var other = InputFactory.Model(collision == "MappedModel" ? "OtherModel" : "UnknownActivity");
-            InputModelType[] models = collision is "Model" or "MappedModel"
+            var other = InputFactory.Model(
+                collision == "MappedModel" ? "OtherModel" : collision == "CaseOnly" ? "Unknownactivity" : "UnknownActivity",
+                @namespace: collision == "OtherNamespace" ? "Other.Models" : "Sample.Models");
+            InputModelType[] models = collision is "Model" or "MappedModel" or "OtherNamespace" or "CaseOnly"
                 ? (reverseOrder ? [other, input] : [input, other]) : [input];
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: models,
                 inputEnumTypes: collision == "Enum" ? [InputFactory.StringEnum("UnknownActivity", [("One", "one")])] : [],
-                compilation: collision is "Custom" or "MappedModel" or "UnrelatedMapping"
+                compilation: collision is "Custom" or "MappedModel" or "UnrelatedMapping" or "MovedCustomization"
                     ? async () => await Helpers.GetCompilationFromDirectoryAsync(collision) : null,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
                     "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));

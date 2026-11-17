@@ -24,4 +24,8 @@ namespace Sample
     [PersistableModelProxy(typeof(Argument))]
     public abstract class HelperCollision { }
     internal class Argument : HelperCollision { }
+
+    [PersistableModelProxy(typeof(ServiceClientGetAllAsyncCollectionResultOfT))]
+    public abstract class PagingCollision { }
+    internal class ServiceClientGetAllAsyncCollectionResultOfT : PagingCollision { }
 }

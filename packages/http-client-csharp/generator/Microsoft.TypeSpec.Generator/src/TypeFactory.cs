@@ -148,7 +148,8 @@ namespace Microsoft.TypeSpec.Generator
             var emittedTypes = candidates.ToDictionary(
                 pair => pair.Key,
                 pair => (pair.Value.FinalName == pair.Value.Name ? result[pair.Key] : pair.Value.FinalName, pair.Value.FinalNamespace));
-            HashSet<(string Name, string Namespace)>? helperTypes = null;
+            var reservedOutputNames = reservedTypes.Select(type => type.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            HashSet<string>? helperNames = null;
             foreach (var (model, candidate) in candidates)
             {
                 if (!model.IsUnknownDiscriminatorModel || model.BaseModel is not { } baseModel ||
@@ -170,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator
                 var finalName = custom?.Name ?? proxyType.Name;
                 var finalNamespace = custom?.Type.Namespace ?? candidate.Namespace;
                 string? reason = null;
-                if (proxyNamespace != candidate.FinalNamespace)
+                if (proxyNamespace != (legacyCustom?.Type.Namespace ?? finalNamespace))
                 {
                     reason = "the proxy type is in a different namespace";
                 }
@@ -182,9 +183,10 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     reason = "the proxy type is an accepted removal in the ApiCompat baseline";
                 }
-                else if (emittedTypes.Any(pair => pair.Key != model && pair.Value == (finalName, finalNamespace)) ||
-                    reservedTypes.Contains((finalName, finalNamespace)) ||
-                    (helperTypes ??= GetReservedHelperTypeNames().ToHashSet()).Contains((finalName, finalNamespace)))
+                else if (emittedTypes.Any(pair => pair.Key != model &&
+                    string.Equals(pair.Value.Item1, finalName, StringComparison.OrdinalIgnoreCase)) ||
+                    reservedOutputNames.Contains(finalName) ||
+                    (helperNames ??= GetReservedHelperTypeNames().Select(type => type.Name).ToHashSet(StringComparer.OrdinalIgnoreCase)).Contains(finalName))
                 {
                     reason = "the name is already used by another generated type";
                 }

@@ -237,6 +237,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task HistoricalUnknownNameDoesNotCollideWithPagingCollection()
+        {
+            var input = InputFactory.Model("PagingCollision", @namespace: "Sample", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var page = InputFactory.Model("Page", properties:
+                [InputFactory.Property("items", InputFactory.Array(input))]);
+            var operation = InputFactory.Operation("List", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var method = InputFactory.PagingServiceMethod("List", operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input, page],
+                clients: () => [InputFactory.Client("ServiceClient", clientNamespace: "Sample", methods: [method], isExactName: true)],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameDoesNotCollideWithInfrastructure)));
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual("UnknownPagingCollision", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
+            CollectionAssert.Contains(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>()
+                .Select(type => type.Name).ToArray(), "ServiceClientGetAllAsyncCollectionResultOfT");
+        }
+
+        [Test]
         public void BaseShouldHaveProxyAttribute()
         {
             MockHelpers.LoadMockGenerator();
