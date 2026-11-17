@@ -18,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsApiVersion { get; }
         internal FormattableString? Description { get; }
         public SerializationOptions? SerializationOptions { get; }
+        public InputType? InputType { get; }
 
         internal bool IsEquivalentTo(PropertyWireInformation? other)
             => other is not null &&
@@ -51,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;
+            InputType = inputProperty.Type;
             IsRequired = inputProperty.IsRequired;
             IsRequiredInConstructor = modelProperty?.IsRequiredInConstructor ?? inputProperty.IsRequired;
             IsReadOnly = inputProperty.IsReadOnly;

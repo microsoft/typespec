@@ -32,4 +32,3 @@ extends:
           EnableCadlRanchReport: false
           PythonVersion: "3.15"
           UploadPlaygroundBundle: true
-          PlaygroundBundleBuildScript: "build:playground"

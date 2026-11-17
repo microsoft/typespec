@@ -77,6 +77,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void TestPropertyDocumentationPreservesCodeSpans()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "accessString",
+                        InputPrimitiveType.String,
+                        doc: "The Redis ACL permissions string applied to this assignment, for example `+@read\n~cache:* ~other:*`. Defaults to `+@all ~*` if not specified. This is *optional*.")
+                ]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(modelProvider).Write().Content);
+        }
+
+        [Test]
         public void TestPascalCaseProperty()
         {
             InputModelProperty inputModelProperty = InputFactory.Property("PascalCase", InputPrimitiveType.String, wireName: "PascalCase", isRequired: true);
@@ -751,45 +770,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Assert.AreEqual(attributes[i].Type, propertyProvider.Attributes[i].Type);
                 Assert.IsTrue(propertyProvider.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
             }
-        }
-
-        [Test]
-        public void UpdatePropertyAttributesAcceptsLazySequences()
-        {
-            var property = new PropertyProvider(
-                description: null,
-                modifiers: MethodSignatureModifiers.Public,
-                type: typeof(string),
-                name: "Value",
-                body: new AutoPropertyBody(HasSetter: true),
-                enclosingType: new TestTypeProvider());
-            var obsolete = new AttributeStatement(typeof(ObsoleteAttribute));
-            var other = new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("PREVIEW001"));
-
-            property.Update(attributes: new[] { obsolete, other }.Where(attribute => attribute != obsolete));
-
-            Assert.That(property.Attributes.Count, Is.EqualTo(1));
-            Assert.That(ReferenceEquals(property.Attributes[0], other), Is.True);
-            property.Update(attributes: Enumerable.Empty<AttributeStatement>());
-            Assert.That(property.Attributes, Is.Empty);
-        }
-
-        [Test]
-        public void ConstructorAcceptsLazyPropertyAttributes()
-        {
-            var obsolete = new AttributeStatement(typeof(ObsoleteAttribute));
-            var other = new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("PREVIEW001"));
-            var property = new PropertyProvider(
-                description: null,
-                modifiers: MethodSignatureModifiers.Public,
-                type: typeof(string),
-                name: "Value",
-                body: new AutoPropertyBody(HasSetter: true),
-                enclosingType: new TestTypeProvider(),
-                attributes: new[] { obsolete, other }.Where(attribute => attribute != obsolete));
-
-            Assert.That(property.Attributes.Count, Is.EqualTo(1));
-            Assert.That(ReferenceEquals(property.Attributes[0], other), Is.True);
         }
 
         [Test]

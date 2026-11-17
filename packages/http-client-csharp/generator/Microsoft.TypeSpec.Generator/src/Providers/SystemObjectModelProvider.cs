@@ -266,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
 
         /// <inheritdoc/>
-        protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
+        protected override CSharpType? BuildBaseType() => _systemType?.BaseType;
 
         // A projected last-contract provider already contains the effective historical hierarchy.
         // Walking a cached mapped ancestor again would duplicate its properties and constructor inputs.

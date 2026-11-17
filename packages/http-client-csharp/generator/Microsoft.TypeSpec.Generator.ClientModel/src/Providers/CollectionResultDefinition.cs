@@ -270,33 +270,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private ValueExpression GetPropertyExpression(
-            IReadOnlyList<string> segments,
-            ValueExpression response,
-            ICollection<PropertyProvider> accessedProperties)
+        private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
         {
-            return BuildGetPropertyExpression(segments, response.CastTo(ResponseModelType), accessedProperties);
+            return BuildGetPropertyExpression(segments, response.CastTo(ResponseModelType));
         }
 
         protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
         {
-            return BuildGetPropertyExpression(segments, responseModel, null);
-        }
-
-        private ValueExpression BuildGetPropertyExpression(
-            IReadOnlyList<string> segments,
-            ValueExpression responseModel,
-            ICollection<PropertyProvider>? accessedProperties)
-        {
-            var expression = ResponseModel.GetPropertyExpression(responseModel, segments, out _, out var properties);
-            if (accessedProperties is not null)
-            {
-                foreach (var property in properties)
-                {
-                    accessedProperties.Add(property);
-                }
-            }
-            return expression;
+            return ResponseModel.GetPropertyExpression(responseModel, segments);
         }
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
@@ -321,13 +302,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override MethodProvider[] BuildMethods()
         {
-            List<PropertyProvider> rawPageProperties = [];
-            List<PropertyProvider> continuationProperties = [];
             MethodBodyStatement[] getRawPagesMethodBody = (Paging.NextLink, Paging.ContinuationToken) switch
             {
                 (null, null) => BuildGetRawPagesForSingle(),
-                (not null, _) => BuildGetRawPagesForNextLink(rawPageProperties),
-                (_, not null) => BuildGetRawPagesForContinuationToken(rawPageProperties)
+                (not null, _) => BuildGetRawPagesForNextLink(),
+                (_, not null) => BuildGetRawPagesForContinuationToken()
             };
 
             var methods = new List<MethodProvider>
@@ -347,9 +326,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         $"The raw pages of the collection.",
                         []),
                     getRawPagesMethodBody,
-                    this,
-                    suppressions: ExperimentalApiHelpers.MergeSuppressions(
-                        rawPageProperties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions))),
+                    this),
 
                 new MethodProvider(
                     new MethodSignature(nameof(CollectionResult.GetContinuationToken),
@@ -358,15 +335,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new CSharpType(typeof(ContinuationToken)),
                         $"The continuation token for the specified page.",
                         [PageParameter]),
-                    BuildGetContinuationToken(continuationProperties),
-                    this,
-                    suppressions: ExperimentalApiHelpers.MergeSuppressions(
-                        continuationProperties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions)))
+                    BuildGetContinuationToken(),
+                    this)
             };
 
             if (ItemModelType != null)
             {
-                List<PropertyProvider> itemProperties = [];
                 methods.Add(new MethodProvider(
                                 new MethodSignature(IsAsync ? "GetValuesFromPageAsync" : "GetValuesFromPage",
                                 $"Gets the values from the specified page.",
@@ -378,10 +352,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     new CSharpType(typeof(IEnumerable<>), ItemModelType),
                                 $"The values from the specified page.",
                                 [PageParameter]),
-                        BuildGetValuesFromPages(itemProperties),
-                        this,
-                        suppressions: ExperimentalApiHelpers.MergeSuppressions(
-                            itemProperties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions))));
+                        BuildGetValuesFromPages(),
+                        this));
             }
 
             methods.Add(BuildGetNextResponseMethod());
@@ -392,7 +364,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     method.Suppressions,
                     ExperimentalApiHelpers.GetOperationSuppressions(Operation),
                     ExperimentalApiHelpers.GetReferenceSuppressions(Client.Type),
-                    ExperimentalApiHelpers.GetReferenceSuppressions(ResponseModelType)));
+                    ExperimentalApiHelpers.GetReferenceSuppressions(ResponseModelType),
+                    ResponseModel.CanonicalView.Properties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions)));
             }
             return methods.ToArray();
         }
@@ -426,9 +399,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        private MethodBodyStatement[] BuildGetValuesFromPages(ICollection<PropertyProvider> accessedProperties)
+        private MethodBodyStatement[] BuildGetValuesFromPages()
         {
-            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsVariable(), accessedProperties);
+            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsVariable());
             return
             IsAsync ?
                 [
@@ -443,7 +416,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
         }
 
-        private MethodBodyStatement[] BuildGetContinuationToken(ICollection<PropertyProvider> accessedProperties)
+        private MethodBodyStatement[] BuildGetContinuationToken()
         {
             // Simply return null if no continuation token or next link were defined.
             if (Paging.ContinuationToken == null && Paging.NextLink == null)
@@ -459,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable(), accessedProperties);
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
 
                     var ifElseStatement = nextPageType.Equals(typeof(Uri))
                         ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
@@ -502,7 +475,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private MethodBodyStatement[] BuildGetRawPagesForNextLink(ICollection<PropertyProvider> accessedProperties)
+        private MethodBodyStatement[] BuildGetRawPagesForNextLink()
         {
             var nextPageVariable = new VariableExpression(typeof(Uri), "nextPageUri");
             return
@@ -529,7 +502,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextPageVariable, accessedProperties),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextPageVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForNextLink(nextPageVariable)).Terminate()
@@ -537,7 +510,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement[] BuildGetRawPagesForContinuationToken(ICollection<PropertyProvider> accessedProperties)
+        private MethodBodyStatement[] BuildGetRawPagesForContinuationToken()
         {
             var nextTokenVariable = new VariableExpression(NextTokenField!.Type, "nextToken");
             return
@@ -564,7 +537,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextTokenVariable, accessedProperties),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextTokenVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForContinuationToken(nextTokenVariable)).Terminate()
@@ -588,18 +561,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, ValueExpression responseModel, VariableExpression nextPage)
-            => AssignAndCheckNextPageVariable(result, responseModel, nextPage, null);
-
-        private MethodBodyStatement[] AssignAndCheckNextPageVariable(
-            ClientResponseApi result,
-            ValueExpression responseModel,
-            VariableExpression nextPage,
-            ICollection<PropertyProvider>? accessedProperties)
         {
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel, accessedProperties);
+                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
                         IfStatement condition = NextPagePropertyType.Equals(typeof(Uri))
