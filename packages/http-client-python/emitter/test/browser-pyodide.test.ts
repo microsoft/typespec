@@ -29,8 +29,8 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     vi.stubGlobal("window", globalThis);
     const wheels = [
       "pygen-0.1.0-py3-none-any.whl",
-      "PyYAML-6.0.1-cp312-cp312-pyodide_2024_0_wasm32.whl",
-      "MarkupSafe-2.1.5-cp312-cp312-pyodide_2024_0_wasm32.whl",
+      "pyyaml-6.0.3-py3-none-any.whl",
+      "markupsafe-2.1.5-py3-none-any.whl",
     ];
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
