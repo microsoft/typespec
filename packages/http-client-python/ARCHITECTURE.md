@@ -120,27 +120,19 @@ The emitter bridges TypeSpec and Python code generation.
 #### Browser runtime
 
 The playground loads the generator and all of its Python dependencies, including
-the Pyodide wasm builds of PyYAML and MarkupSafe, from the emitter's published
+pure-Python builds of PyYAML and MarkupSafe, from the emitter's published
 `generator/dist/browser/manifest.json` and wheel assets using Pyodide's
 `loadPackage`. Browser generation does not query PyPI, CFS, or the Pyodide package
 CDN. Only the Pyodide core runtime and the emitter asset host must be reachable.
 
-The dependency wheels are vendored in `eng/playground-wheels/` with their SHA-256
-hashes in `wheels.json`. `npm run build:playground` copies them next to the freshly
-built pygen wheel without downloading any packages, so the network-isolated
-release pipeline only needs the package feed for the standard wheel build tooling.
-The build verifies the vendored hashes, checks PyYAML and MarkupSafe against the
-pinned `pyodide` npm package's `pyodide-lock.json`, rejects unsupported native
-wheels, and checks that every runtime requirement of pygen is vendored. Ordinary
-`npm run build` skips browser-wheel preparation.
-
-To refresh the vendored wheels (for example after changing generator
-dependencies), run `npm run update:playground-wheels` with network access and
-commit the result. Pure-Python wheels are resolved for Pyodide's Python version
-and platform from `PIP_INDEX_URL` or `UV_DEFAULT_INDEX` (default: the public
-`azure-sdk-for-python` CFS feed); PyYAML and MarkupSafe are downloaded from the
-Pyodide CDN and verified against the lockfile hashes. The browser-only
-`platformdirs` pin avoids its unsupported `os.geteuid` API.
+`npm run build:playground` downloads the exact artifacts and SHA-256 hashes listed
+in `eng/playground-requirements.txt` from `PIP_INDEX_URL` or `UV_DEFAULT_INDEX`
+(default: the public `azure-sdk-for-python` feed). PyYAML and MarkupSafe are
+built from their source distributions without their optional native extensions.
+The build rejects native wheels and checks the dependency set with pip before
+publishing it. The browser-only `platformdirs` pin avoids its unsupported
+`os.geteuid` API. Update the requirements and hashes when generator dependencies
+change. Ordinary `npm run build` skips browser-wheel preparation.
 
 Publish the browser manifest and wheels together with the emitter bundle under
 the same package version. Previously published bundles do not pick up this fix

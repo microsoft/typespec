@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Fix playground generation by bundling the generator's Python dependency wheels, including Pyodide builds of PyYAML and MarkupSafe, with the emitter instead of resolving them from PyPI or the Pyodide CDN in the browser. The wheels are vendored in the repository so the playground build does not download packages.
+Fix playground generation by bundling the generator's Python dependencies with the emitter instead of resolving them from PyPI in the browser. The playground build obtains hash-pinned dependencies from the configured Python feed and builds pure-Python PyYAML and MarkupSafe wheels without downloading from the Pyodide CDN.
