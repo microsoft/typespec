@@ -265,8 +265,22 @@ enum Lifecycle {
  * - If the `none` key is present, the property must have none of the specified visibilities.
  */
 model VisibilityFilter {
+  /**
+   * Require at least one of these visibility modifiers.
+   * Omit to impose no such requirement; an empty array matches no properties.
+   */
   any?: EnumMember[];
+
+  /**
+   * Require every one of these visibility modifiers.
+   * Omit or pass an empty array to impose no such requirement.
+   */
   all?: EnumMember[];
+
+  /**
+   * Exclude properties with any of these visibility modifiers.
+   * Omit or pass an empty array to exclude no properties by this condition.
+   */
   none?: EnumMember[];
 }
 

@@ -122,8 +122,12 @@ public final class VirtualMachineImpl implements VirtualMachine, VirtualMachine.
         azure.resourcemanager.multiservice.combined.CombinedManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.vmName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "virtualMachines");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}",
+            "resourceGroupName");
+        this.vmName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}",
+            "vmName");
     }
 
     public VirtualMachine refresh() {

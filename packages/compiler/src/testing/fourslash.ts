@@ -1,10 +1,10 @@
 /**
- * PositionedMarker represents a marker in the code with its name and position.
+ * A named fourslash-style comment's location in the complete compiled source.
  */
 export interface PositionedMarker {
-  /** Marker name */
+  /** Name inside the marker comment, used as the collected entity's result key. */
   readonly name: string;
-  /** Position of the marker */
+  /** Zero-based UTF-16 offset immediately after the marker comment; the comment is not removed. */
   readonly pos: number;
 }
 

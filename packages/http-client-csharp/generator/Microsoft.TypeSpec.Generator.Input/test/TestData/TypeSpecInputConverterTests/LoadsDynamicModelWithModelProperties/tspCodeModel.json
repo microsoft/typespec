@@ -328,8 +328,8 @@
             "doc": "this is not a friendly model but with a friendly name",
             "decorators": [
                 {
-                    "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
-                    "arguments": {}
+                    "name": "Azure.ClientGenerator.Core.@dynamicModel",
+                    "arguments": { "scope": "csharp" }
                 }
             ],
             "properties": [

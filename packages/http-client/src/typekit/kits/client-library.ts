@@ -6,41 +6,46 @@ import { isHttpFile } from "@typespec/http";
 import type { InternalClient } from "../../interfaces.js";
 
 /**
- * ClientLibraryKit provides a set of utilities to work with the client library.
+ * Discovers namespaces, clients, and data types for client generation through `$.clientLibrary`.
+ * Import `@typespec/http-client/typekit` to register these extensions on the compiler typekit.
  */
 export interface ClientLibraryKit {
   /**
-   * Get the top-level namespaces that are used to generate the client library.
-   *
-   * @param namespace: If namespace param is given, we will return the children of the given namespace.
-   *
+   * Lists project namespaces directly under the global namespace when no argument is supplied.
+   * With a namespace argument, lists its immediate user-defined child namespaces.
    */
   listNamespaces(namespace?: Namespace): Namespace[];
 
   /**
-   * List all of the clients in a given namespace.
-   *
-   * @param namespace namespace to get the clients of
+   * Lists client descriptors for a namespace or an existing client.
+   * A service namespace returns its own client. An existing namespace-backed client returns child
+   * namespace and interface clients; passing a non-service namespace also includes that namespace's
+   * own client. Interface-backed clients have no children.
    */
   listClients(type: Namespace | InternalClient): InternalClient[];
 
   /**
-   * List all of the models in a given namespace.
-   *
-   * @param namespace namespace to get the models of
+   * Lists models declared in the namespace that are used as types of its operations' parameters.
+   * Also includes model types from those parameters' source properties and from immediate properties
+   * of model-valued parameters, provided the models are declared in the same namespace.
+   * Spreading a model does not by itself include the containing source model. This is not a recursive
+   * traversal of model properties or a traversal of response types.
    */
   listModels(namespace: Namespace): Model[];
 
   /**
-   * List all of the enums in a given namespace.
-   *
-   * @param namespace namespace to get the enums of
+   * Lists enums declared directly in the namespace, preserving declaration order.
    */
   listEnums(namespace: Namespace): Enum[];
+  /**
+   * Collects named data types reachable from this client's constructors and operations, including
+   * those of descendant clients. Template declarations are excluded and results are deduplicated.
+   */
   listDataTypes(namespace: InternalClient): Array<Model | Enum | Union>;
 }
 
 interface TypekitExtension {
+  /** Client-library discovery utilities, registered by importing `@typespec/http-client/typekit`. */
   clientLibrary: ClientLibraryKit;
 }
 
@@ -123,11 +128,22 @@ defineKit<TypekitExtension>({
   },
 });
 
+/** Controls traversal when collecting a client's operation and constructor data types. */
 export interface TypeCollectorOptions {
+  /** Whether semantic traversal visits template declarations; defaults to false. */
   includeTemplateDeclaration?: boolean;
+  /** Reserved option; currently has no effect on collection or filtering of TypeSpec built-ins. */
   includeTypeSpecTypes?: boolean;
 }
 
+/**
+ * Traverses a client and its descendants to collect HTTP operations and named data types.
+ * Types are discovered through constructors, operation signatures, and derived models; multipart
+ * wrappers are unpacked. Anonymous types and types in the `TypeSpec` namespace are not added,
+ * except for HTTP file types.
+ *
+ * @returns Data types deduplicated by identity and HTTP operations in client traversal order.
+ */
 export function collectTypes(
   $: Typekit,
   client: InternalClient,

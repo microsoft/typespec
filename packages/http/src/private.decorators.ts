@@ -228,6 +228,7 @@ export function isHttpFile(program: Program, type: Type) {
   return program.stateSet(HttpStateKeys.file).has(type);
 }
 
+/** Tests whether a model is marked as an HTTP file or inherits from one; non-models return false. */
 export function isOrExtendsHttpFile(program: Program, type: Type) {
   if (type.kind !== "Model") {
     return false;
@@ -246,13 +247,25 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
   return false;
 }
 
+/** File model and its three well-known properties, as recognized by {@link getHttpFileModel}. */
 export interface HttpFileModel {
+  /** Input model retaining its original identity, including derived or spread file models. */
   readonly type: Model;
+  /** File media-type property, possibly inherited or spread from an HTTP file model. */
   readonly contentType: ModelProperty;
+  /** File name property, possibly inherited or spread from an HTTP file model. */
   readonly filename: ModelProperty;
+  /** String or bytes property containing the file data. */
   readonly contents: HttpOperationFileBody["contents"];
 }
 
+/**
+ * Recognizes a model whose contentType, filename, and contents originate from an HTTP file.
+ * Returns `undefined` for non-models, missing file properties, or a retained property count other than three.
+ *
+ * @param filter Optional filter used only when counting effective properties, for example to
+ * exclude HTTP metadata. The returned model and properties are not cloned or filtered.
+ */
 export function getHttpFileModel(
   program: Program,
   type: Type,
@@ -320,8 +333,11 @@ export const $httpPart: HttpPartDecorator = (
   context.program.stateMap(HttpStateKeys.httpPart).set(target, { type, options });
 };
 
+/** Payload type and options wrapped by a TypeSpec `HttpPart` model. */
 export interface HttpPart {
+  /** Wrapped payload type to resolve as the part's body and metadata. */
   readonly type: Type;
+  /** Part configuration, including an explicit name when supplied. */
   readonly options: HttpPartOptions;
 }
 

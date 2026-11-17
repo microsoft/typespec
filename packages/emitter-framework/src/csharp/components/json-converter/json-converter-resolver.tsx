@@ -10,8 +10,11 @@ import { capitalize } from "@typespec/compiler/casing";
 import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 import { TimeSpanIso8601JsonConverter, TimeSpanSecondsJsonConverter } from "./json-converter.jsx";
 
+/** Reference identity and declaration tree for a converter selected by a resolver. */
 interface JsonConverterInfo {
+  /** Namekey used both to declare the converter and to reference it from attributes. */
   namekey: Namekey;
+  /** Converter declaration to render once alongside the generated types. */
   converter: Children;
 }
 
@@ -21,21 +24,43 @@ interface JsonConverterInfo {
  *   2. Provide resolved JsonConverters to be generated centralized properly as needed.
  * */
 export interface useJsonConverterResolver {
+  /**
+   * Resolves and caches a converter by type name, encoding, and encoded type name.
+   * Custom registrations take precedence over built-ins; unsupported combinations return
+   * `undefined`. Built-in resolution requires a TypeSpec render context.
+   */
   resolveJsonConverter: (type: Type, encodeData: EncodeData) => JsonConverterInfo | undefined;
+  /** Returns a new array of converters actually resolved, in first-resolution order. */
   listResolvedJsonConverters: () => JsonConverterInfo[];
 }
 
+/** Provides the shared converter resolver used by descendant JSON-enabled property components. */
 export const JsonConverterResolver = createContext<useJsonConverterResolver>();
 
+/** Gets the nearest converter resolver, or `undefined` when no provider is installed. */
 export function useJsonConverterResolver(): useJsonConverterResolver | undefined {
   return useContext(JsonConverterResolver);
 }
 
+/** Custom converter registrations to consider before the built-in duration converters. */
 export interface JsonConverterResolverOptions {
   /** Custom JSON converters besides the built-in ones for known encode*/
-  customConverters?: { type: Type; encodeData: EncodeData; info: JsonConverterInfo }[];
+  customConverters?: {
+    /** Source type whose name participates in the converter lookup key. */
+    type: Type;
+    /** Encoding and encoded scalar type distinguishing this registration. */
+    encodeData: EncodeData;
+    /** Reference and declaration returned when this registration is selected. */
+    info: JsonConverterInfo;
+  }[];
 }
 
+/**
+ * Creates a resolver with an initially empty set of used converters.
+ * Built-ins cover duration encoded as ISO 8601 or supported numeric seconds.
+ * Call `listResolvedJsonConverters` after rendering properties to obtain the declarations
+ * that must be emitted; merely registering a custom converter does not mark it as used.
+ */
 export function createJsonConverterResolver(
   options?: JsonConverterResolverOptions,
 ): useJsonConverterResolver {

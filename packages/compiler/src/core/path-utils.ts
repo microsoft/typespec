@@ -26,7 +26,7 @@ export function isUrl(path: string) {
   return getEncodedRootLength(path) < 0;
 }
 
-/*
+/**
  * Determines whether a path starts with an absolute path component (i.e. `/`, `c:/`, `file://`, etc.).
  *
  * ```ts
@@ -161,6 +161,7 @@ function getEncodedRootLength(path: string): number {
   return 0;
 }
 
+/** Get a path's containing directory with forward slashes, preserving a root when the path is itself a root. */
 export function getDirectoryPath(path: string): string {
   path = normalizeSlashes(path);
 
@@ -370,10 +371,15 @@ export function getNormalizedPathComponents(path: string, currentDirectory: stri
   return reducePathComponents(getPathComponents(path, currentDirectory));
 }
 
+/**
+ * Combine a file name with the supplied current directory and reduce `.` and `..` components.
+ * An absolute file name ignores the current directory; no process working directory is inferred.
+ */
 export function getNormalizedAbsolutePath(fileName: string, currentDirectory: string | undefined) {
   return getPathFromPathComponents(getNormalizedPathComponents(fileName, currentDirectory));
 }
 
+/** Normalize slashes and relative segments without making a relative path absolute; preserve a trailing separator. */
 export function normalizePath(path: string): string {
   path = normalizeSlashes(path);
   // Most paths don't require normalization
@@ -402,6 +408,7 @@ function getPathWithoutRoot(pathComponents: readonly string[]) {
   return pathComponents.slice(1).join(directorySeparator);
 }
 
+/** Normalize a file name against the supplied directory, then omit the root component from the result. */
 export function getNormalizedAbsolutePathWithoutRoot(
   fileName: string,
   currentDirectory: string | undefined,
@@ -442,6 +449,7 @@ export function removeTrailingDirectorySeparator(path: string) {
   return path;
 }
 
+/** Append `/` unless the path already ends in either recognized directory separator. */
 export function ensureTrailingDirectorySeparator(path: string): string {
   if (!hasTrailingDirectorySeparator(path)) {
     return path + directorySeparator;
@@ -471,6 +479,7 @@ export function normalizeSlashes(path: string): string {
 
 //#endregion
 // #region relative paths
+/** Canonicalize path components for comparisons, for example by folding case on a case-insensitive host. */
 type GetCanonicalFileName = (fileName: string) => string;
 
 /** @internal */

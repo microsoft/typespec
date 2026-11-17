@@ -83,6 +83,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty);
         }
 
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+        {
+            var modifiers = base.BuildDeclarationModifiers();
+            var unions = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions;
+            // XML deserialization constructs the nominal base without a union discriminator.
+            return !_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) &&
+                unions.Any(union => union.BaseModel == _inputModel && DiscriminatedUnionSerialization.RequiresEnvelope(union)) &&
+                !unions.Any(union => DiscriminatedUnionSerialization.RequiresEnvelope(union) &&
+                    union.DiscriminatedSubtypes?.Values.Contains(_inputModel) == true) &&
+                !HasStandaloneBaseUse()
+                ? modifiers | TypeSignatureModifiers.Abstract
+                : modifiers;
+        }
+
+        private bool HasStandaloneBaseUse()
+        {
+            var inputNamespace = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            var visited = new HashSet<InputType>();
+            bool UsesBase(InputType? type)
+            {
+                if (type is null || type.External is not null || !visited.Add(type))
+                {
+                    return false;
+                }
+                if (ReferenceEquals(type, _inputModel))
+                {
+                    return true;
+                }
+                return type switch
+                {
+                    InputNullableType nullable => UsesBase(nullable.Type),
+                    InputArrayType array => UsesBase(array.ValueType),
+                    InputDictionaryType dictionary => UsesBase(dictionary.ValueType),
+                    InputStreamingType streaming => UsesBase(streaming.ValueType),
+                    InputUnionType union when !DiscriminatedUnionSerialization.RequiresEnvelope(union) =>
+                        union.VariantTypes.Any(UsesBase),
+                    InputModelType model => model.Properties.Any(property => UsesBase(property.Type)) ||
+                        UsesBase(model.AdditionalProperties),
+                    _ => false
+                };
+            }
+
+            return inputNamespace.Models.Any(model => model.Properties.Any(property => UsesBase(property.Type)) ||
+                    UsesBase(model.AdditionalProperties)) ||
+                inputNamespace.Clients.Any(client => client.Parameters.Any(parameter => UsesBase(parameter.Type)) ||
+                    client.Methods.Any(method =>
+                        method.Parameters.Any(parameter => UsesBase(parameter.Type)) ||
+                        UsesBase(method.Response.Type) || UsesBase(method.Exception?.Type) ||
+                        method.Operation.Parameters.Any(parameter => UsesBase(parameter.Type)) ||
+                        method.Operation.Responses.Any(response => UsesBase(response.BodyType))));
+        }
+
         protected override FieldProvider[] BuildFields()
         {
             var fields = base.BuildFields().ToList();

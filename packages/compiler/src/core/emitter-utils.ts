@@ -1,10 +1,15 @@
 import { getDirectoryPath } from "./path-utils.js";
 import type { Program } from "./program.js";
 
+/** Requested line-ending style for emitted text; `"crlf"` enables line-break conversion. */
 export type NewLine = "lf" | "crlf";
+/** Destination and text passed to {@link emitFile}. */
 export interface EmitFileOptions {
+  /** Output file path; the parent directory is created before writing. */
   path: string;
+  /** Text to write through the program's compiler host. */
   content: string;
+  /** Convert line breaks to CRLF for `"crlf"`; omitted or `"lf"` leaves the content unchanged. */
   newLine?: NewLine;
 }
 

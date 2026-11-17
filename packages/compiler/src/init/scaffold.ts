@@ -26,6 +26,7 @@ import { validateTemplateRelativePath } from "./template-source/types.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
+/** Selected template, dependencies, and user inputs used to initialize a project directory. */
 export interface ScaffoldingConfig {
   /** Template used to resolve that config */
   template: InitTemplate;

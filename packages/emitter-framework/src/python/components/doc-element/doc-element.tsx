@@ -2,6 +2,7 @@ import { type Children, type Component, List } from "@alloy-js/core";
 import type { Type } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 
+/** Documentation source, override, and destination component for Python docstring normalization. */
 export interface DocElementProps {
   /**
    * The TypeSpec type to get documentation from.
@@ -24,7 +25,10 @@ export interface DocElementProps {
   /**
    * The Python doc component to use for rendering (ClassDoc, FunctionDoc, MethodDoc, etc.)
    */
-  component: Component<{ description: Children[] }>;
+  component: Component<{
+    /** Normalized paragraphs or nodes passed to the selected Python documentation component. */
+    description: Children[];
+  }>;
 }
 
 /**

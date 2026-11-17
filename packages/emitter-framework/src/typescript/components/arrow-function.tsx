@@ -4,11 +4,13 @@ import type { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 
+/** Alloy arrow-function options with optional TypeSpec-derived parameter and return types. */
 export interface ArrowFunctionProps extends ts.ArrowFunctionProps {
+  /** Operation supplying defaults; omit to render an ordinary Alloy arrow function. */
   type?: Operation;
   /**
-   * Where the parameters from passed to the `parameters` prop should be placed
-   * relative the ones created from the T`ypeSpec operation.
+   * Places explicit parameters before the operation parameters by default.
+   * `append` places them after; `replace` discards the operation parameters.
    */
   parametersMode?: "prepend" | "append" | "replace";
 }

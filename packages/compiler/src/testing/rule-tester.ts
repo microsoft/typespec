@@ -17,7 +17,12 @@ import type { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.j
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
 import type { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
 
+/** Exercise one linter rule independently of a library's configured rulesets. */
 export interface LinterRuleTester {
+  /**
+   * Prepare assertions for source compiled by the supplied runner.
+   * File records and typed markers require a modern `TesterInstance`; legacy runners accept only strings.
+   */
   expect<
     T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
   >(
@@ -25,17 +30,25 @@ export interface LinterRuleTester {
   ): LinterRuleTestExpect<GetMarkedEntities<T>>;
 }
 
+/** Assertions that compile the input without compiler diagnostics, then run the selected rule. */
 export interface LinterRuleTestExpect<T extends Record<string, Entity> = any> {
+  /** Require the rule to report neither warnings nor errors. */
   toBeValid(): Promise<void>;
+  /**
+   * Match all rule diagnostics in reporting order using {@link expectDiagnostics}.
+   * A callback can derive expected locations from the compilation result, but requires a modern `TesterInstance`.
+   */
   toEmitDiagnostics(
     diagnostics:
       | DiagnosticMatch
       | DiagnosticMatch[]
       | ((res: TestCompileResult<T>) => DiagnosticMatch | DiagnosticMatch[]),
   ): Promise<void>;
+  /** Select a fix by ID from the first rule diagnostic for an expected-source assertion. */
   applyCodeFix(codeFixId: string): ApplyCodeFixExpect;
 }
 
+/** Compare files written by a selected rule code fix, rather than recompiling the fixed source. */
 export interface ApplyCodeFixExpect {
   /**
    * Assert the content of the file(s) after the code fix is applied.
@@ -69,6 +82,15 @@ export interface ApplyCodeFixExpect {
   toEqual(code: string | Record<string, string>): Promise<void>;
 }
 
+/**
+ * Test a rule with its default options, without enabling a linter ruleset.
+ * Each assertion compiles with comment parsing enabled and requires no compiler diagnostics.
+ * The rule must report through its rule context, not directly to the program.
+ *
+ * @param runner Mutable tester instance, or a legacy runner supporting string inputs only.
+ * @param ruleDef Rule whose visitors and optional `exit` callback are run against the program.
+ * @param libraryName Prefix for diagnostic codes, which take the form `libraryName/ruleName`.
+ */
 export function createLinterRuleTester(
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   runner: BasicTestRunner | TesterInstance,

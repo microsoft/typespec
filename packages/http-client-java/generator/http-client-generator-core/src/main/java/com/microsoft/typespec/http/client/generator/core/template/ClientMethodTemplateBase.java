@@ -36,6 +36,14 @@ import java.util.stream.Collectors;
 
 public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMethod, JavaType> {
 
+    protected static Set<String> pagingVariableNames(ClientMethod clientMethod) {
+        return MethodUtil.getMethodVariableNames(clientMethod);
+    }
+
+    protected static String availablePagingVariableName(String baseName, Set<String> usedNames) {
+        return MethodUtil.getAvailableVariableName(baseName, usedNames);
+    }
+
     protected static void generateProtocolMethodJavadoc(ClientMethod clientMethod, JavaJavadocComment commentBlock) {
         commentBlock.description(clientMethod.getDescription());
 
@@ -144,7 +152,13 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
     }
 
     private static boolean isHiddenContinuationToken(ClientMethod clientMethod, ProxyMethodParameter parameter) {
-        if (!clientMethod.isPageStreamingType() || clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+        return !JavaSettings.getInstance().isAzureV1() && isContinuationTokenParameter(clientMethod, parameter);
+    }
+
+    protected static boolean isContinuationTokenParameter(ClientMethod clientMethod, ProxyMethodParameter parameter) {
+        if (parameter == null
+            || !clientMethod.isPageStreamingType()
+            || clientMethod.getMethodPageDetails().getContinuationToken() == null) {
             return false;
         }
         ProxyMethodParameter token = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter();

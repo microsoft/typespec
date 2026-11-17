@@ -50,16 +50,18 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
         String className = compositeType.getLanguage().getJava().getName();
         if (settings.isCustomType(compositeType.getLanguage().getJava().getName())) {
             packageSuffixes = new String[] { settings.getCustomTypesSubpackage() };
+        } else if ((settings.isDataPlaneClient()
+            || settings.isFluent()
+            || settings.isAzureV2()
+            || !settings.isAzureV1()) && isInternalModel(compositeType)) {
+            // internal type is not exposed to user
+            packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
         } else if (settings.isFluent() && isInnerModel(compositeType)) {
             className += "Inner";
             packageSuffixes = new String[] { settings.getFluentModelsSubpackage() };
         } else if (settings.isFluent() && compositeType.isFlattenedSchema()) {
             // put class of flattened type to fluent package
             packageSuffixes = new String[] { settings.getFluentModelsSubpackage() };
-        } else if ((settings.isDataPlaneClient() || settings.isAzureV2() || !settings.isAzureV1())
-            && isInternalModel(compositeType)) {
-            // internal type is not exposed to user
-            packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
         } else if (isPagedModel(compositeType) && isChildrenAllInternal(compositeType)) {
             // put class of Page<> type to implementation package
             // for DPG from TypeSpec, these are not generated to class

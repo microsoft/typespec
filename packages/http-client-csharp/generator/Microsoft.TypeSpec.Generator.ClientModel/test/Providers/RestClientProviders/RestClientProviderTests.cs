@@ -40,6 +40,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             MockHelpers.LoadMockGenerator();
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HeadResponseAsBoolUsesProvidedSuccessStatusCodes(bool responseAsBool)
+        {
+            var operation = InputFactory.Operation("Exists", httpMethod: "HEAD",
+                responses:
+                [
+                    InputFactory.OperationResponse([204, 404]),
+                    new InputOperationResponse([500], null, [], true, [])
+                ]);
+            operation.Update(responseAsBool: responseAsBool);
+            var client = InputFactory.Client("TestClient",
+                methods: [InputFactory.BasicServiceMethod("Exists", operation)]);
+            var restClient = new ClientProvider(client).RestClient;
+            var classifiers = restClient.Properties.Where(p => p.Name.StartsWith("PipelineMessageClassifier")).ToArray();
+
+            Assert.AreEqual(1, classifiers.Length);
+            Assert.AreEqual("PipelineMessageClassifier204404", classifiers[0].Name);
+
+            var code = new TypeProviderWriter(restClient).Write().Content;
+            var classifier = CSharpSyntaxTree.ParseText(code).GetRoot()
+                .DescendantNodes().OfType<PropertyDeclarationSyntax>()
+                .Single(p => p.Identifier.ValueText == classifiers[0].Name);
+            var statusCodes = classifier.DescendantNodes().OfType<LiteralExpressionSyntax>()
+                .Where(literal => literal.IsKind(SyntaxKind.NumericLiteralExpression))
+                .Select(literal => literal.Token.Value);
+            CollectionAssert.AreEqual(new[] { 204, 404 }, statusCodes);
+        }
+
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestRestClientMethods(InputServiceMethod inputServiceMethod)
         {
@@ -1364,7 +1393,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         {
             var inputOp = InputFactory.Operation(
                 "TestOperation",
-                responses: [InputFactory.OperationResponse([500])]);
+                responses: [new InputOperationResponse([500], null, [], true, [])]);
             var inputClient = InputFactory.Client(
                 "TestClient",
                 methods: [InputFactory.BasicServiceMethod("Test", inputOp)]);

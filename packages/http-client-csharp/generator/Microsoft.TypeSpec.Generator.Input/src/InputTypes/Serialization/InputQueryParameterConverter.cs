@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? doc = null;
             string? serializedName = null;
             bool isApiVersion = false;
+            bool isContinuationToken = false;
             InputConstant? defaultValue = null;
             string? scope = null;
             string? arraySerializationDelimiter = null;
@@ -80,6 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("collectionFormat", ref collectionFormat)
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadBoolean("isContinuationToken", ref isContinuationToken)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
@@ -106,6 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Decorators = decorators ?? [];
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputQueryParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
+            parameter.IsContinuationToken = isContinuationToken;
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ArraySerializationDelimiter = arraySerializationDelimiter;

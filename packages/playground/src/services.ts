@@ -66,6 +66,11 @@ function getTypeSpecLanguageConfiguration(): monaco.languages.LanguageConfigurat
   };
 }
 
+/**
+ * Register TypeSpec and YAML language support in Monaco using this host's compiler and files.
+ * Await registration before using the language services. Providers are installed once per
+ * window; later calls do not replace the host used by the existing language server.
+ */
 export async function registerMonacoLanguage(host: BrowserHost) {
   monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
   monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());

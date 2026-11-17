@@ -16,9 +16,12 @@ import type {
 } from "./types.js";
 import { NodeFlags, NoTarget, SymbolFlags, SyntaxKind } from "./types.js";
 
+/** Output callback accepting one line of text, or no text for an empty line. */
 export type WriteLine = (text?: string) => void;
+/** Callback receiving a diagnostic for collection, reporting, or other caller-defined handling. */
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
+/** Write diagnostics to a log sink, resolving identifier locations and template-instantiation traces. */
 export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSink) {
   for (const diagnostic of diagnostics) {
     logger.log({
@@ -109,21 +112,26 @@ function getValueNode(value: Value): Node | undefined {
   }
 }
 
+/** Control which part of a diagnostic target is used as its source range. */
 export interface SourceLocationOptions {
   /**
    * If trying to resolve the location of a type with an ID, show the location of the ID node instead of the entire type.
+   * For type references, show the reference target without template arguments.
    * This makes sure that the location range is not too large and hard to read.
    */
   locateId?: boolean;
 }
+/** Resolve a diagnostic target's source range, using a synthetic location when no bound source exists. */
 export function getSourceLocation(
   target: DiagnosticTarget,
   options?: SourceLocationOptions,
 ): SourceLocation;
+/** Return no location for an absent target or the explicit {@link NoTarget} sentinel. */
 export function getSourceLocation(
   target: typeof NoTarget | undefined,
   options?: SourceLocationOptions,
 ): undefined;
+/** Resolve an optional diagnostic target, returning undefined only when there is no target. */
 export function getSourceLocation(
   target: DiagnosticTarget | typeof NoTarget | undefined,
   options?: SourceLocationOptions,
@@ -187,8 +195,12 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
     );
   }
 
-  if (options.locateId && "id" in node && node.id !== undefined) {
-    node = node.id;
+  if (options.locateId) {
+    if (node.kind === SyntaxKind.TypeReference) {
+      node = node.target;
+    } else if ("id" in node && node.id !== undefined) {
+      node = node.id;
+    }
   }
 
   return {
@@ -303,6 +315,7 @@ export function reportDeprecated(
  * Helper object to collect diagnostics from function following the diagnostics accessor pattern(foo() => [T, Diagnostic[]])
  */
 export interface DiagnosticCollector {
+  /** Collected diagnostics in insertion order; this view grows as results are piped or added. */
   readonly diagnostics: readonly Diagnostic[];
 
   /**
@@ -380,6 +393,7 @@ export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
   return result[0];
 }
 
+/** Type-check a code-fix definition and return it unchanged; this does not apply the fix. */
 export function defineCodeFix(fix: CodeFix): CodeFix {
   return fix;
 }

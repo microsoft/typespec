@@ -70,11 +70,11 @@ steps:
   - ${{ if eq(parameters.LanguageShortName, 'java') }}:
       - template: /eng/common/pipelines/templates/steps/maven-authenticate.yml
 
-  - task: NodeTool@0
+  - task: UseNode@1
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
     inputs:
-      versionSpec: ${{ parameters.NodeVersion }}
+      version: ${{ parameters.NodeVersion }}
       checkLatest: true
 
   - ${{ if eq(parameters.LanguageShortName, 'python') }}:

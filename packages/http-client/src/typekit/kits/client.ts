@@ -23,6 +23,7 @@ import { createBaseConstructor, getConstructors } from "../../utils/client-helpe
 import { getStringValue } from "../../utils/helpers.js";
 import type { NameKit } from "./utils.js";
 
+/** Client identity, initialization, HTTP metadata, and lifecycle queries exposed through `$.client`. */
 interface ClientKit extends NameKit<InternalClient> {
   /**
    * Get the feature lifecycle value for a given type
@@ -76,28 +77,39 @@ interface ClientKit extends NameKit<InternalClient> {
   listHttpOperations(client: InternalClient): HttpOperation[];
 
   /**
-   * Get the url template of a client, given its constructor as well */
+   * Gets the first inherited server's URL template and parameters, or a required `{endpoint}`
+   * template when no servers exist. For a parameterless server and an endpoint-only constructor,
+   * returns an optional endpoint parameter defaulting to that server's URL.
+   *
+   * @param constructor Constructor used to match parameters; defaults to the client's constructor.
+   */
   getUrlTemplate(
     client: InternalClient,
     constructor?: Operation,
-  ): { url: string; parameters: ModelProperty[] };
+  ): {
+    /** Server URL template, or `{endpoint}` when the endpoint is supplied by the caller. */
+    url: string;
+    /** Parameters needed to expand the URL, including any synthetic endpoint parameter and default. */
+    parameters: ModelProperty[];
+  };
   /**
-   * Determines is both clients have the same constructor
+   * Checks whether constructors have the same parameter count and identical types at each position.
+   * Parameter names, optionality, and defaults are not compared.
    */
   haveSameConstructor(a: InternalClient, b: InternalClient): boolean;
   /**
-   * Resolves the authentication schemes for a client
-   * @param client
+   * Resolves the HTTP service's authentication schemes and operation-level authentication for a client.
    */
   getAuth(client: InternalClient): HttpServiceAuthentication;
   /**
-   * Lists servers for a client or its closest parent's sever
-   * @param client client to check for servers
+   * Returns the client's server declarations, falling back to the nearest parent with declarations.
+   * Returns undefined when neither the client nor any parent declares servers.
    */
   listServers(client: InternalClient): HttpServer[] | undefined;
 }
 
 interface TypekitExtension {
+  /** Client descriptor and metadata utilities, registered by importing `@typespec/http-client/typekit`. */
   client: ClientKit;
 }
 

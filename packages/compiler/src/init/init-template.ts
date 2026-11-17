@@ -2,18 +2,27 @@ import type { JSONSchemaType } from "ajv";
 import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
 import type { TypeSpecRawConfig } from "../config/types.js";
 
+/** A template file to render and copy into a newly initialized project. */
 export interface InitTemplateFile {
+  /** Path to read relative to the template source. */
   path: string;
+  /** Output path relative to the new project directory; must not escape that directory. */
   destination: string;
+  /** Skip this file and suppress any built-in generation for the same destination. */
   skipGeneration?: boolean;
 }
 
+/** A text prompt whose answer becomes a custom template parameter. */
 export interface InitTemplateInput {
+  /** Prompt shown when asking for this parameter. */
   description: string;
+  /** Input control to present; currently only free-form text is supported. */
   type: "text";
+  /** Initial prompt value, which the user may replace. */
   initialValue: any;
 }
 
+/** Project initialization recipe containing dependencies, emitter choices, configuration, and files. */
 export interface InitTemplate {
   /**
    * The kind of project this tempolate initialize. This will change things like where dependencies are added.

@@ -170,6 +170,13 @@ public final class XmlPaginationsImpl {
 
     /**
      * The listWithContinuation operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>marker</td><td>String</td><td>No</td><td>The marker parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -190,6 +197,12 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> listWithContinuationAsync(RequestOptions requestOptions) {
+        return listWithContinuationAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> listWithContinuationAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
         return new PagedFlux<>(() -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
             requestOptionsLocal.addRequestCallback(requestLocal -> {
@@ -197,6 +210,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("marker", initialContinuationToken, false);
+            }
             return listWithContinuationSinglePageAsync(requestOptionsLocal);
         }, (marker) -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
@@ -205,7 +221,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
-            requestOptionsLocal.addQueryParam("marker", marker, false);
+            if (marker != null) {
+                requestOptionsLocal.addQueryParam("marker", marker, false);
+            }
             return listWithContinuationSinglePageAsync(requestOptionsLocal);
         });
     }
@@ -254,6 +272,13 @@ public final class XmlPaginationsImpl {
 
     /**
      * The listWithContinuation operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>marker</td><td>String</td><td>No</td><td>The marker parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -274,6 +299,12 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> listWithContinuation(RequestOptions requestOptions) {
+        return listWithContinuation(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> listWithContinuation(String initialContinuationToken,
+        RequestOptions requestOptions) {
         return new PagedIterable<>(() -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
             requestOptionsLocal.addRequestCallback(requestLocal -> {
@@ -281,6 +312,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("marker", initialContinuationToken, false);
+            }
             return listWithContinuationSinglePage(requestOptionsLocal);
         }, (marker) -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
@@ -289,7 +323,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
-            requestOptionsLocal.addQueryParam("marker", marker, false);
+            if (marker != null) {
+                requestOptionsLocal.addQueryParam("marker", marker, false);
+            }
             return listWithContinuationSinglePage(requestOptionsLocal);
         });
     }

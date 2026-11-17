@@ -3,20 +3,30 @@ import type { TextDocument } from "vscode-languageserver-textdocument";
 import { debugLoggers } from "./debug.js";
 import type { ServerLog } from "./types.js";
 
+/** Most recent notification for one URI in a batch awaiting update processing. */
 interface PendingUpdate {
+  /** Latest document or identifier scheduled for this URI, replacing earlier notifications in the batch. */
   latest: TextDocument | TextDocumentIdentifier;
+  /** Time of the latest notification for this URI, as milliseconds since the Unix epoch. */
   latestUpdateTimestamp: number;
 }
 
+/** Document lifecycle notification; only changed and renamed notifications advance the change version. */
 export type UpdateType = "opened" | "changed" | "closed" | "renamed";
 
+/**
+ * Process a batch containing the latest notification for each pending URI.
+ * triggeredBy is the document or identifier from the scheduling call that triggered this execution.
+ */
 type UpdateCallback<T> = (
   updates: PendingUpdate[],
   triggeredBy: TextDocument | TextDocumentIdentifier,
 ) => Promise<T>;
 /**
- * Track file updates and recompile the affected files after some debounce time.
- * T will be returned if the scheduled update is triggered eventually, but if a newer scheduleUpdate is triggered, the previous ones will be cancelled and return undefined.
+ * Batch document notifications by URI and invoke a callback after a debounce delay.
+ * Processing waits for start(), allowing the client to finish loading settings.
+ * A newer scheduling call resolves earlier pending callers with undefined, but does
+ * not cancel a callback that has already started.
  */
 export class UpdateManager<T = void> {
   #pendingUpdates = new Map<string, PendingUpdate>();
@@ -30,12 +40,15 @@ export class UpdateManager<T = void> {
   #isStarted = false;
 
   private _log: (sl: ServerLog) => void;
+  /** Compute the current debounce delay in milliseconds using the supplied override or adaptive typing frequency. */
   public readonly getDebounceDelay: () => number;
 
   /**
-   *
-   * @param name For logging purpose, identify different update manager if there are multiple
-   * @param log
+   * Create an update queue that does not process notifications until start() is called.
+   * @param name Identifies this queue in debug messages.
+   * @param log Receives queue debug messages when update-manager debugging is enabled.
+   * @param getDebounceDelay Optional delay override in milliseconds. Otherwise the delay
+   * adapts to recent change frequency, starting at 500 ms.
    */
   constructor(
     private name: string,
@@ -75,10 +88,12 @@ export class UpdateManager<T = void> {
     this.#isStarted = true;
   }
 
+  /** Register or replace the batch processor. Updates processed without a callback return undefined. */
   public setCallback(callback: UpdateCallback<T>) {
     this.#updateCb = callback;
   }
 
+  /** Monotonic server change counter, initially zero; advances for changed and renamed notifications only. */
   public get docChangedVersion() {
     return this.#docChangedVersion;
   }
@@ -135,8 +150,10 @@ export class UpdateManager<T = void> {
   };
 
   /**
-   * T will be returned if the schedule is triggered eventually, if a newer scheduleUpdate
-   *  occurs before the debounce time, the previous ones will be cancelled and return undefined.
+   * Queue or replace the latest notification for a URI and restart debounced processing.
+   * Changed and renamed notifications advance the change version immediately, even before start().
+   * Returns the callback result, or undefined when superseded by a newer scheduling call
+   * or processed without a registered callback. Superseding does not stop an executing callback.
    */
   public scheduleUpdate(
     document: TextDocument | TextDocumentIdentifier,

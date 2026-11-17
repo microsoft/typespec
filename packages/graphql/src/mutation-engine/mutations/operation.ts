@@ -13,8 +13,13 @@ import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 import { createVisibilityFilters } from "../../lib/visibility.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
-/** GraphQL-specific Operation mutation. */
+/** Transforms a GraphQL operation's field name, input parameters, and output type. */
 export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMutationOptions> {
+  /**
+   * Initializes an operation transformation with engine-provided references and
+   * cache identity. Prefer `GraphQLMutationEngine.mutateOperation`, which
+   * also drives input/output context propagation.
+   */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<SimpleMutationOptions>>,
     sourceType: Operation,
@@ -57,6 +62,12 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
     );
   }
 
+  /**
+   * Normalizes the field name, including its TypeSpec interface name when present,
+   * mutates inputs and output with their visibility contexts, and preserves return
+   * nullability. Parameters left with empty model types are removed.
+   * Invoked by the mutation engine.
+   */
   mutate() {
     const program = this.engine.$.program;
 

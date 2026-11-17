@@ -1,26 +1,67 @@
 import type { JSONSchemaType } from "@typespec/compiler";
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/**
+ * Configuration supplied to the C# server emitter through `EmitContext.options`.
+ * In `tspconfig.yaml`, set these under `options["@typespec/http-server-csharp"]`.
+ */
 export interface CSharpServiceEmitterOptions {
-  /** Skip formatting of output. Default is false (generated c-sharp files are formatted) */
+  /**
+   * Accepted formatting option. The current emitter does not invoke `dotnet format`,
+   * so this option has no effect.
+   */
   "skip-format"?: boolean;
-  /** Choose which service artifacts to emit. Default is 'all'. */
+  /**
+   * Select `"models"` to emit models, enums, and serialization support without
+   * controllers, operation interfaces, or project scaffolding. Defaults to `"all"`.
+   * Models-only output ignores mock and Swagger UI options.
+   */
   "output-type"?: "models" | "all";
-  /** Emit mock implementations of business logic, setup code, and project files. Allows the service to respond to requests with mock responses. */
+  /**
+   * Add mock business-logic implementations and their registration helpers.
+   * `"mocks-and-project-files"` also emits the project and local hosting settings;
+   * `"mocks-only"` omits those project files. Defaults to `"none"`.
+   * Ignored when `"output-type"` is `"models"`.
+   */
   "emit-mocks"?: "none" | "mocks-only" | "mocks-and-project-files";
-  /** Configure a Swagger UI endpoint in the development configuration. */
+  /**
+   * Request Swagger UI middleware for the generated service's development environment.
+   * Requires an explicit or inferred OpenAPI path. Defaults to `false` and is
+   * ignored when `"output-type"` is `"models"`.
+   */
   "use-swaggerui"?: boolean;
-  /** Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled. */
+  /**
+   * OpenAPI document path embedded in `Program.cs` when `"use-swaggerui"` is enabled.
+   * Relative paths are resolved by the generated service at runtime. When omitted,
+   * the emitter infers a path from the `@typespec/openapi3` configuration; if none
+   * can be resolved, Swagger UI middleware is not emitted.
+   */
   "openapi-path"?: string;
-  /** When generating mock files, overwrite any existing files with the same name. */
+  /**
+   * Replace existing files outside `generated/`, including mocks and project scaffolding.
+   * Defaults to `false`, preserving those files for user edits. Files in `generated/`
+   * are always overwritten.
+   */
   overwrite?: boolean;
-  /** The generated project name. */
+  /**
+   * Base name of the `.csproj` file emitted with `"mocks-and-project-files"`.
+   * Defaults to `"ServiceProject"`; does not set the generated C# namespace.
+   */
   "project-name"?: string;
-  /** The http port number to use when hosting the service locally */
+  /**
+   * HTTP port written to `Properties/launchSettings.json` when project files are emitted.
+   * Defaults to `5000`.
+   */
   "http-port"?: number;
-  /** The https port number to use when hosting the service locally */
+  /**
+   * HTTPS port written to `Properties/launchSettings.json` when project files are emitted.
+   * Defaults to `7000`.
+   */
   "https-port"?: number;
-  /** Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'. */
+  /**
+   * Represent collections as C# arrays (`"array"`, the default) or `IEnumerable<T>`
+   * (`"enumerable"`). Arrays with unique items use `ISet<T>`; other byte arrays remain arrays.
+   */
   "collection-type"?: "array" | "enumerable";
 }
 
@@ -101,6 +142,10 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
   required: [],
 };
 
+/**
+ * Library definition loaded by the TypeSpec compiler to validate C# server emitter
+ * options and report emitter diagnostics. The testing entry point exposes this same definition.
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-server-csharp",
   capabilities: {

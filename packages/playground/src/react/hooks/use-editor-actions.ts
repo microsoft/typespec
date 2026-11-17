@@ -3,6 +3,11 @@ import { KeyCode, KeyMod, editor } from "monaco-editor";
 import { useCallback, useMemo, type RefObject } from "react";
 import type { PlaygroundState } from "../use-playground-state.js";
 
+/**
+ * Snapshot passed to the playground's save callback, including the current editor text.
+ * `sampleName` is supplied only while the editor text still matches the selected sample.
+ * `tspconfig` carries the raw configuration alongside the derived emitter and compiler options.
+ */
 export interface PlaygroundSaveData extends PlaygroundState {
   /** Current content of the playground. */
   content: string;

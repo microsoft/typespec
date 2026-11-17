@@ -1,5 +1,9 @@
 import { createTypeSpecLibrary } from "@typespec/compiler";
 
+/**
+ * Defines the streams library's identity and stream-data state key for the
+ * TypeSpec compiler.
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/streams",
   diagnostics: {},

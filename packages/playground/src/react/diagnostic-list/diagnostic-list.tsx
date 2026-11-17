@@ -8,11 +8,15 @@ import {
 import { memo, useCallback, type FunctionComponent } from "react";
 import style from "./diagnostic-list.module.css";
 
+/** Diagnostics to display and an optional handler for navigating to a selected diagnostic. */
 export interface DiagnosticListProps {
+  /** Diagnostics displayed in the supplied order; an empty list shows "No errors". */
   readonly diagnostics: readonly Diagnostic[];
+  /** Called with the clicked diagnostic; this component does not navigate to its source itself. */
   readonly onDiagnosticSelected?: (diagnostic: Diagnostic) => void;
 }
 
+/** Display diagnostic severity, code, message, and source location with optional click handling. */
 export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({
   diagnostics,
   onDiagnosticSelected,

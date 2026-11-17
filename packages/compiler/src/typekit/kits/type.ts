@@ -29,6 +29,8 @@ import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
 /**
+ * Inspect type metadata, check assignability, and clone types into the typekit's realm.
+ *
  * @typekit type
  */
 export interface TypeTypekit {
@@ -158,6 +160,9 @@ export interface TypeTypekit {
    * and throw an error if it doesn't.
    *
    * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
+   *
+   * @param reference A type reference resolved in the program's global scope.
+   * @param kind Optional expected type kind. A resolved type with a different kind causes an error to be thrown.
    */
   resolve: Diagnosable<
     <K extends Type["kind"] | undefined>(

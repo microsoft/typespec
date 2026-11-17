@@ -43,13 +43,20 @@ import { resolvePathAndParameters } from "./route.js";
  * REST API.
  */
 export enum Visibility {
+  /** Properties available when reading a resource, used for responses. */
   Read = 1 << 0,
+  /** Properties accepted when creating a resource. */
   Create = 1 << 1,
+  /** Properties accepted when updating a resource. */
   Update = 1 << 2,
+  /** Properties accepted when deleting a resource. */
   Delete = 1 << 3,
+  /** Properties accepted when querying a resource. */
   Query = 1 << 4,
 
+  /** No lifecycle visibility flags; distinct from the unfiltered {@link Visibility.All}. */
   None = 0,
+  /** All lifecycle visibilities, without the synthetic Item or Patch flags. */
   All = Read | Create | Update | Delete | Query,
 
   /**
@@ -517,6 +524,7 @@ export interface MetadataInfo {
   getEffectivePayloadType(type: Type, visibility: Visibility): Type;
 }
 
+/** Controls the canonical payload representation and whether visibility variants can share properties. */
 export interface MetadataInfoOptions {
   /**
    * The visibility to be used as the baseline against which
@@ -538,6 +546,11 @@ export interface MetadataInfoOptions {
   canShareProperty?(property: ModelProperty): boolean;
 }
 
+/**
+ * Creates a program-bound view of payload transformations, property inclusion, and optionality.
+ * Results are memoized by type and visibility. By default, transformations are compared
+ * against {@link Visibility.All}; the supplied options can select a different canonical shape.
+ */
 export function createMetadataInfo(program: Program, options?: MetadataInfoOptions): MetadataInfo {
   const canonicalVisibility = options?.canonicalVisibility ?? Visibility.All;
   const enum State {

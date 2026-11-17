@@ -31,10 +31,18 @@ export interface HttpOperationKit {
    */
   flattenResponses(op: HttpOperation): FlatHttpResponse[];
   /**
-   * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
+   * Builds the effective payload return type, combining alternatives into a union.
+   * Responses whose source models are marked `@error` are excluded by default.
+   * An absent body contributes `void`; no retained responses also produces `void`.
    * @param op operation to get the return type for
    */
-  getReturnType(op: HttpOperation, options?: { includeErrors?: boolean }): Type;
+  getReturnType(
+    op: HttpOperation,
+    options?: {
+      /** Include responses classified as errors by their source model's `@error` annotation. Defaults to false. */
+      includeErrors?: boolean;
+    },
+  ): Type;
 }
 
 /**

@@ -6,7 +6,7 @@ import { isArray } from "../utils/misc.js";
 import { resolveVirtualPath } from "./test-utils.js";
 
 /**
- * Assert there is no diagnostics.
+ * Assert that the collection contains neither warnings nor errors.
  * @param diagnostics Diagnostics
  */
 export function expectDiagnosticEmpty(diagnostics: readonly Diagnostic[]) {
@@ -19,43 +19,49 @@ function formatDiagnostics(diagnostics: readonly Diagnostic[]) {
   return diagnostics.map((x) => formatDiagnostic(x)).join("\n");
 }
 /**
- * Condition to match
+ * Partial expectations for one diagnostic. Omitted fields are not checked.
  */
 export interface DiagnosticMatch {
   /**
-   * Match the code.
+   * Exact diagnostic code, including the library prefix for library diagnostics.
    */
   code?: string;
 
   /**
-   * Match the message.
+   * Exact message text, or a regular expression tested against the message.
    */
   message?: string | RegExp;
 
   /**
-   * Match the severity.
+   * Required severity; omitted to accept either warnings or errors.
    */
   severity?: "error" | "warning";
 
   /**
-   * Name of the file for this diagnostic.
+   * Source path, resolved against the virtual test root for strings, or matched as a full path by a regular expression.
    */
   file?: string | RegExp;
 
   /**
-   * Start position of the diagnostic
+   * Zero-based UTF-16 start offset in the diagnostic's full source file, including generated test prefixes.
    */
   pos?: number;
 
   /**
-   * End position of the diagnostic
+   * Exclusive UTF-16 end offset in the diagnostic's full source file.
    */
   end?: number;
 }
 
 /**
- * Validate the diagnostic array contains exactly the given diagnostics.
- * @param diagnostics Array of the diagnostics
+ * Match diagnostics by index, checking only the specified fields of each expectation.
+ * Strict mode is enabled by default and also requires equal array lengths. With `strict: false`,
+ * extra diagnostics after the expected prefix are allowed; expectations are not searched for or reordered.
+ * File or offset expectations require the diagnostic to have a source target.
+ *
+ * @param diagnostics Diagnostics in reporting order.
+ * @param match A single expectation or an ordered array of expectations.
+ * @param options Controls whether extra diagnostics are rejected.
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],

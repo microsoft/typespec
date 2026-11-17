@@ -1,16 +1,26 @@
+/** An immutable numeric value that preserves precision beyond JavaScript's `number` range. */
 export interface Numeric {
   /**
-   * Return the value as JavaScript number or null if it cannot be represented without loosing precision.
+   * Convert to a JavaScript number, returning null when a finite conversion loses precision.
+   * Throws on overflow to infinity. Use {@link Numeric.toString} to retain the precise value without conversion.
    */
   asNumber(): number | null;
+  /** Convert an integer to a signed bigint, or return null for a fractional value. */
   asBigInt(): bigint | null;
+  /** Format a base-10 value without exponential notation. */
   toString(): string;
+  /** Compare normalized digits and exponent; unlike ordering comparisons, this does not compare signs. */
   equals(value: Numeric): boolean;
+  /** Test strict greater-than ordering without converting to a JavaScript number. */
   gt(value: Numeric): boolean;
+  /** Test strict less-than ordering without converting to a JavaScript number. */
   lt(value: Numeric): boolean;
+  /** Test greater-than-or-equal ordering without converting to a JavaScript number. */
   gte(value: Numeric): boolean;
+  /** Test less-than-or-equal ordering without converting to a JavaScript number. */
   lte(value: Numeric): boolean;
 
+  /** Whether the value has no fractional component, regardless of its source notation. */
   readonly isInteger: boolean;
 
   /** @internal */

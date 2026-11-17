@@ -643,10 +643,18 @@ extern dec example(
  * Operation example configuration.
  */
 model OperationExample {
-  /** Example request body. */
+  /**
+   * Example argument values keyed by operation parameter name.
+   * The object must match the operation's full parameter model. For HTTP operations,
+   * this includes required path, query, and header parameters as well as body parameters.
+   */
   parameters?: unknown;
 
-  /** Example response body. */
+  /**
+   * Example value matching the operation's full return type.
+   * This is not limited to an HTTP response body: required response metadata
+   * properties must also be present.
+   */
   returnType?: unknown;
 }
 
@@ -659,7 +667,12 @@ model OperationExample {
  * @example
  *
  * ```tsp
- * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * model Pet { name: string; age: int32; }
+ *
+ * @opExample(#{
+ *   parameters: #{pet: #{name: "Fluffy", age: 2}},
+ *   returnType: #{name: "Fluffy", age: 2}
+ * })
  * op createPet(pet: Pet): Pet;
  * ```
  */

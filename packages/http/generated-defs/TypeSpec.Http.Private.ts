@@ -7,11 +7,23 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+/**
+ * Options for configuring an individual part of a multipart payload.
+ */
 export interface HttpPartOptions {
+  /**
+   * Name of the part when using the array form.
+   */
   readonly name?: string;
 }
 
+/**
+ * Options for the `@applyMergePatch` decorator.
+ */
 export interface ApplyMergePatchOptions {
+  /**
+   * The visibility mode to use.
+   */
   readonly visibilityMode: unknown;
 }
 

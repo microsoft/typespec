@@ -110,6 +110,11 @@ export class ModelHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /**
+   * Resolves effective models and redirects non-base references to polymorphic
+   * models into synthetic unions. Otherwise returns the model's option-based
+   * cache key, polymorphism metadata, and synthetic trait without selecting a codec.
+   */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: Model,
@@ -153,6 +158,11 @@ export class ModelHttpCanonicalization
     };
   }
 
+  /**
+   * Initializes the model's language and wire nodes from resolved factory metadata.
+   * Use the engine's `canonicalize` method to also traverse properties, bases, and
+   * indexers and to apply effective-model or polymorphic substitutions.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: Model,
@@ -187,6 +197,11 @@ export class ModelHttpCanonicalization
     );
   }
 
+  /**
+   * Populates connected projections, applying visibility through child properties.
+   * Friendly names apply to both projections; otherwise changed named models gain
+   * visibility suffixes and, for merge-patch content, a `MergePatch` suffix.
+   */
   mutate() {
     if (this.isPolymorphicModel) {
       this.polymorphicModelUnion = this.engine.canonicalize(

@@ -1,7 +1,15 @@
 import type { EmitterOptions, TypeSpecConfig } from "../config/types.js";
-import type { LinterRuleSet, ParseOptions } from "./types.js";
+import type {
+  LinterRuleEnableValue,
+  LinterRuleSet,
+  ParseOptions,
+  RuleRef,
+  RuleSetRef,
+} from "./types.js";
 
+/** Configuration for a compilation, including source loading, diagnostics, linting, and emission. */
 export interface CompilerOptions {
+  /** Additional options made available to compiler integrations through program option lookup. */
   miscOptions?: Record<string, unknown>;
   /**
    * Default output directory used by emitters.
@@ -26,8 +34,8 @@ export interface CompilerOptions {
   listFiles?: boolean;
 
   /**
-   * Emitter options.
-   * Key value pair where the key must be the emitter name.
+   * Emitter-specific settings keyed by the resolved library metadata name.
+   * Use the original emitter specifier only when no metadata name is available.
    */
   options?: Record<string, EmitterOptions>;
 
@@ -36,6 +44,7 @@ export interface CompilerOptions {
    */
   ignoreDeprecated?: boolean;
 
+  /** Skip loading the compiler's standard TypeSpec library. */
   nostdlib?: boolean;
 
   /**
@@ -49,7 +58,9 @@ export interface CompilerOptions {
    * Only runs emitters supporting this functionality
    */
   dryRun?: boolean;
+  /** Import these modules in addition to imports declared by the entry-point source. */
   additionalImports?: string[];
+  /** Promote unsuppressed warnings to errors, causing the compilation to fail. */
   warningAsError?: boolean;
 
   /**
@@ -63,10 +74,29 @@ export interface CompilerOptions {
    */
   trace?: string[];
 
+  /** Parser settings applied when loading TypeSpec source files. */
   parseOptions?: ParseOptions;
 
   /** Ruleset to enable for linting. */
   linterRuleSet?: LinterRuleSet;
+
+  /**
+   * CLI ruleset selection and per-rule overrides taking precedence over configuration.
+   *
+   * @internal
+   */
+  linterRuleSetOverrides?: {
+    /**
+     * Replacement ruleset extensions. When undefined, preserve the configured extensions.
+     * CLI `file:` references have already been resolved to absolute paths.
+     */
+    extends?: RuleSetRef[];
+    /**
+     * Rule reference and boolean or options-object pairs, in CLI order.
+     * The last entry for a canonical rule overrides its inherited and configured settings.
+     */
+    rules: [RuleRef, LinterRuleEnableValue][];
+  };
 
   /** @internal */
   readonly configFile?: TypeSpecConfig;

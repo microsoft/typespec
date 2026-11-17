@@ -50,13 +50,18 @@ function resolveType(mutation: {
  * GraphQL-specific Union mutation.
  *
  * Output context: flattens nested unions, deduplicates, wraps scalar variants.
- * Input context: replaces with @oneOf input object (GraphQL unions are output-only).
+ * Input context: replaces with a `@oneOf` input object (GraphQL unions are output-only).
  */
 export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, MutationEngine<any>> {
   #mutationNode: UnionMutationNode;
   #wrapperModels: Model[] = [];
   #flattenedUnion: Union | null = null;
 
+  /**
+   * Binds the union transformation to the engine's node for the supplied cache
+   * identity. Prefer `GraphQLMutationEngine.mutateUnion` to select the
+   * input/output context and reuse cached results.
+   */
   constructor(
     engine: MutationEngine<any>,
     sourceType: Union,
@@ -76,10 +81,16 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     return this.options instanceof GraphQLMutationOptions ? this.options.typeContext : undefined;
   }
 
+  /** Original union node, which records any replacement by an input model or collapsed variant. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /**
+   * Resolved result, preferring a node replacement or synthesized flattened union.
+   * Input unions normally become oneOf models; nullable or single-variant unions
+   * can instead resolve to their mutated inner type.
+   */
   get mutatedType(): Union | Model {
     // In input context, the union node is replaced with a @oneOf Model
     if (this.#mutationNode.isReplaced && this.#mutationNode.replacementNode) {
@@ -104,6 +115,11 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     });
   }
 
+  /**
+   * Resolves `T | null` to its inner type; otherwise flattens and deduplicates
+   * variants, wrapping output scalars in objects or building a oneOf input model.
+   * Invoked by the mutation engine.
+   */
   mutate() {
     // T | null is not a real union — replace with the inner type.
     // Don't mark the replacement as nullable here; it's a shared singleton.

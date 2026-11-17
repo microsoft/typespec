@@ -12,7 +12,9 @@ import type { MarkdownDoc, MarkdownSection } from "../utils/markdown.js";
 import { codeblock, inlinecode, renderMarkdowDoc, section } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
+/** Controls Starlight page front matter and the placement of generated rule pages and links. */
 export interface RenderToStarlightMarkdownOptions {
+  /** Add `llmstxt: true` to declaration-page front matter, including sub-export pages; defaults to false. */
   llmstxt?: boolean;
   /**
    * Relative directory (from the output dir) where the per-rule reference pages are written.
@@ -23,7 +25,11 @@ export interface RenderToStarlightMarkdownOptions {
 }
 
 /**
- * Render doc to a markdown using docusaurus addons.
+ * Builds a filename-to-content map for Astro Starlight without writing files.
+ * Always includes `index.mdx` and conditionally adds declaration, emitter, and linter pages.
+ * Generates per-rule pages, diagnostic pages only for diagnostics with documentation, and
+ * declaration pages under each TypeSpec sub-export's path with its leading `./` removed.
+ * Rule filenames may escape the output directory when `rulesDir` contains `..`.
  */
 export function renderToAstroStarlightMarkdown(
   refDoc: TypeSpecRefDoc,
@@ -123,11 +129,15 @@ function renderIndexFile(renderer: StarlightRenderer, refDoc: TypeSpecLibraryRef
   return renderMarkdowDoc(content, 2);
 }
 
+/** Front matter customization for a standalone Starlight decorator page. */
 export type DecoratorRenderOptions = {
+  /** Page title; defaults to `"Decorators"`. */
   title?: string;
+  /** Add `llmstxt: true` to this page's front matter; defaults to false. */
   llmstxt?: boolean;
 };
 
+/** Renders a decorator page with Starlight front matter, or undefined when there are no decorators. */
 export function renderDecoratorFile(
   renderer: StarlightRenderer,
   refDoc: TypeSpecRefDoc,
@@ -204,11 +214,18 @@ function renderInterfacesFile(
   return renderMarkdowDoc(content, 2);
 }
 
+/** Front matter customization for the combined Starlight data-type page. */
 export type DataTypeRenderOptions = {
+  /** Page title; defaults to `"Data types"`. */
   title?: string;
+  /** Add `llmstxt: true` to this page's front matter; defaults to false. */
   llmstxt?: boolean;
 };
 
+/**
+ * Renders models, enums, unions, and scalars grouped by namespace.
+ * Returns undefined unless at least one namespace contains a model, even if other data types exist.
+ */
 export function renderDataTypes(
   renderer: StarlightRenderer,
   refDoc: TypeSpecRefDoc,
@@ -431,21 +448,26 @@ function renderSubExport(
   return files;
 }
 
+/** Markdown renderer with explicit anchors, Starlight install tabs, and caution admonitions. */
 export class StarlightRenderer extends MarkdownRenderer {
   #rulesDir: string;
+  /** Uses the library's type lookup and the configured rule directory, defaulting to `"rules"`. */
   constructor(refDoc: TypeSpecRefDoc, options: RenderToStarlightMarkdownOptions = {}) {
     super(refDoc);
     this.#rulesDir = options.rulesDir ?? "rules";
   }
+  /** Adds an explicit `{#id}` anchor after the inline-code display name. */
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
   }
+  /** Uses the qualified reference ID verbatim, matching the explicit heading anchor. */
   anchorId(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return item.id;
   }
 
+  /** Builds spec/library npm-install tabs; the containing page must import Starlight tab components. */
   install(refDoc: TypeSpecLibraryRefDoc): MarkdownSection {
     return section(
       "Install",
@@ -462,6 +484,10 @@ export class StarlightRenderer extends MarkdownRenderer {
     );
   }
 
+  /**
+   * Routes decorators, operations/interfaces, and models/enums/unions to their shared Markdown pages.
+   * Other entity kinds, including scalars, retain a same-page link with an empty file component.
+   */
   filename(type: RefDocEntity): string {
     switch (type.kind) {
       case "decorator":
@@ -478,11 +504,13 @@ export class StarlightRenderer extends MarkdownRenderer {
     }
   }
 
+  /** Targets the configured rule directory, adding `./` unless its path already begins with a dot. */
   linterRuleLink(rule: LinterRuleRefDoc) {
     const prefix = this.#rulesDir.startsWith(".") ? this.#rulesDir : `./${this.#rulesDir}`;
     return `${prefix}/${rule.rule.name}.md`;
   }
 
+  /** Formats the message as a Starlight caution admonition. */
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
     return [":::caution", `**Deprecated**: ${notice.message}`, ":::"];
   }

@@ -196,6 +196,17 @@ function getEventDefinition(
   return diagnostics.wrap(eventDefinition);
 }
 
+/**
+ * Resolves one event definition per union variant, preserving variant order.
+ *
+ * A property marked with `@data` supplies a separate payload. Without one, the
+ * variant's type and content type describe both the event and its payload.
+ * Content types are read from `@contentType`; no protocol defaults are inferred.
+ *
+ * @param target Union whose variants describe events; it need not be marked with `@events`.
+ * @returns The event definitions and collected diagnostics for invalid payload paths
+ * or content-type annotations. Diagnostics are returned, not reported to the program.
+ */
 export function getEventDefinitions(
   program: Program,
   target: Union,

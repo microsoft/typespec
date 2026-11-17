@@ -12,11 +12,17 @@ import { applyTypeNamePipeline } from "../../lib/naming.js";
 import type { GraphQLEnumMemberMutation } from "./enum-member.js";
 
 /**
- * GraphQL-specific Enum mutation.
+ * Normalizes a GraphQL enum's type name and value names while keeping graph
+ * connections synchronized with renamed members.
  */
 export class GraphQLEnumMutation extends EnumMutation<MutationOptions, any, MutationEngine<any>> {
   #mutationNode: EnumMutationNode;
 
+  /**
+   * Binds the enum transformation to the engine's node for the supplied cache
+   * identity. Prefer `GraphQLMutationEngine.mutateEnum` to create or reuse
+   * the mutation and process its members.
+   */
   constructor(
     engine: MutationEngine<any>,
     sourceType: Enum,
@@ -31,10 +37,12 @@ export class GraphQLEnumMutation extends EnumMutation<MutationOptions, any, Muta
     }) as EnumMutationNode;
   }
 
+  /** Graph node tracking the enum result and its connections to member mutations. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Enum held by the mutation node, with transformed names after mutation completes. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
@@ -61,6 +69,11 @@ export class GraphQLEnumMutation extends EnumMutation<MutationOptions, any, Muta
     }
   }
 
+  /**
+   * Normalizes the enum type name and mutates its members with bidirectional
+   * edges so renamed values remain addressable in the resulting enum.
+   * Invoked by the mutation engine.
+   */
   mutate() {
     this.#mutationNode.mutate((enumType) => {
       enumType.name = applyTypeNamePipeline(enumType.name, {

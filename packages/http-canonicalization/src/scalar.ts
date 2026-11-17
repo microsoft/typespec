@@ -64,6 +64,11 @@ export class ScalarHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /**
+   * Selects a scalar codec using use-site metadata and appends its ID to the
+   * option-based cache key so differently encoded references can remain distinct.
+   * Throws if the registry has no applicable codec.
+   */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: Scalar,
@@ -86,6 +91,11 @@ export class ScalarHttpCanonicalization
     };
   }
 
+  /**
+   * Initializes projection nodes from factory metadata containing `encodingInfo`.
+   * Use the engine's `canonicalize` method to select that metadata and apply the
+   * codec's language and wire replacements.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: Scalar,

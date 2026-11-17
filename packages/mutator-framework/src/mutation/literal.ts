@@ -2,6 +2,7 @@ import type { BooleanLiteral, MemberType, NumericLiteral, StringLiteral } from "
 import type { CustomMutationClasses, MutationEngine, MutationOptions } from "./mutation-engine.js";
 import { Mutation, type MutationInfo } from "./mutation.js";
 
+/** Leaf strategy shared by string, numeric, and boolean literals. */
 export class LiteralMutation<
   TOptions extends MutationOptions,
   TCustomMutations extends CustomMutationClasses,
@@ -12,8 +13,10 @@ export class LiteralMutation<
   TOptions,
   TEngine
 > {
+  /** Groups literal strategies regardless of the source's primitive literal kind. */
   readonly kind = "Literal";
 
+  /** Initializes a literal strategy without constructing a mutation node. */
   constructor(
     engine: TEngine,
     sourceType: StringLiteral | NumericLiteral | BooleanLiteral,
@@ -24,6 +27,7 @@ export class LiteralMutation<
     super(engine, sourceType, referenceTypes, options, info);
   }
 
+  /** Performs no traversal or transformation by default; literals have no child strategies. */
   mutate() {
     // No mutations needed for literal types
   }

@@ -6,6 +6,7 @@ import { useTsp } from "../../../core/context/tsp-context.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
+/** Ordered base-list inputs: explicit bases, extra/type-derived bases, then ABC when abstract. */
 export interface ClassBasesProps {
   /**
    * The TypeSpec type to derive bases from. If not provided, only explicit bases are used.

@@ -4,7 +4,10 @@ import {
   type TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
 
-/** @deprecated Use `createTester` from `@typespec/compiler/testing` instead */
+/**
+ * Registers this package's TypeSpec and JavaScript files with the legacy test host.
+ * @deprecated Use `createTester` from `@typespec/compiler/testing` instead
+ */
 /* eslint-disable @typescript-eslint/no-deprecated */
 export const VersioningTestLibrary: TypeSpecTestLibrary = createTestLibrary({
   name: "@typespec/versioning",

@@ -6,12 +6,12 @@ package com.microsoft.typespec.http.client.generator.fluent;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TypeSpecFluentNamer extends FluentNamer {
     private final Map<String, Object> settingsMap;
@@ -26,13 +26,8 @@ public class TypeSpecFluentNamer extends FluentNamer {
 
     @Override
     protected CodeModel getCodeModelAndWriteToTargetFolder(Path codeModelFolder) {
-        // todo(xiaofei) remove below line after fixing mix usage of CodeModel.getOperationGroups() and
-        // CodeModel.getClients().getOperationGroups()
-        // add client's operation groups to root operation group
-        codeModel.setOperationGroups(codeModel.getClients()
-            .stream()
-            .flatMap(client -> client.getOperationGroups().stream())
-            .collect(Collectors.toList()));
+        // Legacy management transformers still read the root operation groups.
+        codeModel.setOperationGroups(ClientModelUtil.getAllOperationGroups(codeModel));
         return this.codeModel;
     }
 

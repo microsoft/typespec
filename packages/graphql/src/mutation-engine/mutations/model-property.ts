@@ -10,8 +10,13 @@ import { setNullable, setNullableElements } from "../../../generated-defs/TypeSp
 import { applyFieldNamePipeline } from "../../lib/naming.js";
 import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 
-/** GraphQL-specific ModelProperty mutation. */
+/** Transforms a model field's GraphQL name, referenced type, and nullability metadata. */
 export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<SimpleMutationOptions> {
+  /**
+   * Initializes a field mutation and installs name normalization before graph
+   * connections can trigger it. The engine supplies references and cache identity
+   * when visiting the containing model or operation parameters.
+   */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<SimpleMutationOptions>>,
     sourceType: ModelProperty,
@@ -28,6 +33,11 @@ export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<Si
     });
   }
 
+  /**
+   * Mutates the field and its type while recording inline union and array-element
+   * nullability on the field, rather than on a potentially shared inner type.
+   * Invoked by the mutation engine while processing the containing model.
+   */
   mutate() {
     const program = this.engine.$.program;
 

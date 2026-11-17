@@ -13,7 +13,7 @@ export interface FileTreeExplorerProps {
 
 interface FileTreeNode extends TreeNode {
   readonly isDirectory: boolean;
-  readonly changed?: boolean;
+  changed?: boolean;
 }
 
 const FileNodeIcon: FC<{ node: FileTreeNode }> = ({ node }) => {
@@ -84,7 +84,7 @@ function buildTree(files: string[], changedFiles?: Set<string>): FileTreeNode {
   }
 
   // Sort children: directories first, then files, alphabetically within each group
-  function sortChildren(node: FileTreeNode) {
+  function finalizeTree(node: FileTreeNode) {
     if (node.children) {
       (node.children as FileTreeNode[]).sort((a, b) => {
         if (a.isDirectory !== b.isDirectory) {
@@ -93,11 +93,14 @@ function buildTree(files: string[], changedFiles?: Set<string>): FileTreeNode {
         return String(a.name).localeCompare(String(b.name));
       });
       for (const child of node.children as FileTreeNode[]) {
-        sortChildren(child);
+        finalizeTree(child);
+      }
+      if (node.isDirectory) {
+        node.changed = (node.children as FileTreeNode[]).some((child) => child.changed);
       }
     }
   }
-  sortChildren(root);
+  finalizeTree(root);
 
   return root;
 }

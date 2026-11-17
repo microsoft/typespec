@@ -1,0 +1,945 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package com.microsoft.typespec.http.client.generator.core.model.javamodel;
+
+import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
+import com.azure.core.util.BinaryData;
+import com.azure.core.util.CloseableIterableStream;
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BooleanSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DurationSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.NumberSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseSchemaMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import javax.tools.ToolProvider;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import reactor.core.publisher.Flux;
+
+@Isolated
+public class JavaPackageSseTests {
+    @AfterEach
+    public void restoreSettings() {
+        new MockUnitJavagen();
+        ClientModels.getInstance().clear();
+        JavaSettings.clear();
+    }
+
+    @Test
+    public void preservesEofOnlyRuntimeOverloads() throws IOException {
+        String helper = readResource("ServerSentEventStreamHelper.java");
+        String response = readResource("ServerSentEventStreamResponse.java");
+
+        Assertions.assertTrue(helper.contains("public final class ServerSentEventStreamHelper"));
+        Assertions.assertTrue(helper.contains(
+            "private static final ClientLogger LOGGER = new ClientLogger(ServerSentEventStreamHelper.class)"));
+        Assertions.assertTrue(helper.contains("throw LOGGER.logExceptionAsError(new NoSuchElementException());"));
+        Assertions.assertTrue(response.contains("static void cancelBody(BinaryData body)"));
+        Assertions.assertFalse(response.contains("private static void cancelBody(BinaryData body)"));
+        Assertions.assertTrue(helper.contains("public static <T> Flux<T> toFlux(Response<BinaryData> response,"));
+        Assertions.assertTrue(helper
+            .contains("public static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,"));
+        Assertions.assertTrue(helper
+            .contains("<p>HTTP 204 and response-body EOF complete normally without requiring a terminal event.</p>"));
+        Assertions.assertTrue(helper.contains(
+            "toIterableStream(Response<BinaryData> response,\n        BiFunction<String, String, T> converter)"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 200, 201, 202 })
+    public void validatesContentTypeWithQuotedParameters(int statusCode, @TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        javaPackage.addJavaFromResources("com.azure.mock.sseruntime", "ServerSentEventStreamHelper");
+        javaPackage.addJavaFromResources("com.azure.mock.sseruntime", "ServerSentEventStreamResponse");
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> helper = loader.loadClass("com.azure.mock.sseruntime.ServerSentEventStreamHelper");
+            Method toFlux = helper.getMethod("toFlux", Response.class, BiFunction.class);
+            Method toIterableStream = helper.getMethod("toIterableStream", Response.class, BiFunction.class);
+            BiFunction<String, String, String> converter = (name, data) -> name + ":" + data;
+            String content = "event: message\ndata: accepted\n\n";
+
+            for (String contentType : List.of("text/event-stream", " Text/Event-Stream ; charset=utf-8",
+                "text/event-stream; profile=\"a,b\"", "text/event-stream; profile=\"a\\\",b\"",
+                "text/event-stream; profile=\"a\\\\,b\"; charset=utf-8")) {
+                HttpHeaders headers = new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                Response<BinaryData> response
+                    = new SimpleResponse<>(null, statusCode, headers, BinaryData.fromString(content));
+                Flux<?> events = (Flux<?>) toFlux.invoke(null, response, converter);
+                Assertions.assertEquals(List.of("message:accepted"), events.collectList().block(Duration.ofSeconds(5)),
+                    contentType);
+
+                AtomicBoolean closed = new AtomicBoolean();
+                ByteArrayInputStream input = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)) {
+                    @Override
+                    public void close() throws IOException {
+                        closed.set(true);
+                        super.close();
+                    }
+                };
+                response = new SimpleResponse<>(null, statusCode, headers, BinaryData.fromStream(input));
+                try (CloseableIterableStream<?> iterable
+                    = (CloseableIterableStream<?>) toIterableStream.invoke(null, response, converter)) {
+                    Assertions.assertFalse(closed.get(), contentType);
+                    List<Object> values = new ArrayList<>();
+                    iterable.forEach(values::add);
+                    Assertions.assertEquals(List.of("message:accepted"), values, contentType);
+                }
+                Assertions.assertTrue(closed.get(), contentType);
+            }
+
+            for (String contentType : Arrays.asList(null, "application/json", "text/event-stream, application/json",
+                "text/event-stream, text/event-stream", "text/event-stream; profile=\"a,b\", application/json",
+                "text/event-stream; profile=\"a\\\",b\", text/event-stream",
+                "text/event-stream; profile=\"a\\\\\", text/event-stream", "text/event-stream; profile=\"a,b")) {
+                HttpHeaders headers = new HttpHeaders();
+                if (contentType != null) {
+                    headers.set(HttpHeaderName.CONTENT_TYPE, contentType);
+                }
+                AtomicBoolean cancelled = new AtomicBoolean();
+                BinaryData body = BinaryData
+                    .fromFlux(Flux.<java.nio.ByteBuffer>never().doOnCancel(() -> cancelled.set(true)), null, false)
+                    .block();
+                Response<BinaryData> response = new SimpleResponse<>(null, statusCode, headers, body);
+                Flux<?> events = (Flux<?>) toFlux.invoke(null, response, converter);
+                IllegalStateException validationFailure = Assertions.assertThrows(IllegalStateException.class,
+                    () -> events.collectList().block(Duration.ofSeconds(5)), contentType);
+                Assertions.assertTrue(validationFailure.getMessage().contains("Content-Type"), contentType);
+                Assertions.assertTrue(cancelled.get(), contentType);
+
+                AtomicBoolean closed = new AtomicBoolean();
+                ByteArrayInputStream input = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)) {
+                    @Override
+                    public void close() throws IOException {
+                        closed.set(true);
+                        super.close();
+                    }
+                };
+                Response<BinaryData> syncResponse
+                    = new SimpleResponse<>(null, statusCode, headers, BinaryData.fromStream(input));
+                InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
+                    () -> toIterableStream.invoke(null, syncResponse, converter), contentType);
+                Assertions.assertInstanceOf(IllegalStateException.class, exception.getCause(), contentType);
+                Assertions.assertTrue(closed.get(), contentType);
+            }
+
+            Response<BinaryData> missingBody = new SimpleResponse<>(null, statusCode,
+                new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, "text/event-stream"), null);
+            Flux<?> events = (Flux<?>) toFlux.invoke(null, missingBody, converter);
+            Assertions.assertThrows(NullPointerException.class,
+                () -> events.collectList().block(Duration.ofSeconds(5)));
+            InvocationTargetException failure = Assertions.assertThrows(InvocationTargetException.class,
+                () -> toIterableStream.invoke(null, missingBody, converter));
+            Assertions.assertInstanceOf(NullPointerException.class, failure.getCause());
+        }
+    }
+
+    @Test
+    public void includesGeneratedDisclaimerInSseRuntimeFiles() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+
+        javaPackage.addJavaFromResources("com.azure.mock.sse", "ServerSentEventStreamHelper");
+
+        String source = javaPackage.getJavaFiles().get(0).getContents().toString();
+        Assertions.assertTrue(source.contains("Code generated by Microsoft"));
+    }
+
+    @Test
+    public void routesSseModelsThroughBothSerializationTemplatePaths() {
+        for (boolean streamStyle : List.of(false, true)) {
+            JavaSettings.clear();
+            ClientModels.getInstance().clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                    if ("stream-style-serialization".equals(key)) {
+                        return (T) Boolean.valueOf(streamStyle);
+                    }
+                    return super.getValue(key, converter);
+                }
+            });
+
+            addMappedSseFamily(javaPackage, metadata());
+
+            String modelSources = javaPackage.getJavaFiles()
+                .stream()
+                .limit(2)
+                .map(file -> file.getContents().toString())
+                .collect(Collectors.joining());
+            Assertions.assertTrue(modelSources.contains("public abstract class RetrievalStreamEvent"), modelSources);
+            Assertions.assertTrue(modelSources.contains("public final class RetrievalStartedStreamEvent"),
+                modelSources);
+            Assertions.assertFalse(modelSources.contains("toJson("), modelSources);
+            Assertions.assertFalse(modelSources.contains("fromJson("), modelSources);
+        }
+    }
+
+    @Test
+    public void usesUniformValueAccessorForBooleanPayloads(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        BooleanSchema payload = new BooleanSchema();
+        payload.setType(Schema.AllSchemaTypes.BOOLEAN);
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("enabled", payload)));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
+        Assertions.assertTrue(wrapperSource.contains("public boolean getValue()"), wrapperSource);
+        Assertions.assertFalse(wrapperSource.contains("boolean isValue()"), wrapperSource);
+
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Method deserialize = loader.loadClass("com.azure.mock.implementation.RetrievalStreamEventSerializer")
+                .getMethod("deserialize", String.class, String.class);
+            Object envelope = deserialize.invoke(null, "enabled", "true");
+            Assertions.assertEquals(true, envelope.getClass().getMethod("getValue").invoke(envelope));
+            Assertions.assertThrows(NoSuchMethodException.class, () -> envelope.getClass().getMethod("isValue"));
+        }
+    }
+
+    @Test
+    public void placesSseFilesUsingSemanticNamespaces() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setStreamName("KnowledgeBaseRetrievalStreamEvents");
+        configureSchemas(metadata, "KnowledgeBaseRetrievalStreamEvents", "com.azure.search.documents.knowledgebases");
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        Assertions.assertEquals(List.of(
+            "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStreamEvent.java",
+            "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStartedStreamEvent.java",
+            "src/main/java/com/azure/search/documents/knowledgebases/implementation/KnowledgeBaseRetrievalStreamEventSerializer.java"),
+            javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath).collect(Collectors.toList()));
+        String baseEventSource = javaPackage.getJavaFiles().get(0).getContents().toString();
+        String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
+        String serializerSource = javaPackage.getJavaFiles().get(2).getContents().toString();
+        Assertions.assertTrue(baseEventSource.contains("Code generated by Microsoft"));
+        Assertions.assertTrue(wrapperSource.contains("Code generated by Microsoft"));
+        Assertions.assertTrue(serializerSource.contains("Code generated by Microsoft"));
+        Assertions.assertTrue(baseEventSource.contains("import com.azure.core.annotation.Generated;"));
+        Assertions.assertTrue(baseEventSource.contains("@Generated\n    private final String eventName;"));
+        Assertions.assertTrue(wrapperSource.contains("import com.azure.core.annotation.Generated;"));
+        Assertions.assertTrue(wrapperSource.contains("import com.azure.core.annotation.Immutable;"));
+        Assertions.assertTrue(wrapperSource.contains("@Immutable\npublic final class"));
+        Assertions.assertTrue(wrapperSource.contains("@Generated\n    private final String value;"));
+        Assertions.assertTrue(
+            baseEventSource.contains("KnowledgeBaseRetrievalStreamEventSerializer.setConstructorAccessor("));
+        Assertions.assertTrue(serializerSource.contains("public interface SseEventConstructorAccessor"));
+        Assertions.assertTrue(serializerSource
+            .contains("public static KnowledgeBaseRetrievalStreamEvent deserialize(String eventName, String data)"));
+        Assertions.assertTrue(serializerSource
+            .contains("accessor.createRetrievalStarted(read(eventName, data, reader -> reader.getString()))"));
+        Assertions.assertTrue(serializerSource.contains("JsonProviders.createReader(data)"));
+        Assertions.assertTrue(serializerSource.contains("reader.nextToken();"));
+        Assertions.assertFalse(serializerSource.contains("BinaryData.fromString"));
+        Assertions.assertFalse(serializerSource.contains("public static boolean isTerminal"));
+        Assertions.assertTrue(baseEventSource.contains(
+            "import com.azure.search.documents.knowledgebases.implementation.KnowledgeBaseRetrievalStreamEventSerializer;"));
+    }
+
+    @Test
+    public void preservesSemanticSerializerNamespacesWithCustomModelPackages() {
+        for (String namespace : List.of("com.azure.mock", "com.contoso.models.knowledgebases", "")) {
+            for (String modelsSubpackage : List.of("models", "shapes.events", "")) {
+                for (boolean internal : List.of(false, true)) {
+                    JavaSettings.clear();
+                    ClientModels.getInstance().clear();
+                    MockUnitJavagen host = new MockUnitJavagen() {
+                        @Override
+                        @SuppressWarnings("unchecked")
+                        public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                            if ("models-subpackage".equals(key)) {
+                                return (T) modelsSubpackage;
+                            } else if ("implementation-subpackage".equals(key)) {
+                                return (T) "hidden";
+                            } else if ("data-plane".equals(key)) {
+                                return (T) Boolean.TRUE;
+                            }
+                            return super.getValue(key, converter);
+                        }
+                    };
+                    SseMetadata metadata = metadata();
+                    configureSchemas(metadata, metadata.getStreamName(), namespace);
+                    prepareSseFamily(metadata);
+                    if (internal) {
+                        metadata.getBaseSchema()
+                            .setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.INTERNAL, SchemaContext.SSE));
+                        metadata.getEvents()
+                            .forEach(event -> event.getEventSchema()
+                                .setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.INTERNAL, SchemaContext.SSE)));
+                    }
+                    ClientModel model = ModelMapper.getInstance().map(metadata.getBaseSchema());
+                    String semanticNamespace = namespace.isEmpty() ? "com.azure.mock" : namespace;
+                    Assertions.assertEquals(semanticNamespace + ".hidden",
+                        model.getSseMetadata().getSerializerType().getPackage());
+                    Assertions.assertEquals("com.azure.mock.hidden", SseUtil.getRuntimePackage());
+                    JavaPackage javaPackage = new JavaPackage(host);
+                    javaPackage.addSseEventSerializer(model);
+                    Assertions.assertEquals(
+                        "src/main/java/" + semanticNamespace.replace('.', '/')
+                            + "/hidden/RetrievalStreamEventSerializer.java",
+                        javaPackage.getJavaFiles().get(0).getFilePath());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void usesSuppliedAllocatedSchemaNamesInEveryGeneratedSurface() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        setSchemaName(metadata.getBaseSchema(), "RetrievalStreamEvent2");
+        SseEventMetadata event = metadata.getEvents().get(0);
+        setSchemaName(event.getEventSchema(), "RetrievalStartedStreamEvent3");
+        event.getEventSchema()
+            .getParents()
+            .getImmediate()
+            .stream()
+            .filter(ObjectSchema.class::isInstance)
+            .map(ObjectSchema.class::cast)
+            .forEach(parent -> setSchemaName(parent, "RetrievalStreamEvent2"));
+        event.getEventSchema()
+            .getParents()
+            .getAll()
+            .stream()
+            .filter(ObjectSchema.class::isInstance)
+            .map(ObjectSchema.class::cast)
+            .forEach(parent -> setSchemaName(parent, "RetrievalStreamEvent2"));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        Assertions.assertEquals(
+            List.of("src/main/java/com/azure/mock/models/RetrievalStreamEvent2.java",
+                "src/main/java/com/azure/mock/models/RetrievalStartedStreamEvent3.java",
+                "src/main/java/com/azure/mock/implementation/RetrievalStreamEvent2Serializer.java"),
+            javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath).collect(Collectors.toList()));
+        String baseSource = javaPackage.getJavaFiles().get(0).getContents().toString();
+        String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
+        String serializerSource = javaPackage.getJavaFiles().get(2).getContents().toString();
+        Assertions.assertTrue(baseSource.contains("RetrievalStreamEvent2Serializer.setConstructorAccessor("));
+        Assertions.assertTrue(baseSource.contains("public RetrievalStartedStreamEvent3 createRetrievalStarted("));
+        Assertions.assertTrue(
+            wrapperSource.contains("public final class RetrievalStartedStreamEvent3 extends RetrievalStreamEvent2"));
+        Assertions.assertTrue(serializerSource
+            .contains("public static RetrievalStreamEvent2 deserialize(String eventName, String data)"));
+        Assertions.assertTrue(serializerSource.contains("RetrievalStartedStreamEvent3 createRetrievalStarted("));
+    }
+
+    @Test
+    public void generatesShortStreamNamesWithNonemptyDescriptions(@TempDir Path tempDir) throws IOException {
+        for (String streamName : List.of("StreamEvents", "Stream")) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+            SseMetadata metadata = metadata();
+            metadata.setStreamName(streamName);
+            configureSchemas(metadata, streamName, "com.azure." + streamName.toLowerCase());
+
+            addMappedSseFamily(javaPackage, metadata);
+
+            List<Path> sources = new ArrayList<>();
+            for (JavaFile javaFile : javaPackage.getJavaFiles()) {
+                Path source = tempDir.resolve(streamName).resolve(javaFile.getFilePath());
+                Files.createDirectories(source.getParent());
+                Files.writeString(source, javaFile.getContents().toString());
+                sources.add(source);
+            }
+            Path classes = tempDir.resolve(streamName).resolve("classes");
+            Files.createDirectories(classes);
+            List<String> arguments = new ArrayList<>(
+                List.of("-classpath", System.getProperty("java.class.path"), "-d", classes.toString()));
+            arguments.addAll(sources.stream().map(Path::toString).collect(Collectors.toList()));
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+
+            Assertions.assertEquals(0,
+                ToolProvider.getSystemJavaCompiler()
+                    .run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+                diagnostics.toString(StandardCharsets.UTF_8));
+            Assertions.assertTrue(javaPackage.getJavaFiles()
+                .stream()
+                .map(javaFile -> javaFile.getContents().toString())
+                .collect(Collectors.joining())
+                .contains("Failed to initialize SSE stream event constructors."));
+        }
+    }
+
+    @Test
+    public void generatesRecursiveCollectionReadCallbacks() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("direct.map", dictionary(stringSchema())),
+            event("array.map", array(dictionary(stringSchema()))),
+            event("nested.map", dictionary(dictionary(array(stringSchema()))))));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        String serializerSource = javaPackage.getJavaFiles().get(4).getContents().toString();
+        Assertions.assertTrue(serializerSource.contains(
+            "accessor.createDirectMap(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.getString())))"));
+        Assertions.assertTrue(serializerSource.contains(
+            "accessor.createArrayMap(read(eventName, data, reader -> reader.readArray(reader1 -> reader1.readMap(reader2 -> reader2.getString()))))"));
+        Assertions.assertTrue(serializerSource.contains(
+            "accessor.createNestedMap(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.readMap(reader2 -> reader2.readArray(reader3 -> reader3.getString())))))"));
+    }
+
+    @Test
+    public void decodesTemporalWireTypesForScalarAndRecursiveCollectionPayloads() {
+        JavaSettings.clear();
+        DurationSchema seconds = new DurationSchema();
+        seconds.setType(Schema.AllSchemaTypes.DURATION);
+        seconds.setFormat(DurationSchema.Format.SECONDS_INTEGER);
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata
+            .setEvents(List.of(event("duration", seconds), event("nested", dictionary(array(dictionary(seconds))))));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(serializerSource.contains("public interface SseEventConstructorAccessor"),
+            serializerSource);
+        Assertions.assertFalse(serializerSource.contains("public interface ConstructorAccessor"), serializerSource);
+        Assertions.assertTrue(serializerSource.contains("import java.time.Duration;"));
+        Assertions.assertTrue(serializerSource.contains(
+            "accessor.createDuration(read(eventName, data, reader -> Duration.ofSeconds(reader.getLong())))"));
+        Assertions.assertTrue(serializerSource.contains(
+            "accessor.createNested(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.readArray(reader2 -> reader2.readMap(reader3 -> Duration.ofSeconds(reader3.getLong()))))))"));
+    }
+
+    @Test
+    public void importsDateTimeDeserializationDependenciesForScalarAndCollectionPayloads() {
+        JavaSettings.clear();
+        DateTimeSchema dateTime = new DateTimeSchema();
+        dateTime.setType(Schema.AllSchemaTypes.DATE_TIME);
+        for (Schema payload : List.of(dateTime, dictionary(array(dateTime)))) {
+            JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+            SseMetadata metadata = metadata();
+            metadata.setEvents(List.of(event("time", payload)));
+
+            addMappedSseFamily(javaPackage, metadata);
+
+            String serializerSource = javaPackage.getJavaFiles().get(2).getContents().toString();
+            Assertions.assertTrue(serializerSource.contains("import com.azure.core.util.CoreUtils;"));
+            Assertions
+                .assertTrue(serializerSource.contains("CoreUtils.parseBestOffsetDateTime(nonNullReader.getString())"));
+            if (payload instanceof DictionarySchema) {
+                Assertions
+                    .assertTrue(serializerSource.contains("reader -> reader.readMap(reader1 -> reader1.readArray("));
+            }
+        }
+    }
+
+    @Test
+    public void separatesUnknownEventFactoryFromNamedEventFactories() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("event", stringSchema()), event("unknownEvent", stringSchema())));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        String baseSource = javaPackage.getJavaFiles().get(0).getContents().toString();
+        String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(serializerSource.contains("RetrievalStreamEvent unknownEvent(String eventName)"));
+        Assertions.assertTrue(serializerSource.contains("RetrievalEventStreamEvent createEvent(String value)"));
+        Assertions.assertTrue(serializerSource.contains("accessor.createEvent(read(eventName, data,"));
+        Assertions.assertTrue(serializerSource.contains("accessor.unknownEvent(eventName)"));
+        Assertions.assertTrue(baseSource.contains("public RetrievalStreamEvent unknownEvent(String eventName)"));
+        Assertions.assertTrue(baseSource.contains("public RetrievalEventStreamEvent createEvent(String value)"));
+        Assertions.assertTrue(baseSource.contains("createUnknownEvent(String value)"));
+    }
+
+    @Test
+    public void rejectsOrdinaryModelCacheCollisionsBeforeMappingSseModels() {
+        for (String collidingClassName : List.of("RetrievalStreamEvent", "RetrievalStartedStreamEvent")) {
+            JavaSettings.clear();
+            ClientModels.getInstance().clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+            String packageName = "com.azure.mock.models";
+            ClientModel ordinaryModel = new ClientModel.Builder().name(collidingClassName)
+                .packageName(packageName)
+                .properties(List.of())
+                .build();
+            ClientModels.getInstance().addModel(ordinaryModel);
+            javaPackage.addModel(packageName, collidingClassName, ordinaryModel);
+
+            IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> addMappedSseFamily(javaPackage, metadata()));
+
+            Assertions.assertTrue(exception.getMessage().contains(collidingClassName));
+            Assertions.assertEquals(1, javaPackage.getJavaFiles().size());
+        }
+    }
+
+    @Test
+    public void rejectsSerializerSourceCollisionBeforeAddingSerializer() {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+        javaPackage.addModel("com.azure.mock.implementation", "RetrievalStreamEventSerializer",
+            new ClientModel.Builder().name("RetrievalStreamEventSerializer")
+                .packageName("com.azure.mock.implementation")
+                .properties(List.of())
+                .build());
+        SseMetadata metadata = metadata();
+        prepareSseFamily(metadata);
+        ClientModel baseModel = ModelMapper.getInstance().map(metadata.getBaseSchema());
+
+        IllegalStateException exception
+            = Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventSerializer(baseModel));
+
+        Assertions.assertTrue(exception.getMessage().contains("RetrievalStreamEventSerializer"));
+        Assertions.assertEquals(1, javaPackage.getJavaFiles().size());
+    }
+
+    @Test
+    public void rejectsCrossStreamCollisionsAtomically() {
+        for (List<String> streams : List.of(List.of("Foo_BarEvents", "FooBarEvents"),
+            List.of("BarEventFooStreamEvents", "BarEvents"), List.of("FooEvents", "FooEvents"))) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+            SseMetadata first = metadata();
+            first.setStreamName(streams.get(0));
+            first.setEvents(List.of(event("bar.started", stringSchema())));
+            configureSchemas(first, streams.get(0), "com.azure.mock");
+            SseMetadata second = metadata();
+            second.setStreamName(streams.get(1));
+            second.setEvents(List.of(event("foo", stringSchema())));
+            configureSchemas(second, streams.get(1), "com.azure.mock");
+            addMappedSseFamily(javaPackage, first);
+            int size = javaPackage.getJavaFiles().size();
+            Assertions.assertThrows(IllegalStateException.class, () -> addMappedSseFamily(javaPackage, second));
+            Assertions.assertEquals(size, javaPackage.getJavaFiles().size());
+        }
+    }
+
+    @Test
+    public void neverDeduplicatesIncompatibleNumericOrEncodedDefinitions() {
+        for (boolean encoded : List.of(false, true)) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+            NumberSchema int32 = new NumberSchema();
+            int32.setType(Schema.AllSchemaTypes.INTEGER);
+            int32.setPrecision(32);
+            NumberSchema int64 = new NumberSchema();
+            int64.setType(Schema.AllSchemaTypes.INTEGER);
+            int64.setPrecision(encoded ? 32 : 64);
+            if (encoded) {
+                int64.setEncode("string");
+            }
+            SseMetadata first = metadata();
+            first.setEvents(List.of(event("value", dictionary(int32))));
+            SseMetadata second = metadata();
+            second.setEvents(List.of(event("value", dictionary(int64))));
+            addMappedSseFamily(javaPackage, first);
+            int size = javaPackage.getJavaFiles().size();
+            Assertions.assertThrows(IllegalStateException.class, () -> addMappedSseFamily(javaPackage, second));
+            Assertions.assertEquals(size, javaPackage.getJavaFiles().size());
+        }
+    }
+
+    @Test
+    public void explicitMessageIdentityAlsoNormalizesAbsentNames() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("message", stringSchema())));
+        addMappedSseFamily(javaPackage, metadata);
+        String source = javaPackage.getJavaFiles().get(2).getContents().toString();
+        Assertions.assertTrue(
+            source.contains("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;"));
+    }
+
+    @Test
+    public void importsAndUsesShortNamesForNoncollidingUserDefinedPayloadTypes() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("payload", objectSchema("Payload", "com.azure.payload")),
+            event("nested", dictionary(array(objectSchema("NestedPayload", "com.azure.payload"))))));
+
+        addMappedSseFamily(javaPackage, metadata);
+
+        String generatedSources = javaPackage.getJavaFiles()
+            .stream()
+            .map(javaFile -> javaFile.getContents().toString())
+            .collect(Collectors.joining());
+        Assertions.assertTrue(generatedSources.contains("import com.azure.payload.models.Payload;"), generatedSources);
+        Assertions.assertTrue(generatedSources.contains("import com.azure.payload.models.NestedPayload;"),
+            generatedSources);
+        Assertions.assertTrue(generatedSources.contains("Payload value"), generatedSources);
+        Assertions.assertTrue(generatedSources.contains("List<NestedPayload>"), generatedSources);
+        Assertions.assertFalse(generatedSources.contains("com.azure.payload.models.Payload value"), generatedSources);
+    }
+
+    @Test
+    public void compilesAndDeserializesConstructorAccessorPayload(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        ObjectSchema payload = objectSchema("ConstructorAccessor", "com.azure.mock");
+        payload.setUsage(Set.of(SchemaContext.INPUT, SchemaContext.OUTPUT, SchemaContext.PUBLIC));
+        payload.setProperties(List.of(property("value", stringSchema())));
+        ClientModel payloadModel = ModelMapper.getInstance().map(payload);
+        javaPackage.addModel(payloadModel.getPackage(), payloadModel.getName(), payloadModel);
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("message", payload)));
+        addMappedSseFamily(javaPackage, metadata);
+
+        String serializerSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(serializerSource.contains("ConstructorAccessor value"), serializerSource);
+        Assertions.assertTrue(serializerSource.contains("ConstructorAccessor::fromJson"), serializerSource);
+
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serializer = loader.loadClass("com.azure.mock.implementation.RetrievalStreamEventSerializer");
+            Method deserialize = serializer.getMethod("deserialize", String.class, String.class);
+            Object unknown = deserialize.invoke(null, "unrecognized", "{}");
+            Class<?> baseEvent = loader.loadClass("com.azure.mock.models.RetrievalStreamEvent");
+            Assertions.assertEquals(0, baseEvent.getDeclaredConstructor(String.class).getModifiers());
+            Assertions.assertEquals("unrecognized", baseEvent.getMethod("getEventName").invoke(unknown));
+            Assertions.assertEquals(false, baseEvent.getMethod("isTerminal").invoke(unknown));
+
+            Object envelope = deserialize.invoke(null, "message", "{\"value\":\"decoded\"}");
+            Assertions.assertEquals("com.azure.mock.models.RetrievalMessageStreamEvent", envelope.getClass().getName());
+            Object value = envelope.getClass().getMethod("getValue").invoke(envelope);
+            Assertions.assertEquals(loader.loadClass("com.azure.mock.models.ConstructorAccessor"), value.getClass());
+            Assertions.assertEquals("decoded", value.getClass().getMethod("getValue").invoke(value));
+        }
+    }
+
+    @Test
+    public void keepsConstructorAccessorsIndependentBetweenStreams(@TempDir Path tempDir) throws Exception {
+        JavaSettings.clear();
+        ClientModels.getInstance().clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        ObjectSchema payload = objectSchema("OtherPayload", "com.azure.mock");
+        payload.setUsage(Set.of(SchemaContext.INPUT, SchemaContext.OUTPUT, SchemaContext.PUBLIC));
+        payload.setProperties(List.of(property("value", stringSchema())));
+        ClientModel payloadModel = ModelMapper.getInstance().map(payload);
+        javaPackage.addModel(payloadModel.getPackage(), payloadModel.getName(), payloadModel);
+
+        SseMetadata first = metadata();
+        first.setStreamName("FirstEvents");
+        first.setEvents(List.of(event("message", stringSchema())));
+        configureSchemas(first, "FirstEvents", "com.azure.first");
+        addMappedSseFamily(javaPackage, first);
+        SseMetadata second = metadata();
+        second.setStreamName("SecondEvents");
+        SseEventMetadata terminal = event("completed", payload);
+        terminal.setTerminal(true);
+        second.setEvents(List.of(event("message", payload), terminal));
+        configureSchemas(second, "SecondEvents", "com.azure.second");
+        addMappedSseFamily(javaPackage, second);
+
+        Path classes = compileGeneratedSources(javaPackage, tempDir);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Method firstDeserialize = loader.loadClass("com.azure.first.implementation.FirstEventSerializer")
+                .getMethod("deserialize", String.class, String.class);
+            Method secondDeserialize = loader.loadClass("com.azure.second.implementation.SecondEventSerializer")
+                .getMethod("deserialize", String.class, String.class);
+            Object firstEnvelope = firstDeserialize.invoke(null, "message", "\"first\"");
+            Assertions.assertEquals("com.azure.first.models.FirstEventMessageStreamEvent",
+                firstEnvelope.getClass().getName());
+            Assertions.assertEquals("first", firstEnvelope.getClass().getMethod("getValue").invoke(firstEnvelope));
+
+            Object secondEnvelope = secondDeserialize.invoke(null, "message", "{\"value\":\"second\"}");
+            Assertions.assertEquals("com.azure.second.models.SecondEventMessageStreamEvent",
+                secondEnvelope.getClass().getName());
+            Object value = secondEnvelope.getClass().getMethod("getValue").invoke(secondEnvelope);
+            Assertions.assertEquals(loader.loadClass("com.azure.mock.models.OtherPayload"), value.getClass());
+            Assertions.assertEquals("second", value.getClass().getMethod("getValue").invoke(value));
+
+            Object completed = secondDeserialize.invoke(null, "completed", "{\"value\":\"finished\"}");
+            Assertions.assertEquals(true, completed.getClass().getMethod("isTerminal").invoke(completed));
+            Object unknown = secondDeserialize.invoke(null, "unrecognized", "{}");
+            Class<?> secondBase = loader.loadClass("com.azure.second.models.SecondEvent");
+            Assertions.assertEquals("unrecognized", secondBase.getMethod("getEventName").invoke(unknown));
+            Assertions.assertEquals(false, secondBase.getMethod("isTerminal").invoke(unknown));
+
+            firstEnvelope = firstDeserialize.invoke(null, "message", "\"first-again\"");
+            Assertions.assertEquals("first-again",
+                firstEnvelope.getClass().getMethod("getValue").invoke(firstEnvelope));
+        }
+    }
+
+    private static Path compileGeneratedSources(JavaPackage javaPackage, Path directory) throws IOException {
+        List<Path> sources = new ArrayList<>();
+        for (JavaFile javaFile : javaPackage.getJavaFiles()) {
+            Path source = directory.resolve(javaFile.getFilePath());
+            Files.createDirectories(source.getParent());
+            Files.writeString(source, javaFile.getContents().toString());
+            sources.add(source);
+        }
+        Path classes = directory.resolve("classes");
+        Files.createDirectories(classes);
+        List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+            classes.toString()));
+        arguments.addAll(sources.stream().map(Path::toString).collect(Collectors.toList()));
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int exitCode = ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, arguments.toArray(new String[0]));
+        Assertions.assertEquals(0, exitCode, diagnostics.toString(StandardCharsets.UTF_8));
+        return classes;
+    }
+
+    private static void addMappedSseFamily(JavaPackage javaPackage, SseMetadata metadata) {
+        if (javaPackage.getJavaFiles().isEmpty()) {
+            ClientModels.getInstance().clear();
+        }
+        prepareSseFamily(metadata);
+        List<ClientModel> models = new java.util.ArrayList<>();
+        models.add(ModelMapper.getInstance().map(metadata.getBaseSchema()));
+        metadata.getEvents().forEach(event -> models.add(ModelMapper.getInstance().map(event.getEventSchema())));
+        for (ClientModel model : models) {
+            javaPackage.addModel(model.getPackage(), model.getName(), model);
+        }
+        javaPackage.addSseEventSerializer(models.get(0));
+    }
+
+    private static void prepareSseFamily(SseMetadata metadata) {
+        ObjectSchema baseSchema = metadata.getBaseSchema();
+        SseSchemaMetadata baseMetadata = new SseSchemaMetadata();
+        baseMetadata.setStreamName(metadata.getStreamName());
+        baseSchema.setSseMetadata(baseMetadata);
+        baseSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.SSE));
+        List<Schema> eventSchemas
+            = metadata.getEvents().stream().map(SseEventMetadata::getEventSchema).collect(Collectors.toList());
+        Relations children = new Relations();
+        children.setImmediate(eventSchemas);
+        children.setAll(eventSchemas);
+        baseSchema.setChildren(children);
+        for (SseEventMetadata event : metadata.getEvents()) {
+            ObjectSchema eventSchema = event.getEventSchema();
+            SseSchemaMetadata eventMetadata = new SseSchemaMetadata();
+            eventMetadata.setStreamName(metadata.getStreamName());
+            eventMetadata.setEventName(event.getName());
+            eventMetadata.setTerminal(event.isTerminal());
+            eventSchema.setSseMetadata(eventMetadata);
+            eventSchema.setUsage(Set.of(SchemaContext.OUTPUT, SchemaContext.PUBLIC, SchemaContext.SSE));
+            Relations parents = new Relations();
+            parents.setImmediate(List.of(baseSchema));
+            parents.setAll(List.of(baseSchema));
+            eventSchema.setParents(parents);
+        }
+    }
+
+    private static SseMetadata metadata() {
+        SseMetadata metadata = new SseMetadata();
+        metadata.setSseStreamId("RetrievalStreamEvents");
+        metadata.setStreamName("RetrievalStreamEvents");
+        metadata.setBaseSchema(objectSchema("RetrievalStreamEvent", "com.azure.mock"));
+        metadata.getBaseSchema().setProperties(List.of(property("eventName", stringSchema())));
+        metadata.setEvents(List.of(event("retrieval.started", stringSchema())));
+        return metadata;
+    }
+
+    private static SseEventMetadata event(String name, Schema payload) {
+        SseEventMetadata event = new SseEventMetadata();
+        event.setName(name);
+        ObjectSchema baseSchema = objectSchema("RetrievalStreamEvent", "com.azure.mock");
+        ObjectSchema eventSchema = objectSchema(resolveWrapperName("RetrievalStreamEvents", name), "com.azure.mock");
+        Relations parents = new Relations();
+        parents.setImmediate(List.of(baseSchema));
+        parents.setAll(List.of(baseSchema));
+        eventSchema.setParents(parents);
+        eventSchema.setProperties(List.of(property("value", payload)));
+        event.setEventSchema(eventSchema);
+        return event;
+    }
+
+    private static StringSchema stringSchema() {
+        StringSchema payload = new StringSchema();
+        payload.setType(Schema.AllSchemaTypes.STRING);
+        setSchemaLanguage(payload, "String");
+        return payload;
+    }
+
+    private static ObjectSchema objectSchema(String name, String namespace) {
+        Language language = new Language();
+        language.setName(name);
+        language.setNamespace(namespace);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        ObjectSchema schema = new ObjectSchema();
+        schema.setType(Schema.AllSchemaTypes.OBJECT);
+        schema.setLanguage(languages);
+        schema.setChildren(new Relations());
+        return schema;
+    }
+
+    private static void setSchemaName(ObjectSchema schema, String name) {
+        schema.getLanguage().getDefault().setName(name);
+        schema.getLanguage().getJava().setName(name);
+    }
+
+    private static Property property(String name, Schema schema) {
+        Language language = new Language();
+        language.setName(name);
+        language.setDescription(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        Property property = new Property();
+        property.setLanguage(languages);
+        property.setSerializedName(name);
+        property.setRequired(true);
+        property.setReadOnly(true);
+        property.setSchema(schema);
+        return property;
+    }
+
+    private static void configureSchemas(SseMetadata metadata, String streamName, String namespace) {
+        ObjectSchema baseSchema = objectSchema(resolveBaseName(streamName), namespace);
+        baseSchema.setProperties(List.of(property("eventName", stringSchema())));
+        metadata.setBaseSchema(baseSchema);
+        for (SseEventMetadata event : metadata.getEvents()) {
+            ObjectSchema eventSchema = objectSchema(resolveWrapperName(streamName, event.getName()), namespace);
+            Relations parents = new Relations();
+            parents.setImmediate(List.of(baseSchema));
+            parents.setAll(List.of(baseSchema));
+            eventSchema.setParents(parents);
+            eventSchema
+                .setProperties(List.of(property("value", event.getEventSchema().getProperties().get(0).getSchema())));
+            event.setEventSchema(eventSchema);
+        }
+    }
+
+    private static String resolveBaseName(String streamName) {
+        String normalized = com.microsoft.typespec.http.client.generator.core.util.CodeNamer.toPascalCase(streamName);
+        String baseName
+            = normalized.endsWith("Events") ? normalized.substring(0, normalized.length() - 1) : normalized + "Event";
+        return com.microsoft.typespec.http.client.generator.core.util.CodeNamer.toPascalCase(
+            com.microsoft.typespec.http.client.generator.core.util.CodeNamer.removeInvalidCharacters(baseName));
+    }
+
+    private static String resolveWrapperName(String streamName, String eventName) {
+        String baseName = resolveBaseName(streamName);
+        String suffix = "StreamEvent";
+        String baseStem
+            = baseName.endsWith(suffix) ? baseName.substring(0, baseName.length() - suffix.length()) : baseName;
+        String[] segments = eventName.split("[^A-Za-z0-9]+");
+        String firstSegment = "";
+        StringBuilder normalizedEventName = new StringBuilder();
+        for (String segment : segments) {
+            if (!segment.isEmpty()) {
+                String normalized
+                    = com.microsoft.typespec.http.client.generator.core.util.CodeNamer.toPascalCase(segment);
+                if (firstSegment.isEmpty()) {
+                    firstSegment = normalized;
+                }
+                normalizedEventName.append(normalized);
+            }
+        }
+        String prefix = !firstSegment.isEmpty() && baseStem.endsWith(firstSegment)
+            ? baseStem.substring(0, baseStem.length() - firstSegment.length())
+            : baseStem;
+        return com.microsoft.typespec.http.client.generator.core.util.CodeNamer
+            .toPascalCase(com.microsoft.typespec.http.client.generator.core.util.CodeNamer
+                .removeInvalidCharacters(prefix + normalizedEventName + suffix));
+    }
+
+    private static DictionarySchema dictionary(Schema elementType) {
+        DictionarySchema schema = new DictionarySchema();
+        schema.setType(Schema.AllSchemaTypes.DICTIONARY);
+        schema.setElementType(elementType);
+        setSchemaLanguage(schema, "Dictionary");
+        return schema;
+    }
+
+    private static ArraySchema array(Schema elementType) {
+        ArraySchema schema = new ArraySchema();
+        schema.setType(Schema.AllSchemaTypes.ARRAY);
+        schema.setElementType(elementType);
+        setSchemaLanguage(schema, "Array");
+        return schema;
+    }
+
+    private static void setSchemaLanguage(Schema schema, String name) {
+        Language language = new Language();
+        language.setName(name);
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        schema.setLanguage(languages);
+    }
+
+    private static MockUnitJavagen mockJavagenWithGeneratedHeader() {
+        return new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "license-header".equals(key) ? (T) "MICROSOFT_MIT" : super.getValue(key, converter);
+            }
+        };
+    }
+
+    private static String readResource(String resourceName) throws IOException {
+        try (InputStream stream = JavaPackageSseTests.class.getClassLoader().getResourceAsStream(resourceName)) {
+            Assertions.assertNotNull(stream);
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+}

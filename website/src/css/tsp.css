@@ -4,18 +4,6 @@
   --header-height: 50px;
 }
 
-.DocSearch-Button {
-  border-radius: 4px !important;
-
-  border: 1px solid var(--neutral-stroke-transparent-rest, rgba(255, 255, 255, 0)) !important;
-  background: var(--colorNeutralBackground1) !important;
-}
-
-/* Algolia docsearch tweaks */
-.DocSearch-Container {
-  z-index: 1000 !important;
-}
-
 .sl-markdown-content code {
   overflow-wrap: normal;
 }

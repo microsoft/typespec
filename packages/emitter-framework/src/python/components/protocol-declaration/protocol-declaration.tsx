@@ -8,11 +8,20 @@ import * as py from "@alloy-js/python";
 import type { Interface, Operation, Type } from "@typespec/compiler";
 import { CallableParameters } from "./callable-parameters.js";
 
+/** Source for a structural Protocol class whose body is generated from operation signatures. */
 export interface ProtocolDeclarationProps extends Omit<py.ClassDeclarationProps, "name"> {
+  /** Interface becomes named method stubs; an operation becomes a callback protocol with `__call__`. */
   type: Interface | Operation;
+  /** Name override, passed through the active Python class naming policy. */
   name?: string;
 }
 
+/**
+ * Declares a typing.Protocol with interface method stubs or an operation's `__call__` stub.
+ * The body and Protocol base are generated rather than taken from children/bases;
+ * explicit `doc` is forwarded, but source documentation is not fetched automatically.
+ * Requires a TypeSpec context.
+ */
 export function ProtocolDeclaration(props: ProtocolDeclarationProps) {
   const { $ } = useTsp();
 

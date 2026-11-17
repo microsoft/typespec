@@ -1,0 +1,1 @@
+/test/main.tsp:13:33 - error unassignable: Type '1' is not assignable to type 'string'

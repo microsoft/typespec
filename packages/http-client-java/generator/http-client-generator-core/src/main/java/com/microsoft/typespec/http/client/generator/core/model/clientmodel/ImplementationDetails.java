@@ -50,6 +50,11 @@ public class ImplementationDetails {
         PAGED("paged"),
 
         /**
+         * Synthetic server-sent event envelope model.
+         */
+        SSE("sse"),
+
+        /**
          * External model.
          * <p>
          * Codegen should not generate the class. Javadoc or test/sample generation will still need to process the
@@ -141,6 +146,9 @@ public class ImplementationDetails {
 
                 case PAGED:
                     return PAGED;
+
+                case SSE:
+                    return SSE;
 
                 case INTERNAL:
                     return INTERNAL;

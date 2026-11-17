@@ -2,6 +2,8 @@ import type { Entity, Tuple, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
+ * Create and identify tuples, whose ordered elements can each have a different type.
+ *
  * @typekit tuple
  */
 export interface TupleKit {
@@ -18,6 +20,9 @@ export interface TupleKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create tuple types from an ordered list of element types and test for tuple entities.
+   */
   tuple: TupleKit;
 }
 

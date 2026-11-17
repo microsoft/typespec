@@ -8,28 +8,98 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+/**
+ * Header options.
+ */
 export interface HeaderOptions {
+  /**
+   * Name of the header when sent over HTTP.
+   */
   readonly name?: string;
+  /**
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   * | Style  | Explode | Primitive value = 5 | Array = [3, 4, 5] | Object = {"role": "admin", "firstName": "Alex"} |
+   * | ------ | ------- | ------------------- | ----------------- | ----------------------------------------------- |
+   * | simple | false   | `5   `              | `3,4,5`           | `role,admin,firstName,Alex`                     |
+   * | simple | true    | `5`                 | `3,4,5`           | `role=admin,firstName=Alex`                     |
+   */
   readonly explode?: boolean;
 }
 
+/**
+ * Cookie Options.
+ */
 export interface CookieOptions {
+  /**
+   * Name in the cookie.
+   */
   readonly name?: string;
 }
 
+/**
+ * Query parameter options.
+ */
 export interface QueryOptions {
+  /**
+   * Name of the query when included in the url.
+   */
   readonly name?: string;
+  /**
+   * If true send each value in the array/object as a separate query parameter.
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   * | Style  | Explode | Uri Template   | Primitive value id = 5 | Array id = [3, 4, 5]    | Object id = {"role": "admin", "firstName": "Alex"} |
+   * | ------ | ------- | -------------- | ---------------------- | ----------------------- | -------------------------------------------------- |
+   * | simple | false   | `/users{?id}`  | `/users?id=5`          | `/users?id=3,4,5`       | `/users?id=role,admin,firstName,Alex`              |
+   * | simple | true    | `/users{?id*}` | `/users?id=5`          | `/users?id=3&id=4&id=5` | `/users?role=admin&firstName=Alex`                 |
+   */
   readonly explode?: boolean;
 }
 
+/**
+ * Options for configuring how a path parameter is serialized into the URI template.
+ */
 export interface PathOptions {
+  /**
+   * Name of the parameter in the URI template.
+   */
   readonly name?: string;
+  /**
+   * When interpolating this parameter in the case of array or object expand each value using the given style.
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   */
   readonly explode?: boolean;
+  /**
+   * Different interpolating styles for the path parameter.
+   * - `simple`: No special encoding.
+   * - `label`: Using `.` separator.
+   * - `matrix`: `;` as separator.
+   * - `fragment`: `#` as separator.
+   * - `path`: `/` as separator.
+   */
   readonly style?: "simple" | "label" | "matrix" | "fragment" | "path";
+  /**
+   * When interpolating this parameter do not encode reserved characters.
+   * Equivalent of adding `+` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   */
   readonly allowReserved?: boolean;
 }
 
+/**
+ * Options for PATCH operations.
+ */
 export interface PatchOptions {
+  /**
+   * If set to `false`, disables the implicit transform that makes the body of a
+   * PATCH operation deeply optional.
+   *
+   * **Deprecated:** `implicitOptionality` is deprecated and will be removed.
+   * To preserve the previous behavior, define and use an explicit patch model
+   * with optional properties for your `@body` parameter.
+   * For actual JSON Merge Patch behavior, use `MergePatchUpdate<T>` as the
+   * `@body` type (for example: `@patch op update(@body pet: MergePatchUpdate<Pet>): void;`).
+   */
   readonly implicitOptionality?: boolean;
 }
 

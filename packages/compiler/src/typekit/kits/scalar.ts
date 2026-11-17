@@ -179,7 +179,7 @@ export interface ScalarKit {
   isUtcDateTime(type: Entity): type is Scalar;
 
   /**
-   *
+   * Check if `type` is exactly the standard numeric scalar, not a scalar derived from it.
    * @param type The type to check.
    */
   isNumeric(type: Entity): type is Scalar;

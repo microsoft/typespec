@@ -22,6 +22,9 @@ export interface ArrayKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create and inspect array models with an integer indexer and no named properties.
+   */
   array: ArrayKit;
 }
 

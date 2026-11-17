@@ -8,7 +8,7 @@ import type {
   Program,
   Scalar,
 } from "@typespec/compiler";
-import { getSourceLocation, isArrayModelType, type Type } from "@typespec/compiler";
+import { getSourceLocation, isArrayModelType, isTypeRefType, type Type } from "@typespec/compiler";
 import type { DocNode, DocTag } from "@typespec/compiler/ast";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
@@ -191,7 +191,7 @@ function ValueOfModelTsType({ model }: { model: Model }) {
 
 export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
   return (
-    <List joiner=";" enderPunctuation>
+    <List semicolon hardline enderPunctuation>
       {model.indexer?.value && (
         <ts.InterfaceMember
           readonly
@@ -203,6 +203,7 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
         {(x) => (
           <ts.InterfaceMember
             readonly
+            doc={getDocComment(x)}
             name={x.name}
             optional={x.optional}
             type={<ValueTsType type={x.type} />}
@@ -215,10 +216,13 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
 
 function ScalarTsType({ scalar }: { scalar: Scalar }) {
   const { program } = useTspd();
+  if (isTypeRefType(program, scalar)) {
+    return typespecCompiler.TypeRefValue;
+  }
   const isStd = program.checker.isStdType(scalar);
   if (isStd) {
     return getStdScalarTSType(scalar);
-  } else if (scalar.baseScalar) {
+  } else if (scalar.baseScalar && !isTypeRefType(program, scalar.baseScalar)) {
     return <ScalarTsType scalar={scalar.baseScalar} />;
   } else {
     return "unknown";

@@ -16,10 +16,13 @@ namespace SampleTypeSpec
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
+        private static PipelineMessageClassifier _pipelineMessageClassifier204404;
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
+
+        private static PipelineMessageClassifier PipelineMessageClassifier204404 => _pipelineMessageClassifier204404 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204, 404 });
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
@@ -262,7 +265,7 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/headAsBoolean/", false);
             uri.AppendPath(id, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "HEAD", PipelineMessageClassifier204);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "HEAD", PipelineMessageClassifier204404);
             PipelineRequest request = message.Request;
             message.Apply(options);
             return message;

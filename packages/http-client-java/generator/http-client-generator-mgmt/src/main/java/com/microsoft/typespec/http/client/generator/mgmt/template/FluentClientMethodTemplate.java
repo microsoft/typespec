@@ -341,7 +341,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         boolean contextInParameters = contextInParameters(clientMethod);
 
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
-        typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
             function.line(String.format("Response<BinaryData> response = %s(%s);",
                 MethodNamer.getSimpleRestResponseMethodName(restAPIMethod.getName()), clientMethod.getArgumentList()));

@@ -1,6 +1,8 @@
 import { createMatcher, err, type MockValueMatcher, ok } from "../match-engine.js";
 
+/** String comparison factories exposed through match.string. */
 export const stringMatcher = {
+  /** Matches strings after lowercasing both values; serialization preserves the expected spelling. */
   caseInsensitive(value: string): MockValueMatcher<string> {
     const normalized = value.toLowerCase();
     return createMatcher({

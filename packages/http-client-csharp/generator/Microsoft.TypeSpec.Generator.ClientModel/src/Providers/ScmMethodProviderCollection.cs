@@ -14,6 +14,7 @@ using System.Net.ServerSentEvents;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
@@ -39,6 +40,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<ScmMethodProvider>? _methods;
         private readonly bool _generateConvenienceMethod;
         private readonly Lazy<InputStreamingType?> _streamingResponse;
+        private ScmMethodProvider? _legacySyncProtocol;
+        private ScmMethodProvider? _legacyAsyncProtocol;
 
         private ClientProvider Client { get; }
         protected InputServiceMethod ServiceMethod { get; }
@@ -81,62 +84,329 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
+        /// <summary>
+        /// Determines whether a parameter should be omitted from a next-link paging API.
+        /// The service method supplies the paging strategy and maps standalone convenience parameters
+        /// to the marked HTTP parameter; the marker alone does not imply omission.
+        /// </summary>
+        /// <param name="serviceMethod">The paging operation and HTTP-to-convenience parameter mapping.</param>
+        /// <param name="inputParameter">
+        /// The source parameter, or null for generated runtime parameters such as RequestOptions and CancellationToken.
+        /// Runtime parameters are never omitted.
+        /// </param>
+        internal static bool ShouldOmitContinuationTokenParameter(InputServiceMethod serviceMethod, InputParameter? inputParameter)
+        {
+            if (inputParameter == null
+                || !ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
+                || serviceMethod is not InputPagingServiceMethod
+                {
+                    PagingMetadata.NextLink: not null
+                })
+            {
+                return false;
+            }
+
+            return inputParameter.IsContinuationToken
+                || serviceMethod.Operation.Parameters.Any(token => token.IsContinuationToken
+                    && token.MethodParameterSegments is { Count: 1 } segments
+                    && ReferenceEquals(segments[0], inputParameter));
+        }
+
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
-
+            var methods = new List<ScmMethodProvider>(4);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
             if (_streamingResponse.Value != null)
             {
+                methods.Add(asyncProtocol);
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
                 {
-                    var convenienceMethod = BuildConvenienceMethod(asyncProtocol, true);
-                    return
-                    [
-                        asyncProtocol,
-                        convenienceMethod
-                    ];
-                }
-
-                return [asyncProtocol];
-            }
-
-            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
-
-            if (_generateConvenienceMethod)
-            {
-                var methods = new List<ScmMethodProvider>
-                {
-                    syncProtocol,
-                    asyncProtocol,
-                };
-
-                if (_pagingServiceMethod != null)
-                {
-                    methods.Add(BuildConvenienceMethod(syncProtocol, false));
                     methods.Add(BuildConvenienceMethod(asyncProtocol, true));
                 }
-                else
+            }
+            else
+            {
+                var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
+                methods.Add(syncProtocol);
+                methods.Add(asyncProtocol);
+                if (_generateConvenienceMethod)
                 {
-                    if (!HasStreamingRequestOrResponse() && ProtocolMethodExists(syncProtocol))
+                    if (_pagingServiceMethod != null)
                     {
                         methods.Add(BuildConvenienceMethod(syncProtocol, false));
-                    }
-
-                    if (ProtocolMethodExists(asyncProtocol))
-                    {
                         methods.Add(BuildConvenienceMethod(asyncProtocol, true));
                     }
+                    else
+                    {
+                        if (!HasStreamingRequestOrResponse() && ProtocolMethodExists(syncProtocol))
+                        {
+                            methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                        }
+                        if (ProtocolMethodExists(asyncProtocol))
+                        {
+                            methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                        }
+                    }
                 }
+            }
+            var combinedMethods = AddContinuationTokenOverloads(methods);
+            return combinedMethods;
+        }
 
+        private IReadOnlyList<ScmMethodProvider> AddContinuationTokenOverloads(List<ScmMethodProvider> methods)
+        {
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.SupportsPageResumption
+                || _pagingServiceMethod?.PagingMetadata.NextLink is null
+                || !ServiceMethod.Operation.Parameters.Any(parameter => parameter.IsContinuationToken))
+            {
                 return methods;
             }
 
-            return
-            [
-                syncProtocol,
-                asyncProtocol,
-            ];
+            var previousMethods = Client.BackCompatProvider.LastContractView?.Methods ?? [];
+            var customMethods = Client.CustomCodeView?.Methods ?? [];
+            if (previousMethods.Count == 0)
+            {
+                if (customMethods.Count == 0)
+                {
+                    return methods;
+                }
+            }
+
+            var syncName = ServiceMethod.Name;
+            var asyncName = syncName + "Async";
+            List<MethodProvider>? candidates = null;
+            foreach (var previous in previousMethods)
+            {
+                if ((previous.Signature.Name == syncName || previous.Signature.Name == asyncName)
+                    && MethodSignatureHelper.IsPublicApi(previous.Signature)
+                    && ScmCodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
+                        Client.BackCompatProvider.Type.FullyQualifiedName,
+                        previous.Signature.Name,
+                        previous.Signature.Parameters.Select(parameter => parameter.Type).ToArray()) != true)
+                {
+                    (candidates ??= []).Add(previous);
+                }
+            }
+            foreach (var custom in customMethods)
+            {
+                if ((custom.Signature.Name == syncName || custom.Signature.Name == asyncName)
+                    && (custom.IsPartialMethod || MethodSignatureHelper.IsPublicApi(custom.Signature)))
+                {
+                    (candidates ??= []).Add(custom);
+                }
+            }
+            if (candidates == null)
+            {
+                return methods;
+            }
+
+            var methodCount = methods.Count;
+            var legacyMethods = new Dictionary<ScmMethodProvider, ScmMethodProvider>(methodCount);
+            bool hasSignatureCollision = false;
+            for (int i = 0; i < methodCount; i++)
+            {
+                var method = methods[i];
+                if (!candidates.Any(candidate => candidate.Signature.Name == method.Signature.Name
+                    && candidate.Signature.ReturnType?.AreNamesEqual(method.Signature.ReturnType) == true))
+                {
+                    continue;
+                }
+
+                var legacyMethod = BuildLegacyMethod(method);
+                legacyMethods.TryAdd(method, legacyMethod);
+                var token = legacyMethod.Signature.Parameters
+                    .FirstOrDefault(parameter => ShouldOmitContinuationTokenParameter(ServiceMethod, parameter.InputParameter));
+                bool retainMethod = legacyMethod.IsPartialMethod;
+                if (token != null)
+                {
+                    foreach (var candidate in candidates)
+                    {
+                        if (candidate.Signature.Name != method.Signature.Name
+                            || candidate.Signature.ReturnType?.AreNamesEqual(legacyMethod.Signature.ReturnType) != true)
+                        {
+                            continue;
+                        }
+                        int tokenIndex = FindContinuationTokenParameterIndex(candidate.Signature, token);
+                        if (tokenIndex < 0 && MethodSignature.MethodSignatureComparer.Equals(candidate.Signature, legacyMethod.Signature))
+                        {
+                            // Custom code can rename the token while preserving its CLR signature.
+                            tokenIndex = 0;
+                            while (!ReferenceEquals(legacyMethod.Signature.Parameters[tokenIndex], token))
+                            {
+                                tokenIndex++;
+                            }
+                        }
+                        if (tokenIndex < 0)
+                        {
+                            continue;
+                        }
+
+                        retainMethod = true;
+                        hasSignatureCollision |= MethodSignature.MethodSignatureComparer.Equals(candidate.Signature, method.Signature)
+                            || HasOptionalArgumentCollision(method.Signature, candidate.Signature, tokenIndex);
+                    }
+                }
+                if (retainMethod && !methods.Any(existing =>
+                    MethodSignature.MethodSignatureComparer.Equals(existing.Signature, legacyMethod.Signature)))
+                {
+                    methods.Add(legacyMethod);
+                }
+            }
+            if (hasSignatureCollision)
+            {
+                bool preservesPartial = methods.Take(methodCount).Any(method => method.IsPartialMethod);
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.SignatureCollision,
+                    preservesPartial
+                        ? $"The custom partial implementation for operation '{ServiceMethod.Name}' was preserved. Conflicting generated continuation-token overloads were omitted."
+                        : $"The continuation-token parameter for operation '{ServiceMethod.Name}' was retained because removing it would create a signature collision or ambiguous call with an existing method.",
+                    ServiceMethod.Operation.CrossLanguageDefinitionId);
+                var result = new ScmMethodProvider[methodCount];
+                for (int i = 0; i < methodCount; i++)
+                {
+                    var method = methods[i];
+                    if (!method.IsPartialMethod)
+                    {
+                        method = legacyMethods.TryGetValue(method, out var legacyMethod) ? legacyMethod : BuildLegacyMethod(method);
+                    }
+                    result[i] = method;
+                    if (previousMethods.Count == 0 && _generateConvenienceMethod
+                        && method.Kind == ScmMethodKind.Protocol && !method.IsPartialMethod)
+                    {
+                        foreach (var parameter in method.Signature.Parameters)
+                        {
+                            parameter.DefaultValue = null;
+                        }
+                    }
+                }
+                return result;
+            }
+            return methods;
+        }
+
+        private ScmMethodProvider BuildLegacyMethod(ScmMethodProvider method)
+        {
+            bool isAsync = method.Signature.Name == ServiceMethod.Name + "Async";
+            var protocol = isAsync
+                ? _legacyAsyncProtocol ??= BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired: false, includeContinuationToken: true)
+                : _legacySyncProtocol ??= BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired: false, includeContinuationToken: true);
+            return method.Kind == ScmMethodKind.Protocol
+                ? protocol
+                : BuildConvenienceMethod(protocol, isAsync, includeContinuationToken: true);
+        }
+
+        internal static int FindContinuationTokenParameterIndex(MethodSignature signature, ParameterProvider token)
+        {
+            for (int i = 0; i < signature.Parameters.Count; i++)
+            {
+                var parameter = signature.Parameters[i];
+                if (parameter.Type.AreNamesEqual(token.Type)
+                    && (parameter.Name == token.Name || parameter.Name == token.InputParameter?.Name
+                        || parameter.Name == token.InputParameter?.OriginalName))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private static bool HasOptionalArgumentCollision(MethodSignature tokenless, MethodSignature previous, int tokenIndex)
+        {
+            int argumentCount = tokenIndex + 1;
+            for (int i = 0; i < tokenless.Parameters.Count; i++)
+            {
+                if (tokenless.Parameters[i].DefaultValue == null)
+                {
+                    argumentCount = Math.Max(argumentCount, i + 1);
+                }
+            }
+            for (int i = tokenIndex + 1; i < previous.Parameters.Count; i++)
+            {
+                if (previous.Parameters[i].DefaultValue == null)
+                {
+                    argumentCount = Math.Max(argumentCount, i + 1);
+                }
+            }
+            int sharedCount = Math.Min(tokenless.Parameters.Count, previous.Parameters.Count);
+            if (argumentCount > sharedCount)
+            {
+                return false;
+            }
+            bool tokenlessIsBetter = false;
+            bool previousIsBetter = false;
+            var compilation = ScmCodeModelGenerator.Instance.SourceInputModel?.Customization
+                ?? ScmCodeModelGenerator.Instance.SourceInputModel?.LastContract;
+            for (int i = 0; i < sharedCount; i++)
+            {
+                var currentType = tokenless.Parameters[i].Type;
+                var previousType = previous.Parameters[i].Type;
+                if (!currentType.AreNamesEqual(previousType)
+                    || currentType.IsNullable != previousType.IsNullable && (currentType.IsValueType || previousType.IsValueType))
+                {
+                    // An untyped default converts to either target. Only an implicit conversion between
+                    // the targets can make one overload better; null has the same ambiguity for nullable targets.
+                    if (compilation == null)
+                    {
+                        return true;
+                    }
+                    var currentSymbol = GetParameterTypeSymbol(compilation, currentType);
+                    var previousSymbol = GetParameterTypeSymbol(compilation, previousType);
+                    bool currentToPrevious = currentSymbol != null && previousSymbol != null
+                        && compilation.ClassifyCommonConversion(currentSymbol, previousSymbol).IsImplicit;
+                    bool previousToCurrent = currentSymbol != null && previousSymbol != null
+                        && compilation.ClassifyCommonConversion(previousSymbol, currentSymbol).IsImplicit;
+                    if (!currentToPrevious && !previousToCurrent)
+                    {
+                        return true;
+                    }
+                    tokenlessIsBetter |= currentToPrevious && !previousToCurrent;
+                    previousIsBetter |= previousToCurrent && !currentToPrevious;
+                }
+                int suppliedCount = i + 1;
+                if (suppliedCount < argumentCount)
+                {
+                    continue;
+                }
+                if (tokenlessIsBetter && previousIsBetter)
+                {
+                    return true;
+                }
+                // With equivalent supplied parameter types an exact-arity overload wins.
+                if (!tokenlessIsBetter && !previousIsBetter
+                    && (suppliedCount < sharedCount || tokenless.Parameters.Count == previous.Parameters.Count))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static ITypeSymbol? GetParameterTypeSymbol(Compilation compilation, CSharpType type)
+        {
+            var metadataName = type.IsFrameworkType ? type.FrameworkType.FullName
+                : $"{type.Namespace}.{type.Name}{(type.Arguments.Count == 0 ? "" : $"`{type.Arguments.Count}")}";
+            var symbol = metadataName == null ? null : compilation.GetTypeByMetadataName(metadataName);
+            if (symbol == null)
+            {
+                return null;
+            }
+            if (type.Arguments.Count > 0)
+            {
+                var arguments = new ITypeSymbol[type.Arguments.Count];
+                for (int i = 0; i < arguments.Length; i++)
+                {
+                    if (GetParameterTypeSymbol(compilation, type.Arguments[i]) is not { } argument)
+                    {
+                        return null;
+                    }
+                    arguments[i] = argument;
+                }
+                symbol = symbol.Construct(arguments);
+            }
+            return type.IsValueType && type.IsNullable
+                ? compilation.GetSpecialType(SpecialType.System_Nullable_T).Construct(symbol)
+                : symbol;
         }
 
         private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
@@ -158,7 +428,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
+        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync, bool includeContinuationToken = false)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -166,7 +436,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
-            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
+            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client, includeContinuationToken);
             ParameterProvider[] signatureParameters = [.. convenienceParameters, ScmKnownParameters.CreateCancellationToken()];
 
             // Detect a partial method declaration in the client's custom code matching this convenience method.
@@ -261,12 +531,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         useConvenienceType: true))
                 ];
             }
-            else if (responseBodyType is null)
+            else if (responseBodyType is null || ServiceMethod.Operation.ResponseAsBool)
             {
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
                     Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
+                ];
+            }
+            else if (DiscriminatedUnionSerialization.RequiresEnvelope(ServiceMethod.Response.Type) && UsesJsonUnionResponse())
+            {
+                methodBody =
+                [
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
+                    Declare("result", This.Invoke(protocolMethod.Signature,
+                        [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1])],
+                        isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("data", result.GetRawResponse().Content(), out var data),
+                    UsingDeclare("document", data.Parse(), out var document),
+                    DiscriminatedUnionSerialization.DeserializeValue(
+                        ServiceMethod.Response.Type!, responseBodyType.OutputType, document.RootElement(),
+                        ModelSerializationExtensionsSnippets.Wire, out var value),
+                    Return(result.FromValue(value, result.GetRawResponse()))
                 ];
             }
             else
@@ -314,6 +600,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            modifiers &= ~MethodSignatureModifiers.Partial;
             // The convenience method's public/internal accessibility follows the service method's
             // accessibility, independent of the protocol method. The protocol method may be internal
             // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the
@@ -342,17 +629,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var isJsonRequest = DiscriminatedUnionSerialization.UsesJsonRequest(ServiceMethod.Operation);
 
             // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
-            void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value)
+            void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value, InputType? inputType = null)
             {
-                statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
-                statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
-                    serializationType,
-                    value,
-                    content.JsonWriter(),
-                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                    SerializationFormat.Default));
+                var options = ModelSerializationExtensionsSnippets.Wire;
+                var optionalBody = inputType != null &&
+                    ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault() is { IsRequired: false };
+                ValueExpression initialization = optionalBody
+                    ? new TernaryConditionalExpression(value.Equal(Null), Null, New.Instance<Utf8JsonBinaryContentDefinition>())
+                    : New.Instance<Utf8JsonBinaryContentDefinition>();
+                var declaration = Declare("content", new Utf8JsonBinaryContentDefinition().Type, initialization, out var content);
+                statements.Add(inputType != null && _pagingServiceMethod is null ? UsingDeclare(content, initialization) : declaration);
+                var serialization = inputType != null
+                    ? DiscriminatedUnionSerialization.SerializeValue(
+                        inputType, serializationType, value, content.As<Utf8JsonBinaryContentDefinition>().JsonWriter(), options)
+                    : ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                        serializationType,
+                        value,
+                        content.As<Utf8JsonBinaryContentDefinition>().JsonWriter(),
+                        options,
+                        SerializationFormat.Default);
+                statements.Add(optionalBody ? new IfStatement(content.NotEqual(Null)) { serialization } : serialization);
                 localDeclarations["content"] = content;
             }
 
@@ -365,18 +664,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (parameter.Location == ParameterLocation.Body)
                 {
-                    if (parameter.Type.IsIAsyncEnumerableOfT)
+                    var inputBodyType = ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault()?.Type;
+                    if (DiscriminatedUnionSerialization.RequiresEnvelope(inputBodyType) && isJsonRequest)
+                    {
+                        AddUtf8JsonContent(parameter.Type, parameter, inputBodyType);
+                    }
+                    else if (parameter.Type.IsIAsyncEnumerableOfT)
                     {
                         var contentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([parameter.Type.Arguments[0]]);
                         var inputParameter = ServiceMethod.Parameters.FirstOrDefault(p =>
                             p.Location == InputRequestLocation.Body &&
                             string.Equals(p.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
+                        ValueExpression[] contentArguments = inputBodyType is InputStreamingType streaming &&
+                            DiscriminatedUnionSerialization.RequiresEnvelope(streaming.ValueType)
+                            ? [parameter, True]
+                            : [parameter];
                         ValueExpression contentExpression = inputParameter is { IsRequired: false }
                             ? new TernaryConditionalExpression(
                                 parameter.Equal(Null),
                                 Null,
-                                New.Instance(contentType, parameter))
-                            : New.Instance(contentType, parameter);
+                                New.Instance(contentType, contentArguments))
+                            : New.Instance(contentType, contentArguments);
                         statements.Add(UsingDeclare("content", requestContentType, contentExpression, out var content));
                         declarations["content"] = content;
                     }
@@ -788,8 +1096,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Map framework types to their Utf8JsonReader method names
             var readerMethodName = frameworkType switch
             {
+                Type t when t == typeof(short) => nameof(Utf8JsonReader.GetInt16),
+                Type t when t == typeof(ushort) => nameof(Utf8JsonReader.GetUInt16),
                 Type t when t == typeof(int) => nameof(Utf8JsonReader.GetInt32),
+                Type t when t == typeof(uint) => nameof(Utf8JsonReader.GetUInt32),
                 Type t when t == typeof(long) => nameof(Utf8JsonReader.GetInt64),
+                Type t when t == typeof(ulong) => nameof(Utf8JsonReader.GetUInt64),
                 Type t when t == typeof(bool) => nameof(Utf8JsonReader.GetBoolean),
                 Type t when t == typeof(double) => nameof(Utf8JsonReader.GetDouble),
                 Type t when t == typeof(float) => nameof(Utf8JsonReader.GetSingle),
@@ -1056,10 +1368,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(short)) ||
+                   type.Equals(typeof(short?)) ||
+                   type.Equals(typeof(ushort)) ||
+                   type.Equals(typeof(ushort?)) ||
                    type.Equals(typeof(int)) ||
                    type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(uint)) ||
+                   type.Equals(typeof(uint?)) ||
                    type.Equals(typeof(long)) ||
                    type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(ulong)) ||
+                   type.Equals(typeof(ulong?)) ||
                    type.Equals(typeof(double)) ||
                    type.Equals(typeof(double?)) ||
                    type.Equals(typeof(float)) ||
@@ -1098,10 +1418,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(short)) ||
+                   type.Equals(typeof(short?)) ||
+                   type.Equals(typeof(ushort)) ||
+                   type.Equals(typeof(ushort?)) ||
                    type.Equals(typeof(int)) ||
                    type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(uint)) ||
+                   type.Equals(typeof(uint?)) ||
                    type.Equals(typeof(long)) ||
                    type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(ulong)) ||
+                   type.Equals(typeof(ulong?)) ||
                    type.Equals(typeof(double)) ||
                    type.Equals(typeof(double?)) ||
                    type.Equals(typeof(float)) ||
@@ -1181,6 +1509,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Skip RequestOptions parameter as it's added at the end
                 if (protocolParam.Type.Equals(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType))
                 {
+                    continue;
+                }
+
+                if (ShouldOmitContinuationTokenParameter(ServiceMethod, protocolParam.InputParameter)
+                    && !convenienceMethodParameters.Any(p => ShouldOmitContinuationTokenParameter(ServiceMethod, p.InputParameter))
+                    && !(protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 } tokenSegments
+                        && convenienceParamsMap.ContainsKey(tokenSegments[0].Name)))
+                {
+                    AddArgument(protocolParam, Default);
                     continue;
                 }
 
@@ -1369,7 +1706,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
-        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired, bool includeContinuationToken = false)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -1390,7 +1727,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
             var convertedRequiredParameters = new List<ParameterProvider>();
-            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
+            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client, includeContinuationToken);
             var contentIndex = protocolParameters.FindIndex(parameter => parameter.IsContentParameter);
             var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
             var makeOptionalRequired = shouldMakeParametersRequired
@@ -1511,7 +1848,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. ServiceMethod.Operation.BufferResponse
                         ? []
                         : new MethodBodyStatement[] { message.ToApi<HttpMessageApi>().BufferResponse().Assign(False).Terminate() },
-                    Return(streamingResponse != null
+                    Return(ServiceMethod.Operation.ResponseAsBool
+                        ? client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessHeadAsBoolMessage(
+                            message,
+                            requestOptionsParameter.ToApi<HttpRequestOptionsApi>(),
+                            isAsync)
+                        : streamingResponse != null
                         ? CreateStreamingResultExpression(
                             streamingResponse,
                             client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(
@@ -1607,12 +1949,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (createRequestParameters.Count == bodyParameters.Count)
+            if (createRequestParameters.Count == bodyParameters.Count
+                || createRequestParameters.Any(p => ShouldOmitContinuationTokenParameter(ServiceMethod, p.InputParameter)))
             {
                 var arguments = new ValueExpression[createRequestParameters.Count];
                 bool allMatched = true;
                 for (int i = 0; i < createRequestParameters.Count; i++)
                 {
+                    if (ShouldOmitContinuationTokenParameter(ServiceMethod, createRequestParameters[i].InputParameter)
+                        && !bodyParameters.Any(p => ShouldOmitContinuationTokenParameter(ServiceMethod, p.InputParameter)))
+                    {
+                        arguments[i] = Default;
+                        continue;
+                    }
+
                     var match = FindUngroupedArgument(bodyParameters, createRequestParameters[i]);
                     if (match is null)
                     {
@@ -1632,7 +1982,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. bodyParameters.Select(p => (ValueExpression)p)];
         }
 
-        private static ValueExpression[]? BuildGroupedCreateRequestArguments(
+        private ValueExpression[]? BuildGroupedCreateRequestArguments(
             IReadOnlyList<ParameterProvider> createRequestParameters,
             IReadOnlyList<ParameterProvider> protocolParameters)
         {
@@ -1645,6 +1995,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (segments is not { Count: > 1 })
                 {
+                    if (ShouldOmitContinuationTokenParameter(ServiceMethod, createRequestParameter.InputParameter)
+                        && !protocolParameters.Any(parameter => ShouldOmitContinuationTokenParameter(ServiceMethod, parameter.InputParameter)))
+                    {
+                        arguments[i] = Default;
+                        continue;
+                    }
+
                     var match = FindUngroupedArgument(protocolParameters, createRequestParameter);
                     if (match is null)
                     {
@@ -1764,6 +2121,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             responseBodyType = null;
 
+            if (ServiceMethod.Operation.ResponseAsBool)
+            {
+                responseBodyType = typeof(bool);
+                var boolResultType = new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+                return isAsync ? new CSharpType(typeof(Task<>), boolResultType) : boolResultType;
+            }
+
             if (isConvenience)
             {
                 return GetConvenienceReturnType(responses, isAsync, out responseBodyType);
@@ -1792,14 +2156,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response?.BodyType is InputStreamingType streamingType)
+            var responseType = ServiceMethod is InputBasicServiceMethod ? ServiceMethod.Response.Type : response?.BodyType;
+            if (responseType is InputStreamingType streamingType)
             {
                 responseBodyType = GetConvenienceStreamingItemType(streamingType);
                 var resultType = AsyncStreamingResultSnippets.Of(responseBodyType);
                 return isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
             }
 
-            responseBodyType = GetResponseBodyType(response?.BodyType);
+            responseBodyType = GetResponseBodyType(responseType);
 
             if (_pagingServiceMethod != null)
             {
@@ -1839,6 +2204,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (streamingType.StreamKind != InputStreamingType.SseStreamKind)
             {
+                if (DiscriminatedUnionSerialization.RequiresEnvelope(streamingType.ValueType))
+                {
+                    return GetRawStreamingItemType(streamingType);
+                }
                 return CreateRequiredCSharpType(
                     streamingType.ValueType,
                     streamingType,
@@ -1919,7 +2288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return AsyncStreamingResultSnippets.CreateSse(response, rawArguments[1..]);
             }
 
-            if (!useConvenienceType)
+            if (!useConvenienceType || DiscriminatedUnionSerialization.RequiresEnvelope(streamingType.ValueType))
             {
                 return AsyncStreamingResultSnippets.CreateJsonLines(
                     response,
@@ -2000,6 +2369,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(responseType) && !UsesJsonUnionResponse())
+            {
+                return typeof(BinaryData);
+            }
+
             if (_pagingServiceMethod != null)
             {
                 var modelType = responseType as InputModelType;
@@ -2041,6 +2415,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(responseType);
         }
+
+        private bool UsesJsonUnionResponse() => ServiceMethod.Operation.Responses
+            .Where(response => !response.IsErrorResponse && response.BodyType is not null)
+            .SelectMany(response => response.ContentTypes)
+            .All(DiscriminatedUnionSerialization.IsJsonMediaType);
 
         private static CSharpType CreateRequiredCSharpType(
             InputType inputType,

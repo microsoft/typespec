@@ -8,7 +8,9 @@ import { extractCursor, extractCursors } from "./source-utils.js";
 import { createTestHost } from "./test-host.js";
 import { trimBlankLines } from "./test-utils.js";
 
+/** Expected-source assertion for a fix constructed from a parsed AST, without type checking. */
 export interface CodeFixExpect {
+  /** Apply the fix to the cursor-free source and compare its output using {@link trimBlankLines}. */
   toChangeTo(code: string): Promise<void>;
 }
 

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 
 public class FluentProject extends Project {
@@ -153,8 +154,8 @@ public class FluentProject extends Project {
         if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
             Path srcTestJavaPath = Paths.get(outputFolder).resolve(Paths.get("src", "test", "java"));
             if (Files.isDirectory(srcTestJavaPath)) {
-                try {
-                    Files.walk(srcTestJavaPath).forEach(path -> {
+                try (Stream<Path> paths = Files.walk(srcTestJavaPath)) {
+                    paths.forEach(path -> {
                         if (!Files.isDirectory(path)
                             && Files.isReadable(path)
                             && (path.getFileName().toString().endsWith("Tests.java")
@@ -182,9 +183,9 @@ public class FluentProject extends Project {
         Path versionClientPath = sdkPath.resolve(Paths.get("eng", "versioning", "version_client.txt"));
         if (Files.isReadable(versionClientPath)) {
             try (BufferedReader reader = Files.newBufferedReader(versionClientPath, StandardCharsets.UTF_8)) {
+                String artifact = getVersionUpdateTag(this.groupId, this.artifactId);
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String artifact = getVersionUpdateTag(this.groupId, this.artifactId);
                     Optional<String> versionOpt = checkArtifact(line, artifact, true);
                     if (versionOpt.isPresent()) {
                         return versionOpt;

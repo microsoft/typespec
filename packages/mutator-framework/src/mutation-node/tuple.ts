@@ -2,15 +2,23 @@ import type { Tuple, Type } from "@typespec/compiler";
 import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 
+/** Connection-key configuration shape; current node connection methods do not consume it. */
 export interface TupleConnectOptions {
-  /** Mutation keys for element nodes, keyed by index. Defaults to this node's key for all. */
+  /** Keys designated by element index; callers must select those nodes explicitly. */
   elements?: string[];
 }
 
+/** Updates connected tuple elements, tracking their positions as elements are removed. */
 export class TupleMutationNode extends MutationNode<Tuple> {
+  /** Selects tuple-specific positional connections. */
   readonly kind = "Tuple";
   #indexMap: number[] = [];
 
+  /**
+   * Starts a reference for a zero-based element position.
+   * Mutation or replacement updates the element; deletion splices it out and
+   * shifts tracked later positions. Establish connections before deleting elements.
+   */
   startElementEdge(index: number) {
     this.#indexMap[index] = index;
     return new HalfEdge<Tuple, Type>(this, {
@@ -36,6 +44,7 @@ export class TupleMutationNode extends MutationNode<Tuple> {
     });
   }
 
+  /** Completes {@link startElementEdge} for the chosen node and original element index. */
   connectElement(elemNode: MutationNode<Type>, index: number) {
     this.startElementEdge(index).setTail(elemNode);
   }

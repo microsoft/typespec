@@ -12,17 +12,28 @@ import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { getDoc } from "../utils/doc.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
+/** Alloy interface options augmented with a TypeSpec source for its members and defaults. */
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
+  /** Model supplies properties; interface supplies operation signatures. Never properties are omitted. */
   type: Model | Interface;
+  /** Source name override, still passed through the TypeScript interface naming policy. */
   name?: string;
 }
 
+/** Selects TypeSpec-derived interface contents or an ordinary Alloy interface declaration. */
 export type InterfaceDeclarationProps =
   TypedInterfaceDeclarationProps | ts.InterfaceDeclarationProps;
 
+/**
+ * Declares a TypeScript interface from a model or TypeSpec interface, appending `children`
+ * after its generated members. Explicit documentation and extends clauses override defaults.
+ * Record additional properties are represented by an optional `additionalProperties` member.
+ * Requires a TypeSpec context, including when delegating to Alloy without `type`.
+ */
 export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   const { $ } = useTsp();
 
@@ -43,7 +54,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
-  const doc = props.doc ?? $.type.getDoc(props.type);
+  const doc = props.doc ?? getDoc($, props.type);
 
   return (
     <ts.InterfaceDeclaration
@@ -66,10 +77,13 @@ function isTypedInterfaceDeclarationProps(
   return "type" in props;
 }
 
+/** Inline interface-body options whose members are derived from a TypeSpec source. */
 export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
+  /** Model properties or interface operations to render before any supplied children. */
   type: Model | Interface;
 }
 
+/** Renders a structural interface expression with generated members and additional children, without declaring a name. */
 export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
     <ts.InterfaceExpression>

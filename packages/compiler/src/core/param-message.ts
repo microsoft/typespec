@@ -1,5 +1,14 @@
 import type { CallableMessage } from "./types.js";
 
+/**
+ * Build a typed diagnostic-message formatter using a tagged template whose substitutions name parameters.
+ * The returned callable substitutes values from a dictionary and exposes the parameter names in `keys`.
+ * @example
+ * ```ts
+ * const message = paramMessage`Unknown type ${"name"}.`;
+ * message({ name: "Widget" }); // "Unknown type Widget."
+ * ```
+ */
 export function paramMessage<const T extends string[]>(
   strings: readonly string[],
   ...keys: T

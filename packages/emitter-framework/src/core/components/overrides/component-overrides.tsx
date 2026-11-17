@@ -14,6 +14,7 @@ import { useTsp } from "../../context/index.js";
 import { type Experimental_ComponentOverridesConfig, getOverrideComponent } from "./config.js";
 import { type ComponentOverridesContext, OverridesContext, useOverrides } from "./context.js";
 
+/** Inputs shared by replacement renderers, including the framework's unmodified output. */
 export interface Experimental_OverrideEmitPropsBase<TCustomType extends Type> {
   /**
    * The TypeSpec type to render.
@@ -26,6 +27,10 @@ export interface Experimental_OverrideEmitPropsBase<TCustomType extends Type> {
   default: Children;
 }
 
+/**
+ * Maps TypeSpec shapes to the corresponding TypeScript declaration props.
+ * This mapping is TypeScript-specific; use an explicit declaration props type for other languages.
+ */
 export type Experimental_CustomTypeToProps<TCustomType extends Type> =
   TCustomType extends ModelProperty
     ? ObjectPropertyProps
@@ -37,6 +42,7 @@ export type Experimental_CustomTypeToProps<TCustomType extends Type> =
           ? VarDeclarationProps
           : VarDeclarationProps | ObjectPropertyProps;
 
+/** Inputs to a reference override, including the property that uses the referenced type when available. */
 export interface Experimental_OverrideReferenceProps<
   TCustomType extends Type,
 > extends Experimental_OverrideEmitPropsBase<TCustomType> {
@@ -58,6 +64,7 @@ export interface Experimental_OverrideReferenceProps<
  */
 export type Experimental_DefaultDeclarationProps = Record<string, any>;
 
+/** Inputs to a declaration override, allowing reuse or modification of the original declaration component. */
 export interface Experimental_OverrideDeclareProps<
   TCustomType extends Type,
   TDeclarationProps = Experimental_DefaultDeclarationProps,
@@ -71,15 +78,18 @@ export interface Experimental_OverrideDeclareProps<
   declarationProps: TDeclarationProps;
 }
 
+/** Replacement component used when a registered type is declared rather than referenced. */
 export type Experimental_OverrideDeclarationComponent<
   TCustomType extends Type,
   TDeclarationProps = Experimental_DefaultDeclarationProps,
 > = ComponentDefinition<Experimental_OverrideDeclareProps<TCustomType, TDeclarationProps>>;
 
+/** Replacement component used when another declaration refers to a registered type. */
 export type Experimental_OverrideReferenceComponent<TCustomType extends Type> = ComponentDefinition<
   Experimental_OverrideReferenceProps<TCustomType>
 >;
 
+/** Independently optional declaration and reference replacements for one type or kind. */
 export interface Experimental_ComponentOverridesConfigBase<
   TCustomType extends Type,
   TDeclarationProps = Experimental_DefaultDeclarationProps,
@@ -97,10 +107,14 @@ export interface Experimental_ComponentOverridesConfigBase<
   declaration?: Experimental_OverrideDeclarationComponent<TCustomType, TDeclarationProps>;
 }
 
+/** Registry and render subtree to which the experimental overrides apply. */
 export interface Experimental_ComponentOverridesProps {
+  /** Registry used by overridable components in this subtree. A nested provider replaces it. */
   overrides: Experimental_ComponentOverridesConfig;
+  /** Components rendered with this registry in scope. */
   children?: Children;
 }
+/** Provides an override registry to descendant {@link Experimental_OverridableComponent} instances. */
 export function Experimental_ComponentOverrides(props: Experimental_ComponentOverridesProps) {
   const context: ComponentOverridesContext = {
     overrides: props.overrides,
@@ -109,6 +123,7 @@ export function Experimental_ComponentOverrides(props: Experimental_ComponentOve
   return <OverridesContext.Provider value={context}>{props.children}</OverridesContext.Provider>;
 }
 
+/** Type and default output supplied by a component that opts into override resolution. */
 export interface Experimental_OverrideTypeComponentCommonProps<T extends Type> {
   /**
    * The TypeSpec type to render.
@@ -121,6 +136,7 @@ export interface Experimental_OverrideTypeComponentCommonProps<T extends Type> {
   children: Children;
 }
 
+/** Selects reference rendering and supplies optional use-site metadata to its override. */
 export interface Experimental_OverridableComponentReferenceProps<
   T extends Type,
 > extends Experimental_OverrideTypeComponentCommonProps<T> {
@@ -136,6 +152,7 @@ export interface Experimental_OverridableComponentReferenceProps<
   member?: ModelProperty;
 }
 
+/** Selects declaration rendering and exposes the original component and props to its override. */
 export interface Experimental_OverridableComponentDeclarationProps<
   T extends Type,
   TDeclarationProps,
@@ -156,10 +173,17 @@ export interface Experimental_OverridableComponentDeclarationProps<
   declarationProps: TDeclarationProps;
 }
 
+/** Discriminates between declaration and reference override requests. */
 export type Experimental_OverridableComponentProps<T extends Type, TDeclarationProps = unknown> =
   | Experimental_OverridableComponentReferenceProps<T>
   | Experimental_OverridableComponentDeclarationProps<T, TDeclarationProps>;
 
+/**
+ * Renders the registered override for the requested role, or `children` if none exists.
+ * The replacement receives the default children and, for declarations, the original
+ * component and props so it can compose rather than discard the default rendering.
+ * Requires a TypeSpec context; an override provider is optional.
+ */
 export function Experimental_OverridableComponent<T extends Type, TDeclarationProps = unknown>(
   props: Experimental_OverridableComponentProps<T, TDeclarationProps>,
 ) {

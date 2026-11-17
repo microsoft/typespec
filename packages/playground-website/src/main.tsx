@@ -1,6 +1,5 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { MANIFEST } from "@typespec/compiler";
-import { registerMonacoDefaultWorkersForVite } from "@typespec/playground";
 import PlaygroundManifest from "@typespec/playground/manifest";
 import {
   Footer,
@@ -10,6 +9,7 @@ import {
 } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import "@typespec/playground/styles.css";
+import { registerMonacoDefaultWorkersForVite } from "@typespec/playground/vite/workers";
 import { createRoot } from "react-dom/client";
 import samples from "../samples/dist/samples.js";
 import { useImportCommandBarItem } from "./import.js";

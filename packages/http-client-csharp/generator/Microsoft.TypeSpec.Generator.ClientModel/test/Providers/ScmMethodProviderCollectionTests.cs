@@ -32,6 +32,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HeadResponseAsBoolReturnsTypedResults(bool responseAsBool)
+        {
+            var operation = InputFactory.Operation("Exists", httpMethod: "HEAD");
+            operation.Update(responseAsBool: responseAsBool);
+            var serviceMethod = InputFactory.BasicServiceMethod("Exists", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                var isAsync = method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async);
+                CSharpType resultType = responseAsBool ? typeof(ClientResult<bool>) : typeof(ClientResult);
+                var expectedType = isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
+                Assert.AreEqual(expectedType, method.Signature.ReturnType);
+            }
+        }
+
         [Test]
         public void ExperimentalApiHelpersAreSharedInternally()
         {
@@ -1706,6 +1728,109 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void NextLinkPagingOmitsOnlyContinuationToken(
+            [Values] bool supportsPageResumption,
+            [Values] bool hasNextLink,
+            [Values] bool isHeader,
+            [Values] bool isContinuationToken,
+            [Values] bool emptyTokenSegments)
+        {
+            InputParameter token = isHeader
+                ? InputFactory.HeaderParameter("token", InputPrimitiveType.String)
+                : InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String,
+                location: isHeader ? InputRequestLocation.Header : InputRequestLocation.Query);
+            token.Update(isContinuationToken: isContinuationToken,
+                methodParameterSegments: emptyTokenSegments ? [] : [methodToken]);
+            if (emptyTokenSegments)
+            {
+                methodToken.Update(isContinuationToken: isContinuationToken);
+            }
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url),
+                InputFactory.Property("nextToken", InputPrimitiveType.String)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters:
+            [
+                methodToken,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, location: InputRequestLocation.Query)
+            ], pagingMetadata: new InputPagingServiceMetadata(
+                ["items"],
+                hasNextLink ? new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null) : null,
+                hasNextLink ? null : new InputContinuationToken(token, ["nextToken"], InputResponseLocation.Body)));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient],
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+            var omitToken = supportsPageResumption && hasNextLink && isContinuationToken;
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(omitToken.ToString()), writer.ToString(false));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        [TestCase(true, false, true)]
+        public async Task NextLinkPagingPreservesContinuationTokenOptionsBag(
+            bool supportsPageResumption, bool standaloneToken = false, bool customizeMethods = false)
+        {
+            var optionsModel = InputFactory.Model("GetItemsOptions", properties:
+            [
+                InputFactory.Property("token", InputPrimitiveType.String, isHttpMetadata: true),
+                InputFactory.Property("filter", InputPrimitiveType.String, isHttpMetadata: true)
+            ]);
+            var options = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
+            token.Update(isContinuationToken: true, methodParameterSegments: standaloneToken
+                ? [methodToken]
+                : [options, methodToken]);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.String);
+            filter.Update(methodParameterSegments:
+            [
+                options, InputFactory.MethodParameter("filter", InputPrimitiveType.String)
+            ]);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems", parameters: [token, filter],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation, parameters: standaloneToken ? [options, methodToken] : [options],
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [optionsModel, item, page], clients: () => [inputClient],
+                compilation: customizeMethods ? () => Helpers.GetCompilationFromDirectoryAsync("CustomMethods") : null,
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(method, client);
+
+            using var writer = new CodeWriter();
+            foreach (var generated in methods)
+            {
+                writer.WriteMethod(generated);
+            }
+            var baseline = customizeMethods ? "CustomMethods" : standaloneToken ? supportsPageResumption.ToString() : null;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), writer.ToString(false));
+        }
+
+        [Test]
         public void ListMethodWithInheritedPageItems()
         {
             var pagingMetadata = InputFactory.PagingMetadata(
@@ -2528,6 +2653,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [TestCase(InputPrimitiveTypeKind.Int16)]
+        [TestCase(InputPrimitiveTypeKind.UInt16)]
+        [TestCase(InputPrimitiveTypeKind.UInt32)]
+        [TestCase(InputPrimitiveTypeKind.UInt64)]
+        public void NestedIntegerCollectionRequestsUseBinaryContentHelpers(InputPrimitiveTypeKind kind)
+        {
+            MockHelpers.LoadMockGenerator();
+            using var writer = new CodeWriter();
+            foreach (var isDictionary in new[] { false, true })
+            {
+                var elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
+                var arrayType = InputFactory.Array(elementType);
+                var bodyType = isDictionary ? (InputType)InputFactory.Dictionary(arrayType) : InputFactory.Array(arrayType);
+                var name = isDictionary ? "SendRecord" : "SendNested";
+                var operation = InputFactory.Operation(name, parameters: [InputFactory.BodyParameter("body", bodyType, isRequired: true)]);
+                var serviceMethod = InputFactory.BasicServiceMethod(name, operation,
+                    parameters: [InputFactory.MethodParameter("body", bodyType, location: InputRequestLocation.Body, isRequired: true)]);
+                var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+                var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+                var methods = new ScmMethodProviderCollection(serviceMethod, client);
+                foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+                {
+                    writer.WriteMethod(method);
+                }
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), writer.ToString(false));
+        }
+
+        [TestCase(InputPrimitiveTypeKind.Int16)]
+        [TestCase(InputPrimitiveTypeKind.UInt16)]
+        [TestCase(InputPrimitiveTypeKind.UInt32)]
+        [TestCase(InputPrimitiveTypeKind.UInt64)]
+        public void IntegerCollectionResponsesUseUtf8JsonReader(InputPrimitiveTypeKind kind)
+        {
+            MockHelpers.LoadMockGenerator();
+            using var writer = new CodeWriter();
+            foreach (var isDictionary in new[] { false, true })
+            {
+                foreach (var isNullable in new[] { false, true })
+                {
+                    InputType elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
+                    if (isNullable)
+                    {
+                        elementType = new InputNullableType(elementType);
+                    }
+                    var responseType = isDictionary ? (InputType)InputFactory.Dictionary(elementType) : InputFactory.Array(elementType);
+                    var name = $"Get{(isNullable ? "Nullable" : "")}{(isDictionary ? "Dictionary" : "List")}";
+                    var operation = InputFactory.Operation(name, responses: [InputFactory.OperationResponse([200], responseType)]);
+                    var serviceMethod = InputFactory.BasicServiceMethod(name, operation);
+                    var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+                    var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+                    var methods = new ScmMethodProviderCollection(serviceMethod, client);
+                    foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+                    {
+                        writer.WriteMethod(method);
+                    }
+                }
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), writer.ToString(false));
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(int), true)]
         [TestCase(typeof(int?))]
@@ -2900,6 +3088,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ResponseReplacementUsesMethodResponse(bool isAsync, bool useBytes)
+        {
+            var model = InputFactory.Model("Widget", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+            ]);
+            var response = InputFactory.OperationResponse([200], model, contentTypes: ["application/json"]);
+            var operation = InputFactory.Operation("GetWidget", responses: [response]);
+            var methodResponse = useBytes ? InputPrimitiveType.Base64 : null;
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget", operation, response: InputFactory.ServiceMethodResponse(methodResponse, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            var methodName = isAsync ? "GetWidgetAsync" : "GetWidget";
+            var convenience = methods.Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == methodName);
+            var protocol = methods.Single(m => m.Kind == ScmMethodKind.Protocol && m.Signature.Name == methodName);
+            CSharpType expectedType = useBytes ? typeof(ClientResult<BinaryData>) : typeof(ClientResult);
+            if (isAsync)
+            {
+                expectedType = new CSharpType(typeof(Task<>), expectedType);
+            }
+
+            Assert.AreEqual(expectedType, convenience.Signature.ReturnType);
+            Assert.AreEqual(new CSharpType(isAsync ? typeof(Task<ClientResult>) : typeof(ClientResult)), protocol.Signature.ReturnType);
+            Assert.AreSame(model, response.BodyType);
+            CollectionAssert.AreEqual(new[] { 200 }, response.StatusCodes);
+            CollectionAssert.AreEqual(new[] { "application/json" }, response.ContentTypes);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenience);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isAsync},{useBytes}"), writer.ToString(false));
         }
 
         [Test]

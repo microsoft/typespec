@@ -149,6 +149,11 @@ export class ModelPropertyHttpCanonicalization
     });
   }
 
+  /**
+   * Selects the property's codec using reference metadata and returns its
+   * option-based cache key. The property's value type is canonicalized separately.
+   * Propagates codec-selection failures from the registry.
+   */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: ModelProperty,
@@ -166,6 +171,11 @@ export class ModelPropertyHttpCanonicalization
     };
   }
 
+  /**
+   * Reads visibility and HTTP role metadata and initializes both projection nodes.
+   * Use the engine's `canonicalize` method to also remove hidden or wire-metadata
+   * properties and apply value-type and property-name transformations.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: ModelProperty,

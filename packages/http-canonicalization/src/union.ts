@@ -31,32 +31,48 @@ import { ModelHttpCanonicalization } from "./model.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 import type { UnionVariantHttpCanonicalization } from "./union-variant.jsx";
 
+/** Discriminated-union variant and its optional synthesized envelope representation. */
 export interface VariantDescriptor {
+  /** Canonical variant containing the payload's source, language, and wire types. */
   variant: UnionVariantHttpCanonicalization;
+  /** Synthesized wrapper model, or `null` when the union has no envelope. */
   envelopeType: ModelHttpCanonicalization | null;
+  /** Discriminator value; populated from the variant name for discriminated unions. */
   discriminatorValue?: string | number | boolean | null;
 }
 
+/** Description of a runtime guard to emit, not a function that evaluates a value. */
 export type VariantTest = ConstVariantTest | PropertyExistenceTest | TypeVariantTest;
 
+/** Locates the value inspected by a runtime variant guard. */
 export interface VariantTestBase {
+  /** Guard operation; concrete test types provide the supported literal discriminants. */
   kind: string;
-  // the path of the type to test. An empty path means the type itself.
+  /** Property-name path from the candidate value; an empty path tests the value itself. */
   path: string[];
 }
 
+/** A guard comparing the value at `path` with a primitive literal or `null`. */
 export interface ConstVariantTest extends VariantTestBase {
+  /** Selects literal equality rather than a category or property-presence check. */
   kind: "literal";
+  /** Expected literal value, including `null` as a distinct value. */
   value: string | number | boolean | null;
 }
 
+/** A guard checking for a named property on the value reached by `path`. */
 export interface PropertyExistenceTest extends VariantTestBase {
+  /** Selects a property-presence check rather than comparing its value. */
   kind: "propertyExistence";
+  /** Name whose presence is checked on the object at `path`. */
   propertyName: string;
 }
 
+/** A guard checking the coarse runtime category of the value at `path`. */
 export interface TypeVariantTest extends VariantTestBase {
+  /** Selects a runtime-category check, not a TypeSpec type-identity comparison. */
   kind: "type";
+  /** Expected category; arrays and objects are distinct categories. */
   type: "object" | "array" | "string" | "number" | "boolean";
 }
 
@@ -80,6 +96,8 @@ interface VariantTestDefinition {
 
 /**
  * Canonicalizes union types, tracking discriminators and runtime variant tests.
+ * Unions without discriminators get ordered test plans for each projection; construction
+ * through the engine throws if visible variants cannot be distinguished.
  */
 export class UnionHttpCanonicalization
   extends UnionMutation<
@@ -112,17 +130,23 @@ export class UnionHttpCanonicalization
    */
   variantDescriptors: VariantDescriptor[] = [];
   /**
-   * Runtime tests used to select a variant for language types.
+   * Ordered guards for language values in unions without discriminators; stop at the
+   * first matching entry. Empty for discriminated unions or no visible variants.
    */
   languageVariantTests: {
+    /** Guards that must all pass; an empty list is an unconditional fallback. */
     tests: VariantTest[];
+    /** Variant selected when this entry matches after earlier entries have failed. */
     variant: UnionVariantHttpCanonicalization;
   }[] = [];
   /**
-   * Runtime tests used to select a variant for wire types.
+   * Ordered guards for wire values, computed independently from language guards.
+   * Stop at the first match; empty for discriminated unions or no visible variants.
    */
   wireVariantTests: {
+    /** Guards that must all pass; an empty list is an unconditional fallback. */
     tests: VariantTest[];
+    /** Variant selected when this entry matches after earlier entries have failed. */
     variant: UnionVariantHttpCanonicalization;
   }[] = [];
   /**
@@ -185,6 +209,7 @@ export class UnionHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /** Supplies an option-based cache key and synthetic trait; unions do not directly select a codec. */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: Union,
@@ -200,6 +225,10 @@ export class UnionHttpCanonicalization
     };
   }
 
+  /**
+   * Initializes projection nodes and reads discriminator/envelope settings.
+   * Use the engine's `canonicalize` method to also populate variants and test plans.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: Union,

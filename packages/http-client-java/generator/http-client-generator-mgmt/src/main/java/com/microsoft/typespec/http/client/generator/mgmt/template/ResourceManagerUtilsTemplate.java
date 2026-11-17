@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,19 +31,8 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
 
     private static final List<MethodTemplate> METHOD_TEMPLATES = new ArrayList<>();
     static {
-        MethodTemplate getValueFromIdByNameMethod = MethodTemplate.builder()
-            .imports(List.of(Arrays.class.getName(), Iterator.class.getName()))
-            .visibility(JavaVisibility.PackagePrivate)
-            .modifiers(List.of(JavaModifier.Static))
-            .methodSignature("String getValueFromIdByName(String id, String name)")
-            .method(
-                block -> block.line(FluentUtils.loadTextFromResource("ResourceManagerUtils_getValueFromIdByName.txt")))
-            .build();
-        METHOD_TEMPLATES.add(getValueFromIdByNameMethod);
-
         MethodTemplate getValueFromIdByParameterNameMethod = MethodTemplate.builder()
-            .imports(List.of(Arrays.class.getName(), Iterator.class.getName(), List.class.getName(),
-                ArrayList.class.getName(), ClassType.CORE_UTILS.getFullName(), Collections.class.getName()))
+            .imports(List.of(Arrays.class.getName()))
             .visibility(JavaVisibility.PackagePrivate)
             .modifiers(List.of(JavaModifier.Static))
             .methodSignature(

@@ -78,6 +78,9 @@ export interface EnumKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create enum types from members or compatible union variants.
+   */
   enum: EnumKit;
 }
 

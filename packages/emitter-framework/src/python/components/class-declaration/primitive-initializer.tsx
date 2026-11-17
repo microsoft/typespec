@@ -4,6 +4,7 @@ import type { Type, Value } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { Atom } from "../atom/atom.js";
 
+/** Default value and target field type used to preserve Python integer versus floating-point literals. */
 export interface PrimitiveInitializerProps {
   /**
    * The default value to convert to a Python initializer expression.

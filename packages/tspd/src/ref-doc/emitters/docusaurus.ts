@@ -12,7 +12,10 @@ import { codeblock, inlinecode, renderMarkdowDoc, section } from "../utils/markd
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
 /**
- * Render doc to a markdown using docusaurus addons.
+ * Builds a filename-to-content map for Docusaurus without writing files.
+ * Always includes `index.mdx`; adds declaration, emitter, and linter pages when their
+ * corresponding render helpers produce content. Rule links expect separately supplied
+ * pages under `../rules`; this function does not generate rule or diagnostic pages.
  */
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
   const renderer = new DocusaurusRenderer(refDoc);
@@ -88,10 +91,13 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
   return renderMarkdowDoc(content, 2);
 }
 
+/** Front matter customization for a standalone decorator page. */
 export type DecoratorRenderOptions = {
+  /** Page title; defaults to `"Decorators"`. */
   title?: string;
 };
 
+/** Renders a decorator page with Docusaurus front matter, or undefined when there are no decorators. */
 export function renderDecoratorFile(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDocBase,
@@ -149,10 +155,16 @@ function renderInterfacesFile(
   return renderMarkdowDoc(content, 2);
 }
 
+/** Front matter customization for the combined data-type page. */
 export type DataTypeRenderOptions = {
+  /** Page title; defaults to `"Data types"`. */
   title?: string;
 };
 
+/**
+ * Renders models, enums, unions, and scalars grouped by namespace.
+ * Returns undefined unless at least one namespace contains a model, even if other data types exist.
+ */
 export function renderDataTypes(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDoc,
@@ -237,16 +249,20 @@ function renderLinter(
   return renderMarkdowDoc(content, 2);
 }
 
+/** Markdown renderer with Docusaurus explicit anchors, install tabs, and warning admonitions. */
 export class DocusaurusRenderer extends MarkdownRenderer {
+  /** Adds an explicit `{#id}` anchor after the inline-code display name. */
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
   }
+  /** Uses the qualified reference ID verbatim, matching the explicit heading anchor. */
   anchorId(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return item.id;
   }
 
+  /** Builds spec/library npm-install tabs; the containing page must import Docusaurus tab components. */
   install(refDoc: TypeSpecLibraryRefDoc): MarkdownSection {
     return section(
       "Install",
@@ -265,6 +281,10 @@ export class DocusaurusRenderer extends MarkdownRenderer {
     );
   }
 
+  /**
+   * Routes decorators, operations/interfaces, and models/enums/unions to their shared Markdown pages.
+   * Other entity kinds, including scalars, retain a same-page link with an empty file component.
+   */
   filename(type: RefDocEntity): string {
     switch (type.kind) {
       case "decorator":
@@ -281,10 +301,12 @@ export class DocusaurusRenderer extends MarkdownRenderer {
     }
   }
 
+  /** Targets a separately maintained `../rules/<unqualified-rule-name>.md` page. */
   linterRuleLink(rule: LinterRuleRefDoc) {
     return `../rules/${rule.rule.name}.md`;
   }
 
+  /** Formats the message as a Docusaurus warning admonition. */
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
     return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
   }

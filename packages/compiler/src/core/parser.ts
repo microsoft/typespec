@@ -324,11 +324,16 @@ const enum ParseMode {
   Doc,
 }
 
+/**
+ * Parse TypeSpec source without binding or type checking it.
+ * Syntax errors are retained on the returned script as parse diagnostics and recovery nodes.
+ */
 export function parse(code: string | SourceFile, options: ParseOptions = {}): TypeSpecScriptNode {
   const parser = createParser(code, options);
   return parser.parseTypeSpecScript();
 }
 
+/** Parse a type reference outside a script, returning the reference node and syntax diagnostics. */
 export function parseStandaloneTypeReference(
   code: string | SourceFile,
 ): [TypeReferenceNode, readonly Diagnostic[]] {
@@ -3246,8 +3251,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 }
 
+/** Callback used to inspect a syntax node and optionally return a traversal result. */
 export type NodeCallback<T> = (c: Node) => T;
 
+/** Check for an unqualified identifier reference with no template arguments. */
 export function exprIsBareIdentifier(
   expr: Expression,
 ): expr is TypeReferenceNode & { target: IdentifierNode; arguments: [] } {
@@ -3258,6 +3265,10 @@ export function exprIsBareIdentifier(
   );
 }
 
+/**
+ * Visit a node's immediate syntactic children, including attached directives and documentation.
+ * Stops at the first truthy callback result and returns it; recurse explicitly to visit descendants.
+ */
 export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined {
   if (node.directives) {
     const result = visitEach(cb, node.directives);
@@ -3542,6 +3553,10 @@ export function positionInRange(position: number, range: TextRange) {
   return range.pos >= 0 && position > range.pos && (range.end === -1 || position < range.end);
 }
 
+/**
+ * Find the innermost matching node and describe adjacent characters and trivia at a source offset.
+ * The filter distinguishes the current lookup from lookups before or after surrounding trivia.
+ */
 export function getNodeAtPositionDetail(
   script: TypeSpecScriptNode,
   position: number,
@@ -3650,6 +3665,7 @@ export function getNodeAtPosition(
   }
 }
 
+/** Test whether a node or any descendant has a parse error, caching descendant-error flags on the nodes. */
 export function hasParseError(node: Node) {
   if (node.flags & NodeFlags.ThisNodeHasError) {
     return true;
@@ -3682,6 +3698,7 @@ function checkForDescendantErrors(node: Node) {
   });
 }
 
+/** Narrow a syntax node to an import statement by its syntax kind. */
 export function isImportStatement(node: Node): node is ImportStatementNode {
   return node.kind === SyntaxKind.ImportStatement;
 }
@@ -3697,6 +3714,7 @@ function isBlocklessNamespace(node: Node) {
   return node.statements === undefined;
 }
 
+/** Find the nearest ancestor satisfying a predicate, optionally testing the node itself first. */
 export function getFirstAncestor(
   node: Node,
   test: NodeCallback<boolean>,
@@ -3713,6 +3731,7 @@ export function getFirstAncestor(
   return undefined;
 }
 
+/** Classify a parent-linked identifier's syntactic role, treating member-expression chains as one context. */
 export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
   const node = getFirstAncestor(id, (n) => n.kind !== SyntaxKind.MemberExpression);
   compilerAssert(node, "Identifier with no non-member-expression ancestor.");
