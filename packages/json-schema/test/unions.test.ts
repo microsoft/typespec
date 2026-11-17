@@ -130,6 +130,41 @@ describe("emitting unions", () => {
     });
   });
 
+  it("does not combine variants with type extensions", async () => {
+    const schemas = await emitSchema(`
+      union Value {
+        @extension("type", "string")
+        text: string;
+        boolean;
+        null;
+      }
+    `);
+
+    expect(schemas["Value.json"].anyOf).toEqual([
+      { type: "string" },
+      { type: ["boolean", "null"] },
+    ]);
+  });
+
+  it("preserves pending recursive references on variants with extensions", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema model Node { value: Value; }
+      union Value {
+        @extension("type", "object")
+        node: Node;
+        nothing: null;
+      }
+      `,
+      {},
+      { emitNamespace: false },
+    );
+
+    expect(schemas["Node.json"].$defs.Value).toEqual({
+      anyOf: [{ type: "object", $ref: "Node.json" }, { type: "null" }],
+    });
+  });
+
   it("preserves references to named and recursive unions", async () => {
     const schemas = await emitSchema(`
       union Value { string, null, Value[] }

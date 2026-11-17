@@ -34,7 +34,7 @@ Unconstrained union variants are combined into a JSON Schema `type` array. For e
 { "type": ["string", "null"] }
 ```
 
-In mixed unions, unconstrained types are combined into one `anyOf` branch. Variants with constraints, annotations, or references remain separate so their validation behavior and metadata are preserved. Unions marked with `@oneOf`, including inline unions on properties marked with `@oneOf`, keep their separate branches.
+In mixed unions, unconstrained types are combined into one `anyOf` branch. Variants with constraints, annotations, references, or `@extension` decorators remain separate so their validation behavior and metadata are preserved. Unions marked with `@oneOf`, including inline unions on properties marked with `@oneOf`, keep their separate branches.
 
 ## Bundling behavior
 

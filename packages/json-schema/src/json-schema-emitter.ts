@@ -450,9 +450,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const variants = new ArrayBuilder();
     const types = new Set<string>();
     const combined = new ObjectBuilder();
-    for (const schema of schemas) {
+    const unionVariants = [...union.variants.values()];
+    for (const [index, schema] of schemas.entries()) {
       const schemaTypes: unknown[] = Array.isArray(schema.type) ? schema.type : [schema.type];
       if (
+        getExtensions(this.emitter.getProgram(), unionVariants[index]).length === 0 &&
         Object.keys(schema).length === 1 &&
         schemaTypes.every((type) => typeof type === "string")
       ) {
