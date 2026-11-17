@@ -4,6 +4,7 @@
 
 package payload.pageable.implementation;
 
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.ObjectSerializer;
 import com.azure.core.util.serializer.TypeReference;
 import com.azure.xml.XmlReader;
@@ -28,6 +29,7 @@ import reactor.core.publisher.Mono;
  */
 public final class XmlSerializer implements ObjectSerializer {
 
+    private static final ClientLogger LOGGER = new ClientLogger(XmlSerializer.class);
     private static final ConcurrentHashMap<Class<?>, Method> FROM_XML_CACHE = new ConcurrentHashMap<>();
 
     @Override
@@ -38,16 +40,16 @@ public final class XmlSerializer implements ObjectSerializer {
             try {
                 return c.getDeclaredMethod("fromXml", XmlReader.class);
             } catch (NoSuchMethodException e) {
-                throw new IllegalStateException(
-                    "Type " + c.getName() + " does not have a static fromXml(XmlReader) method.", e);
+                throw LOGGER.logExceptionAsError(new IllegalStateException(
+                    "Type " + c.getName() + " does not have a static fromXml(XmlReader) method.", e));
             }
         });
         try (XmlReader xmlReader = XmlReader.fromStream(stream)) {
             return (T) fromXml.invoke(null, xmlReader);
         } catch (XMLStreamException | IllegalAccessException e) {
-            throw new IllegalStateException(e);
+            throw LOGGER.logExceptionAsError(new IllegalStateException(e));
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException(e.getCause() == null ? e : e.getCause());
+            throw LOGGER.logExceptionAsError(new IllegalStateException(e.getCause() == null ? e : e.getCause()));
         }
     }
 
@@ -59,15 +61,16 @@ public final class XmlSerializer implements ObjectSerializer {
     @Override
     public void serialize(OutputStream stream, Object value) {
         if (!(value instanceof XmlSerializable<?>)) {
-            throw new IllegalArgumentException("Value must implement XmlSerializable to be serialized as XML, but was: "
-                + (value == null ? "null" : value.getClass().getName()));
+            throw LOGGER.logExceptionAsError(
+                new IllegalArgumentException("Value must implement XmlSerializable to be serialized as XML, but was: "
+                    + (value == null ? "null" : value.getClass().getName())));
         }
         try (XmlWriter xmlWriter = XmlWriter.toStream(stream)) {
             xmlWriter.writeStartDocument();
             xmlWriter.writeXml((XmlSerializable<?>) value);
             xmlWriter.flush();
         } catch (XMLStreamException e) {
-            throw new UncheckedIOException(new IOException(e));
+            throw LOGGER.logExceptionAsError(new UncheckedIOException(new IOException(e)));
         }
     }
 
