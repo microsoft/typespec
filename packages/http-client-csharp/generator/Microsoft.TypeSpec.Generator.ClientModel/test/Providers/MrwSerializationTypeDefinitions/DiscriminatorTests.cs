@@ -4,6 +4,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -170,6 +171,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var statements = persistableCreateCoreMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
             Assert.IsTrue(statements!.Statements.Last().ToDisplayString().Contains("DeserializePet"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task HistoricalUnknownNameUsedBySerialization(bool isPublic)
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                compilation: isPublic ? async () => await Helpers.GetCompilationFromDirectoryAsync("Public") : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = generator.TypeFactory.CreateModel(input)!;
+            var unknown = model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel);
+            var serialization = model.SerializationProviders.Single();
+            var unknownSerialization = unknown.SerializationProviders.Single();
+            var proxyAttribute = serialization.Attributes.Single(a => a.Type.Equals(typeof(PersistableModelProxyAttribute)));
+
+            Assert.AreEqual("UnknownActivity", unknown.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile().Trim(), proxyAttribute.ToDisplayString().Trim());
+            Assert.AreEqual("UnknownActivity", unknownSerialization.Name);
+            Assert.IsTrue(unknownSerialization.Methods.Any(m => m.Signature.Name == "DeserializeUnknownActivity"));
+            var deserialize = serialization.Methods.Single(m => m.Signature.Name == "DeserializePipelineActivity");
+            StringAssert.Contains("UnknownActivity", deserialize.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain("UnknownPipelineActivity", deserialize.BodyStatements.ToDisplayString());
+            var factoryMethod = generator.OutputLibrary.ModelFactory.Value.Methods.Single(m => m.Signature.Name == "PipelineActivity");
+            StringAssert.Contains("UnknownActivity", factoryMethod.BodyStatements!.ToDisplayString());
+            var context = generator.OutputLibrary.TypeProviders.OfType<ModelReaderWriterContextDefinition>().Single();
+            Assert.AreEqual(isPublic, context.Attributes.Any(a => a.ToDisplayString().Contains("UnknownActivity")));
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameDoesNotCollideWithClient()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                clients: () => [InputFactory.Client("UnknownActivity", clientNamespace: "Sample.Models", isExactName: true)],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
         }
 
         [Test]

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -446,6 +447,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : BuildNameWithoutCollisionCheck();
         }
 
+        internal INamedTypeSymbol? GetLastContractProxyType(string typeName, string typeNamespace)
+        {
+            var attributes = BuildLastContractView(typeName, typeNamespace)?.Attributes
+                .Where(attribute => attribute.Data?.AttributeClass?.ToDisplayString() ==
+                    "System.ClientModel.Primitives.PersistableModelProxyAttribute").ToArray();
+            if (attributes is null or { Length: 0 })
+            {
+                return null;
+            }
+
+            if (attributes.Length == 1 &&
+                attributes[0].Data!.ConstructorArguments is [{ Kind: TypedConstantKind.Type, Value: INamedTypeSymbol { TypeKind: not TypeKind.Error } proxyType }])
+            {
+                return proxyType;
+            }
+
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Skipping back-compat unknown discriminator model name for '{typeNamespace}.{typeName}'; expected exactly one PersistableModelProxyAttribute with a resolvable type argument.",
+                BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
+            return null;
+        }
+
         internal (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping) GetNameForCollisionCheck()
         {
             var name = BuildNameWithoutCollisionCheck();
@@ -508,6 +531,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
+            if (IsUnknownDiscriminatorModel &&
+                CodeModelGenerator.Instance.TypeFactory.GetOriginalUnknownModelName(_inputModel) is { } originalName &&
+                base.BuildCustomCodeView(originalName, typeNamespace) is { } legacyCustomCodeView)
+            {
+                return legacyCustomCodeView;
+            }
             var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
             return customCodeView ?? BuildModelSuffixFallbackView(
                 typeName,

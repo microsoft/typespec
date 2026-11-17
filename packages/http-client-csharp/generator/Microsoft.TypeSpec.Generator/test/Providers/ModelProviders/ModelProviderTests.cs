@@ -352,6 +352,143 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         [TestCase(false)]
         [TestCase(true)]
+        public async Task UnknownDiscriminatorNameRestored(bool unknownFirst)
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var unknownInput = input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel);
+            var unknown = unknownFirst ? factory.CreateModel(unknownInput) : null;
+            var model = factory.CreateModel(input)!;
+            unknown ??= factory.CreateModel(unknownInput)!;
+
+            Assert.AreEqual("PipelineActivity", model.Name);
+            Assert.AreEqual("UnknownActivity", unknown.Name);
+            Assert.AreEqual(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class, unknown.DeclarationModifiers);
+            Assert.AreSame(model, unknown.BaseModelProvider);
+            Assert.AreEqual("UnknownActivity.cs", Path.GetFileName(unknown.RelativeFilePath));
+            Assert.AreSame(unknown, factory.CSharpTypeMap[unknown.Type]);
+            Assert.AreEqual("UnknownActivity", unknown.Name);
+            emitter.WriteBufferedMessages();
+            var messages = Encoding.UTF8.GetString(emitterStream.ToArray());
+            StringAssert.Contains("Unknown Discriminator Model Name Preserved", messages);
+            Assert.AreEqual(1, messages.Split("Changed unknown discriminator model name").Length - 1);
+        }
+
+        [TestCase("LegacyInternal", "UnknownActivity", false)]
+        [TestCase("LegacyPublic", "UnknownActivity", true)]
+        [TestCase("Restored", "CustomizedActivity", true)]
+        [TestCase("Direct", "UnknownActivity", true)]
+        public async Task UnknownDiscriminatorNamePreservesCustomization(string customization, string expectedName, bool isPublic)
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [input],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(customization),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));
+            var unknown = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual(expectedName, unknown.Name);
+            Assert.IsNotNull(unknown.CustomCodeView);
+            Assert.AreEqual(isPublic, unknown.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        [Test]
+        public async Task UnknownDiscriminatorNameRestoredPerHierarchyLevel()
+        {
+            var root = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var child = InputFactory.Model("CopyActivitySource", baseModel: root, discriminatedKind: "copy", properties:
+                [InputFactory.Property("sourceKind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [child, root],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var childUnknown = factory.CreateModel(child.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            var rootUnknown = factory.CreateModel(root.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownCopySource", childUnknown.Name);
+            Assert.AreEqual("UnknownActivity", rootUnknown.Name);
+            Assert.AreEqual("CopyActivitySource", childUnknown.BaseModelProvider!.Name);
+            Assert.AreEqual("PipelineActivity", rootUnknown.BaseModelProvider!.Name);
+        }
+
+        [TestCase("Model", false)]
+        [TestCase("Model", true)]
+        [TestCase("Enum", false)]
+        [TestCase("Custom", false)]
+        [TestCase("MappedModel", false)]
+        [TestCase("UnrelatedMapping", false)]
+        public async Task UnknownDiscriminatorNameCollisionSkipped(string collision, bool reverseOrder)
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var other = InputFactory.Model(collision == "MappedModel" ? "OtherModel" : "UnknownActivity");
+            InputModelType[] models = collision is "Model" or "MappedModel"
+                ? (reverseOrder ? [other, input] : [input, other]) : [input];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                inputEnumTypes: collision == "Enum" ? [InputFactory.StringEnum("UnknownActivity", [("One", "one")])] : [],
+                compilation: collision is "Custom" or "MappedModel" or "UnrelatedMapping"
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(collision) : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));
+            var unknown = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", unknown.Name);
+            Assert.IsNull(unknown.CustomCodeView);
+        }
+
+        [TestCase("NoProxy", true, false, null)]
+        [TestCase("PipelineActivity", false, false, null)]
+        [TestCase("WrongNamespace", true, false, "different namespace")]
+        [TestCase("DuplicateProxy", true, false, "exactly one PersistableModelProxyAttribute")]
+        [TestCase("UnresolvedProxy", true, false, "resolvable type argument")]
+        [TestCase("PipelineActivity", true, true, "accepted removal")]
+        public async Task UnknownDiscriminatorNameGuards(string modelName, bool lastContract, bool acceptedRemoval, string? reason)
+        {
+            var input = InputFactory.Model(modelName, properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [input],
+                lastContractCompilation: lastContract
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(
+                        "LastContract", method: nameof(UnknownDiscriminatorNameRestored)) : null,
+                apiCompatBaseline: acceptedRemoval
+                    ? ApiCompatBaseline.Parse(["TypesMustExist : Type 'Sample.Models.UnknownActivity' does not exist in the implementation."])
+                    : null);
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+            var unknown = CodeModelGenerator.Instance.TypeFactory.CreateModel(
+                input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual($"Unknown{modelName}", unknown.Name);
+            emitter.WriteBufferedMessages();
+            var messages = Encoding.UTF8.GetString(emitterStream.ToArray());
+            if (reason is null)
+            {
+                Assert.IsEmpty(messages);
+            }
+            else
+            {
+                StringAssert.Contains(reason, messages);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public void TestBuildName_ModelSuffixReservesUnknownDiscriminatorName(bool reverseOrder)
         {
             var inputModel = InputFactory.Model("UnknownPetRequest", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);

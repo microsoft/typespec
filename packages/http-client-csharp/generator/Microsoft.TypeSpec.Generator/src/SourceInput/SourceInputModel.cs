@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -70,6 +73,22 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         internal bool HasTypeMapping(string ns, string name, string? declaringTypeName = null)
             => _nameMap.Value.TryGetValue(name, out var type) && IsContainingTypeMatch(type, ns, declaringTypeName);
+
+        internal bool IsCustomizationOf(TypeProvider provider, params string[] generatedNames)
+        {
+            var symbol = Customization?.Assembly.GetTypeByMetadataName(
+                provider is NamedTypeSymbolProvider named ? named.MetadataName : provider.Type.FullyQualifiedName);
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            return TryGetName(symbol, out var mappedName)
+                ? generatedNames.Contains(mappedName, StringComparer.Ordinal)
+                : symbol.DeclaringSyntaxReferences.Any(reference =>
+                    reference.GetSyntax() is TypeDeclarationSyntax declaration &&
+                    declaration.Modifiers.Any(SyntaxKind.PartialKeyword));
+        }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
