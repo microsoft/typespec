@@ -111,7 +111,7 @@ export function serializeValueAsJson(
     case "StringValue":
       return value.value;
     case "NumericValue":
-      return value.value.asNumber();
+      return value.value.asNumber() ?? value.value.asBigInt();
     case "EnumValue":
       return resolveEncodedEnumMemberValue(program, value.value, "application/json");
     case "ArrayValue":
